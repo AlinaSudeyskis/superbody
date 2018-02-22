@@ -38,8 +38,6 @@ class Welcome extends CI_Controller
 	 */
 	public function index()
 	{
-        //$client = new Client();
-
         // Добавление подписчика
         if ($this->input->post('bt_subscribe', true) and $this->input->post('cb_politics', true))
         {
