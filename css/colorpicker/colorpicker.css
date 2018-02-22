@@ -1,0 +1,224 @@
+.colorpicker {
+	width: 290px;
+	height: 170px;
+	overflow: hidden;
+	position: absolute;
+	display: none;
+    z-index: 999;
+    border: 3px solid #d4d9df;
+    background-color: #d4d9df;
+}
+
+.colorpicker input {
+	line-height: normal;
+	width: auto;
+}
+
+.colorpicker_color {
+	width: 150px;
+	height: 150px;
+	left: 9px;
+	top: 8px;
+	position: absolute;
+	background: #f00;
+	overflow: hidden;
+	cursor: crosshair;
+}
+.colorpicker_color div {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 150px;
+	height: 150px;
+	background: url("/img/colorpicker/overlay.png");
+}
+.colorpicker_color div div {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 11px;
+	height: 11px;
+	overflow: hidden;
+	background: url("/img/colorpicker/select.gif");
+	margin: -5px 0 0 -5px;
+}
+.colorpicker_hue {
+	position: absolute;
+	top: 8px;
+	left: 175px;
+	width: 17px;
+	height: 150px;
+	cursor: n-resize;
+    background: url("/img/colorpicker/select_hue.png");
+}
+.colorpicker_hue div {
+	position: absolute;
+	width: 35px;
+	height: 9px;
+	overflow: hidden;
+	background: url("/img/colorpicker/indic.gif") left top;
+	margin: -4px 0 0 0;
+	left: -9px;
+}
+.colorpicker_new_color {
+	position: absolute;
+	width: 70px;
+	height: 30px;
+	left: 208px;
+	top: 8px;
+	background: #00c0f0;
+}
+.colorpicker_current_color {
+	display: none;
+	position: absolute;
+	width: 70px;
+	height: 30px;
+	left: 208px;
+	top: 45px;
+	background: #00c0f0;
+}
+.colorpicker input {
+	background-color: transparent;
+	border: 1px solid transparent;
+	position: absolute;
+	font-size: 12px;
+	/*font-family: Arial, Helvetica, sans-serif;
+	color: #898989;*/
+	top: 0;
+	right: 10px;
+	text-align: right;
+	margin: 0;
+	padding: 0;
+	/*height: 13px;*/
+	width: 30px;
+	/*border: 1px solid #2f2f2f;
+	background-color:  #121212;*/
+}
+.colorpicker_hex {
+	position: absolute;
+	width: 70px;
+	height: 20px;
+	left: 208px;
+	top: 50px;
+}
+.colorpicker_hex input {
+	right: 6px;
+	width: 47px;
+}
+
+
+.colorpicker_field, .colorpicker_hex {
+}
+
+
+.colorpicker_field {
+	height: 20px;
+	width: 60px;
+	background-position: top;
+	position: absolute;
+}
+
+.colorpicker_focus, .colorpicker_focus input {
+    /*border: 1px solid #4d4b4b;*/
+}
+
+.colorpicker_field label, .colorpicker_hex label {
+    /*color: #D8D8D8;*/
+    font-size:  14px;
+    text-shadow: none;
+    display: block;
+    margin-top: -2px;
+    margin-left: 8px;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+.colorpicker_field span {
+    background-image: url("/img/colorpicker/grabber.png");
+    background-position: center;
+	position: absolute;
+	width: 12px;
+	height: 20px;
+	overflow: hidden;
+	top: 0;
+	right: 0;
+	cursor: n-resize;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: -moz-none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+}
+
+.colorpicker_slider span {    
+    /*background: url("/img/colorpicker/gradient_grabber.png") center;   // Fallback*/
+    background: url("/img/colorpicker/grabber.png"), -webkit-linear-gradient(top, #909090 0%, #4d4c4c 100%);
+    background: url("/img/colorpicker/grabber.png"), -moz-linear-gradient(top, #909090 0%, #4d4c4c 100%);
+    background: url("/img/colorpicker/grabber.png"), -ms-linear-gradient(top, #909090 0%, #4d4c4c 100%);
+    background: url("/img/colorpicker/grabber.png"), -o-linear-gradient(top, #909090 0%, #4d4c4c 100%);
+    background: url("/img/colorpicker/grabber.png"), linear-gradient(top, #909090 0%, #4d4c4c 100%);
+}
+
+.colorpicker_rgb_r {
+	display: none;
+	top: 49px;
+	left: 209px;
+}
+.colorpicker_rgb_g {
+	display: none;
+	top: 79px;
+	left: 209px;
+}
+.colorpicker_rgb_b {
+	display: none;
+	top: 109px;
+	left: 209px;
+}
+.colorpicker_hsb_h {
+	display: none;
+	top: 49px;
+	left: 279px;
+}
+.colorpicker_hsb_s {
+	display: none;
+	top: 79px;
+	left: 279px;
+}
+.colorpicker_hsb_b {
+	display: none;
+	top: 109px;
+	left: 279px;
+}
+.colorpicker_submit {
+	position: absolute;
+	width: 22px;
+	height: 22px;
+	background: url("/img/colorpicker/custom_submit.png") top;
+	left: 256px;
+	top: 139px;
+	overflow: hidden;
+}
+
+.colorSelectors {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    left: 35%;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background: url("/img/colorpicker/select2.png");
+}
+.colorSelectors div {
+    position: absolute;
+	top: 3px;
+	left: 3px;
+	width: 30px;
+	height: 30px;
+	background: url("/img/colorpicker/select2.png") center;
+}

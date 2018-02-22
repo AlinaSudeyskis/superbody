@@ -1,0 +1,35 @@
+<?php
+
+/**
+ * Создание, редактирование и удаление таблиц, столбцов базы данных
+ *
+ * @author Alina Sudeyskis <alina.sudeyskis@gmail.com>
+ * @license http://www.php.net/license/3_01.txt PHP License 3.01
+ */
+class Database extends CI_Controller
+{
+    /**
+     * Добавление таблиц
+     *
+     * @return void
+     */
+    public function createTables()
+    {
+        $users = "CREATE TABLE `alinas1f_sb`.`users` ( 
+              `user_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+              `user_email` VARCHAR(255) NOT NULL , 
+              `user_password` VARCHAR(255) NOT NULL , 
+              `user_auth_via` ENUM('native','vk.com','facebook.com','linkedin.com','ok.ru') NOT NULL DEFAULT 'native' , 
+              `user_social_id` BIGINT(19) UNSIGNED NOT NULL , 
+              `user_name` VARCHAR(255) NOT NULL , 
+              `user_type` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' ,
+              `user_date_reg` DATETIME NOT NULL ,
+              `user_activated` TINYINT(1) NOT NULL DEFAULT '0',
+              `user_date_auth` DATETIME NOT NULL ,
+              INDEX `ix_user_email` (`user_email`) ,
+              INDEX `ix_user_type` (`user_type`)
+              ) ENGINE = MyISAM;";
+
+        $this->db->query($users);
+    }
+}

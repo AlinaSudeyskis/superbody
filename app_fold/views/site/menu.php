@@ -1,0 +1,30 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
+<ul class="anketa_block_nav parent">
+    <li>
+        <a href="/administration/site">
+            <span <?php if ($page_submenu == 'index'): ?> class="anketa_active" <?php endif;?>>Главная</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/site/header">
+            <span <?php if ($page_submenu == 'header'): ?> class="anketa_active" <?php endif;?>>Шапка и футер</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/site/banner">
+            <span <?php if ($page_submenu == 'banner'): ?> class="anketa_active" <?php endif;?>>Баннер</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/site/about">
+            <span <?php if ($page_submenu == 'a_about'): ?> class="anketa_active" <?php endif;?>>О нас</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/site/contacts">
+            <span <?php if ($page_submenu == 'a_contacts'): ?> class="anketa_active" <?php endif;?>>Контакты</span>
+        </a>
+    </li>
+</ul>
