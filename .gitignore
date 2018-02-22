@@ -17,6 +17,7 @@ product_files/
 tests/*
 user_files/*
 video/*
+
 /vendor/
 
 *.[oa]
