@@ -19,6 +19,9 @@ user_files/*
 video/*
 /vendor/
 
+*.[oa]
+*~
+
 # IDE Files
 #-------------------------
 /nbproject/
