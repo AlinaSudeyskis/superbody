@@ -2052,7 +2052,7 @@ class Course_model extends CI_Model
             $result['landing']['block2']['title']    = $row->lp_block2_title;
             $result['landing']['block2']['subtitle'] = $row->lp_block2_subtitle;
             $result['landing']['block2']['text']     = $row->lp_block2_text;
-            $result['landing']['block2']['button']   = $row->lp_block2_button;
+            $result['landing']['block2']['button']   = strip_tags($row->lp_block2_button);
 
             // БЛОК 3
             // Фон блока
@@ -2136,7 +2136,7 @@ class Course_model extends CI_Model
 
             $result['landing']['block4']['r_title']    = $row->lp_block4_r_title;
             $result['landing']['block4']['r_subtitle'] = $row->lp_block4_r_subtitle;
-            $result['landing']['block4']['button']     = $row->lp_block4_button;
+            $result['landing']['block4']['button']     = strip_tags($row->lp_block4_button);
 
             // БЛОК 5
             // Фон блока
@@ -2157,7 +2157,7 @@ class Course_model extends CI_Model
             $result['landing']['block5']['title']    = $row->lp_block5_title;
             $result['landing']['block5']['subtitle'] = $row->lp_block5_subtitle;
             $result['landing']['block5']['text']     = $row->lp_block5_text;
-            $result['landing']['block5']['button']   = $row->lp_block5_button;
+            $result['landing']['block5']['button']   = strip_tags($row->lp_block5_button);
 
             // Изображения блока
             $result['landing']['block5']['images'] = '';
@@ -2206,7 +2206,7 @@ class Course_model extends CI_Model
             $result['landing']['block6']['title']    = $row->lp_block6_title;
             $result['landing']['block6']['desc']     = $row->lp_block6_description;
             $result['landing']['block6']['subtitle'] = $row->lp_block6_subtitle;
-            $result['landing']['block6']['button']   = $row->lp_block6_button;
+            $result['landing']['block6']['button']   = strip_tags($row->lp_block6_button);
 
             // Преимущества блока
             $result['landing']['block6']['advantages'] = '';
@@ -2258,7 +2258,7 @@ class Course_model extends CI_Model
             }
             $result['landing']['block7']['bg']     = $block_background;
             $result['landing']['block7']['title']  = $row->lp_block7_title;
-            $result['landing']['block7']['button'] = $row->lp_block7_button;
+            $result['landing']['block7']['button'] = strip_tags($row->lp_block7_button);
 
             // Изображения блока
             $result['landing']['block7']['images'] = '';
@@ -2330,7 +2330,7 @@ class Course_model extends CI_Model
             $result['landing']['block8']['desc2']     = $row->lp_block8_description2;
             $result['landing']['block8']['old_price'] = $row->lp_block8_old_price;
             $result['landing']['block8']['new_price'] = $row->lp_block8_new_price;
-            $result['landing']['block8']['button']    = $row->lp_block8_button;
+            $result['landing']['block8']['button']    = strip_tags($row->lp_block8_button);
         }
         elseif ($sel_landing === false)
         {
@@ -5542,7 +5542,7 @@ class Course_model extends CI_Model
         $result['block2']['title']    = $row->clp_block2_title;
         $result['block2']['subtitle'] = $row->clp_block2_subtitle;
         $result['block2']['text']     = $row->clp_block2_text;
-        $result['block2']['button']   = $row->clp_block2_button;
+        $result['block2']['button']   = strip_tags($row->clp_block2_button);
 
         // БЛОК 3
         // Фон блока
@@ -5638,7 +5638,7 @@ class Course_model extends CI_Model
 
         $result['block4']['title']    = $row->clp_block4_title;
         $result['block4']['subtitle'] = $row->clp_block4_subtitle;
-        $result['block4']['button']   = $row->clp_block4_button;
+        $result['block4']['button']   = strip_tags($row->clp_block4_button);
 
         // Изображение блока
         $block4_image = '';
@@ -5729,7 +5729,7 @@ class Course_model extends CI_Model
         $result['block5']['r_title']    = $row->clp_block5_r_title;
         $result['block5']['r_subtitle'] = $row->clp_block5_r_subtitle;
         $result['block5']['r_text']     = $row->clp_block5_r_text;
-        $result['block5']['button']     = $row->clp_block5_button;
+        $result['block5']['button']     = strip_tags($row->clp_block5_button);
 
         // БЛОК 6
         // Фон блока
@@ -5761,7 +5761,7 @@ class Course_model extends CI_Model
         $result['block6']['title']    = $row->clp_block6_title;
         $result['block6']['desc']     = $row->clp_block6_description;
         $result['block6']['subtitle'] = $row->clp_block6_subtitle;
-        $result['block6']['button']   = $row->clp_block6_button;
+        $result['block6']['button']   = strip_tags($row->clp_block6_button);
 
         // Преимущества блока
         $result['block6']['advantages'] = '';
@@ -5824,7 +5824,7 @@ class Course_model extends CI_Model
         $result['block7']['bg_orig'] = $row->clp_block7_background;
 
         $result['block7']['title']  = $row->clp_block7_title;
-        $result['block7']['button'] = $row->clp_block7_button;
+        $result['block7']['button'] = strip_tags($row->clp_block7_button);
 
         // Изображения блока
         if (!empty($row->clp_block7_images))
@@ -5918,7 +5918,7 @@ class Course_model extends CI_Model
         $result['block8']['desc2']     = $row->clp_block8_description2;
         $result['block8']['old_price'] = $row->clp_block8_old_price;
         $result['block8']['new_price'] = $row->clp_block8_new_price;
-        $result['block8']['button']    = $row->clp_block8_button;
+        $result['block8']['button']    = strip_tags($row->clp_block8_button);
 
         return $result;
     }

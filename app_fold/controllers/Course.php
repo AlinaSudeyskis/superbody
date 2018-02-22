@@ -1646,7 +1646,7 @@ class Course extends CI_Controller
             $b2_title    = mb_substr(strip_tags($this->input->post('i_title_block2', true)), 0, 60);
             $b2_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block2', true)), 0, 70);
             $b2_text     = mb_substr(strip_tags($this->input->post('i_text_block2', true)), 0, 60);
-            $b2_button   = mb_substr(strip_tags($this->input->post('i_button_block2', true), '<br/><br><span>'), 0, 40);
+            $b2_button   = mb_substr(strip_tags($this->input->post('i_button_block2', true)), 0, 40);
 
             // БЛОК 3
             // Фон
@@ -1771,7 +1771,7 @@ class Course extends CI_Controller
             // Информация
             $b4_title    = mb_substr(strip_tags($this->input->post('i_title_block4', true)), 0, 60);
             $b4_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block4', true)), 0, 80);
-            $b4_button   = mb_substr(strip_tags($this->input->post('i_button_block4', true), '<br/><br><span>'), 0, 40);
+            $b4_button   = mb_substr(strip_tags($this->input->post('i_button_block4', true)), 0, 40);
 
             // Результат
             $b4_r_title = mb_substr(strip_tags($this->input->post('i_result_title_block4', true)), 0, 60);
@@ -1874,7 +1874,7 @@ class Course extends CI_Controller
             $b5_title    = mb_substr(strip_tags($this->input->post('i_title_block5', true)), 0, 60);
             $b5_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block5', true)), 0, 60);
             $b5_text     = mb_substr(strip_tags($this->input->post('i_text_block5', true)), 0, 255);
-            $b5_button   = mb_substr(strip_tags($this->input->post('i_button_block5', true), '<br/><br><span>'), 0, 40);
+            $b5_button   = mb_substr(strip_tags($this->input->post('i_button_block5', true)), 0, 40);
 
             // Слова тренера о программе
             $b5_r_title    = mb_substr(strip_tags($this->input->post('i_couch_title_block5', true)), 0, 50);
@@ -1928,7 +1928,7 @@ class Course extends CI_Controller
             $b6_title    = mb_substr(strip_tags($this->input->post('i_title_block6', true)), 0, 60);
             $b6_desc     = mb_substr(strip_tags($this->input->post('ta_desc_block6', true)), 0, 130);
             $b6_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block6', true)), 0, 60);
-            $b6_button   = mb_substr(strip_tags($this->input->post('i_button_block6', true), '<br/><br><span>'), 0, 40);
+            $b6_button   = mb_substr(strip_tags($this->input->post('i_button_block6', true)), 0, 40);
 
             // Преимущества
             $b6_advantages = '';
@@ -1964,7 +1964,7 @@ class Course extends CI_Controller
 
             // Информация
             $b7_title  = mb_substr(strip_tags($this->input->post('i_title_block7', true)), 0, 50);
-            $b7_button = mb_substr(strip_tags($this->input->post('i_button_block7', true), '<br/><br><span>'), 0, 40);
+            $b7_button = mb_substr(strip_tags($this->input->post('i_button_block7', true)), 0, 40);
 
             // Изображения и текст блока
             $b7_images = '';
@@ -2060,7 +2060,7 @@ class Course extends CI_Controller
             $b8_desc1    = mb_substr(strip_tags($this->input->post('i_desc1_block8', true)), 0, 160);
             $b8_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block8', true)), 0, 60);
             $b8_desc2    = mb_substr(strip_tags($this->input->post('i_desc2_block8', true)), 0, 100);
-            $b8_button   = mb_substr(strip_tags($this->input->post('i_button_block8', true), '<br/><br><span>'), 0, 40);
+            $b8_button   = mb_substr(strip_tags($this->input->post('i_button_block8', true)), 0, 40);
 
             // Информация
             $b8_old_price = is_numeric($this->input->post('i_old_price_block8', true)) ? $this->input->post('i_old_price_block8', true) : '';
@@ -2213,7 +2213,7 @@ class Course extends CI_Controller
             $b2_title    = mb_substr(strip_tags($this->input->post('i_title_block2', true)), 0, 60);
             $b2_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block2', true)), 0, 70);
             $b2_text     = mb_substr(strip_tags($this->input->post('i_text_block2', true)), 0, 60);
-            $b2_button   = mb_substr(strip_tags($this->input->post('i_button_block2', true), '<br/><br><span>'), 0, 40);
+            $b2_button   = mb_substr(strip_tags($this->input->post('i_button_block2', true)), 0, 40);
 
             $up_res = $this->Course_model->setCourseLandingBlock2($course_id, $landing_style,
                 $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button, $this->date);
@@ -2377,7 +2377,7 @@ class Course extends CI_Controller
             // Информация
             $b4_title    = mb_substr(strip_tags($this->input->post('i_title_block4', true)), 0, 60);
             $b4_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block4', true)), 0, 80);
-            $b4_button   = mb_substr(strip_tags($this->input->post('i_button_block4', true), '<br/><br><span>'), 0, 40);
+            $b4_button   = mb_substr(strip_tags($this->input->post('i_button_block4', true)), 0, 40);
 
             // Результат
             $b4_r_title = mb_substr(strip_tags($this->input->post('i_result_title_block4', true)), 0, 60);
@@ -2507,7 +2507,7 @@ class Course extends CI_Controller
             $b5_title    = mb_substr(strip_tags($this->input->post('i_title_block5', true)), 0, 60);
             $b5_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block5', true)), 0, 60);
             $b5_text     = mb_substr(strip_tags($this->input->post('i_text_block5', true)), 0, 255);
-            $b5_button   = mb_substr(strip_tags($this->input->post('i_button_block5', true), '<br/><br><span>'), 0, 40);
+            $b5_button   = mb_substr(strip_tags($this->input->post('i_button_block5', true)), 0, 40);
 
             // Слова тренера о программе
             $b5_r_title    = mb_substr(strip_tags($this->input->post('i_couch_title_block5', true)), 0, 50);
@@ -2581,7 +2581,7 @@ class Course extends CI_Controller
             $b6_title    = mb_substr(strip_tags($this->input->post('i_title_block6', true)), 0, 60);
             $b6_desc     = mb_substr(strip_tags($this->input->post('ta_desc_block6', true)), 0, 130);
             $b6_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block6', true)), 0, 60);
-            $b6_button   = mb_substr(strip_tags($this->input->post('i_button_block6', true), '<br/><br><span>'), 0, 40);
+            $b6_button   = mb_substr(strip_tags($this->input->post('i_button_block6', true)), 0, 40);
 
             // Преимущества
             $b6_advantages = '';
@@ -2636,7 +2636,7 @@ class Course extends CI_Controller
 
             // Информация
             $b7_title  = mb_substr(strip_tags($this->input->post('i_title_block7', true)), 0, 50);
-            $b7_button = mb_substr(strip_tags($this->input->post('i_button_block7', true), '<br/><br><span>'), 0, 40);
+            $b7_button = mb_substr(strip_tags($this->input->post('i_button_block7', true)), 0, 40);
 
             // Изображения и текст блока
             $b7_images = '';
@@ -2750,7 +2750,7 @@ class Course extends CI_Controller
             $b8_desc1    = mb_substr(strip_tags($this->input->post('i_desc1_block8', true)), 0, 160);
             $b8_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block8', true)), 0, 60);
             $b8_desc2    = mb_substr(strip_tags($this->input->post('i_desc2_block8', true)), 0, 100);
-            $b8_button   = mb_substr(strip_tags($this->input->post('i_button_block8', true), '<br/><br><span>'), 0, 40);
+            $b8_button   = mb_substr(strip_tags($this->input->post('i_button_block8', true)), 0, 40);
 
             // Информация
             $b8_old_price = is_numeric($this->input->post('i_old_price_block8', true)) ? $this->input->post('i_old_price_block8', true) : '';

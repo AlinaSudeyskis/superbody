@@ -6825,6 +6825,8 @@ textarea.anketa_form_in{
     height: 50px;
     text-align: center;
     color: #fff;
+    cursor: pointer;
+    border: none;
     border-radius: 8px;
     background: #9e0b0f;
     line-height: 50px;
@@ -7354,7 +7356,7 @@ textarea.anketa_form_in{
     height: 50px;
     line-height: 22px;
     margin: 0 auto;
-    padding: 2px 0 4px;
+    padding: 2px 65px 4px;
     text-align: center;
     text-decoration: none;
     width: 280px;
