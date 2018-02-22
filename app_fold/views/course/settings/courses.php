@@ -17,6 +17,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <?php
+                        // TODO Перенос пунтка меню "Категория курса" на страницу списка курсов в АП
+                        // TODO Изменить вывод отображения курсов и категорий
+                        // TODO Добавить "Архив"
+                    ?>
                     <ul class="anketa_block_nav parent">
                         <li>
                             <a href="/administration/courses">
