@@ -2295,7 +2295,7 @@ class Store_model extends CI_Model
 
         // Создание заказа
         $in_data = $this->db->query('
-            INSERT INTO `orders`(`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_phone`, 
+            INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_phone`, 
               `o_oud_id`, `o_delivery`, `o_payment`, `o_date_add`) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 array($user_id, $name, $surname, $email, $phone, $address_id, $delivery, $payment, $date));
@@ -2304,95 +2304,95 @@ class Store_model extends CI_Model
         {
             $order_id = $this->db->insert_id();
             $result   = $order_id;
-        }
-        elseif ($in_data === false)
-        {
-            parent::logDbMessages(__METHOD__);
-        }
 
-        // Сохранение товаров заказа
-        if (!empty($order_id) and !empty($products['products']))
-        {
-            foreach ($products['products'] as $product)
+            // Сохранение товаров заказа
+            if (!empty($order_id) and !empty($products['products']))
             {
-                $price    = !empty($product['discount_price']) ? $product['discount_price'] : $product['price'];
-                $fc_price = !empty($product['discount_fc_price']) ? $product['discount_fc_price'] : $product['fc_price'];
-
-                // Сохранение товара в таблице Заказов
-                $in_data = $this->db->query('
-                  INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, `ouc_p_price`, `ouc_p_fitcoin_price`) 
-                  VALUES (?, ?, ?, ?, ?, ?)', array($order_id, $user_id, $product['id'], $product['cart_quantity'], $price, $fc_price));
-
-                if ($in_data !== false and 1 == $this->db->affected_rows())
+                foreach ($products['products'] as $product)
                 {
-                    $quantity = (($product['quantity'] - $product['cart_quantity']) > 0) ? ($product['quantity'] - $product['cart_quantity']) : 0;
-                    // Изменение общего кол-ва товара в ИМ
-                    $up_data = $this->db->query('
-                        UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
-                            array($quantity, $product['id']));
-                    if ($up_data === false)
-                    {
-                        parent::logDbMessages(__METHOD__);
-                    }
+                    $price    = !empty($product['discount_price']) ? $product['discount_price'] : $product['price'];
+                    $fc_price = !empty($product['discount_fc_price']) ? $product['discount_fc_price'] : $product['fc_price'];
 
-                    // Удаление товаров из корзины пользователя
-                    if (!empty($product['c_id']))
+                    // Сохранение товара в таблице Заказов
+                    $in_data = $this->db->query('
+                        INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, `ouc_p_price`, `ouc_p_fitcoin_price`) 
+                        VALUES (?, ?, ?, ?, ?, ?)', array($order_id, $user_id, $product['id'], $product['cart_quantity'], $price, $fc_price));
+
+                    if ($in_data !== false and 1 == $this->db->affected_rows())
                     {
-                        $up_data = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $product['c_id']);
+                        $quantity = (($product['quantity'] - $product['cart_quantity']) > 0) ? ($product['quantity'] - $product['cart_quantity']) : 0;
+                        // Изменение общего кол-ва товара в ИМ
+                        $up_data = $this->db->query('
+                            UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
+                                array($quantity, $product['id']));
                         if ($up_data === false)
                         {
                             parent::logDbMessages(__METHOD__);
                         }
-                    }
 
-                    // Добавление прикрепленных товаров
-                    if (!empty($product['attached']))
-                    {
-                        $product_id = $this->db->insert_id();
-
-                        foreach ($product['attached'] as $attached)
+                        // Удаление товаров из корзины пользователя
+                        if (!empty($product['c_id']))
                         {
-                            $price = !empty($attached['discount_price']) ? $attached['discount_price'] : $attached['price'];
-                            $fc_price = !empty($attached['discount_fc_price']) ? $attached['discount_fc_price'] : $attached['fc_price'];
-
-                            $in_data2 = $this->db->query('
-                              INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, `ouc_p_fitcoin_price`) 
-                              VALUES (?, ?, ?, ?, ?, ?, ?)', array($order_id, $user_id, $attached['id'], $product_id, $attached['cart_quantity'], $price, $fc_price));
-
-                            if ($in_data2 !== false and 1 == $this->db->affected_rows())
-                            {
-                                $quantity = (($attached['quantity'] - $attached['cart_quantity']) > 0) ? ($attached['quantity'] - $attached['cart_quantity']) : 0;
-                                // Изменение общего кол-ва товара в ИМ
-                                $up_data2 = $this->db->query('
-                                    UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
-                                        array($quantity, $attached['id']));
-                                if ($up_data2 === false)
-                                {
-                                    parent::logDbMessages(__METHOD__);
-                                }
-
-                                // Удаление товаров из корзины пользователя
-                                $up_data2 = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $attached['c_id']);
-                                if ($up_data2 === false)
-                                {
-                                    parent::logDbMessages(__METHOD__);
-                                }
-                            }
-                            elseif ($in_data2 === false)
+                            $up_data = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $product['c_id']);
+                            if ($up_data === false)
                             {
                                 parent::logDbMessages(__METHOD__);
                             }
-
                         }
-                        unset($attached);
+
+                        // Добавление прикрепленных товаров
+                        if (!empty($product['attached']))
+                        {
+                            $product_id = $this->db->insert_id();
+
+                            foreach ($product['attached'] as $attached)
+                            {
+                                $price = !empty($attached['discount_price']) ? $attached['discount_price'] : $attached['price'];
+                                $fc_price = !empty($attached['discount_fc_price']) ? $attached['discount_fc_price'] : $attached['fc_price'];
+
+                                $in_data2 = $this->db->query('
+                                    INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, `ouc_p_fitcoin_price`) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?)', array($order_id, $user_id, $attached['id'], $product_id, $attached['cart_quantity'], $price, $fc_price));
+
+                                if ($in_data2 !== false and 1 == $this->db->affected_rows())
+                                {
+                                    $quantity = (($attached['quantity'] - $attached['cart_quantity']) > 0) ? ($attached['quantity'] - $attached['cart_quantity']) : 0;
+                                    // Изменение общего кол-ва товара в ИМ
+                                    $up_data2 = $this->db->query('
+                                        UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
+                                            array($quantity, $attached['id']));
+                                    if ($up_data2 === false)
+                                    {
+                                        parent::logDbMessages(__METHOD__);
+                                    }
+
+                                    // Удаление товаров из корзины пользователя
+                                    $up_data2 = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $attached['c_id']);
+                                    if ($up_data2 === false)
+                                    {
+                                        parent::logDbMessages(__METHOD__);
+                                    }
+                                }
+                                elseif ($in_data2 === false)
+                                {
+                                    parent::logDbMessages(__METHOD__);
+                                }
+
+                            }
+                            unset($attached);
+                        }
+                    }
+                    elseif ($in_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__);
                     }
                 }
-                elseif ($in_data === false)
-                {
-                    parent::logDbMessages(__METHOD__);
-                }
+                unset($product);
             }
-            unset($product);
+        }
+        elseif ($in_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
         }
 
         return $result;

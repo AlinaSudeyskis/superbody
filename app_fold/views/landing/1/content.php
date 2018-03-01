@@ -42,12 +42,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="lp_block1_desk"><?php echo $landing['block2']['subtitle']; ?></div>
             <div class="lp_block1_txt"><?php echo $landing['block2']['text']; ?></div>
             <?php if (!empty($landing['block2']['button'])):?>
-                <form action="https://demomoney.yandex.ru/eshop.xml" method="post">
-                    <input name="shopId" value="188363" type="hidden" />
-                    <input name="scid" value="715012" type="hidden" />
-                    <input type="submit" name="bt_pay" value="<?php echo $landing['block2']['button']; ?>" class="lp_block_but lp_block0_but parent" />
-                    <a href="" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
-                </form>
+                <a href="" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
             <?php endif;?>
         </div>
     </div>

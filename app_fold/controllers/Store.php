@@ -982,7 +982,8 @@ class Store extends CI_Controller
                 header('Location: /ordering');
             }
         }
-        elseif ($this->input->post('bt_to_order', true)) {
+        elseif ($this->input->post('bt_to_order', true))
+        {
             // Выбранный адрес доставки из предыдущих
             $prev_address = is_numeric($this->input->post('s_o_address', true)) ? $this->input->post('s_o_address', true) : '';
 
@@ -1103,7 +1104,7 @@ class Store extends CI_Controller
         $this->load->view('footer/footer');
     }
 
-    
+
     /**
      * AJAX. Получение подкатегорий для категории
      *
