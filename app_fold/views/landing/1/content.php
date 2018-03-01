@@ -42,7 +42,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="lp_block1_desk"><?php echo $landing['block2']['subtitle']; ?></div>
             <div class="lp_block1_txt"><?php echo $landing['block2']['text']; ?></div>
             <?php if (!empty($landing['block2']['button'])):?>
-                <a href="" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
+                <form action="/" method="post">
+                    <input type="submit" name="bt_buy" value="<?php echo $landing['block2']['button']; ?>" class="lp_block_but lp_block0_but parent" />
+                    <!--<a href="" class="lp_block_but lp_block0_but parent"><?php /*echo $landing['block2']['button']; */?></a>-->
+                </form>
             <?php endif;?>
         </div>
     </div>

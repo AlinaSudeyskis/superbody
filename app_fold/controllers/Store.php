@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+use YandexCheckout\Client;
+
 /**
  * Класс Store
  * 
@@ -11,6 +13,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Store extends CI_Controller
 {
+    const SHOPID = 188363;
+    const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
+    const SCID = 715012;
+    const TEST_SCID = 561490;
+
     /**
      * Store constructor.
      */
@@ -1104,6 +1111,72 @@ class Store extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /* БЛОК ФУНКЦИЙ ОПЛАТЫ */
+
+    public function payment()
+    {
+        $idempotenceKey = uniqid('', true);
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+        $response = $client->createPayment(
+            array(
+                'amount' => array(
+                    'value' => 2.0,
+                    'currency' => 'RUB'
+                ),
+                'confirmation' => array(
+                    'type' => 'redirect',
+                    'return_url' => 'https://superbody.pro/',
+                ),
+            ),
+            $idempotenceKey
+        );
+
+        log_message('debug', print_r($response, true));
+
+        if (!empty($response['id'])) {
+            if ($response['type'] == 'pending')
+            {
+
+            }
+            elseif ($response['type'] == 'waiting_for_capture')
+            {
+                $paymentId = $response;
+                $idempotenceKey = uniqid('', true);
+                $response = $client->capturePayment(
+                    array(
+                        'amount' => array(
+                            'value' => '2.00',
+                            'currency' => 'RUB',
+                        ),
+                    ),
+                    $paymentId,
+                    $idempotenceKey
+                );
+            }
+            elseif ($response['type'] == 'succeeded')
+            {
+
+            }
+            elseif ($response['type'] == 'canceled')
+            {
+
+            }
+        }
+
+    }
+
+    public function paymentNotifications()
+    {
+
+    }
+
+    public function paymentTestNotifications()
+    {
+
+    }
+
+    /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */
 
     /**
      * AJAX. Получение подкатегорий для категории
