@@ -86,24 +86,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="shop_tov_buts_col">
             <?php $cart_match = false;
+            $bought_match = false;
             if (!empty($products_id) and $product['course_id'] == 0)
             {
                 $cart_match = in_array($product['id'], $products_id);
             }
-            elseif (!empty($courses_id) and $product['course_id'] > 0)
+            if (!empty($courses_id) and $product['course_id'] > 0)
             {
-                $cart_match = in_array($product['course_id'], $courses_id);
+                $bought_match = in_array($product['course_id'], $courses_id);
             }
-            if (($product['quantity'] > 0 or $product['course_id'] > 0) and $cart_match === false): ?>
+            if (($product['quantity'] > 0 or $product['course_id'] > 0) and $cart_match === false and $bought_match === false): ?>
                 <div class="shop_tov_bay to_cart">В корзину
                     <input type="hidden" name="product_id" id="product_id" value="<?php echo $product['id'];?>"/>
                     <input type="hidden" name="product_quantity" id="product_quantity" value="1"/>
                 </div>
             <?php elseif ($product['quantity'] == 0 and $product['course_id'] == 0): ?>
                 <div class="not_available">Нет в наличии</div>
-            <?php elseif ($cart_match === true and $product['course_id'] == 0): ?>
+            <?php elseif ($cart_match === true): ?>
                 <div class="not_available">В корзине</div>
-            <?php elseif ($cart_match === true and $product['course_id'] > 0): ?>
+            <?php elseif ($bought_match === true): ?>
                 <div class="not_available">Куплен</div>
             <?php endif; ?>
         </div>
