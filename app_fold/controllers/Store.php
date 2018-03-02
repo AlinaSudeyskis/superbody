@@ -1020,7 +1020,9 @@ class Store extends CI_Controller
                 ? array_search($this->input->post('i_o_delivery', true), $a_d) : 1;
 
             // Данные о платеже
-            $payment = 0;
+            $a_p = array(1 => 'Оплата наличными при получении', 2 => 'Онлайн оплата', 3 => 'Банковский перевод');
+            $payment = (array_search($this->input->post('i_o_payment', true), $a_p) !== false)
+                ? array_search($this->input->post('i_o_payment', true), $a_p) : 1;
 
             // Товары заказа
             $products = $this->Store_model->getUserCartInStockProducts($this->user_id);
@@ -1030,15 +1032,20 @@ class Store extends CI_Controller
                 $this->input->post('i_o_street', true).' '.$this->input->post('i_o_building', true).' '.
                 $this->input->post('i_o_house', true).' '.$this->input->post('i_o_postcode', true).'<br/>';*/
 
-            if (!empty($products)) {
+            if (!empty($products))
+            {
                 $res_order = $this->Store_model->setOrder($this->user_id, $prev_address, $name, $surname, $email, $phone,
                     $country, $city, $street, $building, $house, $postcode, $delivery, $payment, $products, $this->date);
 
-                if ($res_order !== false and is_numeric($res_order)) {
+                if ($res_order !== false and is_numeric($res_order['order_id']))
+                {
+                    self::payment($res_order['order_id'], $res_order['total_amount']);
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
-                    header('Location: /ordering/' . $res_order);
-                } else {
+                    header('Location: /ordering/' . $res_order['order_id']);
+                }
+                else
+                {
                     // Не сохранено
                     $this->session->set_tempdata('message', 101, 60);
                     header('Location: /ordering');
@@ -1113,7 +1120,13 @@ class Store extends CI_Controller
 
     /* БЛОК ФУНКЦИЙ ОПЛАТЫ */
 
-    public function payment()
+    /**
+     * Формирование запроса на создание платежа Яндекс.Кассы
+     *
+     * @param $order_id
+     * @param $total_amount
+     */
+    public function payment($order_id, $total_amount)
     {
         $idempotenceKey = uniqid('', true);
         $client = new Client();
@@ -1121,9 +1134,10 @@ class Store extends CI_Controller
         $response = $client->createPayment(
             array(
                 'amount' => array(
-                    'value' => 2.0,
+                    'value' => $total_amount,
                     'currency' => 'RUB'
                 ),
+                'description' => 'Оплата заказа №' . $order_id,
                 'confirmation' => array(
                     'type' => 'redirect',
                     'return_url' => 'https://superbody.pro/',
@@ -1137,7 +1151,8 @@ class Store extends CI_Controller
         if (!empty($response['id'])) {
             if ($response['type'] == 'pending')
             {
-
+                //header('Location: ' . $response['confirmation']->confirmation_url);
+                log_message('debug', print_r($response['confirmation']->confirmation_url, true));
             }
             elseif ($response['type'] == 'waiting_for_capture')
             {
@@ -1177,6 +1192,8 @@ class Store extends CI_Controller
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */
+
+    /* БЛОК AJAX ФУНКЦИЙ ОПЛАТЫ */
 
     /**
      * AJAX. Получение подкатегорий для категории
