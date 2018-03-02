@@ -1039,10 +1039,14 @@ class Store extends CI_Controller
 
                 if ($res_order !== false and is_numeric($res_order['order_id']))
                 {
+                    // Кол-во товаров в корзине
+                    parent::updateSessionCart(0);
+
                     self::payment($res_order['order_id'], $res_order['total_amount']);
+
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
-                    header('Location: /ordering/' . $res_order['order_id']);
+                    //header('Location: /ordering/' . $res_order['order_id']);
                 }
                 else
                 {
@@ -1056,6 +1060,7 @@ class Store extends CI_Controller
         // Объединенные данные страница
         $this->page_data['title'] = 'Оформление заказа';
         $this->page_data['page_menu'] = 'cart';
+        $this->page_data['categories'] = $categories;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/store');
@@ -1140,42 +1145,16 @@ class Store extends CI_Controller
                 'description' => 'Оплата заказа №' . $order_id,
                 'confirmation' => array(
                     'type' => 'redirect',
-                    'return_url' => 'https://superbody.pro/',
+                    'return_url' => 'https://superbody.pro/ordering/' . $order_id,
                 ),
             ),
             $idempotenceKey
         );
 
-        log_message('debug', print_r($response, true));
-
-        if (!empty($response['id'])) {
-            if ($response['type'] == 'pending')
+        if (!empty($response->_id)) {
+            if ($response->_status == 'pending')
             {
-                //header('Location: ' . $response['confirmation']->confirmation_url);
-                log_message('debug', print_r($response['confirmation']->confirmation_url, true));
-            }
-            elseif ($response['type'] == 'waiting_for_capture')
-            {
-                $paymentId = $response;
-                $idempotenceKey = uniqid('', true);
-                $response = $client->capturePayment(
-                    array(
-                        'amount' => array(
-                            'value' => '2.00',
-                            'currency' => 'RUB',
-                        ),
-                    ),
-                    $paymentId,
-                    $idempotenceKey
-                );
-            }
-            elseif ($response['type'] == 'succeeded')
-            {
-
-            }
-            elseif ($response['type'] == 'canceled')
-            {
-
+                header('Location: ' . $response->_confirmation->confirmation_url);
             }
         }
 
@@ -1183,7 +1162,7 @@ class Store extends CI_Controller
 
     public function paymentNotifications()
     {
-
+        log_message('debug', 'Уведомление Post: ' . print_r($this->input->post(), true));
     }
 
     public function paymentTestNotifications()
