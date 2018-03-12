@@ -1162,7 +1162,28 @@ class Store extends CI_Controller
 
     public function paymentNotifications()
     {
-        log_message('debug', 'Уведомление Post: ' . print_r(json_decode(file_get_contents("php://input")), true));
+        $response = json_decode(file_get_contents("php://input"));
+
+        if ($response->type == 'notification')
+        {
+            $order = $response->object;
+
+            // Подтверждение платежа или отмена
+            if ($order->status == 'waiting_for_capture')
+            {
+
+            }
+            // Платеж прошел успешно
+            elseif($order->status == 'succeeded')
+            {
+
+            }
+            // Платеж отменен
+            elseif($order->status == 'canceled')
+            {
+
+            }
+        }
     }
 
     public function paymentTestNotifications()
