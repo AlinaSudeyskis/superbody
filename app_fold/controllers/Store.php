@@ -1162,8 +1162,7 @@ class Store extends CI_Controller
 
     public function paymentNotifications()
     {
-        log_message('debug', 'Уведомление Post: ' . print_r($this->input->post(), true));
-        log_message('debug', 'Уведомление Get: ' . print_r($this->input->get(), true));
+        log_message('debug', 'Уведомление Post: ' . print_r(json_decode(file_get_contents("php://input")), true));
     }
 
     public function paymentTestNotifications()
