@@ -234,15 +234,15 @@ class Welcome_model extends CI_Model
         //$this->db->query('DELETE FROM `users_courses` WHERE `uc_user_id`=? and `uc_course_id`=? LIMIT 1', array(4, 11));
 
         // 12.03.2018
-        $this->db->query('CREATE TABLE `orders_payment` ( 
+        /*$this->db->query('CREATE TABLE `orders_payment` (
             `op_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , 
             `op_o_id` INT UNSIGNED NOT NULL , 
             `op_payment_id` VARCHAR(50) NOT NULL , 
-            `op_status` ENUM("waiting_for_capture","succeeded","canceled","pending") NOT NULL , 
+            `op_status` ENUM("waiting_for_capture","succeeded","canceled","pending") NOT NULL ,
             `op_paid` TINYINT(1) UNSIGNED NOT NULL , 
             `op_created_at` VARCHAR(24) NOT NULL , 
             `op_expires_at` VARCHAR(24) NOT NULL , 
             PRIMARY KEY (`op_id`), 
-            INDEX `ix_op_payment_id` (`op_payment_id`)) ENGINE = MyISAM;');
+            INDEX `ix_op_payment_id` (`op_payment_id`)) ENGINE = MyISAM;');*/
     }
 }
