@@ -52,6 +52,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         echo $message;
     endif;?>
 </span>
+
 <div id="policy_pop-up">
     <div class="policy_pop-up_cont">
         <div class="policy_pop-up_close"></div>
