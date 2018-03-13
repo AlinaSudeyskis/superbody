@@ -255,7 +255,7 @@ class User_model extends CI_Model
     /**
      * Список соц. сетей пользователя
      *
-     * @param $user_id
+     * @param int $user_id
      * @return array
      */
     public function getUserSocial($user_id)
@@ -267,23 +267,26 @@ class User_model extends CI_Model
             'vk' => array('connect' => false, 'id' => null)
         ));
 
-        $sel_social = $this->db->query('SELECT `us_social_id`, `us_social`, `us_available`, `us_url_profile` FROM `users_social` 
+        if (is_numeric($user_id))
+        {
+            $sel_social = $this->db->query('SELECT `us_social_id`, `us_social`, `us_available`, `us_url_profile` FROM `users_social` 
             WHERE `us_u_id`=? LIMIT 4', $user_id);
 
-        if ($sel_social !== false and 0 < $sel_social->num_rows())
-        {
-            foreach($sel_social->result() as $row)
+            if ($sel_social !== false and 0 < $sel_social->num_rows())
             {
-                $result['user_social'][$row->us_social]['connect']     = true;
-                $result['user_social'][$row->us_social]['available']   = $row->us_available;
-                $result['user_social'][$row->us_social]['profile_url'] = !empty($row->us_url_profile) ? $row->us_url_profile : '#';
-                $result['user_social'][$row->us_social]['id']          = $row->us_social_id;
+                foreach($sel_social->result() as $row)
+                {
+                    $result['user_social'][$row->us_social]['connect']     = true;
+                    $result['user_social'][$row->us_social]['available']   = $row->us_available;
+                    $result['user_social'][$row->us_social]['profile_url'] = !empty($row->us_url_profile) ? $row->us_url_profile : '#';
+                    $result['user_social'][$row->us_social]['id']          = $row->us_social_id;
+                }
+                unset($row);
             }
-            unset($row);
-        }
-        elseif ($sel_social === false)
-        {
-            parent::logDbMessages(__METHOD__);
+            elseif ($sel_social === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
         }
 
         return $result;
