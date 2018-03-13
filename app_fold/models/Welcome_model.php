@@ -246,10 +246,10 @@ class Welcome_model extends CI_Model
             INDEX `ix_op_payment_id` (`op_payment_id`)) ENGINE = MyISAM;');*/
 
         // 13.03.2018
-        $this->db->query('ALTER TABLE `orders_payment` 
+        /*$this->db->query('ALTER TABLE `orders_payment`
           ADD `op_amount` DECIMAL(10,2) NOT NULL AFTER `op_expires_at`, 
           ADD `op_payment_method_saved` TINYINT(1) UNSIGNED NOT NULL AFTER `op_amount`, 
           ADD `op_payment_method_id` VARCHAR(50) NOT NULL AFTER `op_payment_method_saved`, 
-          ADD `op_following_date` DATETIME NOT NULL AFTER `op_payment_method_id`');
+          ADD `op_following_date` DATETIME NOT NULL AFTER `op_payment_method_id`');*/
     }
 }
