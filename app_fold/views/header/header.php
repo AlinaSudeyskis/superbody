@@ -52,16 +52,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         echo $message;
     endif;?>
 </span>
-<?php if (empty($user_session)):?>
-    <div id="policy_pop-up">
-        <div class="policy_pop-up_cont">
-            <div class="policy_pop-up_close"></div>
-            <div class="policy_pop-up_h">Подтверждая данное действие, я (Клиент) даю своё согласие ООО «Лайф Технолоджи Рус.» на обработку моих персональных данных, в соответствии с Федеральным законом от 27.07.2006 года №152-ФЗ «О персональных данных», на условиях и для целей, определенных
-                <a href="<?php if (!empty($site_info['personal_data'])): echo $site_info['personal_data']; endif;?>" class="policy" target="_blank">Политикой обработки персональных данных</a>
-            </div>
+<div id="policy_pop-up">
+    <div class="policy_pop-up_cont">
+        <div class="policy_pop-up_close"></div>
+        <div class="policy_pop-up_h">Подтверждая данное действие, я (Клиент) даю своё согласие ООО «Лайф Технолоджи Рус.» на обработку моих персональных данных, в соответствии с Федеральным законом от 27.07.2006 года №152-ФЗ «О персональных данных», на условиях и для целей, определенных
+            <a href="<?php if (!empty($site_info['personal_data'])): echo $site_info['personal_data']; endif;?>" class="policy" target="_blank">Политикой обработки персональных данных</a>
         </div>
-    </div><!-- home_pop-up -->
-<?php endif;?>
+    </div>
+</div><!-- home_pop-up -->
 <!--<p id="page-info">Page rendered in <strong>{elapsed_time}</strong> seconds. Memory usage <strong>{memory_usage}</strong>. <?php /*echo  (ENVIRONMENT === 'development') ?  'PHP Version <strong>' . phpversion() . '</strong>' : '' */?></p>-->
 <?php
 /*<!-- Google -->
