@@ -1155,7 +1155,7 @@ class Store extends CI_Controller
             if ($response->_status == 'pending')
             {
                 // Создание
-                $this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status);
+                //$this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status);
 
                 header('Location: ' . $response->_confirmation->confirmation_url);
             }
