@@ -2691,7 +2691,7 @@ class Store_model extends CI_Model
     {
         $up_data = $this->db->query('
             UPDATE `orders_payment` 
-            SET `op_status`=?, `op_paid`=?, `op_create_at`=?, `op_expires_at`=?, `op_payment_method_id`=?, 
+            SET `op_status`=?, `op_paid`=?, `op_created_at`=?, `op_expires_at`=?, `op_payment_method_id`=?, 
               `op_payment_method_saved`=?
             WHERE `op_payment_id`=? LIMIT 1',
                 array($payment_status, $payment_paid, $payment_created_at, $payment_expires_at,
@@ -3048,8 +3048,8 @@ class Store_model extends CI_Model
         $result['method_id']    = $row->op_payment_method_id;
 
         setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $dt_create = DateTime::createFromFormat(DATE_ATOM, $row->op_create_at);
-        $create_at = (!empty($row->op_create_at) or $dt_create !== false)
+        $dt_create = DateTime::createFromFormat(DATE_ATOM, $row->op_created_at);
+        $create_at = (!empty($row->op_created_at) or $dt_create !== false)
             ? $dt_create->format('d F Y, H:i')
             : '';
         $dt_expires = DateTime::createFromFormat(DATE_ATOM, $row->op_expires_at);
