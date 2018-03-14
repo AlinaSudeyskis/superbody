@@ -109,7 +109,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                             <div class="ordering_block_side_cont">
                                 <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $order['payment']; ?></div>
-                                <div class="ordering_block_side_cont_txt">[<?php echo $order['payment_status'];?>]</div>
+                                <div class="ordering_block_side_cont_txt">[<?php echo $order['payments'][0]['paid'];?>]</div>
                                 <div class="ordering_block_side_cont_txt">Сумма: <span class="info_ordering_price"><?php echo $price_sum;?></span> p.</div>
                             </div>
                         </div>

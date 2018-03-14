@@ -2471,6 +2471,28 @@ class Store_model extends CI_Model
 
             unset($row);
 
+            // Даннаые оплаты заказа
+            $sel_payments = $this->db->query('
+                SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, 
+                    `op_expires_at`, `op_amount`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
+                FROM `orders_payment`
+                WHERE `op_o_id`=?', $order_id);
+            if ($sel_payments !== false and 0 < $sel_payments->num_rows())
+            {
+                $i = 0;
+                foreach($sel_payments->result() as $row)
+                {
+                    $result['order']['payments'][$i] = self::parsePaymentData($row);
+
+                    $i++;
+                }
+                unset($row);
+            }
+            elseif ($sel_payments === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+
             // Выборка товаров заказа
             $sel_products = $this->db->query('
                 SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
@@ -2482,7 +2504,6 @@ class Store_model extends CI_Model
                 LEFT JOIN `products` ON `p_id`=`ouc_p_id`
                 LEFT JOIN `courses` ON `crs_id`=`p_course_id`
                 WHERE `ouc_o_id`=?', $order_id);
-
             if ($sel_products !== false and 0 < $sel_products->num_rows())
             {
                 $i = 0;
@@ -2927,7 +2948,7 @@ class Store_model extends CI_Model
         $payment = $row->o_payment == 2 ? 'Онлайн оплата' : $row->o_payment == 3 ? 'Банковский перевод' : $payment;
         $result['payment'] = $payment;
 
-        $result['payment_status'] = $row->o_payment_status;
+        $result['payment_status'] = 0;
         $result['status']         = $row->o_status;
 
         // Дата добавления
@@ -3001,6 +3022,44 @@ class Store_model extends CI_Model
             $images = !empty($row->p_images) ? explode(';', $row->p_images) : null;
             $result['image'] = !empty($images) ? mb_substr($images[0], 1) : null;
         }
+
+        return $result;
+    }
+
+    /**
+     * Обработка данных оплаты заказа
+     *
+     * @param $row
+     * @return mixed
+     */
+    protected function parsePaymentData($row)
+    {
+        $result['id']     = $row->op_payment_id;
+        $result['amount'] = $row->op_amount;
+
+        $status = array('pending' => 'Ожидание оплаты от пользователя', 'waiting_for_capture' => 'Ожидание подтверждения магазина',
+            'succeeded' => 'Оплачено', 'canceled' => 'Отменено', '' => '');
+        $result['status'] = (array_search($row->op_status, $status) !== false)
+            ? array_search($row->op_status, $status) : '';
+
+        $result['paid'] = ($row->op_paid == 1) ? 'Оплачено' : 'Не оплачено';
+
+        $result['method_saved'] = $row->op_payment_method_saved;
+        $result['method_id']    = $row->op_payment_method_id;
+
+        setlocale(LC_ALL, 'ru_RU.UTF-8');
+        $dt_create = DateTime::createFromFormat(DATE_ATOM, $row->op_create_at);
+        $create_at = (!empty($row->op_create_at) or $dt_create !== false)
+            ? $dt_create->format('d F Y, H:i')
+            : '';
+        $dt_expires = DateTime::createFromFormat(DATE_ATOM, $row->op_expires_at);
+        $expires_at = (!empty($row->op_expires_at) or $dt_expires !== false)
+            ? $dt_expires->format('d F Y, H:i')
+            : '';
+
+        $result['following_date'] = $row->op_following_date;
+        $result['create_at']      = $create_at;
+        $result['expires_at']     = $expires_at;
 
         return $result;
     }

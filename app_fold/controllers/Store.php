@@ -1134,18 +1134,22 @@ class Store extends CI_Controller
     public function payment($order_id, $total_amount)
     {
         $idempotenceKey = uniqid('', true);
+        $description    = 'Оплата заказа №' . $order_id;
+        $return_url     = 'https://superbody.pro/ordering/' . $order_id;
+
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
         $response = $client->createPayment(
             array(
                 'amount' => array(
                     'value' => $total_amount,
                     'currency' => 'RUB'
                 ),
-                'description' => 'Оплата заказа №' . $order_id,
+                'description' => $description,
                 'confirmation' => array(
                     'type' => 'redirect',
-                    'return_url' => 'https://superbody.pro/ordering/' . $order_id,
+                    'return_url' => $return_url,
                 ),
             ),
             $idempotenceKey

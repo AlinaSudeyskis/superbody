@@ -159,7 +159,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                                 <span class="ordering_radio_desk">Оплата заказа осуществляется непосредственно при доставке заказа.</span>
                             </div>
                             <div class="ordering_radio_wrap">
-                                <input type="radio" name="i_o_payment" id="ordering_radio5" checked value="Онлайн оплата" />
+                                <input type="radio" name="i_o_payment" id="ordering_radio5" checked="checked" value="Онлайн оплата" />
                                 <label for="ordering_radio5">Онлайн оплата</label>
                                 <span class="ordering_radio_desk">Вы будете перенаправлены на страницу платежной системы для совершения оплаты.</span>
                             </div>

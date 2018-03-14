@@ -253,7 +253,7 @@ class Welcome_model extends CI_Model
           ADD `op_following_date` DATETIME NOT NULL AFTER `op_payment_method_id`');*/
 
         // 14.03.2018
-        $this->db->query('ALTER TABLE `orders_payment` CHANGE `op_status` `op_status` ENUM("waiting_for_capture","succeeded","canceled","pending","") CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL');
-        $this->db->query('ALTER TABLE `orders_payment` ADD `op_number` TINYINT(3) UNSIGNED NOT NULL AFTER `op_o_id`');
+        /*$this->db->query('ALTER TABLE `orders_payment` CHANGE `op_status` `op_status` ENUM("waiting_for_capture","succeeded","canceled","pending","") CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL');
+        $this->db->query('ALTER TABLE `orders_payment` ADD `op_number` TINYINT(3) UNSIGNED NOT NULL AFTER `op_o_id`');*/
     }
 }
