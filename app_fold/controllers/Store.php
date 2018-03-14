@@ -1190,7 +1190,10 @@ class Store extends CI_Controller
                     // Подтверждение платежа
                     $client->capturePayment(
                         array(
-                            'amount' => $payment->amount,
+                            'amount' => array(
+                                'value' => $payment->amount->value,
+                                'currency' => $payment->amount->currency,
+                            ),
                         ),
                         $payment->id,
                         $idempotenceKey
