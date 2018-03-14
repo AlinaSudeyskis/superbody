@@ -229,5 +229,27 @@ class Welcome_model extends CI_Model
         // 20.02.2018
         //$this->db->query('ALTER TABLE `users_social` ADD `us_available` TINYINT(1) UNSIGNED NOT NULL DEFAULT "0" AFTER `us_social`');
         //$this->db->query('ALTER TABLE `users_social` ADD `us_url_profile` VARCHAR(255) NOT NULL AFTER `us_social_id`');
+
+        // 02.03.2018
+        //$this->db->query('DELETE FROM `users_courses` WHERE `uc_user_id`=? and `uc_course_id`=? LIMIT 1', array(4, 11));
+
+        // 12.03.2018
+        /*$this->db->query('CREATE TABLE `orders_payment` (
+            `op_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , 
+            `op_o_id` INT UNSIGNED NOT NULL , 
+            `op_payment_id` VARCHAR(50) NOT NULL , 
+            `op_status` ENUM("waiting_for_capture","succeeded","canceled","pending") NOT NULL ,
+            `op_paid` TINYINT(1) UNSIGNED NOT NULL , 
+            `op_created_at` VARCHAR(24) NOT NULL , 
+            `op_expires_at` VARCHAR(24) NOT NULL , 
+            PRIMARY KEY (`op_id`), 
+            INDEX `ix_op_payment_id` (`op_payment_id`)) ENGINE = MyISAM;');*/
+
+        // 13.03.2018
+        /*$this->db->query('ALTER TABLE `orders_payment`
+          ADD `op_amount` DECIMAL(10,2) NOT NULL AFTER `op_expires_at`, 
+          ADD `op_payment_method_saved` TINYINT(1) UNSIGNED NOT NULL AFTER `op_amount`, 
+          ADD `op_payment_method_id` VARCHAR(50) NOT NULL AFTER `op_payment_method_saved`, 
+          ADD `op_following_date` DATETIME NOT NULL AFTER `op_payment_method_id`');*/
     }
 }

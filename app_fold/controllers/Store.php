@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+use YandexCheckout\Client;
+
 /**
  * Класс Store
  * 
@@ -11,6 +13,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Store extends CI_Controller
 {
+    const SHOPID = 188363;
+    const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
+    const SCID = 715012;
+    const TEST_SCID = 561490;
+
     /**
      * Store constructor.
      */
@@ -1013,7 +1020,9 @@ class Store extends CI_Controller
                 ? array_search($this->input->post('i_o_delivery', true), $a_d) : 1;
 
             // Данные о платеже
-            $payment = 0;
+            $a_p = array(1 => 'Оплата наличными при получении', 2 => 'Онлайн оплата', 3 => 'Банковский перевод');
+            $payment = (array_search($this->input->post('i_o_payment', true), $a_p) !== false)
+                ? array_search($this->input->post('i_o_payment', true), $a_p) : 1;
 
             // Товары заказа
             $products = $this->Store_model->getUserCartInStockProducts($this->user_id);
@@ -1023,15 +1032,24 @@ class Store extends CI_Controller
                 $this->input->post('i_o_street', true).' '.$this->input->post('i_o_building', true).' '.
                 $this->input->post('i_o_house', true).' '.$this->input->post('i_o_postcode', true).'<br/>';*/
 
-            if (!empty($products)) {
+            if (!empty($products))
+            {
                 $res_order = $this->Store_model->setOrder($this->user_id, $prev_address, $name, $surname, $email, $phone,
                     $country, $city, $street, $building, $house, $postcode, $delivery, $payment, $products, $this->date);
 
-                if ($res_order !== false and is_numeric($res_order)) {
+                if ($res_order !== false and is_numeric($res_order['order_id']))
+                {
+                    // Кол-во товаров в корзине
+                    parent::updateSessionCart(0);
+
+                    self::payment($res_order['order_id'], $res_order['total_amount']);
+
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
-                    header('Location: /ordering/' . $res_order);
-                } else {
+                    //header('Location: /ordering/' . $res_order['order_id']);
+                }
+                else
+                {
                     // Не сохранено
                     $this->session->set_tempdata('message', 101, 60);
                     header('Location: /ordering');
@@ -1042,6 +1060,7 @@ class Store extends CI_Controller
         // Объединенные данные страница
         $this->page_data['title'] = 'Оформление заказа';
         $this->page_data['page_menu'] = 'cart';
+        $this->page_data['categories'] = $categories;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/store');
@@ -1104,6 +1123,80 @@ class Store extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /* БЛОК ФУНКЦИЙ ОПЛАТЫ */
+
+    /**
+     * Формирование запроса на создание платежа Яндекс.Кассы
+     *
+     * @param $order_id
+     * @param $total_amount
+     */
+    public function payment($order_id, $total_amount)
+    {
+        $idempotenceKey = uniqid('', true);
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+        $response = $client->createPayment(
+            array(
+                'amount' => array(
+                    'value' => $total_amount,
+                    'currency' => 'RUB'
+                ),
+                'description' => 'Оплата заказа №' . $order_id,
+                'confirmation' => array(
+                    'type' => 'redirect',
+                    'return_url' => 'https://superbody.pro/ordering/' . $order_id,
+                ),
+            ),
+            $idempotenceKey
+        );
+
+        if (!empty($response->_id)) {
+            if ($response->_status == 'pending')
+            {
+                // Создание
+                //$this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status);
+
+                header('Location: ' . $response->_confirmation->confirmation_url);
+            }
+        }
+
+    }
+
+    public function paymentNotifications()
+    {
+        $response = json_decode(file_get_contents("php://input"));
+
+        if ($response->type == 'notification')
+        {
+            $order = $response->object;
+
+            // Подтверждение платежа или отмена
+            if ($order->status == 'waiting_for_capture')
+            {
+
+            }
+            // Платеж прошел успешно
+            elseif($order->status == 'succeeded')
+            {
+
+            }
+            // Платеж отменен
+            elseif($order->status == 'canceled')
+            {
+
+            }
+        }
+    }
+
+    public function paymentTestNotifications()
+    {
+
+    }
+
+    /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */
+
+    /* БЛОК AJAX ФУНКЦИЙ ОПЛАТЫ */
 
     /**
      * AJAX. Получение подкатегорий для категории

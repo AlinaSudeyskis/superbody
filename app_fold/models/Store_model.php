@@ -2303,7 +2303,8 @@ class Store_model extends CI_Model
         if ($in_data !== false and 1 == $this->db->affected_rows())
         {
             $order_id = $this->db->insert_id();
-            $result   = $order_id;
+            $result['order_id']     = $order_id;
+            $result['total_amount'] = 0;
 
             // Сохранение товаров заказа
             if (!empty($order_id) and !empty($products['products']))
@@ -2315,12 +2316,16 @@ class Store_model extends CI_Model
 
                     // Сохранение товара в таблице Заказов
                     $in_data = $this->db->query('
-                        INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, `ouc_p_price`, `ouc_p_fitcoin_price`) 
-                        VALUES (?, ?, ?, ?, ?, ?)', array($order_id, $user_id, $product['id'], $product['cart_quantity'], $price, $fc_price));
+                        INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, 
+                            `ouc_p_price`, `ouc_p_fitcoin_price`) 
+                        VALUES (?, ?, ?, ?, ?, ?)',
+                            array($order_id, $user_id, $product['id'], $product['cart_quantity'], $price, $fc_price));
 
                     if ($in_data !== false and 1 == $this->db->affected_rows())
                     {
+                        $result['total_amount'] += ($product['cart_quantity'] * $price);
                         $quantity = (($product['quantity'] - $product['cart_quantity']) > 0) ? ($product['quantity'] - $product['cart_quantity']) : 0;
+
                         // Изменение общего кол-ва товара в ИМ
                         $up_data = $this->db->query('
                             UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
@@ -2351,12 +2356,16 @@ class Store_model extends CI_Model
                                 $fc_price = !empty($attached['discount_fc_price']) ? $attached['discount_fc_price'] : $attached['fc_price'];
 
                                 $in_data2 = $this->db->query('
-                                    INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, `ouc_p_fitcoin_price`) 
-                                    VALUES (?, ?, ?, ?, ?, ?, ?)', array($order_id, $user_id, $attached['id'], $product_id, $attached['cart_quantity'], $price, $fc_price));
+                                    INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, 
+                                        `ouc_p_quantity`, `ouc_p_price`, `ouc_p_fitcoin_price`) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                        array($order_id, $user_id, $attached['id'], $product_id, $attached['cart_quantity'], $price, $fc_price));
 
                                 if ($in_data2 !== false and 1 == $this->db->affected_rows())
                                 {
+                                    $result['total_amount'] += ($attached['cart_quantity'] * $price);
                                     $quantity = (($attached['quantity'] - $attached['cart_quantity']) > 0) ? ($attached['quantity'] - $attached['cart_quantity']) : 0;
+
                                     // Изменение общего кол-ва товара в ИМ
                                     $up_data2 = $this->db->query('
                                         UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
