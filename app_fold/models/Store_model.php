@@ -2622,6 +2622,76 @@ class Store_model extends CI_Model
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ЗАКАЗА */
 
+    /* НАЧАЛО БЛОКА ФУНКЦИЙ ОПЛАТЫ */
+
+    /**
+     * Добавление данных оплаты заказака
+     *
+     * @param int $order_id
+     * @param string $payment_id
+     * @param string $payment_status (pending, waiting_for_capture, succeeded, canceled)
+     * @param float $total_amount
+     * @return bool
+     */
+    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount)
+    {
+        $ins_data = $this->db->query('
+            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`) 
+            VALUES (?, ?, ?, ?)', array($order_id, $payment_id, $payment_status, $total_amount));
+        if ($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif ($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Изменение данных оплаты заказа
+     *
+     * @param string $payment_id
+     * @param string $payment_status (pending, waiting_for_capture, succeeded, canceled)
+     * @param bool $payment_paid
+     * @param string $payment_created_at
+     * @param string $payment_expires_at
+     * @param string $payment_method_id
+     * @param bool $payment_method_saved
+     * @return bool
+     */
+    public function updatePaymentStatus($payment_id, $payment_status, $payment_paid, $payment_created_at,
+                                        $payment_expires_at, $payment_method_id, $payment_method_saved)
+    {
+        $up_data = $this->db->query('
+            UPDATE `orders_payment` 
+            SET `op_status`=?, `op_paid`=?, `op_create_at`=?, `op_expires_at`=?, `op_payment_method_id`=?, 
+              `op_payment_method_saved`=?
+            WHERE `op_payment_id`=? LIMIT 1',
+                array($payment_status, $payment_paid, $payment_created_at, $payment_expires_at,
+                    $payment_method_id, $payment_method_saved, $payment_id));
+        if ($up_data !== false and 1 == $this->db->affeceted_rows())
+        {
+            return true;
+        }
+        elseif ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */
+
     /**
      * Поиск товаров по ID или наименованию
      *

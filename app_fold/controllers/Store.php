@@ -1154,8 +1154,8 @@ class Store extends CI_Controller
         if (!empty($response->_id)) {
             if ($response->_status == 'pending')
             {
-                // Создание
-                //$this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status);
+                // Сохранение данных оплаты в БД
+                $this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount);
 
                 header('Location: ' . $response->_confirmation->confirmation_url);
             }
@@ -1169,29 +1169,53 @@ class Store extends CI_Controller
 
         if ($response->type == 'notification')
         {
-            $order = $response->object;
+            $payment = $response->object;
 
             // Подтверждение платежа или отмена
-            if ($order->status == 'waiting_for_capture')
+            if ($payment->status == 'waiting_for_capture')
             {
+                $this->Store_model->updatePaymentStatus($payment->id, $payment->status, $payment->paid, $payment->created_at,
+                    $payment->expires_at, $payment->payment_method->id, $payment->payment_method->saved);
 
+                $idempotenceKey = uniqid('', true);
+                $client = new Client();
+                $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+                if ($payment->paid === true)
+                {
+                    // Подтверждение платежа
+                    $client->capturePayment(
+                        array(
+                            'amount' => $payment->amount,
+                        ),
+                        $payment->id,
+                        $idempotenceKey
+                    );
+                }
+                else
+                {
+                    // Отмена платежа
+                    $client->cancelPayment(
+                        $payment->id,
+                        uniqid('', true)
+                    );
+                }
             }
             // Платеж прошел успешно
-            elseif($order->status == 'succeeded')
+            elseif($payment->status == 'succeeded')
             {
-
+                $this->Store_model->updatePaymentStatus($payment->id, $payment->status, $payment->paid, $payment->created_at,
+                    $payment->expires_at, $payment->payment_method->id, $payment->payment_method->saved);
             }
             // Платеж отменен
-            elseif($order->status == 'canceled')
+            elseif($payment->status == 'canceled')
             {
-
+                $this->Store_model->updatePaymentStatus($payment->id, $payment->status, $payment->paid, $payment->created_at,
+                    $payment->expires_at, $payment->payment_method->id, $payment->payment_method->saved);
             }
         }
-    }
 
-    public function paymentTestNotifications()
-    {
-
+        header("HTTP/1.0 200 OK");
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */

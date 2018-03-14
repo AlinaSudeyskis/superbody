@@ -4059,7 +4059,7 @@ class Course extends CI_Controller
         $course         = $this->Course_model->getAvailableCourse($course_id);
         $course_couches = $this->Course_model->getCourseCouchesId($course_id);
         $user_courses   = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
-        $landing        = null;
+        $landing        = array();
 
         if (!empty($course['course']) and !empty($course['course']['landing']['id']))
         {
