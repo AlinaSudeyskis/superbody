@@ -15,6 +15,8 @@ class Store_model extends CI_Model
 {
     const SHOPID = 188363;
     const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
+    const SCID = 715012;
+    const TEST_SCID = 561490;
 
     /**
      * Выборка всех категорий
@@ -2491,7 +2493,25 @@ class Store_model extends CI_Model
 
                     if ($row->op_status != 'succeeded' or $row->op_status != 'canceled')
                     {
+                        $payment = self::checkPayment($row->op_payment_id);
 
+                        if (!empty($payment->_status) and $row->op_status != $payment->_status)
+                        {
+                            if ($payment->_status == 'waiting_for_capture')
+                            {
+                                //self::capturePayment($payment->_id, $payment->_amount->_value, $payment->_amount->_currency);
+
+                                $payment = self::checkPayment($row->op_payment_id);
+                            }
+
+                            $created_at = $payment->_createdAt->_date . $payment->_createdAt->_timezone;
+                            $expires_at = $payment->_expiresAt->_date . $payment->_expiresAt->_timezone;
+                            $method_id = $payment->_paymentMethod->_id;
+                            $method_saved = $payment->_paymentMethod->_saved;
+
+                            self::updatePaymentStatus($row->op_status, $payment->_status, $payment->_paid, $created_at,
+                                $expires_at, $method_id, $method_saved);
+                        }
                     }
 
                     $i++;
@@ -2662,13 +2682,15 @@ class Store_model extends CI_Model
      * @param string $payment_id
      * @param string $payment_status (pending, waiting_for_capture, succeeded, canceled)
      * @param float $total_amount
+     * @param string $created_at
      * @return bool
      */
-    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount)
+    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $created_at)
     {
         $ins_data = $this->db->query('
-            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`) 
-            VALUES (?, ?, ?, ?)', array($order_id, $payment_id, $payment_status, $total_amount));
+            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`, `op_created_at`) 
+            VALUES (?, ?, ?, ?, ?)',
+                array($order_id, $payment_id, $payment_status, $total_amount, $created_at));
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
             return true;
@@ -2696,8 +2718,8 @@ class Store_model extends CI_Model
      * @param bool $payment_method_saved
      * @return bool
      */
-    public function updatePaymentStatus($payment_id, $payment_status, $payment_paid, $payment_created_at,
-                                        $payment_expires_at, $payment_method_id, $payment_method_saved)
+    public function updatePaymentStatus($payment_id, $payment_status, $payment_paid, $payment_created_at, $payment_expires_at,
+                                        $payment_method_id, $payment_method_saved)
     {
         $up_data = $this->db->query('
             UPDATE `orders_payment` 
@@ -2721,14 +2743,96 @@ class Store_model extends CI_Model
         }
     }
 
-    protected function checkPayment($payment_id)
+    /**
+     * Получение данных о платеже
+     *
+     * @param $payment_id
+     * @return \YandexCheckout\Model\PaymentInterface
+     */
+    public function checkPayment($payment_id)
     {
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         $payment = $client->getPaymentInfo($payment_id);
 
-        log_message('debug', print_r($payment, true));
+        return $payment;
+    }
+
+    /**
+     * Создание платежа
+     *
+     * @param $order_id
+     * @param $total_amount
+     * @return \YandexCheckout\Request\Payments\CreatePaymentResponse
+     */
+    public function createPayment($order_id, $total_amount)
+    {
+        $idempotenceKey = uniqid('', true);
+        $description    = 'Оплата заказа №' . $order_id;
+        $return_url     = 'https://superbody.pro/ordering/' . $order_id;
+
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        $response = $client->createPayment(
+            array(
+                'amount' => array(
+                    'value' => $total_amount,
+                    'currency' => 'RUB'
+                ),
+                'description' => $description,
+                'confirmation' => array(
+                    'type' => 'redirect',
+                    'return_url' => $return_url,
+                ),
+            ),
+            $idempotenceKey
+        );
+
+        return $response;
+    }
+
+    /**
+     * Подтверждение платежа
+     *
+     * @param $payment_id
+     * @param $value
+     * @param $currency
+     */
+    public function capturePayment($payment_id, $value, $currency)
+    {
+        $idempotenceKey = uniqid('', true);
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        // Подтверждение платежа
+        $client->capturePayment(
+            array(
+                'amount' => array(
+                    'value' => $value,
+                    'currency' => $currency,
+                ),
+            ),
+            $payment_id,
+            $idempotenceKey
+        );
+    }
+
+    /**
+     * Отмена платежа
+     *
+     * @param $payment_id
+     */
+    public function cancelPayment($payment_id)
+    {
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        $client->cancelPayment(
+            $payment_id,
+            uniqid('', true)
+        );
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */
@@ -2975,7 +3079,7 @@ class Store_model extends CI_Model
         // Дата добавления
         setlocale(LC_ALL, 'ru_RU.UTF-8');
         $date     = DateTime::createFromFormat('Y-m-d H:i:s', $row->o_date_add);
-        $date_add = ($row->o_date_add != '0000-00-00 00:00:00' or $date !== false)
+        $date_add = ($row->o_date_add != '0000-00-00 00:00:00' and $date !== false)
             ? strftime('%d %B %G, %H:%M', strtotime($row->o_date_add))
             : '';
         $result['date'] = $date_add;
@@ -3069,17 +3173,17 @@ class Store_model extends CI_Model
         $result['method_id']    = $row->op_payment_method_id;
 
         setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $dt_create = DateTime::createFromFormat(DATE_ATOM, $row->op_created_at);
-        $create_at = (!empty($row->op_created_at) or $dt_create !== false)
+        $dt_create = new DateTime($row->op_created_at);
+        $created_at = (!empty($row->op_created_at) and $dt_create !== false)
             ? $dt_create->format('d F Y, H:i')
             : '';
-        $dt_expires = DateTime::createFromFormat(DATE_ATOM, $row->op_expires_at);
-        $expires_at = (!empty($row->op_expires_at) or $dt_expires !== false)
+        $dt_expires = new DateTime($row->op_expires_at);
+        $expires_at = (!empty($row->op_expires_at) and $dt_expires !== false)
             ? $dt_expires->format('d F Y, H:i')
             : '';
 
         $result['following_date'] = $row->op_following_date;
-        $result['create_at']      = $create_at;
+        $result['created_at']     = $created_at;
         $result['expires_at']     = $expires_at;
 
         return $result;

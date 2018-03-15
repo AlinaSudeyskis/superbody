@@ -1,7 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-use YandexCheckout\Client;
 
 /**
  * Класс Store
@@ -13,11 +12,6 @@ use YandexCheckout\Client;
  */
 class Store extends CI_Controller
 {
-    const SHOPID = 188363;
-    const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
-    const SCID = 715012;
-    const TEST_SCID = 561490;
-
     /**
      * Store constructor.
      */
@@ -1133,27 +1127,8 @@ class Store extends CI_Controller
      */
     public function payment($order_id, $total_amount)
     {
-        $idempotenceKey = uniqid('', true);
-        $description    = 'Оплата заказа №' . $order_id;
-        $return_url     = 'https://superbody.pro/ordering/' . $order_id;
-
-        $client = new Client();
-        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
-
-        $response = $client->createPayment(
-            array(
-                'amount' => array(
-                    'value' => $total_amount,
-                    'currency' => 'RUB'
-                ),
-                'description' => $description,
-                'confirmation' => array(
-                    'type' => 'redirect',
-                    'return_url' => $return_url,
-                ),
-            ),
-            $idempotenceKey
-        );
+        // Создание платежа
+        $response = $this->Store_model->createPayment($order_id, $total_amount);
 
         if (!empty($response->_id)) {
             if ($response->_status == 'pending')
@@ -1161,12 +1136,16 @@ class Store extends CI_Controller
                 // Сохранение данных оплаты в БД
                 $this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount);
 
+                // Перенаправление пользователя на страницу оплаты
                 header('Location: ' . $response->_confirmation->confirmation_url);
             }
         }
 
     }
 
+    /**
+     * Прием уведомлений от Яндекс.Касса
+     */
     public function paymentNotifications()
     {
         $response = json_decode(file_get_contents("php://input"));
@@ -1178,41 +1157,17 @@ class Store extends CI_Controller
             // Подтверждение платежа или отмена
             if ($payment->status == 'waiting_for_capture')
             {
-                $idempotenceKey = uniqid('', true);
-                $client = new Client();
-                $client->setAuth(self::SHOPID, self::SHOP_SECRET);
-
                 if ($payment->paid === true)
                 {
                     // Подтверждение платежа
-                    $client->capturePayment(
-                        array(
-                            'amount' => array(
-                                'value' => $payment->amount->value,
-                                'currency' => $payment->amount->currency,
-                            ),
-                        ),
-                        $payment->id,
-                        $idempotenceKey
-                    );
+                    $this->Store_model->capturePyament($payment->id, $payment->amount->value, $payment->amount->currency);
                 }
                 else
                 {
                     // Отмена платежа
-                    $client->cancelPayment(
-                        $payment->id,
-                        uniqid('', true)
-                    );
+                    $this->Store_model->cancelPayment($payment->id);
                 }
             }
-            // Платеж прошел успешно
-            /*elseif($payment->status == 'succeeded')
-            {
-            }*/
-            // Платеж отменен
-            /*elseif($payment->status == 'canceled')
-            {
-            }*/
         }
 
         header("HTTP/1.0 200 OK");
