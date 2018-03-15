@@ -2497,13 +2497,6 @@ class Store_model extends CI_Model
 
                         if (!empty($payment->_status) and $row->op_status != $payment->_status)
                         {
-                            if ($payment->_status == 'waiting_for_capture')
-                            {
-                                //self::capturePayment($payment->_id, $payment->_amount->_value, $payment->_amount->_currency);
-
-                                $payment = self::checkPayment($row->op_payment_id);
-                            }
-
                             $created_at = $payment->_createdAt->_date . $payment->_createdAt->_timezone;
                             $expires_at = $payment->_expiresAt->_date . $payment->_expiresAt->_timezone;
                             $method_id = $payment->_paymentMethod->_id;
@@ -3073,7 +3066,7 @@ class Store_model extends CI_Model
         $result['payment']  = $payment;
         $result['payments'] = array();
 
-        $result['payment_status'] = 0;
+        $result['payment_status'] = '';
         $result['status']         = $row->o_status;
 
         // Дата добавления
@@ -3164,11 +3157,11 @@ class Store_model extends CI_Model
 
         $status = array('pending' => 'Ожидание оплаты от пользователя', 'waiting_for_capture' => 'Ожидание подтверждения магазина',
             'succeeded' => 'Оплачено', 'canceled' => 'Отменено', '' => '');
-        $result['status'] = (array_search($row->op_status, $status) !== false)
-            ? array_search($row->op_status, $status) : '';
+        $result['status'] = (array_key_exists($row->op_status, $status) !== false)
+            ? $status[$row->op_status] : '';
 
-        $result['paid'] = ($row->op_paid == 1) ? 'Оплачено' : 'Не оплачено';
-
+        $result['status_code']  = $row->op_status;
+        $result['paid']         = ($row->op_paid == 1) ? 'Оплачено' : 'Не оплачено';
         $result['method_saved'] = $row->op_payment_method_saved;
         $result['method_id']    = $row->op_payment_method_id;
 

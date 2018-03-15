@@ -277,6 +277,11 @@ h3.landing span{
 .ordering_block_col_cont.tov_number{
     text-align: center;
 }
+.ordering_block_bottom{
+    float: none;
+    clear: both;
+    padding: 20px;
+}
 
 .anketa_form_radio.long + label{
     width: 160px;
