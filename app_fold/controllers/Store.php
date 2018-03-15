@@ -1178,9 +1178,6 @@ class Store extends CI_Controller
             // Подтверждение платежа или отмена
             if ($payment->status == 'waiting_for_capture')
             {
-                $this->Store_model->updatePaymentStatus($payment->id, $payment->status, $payment->paid, $payment->created_at,
-                    $payment->expires_at, $payment->payment_method->id, $payment->payment_method->saved);
-
                 $idempotenceKey = uniqid('', true);
                 $client = new Client();
                 $client->setAuth(self::SHOPID, self::SHOP_SECRET);
@@ -1209,17 +1206,13 @@ class Store extends CI_Controller
                 }
             }
             // Платеж прошел успешно
-            elseif($payment->status == 'succeeded')
+            /*elseif($payment->status == 'succeeded')
             {
-                $this->Store_model->updatePaymentStatus($payment->id, $payment->status, $payment->paid, $payment->created_at,
-                    $payment->expires_at, $payment->payment_method->id, $payment->payment_method->saved);
-            }
+            }*/
             // Платеж отменен
-            elseif($payment->status == 'canceled')
+            /*elseif($payment->status == 'canceled')
             {
-                $this->Store_model->updatePaymentStatus($payment->id, $payment->status, $payment->paid, $payment->created_at,
-                    $payment->expires_at, $payment->payment_method->id, $payment->payment_method->saved);
-            }
+            }*/
         }
 
         header("HTTP/1.0 200 OK");

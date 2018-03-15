@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+use YandexCheckout\Client;
+
 /**
  * Класс Store_model
  *
@@ -11,6 +13,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Store_model extends CI_Model
 {
+    const SHOPID = 188363;
+    const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
+
     /**
      * Выборка всех категорий
      *
@@ -2484,6 +2489,11 @@ class Store_model extends CI_Model
                 {
                     $result['order']['payments'][$i] = self::parsePaymentData($row);
 
+                    if ($row->op_status != 'succeeded' or $row->op_status != 'canceled')
+                    {
+
+                    }
+
                     $i++;
                 }
                 unset($row);
@@ -2709,6 +2719,16 @@ class Store_model extends CI_Model
         {
             return false;
         }
+    }
+
+    protected function checkPayment($payment_id)
+    {
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        $payment = $client->getPaymentInfo($payment_id);
+
+        log_message('debug', print_r($payment, true));
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */
@@ -2946,7 +2966,8 @@ class Store_model extends CI_Model
 
         $payment = 'Оплата наличными при получении';
         $payment = $row->o_payment == 2 ? 'Онлайн оплата' : $row->o_payment == 3 ? 'Банковский перевод' : $payment;
-        $result['payment'] = $payment;
+        $result['payment']  = $payment;
+        $result['payments'] = array();
 
         $result['payment_status'] = 0;
         $result['status']         = $row->o_status;
@@ -2964,9 +2985,9 @@ class Store_model extends CI_Model
         $result['street']   = $row->oud_street;
         $result['building'] = $row->oud_building;
         $result['house']    = $row->oud_house;
-        $result['postcode'] = $row->oud_postcode;
+        $result['postcode'] = ($row->oud_postcode != 0) ? $row->oud_postcode : '';
 
-        $postcode = !empty($row->oud_postcode) ? $row->oud_postcode . ' ' : '';
+        $postcode = ($row->oud_postcode != 0) ? $row->oud_postcode . ' ' : '';
         $country  = !empty($row->oud_country) ? $row->oud_country . ', ' : '';
         $city     = !empty($row->oud_city) ? $row->oud_city . ', ' : '';
         $street   = !empty($row->oud_street) ? $row->oud_street . ', ' : '';
