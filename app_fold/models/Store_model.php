@@ -2776,7 +2776,7 @@ class Store_model extends CI_Model
             WHERE `op_payment_id`=? LIMIT 1',
                 array($payment_status, $payment_paid, $payment_created_at, $payment_expires_at,
                     $payment_method_id, $payment_method_saved, $payment_id));
-        if ($up_data !== false and 1 == $this->db->affeceted_rows())
+        if ($up_data !== false and 1 == $this->db->affected_rows())
         {
             $order_status = ($payment_status == 'succeeded') ? 1 : 0;
 
