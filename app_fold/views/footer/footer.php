@@ -54,7 +54,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <li><a href="/couches">Наши тренеры</a></li>
                             <li><a href="/courses">Курсы</a></li>
                             <?php if (!empty($user_session)):?>
-                                <li><a href="'/profile/'<?php echo $user_session['id']; ?>">Профиль</a></li>
+                                <li><a href="/profile/'<?php echo $user_session['id']; ?>">Профиль</a></li>
                                 <li><a href="/store">Магазин</a></li>
                             <?php endif;?>
                             <li><a href="/contacts">Контакты</a></li>
