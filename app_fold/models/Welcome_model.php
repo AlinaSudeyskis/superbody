@@ -258,6 +258,6 @@ class Welcome_model extends CI_Model
 
         // 16.03.2018
         //$this->db->query('ALTER TABLE `orders_payment` ADD `op_currency` VARCHAR(3) NOT NULL AFTER `op_amount`');
-        $this->db->query('ALTER TABLE `orders_payment` ADD `op_payment_type` VARCHAR(25) NOT NULL AFTER `op_number`');
+        //$this->db->query('ALTER TABLE `orders_payment` ADD `op_payment_type` VARCHAR(25) NOT NULL AFTER `op_number`');
     }
 }

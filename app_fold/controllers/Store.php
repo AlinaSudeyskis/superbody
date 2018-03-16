@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Store extends CI_Controller
 {
     const CURRENCY = 'RUB';
-    const PAYMENT_METHODS = array('bank_card');
+    const PAYMENT_METHOD = 'bank_card';
 
     /**
      * Store constructor.
