@@ -2689,6 +2689,8 @@ class Store_model extends CI_Model
                 {
                     $payment = self::checkPayment($row->op_payment_id);
 
+                    log_message('debug', 'Payment info: ' . print_r($payment, true));
+
                     if (!empty($payment->_status) and $row->op_status != $payment->_status)
                     {
                         $created_at = $payment->_createdAt->_date . $payment->_createdAt->_timezone;
@@ -2703,8 +2705,6 @@ class Store_model extends CI_Model
 
                         if ($payment->_status == 'pending')
                         {
-                            log_message('debug', 'Payment info: ' . print_r($payment, true));
-
                             $confirm_url = !empty($payment->_confirmation->_confirmation_url) ? $payment->_confirmation->_confirmation_url : '';
                         }
 
@@ -3133,9 +3133,9 @@ class Store_model extends CI_Model
         $delivery = $row->o_delivery == 2 ? 'Почта' : $row->o_delivery == 3 ? 'Самовывоз' : $delivery;
         $result['delivery'] = $delivery;
 
-        $payment = 'Оплата наличными при получении';
-        $payment = $row->o_payment == 2 ? 'Онлайн оплата' : $row->o_payment == 3 ? 'Банковский перевод' : $payment;
-        $result['payment']  = $payment;
+        /*$payment = 'Оплата наличными при получении';
+        $payment = $row->o_payment == 2 ? 'Онлайн оплата' : $row->o_payment == 3 ? 'Банковский перевод' : $payment;*/
+        $result['payment']  = 'Банковская карта';
         $result['payments'] = array();
 
         $result['payment_status'] = '';
