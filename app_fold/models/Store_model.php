@@ -2674,7 +2674,7 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_payments = $this->db->query('
-            SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, 
+            SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, `op_captured_at`
                 `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
             FROM `orders_payment`
             WHERE `op_o_id`=?', $order_id);
@@ -2689,13 +2689,12 @@ class Store_model extends CI_Model
                 {
                     $payment = self::checkPayment($row->op_payment_id);
 
-                    log_message('debug', 'Payment info: ' . print_r($payment, true));
-
                     if (!empty($payment->_status) and $row->op_status != $payment->_status)
                     {
-                        $created_at = $payment->_createdAt->_date . $payment->_createdAt->_timezone;
-                        $expires_at = $payment->_expiresAt->_date . $payment->_expiresAt->_timezone;
-                        $method_id = $payment->_paymentMethod->_id;
+                        $created_at   = !empty($payment->_createdAt->_date) ? $payment->_createdAt->_date . $payment->_createdAt->_timezone : $row->op_created_at;
+                        $expires_at   = !empty($payment->_expiresAt->_date) ? $payment->_expiresAt->_date . $payment->_expiresAt->_timezone : $row->op_expires_at;
+                        $captured_at  = !empty($payment->_capturedAt->_date) ? $payment->_capturedAt->_date : '';
+                        $method_id    = $payment->_paymentMethod->_id;
                         $method_saved = $payment->_paymentMethod->_saved;
 
                         $row->op_status = $payment->_status;
@@ -2705,11 +2704,11 @@ class Store_model extends CI_Model
 
                         if ($payment->_status == 'pending')
                         {
-                            $confirm_url = !empty($payment->_confirmation->_confirmation_url) ? $payment->_confirmation->_confirmation_url : '';
+                            $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
                         }
 
                         self::updatePaymentStatus($order_id, $payment->_id, $payment->_status, $payment->_paid, $created_at,
-                            $expires_at, $method_id, $method_saved);
+                            $expires_at, $captured_at, $method_id, $method_saved);
                     }
                 }
 
@@ -2769,19 +2768,20 @@ class Store_model extends CI_Model
      * @param bool $payment_paid
      * @param string $payment_created_at
      * @param string $payment_expires_at
+     * @param string $payment_captured_at
      * @param string $payment_method_id
      * @param bool $payment_method_saved
      * @return bool
      */
     public function updatePaymentStatus($order_id, $payment_id, $payment_status, $payment_paid, $payment_created_at,
-                                        $payment_expires_at, $payment_method_id, $payment_method_saved)
+                                        $payment_expires_at, $payment_captured_at, $payment_method_id, $payment_method_saved)
     {
         $up_data = $this->db->query('
             UPDATE `orders_payment` 
-            SET `op_status`=?, `op_paid`=?, `op_created_at`=?, `op_expires_at`=?, `op_payment_method_id`=?, 
+            SET `op_status`=?, `op_paid`=?, `op_created_at`=?, `op_captured_at`=?, `op_expires_at`=?, `op_payment_method_id`=?, 
               `op_payment_method_saved`=?
             WHERE `op_payment_id`=? LIMIT 1',
-                array($payment_status, $payment_paid, $payment_created_at, $payment_expires_at,
+                array($payment_status, $payment_paid, $payment_created_at, $payment_captured_at, $payment_expires_at,
                     $payment_method_id, $payment_method_saved, $payment_id));
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
