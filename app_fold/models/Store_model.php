@@ -2684,7 +2684,7 @@ class Store_model extends CI_Model
             $i = 0;
             foreach($sel_payments->result() as $row)
             {
-                $result[$i] = self::parsePaymentData($row);
+                $confirm_url = '';
 
                 if ($row->op_status != 'succeeded' and $row->op_status != 'canceled')
                 {
@@ -2692,22 +2692,30 @@ class Store_model extends CI_Model
 
                     if (!empty($payment->_status) and $row->op_status != $payment->_status)
                     {
-                        if ($payment->_status == 'pending')
-                        {
-                            log_message('debug', 'Payment info: ' . print_r($payment, true));
-
-                            $result[$i]['confirm_url'] = !empty($payment->_confirmation->_confirmation_url) ? $payment->_confirmation->_confirmation_url : '';
-                        }
-
                         $created_at = $payment->_createdAt->_date . $payment->_createdAt->_timezone;
                         $expires_at = $payment->_expiresAt->_date . $payment->_expiresAt->_timezone;
                         $method_id = $payment->_paymentMethod->_id;
                         $method_saved = $payment->_paymentMethod->_saved;
 
-                        self::updatePaymentStatus($order_id, $row->op_status, $payment->_status, $payment->_paid, $created_at,
+                        $row->op_status = $payment->_status;
+                        $row->op_paid = $payment->_paid;
+                        $row->op_payment_method_id = $method_id;
+                        $row->op_payment_method_saved = $method_saved;
+
+                        if ($payment->_status == 'pending')
+                        {
+                            log_message('debug', 'Payment info: ' . print_r($payment, true));
+
+                            $confirm_url = !empty($payment->_confirmation->_confirmation_url) ? $payment->_confirmation->_confirmation_url : '';
+                        }
+
+                        self::updatePaymentStatus($order_id, $payment->_id, $payment->_status, $payment->_paid, $created_at,
                             $expires_at, $method_id, $method_saved);
                     }
                 }
+
+                $result[$i] = self::parsePaymentData($row);
+                $result[$i]['confirm_url'] = $confirm_url;
 
                 $i++;
             }
@@ -2778,11 +2786,9 @@ class Store_model extends CI_Model
                     $payment_method_id, $payment_method_saved, $payment_id));
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            $order_status = ($payment_status == 'succeeded') ? 1 : 0;
-
-            if ($order_status == 1)
+            if ($payment_status == 'succeeded')
             {
-                self::updateOrderStatus($order_id, $order_status);
+                self::updateOrderStatus($order_id, 1);
             }
 
             return true;
