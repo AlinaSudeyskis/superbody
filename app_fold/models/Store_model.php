@@ -2481,7 +2481,7 @@ class Store_model extends CI_Model
             // Даннаые оплаты заказа
             $sel_payments = $this->db->query('
                 SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, 
-                    `op_expires_at`, `op_amount`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
+                    `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
                 FROM `orders_payment`
                 WHERE `op_o_id`=?', $order_id);
             if ($sel_payments !== false and 0 < $sel_payments->num_rows())
@@ -2675,15 +2675,16 @@ class Store_model extends CI_Model
      * @param string $payment_id
      * @param string $payment_status (pending, waiting_for_capture, succeeded, canceled)
      * @param float $total_amount
+     * @param string $currency
      * @param string $created_at
      * @return bool
      */
-    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $created_at)
+    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at)
     {
         $ins_data = $this->db->query('
-            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`, `op_created_at`) 
-            VALUES (?, ?, ?, ?, ?)',
-                array($order_id, $payment_id, $payment_status, $total_amount, $created_at));
+            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_created_at`) 
+            VALUES (?, ?, ?, ?, ?, ?)',
+                array($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at));
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
             return true;
@@ -2755,11 +2756,12 @@ class Store_model extends CI_Model
     /**
      * Создание платежа
      *
-     * @param $order_id
-     * @param $total_amount
+     * @param int $order_id
+     * @param float $value
+     * @param string $currency
      * @return \YandexCheckout\Request\Payments\CreatePaymentResponse
      */
-    public function createPayment($order_id, $total_amount)
+    public function createPayment($order_id, $value, $currency)
     {
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
@@ -2771,8 +2773,8 @@ class Store_model extends CI_Model
         $response = $client->createPayment(
             array(
                 'amount' => array(
-                    'value' => $total_amount,
-                    'currency' => 'RUB'
+                    'value' => $value,
+                    'currency' => $currency
                 ),
                 'description' => $description,
                 'confirmation' => array(
@@ -2789,9 +2791,9 @@ class Store_model extends CI_Model
     /**
      * Подтверждение платежа
      *
-     * @param $payment_id
-     * @param $value
-     * @param $currency
+     * @param string $payment_id
+     * @param float $value
+     * @param string $currency
      */
     public function capturePayment($payment_id, $value, $currency)
     {
@@ -2815,7 +2817,7 @@ class Store_model extends CI_Model
     /**
      * Отмена платежа
      *
-     * @param $payment_id
+     * @param string $payment_id
      */
     public function cancelPayment($payment_id)
     {
@@ -3152,8 +3154,9 @@ class Store_model extends CI_Model
      */
     protected function parsePaymentData($row)
     {
-        $result['id']     = $row->op_payment_id;
-        $result['amount'] = $row->op_amount;
+        $result['id']       = $row->op_payment_id;
+        $result['amount']   = $row->op_amount;
+        $result['currency'] = $row->op_currency;
 
         $status = array('pending' => 'Ожидание оплаты от пользователя', 'waiting_for_capture' => 'Ожидание подтверждения магазина',
             'succeeded' => 'Оплачено', 'canceled' => 'Отменено', '' => '');
@@ -3177,6 +3180,7 @@ class Store_model extends CI_Model
 
         $result['following_date'] = $row->op_following_date;
         $result['created_at']     = $created_at;
+        $result['created_at_orig'] = $row->op_created_at;
         $result['expires_at']     = $expires_at;
 
         return $result;

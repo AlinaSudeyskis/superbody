@@ -1133,8 +1133,9 @@ class Store extends CI_Controller
         if (!empty($response->_id)) {
             if ($response->_status == 'pending')
             {
+                $created_at = $response->_createdAt->_date . $response->_createdAt->_timezone;
                 // Сохранение данных оплаты в БД
-                $this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount);
+                $this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount, 'RUB', $created_at);
 
                 // Перенаправление пользователя на страницу оплаты
                 header('Location: ' . $response->_confirmation->confirmation_url);
