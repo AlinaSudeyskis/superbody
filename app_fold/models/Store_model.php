@@ -2702,15 +2702,14 @@ class Store_model extends CI_Model
                         $row->op_payment_method_id = $method_id;
                         $row->op_payment_method_saved = $method_saved;
 
-                        if ($payment->_status == 'pending')
-                        {
-                            log_message('debug', 'Payment: ' . print_r($payment, true));
-                            log_message('debug', '_confirmationUrl: ' . print_r($payment->_confirmation->_confirmationUrl, true));
-                            $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
-                        }
-
                         self::updatePaymentStatus($order_id, $payment->_id, $payment->_status, $payment->_paid, $created_at,
                             $expires_at, $captured_at, $method_id, $method_saved);
+                    }
+
+                    if ($payment->_status == 'pending')
+                    {
+                        log_message('debug', '_confirmationUrl: ' . print_r($payment->_confirmation->_confirmationUrl, true));
+                        $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
                     }
                 }
 
