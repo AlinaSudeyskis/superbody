@@ -1163,11 +1163,11 @@ class Store extends CI_Controller
                     // Подтверждение платежа
                     $this->Store_model->capturePyament($payment->id, $payment->amount->value, $payment->amount->currency);
                 }
-                else
+                /*else
                 {
                     // Отмена платежа
                     $this->Store_model->cancelPayment($payment->id);
-                }
+                }*/
             }
         }
 
@@ -1176,7 +1176,7 @@ class Store extends CI_Controller
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */
 
-    /* БЛОК AJAX ФУНКЦИЙ ОПЛАТЫ */
+    /* БЛОК AJAX ФУНКЦИЙ */
 
     /**
      * AJAX. Получение подкатегорий для категории

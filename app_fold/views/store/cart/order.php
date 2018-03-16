@@ -122,30 +122,33 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </div>
                     </div>
-                    <div class="ordering_block_bottom">
-                        <div class="ordering_block_side_head">Данные о платеже</div>
-                        <div class="ordering_block_side_info">
-                            <div class="ordering_block_side_info_h_wrap parent">
-                                <div class="ordering_block_side_info_h">ID: <?php echo $order['payments'][0]['id'];?></div>
-                            </div>
-                            <div class="ordering_block_side_cont">
-                                <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $order['payment']; ?></div>
-                                <div class="ordering_block_side_cont_txt">Сумма: <?php echo $order['payments'][0]['amount'] . ' ' . $order['payments'][0]['currency'];?></div>
-                                <div class="ordering_block_side_cont_txt">Статус: <?php echo $order['payments'][0]['status'];?></div>
-                                <div class="ordering_block_side_cont_txt">Оплата: <?php echo $order['payments'][0]['paid'];?></div>
-                                <div class="ordering_block_side_cont_txt">Создан: <?php echo $order['payments'][0]['created_at'] . ' (' . $order['payments'][0]['created_at_orig'] . ')';?></div>
-                                <div class="ordering_block_side_cont_txt">Истекает: <?php echo $order['payments'][0]['expires_at'];?></div>
+                    <?php if(!empty($order['payments'])): ?>
+                        <div class="ordering_block_bottom">
+                            <div class="ordering_block_side_head">Данные о платеже</div>
+                            <div class="ordering_block_side_info">
+                                <div class="ordering_block_side_info_h_wrap parent">
+                                    <div class="ordering_block_side_info_h">ID: <?php echo $order['payments'][0]['id'];?></div>
+                                </div>
+                                <div class="ordering_block_side_cont">
+                                    <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $order['payment']; ?></div>
+                                    <div class="ordering_block_side_cont_txt">Сумма: <?php echo $order['payments'][0]['amount'] . ' ' . $order['payments'][0]['currency'];?></div>
+                                    <div class="ordering_block_side_cont_txt">Статус: <?php echo $order['payments'][0]['status'];?></div>
+                                    <div class="ordering_block_side_cont_txt">Оплата: <?php echo $order['payments'][0]['paid'];?></div>
+                                    <div class="ordering_block_side_cont_txt">Создан: <?php echo $order['payments'][0]['created_at'] . ' (' . $order['payments'][0]['created_at_orig'] . ')';?></div>
+                                    <div class="ordering_block_side_cont_txt">Истекает: <?php echo $order['payments'][0]['expires_at'];?></div>
 
-                                <form action="" class="edit_kurs_form" id="1kurs_form" method="post" enctype="multipart/form-data">
-                                    <div class="video_admin_form_buts parent">
-                                        <?php if ($order['payments'][0]['status_code'] == 'waiting_for_capture'):?>
-                                            <input type="submit" name="bt_capture" value="Подтвердить" class="video_admin_form_send" />
-                                        <?php endif;?>
-                                    </div>
-                                </form>
+                                    <form action="" class="edit_kurs_form" id="1kurs_form" method="post" enctype="multipart/form-data">
+                                        <div class="video_admin_form_buts parent">
+                                            <?php if ($order['payments'][0]['status_code'] == 'waiting_for_capture'):?>
+                                                <input type="submit" name="bt_capture" value="Подтвердить платеж" class="video_admin_form_send" />
+                                                <input type="submit" name="bt_cancel" value="Отменить платеж" class="video_admin_form_block" />
+                                            <?php endif;?>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    <?php endif;?>
                 </div>
             </div>
         </div>

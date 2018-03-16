@@ -2491,7 +2491,7 @@ class Store_model extends CI_Model
                 {
                     $result['order']['payments'][$i] = self::parsePaymentData($row);
 
-                    if ($row->op_status != 'succeeded' or $row->op_status != 'canceled')
+                    if ($row->op_status != 'succeeded' and $row->op_status != 'canceled')
                     {
                         $payment = self::checkPayment($row->op_payment_id);
 
@@ -2502,7 +2502,7 @@ class Store_model extends CI_Model
                             $method_id = $payment->_paymentMethod->_id;
                             $method_saved = $payment->_paymentMethod->_saved;
 
-                            self::updatePaymentStatus($row->op_status, $payment->_status, $payment->_paid, $created_at,
+                            self::updatePaymentStatus($order_id, $row->op_status, $payment->_status, $payment->_paid, $created_at,
                                 $expires_at, $method_id, $method_saved);
                         }
                     }
@@ -2585,6 +2585,35 @@ class Store_model extends CI_Model
 
             unset($row);
 
+            // Даннаые оплаты заказа
+            $sel_payments = $this->db->query('
+                SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, 
+                    `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
+                FROM `orders_payment`
+                WHERE `op_o_id`=?', $order_id);
+            if ($sel_payments !== false and 0 < $sel_payments->num_rows())
+            {
+                $i = 0;
+                foreach($sel_payments->result() as $row)
+                {
+                    $result['order']['payments'][$i] = self::parsePaymentData($row);
+
+                    if ($row->op_status != 'pending')
+                    {
+                        $payment = self::checkPayment($row->op_payment_id);
+
+                        $result['order']['payments'][0]['confirm_url'] = !empty($payment->_confirmation->_confirmation_url) ? $payment->_confirmation->_confirmation_url : '';
+                    }
+
+                    $i++;
+                }
+                unset($row);
+            }
+            elseif ($sel_payments === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+
             // Выборка товаров заказа
             $sel_products = $this->db->query('
                 SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
@@ -2664,6 +2693,32 @@ class Store_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление статуса заказа
+     *
+     * @param int $order_id
+     * @param int $status
+     * @return bool
+     */
+    public function updateOrderStatus($order_id, $status)
+    {
+        $up_data = $this->db->query('UPDATE `orders` SET `o_status`=? WHERE `o_id`=? LIMIT 1', array($status, $order_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ЗАКАЗА */
 
     /* НАЧАЛО БЛОКА ФУНКЦИЙ ОПЛАТЫ */
@@ -2703,6 +2758,7 @@ class Store_model extends CI_Model
     /**
      * Изменение данных оплаты заказа
      *
+     * @param int $order_id
      * @param string $payment_id
      * @param string $payment_status (pending, waiting_for_capture, succeeded, canceled)
      * @param bool $payment_paid
@@ -2712,8 +2768,8 @@ class Store_model extends CI_Model
      * @param bool $payment_method_saved
      * @return bool
      */
-    public function updatePaymentStatus($payment_id, $payment_status, $payment_paid, $payment_created_at, $payment_expires_at,
-                                        $payment_method_id, $payment_method_saved)
+    public function updatePaymentStatus($order_id, $payment_id, $payment_status, $payment_paid, $payment_created_at,
+                                        $payment_expires_at, $payment_method_id, $payment_method_saved)
     {
         $up_data = $this->db->query('
             UPDATE `orders_payment` 
@@ -2724,6 +2780,13 @@ class Store_model extends CI_Model
                     $payment_method_id, $payment_method_saved, $payment_id));
         if ($up_data !== false and 1 == $this->db->affeceted_rows())
         {
+            $order_status = ($payment_status == 'succeeded') ? 1 : 0;
+
+            if ($order_status == 1)
+            {
+                self::updateOrderStatus($order_id, $order_status);
+            }
+
             return true;
         }
         elseif ($up_data === false)
@@ -3158,8 +3221,8 @@ class Store_model extends CI_Model
         $result['amount']   = $row->op_amount;
         $result['currency'] = $row->op_currency;
 
-        $status = array('pending' => 'Ожидание оплаты от пользователя', 'waiting_for_capture' => 'Ожидание подтверждения магазина',
-            'succeeded' => 'Оплачено', 'canceled' => 'Отменено', '' => '');
+        $status = array('pending' => 'Платеж ожидает подтверждения пользователем', 'waiting_for_capture' => 'Платеж ожиданиет подтверждения или отмены магазином',
+            'succeeded' => 'Платеж успешно завершен', 'canceled' => 'Платеж отменен', '' => '');
         $result['status'] = (array_key_exists($row->op_status, $status) !== false)
             ? $status[$row->op_status] : '';
 
