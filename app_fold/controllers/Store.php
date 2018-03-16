@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+use YandexCheckout\Client;
 
 /**
  * Класс Store
@@ -14,6 +15,10 @@ class Store extends CI_Controller
 {
     const CURRENCY = 'RUB';
     const PAYMENT_METHOD = 'bank_card';
+    const SHOPID = 188363;
+    const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
+    const SCID = 715012;
+    const TEST_SCID = 561490;
 
     /**
      * Store constructor.
@@ -1158,13 +1163,22 @@ class Store extends CI_Controller
                 if ($payment->paid === true)
                 {
                     // Подтверждение платежа
-                    $this->Store_model->capturePyament($payment->id, $payment->amount->value, $payment->amount->currency);
+                    $idempotenceKey = uniqid('', true);
+                    $client = new Client();
+                    $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+                    // Подтверждение платежа
+                    $client->capturePayment(
+                        array(
+                            'amount' => array(
+                                'value' => $payment->amount->value,
+                                'currency' => $payment->amount->currency,
+                            ),
+                        ),
+                        $payment->id,
+                        $idempotenceKey
+                    );
                 }
-                /*else
-                {
-                    // Отмена платежа
-                    $this->Store_model->cancelPayment($payment->id);
-                }*/
             }
         }
 
