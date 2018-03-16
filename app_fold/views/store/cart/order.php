@@ -133,8 +133,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="ordering_block_side_cont_txt">Сумма: <?php echo $order['payments'][0]['amount'] . ' ' . $order['payments'][0]['currency'];?></div>
                                     <div class="ordering_block_side_cont_txt">Статус: <?php echo $order['payments'][0]['status'];?></div>
                                     <div class="ordering_block_side_cont_txt">Оплата: <?php echo $order['payments'][0]['paid'];?></div>
-                                    <div class="ordering_block_side_cont_txt">Создан: <?php echo $order['payments'][0]['created_at'] . ' (' . $order['payments'][0]['created_at_orig'] . ')';?></div>
-                                    <div class="ordering_block_side_cont_txt">Истекает: <?php echo $order['payments'][0]['expires_at'];?></div>
+                                    <?php if(empty($order['payments'][0]['captured_at'])):
+                                        if (!empty($order['payments'][0]['created_at'])): ?>
+                                            <div class="ordering_block_side_cont_txt">Создан: <?php echo $order['payments'][0]['created_at'];?></div>
+                                        <?php endif;
+                                        if (!empty($order['payments'][0]['expires_at'])): ?>
+                                            <div class="ordering_block_side_cont_txt">Истекает: <?php echo $order['payments'][0]['expires_at'];?></div>
+                                        <?php endif;
+                                    else:?>
+                                        <div class="ordering_block_side_cont_txt">Подтвержден: <?php echo $order['payments'][0]['captured_at'];?></div>
+                                    <?php endif;?>
 
                                     <form action="" class="edit_kurs_form" id="1kurs_form" method="post" enctype="multipart/form-data">
                                         <div class="video_admin_form_buts parent">
