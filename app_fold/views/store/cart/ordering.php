@@ -153,19 +153,19 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                         <div class="ordering_block_info ordering_block_info2">
                             <div class="ordering_block_hide_h">Оплата</div>
                             <div class="ordering_block_info_h">Введите способы оплаты</div>
-                            <div class="ordering_radio_wrap">
+                            <!--<div class="ordering_radio_wrap">
                                 <input type="radio" name="i_o_payment" id="ordering_radio4" value="Оплата наличными при получении" />
                                 <label for="ordering_radio4">Оплата наличными при получении</label>
                                 <span class="ordering_radio_desk">Оплата заказа осуществляется непосредственно при доставке заказа.</span>
                             </div>
                             <div class="ordering_radio_wrap">
-                                <input type="radio" name="i_o_payment" id="ordering_radio5" checked="checked" value="Онлайн оплата" />
+                                <input type="radio" name="i_o_payment" id="ordering_radio5" value="Онлайн оплата" />
                                 <label for="ordering_radio5">Онлайн оплата</label>
                                 <span class="ordering_radio_desk">Вы будете перенаправлены на страницу платежной системы для совершения оплаты.</span>
-                            </div>
+                            </div>-->
                             <div class="ordering_radio_wrap">
-                                <input type="radio" name="i_o_payment" id="ordering_radio6" value="Банковский перевод" />
-                                <label for="ordering_radio6">Банковский перевод</label>
+                                <input type="radio" name="i_o_payment" id="ordering_radio6" checked="checked" value="Банковский перевод" />
+                                <label for="ordering_radio6">Банковская карта</label>
                                 <span class="ordering_radio_desk">Вы будете перенаправлены на страницу платежной системы для совершения оплаты.</span>
                             </div>
                             <div class="ordering_buts parent">

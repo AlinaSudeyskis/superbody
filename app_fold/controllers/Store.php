@@ -13,6 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Store extends CI_Controller
 {
     const CURRENCY = 'RUB';
+    const PAYMENT_METHODS = array('bank_card');
 
     /**
      * Store constructor.
@@ -1017,32 +1018,25 @@ class Store extends CI_Controller
 
             // Данные о платеже
             $a_p = array(1 => 'Оплата наличными при получении', 2 => 'Онлайн оплата', 3 => 'Банковский перевод');
-            $payment = (array_search($this->input->post('i_o_payment', true), $a_p) !== false)
-                ? array_search($this->input->post('i_o_payment', true), $a_p) : 1;
+            $payment_type = 'bank_card';
 
             // Товары заказа
             $products = $this->Store_model->getUserCartInStockProducts($this->user_id);
 
-            /*echo  $country.' '.$city.' '.$street.' '.$building.' '.$house.' '.$postcode.'<br/>';
-            echo  $this->input->post('i_o_country', true).' '.$this->input->post('i_o_city', true).' '.
-                $this->input->post('i_o_street', true).' '.$this->input->post('i_o_building', true).' '.
-                $this->input->post('i_o_house', true).' '.$this->input->post('i_o_postcode', true).'<br/>';*/
-
             if (!empty($products))
             {
                 $res_order = $this->Store_model->setOrder($this->user_id, $prev_address, $name, $surname, $email, $phone,
-                    $country, $city, $street, $building, $house, $postcode, $delivery, $payment, $products, $this->date);
+                    $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
 
                 if ($res_order !== false and is_numeric($res_order['order_id']))
                 {
                     // Кол-во товаров в корзине
                     parent::updateSessionCart(0);
 
-                    self::payment($res_order['order_id'], $res_order['total_amount']);
+                    self::payment($res_order['order_id'], $res_order['total_amount'], $payment_type);
 
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
-                    //header('Location: /ordering/' . $res_order['order_id']);
                 }
                 else
                 {
@@ -1124,13 +1118,14 @@ class Store extends CI_Controller
     /**
      * Формирование запроса на создание платежа Яндекс.Кассы
      *
-     * @param $order_id
-     * @param $total_amount
+     * @param int $order_id
+     * @param float $total_amount
+     * @param string $payment_type
      */
-    public function payment($order_id, $total_amount)
+    public function payment($order_id, $total_amount, $payment_type)
     {
         // Создание платежа
-        $response = $this->Store_model->createPayment($order_id, $total_amount, self::CURRENCY);
+        $response = $this->Store_model->createPayment($order_id, $total_amount, self::CURRENCY, $payment_type);
 
         if (!empty($response->_id)) {
             if ($response->_status == 'pending')

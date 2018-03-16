@@ -2257,25 +2257,24 @@ class Store_model extends CI_Model
      * Создание заказа, сохранение адреса пользователя, сохранение товаров заказа
      *
      * @param int $user_id
-     * @param int|null $prev_address Предыдущий адрес
-     * @param string $name Имя пользователя
-     * @param string $surname Фамилия пользователя
-     * @param string $email Email пользователя
-     * @param string $phone Телефон пользователя
-     * @param string|null $country Страна доставки
-     * @param string|null $city Город
-     * @param string|null $street Улица
-     * @param string|null $building Корпус
-     * @param string|null $house Дом
-     * @param int|null $postcode Индекс
-     * @param int $delivery Способ доставки
-     * @param int $payment Оплата
-     * @param array $products Товары заказа
-     * @param string $date Текущая дата
-     * @return bool|int
+     * @param string|int $prev_address
+     * @param string $name
+     * @param string $surname
+     * @param string $email
+     * @param string $phone
+     * @param string $country
+     * @param string $city
+     * @param string $street
+     * @param string $building
+     * @param string $house
+     * @param int|string $postcode
+     * @param string $delivery
+     * @param array $products
+     * @param string $date
+     * @return bool
      */
-    public function setOrder($user_id, $prev_address = null, $name, $surname, $email, $phone, $country = null, $city = null,
-                             $street = null, $building = null, $house = null, $postcode = null, $delivery, $payment, $products, $date)
+    public function setOrder($user_id, $prev_address = '', $name, $surname, $email, $phone, $country = '', $city = '',
+                             $street = '', $building = '', $house = '', $postcode = '', $delivery, $products, $date)
     {
         $result     = false;
         $address_id = !empty($prev_address) ? $prev_address : 0;
@@ -2303,9 +2302,9 @@ class Store_model extends CI_Model
         // Создание заказа
         $in_data = $this->db->query('
             INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_phone`, 
-              `o_oud_id`, `o_delivery`, `o_payment`, `o_date_add`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($user_id, $name, $surname, $email, $phone, $address_id, $delivery, $payment, $date));
+              `o_oud_id`, `o_delivery`, `o_date_add`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                array($user_id, $name, $surname, $email, $phone, $address_id, $delivery, $date));
 
         if ($in_data !== false and 1 == $this->db->affected_rows())
         {
@@ -2826,9 +2825,10 @@ class Store_model extends CI_Model
      * @param int $order_id
      * @param float $value
      * @param string $currency
+     * @param string $payment_type ('bank_card')
      * @return \YandexCheckout\Request\Payments\CreatePaymentResponse
      */
-    public function createPayment($order_id, $value, $currency)
+    public function createPayment($order_id, $value, $currency, $payment_type)
     {
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
@@ -2842,6 +2842,9 @@ class Store_model extends CI_Model
                 'amount' => array(
                     'value' => $value,
                     'currency' => $currency
+                ),
+                'payment_method_data' => array(
+                    'type' => $payment_type,
                 ),
                 'description' => $description,
                 'confirmation' => array(
