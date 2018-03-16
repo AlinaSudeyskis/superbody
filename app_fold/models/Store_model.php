@@ -2479,42 +2479,7 @@ class Store_model extends CI_Model
             unset($row);
 
             // Даннаые оплаты заказа
-            $sel_payments = $this->db->query('
-                SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, 
-                    `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
-                FROM `orders_payment`
-                WHERE `op_o_id`=?', $order_id);
-            if ($sel_payments !== false and 0 < $sel_payments->num_rows())
-            {
-                $i = 0;
-                foreach($sel_payments->result() as $row)
-                {
-                    $result['order']['payments'][$i] = self::parsePaymentData($row);
-
-                    if ($row->op_status != 'succeeded' and $row->op_status != 'canceled')
-                    {
-                        $payment = self::checkPayment($row->op_payment_id);
-
-                        if (!empty($payment->_status) and $row->op_status != $payment->_status)
-                        {
-                            $created_at = $payment->_createdAt->_date . $payment->_createdAt->_timezone;
-                            $expires_at = $payment->_expiresAt->_date . $payment->_expiresAt->_timezone;
-                            $method_id = $payment->_paymentMethod->_id;
-                            $method_saved = $payment->_paymentMethod->_saved;
-
-                            self::updatePaymentStatus($order_id, $row->op_status, $payment->_status, $payment->_paid, $created_at,
-                                $expires_at, $method_id, $method_saved);
-                        }
-                    }
-
-                    $i++;
-                }
-                unset($row);
-            }
-            elseif ($sel_payments === false)
-            {
-                parent::logDbMessages(__METHOD__);
-            }
+            $result['order']['payments'] = self::getOrderPayments($order_id);
 
             // Выборка товаров заказа
             $sel_products = $this->db->query('
@@ -2586,33 +2551,9 @@ class Store_model extends CI_Model
             unset($row);
 
             // Даннаые оплаты заказа
-            $sel_payments = $this->db->query('
-                SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, 
-                    `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
-                FROM `orders_payment`
-                WHERE `op_o_id`=?', $order_id);
-            if ($sel_payments !== false and 0 < $sel_payments->num_rows())
-            {
-                $i = 0;
-                foreach($sel_payments->result() as $row)
-                {
-                    $result['order']['payments'][$i] = self::parsePaymentData($row);
 
-                    if ($row->op_status != 'pending')
-                    {
-                        $payment = self::checkPayment($row->op_payment_id);
-
-                        $result['order']['payments'][0]['confirm_url'] = !empty($payment->_confirmation->_confirmation_url) ? $payment->_confirmation->_confirmation_url : '';
-                    }
-
-                    $i++;
-                }
-                unset($row);
-            }
-            elseif ($sel_payments === false)
-            {
-                parent::logDbMessages(__METHOD__);
-            }
+            // Даннаые оплаты заказа
+            $result['order']['payments'] = self::getOrderPayments($order_id);
 
             // Выборка товаров заказа
             $sel_products = $this->db->query('
@@ -2722,6 +2663,63 @@ class Store_model extends CI_Model
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ЗАКАЗА */
 
     /* НАЧАЛО БЛОКА ФУНКЦИЙ ОПЛАТЫ */
+
+    /**
+     * Получение данных о платежах заказа из БД
+     *
+     * @param $order_id
+     * @return array
+     */
+    public function getOrderPayments($order_id)
+    {
+        $result = array();
+
+        $sel_payments = $this->db->query('
+            SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, 
+                `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
+            FROM `orders_payment`
+            WHERE `op_o_id`=?', $order_id);
+        if ($sel_payments !== false and 0 < $sel_payments->num_rows())
+        {
+            $i = 0;
+            foreach($sel_payments->result() as $row)
+            {
+                $result[$i] = self::parsePaymentData($row);
+
+                if ($row->op_status != 'succeeded' and $row->op_status != 'canceled')
+                {
+                    $payment = self::checkPayment($row->op_payment_id);
+
+                    if (!empty($payment->_status) and $row->op_status != $payment->_status)
+                    {
+                        if ($payment->_status == 'pending')
+                        {
+                            log_message('debug', 'Payment info: ' . print_r($payment, true));
+
+                            $result[$i]['confirm_url'] = !empty($payment->_confirmation->_confirmation_url) ? $payment->_confirmation->_confirmation_url : '';
+                        }
+
+                        $created_at = $payment->_createdAt->_date . $payment->_createdAt->_timezone;
+                        $expires_at = $payment->_expiresAt->_date . $payment->_expiresAt->_timezone;
+                        $method_id = $payment->_paymentMethod->_id;
+                        $method_saved = $payment->_paymentMethod->_saved;
+
+                        self::updatePaymentStatus($order_id, $row->op_status, $payment->_status, $payment->_paid, $created_at,
+                            $expires_at, $method_id, $method_saved);
+                    }
+                }
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_payments === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
+    }
 
     /**
      * Добавление данных оплаты заказака
