@@ -7809,9 +7809,11 @@ textarea.anketa_form_in{
     border-radius: 5px;
     color: #fff;
     font-size: 13px;
+    line-height: 35px;
     cursor: pointer;
     float: right;
     margin-left: 20px;
+    text-decoration: none;
 }
 .video_admin_form_block{
     margin-right: 20px;
