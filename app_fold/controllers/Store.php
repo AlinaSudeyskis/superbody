@@ -12,6 +12,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Store extends CI_Controller
 {
+    const CURRENCY = 'RUB';
+
     /**
      * Store constructor.
      */
@@ -1128,14 +1130,14 @@ class Store extends CI_Controller
     public function payment($order_id, $total_amount)
     {
         // Создание платежа
-        $response = $this->Store_model->createPayment($order_id, $total_amount);
+        $response = $this->Store_model->createPayment($order_id, $total_amount, self::CURRENCY);
 
         if (!empty($response->_id)) {
             if ($response->_status == 'pending')
             {
                 $created_at = $response->_createdAt->_date . $response->_createdAt->_timezone;
                 // Сохранение данных оплаты в БД
-                $this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount, 'RUB', $created_at);
+                $this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount, self::CURRENCY, $created_at);
 
                 // Перенаправление пользователя на страницу оплаты
                 header('Location: ' . $response->_confirmation->confirmation_url);

@@ -370,7 +370,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                             </div>
                             <div class="ordering_block_side_cont">
                                 <div class="ordering_block_side_cont_h info_ordering_pay"></div>
-                                <div class="ordering_block_side_cont_txt">Сумма: <span class="info_ordering_price"></span> p.</div>
+                                <div class="ordering_block_side_cont_txt">Сумма: <span class="info_ordering_price"></span> pуб.</div>
                             </div>
                         </div>
                     </div>
