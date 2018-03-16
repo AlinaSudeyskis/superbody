@@ -3132,7 +3132,7 @@ class Store_model extends CI_Model
         $result['payments'] = array();
 
         $result['payment_status'] = '';
-        $result['status']         = $row->o_status;
+        $result['status']         = ($row->o_status == 1) ? 'Выполнен' : 'Не выполнен';
 
         // Дата добавления
         setlocale(LC_ALL, 'ru_RU.UTF-8');
