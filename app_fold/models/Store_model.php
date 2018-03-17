@@ -2708,7 +2708,6 @@ class Store_model extends CI_Model
 
                     if ($payment->_status == 'pending')
                     {
-                        log_message('debug', '_confirmationUrl: ' . print_r($payment->_confirmation->_confirmationUrl, true));
                         $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
                     }
                 }
