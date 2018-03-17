@@ -1181,9 +1181,34 @@ class Store extends CI_Controller
                     );
                 }
             }
+
+            $url = 'https://superbody.pro/payment/update?pid=' . $payment->id . '&ps=' . $payment->status . '&pp=' .
+                $payment->paid . '&pcr=' . $payment->created_at . '&pe=' . $payment->expires_at . '&pc=' . $payment->captured_at .
+                '&pmid=' . $payment->payment_method->id . '&pms=' . $payment->payment_method->saved;
+
+            $handle = fopen($url, "r");
+            fclose($handle);
         }
 
         header("HTTP/1.0 200 OK");
+    }
+
+    /**
+     * Обновление данных о платеже в БД
+     */
+    public function paymentUpdate()
+    {
+        $payment_id           = strip_tags($this->input->get('pid', true));
+        $payment_status       = strip_tags($this->input->get('ps', true));
+        $payment_paid         = strip_tags($this->input->get('pp', true));
+        $created_at           = strip_tags($this->input->get('pcr', true));
+        $expires_at           = strip_tags($this->input->get('pe', true));
+        $captured_at          = strip_tags($this->input->get('pc', true));
+        $payment_method_id    = strip_tags($this->input->get('pmid', true));
+        $payment_method_saved = strip_tags($this->input->get('pms', true));
+
+        $this->Store_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
+            $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */

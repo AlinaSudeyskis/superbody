@@ -2777,25 +2777,70 @@ class Store_model extends CI_Model
     public function updatePaymentStatus($order_id, $payment_id, $payment_status, $payment_paid, $payment_created_at,
                                         $payment_expires_at, $payment_captured_at, $payment_method_id, $payment_method_saved)
     {
-        $up_data = $this->db->query('
-            UPDATE `orders_payment` 
-            SET `op_status`=?, `op_paid`=?, `op_created_at`=?, `op_captured_at`=?, `op_expires_at`=?, `op_payment_method_id`=?, 
-              `op_payment_method_saved`=?
-            WHERE `op_payment_id`=? LIMIT 1',
-                array($payment_status, $payment_paid, $payment_created_at, $payment_captured_at, $payment_expires_at,
-                    $payment_method_id, $payment_method_saved, $payment_id));
-        if ($up_data !== false and 1 == $this->db->affected_rows())
-        {
-            if ($payment_status == 'succeeded')
-            {
-                self::updateOrderStatus($order_id, 1);
-            }
+        $sel_payment = $this->db->query('
+            SELECT `op_status`, `op_paid`, `op_created_at`, `op_captured_at`, `op_expires_at`, `op_payment_method_id`,
+                `op_payment_method_saved`
+            FROM `orders_payment`
+            WHERE `op_payment_id`=? LIMIT 1', $payment_id);
 
-            return true;
+        if($sel_payment !== false and 1 == $sel_payment->num_rows())
+        {
+            $row = $sel_payment->row();
+
+            $created_at  = (!empty($payment_created_at) and $payment_created_at != $row->op_created_at)
+                ? $payment_created_at : $row->op_created_at;
+            $expires_at  = (!empty($payment_expires_at) and $payment_expires_at != $row->op_expires_at)
+                ? $payment_expires_at : $row->op_expires_at;
+            $captured_at = (!empty($payment_captured_at) and $payment_captured_at != $row->op_captured_at)
+                ? $payment_captured_at : $row->op_captured_at;
+
+            $up_data = $this->db->query('
+                UPDATE `orders_payment` 
+                SET `op_status`=?, `op_paid`=?, `op_created_at`=?, `op_captured_at`=?, `op_expires_at`=?, `op_payment_method_id`=?, 
+                  `op_payment_method_saved`=?
+                WHERE `op_payment_id`=? LIMIT 1',
+                    array($payment_status, $payment_paid, $created_at, $captured_at, $expires_at, $payment_method_id,
+                        $payment_method_saved, $payment_id));
+
+            if ($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                if ($payment_status == 'succeeded')
+                {
+                    if (empty($order_id))
+                    {
+                        $sel_order_id = $this->db->query('SELECT `op_o_id` FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
+
+                        if ($sel_order_id !== false and 1 == $sel_order_id->num_rows())
+                        {
+                            $row = $sel_order_id->row();
+                            $order_id = $row->op_o_id;
+                            unset($row);
+                        }
+                        elseif($sel_order_id === false)
+                        {
+                            parent::logDbMessages(__METHOD__);
+                        }
+                    }
+
+                    self::updateOrderStatus($order_id, 1);
+                }
+
+                return true;
+            }
+            elseif ($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__);
+                return false;
+            }
+            else
+            {
+                return false;
+            }
         }
-        elseif ($up_data === false)
+        elseif($sel_payment === false)
         {
             parent::logDbMessages(__METHOD__);
+
             return false;
         }
         else

@@ -240,8 +240,9 @@ $route['course/(:num)'] = 'Course/publicCourse/$1';
 $route['courses']       = 'Course/publicCourses';
 
 // Оплата
-$route['payment']                    = 'Store/payment';
-$route['payment/notifications']      = 'Store/paymentNotifications';
+$route['payment']               = 'Store/payment';
+$route['payment/notifications'] = 'Store/paymentNotifications';
+$route['payment/update']        = 'Store/paymentUpdate';
 
 // Журнал
 //$route['journal/articles']         = 'Journal/articles';
