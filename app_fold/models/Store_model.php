@@ -2689,7 +2689,7 @@ class Store_model extends CI_Model
                 {
                     $payment = self::checkPayment($row->op_payment_id);
 
-                    if (!empty($payment->_status) and $row->op_status != $payment->_status)
+                    /*if (!empty($payment->_status) and $row->op_status != $payment->_status)
                     {
                         $created_at   = !empty($payment->_createdAt->_date) ? $payment->_createdAt->_date . $payment->_createdAt->_timezone : $row->op_created_at;
                         $expires_at   = !empty($payment->_expiresAt->_date) ? $payment->_expiresAt->_date . $payment->_expiresAt->_timezone : $row->op_expires_at;
@@ -2704,7 +2704,7 @@ class Store_model extends CI_Model
 
                         self::updatePaymentStatus($order_id, $payment->_id, $payment->_status, $payment->_paid, $created_at,
                             $expires_at, $captured_at, $method_id, $method_saved);
-                    }
+                    }*/
 
                     if ($payment->_status == 'pending')
                     {
