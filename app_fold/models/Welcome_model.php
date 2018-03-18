@@ -262,5 +262,16 @@ class Welcome_model extends CI_Model
         /*$this->db->query('ALTER TABLE `orders_payment` ADD `op_captured_at` VARCHAR(50) NOT NULL AFTER `op_created_at`');
         $this->db->query('ALTER TABLE `orders_payment` CHANGE `op_created_at` `op_created_at` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
             CHANGE `op_expires_at` `op_expires_at` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL');*/
+
+        // 18.03.2018
+        $this->db->query('CREATE TABLE `orders_payment_refund` ( 
+            `opr_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , 
+            `opr_payment_id` VARCHAR(50) NOT NULL , 
+            `opr_refund_id` VARCHAR(50) NOT NULL , 
+            `opr_refund_amount` DECIMAL(10,2) NOT NULL , 
+            `opr_refund_status` ENUM("succeeded","canceled") NOT NULL , 
+            `opr_refund_description` VARCHAR(255) NOT NULL , 
+            `opr_refund_created_at` VARCHAR(50) NOT NULL , 
+            PRIMARY KEY (`opr_id`)) ENGINE = MyISAM');
     }
 }

@@ -142,17 +142,32 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php endif;
                                     else:?>
                                         <div class="ordering_block_side_cont_txt">Подтвержден: <?php echo $order['payments'][0]['captured_at'];?></div>
-                                    <?php endif;?>
-
-                                    <form action="" class="edit_kurs_form" id="1kurs_form" method="post" enctype="multipart/form-data">
-                                        <div class="video_admin_form_buts parent">
-                                            <?php if ($order['payments'][0]['status_code'] == 'waiting_for_capture'):?>
+                                    <?php endif;
+                                    if ($order['payments'][0]['status_code'] == 'waiting_for_capture'):?>
+                                        <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
+                                            <div class="video_admin_form_buts parent">
+                                                <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
                                                 <input type="submit" name="bt_capture" value="Подтвердить платеж" class="video_admin_form_send" />
                                                 <input type="submit" name="bt_cancel" value="Отменить платеж" class="video_admin_form_block" />
-                                            <?php endif;?>
-                                        </div>
-                                    </form>
+                                            </div>
+                                        </form>
+                                    <?php endif;?>
                                 </div>
+                                <?php if($order['payments'][0]['status_code'] == 'succeeded'):?>
+                                    <div class="ordering_block_side_cont right_side">
+                                        <div class="ordering_block_side_cont_h info_ordering_pay">Возврат платежа</div>
+                                        <div class="ordering_block_side_cont_txt">
+                                            <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
+                                                <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
+                                                <label for="refund-amount">Сумма: </label>
+                                                <?php $max_refund = ($order['payments'][0]['amount'] - 1.01);
+                                                $current_refund = ($order['payments'][0]['amount'] / 2); ?>
+                                                <input type="number" name="i_refund_amount" min="1.01" max="<?php echo $max_refund; ?>" step="0.01" value="<?php echo $current_refund; ?>" id="refund-amount"/>
+                                                <input type="text" name="i_description" value="" />
+                                            </form>
+                                        </div>
+                                    </div>
+                                <?php endif;?>
                             </div>
                         </div>
                     <?php endif;?>

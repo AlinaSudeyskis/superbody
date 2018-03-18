@@ -70,6 +70,8 @@ class Payment extends CI_Controller
     {
         $response = json_decode(file_get_contents("php://input"));
 
+        log_message('debug', __METHOD__ . ' ' . print_r($response, true));
+
         if ($response->type == 'notification')
         {
             $payment = $response->object;

@@ -2766,7 +2766,7 @@ class Store_model extends CI_Model
 
                 if ($row->op_status != 'succeeded' and $row->op_status != 'canceled')
                 {
-                    $payment = self::checkPayment($row->op_payment_id);
+                    $payment = self::getPaymentInfo($row->op_payment_id);
 
                     /*if (!empty($payment->_status) and $row->op_status != $payment->_status)
                     {
@@ -2812,7 +2812,7 @@ class Store_model extends CI_Model
      * @param $payment_id
      * @return \YandexCheckout\Model\PaymentInterface
      */
-    public function checkPayment($payment_id)
+    public function getPaymentInfo($payment_id)
     {
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
@@ -2820,6 +2820,112 @@ class Store_model extends CI_Model
         $payment = $client->getPaymentInfo($payment_id);
 
         return $payment;
+    }
+
+    /**
+     * Подтверждение платежа
+     *
+     * @param string $payment_id
+     * @param float $value
+     * @param string $currency
+     */
+    public function capturePayment($payment_id, $value, $currency)
+    {
+        $idempotenceKey = uniqid('', true);
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        // Подтверждение платежа
+        $client->capturePayment(
+            array(
+                'amount' => array(
+                    'value' => $value,
+                    'currency' => $currency,
+                ),
+            ),
+            $payment_id,
+            $idempotenceKey
+        );
+    }
+
+    /**
+     * Отмена платежа
+     *
+     * @param string $payment_id
+     */
+    public function cancelPayment($payment_id)
+    {
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        $client->cancelPayment(
+            $payment_id,
+            uniqid('', true)
+        );
+    }
+
+    /**
+     * Возврат платежа
+     *
+     * @param string $payment_id
+     * @param float $value
+     * @param string $currency
+     * @param string $description
+     * @return \YandexCheckout\Request\Refunds\CreateRefundResponse
+     */
+    public function refundPayment($payment_id, $value, $currency, $description)
+    {
+        $idempotenceKey = uniqid('', true);
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        $response = $client->createRefund(
+            array(
+                'payment_id' => $payment_id,
+                'amount' => array(
+                    'value' => $value,
+                    'currency' => $currency,
+                ),
+                'description' => $description,
+            ),
+            $idempotenceKey
+        );
+
+        return $response;
+    }
+
+    /**
+     * Сохранение данных о возврате
+     *
+     * @param string $payment_id
+     * @param string $refund_id
+     * @param float $refund_amount
+     * @param string $refund_status
+     * @param string $description
+     * @param string $created_at
+     * @return bool
+     */
+    public function setPaymentRefund($payment_id, $refund_id, $refund_amount, $refund_status, $description, $created_at)
+    {
+        $up_data = $this->db->query('
+            INSERT INTO `orders_payment_refund` (`opr_payment_id`, `opr_refund_id`, `opr_refund_amount`, 
+              `opr_refund_status`, `opr_refund_description`, `opr_refund_created_at`)
+            VALUES (?, ?, ?, ?, ?, ?)',
+                array($payment_id, $refund_id, $refund_amount, $refund_status, $description, $created_at));
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */

@@ -11,6 +11,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Store extends CI_Controller
 {
+    const CURRENCY = 'RUB';
+
     /**
      * Store constructor.
      */
@@ -744,6 +746,60 @@ class Store extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
             show_404();
+        }
+
+        if ($this->input->post('bt_capture', true))
+        {
+            $payment_id = strip_tags($this->input->post('i_payment_id', true));
+
+            if (!empty($payment_id))
+            {
+                $payment = $this->Store_model->getPaymentInfo($payment_id);
+
+                if ($payment->_status == 'waiting_for_capture')
+                {
+                    $this->Store_model->capturePayment($payment->_id, $payment->_amount->_value, $payment->_amount->_currency);
+                }
+            }
+            header('Location: /administration/order/' . $order_id);
+        }
+        elseif($this->input->post('bt_cancel', true))
+        {
+            $payment_id = strip_tags($this->input->post('i_payment_id', true));
+
+            if (!empty($payment_id))
+            {
+                $payment = $this->Store_model->getPaymentInfo($payment_id);
+
+                if ($payment->_status == 'waiting_for_capture')
+                {
+                    $this->Store_model->cencelPayment($payment->_id);
+                }
+            }
+
+            header('Location: /administration/order/' . $order_id);
+        }
+        elseif($this->input->post('bt_refund', true))
+        {
+            $refund_amount = is_numeric($this->input->post('i_refund_amount', true)) ? $this->input->post('i_refund_amount', true) : null;
+            $payment_id    = strip_tags($this->input->post('i_payment_id', true));
+            $description   = strip_tags($this->input->post('i_description', true));
+
+            if (!empty($refund_amount) and !empty($payment_id))
+            {
+                $payment = $this->Store_model->getPaymentInfo($payment_id);
+
+                $response = $this->Store_model->refundPayment($payment->_id, $refund_amount, self::CURRENCY, $description);
+
+                log_message('debug', __METHOD__ . ' ' . print_r($response, true));
+
+                if (!empty($response->id))
+                {
+                    $this->Store_model->setPaymentRefund($response->payment_id, $response->id, $refund_amount, $response->status, $description, $response->created_at);
+                }
+            }
+
+            header('Location: /administration/order/' . $order_id);
         }
 
         $result = $this->Store_model->getOrder($order_id);
