@@ -2482,7 +2482,6 @@ class Course_model extends CI_Model
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ LANDING PAGE КУРСА */
 
-
     /* БЛОК УДАЛЕНИЯ КУРСА */
 
     /**
@@ -4352,7 +4351,8 @@ class Course_model extends CI_Model
          * - добавляем дни недели тренировок в другую таблицу (для вывода реальных дат тренировок при изменении дней недели тренировок пользователем)
          * - добавляем каждую тренировку по отдельности в другую таблицу (для статистики выполненных тренировок)
         */
-        if ($up_data !== false and 1 == $this->db->affected_rows()) {
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
             // ID курса в таблице курсов пользователей
             $uc_id = $this->db->insert_id();
 
@@ -4369,7 +4369,9 @@ class Course_model extends CI_Model
             }
 
             return $uc_id;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -5951,7 +5953,8 @@ class Course_model extends CI_Model
      */
     protected function deleteUsersCoursesInfo()
     {
-        $this->db->query('UPDATE `users_courses` SET `uc_couch_id`=?,`uc_days`=?,`uc_date_start`=?,`uc_date_end`=?,`uc_blocked`=?,`uc_pause_days`=?',
+        $this->db->query('UPDATE `users_courses` SET `uc_couch_id`=?,`uc_days`=?,`uc_date_start`=?,`uc_date_end`=?,
+            `uc_blocked`=?,`uc_pause_days`=?',
             array(0, 0, '0000-00-00', '0000-00-00', 0, 0));
         $this->db->query('DELETE FROM `users_courses_pauses`');
         $this->db->query('DELETE FROM `users_training_days`');

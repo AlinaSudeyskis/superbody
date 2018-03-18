@@ -1,8 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-use YandexCheckout\Client;
-
 /**
  * Класс Store
  * 
@@ -13,20 +11,13 @@ use YandexCheckout\Client;
  */
 class Store extends CI_Controller
 {
-    const CURRENCY = 'RUB';
-    const PAYMENT_METHOD = 'bank_card';
-    const SHOPID = 188363;
-    const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
-    const SCID = 715012;
-    const TEST_SCID = 561490;
-
     /**
      * Store constructor.
      */
     public function __construct()
     {
         parent::__construct();
-        
+
         $this->load->model('Store_model');
     }
 
@@ -1038,10 +1029,7 @@ class Store extends CI_Controller
                     // Кол-во товаров в корзине
                     parent::updateSessionCart(0);
 
-                    self::payment($res_order['order_id'], $res_order['total_amount'], $payment_type);
-
-                    // Сохранено
-                    $this->session->set_tempdata('message', 10, 60);
+                    header('Location: /payment/' . $res_order['order_id'] . '/' . $res_order['total_amount'] . '/' . $payment_type);
                 }
                 else
                 {
@@ -1117,101 +1105,6 @@ class Store extends CI_Controller
         $this->load->view('store/cart/user_order', $result);
         $this->load->view('footer/footer');
     }
-
-    /* БЛОК ФУНКЦИЙ ОПЛАТЫ */
-
-    /**
-     * Формирование запроса на создание платежа Яндекс.Кассы
-     *
-     * @param int $order_id
-     * @param float $total_amount
-     * @param string $payment_type
-     */
-    public function payment($order_id, $total_amount, $payment_type)
-    {
-        // Создание платежа
-        $response = $this->Store_model->createPayment($order_id, $total_amount, self::CURRENCY, $payment_type);
-
-        if (!empty($response->_id)) {
-            if ($response->_status == 'pending')
-            {
-                $created_at = $response->_createdAt->_date . $response->_createdAt->_timezone;
-
-                // Сохранение данных оплаты в БД
-                $this->Store_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount, self::CURRENCY, $created_at);
-
-                // Перенаправление пользователя на страницу оплаты
-                header('Location: ' . $response->_confirmation->confirmation_url);
-            }
-        }
-
-    }
-
-    /**
-     * Прием уведомлений от Яндекс.Касса
-     */
-    public function paymentNotifications()
-    {
-        $response = json_decode(file_get_contents("php://input"));
-
-        if ($response->type == 'notification')
-        {
-            $payment = $response->object;
-
-            // Подтверждение платежа или отмена
-            if ($payment->status == 'waiting_for_capture')
-            {
-                if ($payment->paid === true)
-                {
-                    // Подтверждение платежа
-                    $idempotenceKey = uniqid('', true);
-                    $client = new Client();
-                    $client->setAuth(self::SHOPID, self::SHOP_SECRET);
-
-                    // Подтверждение платежа
-                    $client->capturePayment(
-                        array(
-                            'amount' => array(
-                                'value' => $payment->amount->value,
-                                'currency' => $payment->amount->currency,
-                            ),
-                        ),
-                        $payment->id,
-                        $idempotenceKey
-                    );
-                }
-            }
-
-            $url = 'https://superbody.pro/payment/update?pid=' . $payment->id . '&ps=' . $payment->status . '&pp=' .
-                $payment->paid . '&pcr=' . $payment->created_at . '&pe=' . $payment->expires_at . '&pc=' . $payment->captured_at .
-                '&pmid=' . $payment->payment_method->id . '&pms=' . $payment->payment_method->saved;
-
-            $handle = fopen($url, "r");
-            fclose($handle);
-        }
-
-        header("HTTP/1.0 200 OK");
-    }
-
-    /**
-     * Обновление данных о платеже в БД
-     */
-    public function paymentUpdate()
-    {
-        $payment_id           = strip_tags($this->input->get('pid', true));
-        $payment_status       = strip_tags($this->input->get('ps', true));
-        $payment_paid         = strip_tags($this->input->get('pp', true));
-        $created_at           = strip_tags($this->input->get('pcr', true));
-        $expires_at           = strip_tags($this->input->get('pe', true));
-        $captured_at          = strip_tags($this->input->get('pc', true));
-        $payment_method_id    = strip_tags($this->input->get('pmid', true));
-        $payment_method_saved = strip_tags($this->input->get('pms', true));
-
-        $this->Store_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
-            $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
-    }
-
-    /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */
 
     /* БЛОК AJAX ФУНКЦИЙ */
 

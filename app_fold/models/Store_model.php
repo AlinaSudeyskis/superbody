@@ -2637,26 +2637,105 @@ class Store_model extends CI_Model
      * Обновление статуса заказа
      *
      * @param int $order_id
+     * @param string $payment_id
      * @param int $status
      * @return bool
      */
-    public function updateOrderStatus($order_id, $status)
+    public function updateOrderStatus($order_id, $payment_id, $status)
     {
-        $up_data = $this->db->query('UPDATE `orders` SET `o_status`=? WHERE `o_id`=? LIMIT 1', array($status, $order_id));
+        if (empty($order_id) and !empty($payment_id))
+        {
+            $sel_order_id = $this->db->query('SELECT `op_o_id` FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
 
-        if($up_data !== false and 1 == $this->db->affected_rows())
-        {
-            return true;
+            if ($sel_order_id !== false and 1 == $sel_order_id->num_rows())
+            {
+                $row = $sel_order_id->row();
+                $order_id = $row->op_o_id;
+                unset($row);
+            }
+            elseif($sel_order_id === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
         }
-        elseif($up_data === false)
+
+        if (!empty($order_id))
         {
-            parent::logDbMessages(__METHOD__);
-            return false;
+            $up_data = $this->db->query('UPDATE `orders` SET `o_status`=? WHERE `o_id`=? LIMIT 1', array($status, $order_id));
+
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                return true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__);
+                return false;
+            }
+            else
+            {
+                return false;
+            }
         }
         else
         {
             return false;
         }
+    }
+
+    /**
+     * Выборка курсов заказа пользователя
+     *
+     * @param string $payment_id
+     * @return mixed
+     */
+    public function getOrderCourses($payment_id)
+    {
+        $result['courses'] = array();
+
+        // Выборка номера заказа и ID пользователя по номеру платежа
+        $sel_order = $this->db->query('
+            SELECT `op_o_id`, `o_u_id` 
+            FROM `orders_payments`
+             LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            WHERE `op_payment_id`=? LIMIT 1', $payment_id);
+
+        if($sel_order !== false and 1 == $sel_order->num_rows())
+        {
+            $row = $sel_order->row();
+            $order_id = $row->op_o_id;
+            $user_id = $row->o_u_id;
+            unset($row);
+
+            // Выборка курсов заказа
+            $sel_courses = $this->db->query('
+                SELECT `orders_users_cart`.`ouc_p_id`, `products`.`p_course_id` 
+                FROM `orders_users_cart` 
+                LEFT JOIN `products` ON `p_id`=`ouc_p_id`
+                WHERE `ouc_o_id`=? and `ouc_u_id`=? and `p_course_id`>0', array($order_id, $user_id));
+
+            if($sel_courses !== false and 0 < $sel_courses->num_rows())
+            {
+                $i = 0;
+                foreach($sel_courses->result() as $row)
+                {
+                    $result['courses'][$i]['id'] = $row->p_course_id;
+
+                    $i++;
+                }
+                unset($row);
+            }
+            elseif($sel_courses === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+        }
+        elseif($sel_order === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ЗАКАЗА */
@@ -2728,127 +2807,6 @@ class Store_model extends CI_Model
     }
 
     /**
-     * Добавление данных оплаты заказака
-     *
-     * @param int $order_id
-     * @param string $payment_id
-     * @param string $payment_status (pending, waiting_for_capture, succeeded, canceled)
-     * @param float $total_amount
-     * @param string $currency
-     * @param string $created_at
-     * @return bool
-     */
-    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at)
-    {
-        $ins_data = $this->db->query('
-            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_created_at`) 
-            VALUES (?, ?, ?, ?, ?, ?)',
-                array($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at));
-        if ($ins_data !== false and 1 == $this->db->affected_rows())
-        {
-            return true;
-        }
-        elseif ($ins_data === false)
-        {
-            parent::logDbMessages(__METHOD__);
-            return false;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    /**
-     * Изменение данных оплаты заказа
-     *
-     * @param int $order_id
-     * @param string $payment_id
-     * @param string $payment_status (pending, waiting_for_capture, succeeded, canceled)
-     * @param bool $payment_paid
-     * @param string $payment_created_at
-     * @param string $payment_expires_at
-     * @param string $payment_captured_at
-     * @param string $payment_method_id
-     * @param bool $payment_method_saved
-     * @return bool
-     */
-    public function updatePaymentStatus($order_id, $payment_id, $payment_status, $payment_paid, $payment_created_at,
-                                        $payment_expires_at, $payment_captured_at, $payment_method_id, $payment_method_saved)
-    {
-        $sel_payment = $this->db->query('
-            SELECT `op_status`, `op_paid`, `op_created_at`, `op_captured_at`, `op_expires_at`, `op_payment_method_id`,
-                `op_payment_method_saved`
-            FROM `orders_payment`
-            WHERE `op_payment_id`=? LIMIT 1', $payment_id);
-
-        if($sel_payment !== false and 1 == $sel_payment->num_rows())
-        {
-            $row = $sel_payment->row();
-
-            $created_at  = (!empty($payment_created_at) and $payment_created_at != $row->op_created_at)
-                ? $payment_created_at : $row->op_created_at;
-            $expires_at  = (!empty($payment_expires_at) and $payment_expires_at != $row->op_expires_at)
-                ? $payment_expires_at : $row->op_expires_at;
-            $captured_at = (!empty($payment_captured_at) and $payment_captured_at != $row->op_captured_at)
-                ? $payment_captured_at : $row->op_captured_at;
-
-            $up_data = $this->db->query('
-                UPDATE `orders_payment` 
-                SET `op_status`=?, `op_paid`=?, `op_created_at`=?, `op_captured_at`=?, `op_expires_at`=?, `op_payment_method_id`=?, 
-                  `op_payment_method_saved`=?
-                WHERE `op_payment_id`=? LIMIT 1',
-                    array($payment_status, $payment_paid, $created_at, $captured_at, $expires_at, $payment_method_id,
-                        $payment_method_saved, $payment_id));
-
-            if ($up_data !== false and 1 == $this->db->affected_rows())
-            {
-                if ($payment_status == 'succeeded')
-                {
-                    if (empty($order_id))
-                    {
-                        $sel_order_id = $this->db->query('SELECT `op_o_id` FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
-
-                        if ($sel_order_id !== false and 1 == $sel_order_id->num_rows())
-                        {
-                            $row = $sel_order_id->row();
-                            $order_id = $row->op_o_id;
-                            unset($row);
-                        }
-                        elseif($sel_order_id === false)
-                        {
-                            parent::logDbMessages(__METHOD__);
-                        }
-                    }
-
-                    self::updateOrderStatus($order_id, 1);
-                }
-
-                return true;
-            }
-            elseif ($up_data === false)
-            {
-                parent::logDbMessages(__METHOD__);
-                return false;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        elseif($sel_payment === false)
-        {
-            parent::logDbMessages(__METHOD__);
-
-            return false;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    /**
      * Получение данных о платеже
      *
      * @param $payment_id
@@ -2862,87 +2820,6 @@ class Store_model extends CI_Model
         $payment = $client->getPaymentInfo($payment_id);
 
         return $payment;
-    }
-
-    /**
-     * Создание платежа
-     *
-     * @param int $order_id
-     * @param float $value
-     * @param string $currency
-     * @param string $payment_type ('bank_card')
-     * @return \YandexCheckout\Request\Payments\CreatePaymentResponse
-     */
-    public function createPayment($order_id, $value, $currency, $payment_type)
-    {
-        $idempotenceKey = uniqid('', true);
-        $description    = 'Оплата заказа №' . $order_id;
-        $return_url     = 'https://superbody.pro/ordering/' . $order_id;
-
-        $client = new Client();
-        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
-
-        $response = $client->createPayment(
-            array(
-                'amount' => array(
-                    'value' => $value,
-                    'currency' => $currency
-                ),
-                'payment_method_data' => array(
-                    'type' => $payment_type,
-                ),
-                'description' => $description,
-                'confirmation' => array(
-                    'type' => 'redirect',
-                    'return_url' => $return_url,
-                ),
-            ),
-            $idempotenceKey
-        );
-
-        return $response;
-    }
-
-    /**
-     * Подтверждение платежа
-     *
-     * @param string $payment_id
-     * @param float $value
-     * @param string $currency
-     */
-    public function capturePayment($payment_id, $value, $currency)
-    {
-        $idempotenceKey = uniqid('', true);
-        $client = new Client();
-        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
-
-        // Подтверждение платежа
-        $client->capturePayment(
-            array(
-                'amount' => array(
-                    'value' => $value,
-                    'currency' => $currency,
-                ),
-            ),
-            $payment_id,
-            $idempotenceKey
-        );
-    }
-
-    /**
-     * Отмена платежа
-     *
-     * @param string $payment_id
-     */
-    public function cancelPayment($payment_id)
-    {
-        $client = new Client();
-        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
-
-        $client->cancelPayment(
-            $payment_id,
-            uniqid('', true)
-        );
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */

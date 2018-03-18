@@ -4067,7 +4067,8 @@ class Course extends CI_Controller
         }
 
         // Сохранение купленного курса пользователем в БД
-        if ($this->input->post('bt_buy_course', true)) {
+        if ($this->input->post('bt_buy_course', true))
+        {
             // Данные курса
             $course = $course['course'];
             // Количество тренировок за курс
@@ -4138,39 +4139,53 @@ class Course extends CI_Controller
                 $end_date = $date !== false ? $date->format('Y-m-d') : null;
             }*/
 
-            $res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
+            // Добавление товара в заказы пользователя
+            $this->load->model('Store_model');
 
-            if (is_numeric($res_buy))
+            $products['products'] = array( 0 => array(
+                'id' => $course['p_id'],
+                'cart_quantity' => 1,
+                'price' => $course['price'],
+                'fc_price' => $course['fc_price'],
+                'discount_price' => '',
+                'discount_fc_price' => '')
+            );
+
+            $res_order = $this->Store_model->setOrder($this->user_id, null, $this->session->user['name'], '', $this->session->user['email'], '',
+                '', '', '', '', '', '', 0, 0, $products, $this->date);
+
+            if ($res_order !== false and is_numeric($res_order['order_id']))
             {
-                $uc_id = $res_buy;
+                // Кол-во товаров в корзине
+                parent::updateSessionCart(0);
 
-                if (!empty($training_days)) {
-                    $this->Course_model->setUserTrainingWeeks($uc_id, $start_date, $training_days, $count_workouts, $course['count_days'], $this->date);
+                $payment_type = 'bank_card';
+                header('Location: /payment/' . $res_order['order_id'] . '/' . $res_order['total_amount'] . '/' . $payment_type);
+
+                /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
+
+                if (is_numeric($res_buy))
+                {
+                    $uc_id = $res_buy;
+
+                    if (!empty($training_days)) {
+                        $this->Course_model->setUserTrainingWeeks($uc_id, $start_date, $training_days, $count_workouts, $course['count_days'], $this->date);
+                    }
                 }
 
-                // Добавление товара в заказы пользователя
-                $this->load->model('Store_model');
-
-                $products['products'] = array( 0 => array(
-                    'id' => $course['p_id'],
-                    'cart_quantity' => 1,
-                    'price' => $course['price'],
-                    'fc_price' => $course['fc_price'],
-                    'discount_price' => '',
-                    'discount_fc_price' => '')
-                );
-
-                $this->Store_model->setOrder($this->user_id, null, $this->session->user['name'], '', $this->session->user['email'], '',
-                    '', '', '', '', '', '', 0, 0, $products, $this->date);
-
-                // Курс куплен (добавлен)
-                $this->session->set_tempdata('message', 109, 60);
-                header('Location: /profile/course/'.$course_id);
-            } else {
-                // Курс не куплен
-                $this->session->set_tempdata('message', 110, 60);
-                header('Location: /course/'.$course_id);
+                // Сохранено
+                $this->session->set_tempdata('message', 10, 60);*/
             }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 101, 60);
+                header('Location: /course/' . $course_id);
+            }
+
+            /*// Курс куплен (добавлен)
+            $this->session->set_tempdata('message', 109, 60);
+            header('Location: /profile/course/'.$course_id);*/
 
             /* // Пользователь не выбрал дни недели для тренировок
             $this->session->set_tempdata('message', 57, 60);*/
