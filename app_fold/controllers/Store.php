@@ -796,11 +796,13 @@ class Store extends CI_Controller
 
                 log_message('debug', __METHOD__ . ' ' . print_r($response, true));
 
-                if (!empty($response->id))
+                if (!empty($response->_id))
                 {
-                    $this->Store_model->setPaymentRefund($response->payment_id, $response->id, $refund_amount, $response->status, $description, $response->created_at);
+                    $created_at = $response->_created_at->_date . $response->_created_at->_timezone;
 
-                    if ($response->status == 'succeeded')
+                    $this->Store_model->setPaymentRefund($response->_payment_id, $response->_id, $refund_amount, $response->_status, $description, $created_at);
+
+                    if ($response->_status == 'succeeded')
                     {
                         $this->load->model('Course_model');
 
