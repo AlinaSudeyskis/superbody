@@ -1107,7 +1107,7 @@ class Store extends CI_Controller
                     // Кол-во товаров в корзине
                     parent::updateSessionCart(0);
 
-                    header('Location: /payment?iod=' . $res_order['order_id'] . '&amount=' . $res_order['total_amount'] . '&type=' . $payment_type);
+                    header('Location: /payment?oid=' . $res_order['order_id'] . '&amount=' . $res_order['total_amount'] . '&type=' . $payment_type);
                 }
                 else
                 {
