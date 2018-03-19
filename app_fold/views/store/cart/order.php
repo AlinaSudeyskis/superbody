@@ -156,24 +156,35 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php if($order['payments'][0]['status_code'] == 'succeeded'):?>
                                     <div class="ordering_block_side_info_h_wrap parent"></div>
                                     <div class="ordering_block_side_info_h_wrap parent">
-                                        <div class="ordering_block_side_info_h">Возврат платежа</div>
+                                        <?php $refund_info = '';
+                                        $passed_price = 0;
+                                        if(!empty($courses)):
+                                            foreach($courses as $course):
+                                                $passed_price += $course['passed_price'];?>
+                                                <div class="ordering_block_side_cont_txt"><?php echo $course['name'] . ' (выполнено тренировок): ' .$course['workouts_passed'];?></div>
+                                            <?php endforeach;
+                                            unset($course);
+                                        endif;
+
+                                        $refund_amount = number_format((($order['payments'][0]['amount'] / 2) - $passed_price), 2, '.', '');
+                                        $max_refund    = number_format(($order['payments'][0]['amount'] - 1.01), 2, '.', '');
+                                        if ($max_refund >= 1.01 and $refund_amount >= 1.01) :
+                                            $refund_info = '<div class="ordering_block_side_cont">(Возврат платежа не возможен. Сумма возврата и остаток должны быть больше 1 рубля.)</div>';
+                                        endif;?>
+                                        <div class="ordering_block_side_info_h">Возврат платежа<?php echo $refund_info; ?></div>
                                     </div>
-                                    <div class="ordering_block_side_cont">
-                                        <div class="anketa_block_cont">
-                                            <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
-                                                <div class="anketa_block_item">
-                                                    <div class="anketa_block_item_cont">
-                                                        <?php $passed_price = 0;
-                                                        if(!empty($courses)):
-                                                            foreach($courses as $course):
-                                                                $passed_price += $course['passed_price'];?>
-                                                                <div class="ordering_block_side_cont_txt"><?php echo $course['name'] . ' (выполнено тренировок): ' .$course['workouts_passed'];?></div>
-                                                            <?php endforeach;
-                                                            unset($course);
-                                                        endif;
-                                                        $refund_amount  = number_format((($order['payments'][0]['amount'] / 2) - $passed_price), 2, '.', '');
-                                                        $max_refund     = number_format(($order['payments'][0]['amount'] - 1.01), 2, '.', '');
-                                                        if ($max_refund >= 1.01 and $refund_amount >= 1.01) :
+                                    <?php if ($max_refund >= 1.01 and $refund_amount >= 1.01) :?>
+                                        <div class="ordering_block_side_cont">
+                                            <div class="anketa_block_cont">
+                                                <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
+                                                    <div class="anketa_block_item">
+                                                        <div class="anketa_block_item_cont">
+                                                            <?php if(!empty($courses)):
+                                                                foreach($courses as $course):?>
+                                                                    <div class="ordering_block_side_cont_txt"><?php echo $course['name'] . ' (выполнено тренировок): ' .$course['workouts_passed'];?></div>
+                                                                <?php endforeach;
+                                                                unset($course);
+                                                            endif;
                                                             $current_refund = ($refund_amount < 1.01) ? 1.01 : $refund_amount;?>
                                                             <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
                                                             <div class="parent kurs_cur_wrap">
@@ -186,15 +197,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                             <div class="video_admin_form_buts parent">
                                                                 <input type="submit" name="bt_refund" value="Вернуть платеж" class="video_admin_form_send" />
                                                             </div>
-                                                        <?php else:?>
-                                                            Возврат платежа не возможен. Сумма возврата и остаток должны быть больше 1 рубля.
-                                                        <?php endif;?>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </form>
+                                                </form>
+                                            </div>
                                         </div>
-                                    </div>
-                                <?php endif;?>
+                                    <?php endif;
+                                endif;?>
                             </div>
                         </div>
                     <?php endif;?>
