@@ -165,9 +165,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <?php endforeach;
                                             unset($course);
                                         endif;
+                                        $amount = $order['payments'][0]['amount'] - $order['payments'][0]['refunds_amount'];
+                                        $refund_amount  = number_format((($amount / 2) - $passed_price), 2, '.', '');
+                                        $max_refund     = number_format(($amount - 1.01), 2, '.', '');
 
-                                        $refund_amount = number_format((($order['payments'][0]['amount'] / 2) - $passed_price), 2, '.', '');
-                                        $max_refund    = number_format(($order['payments'][0]['amount'] - 1.01), 2, '.', '');
                                         if ($max_refund < 1.01 and $refund_amount < 1.01) :
                                             $refund_info = 'Возврат платежа не возможен. ' . $refund_info;
                                         endif;?>

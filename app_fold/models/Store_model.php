@@ -2819,7 +2819,8 @@ class Store_model extends CI_Model
                 $result[$i]['confirm_url'] = $confirm_url;
 
                 // Данные возвратов
-                $result[$i]['refunds'] = self::getPaymentRefunds($row->op_payment_id);
+                $refunds = self::getPaymentRefunds($row->op_payment_id);
+                $result[$i] = array_merge($result[$i], $refunds);
 
                 $i++;
             }
@@ -2963,7 +2964,7 @@ class Store_model extends CI_Model
      */
     public function getPaymentRefunds($payment_id)
     {
-        $result = array();
+        $result = array('refunds' => array(), 'refunds_amount' => 0);
 
         $sel_refunds = $this->db->query('
             SELECT `opr_refund_id`, `opr_refund_amount`, `opr_refund_status`, `opr_refund_description`, `opr_refund_created_at` 
@@ -2975,17 +2976,19 @@ class Store_model extends CI_Model
             $i = 0;
             foreach($sel_refunds->result() as $row)
             {
-                $result[$i]['id']          = $row->opr_refund_id;
-                $result[$i]['amount']      = $row->opr_refund_amount;
-                $result[$i]['status']      = $row->opr_refund_status;
-                $result[$i]['description'] = $row->opr_refund_description;
+                $result['refunds'][$i]['id']          = $row->opr_refund_id;
+                $result['refunds'][$i]['amount']      = $row->opr_refund_amount;
+                $result['refunds'][$i]['status']      = $row->opr_refund_status;
+                $result['refunds'][$i]['description'] = $row->opr_refund_description;
 
                 setlocale(LC_ALL, 'ru_RU.UTF-8');
                 $dt_create = new DateTime($row->opr_refund_created_at);
                 $created_at = (!empty($row->opr_refund_created_at) and $dt_create !== false)
                     ? $dt_create->format('d F Y, H:i')
                     : '';
-                $result[$i]['created_at']  = $created_at;
+                $result['refunds'][$i]['created_at'] = $created_at;
+
+                $result['refunds_amount'] += $row->opr_refund_amount;
 
                 $i++;
             }
