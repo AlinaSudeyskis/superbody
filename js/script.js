@@ -584,6 +584,16 @@ $(document).ready(function() {
         }
     });
 
+    $(".price_slide").click(function() {
+        if($(this).hasClass("hide_chart")){
+            $(this).removeClass("hide_chart");
+            $(this).parents(".content_block_internal").find(".kurs_block_val").slideDown(200);
+        } else{
+            $(this).addClass("hide_chart");
+            $(this).parents(".content_block_internal").find(".kurs_block_val").slideUp(200);
+        }
+    });
+
     $(".content_block_h_close").click(function() {
         $(this).parents(".content_block").slideUp(200);
     });

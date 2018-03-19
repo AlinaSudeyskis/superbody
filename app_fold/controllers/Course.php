@@ -1310,6 +1310,18 @@ class Course extends CI_Controller
             $price = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
             $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
 
+            // Рекуррентная стоимость
+            $recur_price      = is_numeric($this->input->post('i_recurrent_price', true)) ? $this->input->post('i_recurrent_price', true) : '';
+            $recur_months     = is_numeric($this->input->post('s_recurrent_months', true)) ? $this->input->post('s_recurrent_months', true) : '';
+            $recur_first      = is_numeric($this->input->post('i_recurrent_first', true)) ? $this->input->post('i_recurrent_first', true) : '';
+            $recur_subsequent = '';
+            if (!empty($recur_price) and !empty($recur_months) and !empty($recur_first))
+            {
+                $num_month = $recur_months - 1;
+                $month_price = ($recur_price - $recur_first) / $num_month;
+                $recur_subsequent = number_format($month_price, 2, '.', '');
+            }
+
             // Тип курса
             $type = $this->input->post('s_course_type', true);
             $course_type = is_numeric($type) and in_array($type, $course_types['types_id']) ? $type : '';
@@ -1426,12 +1438,20 @@ class Course extends CI_Controller
             // Удаление тренировок
             $schedule['delete'] = !empty($course_schedule['num_workout']) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
 
+            // Сохранение основных данных курса
             if ($name != $course['name'] or $description != $course['description'] or $price != $course['price'] or $course_type != $course['type']
                 or $count_weeks != $course['count_weeks'] or $count_days != $course['count_days'] or $count_rest != $course['count_rest']
                 or $course_image != ('.' . $course['image'])) {
 
                 $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description, $price, $fc_price,
                     $course_type, $count_weeks, $count_days, $count_rest, $this->date);
+            }
+
+            // Сохранение данных рекуррентной цены
+            if ($recur_price != $course['recur_price'] or $recur_months != $course['recur_months']
+                or $recur_first != $course['recur_first'] or $recur_subsequent != $course['recur_subsequent'])
+            {
+                $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->date);
             }
 
             // Добавление, изменени и/или удаление тренировок курса

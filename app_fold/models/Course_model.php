@@ -510,7 +510,8 @@ class Course_model extends CI_Model
 
         $sel_course = $this->db->query('
             SELECT `crs_id`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, `crs_count_days`, 
-              `crs_price`, `crs_fitcoin_price`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`, `p_id`
+              `crs_price`, `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
+              `crs_fitcoin_price`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`, `p_id`
             FROM `courses`
             LEFT JOIN `products` ON `p_course_id`=`crs_id`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
@@ -653,11 +654,12 @@ class Course_model extends CI_Model
      */
     public function getCourse($course_id)
     {
-        $result['course'] = NULL;
+        $result['course'] = array();
 
         $sel_course = $this->db->query('
             SELECT `crs_id`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, `crs_count_days`, 
-              `crs_price`, `crs_fitcoin_price`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`
+              `crs_price`, `crs_fitcoin_price`, `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, 
+              `crs_recurrent_subsequent`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`
             FROM `courses`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
             WHERE `crs_id`=? LIMIT 1', $course_id);
@@ -1127,6 +1129,39 @@ class Course_model extends CI_Model
             return true;
         }
         elseif ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Сохранение данных рекуррентной цены курса
+     *
+     * @param int $course_id
+     * @param float $recur_price
+     * @param int $recur_months
+     * @param float $recur_first
+     * @param float $recur_subsequent
+     * @param string $date
+     * @return bool
+     */
+    public function setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $date)
+    {
+        $up_data = $this->db->query('UPDATE `courses` 
+            SET `crs_recurrent_price`=?, `crs_recurrent_months`=?, `crs_recurrent_first`=?, `crs_recurrent_subsequent`=?, `crs_date_update`=?
+            WHERE `crs_id`=? LIMIT 1',
+            array($recur_price, $recur_months, $recur_first, $recur_subsequent, $date, $course_id));
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
         {
             parent::logDbMessages(__METHOD__);
             return false;
@@ -5482,6 +5517,10 @@ class Course_model extends CI_Model
         $result['blocked']       = !empty($row->crs_blocked) ? $row->crs_blocked : null;
         $result['price']         = (!empty($row->crs_price) and $row->crs_price != '0.00') ? $row->crs_price : null;
         $result['fc_price']      = (!empty($row->crs_fitcoin_price) and $row->crs_fitcoin_price != '0.00') ? $row->crs_fitcoin_price : null;
+        $result['recur_price']   = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? $row->crs_recurrent_price : null;
+        $result['recur_months']  = (!empty($row->crs_recurrent_months) and $row->crs_recurrent_months != 0) ? $row->crs_recurrent_months : null;
+        $result['recur_first']   = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? $row->crs_recurrent_first : null;
+        $result['recur_subsequent'] = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? $row->crs_recurrent_subsequent : null;
         $result['new_price']     = null;
         $result['new_fc_price']  = null;
         $result['bought']        = false;

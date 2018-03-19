@@ -595,3 +595,16 @@ span.mess_block_full_time {
 .anketa_block_item_cont.site_info{
     float: left;
 }
+
+.content_block_internal{
+    border: 1px solid #cdcdcd;
+}
+.content_block_internal .kurs_block_val{
+    padding: 20px;
+}
+.content_block_internal h3 {
+    font-size: 13px;
+    line-height: 22px;
+    font-weight: bold;
+    color: #33363f;
+}

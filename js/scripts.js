@@ -1182,7 +1182,30 @@ $(document).ready(function() {
                 $('#l-' + $(this).attr('id')).show();
             }
         });
+
+        $("#recurrent-price, #recurrent-months, #recurrent-first").on('keyup change', function(){
+            calc_recurrent();
+        });
 });
+
+    /**
+     *
+     */
+    function calc_recurrent()
+    {
+        var price = $("#recurrent-price").val(),
+            num_month = $("#recurrent-months").val(),
+            first = $("#recurrent-first").val(),
+            subsequent = $("#recurrent-subsequent"),
+            month_price = 0;
+
+        if (price != '' && first != '' && num_month != '')
+        {
+            num_month = num_month - 1;
+            month_price = (price - first) / num_month;
+            subsequent.val(parseFloat(month_price.toFixed(2)));
+        }
+    }
 
         /**
          * Корректировка округления десятичных дробей.

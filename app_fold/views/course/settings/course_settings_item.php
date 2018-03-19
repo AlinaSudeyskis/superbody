@@ -27,8 +27,52 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <input type="text" name="name" class="admin_form_txt" placeholder="Введите наименование" value="<?php if (!empty($course['name'])) : echo $course['name']; endif;?>" required="required"/>
         <input type="text" name="description" class="admin_form_txt" placeholder="Введите описание" value="<?php if (!empty($course['description'])) : echo $course['description']; endif;?>" required="required" />
         <div class="parent kurs_cur_wrap">
+            <div class="practice_block_h">Стоимость курса</div>
             <input type="text" name="price" class="admin_form_txt admin_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" />
             <div class="kurs_cur">Руб.</div>
+        </div>
+
+        <div class="content_block new_content_block ovv content_block_internal">
+            <div class="content_block_h parent">
+                <h3>Рекуррентный платеж</h3>
+                <div class="content_block_h_buts">
+                    <div class="content_block_h_slide price_slide"></div>
+                </div>
+            </div>
+            <div class="kurs_block_val">
+                <div class="anketa_block_cont">
+                    <div class="admin_form_h">Стоимость курса по рекуррентной схеме</div>
+                    <div class="parent kurs_cur_wrap">
+                        <input type="text" name="i_recurrent_price" class="admin_form_txt admin_form_txt_short"
+                               placeholder="Стоимость курса по рекуррентной схеме" id="recurrent-price"
+                               value="<?php if (!empty($course['recurrent_price'])) : echo $course['recurrent_price']; endif;?>" />
+                        <div class="kurs_cur">Руб.</div>
+                    </div>
+                    <div class="admin_form_h">Количество месяцев, на которое разбивается платеж</div>
+                    <select name="s_recurrent_months" class="journal_form_select" id="recurrent-months">
+                        <option value="">Выберите количество месяцев</option>
+                        <?php for ($i = 1; $i <= 12; $i++) :?>
+                            <option value="<?php echo $i;?>"
+                                <?php if (!empty($course['recurrent_months']) and $course['recurrent_months'] == $i) :?>selected="selected"<?php endif;?>
+                            ><?php echo $i;?> мес.</option>
+                        <?php endfor;?>
+                    </select>
+                    <div class="admin_form_h">Стоимость первого платежа</div>
+                    <div class="parent kurs_cur_wrap">
+                        <input type="text" name="i_recurrent_first" class="admin_form_txt admin_form_txt_short"
+                               placeholder="Стоимость первого платежа" id="recurrent-first"
+                               value="<?php if (!empty($course['recurrent_first'])) : echo $course['recurrent_first']; endif;?>" />
+                        <div class="kurs_cur">Руб.</div>
+                    </div>
+                    <div class="admin_form_h">Стоимость последующих платежей</div>
+                    <div class="parent kurs_cur_wrap">
+                        <input type="text" name="i_subsequent_payments" class="admin_form_txt admin_form_txt_short"
+                               placeholder="Стоимость последующих платежей" id="recurrent-subsequent" disabled="disabled"
+                               value="<?php if (!empty($course['subsequent_payments'])) : echo $course['subsequent_payments']; endif;?>" />
+                        <div class="kurs_cur">Руб.</div>
+                    </div>
+                </div>
+            </div>
         </div>
         <select name="s_course_type" class="journal_form_select">
             <?php if (!empty($types)) :
