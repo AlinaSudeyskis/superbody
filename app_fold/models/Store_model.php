@@ -2698,10 +2698,8 @@ class Store_model extends CI_Model
         // Выборка номера заказа и ID пользователя по номеру платежа
         if (!empty($payment_id))
         {
-            $sel_order = $this->db->query('
-                SELECT `op_o_id`, `o_u_id` 
-                FROM `orders_payments`
-                 LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            $sel_order = $this->db->query('SELECT `op_o_id`, `o_u_id` FROM `orders_payment` 
+                LEFT JOIN `orders` ON `o_id`=`op_o_id`
                 WHERE `op_payment_id`=? LIMIT 1', $payment_id);
 
             if($sel_order !== false and 1 == $sel_order->num_rows())

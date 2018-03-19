@@ -71,8 +71,6 @@ class Payment extends CI_Controller
     {
         $response = json_decode(file_get_contents("php://input"));
 
-        log_message('debug', __METHOD__ . ' ' . print_r($response, true));
-
         if ($response->type == 'notification')
         {
             $payment = $response->object;
@@ -122,7 +120,6 @@ class Payment extends CI_Controller
 
             // Выборка курсов из заказа по номеру платежа
             $res_cour = $this->Store_model->getOrderCourses($payment_id);
-            log_message('debug', __METHOD__ . ' Курсы заказа: ' . print_r($res_cour, true));
 
             // Прикрепление курса(ов) к пользователю
             if (!empty($res_cour['courses']))
