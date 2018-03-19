@@ -163,7 +163,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
                                                 <div class="anketa_block_item">
                                                     <div class="anketa_block_item_cont">
-                                                        <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
                                                         <?php $passed_price = 0;
                                                         if(!empty($courses)):
                                                             foreach($courses as $course):
@@ -172,18 +171,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                             <?php endforeach;
                                                             unset($course);
                                                         endif;
-                                                        $current_amount = ($order['payments'][0]['amount'] / 2) - $passed_price;
-                                                        $max_refund = ($order['payments'][0]['amount'] - 1.01); ?>
-                                                        <div class="parent kurs_cur_wrap">
-                                                            <input type="number" name="i_refund_amount" class="admin_form_txt admin_form_txt_short" min="1.01"
-                                                                   max="<?php echo $max_refund; ?>" step="0.01" placeholder="Сумма возврата"
-                                                                   value="<?php echo $current_amount; ?>" required="required"/>
-                                                            <div class="kurs_cur">Руб.</div>
-                                                        </div>
-                                                        <input type="text" name="i_description" class="admin_form_txt" value="" placeholder="Причина возврата" />
-                                                        <div class="video_admin_form_buts parent">
-                                                            <input type="submit" name="bt_refund" value="Вернуть платеж" class="video_admin_form_send" />
-                                                        </div>
+                                                        $refund_amount  = number_format((($order['payments'][0]['amount'] / 2) - $passed_price), 2, '.', '');
+                                                        $max_refund     = number_format(($order['payments'][0]['amount'] - 1.01), 2, '.', '');
+                                                        if ($max_refund >= 1.01 and $refund_amount >= 1.01) :
+                                                            $current_refund = ($refund_amount < 1.01) ? 1.01 : $refund_amount;?>
+                                                            <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
+                                                            <div class="parent kurs_cur_wrap">
+                                                                <input type="number" name="i_refund_amount" class="admin_form_txt admin_form_txt_short" min="1.01"
+                                                                       max="<?php echo $max_refund; ?>" step="0.01" placeholder="Сумма возврата"
+                                                                       value="<?php echo $current_refund; ?>" required="required"/>
+                                                                <div class="kurs_cur">Руб.</div>
+                                                            </div>
+                                                            <input type="text" name="i_description" class="admin_form_txt" value="" placeholder="Причина возврата" />
+                                                            <div class="video_admin_form_buts parent">
+                                                                <input type="submit" name="bt_refund" value="Вернуть платеж" class="video_admin_form_send" />
+                                                            </div>
+                                                        <?php else:?>
+                                                            Возврат платежа не возможен. Сумма возврата и остаток должны быть больше 1 рубля.
+                                                        <?php endif;?>
                                                     </div>
                                                 </div>
                                             </form>
