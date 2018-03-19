@@ -4770,6 +4770,11 @@ textarea.journal_post_comm_in{
 	font-size: 12px;
 	line-height: 15px;
 	font-weight: 300;
+    text-transform: initial;
+}
+.ordering_block_side_cont.payment_info{
+    float:right;
+    margin-left: 10px;
 }
 .ordering_block_side_cont_h{
 	text-transform: uppercase;

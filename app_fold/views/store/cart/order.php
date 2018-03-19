@@ -169,7 +169,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         $refund_amount = number_format((($order['payments'][0]['amount'] / 2) - $passed_price), 2, '.', '');
                                         $max_refund    = number_format(($order['payments'][0]['amount'] - 1.01), 2, '.', '');
                                         if ($max_refund < 1.01 and $refund_amount < 1.01) :
-                                            $refund_info = '<div class="ordering_block_side_cont">(Возврат платежа не возможен. Сумма возврата и остаток должны быть больше 1 рубля.)</div>';
+                                            $refund_info = '<div class="ordering_block_side_cont payment_info">(Возврат платежа не возможен. Сумма возврата и остаток должны быть больше 1 рубля.)</div>';
                                         endif;?>
                                         <div class="ordering_block_side_info_h">Возврат платежа<?php echo $refund_info; ?></div>
                                     </div>
