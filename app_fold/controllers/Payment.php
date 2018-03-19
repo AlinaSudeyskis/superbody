@@ -40,6 +40,8 @@ class Payment extends CI_Controller
         $total_amount = is_numeric($this->input->get('amount', true)) ? $this->input->get('amount', true) : null;
         $payment_type = is_numeric($this->input->get('type', true)) ? $this->input->get('type', true) : null;
 
+        log_message('debug', __METHOD__ . '. Response Payment data: '. $order_id . ' '. $total_amount . ' '. $payment_type);
+
         if (!empty($order_id) and !empty($total_amount))
         {
             // Создание платежа
