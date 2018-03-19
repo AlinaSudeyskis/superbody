@@ -240,7 +240,7 @@ $route['course/(:num)'] = 'Course/publicCourse/$1';
 $route['courses']       = 'Course/publicCourses';
 
 // Оплата
-$route['payment/(:num)/(:any)/(:any)'] = 'Payment/payment/$1/$2/$3';
+$route['payment']               = 'Payment/payment';
 $route['payment/notifications'] = 'Payment/paymentNotifications';
 $route['payment/update']        = 'Payment/paymentUpdate';
 

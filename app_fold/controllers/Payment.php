@@ -33,15 +33,11 @@ class Payment extends CI_Controller
 
     /**
      * Формирование запроса на создание платежа Яндекс.Кассы
-     *
-     * @param int $order_id
-     * @param float $total_amount
-     * @param string $payment_type
      */
-    public function payment($order_id, $total_amount, $payment_type)
+    public function payment()
     {
-        $order_id = (is_integer($order_id)) ? $order_id : null;
-        $total_amount = (is_numeric($total_amount)) ? $total_amount : null;
+        $order_id = (is_integer($this->input->get('oid', true))) ? $this->input->get('oid', true) : null;
+        $total_amount = (is_numeric($this->input->get('amount', true))) ? $this->input->get('oid', true) : null;
 
         if (!empty($order_id) and !empty($total_amount))
         {
