@@ -156,7 +156,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php if($order['payments'][0]['status_code'] == 'succeeded'):?>
                                     <div class="ordering_block_side_info_h_wrap parent"></div>
                                     <div class="ordering_block_side_info_h_wrap parent">
-                                        <?php $refund_info = '';
+                                        <?php $refund_info = 'Сумма возврата и остаток должны быть больше 1 рубля.';
                                         $passed_price = 0;
                                         if(!empty($courses)):
                                             foreach($courses as $course):
@@ -169,9 +169,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         $refund_amount = number_format((($order['payments'][0]['amount'] / 2) - $passed_price), 2, '.', '');
                                         $max_refund    = number_format(($order['payments'][0]['amount'] - 1.01), 2, '.', '');
                                         if ($max_refund < 1.01 and $refund_amount < 1.01) :
-                                            $refund_info = '<div class="ordering_block_side_cont payment_info">(Возврат платежа не возможен. Сумма возврата и остаток должны быть больше 1 рубля.)</div>';
+                                            $refund_info = 'Возврат платежа не возможен. ' . $refund_info;
                                         endif;?>
-                                        <div class="ordering_block_side_info_h">Возврат платежа<?php echo $refund_info; ?></div>
+                                        <div class="ordering_block_side_info_h">
+                                            Возврат платежа
+                                            <div class="ordering_block_side_cont payment_info">(<?php echo $refund_info; ?>)</div>
+                                        </div>
                                     </div>
                                     <?php if ($max_refund >= 1.01 and $refund_amount >= 1.01) :?>
                                         <div class="ordering_block_side_cont">
