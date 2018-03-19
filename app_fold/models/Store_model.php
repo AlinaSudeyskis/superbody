@@ -2978,8 +2978,11 @@ class Store_model extends CI_Model
             {
                 $result['refunds'][$i]['id']          = $row->opr_refund_id;
                 $result['refunds'][$i]['amount']      = $row->opr_refund_amount;
-                $result['refunds'][$i]['status']      = $row->opr_refund_status;
                 $result['refunds'][$i]['description'] = $row->opr_refund_description;
+
+                $status = array('succeeded' => 'Возврат платежа успешно завершен', 'canceled' => 'Возврат платежа отменен');
+                $result['refunds'][$i]['status'] = (array_key_exists($row->opr_refund_status, $status) !== false)
+                    ? $status[$row->opr_refund_status] : '';
 
                 setlocale(LC_ALL, 'ru_RU.UTF-8');
                 $dt_create = new DateTime($row->opr_refund_created_at);
