@@ -748,6 +748,9 @@ class Store extends CI_Controller
             show_404();
         }
 
+        // Курсы заказа
+        $order_courses = $this->Store_model->getOrderCourses('', $order_id);
+
         if ($this->input->post('bt_capture', true))
         {
             $payment_id = strip_tags($this->input->post('i_payment_id', true));
@@ -796,6 +799,14 @@ class Store extends CI_Controller
                 if (!empty($response->id))
                 {
                     $this->Store_model->setPaymentRefund($response->payment_id, $response->id, $refund_amount, $response->status, $description, $response->created_at);
+
+                    if ($response->status == 'succeeded')
+                    {
+                        $this->load->model('Course_model');
+
+                        // Блокировка курсов пользователя
+                        $this->Course_model->blockUserOrderCourses($order_courses['user_id'], $order_courses['courses']);
+                    }
                 }
             }
 
@@ -803,9 +814,6 @@ class Store extends CI_Controller
         }
 
         $order = $this->Store_model->getOrder($order_id);
-
-        // Курсы заказа
-        $order_courses = $this->Store_model->getOrderCourses('', $order_id);
         $course_data = array();
 
         if (!empty($order_courses['courses']))

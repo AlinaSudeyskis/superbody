@@ -104,8 +104,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         <?php endif;
                         if (!empty($course['days'])):
-                            if ($course['blocked'] == 0) :?>
-                            <div class="anketa_form_line parent">
+                            if ($course['paused'] == 0) :?>
+                                <div class="anketa_form_line parent">
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell">Заморозить курс до:</div></div>
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell">
                                         <input type="date" name="date_pause_to" min="<?php echo $calendar_min_date;?>" max="<?php echo $calendar_max_date;?>"/>
@@ -113,7 +113,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="anketa_form_desk">
                                         Минимальная заморозка курса 7 дней. Вы можете заморозить курс минимум до <?php echo $string_min_date;?>
                                     </div>
-                            </div>
+                                </div>
                             <?php endif;
                             if (!empty($course['date_last_missed'])) :?>
                                 <div class="anketa_form_line parent">
@@ -139,7 +139,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         <?php endif;?>
                         <div class="anketa_form_buts_wrap parent">
-                            <?php if ($course['blocked'] == 1):?>
+                            <?php if ($course['paused'] == 1):?>
                                 <input type="submit" name="bt_unblock_course" class="anketa_form_reset" value="Разморозить"/>
                             <?php endif;?>
                             <input type="submit" name="bt_save_course" value="Сохранить" class="anketa_form_but" />

@@ -178,35 +178,58 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                     <?php if ($max_refund >= 1.01 and $refund_amount >= 1.01) :?>
                                         <div class="ordering_block_side_cont">
+                                            <div class="ordering_block_side_cont_h info_ordering_pay"></div>
                                             <div class="anketa_block_cont">
                                                 <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
-                                                    <div class="anketa_block_item">
-                                                        <div class="anketa_block_item_cont">
-                                                            <?php if(!empty($courses)):
-                                                                foreach($courses as $course):?>
-                                                                    <div class="ordering_block_side_cont_txt"><?php echo $course['name'] . ' (выполнено тренировок): ' .$course['workouts_passed'];?></div>
-                                                                <?php endforeach;
-                                                                unset($course);
-                                                            endif;
-                                                            $current_refund = ($refund_amount < 1.01) ? 1.01 : $refund_amount;?>
-                                                            <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
-                                                            <div class="parent kurs_cur_wrap">
-                                                                <input type="number" name="i_refund_amount" class="admin_form_txt admin_form_txt_short" min="1.01"
-                                                                       max="<?php echo $max_refund; ?>" step="0.01" placeholder="Сумма возврата"
-                                                                       value="<?php echo $current_refund; ?>" required="required"/>
-                                                                <div class="kurs_cur">Руб.</div>
-                                                            </div>
-                                                            <input type="text" name="i_description" class="admin_form_txt" value="" placeholder="Причина возврата" />
-                                                            <div class="video_admin_form_buts parent">
-                                                                <input type="submit" name="bt_refund" value="Вернуть платеж" class="video_admin_form_send" />
-                                                            </div>
+                                                    <div class="anketa_block_item_cont">
+                                                        <?php if(!empty($courses)):
+                                                            foreach($courses as $course):?>
+                                                                <div class="ordering_block_side_cont_txt"><?php echo $course['name'] . ' (выполнено тренировок): ' .$course['workouts_passed'];?></div>
+                                                            <?php endforeach;
+                                                            unset($course);
+                                                        endif;
+                                                        $current_refund = ($refund_amount < 1.01) ? 1.01 : $refund_amount;?>
+                                                        <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
+                                                        <div class="parent kurs_cur_wrap">
+                                                            <input type="number" name="i_refund_amount" class="admin_form_txt admin_form_txt_short" min="1.01"
+                                                                   max="<?php echo $max_refund; ?>" step="0.01" placeholder="Сумма возврата"
+                                                                   value="<?php echo $current_refund; ?>" required="required"/>
+                                                            <div class="kurs_cur">Руб.</div>
+                                                        </div>
+                                                        <input type="text" name="i_description" class="admin_form_txt admin_form_txt_short" value="" placeholder="Причина возврата" />
+                                                        <div class="video_admin_form_buts parent">
+                                                            <input type="submit" name="bt_refund" value="Вернуть платеж" class="video_admin_form_send" />
                                                         </div>
                                                     </div>
                                                 </form>
                                             </div>
                                         </div>
                                     <?php endif;
-                                endif;?>
+                                endif;
+                                if(!empty($order['payments'][0]['refunds'])):?>
+                                    <div class="ordering_block_side_info_h_wrap parent"></div>
+                                    <div class="ordering_block_side_info_h_wrap parent">
+                                        <div class="ordering_block_side_info_h">Возвраты</div>
+                                    </div>
+                                    <div class="ordering_block_side_cont">
+                                        <div class="ordering_block_bottom">
+                                            <?php foreach($order['payments'][0]['refunds'] as $refund): ?>
+                                                <div class="ordering_block_side_info">
+                                                    <div class="ordering_block_side_info_h_wrap parent">
+                                                        <div class="ordering_block_side_info_h">ID: <?php echo $refund['id'];?></div>
+                                                    </div>
+                                                    <div class="ordering_block_side_cont">
+                                                        <div class="ordering_block_side_cont_h info_ordering_pay"></div>
+                                                        <div class="ordering_block_side_cont_txt">Сумма: <?php echo $refund['amount'] . ' RUB';?></div>
+                                                        <div class="ordering_block_side_cont_txt">Статус: <?php echo $refund['status'];?></div>
+                                                        <div class="ordering_block_side_cont_txt">Создан: <?php echo $refund['created_at'];?></div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach;
+                                            unset($refund);?>
+                                        </div>
+                                    </div>
+                                <?php endif;?>
                             </div>
                         </div>
                     <?php endif;?>

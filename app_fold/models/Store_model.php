@@ -2820,6 +2820,9 @@ class Store_model extends CI_Model
                 $result[$i] = self::parsePaymentData($row);
                 $result[$i]['confirm_url'] = $confirm_url;
 
+                // Данные возвратов
+                $result[$i]['refunds'] = self::getPaymentRefunds($row->op_payment_id);
+
                 $i++;
             }
             unset($row);
@@ -2952,6 +2955,50 @@ class Store_model extends CI_Model
         {
             return false;
         }
+    }
+
+    /**
+     * Выборка возвратов платежа
+     *
+     * @param string $payment_id
+     * @return array
+     */
+    public function getPaymentRefunds($payment_id)
+    {
+        $result = array();
+
+        $sel_refunds = $this->db->query('
+            SELECT `opr_refund_id`, `opr_refund_amount`, `opr_refund_status`, `opr_refund_description`, `opr_refund_created_at` 
+            FROM `orders_payment_refund` 
+            WHERE `opr_payment_id`=?', $payment_id);
+
+        if ($sel_refunds !== false and 0 < $sel_refunds->num_rows())
+        {
+            $i = 0;
+            foreach($sel_refunds->result() as $row)
+            {
+                $result[$i]['id']          = $row->opr_refund_id;
+                $result[$i]['amount']      = $row->opr_refund_amount;
+                $result[$i]['status']      = $row->opr_refund_status;
+                $result[$i]['description'] = $row->opr_refund_description;
+
+                setlocale(LC_ALL, 'ru_RU.UTF-8');
+                $dt_create = new DateTime($row->opr_refund_created_at);
+                $created_at = (!empty($row->opr_refund_created_at) and $dt_create !== false)
+                    ? $dt_create->format('d F Y, H:i')
+                    : '';
+                $result[$i]['created_at']  = $created_at;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_refunds === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */

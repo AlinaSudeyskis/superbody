@@ -273,5 +273,8 @@ class Welcome_model extends CI_Model
             `opr_refund_description` VARCHAR(255) NOT NULL , 
             `opr_refund_created_at` VARCHAR(50) NOT NULL , 
             PRIMARY KEY (`opr_id`)) ENGINE = MyISAM');*/
+
+        // 19.03.2018
+        $this->db->query('ALTER TABLE `users_courses` ADD `uc_paused` TINYINT(1) NOT NULL AFTER `uc_blocked`');
     }
 }

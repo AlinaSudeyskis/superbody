@@ -3582,10 +3582,10 @@ class Course_model extends CI_Model
 
         $sel_courses = $this->db->query('
             SELECT `uc_id`, `uc_course_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked`, 
-                `uc_pause_days`, `crs_image`, `crs_name`, `crs_description`, `crs_count_weeks`, `crs_count_days` 
+                `uc_paused`, `uc_pause_days`, `crs_image`, `crs_name`, `crs_description`, `crs_count_weeks`, `crs_count_days` 
             FROM `users_courses` 
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
-            WHERE `uc_user_id`=?', $user_id);
+            WHERE `uc_user_id`=? and `uc_blocked`=0', $user_id);
 
         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
         {
@@ -3605,6 +3605,7 @@ class Course_model extends CI_Model
                 $result['courses'][$i]['date_start']  = $row->uc_date_start;
                 $result['courses'][$i]['date_end']    = $row->uc_date_end;
                 $result['courses'][$i]['blocked']     = $row->uc_blocked;
+                $result['courses'][$i]['paused']      = $row->uc_paused;
                 $result['courses'][$i]['pause_days']  = $row->uc_pause_days;
 
                 $i++;
@@ -4148,7 +4149,7 @@ class Course_model extends CI_Model
 
         $sel_course = $this->db->query('
             SELECT `uc_id`, `uc_course_id`, `uc_couch_id`, `uc_date_start`, `uc_date_end`, `uc_days`, `uc_blocked`, 
-              `uc_pause_days`, `crs_name`, `crs_description`, `crs_count_weeks`, 
+              `uc_paused`, `uc_pause_days`, `crs_name`, `crs_description`, `crs_count_weeks`, 
               `crs_count_days`, `crs_price`, `crs_fitcoin_price`, `crs_count_rest` 
             FROM `users_courses`
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
@@ -4174,6 +4175,7 @@ class Course_model extends CI_Model
             $result['course']['date_start']       = $date_start;
             $result['course']['date_end']         = $date_end;
             $result['course']['blocked']          = $row->uc_blocked;
+            $result['course']['paused']           = $row->uc_paused;
             $result['course']['pause_days']       = $row->uc_pause_days;
             $result['course']['pause_start']      = '';
             $result['course']['pause_end']        = '';
@@ -4502,9 +4504,9 @@ class Course_model extends CI_Model
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            $up_data = $this->db->query('
+            $this->db->query('
                 UPDATE `users_courses` 
-                SET `uc_blocked`=1, `uc_date_update`=?, `uc_date_end`=?
+                SET `uc_paused`=1, `uc_date_update`=?, `uc_date_end`=?
                 WHERE `uc_id`=?  LIMIT 1',
                     array($date, $course_end, $course_id));
 
@@ -4542,7 +4544,7 @@ class Course_model extends CI_Model
         {
             $up_data = $this->db->query('
                 UPDATE `users_courses` 
-                SET `uc_blocked`=0, `uc_pause_days`=?, `uc_date_update`=?, `uc_date_end`=?
+                SET `uc_paused`=0, `uc_pause_days`=?, `uc_date_update`=?, `uc_date_end`=?
                 WHERE `uc_id`=?  LIMIT 1',
                 array($pause_days, $date, $course_end, $course_id));
             if ($up_data === false)
@@ -4654,10 +4656,7 @@ class Course_model extends CI_Model
     {
         $result = array();
 
-        $sel_users = $this->db->query('
-            SELECT `uc_user_id` 
-            FROM `users_courses`
-            WHERE `uc_course_id`=?', $course_id);
+        $sel_users = $this->db->query('SELECT `uc_user_id` FROM `users_courses` WHERE `uc_course_id`=? and `uc_blocked`=0', $course_id);
 
         if ($sel_users !== false and 0 < $sel_users->num_rows())
         {
@@ -4691,9 +4690,8 @@ class Course_model extends CI_Model
         $sel_users = $this->db->query('
             SELECT `uc_user_id`, `user_name`, `user_email`, `user_image` 
             FROM `users_courses` 
-            LEFT JOIN `users` 
-              ON `uc_user_id`=`user_id`
-            WHERE `uc_course_id`=?', $course_id);
+            LEFT JOIN `users` ON `uc_user_id`=`user_id`
+            WHERE `uc_course_id`=? and `uc_blocked`=0', $course_id);
 
         if ($sel_users !== false and 0 < $sel_users->num_rows())
         {
@@ -4729,7 +4727,7 @@ class Course_model extends CI_Model
         $sel_courses = $this->db->query('
             SELECT `uc_id`, `uc_course_id`, `uc_date_end`, `uc_pause_days` 
             FROM `users_courses` 
-            WHERE `uc_user_id`=?', $user_id);
+            WHERE `uc_user_id`=? and `uc_blocked`=0', $user_id);
 
         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
         {
@@ -4748,6 +4746,31 @@ class Course_model extends CI_Model
         }
 
         return $result;
+    }
+
+    /**
+     * Блокировка курсов пользователя
+     *
+     * @param int $user_id
+     * @param array $courses
+     */
+    public function blockUserOrderCourses($user_id, $courses)
+    {
+        if (!empty($courses))
+        {
+            foreach ($courses as $course)
+            {
+                $up_data = $this->db->query('
+                    UPDATE `users_courses` SET `uc_blocked`=1 
+                    WHERE `uc_user_id`=? and `uc_course_id`=? LIMIT 1', array($user_id, $course['id']));
+
+                if ($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__);
+                }
+            }
+            unset($course);
+        }
     }
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА ПОЛЬЗОВАТЕЛЕЙ */

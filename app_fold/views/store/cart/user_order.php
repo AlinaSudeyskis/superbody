@@ -135,16 +135,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="ordering_block_side_cont_txt">Оплата: <?php echo $order['payments'][0]['paid'];?></div>
                                     <?php if(!empty($order['payments'][0]['captured_at'])): ?>
                                         <div class="ordering_block_side_cont_txt">Подтвержден: <?php echo $order['payments'][0]['captured_at'];?></div>
-                                    <?php endif;?>
+                                    <?php endif;
 
-                                    <form action="" class="edit_kurs_form" id="1kurs_form" method="post" enctype="multipart/form-data">
-                                        <div class="video_admin_form_buts parent">
-                                            <?php if ($order['payments'][0]['status_code'] == 'pending' and !empty($order['payments'][0]['confirm_url'])):?>
+                                    if ($order['payments'][0]['status_code'] == 'pending' and !empty($order['payments'][0]['confirm_url'])):?>
+                                        <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
+                                            <div class="video_admin_form_buts parent">
                                                 <a href="<?php echo $order['payments'][0]['confirm_url']; ?>" class="video_admin_form_send">Подтвердить платеж</a>
-                                            <?php endif;?>
-                                        </div>
-                                    </form>
+                                            </div>
+                                        </form>
+                                    <?php endif;?>
                                 </div>
+                                <?php if(!empty($order['payments'][0]['refunds'])):?>
+                                    <div class="ordering_block_side_info_h_wrap parent"></div>
+                                    <div class="ordering_block_side_info_h_wrap parent">
+                                        <div class="ordering_block_side_info_h">Возвраты</div>
+                                    </div>
+                                    <div class="ordering_block_side_cont">
+                                        <div class="ordering_block_bottom">
+                                            <?php foreach($order['payments'][0]['refunds'] as $refund): ?>
+                                                <div class="ordering_block_side_info">
+                                                    <div class="ordering_block_side_info_h_wrap parent">
+                                                        <div class="ordering_block_side_info_h">ID: <?php echo $refund['id'];?></div>
+                                                    </div>
+                                                    <div class="ordering_block_side_cont">
+                                                        <div class="ordering_block_side_cont_h info_ordering_pay"></div>
+                                                        <div class="ordering_block_side_cont_txt">Сумма: <?php echo $refund['amount'] . ' RUB';?></div>
+                                                        <div class="ordering_block_side_cont_txt">Статус: <?php echo $refund['status'];?></div>
+                                                        <div class="ordering_block_side_cont_txt">Создан: <?php echo $refund['created_at'];?></div>
+                                                    </div>
+                                                </div>
+                                            <?php endforeach;
+                                            unset($refund);?>
+                                        </div>
+                                    </div>
+                                <?php endif;?>
                             </div>
                         </div>
                     <?php endif;?>
