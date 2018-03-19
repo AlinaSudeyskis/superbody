@@ -36,9 +36,9 @@ class Payment extends CI_Controller
      */
     public function payment()
     {
-        $order_id     = is_integer($this->input->get('oid', true)) ? $this->input->get('oid', true) : null;
+        $order_id     = is_numeric($this->input->get('oid', true)) ? $this->input->get('oid', true) : null;
         $total_amount = is_numeric($this->input->get('amount', true)) ? $this->input->get('amount', true) : null;
-        $payment_type = is_numeric($this->input->get('type', true)) ? $this->input->get('type', true) : null;
+        $payment_type = strip_tags($this->input->get('type', true));
 
         log_message('debug', __METHOD__ . '. Response Payment data: '. $order_id . ' '. $total_amount . ' '. $payment_type);
 
