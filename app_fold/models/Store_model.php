@@ -2687,25 +2687,54 @@ class Store_model extends CI_Model
      * Выборка курсов заказа пользователя
      *
      * @param string $payment_id
+     * @param int $order_id
      * @return mixed
      */
-    public function getOrderCourses($payment_id)
+    public function getOrderCourses($payment_id = '', $order_id = '')
     {
         $result['courses'] = array();
+        $result['user_id'] = '';
 
         // Выборка номера заказа и ID пользователя по номеру платежа
-        $sel_order = $this->db->query('
-            SELECT `op_o_id`, `o_u_id` 
-            FROM `orders_payments`
-             LEFT JOIN `orders` ON `o_id`=`op_o_id`
-            WHERE `op_payment_id`=? LIMIT 1', $payment_id);
-
-        if($sel_order !== false and 1 == $sel_order->num_rows())
+        if (!empty($payment_id))
         {
-            $row = $sel_order->row();
-            $order_id = $row->op_o_id;
-            $user_id = $row->o_u_id;
-            unset($row);
+            $sel_order = $this->db->query('
+                SELECT `op_o_id`, `o_u_id` 
+                FROM `orders_payments`
+                 LEFT JOIN `orders` ON `o_id`=`op_o_id`
+                WHERE `op_payment_id`=? LIMIT 1', $payment_id);
+
+            if($sel_order !== false and 1 == $sel_order->num_rows())
+            {
+                $row = $sel_order->row();
+                $order_id = $row->op_o_id;
+                $user_id = $row->o_u_id;
+                unset($row);
+            }
+            elseif($sel_order === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+        }
+        elseif (!empty($order_id))
+        {
+            $sel_order = $this->db->query('SELECT `o_u_id` FROM `orders` WHERE `o_id`=? LIMIT 1', $order_id);
+
+            if($sel_order !== false and 1 == $sel_order->num_rows())
+            {
+                $row = $sel_order->row();
+                $user_id = $row->o_u_id;
+                unset($row);
+            }
+            elseif($sel_order === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+        }
+
+        if (!empty($order_id) and !empty($user_id))
+        {
+            $result['user_id'] = $user_id;
 
             // Выборка курсов заказа
             $sel_courses = $this->db->query('
@@ -2729,10 +2758,6 @@ class Store_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__);
             }
-        }
-        elseif($sel_order === false)
-        {
-            parent::logDbMessages(__METHOD__);
         }
 
         return $result;
@@ -2791,6 +2816,7 @@ class Store_model extends CI_Model
                     }
                 }
 
+                // Данные платежа
                 $result[$i] = self::parsePaymentData($row);
                 $result[$i]['confirm_url'] = $confirm_url;
 

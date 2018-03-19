@@ -4297,6 +4297,42 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Количество пройденных пользователем тренировок курса
+     *
+     * @param $user_id
+     * @param $courses
+     * @return mixed
+     */
+    public function getUserPassedWorkouts($user_id, $courses)
+    {
+        $result['courses'] = array();
+
+        if (!empty($user_id) and !empty($courses))
+        {
+            $i = 0;
+            foreach ($courses as $course)
+            {
+                $data = self::getUserCourseSettings($course['id'], $user_id);
+
+                $result['courses'][$i]['id'] = $course['id'];
+                $result['courses'][$i]['name'] = $data['course']['name'];
+                $result['courses'][$i]['workouts_passed'] = $data['course']['workouts_passed'];
+
+                // Стоимость выполненных тренировок
+                $workout_price = $data['course']['price'] / ($data['course']['count_weeks'] * $data['course']['count_days']);
+                $passed_price  = $workout_price * $data['course']['workouts_passed'];
+
+                $result['courses'][$i]['passed_price'] = $passed_price;
+
+                $i++;
+            }
+            unset($course);
+        }
+
+        return $result;
+    }
+
+    /**
      * Сохранение выбранного тренера курса пользователя
      *
      * @param int $course_id ID курса

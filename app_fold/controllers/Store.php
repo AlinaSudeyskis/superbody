@@ -802,7 +802,21 @@ class Store extends CI_Controller
             header('Location: /administration/order/' . $order_id);
         }
 
-        $result = $this->Store_model->getOrder($order_id);
+        $order = $this->Store_model->getOrder($order_id);
+
+        // Курсы заказа
+        $order_courses = $this->Store_model->getOrderCourses('', $order_id);
+        $course_data = array();
+
+        if (!empty($order_courses['courses']))
+        {
+            $this->load->model('Course_model');
+
+            // Кол-во пройденных пользователем тренировок курса
+            $course_data = $this->Course_model->getUserPassedWorkouts($order['user_id'], $order_courses['courses']);
+        }
+
+        $result = array_merge($order, $course_data);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Заказ №' . $order_id;
