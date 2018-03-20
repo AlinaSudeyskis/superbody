@@ -1509,6 +1509,7 @@ if($("#policy_pop-up").length > 0){
         if (shadow.length == 0)
         {
             $("body").append("<div id='shadow'></div>");
+            shadow = $("#shadow");
         }
 
         popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);

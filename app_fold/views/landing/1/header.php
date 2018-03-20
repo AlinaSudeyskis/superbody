@@ -22,3 +22,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/lp_script.js"></script>
 </head>
 <body class="light_lp lp_page">
+
+<div id="policy_pop-up">
+    <div class="policy_pop-up_cont">
+        <div class="policy_pop-up_close"></div>
+        <div class="policy_pop-up_h">Подтверждая данное действие, я (Клиент) даю своё согласие ООО «Лайф Технолоджи Рус.» на обработку моих персональных данных, в соответствии с Федеральным законом от 27.07.2006 года №152-ФЗ «О персональных данных», на условиях и для целей, определенных
+            <a href="<?php if (!empty($site_info['personal_data'])): echo $site_info['personal_data']; endif;?>" class="policy" target="_blank">Политикой обработки персональных данных</a>
+        </div>
+    </div>
+</div><!-- home_pop-up -->

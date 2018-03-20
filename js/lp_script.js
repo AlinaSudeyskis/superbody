@@ -30,4 +30,24 @@ $(document).ready(function(){
 
     $('.anketa_form_select').styler();
 
+    if($("#policy_pop-up").length > 0){
+        $(".policy").on('click', function(){
+            event.preventDefault();
+            var popup = $("#policy_pop-up"),
+                shadow = $("#shadow");
+
+            if (shadow.length == 0)
+            {
+                $("body").append("<div id='shadow'></div>");
+                shadow = $("#shadow");
+            }
+
+            popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
+            $("#shadow, .policy_pop-up_close").fadeTo(600,0.8).click(function() {
+                shadow.fadeOut(600);
+                popup.fadeOut(600);
+            });
+        });
+    }
+
 });
