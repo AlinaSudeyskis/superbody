@@ -276,9 +276,12 @@ class Welcome_model extends CI_Model
 
         // 19.03.2018
         //$this->db->query('ALTER TABLE `users_courses` ADD `uc_paused` TINYINT(1) NOT NULL AFTER `uc_blocked`');
-        /*$this->db->query('ALTER TABLE `courses` ADD `crs_recurrent_price` DECIMAL(10,2) NOT NULL AFTER `crs_fitcoin_price`,
+
+        $this->db->query('ALTER TABLE `courses` ADD `crs_recurrent_price` DECIMAL(10,2) NOT NULL AFTER `crs_fitcoin_price`,
             ADD `crs_recurrent_months` TINYINT(2) UNSIGNED NOT NULL AFTER `crs_recurrent_price`,
             ADD `crs_recurrent_first` DECIMAL(10,2) NOT NULL AFTER `crs_recurrent_months`,
-            ADD `crs_recurrent_subsequent` DECIMAL(10,2) NOT NULL AFTER `crs_recurrent_first`');*/
+            ADD `crs_recurrent_subsequent` DECIMAL(10,2) NOT NULL AFTER `crs_recurrent_first`');
+        $this->db->query('ALTER TABLE `orders_payment` ADD `op_payment_options` ENUM("full_payment","installments","") NOT NULL AFTER `op_currency`');
+        $this->db->query('ALTER TABLE `orders_payment` CHANGE `op_following_date` `op_following_date` DATE NOT NULL');
     }
 }

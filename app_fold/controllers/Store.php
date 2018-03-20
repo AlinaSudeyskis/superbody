@@ -1096,6 +1096,10 @@ class Store extends CI_Controller
             $a_p = array(1 => 'Оплата наличными при получении', 2 => 'Онлайн оплата', 3 => 'Банковский перевод');
             $payment_type = 'bank_card';
 
+            // Варианты оплаты. full_payment - полная оплата стоимостиж installments - оплата частями
+            $options = array('full_payment', 'installments');
+            $payment_option = 'full_payment';
+
             // Товары заказа
             $products = $this->Store_model->getUserCartInStockProducts($this->user_id);
 
@@ -1109,7 +1113,8 @@ class Store extends CI_Controller
                     // Кол-во товаров в корзине
                     parent::updateSessionCart(0);
 
-                    header('Location: /payment?oid=' . $res_order['order_id'] . '&amount=' . $res_order['total_amount'] . '&type=' . $payment_type);
+                    header('Location: /payment?oid=' . $res_order['order_id'] . '&amount=' . $res_order['total_amount']
+                        . '&type=' . $payment_type. '&option=' . $payment_option);
                 }
                 else
                 {

@@ -1438,12 +1438,19 @@ class Course extends CI_Controller
             // Удаление тренировок
             $schedule['delete'] = !empty($course_schedule['num_workout']) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
 
+
+            /* СОХРАНЕНИЕ ИЗМНЕНИЙ */
+            $result_settings  = null;
+            $result_recurrent = null;
+            $result_schedule  = null;
+            $result_couches   = null;
+
             // Сохранение основных данных курса
             if ($name != $course['name'] or $description != $course['description'] or $price != $course['price'] or $course_type != $course['type']
                 or $count_weeks != $course['count_weeks'] or $count_days != $course['count_days'] or $count_rest != $course['count_rest']
                 or $course_image != ('.' . $course['image'])) {
 
-                $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description, $price, $fc_price,
+                $result_settings = $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description, $price, $fc_price,
                     $course_type, $count_weeks, $count_days, $count_rest, $this->date);
             }
 
@@ -1451,31 +1458,41 @@ class Course extends CI_Controller
             if ($recur_price != $course['recur_price'] or $recur_months != $course['recur_months']
                 or $recur_first != $course['recur_first'] or $recur_subsequent != $course['recur_subsequent'])
             {
-                $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->date);
+                $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->date);
             }
 
             // Добавление, изменени и/или удаление тренировок курса
-            $this->Course_model->setCourseSchedule($course_id, $schedule, $this->user_id, $this->date);
+            if (!empty($schedule['insert']) or !empty($schedule['update']) or !empty($schedule['delete']))
+            {
+                $result_schedule = $this->Course_model->setCourseSchedule($course_id, $schedule, $this->user_id, $this->date);
+            }
 
             // Добавление, изменение и/или удаление тренеров курса
-            $this->Course_model->setCourseCouches($course_id, $couches, $this->date);
+            if (!empty($couches['insert']) or !empty($couches['update']) or !empty($couches['delete']))
+            {
+                $result_couches = $this->Course_model->setCourseCouches($course_id, $couches, $this->date);
+            }
 
-            /*if ($result_settings === true and $result_schedule === true) {
+            /* ВЫВОД ИНФОРМАЦИИ О СОХРАНЕНИИ ИЗМЕНЕНИЙ */
+            if ($result_settings === true and $result_schedule === true and $result_recurrent === true
+                and $result_couches === true)
+            {
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
             }
-            elseif ($result_settings === false and $result_schedule === true) {
+            elseif($result_settings === false and $result_schedule === false and $result_recurrent === false
+                and $result_couches === false)
+            {
                 // Изменения не сохранены
-                $this->session->set_tempdata('message', 30, 60);
+                $this->session->set_tempdata('message', 73, 60);
             }
-            elseif ($result_schedule === false and $result_settings === true) {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 31, 60);
-                } else {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 32, 60);
-                }*/
-
+            elseif($result_settings === false or $result_schedule === false or $result_recurrent === false
+                or $result_couches === false)
+            {
+                // Основные данные не сохранены
+                $this->session->set_tempdata('message', 130, 60);
+                log_message('debug', 'Не все данные курса сохранены. POST data: ' . print_r($this->input->post(), true));
+            }
 
             header('Location: /administration/course/'.$course_id);
         }
@@ -4159,14 +4176,28 @@ class Course extends CI_Controller
                 $end_date = $date !== false ? $date->format('Y-m-d') : null;
             }*/
 
+            // Вариант оплаты (полный, разделить на месяцы)
+            $options = array('full_payment', 'installments');
+            $payment_option = in_array($this->input->post('s_payment_options', true), $options) ? $this->input->post('s_payment_options', true) : null;
+
+            // Стоимость курса в зависимости от варианта оплаты и доступности такой оплаты в настройка курса
+            if($payment_option == 'installments' and $course['recurrent'] === true)
+            {
+                $course_price = $course['recur_first'];
+            }
+            else
+            {
+                $course_price = $course['price'];
+            }
+
             // Добавление товара в заказы пользователя
             $this->load->model('Store_model');
 
             $products['products'] = array( 0 => array(
                 'id' => $course['p_id'],
                 'cart_quantity' => 1,
-                'price' => $course['price'],
-                'fc_price' => $course['fc_price'],
+                'price' => $course_price,
+                'fc_price' => '',
                 'discount_price' => '',
                 'discount_fc_price' => '')
             );
@@ -4180,7 +4211,12 @@ class Course extends CI_Controller
                 parent::updateSessionCart(0);
 
                 $payment_type = 'bank_card';
-                header('Location: /payment/' . $res_order['order_id'] . '/' . $res_order['total_amount'] . '/' . $payment_type);
+
+                if (!empty($payment_option))
+                {
+                    header('Location: /payment?oid=' . $res_order['order_id'] . '&amount=' . $res_order['total_amount']
+                        . '&type=' . $payment_type. '&option=' . $payment_option);
+                }
 
                 /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
 
@@ -4206,9 +4242,6 @@ class Course extends CI_Controller
             /*// Курс куплен (добавлен)
             $this->session->set_tempdata('message', 109, 60);
             header('Location: /profile/course/'.$course_id);*/
-
-            /* // Пользователь не выбрал дни недели для тренировок
-            $this->session->set_tempdata('message', 57, 60);*/
 
         }
 

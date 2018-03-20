@@ -20,14 +20,15 @@ class Payment_model extends CI_Model
      * @param float $total_amount
      * @param string $currency
      * @param string $created_at
+     * @param string $payment_option (full_payment, installments)
      * @return bool
      */
-    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at)
+    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at, $payment_option)
     {
         $ins_data = $this->db->query('
-            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_created_at`) 
-            VALUES (?, ?, ?, ?, ?, ?)',
-            array($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at));
+            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)',
+            array($order_id, $payment_id, $payment_status, $total_amount, $currency, $payment_option, $created_at));
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
             return true;
@@ -109,5 +110,110 @@ class Payment_model extends CI_Model
         {
             return false;
         }
+    }
+
+    /**
+     * Выборка данных платежа
+     *
+     * @param $payment_id
+     * @return array
+     */
+    public function getOrderPayment($payment_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `op_o_id`, `op_payment_options` FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['order_id'] = $row->op_o_id;
+            $result['option']   = $row->op_payment_options;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение последующих платежей заказа
+     *
+     * @param $order_id
+     * @param $payment_method
+     * @param $payment_method_id
+     * @param $recurrent_data
+     * @param $date
+     */
+    public function setSubsequentPayments($order_id, $payment_method, $payment_method_id, $recurrent_data, $date)
+    {
+        if (!empty($recurrent_data))
+        {
+            foreach ($recurrent_data as $course)
+            {
+                if ($course['recurrent'] === true)
+                {
+                    $months = $course['recur_months'] - 1;
+                    $following_date = $date;
+
+                    // Цикл добавления будущих платежей
+                    for($i = 1; $i <= $months; $i++)
+                    {
+                        $tmp_date = new DateTime($following_date);
+                        $tmp_date->add(new DateInterval('P1M'));
+                        $following_date = $tmp_date->format('Y-m-d H:i:s');
+
+                        $ins_data = $this->db->query('
+                            INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_following_date`)
+                            VALUES (?, ?, ?, ?, ?, ?, ?)',
+                                array($order_id, $i, $payment_method, $course['recur_subsequent'], 'RUB', $payment_method_id, $following_date));
+                        if($ins_data === false)
+                        {
+                            parent::logDbMessages(__METHOD__);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Выборка платежей, которые нужно провести
+     *
+     * @param $today
+     * @return array
+     */
+    public function getSubsequentPayments($today)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('
+            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id` 
+            FROM `orders_payment`
+            WHERE `op_following_date`=? and `op_payment_method_id`<>""', $today);
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['payments'][$i]['id']        = $row->op_id;
+                $result['payments'][$i]['order_id']  = $row->op_o_id;
+                $result['payments'][$i]['type']      = $row->op_payment_type;
+                $result['payments'][$i]['amount']    = $row->op_amount;
+                $result['payments'][$i]['currency']  = $row->op_currency;
+                $result['payments'][$i]['method_id'] = $row->op_payment_method_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
     }
 }

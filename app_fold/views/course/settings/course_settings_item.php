@@ -45,7 +45,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="parent kurs_cur_wrap">
                         <input type="text" name="i_recurrent_price" class="admin_form_txt admin_form_txt_short"
                                placeholder="Стоимость курса по рекуррентной схеме" id="recurrent-price"
-                               value="<?php if (!empty($course['recurrent_price'])) : echo $course['recurrent_price']; endif;?>" />
+                               value="<?php if (!empty($course['recur_price'])) : echo $course['recur_price']; endif;?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
                     <div class="admin_form_h">Количество месяцев, на которое разбивается платеж</div>
@@ -53,7 +53,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <option value="">Выберите количество месяцев</option>
                         <?php for ($i = 1; $i <= 12; $i++) :?>
                             <option value="<?php echo $i;?>"
-                                <?php if (!empty($course['recurrent_months']) and $course['recurrent_months'] == $i) :?>selected="selected"<?php endif;?>
+                                <?php if (!empty($course['recur_months']) and $course['recur_months'] == $i) :?>selected="selected"<?php endif;?>
                             ><?php echo $i;?> мес.</option>
                         <?php endfor;?>
                     </select>
@@ -61,14 +61,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="parent kurs_cur_wrap">
                         <input type="text" name="i_recurrent_first" class="admin_form_txt admin_form_txt_short"
                                placeholder="Стоимость первого платежа" id="recurrent-first"
-                               value="<?php if (!empty($course['recurrent_first'])) : echo $course['recurrent_first']; endif;?>" />
+                               value="<?php if (!empty($course['recur_first'])) : echo $course['recur_first']; endif;?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
                     <div class="admin_form_h">Стоимость последующих платежей</div>
                     <div class="parent kurs_cur_wrap">
                         <input type="text" name="i_subsequent_payments" class="admin_form_txt admin_form_txt_short"
                                placeholder="Стоимость последующих платежей" id="recurrent-subsequent" disabled="disabled"
-                               value="<?php if (!empty($course['subsequent_payments'])) : echo $course['subsequent_payments']; endif;?>" />
+                               value="<?php if (!empty($course['recur_subsequent'])) : echo $course['recur_subsequent']; endif;?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
                 </div>

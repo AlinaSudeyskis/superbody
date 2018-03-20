@@ -608,3 +608,15 @@ span.mess_block_full_time {
     font-weight: bold;
     color: #33363f;
 }
+.line_parent .anketa_form_line{
+    margin-bottom: 0;
+}
+.line_parent .anketa_form_line:last-child{
+    margin-bottom: 20px;
+}
+.h_subtitle{
+    font-size: 10px;
+}
+.purchase_form{
+    padding:0;
+}

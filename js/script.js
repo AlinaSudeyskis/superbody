@@ -1502,6 +1502,7 @@ $(".chat_search_mob_but").click(function() {
 
 if($("#policy_pop-up").length > 0){
     $(".policy").on('click', function(){
+        event.preventDefault();
         var popup = $("#policy_pop-up"),
             shadow = $("#shadow");
 

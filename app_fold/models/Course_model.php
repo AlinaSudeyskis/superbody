@@ -1172,6 +1172,58 @@ class Course_model extends CI_Model
         }
     }
 
+    /**
+     * Получение рекуррентных данных курсов
+     *
+     * @param array $courses
+     * @return array
+     */
+    public function getCourseRecurrentData($courses)
+    {
+        $result = array();
+
+        if(!empty($courses))
+        {
+            $i = 0;
+            foreach ($courses as $course)
+            {
+                if (is_numeric($course['id']))
+                {
+                    $sel_data = $this->db->query('
+                        SELECT `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`
+                        FROM `courses`
+                        WHERE `crs_id`=? LIMIT 1', $course['id']);
+                    if($sel_data !== false and 1 == $sel_data->num_rows())
+                    {
+                        $row = $sel_data->row();
+
+                        $result['courses'][$i]['recur_price']   = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? $row->crs_recurrent_price : null;
+                        $result['courses'][$i]['recur_months']  = (!empty($row->crs_recurrent_months) and $row->crs_recurrent_months != 0) ? $row->crs_recurrent_months : null;
+                        $result['courses'][$i]['recur_first']   = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? $row->crs_recurrent_first : null;
+                        $result['courses'][$i]['recur_subsequent'] = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? $row->crs_recurrent_subsequent : null;
+                        $result['courses'][$i]['recurrent']     = false;
+
+                        if (!empty($result['courses'][$i]['recur_price']) and !empty($result['courses'][$i]['recur_months'])
+                            and !empty($result['courses'][$i]['recur_first']) and !empty($result['courses'][$i]['recur_subsequent']))
+                        {
+                            $result['courses'][$i]['recurrent'] = true;
+                        }
+
+                        $i++;
+                        unset($row);
+                    }
+                    elseif($sel_data)
+                    {
+                        parent::logDbMessages(__METHOD__);
+                    }
+                }
+            }
+            unset($course);
+        }
+
+        return $result;
+    }
+
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА */
 
 
@@ -5525,6 +5577,13 @@ class Course_model extends CI_Model
         $result['new_fc_price']  = null;
         $result['bought']        = false;
         $result['p_id']          = !empty($row->p_id) ? $row->p_id : null;
+        $result['recurrent']     = false;
+
+        if (!empty($result['recur_price']) and !empty($result['recur_months']) and !empty($result['recur_first'])
+            and !empty($result['recur_subsequent']))
+        {
+            $result['recurrent'] = true;
+        }
 
         $result['landing']['id']        = (!empty($row->clp_id) and $row->clp_activated == 'activate') ? $row->clp_id : null;
         $result['landing']['activated'] = !empty($row->clp_activated) ? $row->clp_activated : false;

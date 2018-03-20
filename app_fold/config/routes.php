@@ -243,6 +243,7 @@ $route['courses']       = 'Course/publicCourses';
 $route['payment']               = 'Payment/payment';
 $route['payment/notifications'] = 'Payment/paymentNotifications';
 $route['payment/update']        = 'Payment/paymentUpdate';
+$route['payment/verification']  = 'Payment/verificationSubsequentPayments';
 
 // Журнал
 //$route['journal/articles']         = 'Journal/articles';

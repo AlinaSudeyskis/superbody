@@ -42,10 +42,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="lp_block1_desk"><?php echo $landing['block2']['subtitle']; ?></div>
             <div class="lp_block1_txt"><?php echo $landing['block2']['text']; ?></div>
             <?php if (!empty($landing['block2']['button'])):?>
-                <form action="/" method="post">
-                    <input type="submit" name="bt_buy" value="<?php echo $landing['block2']['button']; ?>" class="lp_block_but lp_block0_but parent" />
-                    <!--<a href="" class="lp_block_but lp_block0_but parent"><?php /*echo $landing['block2']['button']; */?></a>-->
-                </form>
+                <a href="#" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
             <?php endif;?>
         </div>
     </div>
@@ -79,7 +76,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <h2 class="lp_block3_h"><?php echo $landing['block4']['title']; ?></h2>
             <div class="lp_block3_desk"><?php echo $landing['block4']['subtitle']; ?></div>
             <?php if (!empty($landing['block4']['button'])):?>
-                <a href="" class="lp_block_but lp_block3_but parent"><?php echo $landing['block4']['button']; ?></a>
+                <a href="#" class="lp_block_but lp_block3_but parent"><?php echo $landing['block4']['button']; ?></a>
             <?php endif;?>
         </div>
         <div class="lp_block3_img">
@@ -143,7 +140,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     endif;?>
                 </ul>
                 <?php if (!empty($landing['block6']['button'])):?>
-                    <a href="" class="lp_block_but lp_block5_but parent"><?php echo $landing['block6']['button']; ?></a>
+                    <a href="#" class="lp_block_but lp_block5_but parent"><?php echo $landing['block6']['button']; ?></a>
                 <?php endif;?>
             </div>
         </div>
@@ -173,7 +170,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             endif;?>
         </div>
         <?php if (!empty($landing['block7']['button'])):?>
-            <a href="" class="lp_block_but lp_block6_but parent"><?php echo $landing['block7']['button']; ?></a>
+            <a href="#" class="lp_block_but lp_block6_but parent"><?php echo $landing['block7']['button']; ?></a>
         <?php endif;?>
     </div>
 </div><!-- lp_block6_wrap -->
@@ -192,7 +189,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php echo $landing['block8']['new_price']; ?> руб
         </div>
         <?php if (!empty($landing['block8']['button'])):?>
-            <a href="" class="lp_block7_but"><?php echo $landing['block8']['button']; ?></a>
+            <a href="#" class="lp_block7_but"><?php echo $landing['block8']['button']; ?></a>
         <?php endif;?>
     </div>
 </div><!-- lp_block7_wrap -->
+<?php include_once('./app_fold/views/course/payment_form_up.php');?>
