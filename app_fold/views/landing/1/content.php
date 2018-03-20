@@ -189,7 +189,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php echo $landing['block8']['new_price']; ?> руб
         </div>
         <?php if (!empty($landing['block8']['button'])):?>
-            <a href="#" class="lp_block7_but"><?php echo $landing['block8']['button']; ?></a>
+            <a href="#" class="lp_block_but lp_block7_but"><?php echo $landing['block8']['button']; ?></a>
         <?php endif;?>
     </div>
 </div><!-- lp_block7_wrap -->
