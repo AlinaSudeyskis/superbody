@@ -86,12 +86,21 @@ class Payment extends CI_Controller
                 }
             }
 
-            $payment_saved = ($payment->payment_method->saved === true) ? 1 : 0;
-            $payment_paid  = ($payment->paid === true) ? 1 : 0;
+            $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
+            $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
 
-            $url = 'https://superbody.pro/payment/update?pid=' . $payment->id . '&ps=' . $payment->status . '&pp=' .
-                $payment_paid . '&pcr=' . $payment->created_at . '&pe=' . $payment->expires_at . '&pc=' . $payment->captured_at .
-                '&pmid=' . $payment->payment_method->id . '&pms=' . $payment_saved;
+            $payment_data = array(
+                'pid' => $payment->id,
+                'ps' => $payment->status,
+                'pp' => $payment_paid,
+                'pcr' => $payment->created_at,
+                'pe' => $payment->expires_at,
+                'pc' => $payment->captured_at,
+                'pmid' => $payment->payment_method->id,
+                'pms' => $payment_saved
+            );
+
+            $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
 
             $handle = fopen($url, "r");
             fclose($handle);
