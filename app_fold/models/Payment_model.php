@@ -216,4 +216,45 @@ class Payment_model extends CI_Model
 
         return $result;
     }
+
+    /**
+     * Обновление данных о платеже (автоматическое проведение, без участия пользователя)
+     *
+     * @param $subsequent_id
+     * @param $order_id
+     * @param $payment_id
+     * @param $payment_status
+     * @param $payment_method
+     * @param $paid
+     * @param $created_at
+     * @return bool
+     */
+    public function updateSubsequentPayment($subsequent_id, $order_id, $payment_id, $payment_status, $payment_method, $paid, $created_at)
+    {
+        if (is_numeric($subsequent_id))
+        {
+            $up_data = $this->db->query('
+                UPDATE `orders_payment` 
+                SET `op_payment_type`=?, `op_payment_id`=?, `op_status`=?, `op_paid`=?, `op_created_at`=?
+                WHERE `op_id`=? and `op_o_id`=? LIMIT 1',
+                    array($payment_method, $payment_id, $payment_status, $paid, $created_at, $subsequent_id, $order_id));
+            if($up_data !== false and 1 == $up_data->num_rows())
+            {
+                return true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__);
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

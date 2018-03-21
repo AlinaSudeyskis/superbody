@@ -49,8 +49,6 @@ class Payment extends CI_Controller
             // Создание платежа
             $response = self::createPayment($order_id, $total_amount, self::CURRENCY, self::PAYMENT_METHOD, $payment_option);
 
-            log_message('debug', __METHOD__ . '. Response Payment data: '. print_r($response, true));
-
             if (!empty($response->_id)) {
                 if ($response->_status == 'pending')
                 {
@@ -89,9 +87,10 @@ class Payment extends CI_Controller
             }
 
             $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
+            $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
 
             $url = 'https://superbody.pro/payment/update?pid=' . $payment->id . '&ps=' . $payment->status . '&pp=' .
-                $payment->paid . '&pcr=' . $payment->created_at . '&pe=' . $payment->expires_at . '&pc=' . $payment->captured_at .
+                $payment_paid . '&pcr=' . $payment->created_at . '&pe=' . $payment->expires_at . '&pc=' . $payment->captured_at .
                 '&pmid=' . $payment->payment_method->id . '&pms=' . $payment_saved;
 
             $handle = fopen($url, "r");
@@ -108,7 +107,7 @@ class Payment extends CI_Controller
     {
         $payment_id           = strip_tags($this->input->get('pid', true));
         $payment_status       = strip_tags($this->input->get('ps', true));
-        $payment_paid         = strip_tags($this->input->get('pp', true));
+        $payment_paid         = (strip_tags($this->input->get('pp', true)) == 'true') ? 1 : 0;
         $created_at           = strip_tags($this->input->get('pcr', true));
         $expires_at           = strip_tags($this->input->get('pe', true));
         $captured_at          = strip_tags($this->input->get('pc', true));
@@ -255,6 +254,9 @@ class Payment extends CI_Controller
         );
     }
 
+    /**
+     * Проверка наличия платежей на выполнение
+     */
     public function verificationSubsequentPayments()
     {
         $subsequent = $this->Payment_model->getSubsequentPayments($this->date);
@@ -265,6 +267,20 @@ class Payment extends CI_Controller
             {
                 $response = self::createPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['type'],
                     '', $payment['method_id']);
+
+                if (!empty($response->_id))
+                {
+                    $created_at     = $response->_createdAt->_date . $response->_createdAt->_timezone;
+                    $payment_method = $response->_payment_method;
+                    $paid = ($response->_paid === true) ? 1 : 0;
+
+                    // Сохранение данных оплаты в БД
+                    $this->Payment_model->updateSubsequentPayment($payment['id'], $payment['order_id'], $response->_id,
+                        $response->_status, $payment_method->_type, $paid, $created_at);
+                }
+                else{
+                    log_message('debug', __METHOD__ . ' empty $response->_id: ' . print_r($response, true));
+                }
             }
             unset($payment);
         }
