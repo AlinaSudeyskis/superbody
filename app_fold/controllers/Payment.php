@@ -120,14 +120,14 @@ class Payment extends CI_Controller
 
         if ($payment_status == 'succeeded')
         {
-            $payment = $this->Payment_model->getPayment($payment_id);
+            $this->load->model('Store_model');
+            $this->load->model('Course_model');
+
+            $payment = $this->Payment_model->getOrderPayment($payment_id);
 
             // Сохранение последующих платежей
             if (!empty($payment) and $payment['option'] == 'installments')
             {
-                $this->load->model('Store_model');
-                $this->load->model('Course_model');
-
                 // Выборка курса заказа
                 $courses = $this->Store_model->getOrderCourses('', $payment['order_id']);
 
@@ -141,16 +141,12 @@ class Payment extends CI_Controller
                 }
             }
 
-            $this->load->model('Store_model');
-
             // Выборка курсов из заказа по номеру платежа
             $res_cour = $this->Store_model->getOrderCourses($payment_id);
 
             // Прикрепление курса(ов) к пользователю
             if (!empty($res_cour['courses']))
             {
-                $this->load->model('Course_model');
-
                 $start_date = '';
                 $end_date = '';
                 $training_days = '';
