@@ -3225,7 +3225,7 @@ class Course_model extends CI_Model
     public function getVideo($video_id)
     {
         $result = array();
-        log_message('debug', print_r($video_id, true));
+        log_message('debug', __METHOD__ . ': ' . print_r($video_id, true));
 
         $sel_video = $this->db->query('
             SELECT `video_id`, `video_type`, `video_crs_id`, `video_name`, `video_remove_url`, `video_poster`, `video_path`, `video_blocked` 
