@@ -794,8 +794,6 @@ class Store extends CI_Controller
 
                 $response = $this->Store_model->refundPayment($payment->_id, $refund_amount, self::CURRENCY, $description);
 
-                log_message('debug', __METHOD__ . ' ' . print_r($response, true));
-
                 if (!empty($response->_id))
                 {
                     $created_at = $response->_created_at->_date . $response->_created_at->_timezone;

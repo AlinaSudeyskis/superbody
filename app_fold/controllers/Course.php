@@ -4520,6 +4520,8 @@ class Course extends CI_Controller
 
         if (!empty($video_id))
         {
+            log_message('debug', print_r($video_id, true));
+
             // Проверка соответствия номера видео тренировке, курсу и пользователя
             $result = $this->Course_model->matchWorkoutVideo($this->user_id, $workout_id, $video_id);
 

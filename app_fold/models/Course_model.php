@@ -3499,7 +3499,8 @@ class Course_model extends CI_Model
 
         if (!empty($db_video_id) and $video_id == $db_video_id)
         {
-            $result['workout']['done'] = $workout_done;
+            $result['workout']['video_id']    = $video_id;
+            $result['workout']['done']        = $workout_done;
             $result['workout']['description'] = $db_workout_desc;
             $result['workout']['instruction'] = $instruction;
 

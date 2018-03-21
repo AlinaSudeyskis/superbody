@@ -86,8 +86,8 @@ class Payment extends CI_Controller
                 }
             }
 
-            $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
-            $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
+            $payment_saved = ($payment->payment_method->saved === true) ? 1 : 0;
+            $payment_paid  = ($payment->paid === true) ? 1 : 0;
 
             $url = 'https://superbody.pro/payment/update?pid=' . $payment->id . '&ps=' . $payment->status . '&pp=' .
                 $payment_paid . '&pcr=' . $payment->created_at . '&pe=' . $payment->expires_at . '&pc=' . $payment->captured_at .
@@ -107,12 +107,12 @@ class Payment extends CI_Controller
     {
         $payment_id           = strip_tags($this->input->get('pid', true));
         $payment_status       = strip_tags($this->input->get('ps', true));
-        $payment_paid         = (strip_tags($this->input->get('pp', true)) == 'true') ? 1 : 0;
+        $payment_paid         = (strip_tags($this->input->get('pp', true)) == 1) ? 1 : 0;
         $created_at           = strip_tags($this->input->get('pcr', true));
         $expires_at           = strip_tags($this->input->get('pe', true));
         $captured_at          = strip_tags($this->input->get('pc', true));
         $payment_method_id    = strip_tags($this->input->get('pmid', true));
-        $payment_method_saved = (strip_tags($this->input->get('pms', true)) == 'true') ? 1 : 0;
+        $payment_method_saved = (strip_tags($this->input->get('pms', true)) == 1) ? 1 : 0;
 
         // Обновление данных платежа
         $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
