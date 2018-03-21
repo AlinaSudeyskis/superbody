@@ -3225,27 +3225,29 @@ class Course_model extends CI_Model
     public function getVideo($video_id)
     {
         $result = array();
-        log_message('debug', __METHOD__ . ': ' . print_r($video_id, true));
 
-        $sel_video = $this->db->query('
+        if(!empty($video_id) and is_numeric($video_id))
+        {
+            $sel_video = $this->db->query('
             SELECT `video_id`, `video_type`, `video_crs_id`, `video_name`, `video_remove_url`, `video_poster`, `video_path`, `video_blocked` 
             FROM `video`
             WHERE `video_id`=? LIMIT 1', $video_id);
 
-        if ($sel_video !== false and 1 == $sel_video->num_rows())
-        {
-            $row = $sel_video->row();
+            if ($sel_video !== false and 1 == $sel_video->num_rows())
+            {
+                $row = $sel_video->row();
 
-            $result['video'] = self::parseVideoData($row);
-        }
-        elseif ($sel_video === false)
-        {
-            parent::logDbMessages(__METHOD__);
-            $result = false;
-        }
-        else
-        {
-            $result = false;
+                $result['video'] = self::parseVideoData($row);
+            }
+            elseif ($sel_video === false)
+            {
+                parent::logDbMessages(__METHOD__);
+                $result = false;
+            }
+            else
+            {
+                $result = false;
+            }
         }
 
         return $result;
