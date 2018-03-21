@@ -4202,8 +4202,8 @@ class Course extends CI_Controller
                 'discount_fc_price' => '')
             );
 
-            $res_order = $this->Store_model->setOrder($this->user_id, null, $this->session->user['name'], '', $this->session->user['email'], '',
-                '', '', '', '', '', '', 0, 0, $products, $this->date);
+            $res_order = $this->Store_model->setOrder($this->user_id, '', $this->session->user['name'], '', $this->session->user['email'], '',
+                '', '', '', '', '', '', '', $products, $this->date);
 
             if ($res_order !== false and is_numeric($res_order['order_id']))
             {
