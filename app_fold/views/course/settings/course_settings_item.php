@@ -7,110 +7,46 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php if (!empty($course['image'])) : ?>
             <img src="<?php echo $course['image']; ?>" alt=""/>
         <?php endif;?>
-        <div class="add_foto_block_wrap">
-            <div class="add_foto_block">
-                <div class="video_down_line parent">
-                    <div class="video_down_line_h">Изображение:</div>
-                    <div class="video_down_line_but_wrap">
-                        <label for="video_down_line_but1cs" class="video_down_line_but">
-                            <input type="file" name="course_image" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
-                            <span>Выберите файл</span>
-                        </label>
-                    </div>
-                    <div class="video_down_line_name">Файл не выбран</div>
-                    <div class="progressbar_wrap">
-                        <progress class="progressbar" id="progressbar1" value="50" max="100"></progress>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <input type="text" name="name" class="admin_form_txt" placeholder="Введите наименование" value="<?php if (!empty($course['name'])) : echo $course['name']; endif;?>" required="required"/>
-        <input type="text" name="description" class="admin_form_txt" placeholder="Введите описание" value="<?php if (!empty($course['description'])) : echo $course['description']; endif;?>" required="required" />
         <div class="parent kurs_cur_wrap">
-            <div class="practice_block_h">Стоимость курса</div>
-            <input type="text" name="price" class="admin_form_txt admin_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" />
-            <div class="kurs_cur">Руб.</div>
-        </div>
-
-        <div class="content_block new_content_block ovv content_block_internal">
-            <div class="content_block_h parent">
-                <h3>Рекуррентный платеж</h3>
-                <div class="content_block_h_buts">
-                    <div class="content_block_h_slide price_slide"></div>
+            <div class="kurs_block_h">Изображение:</div>
+            <div class="video_down_line parent">
+                <div class="video_down_line_but_wrap">
+                    <label for="video_down_line_but1cs" class="video_down_line_but">
+                        <input type="file" name="course_image" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
+                        <span>Выберите файл</span>
+                    </label>
                 </div>
-            </div>
-            <div class="kurs_block_val">
-                <div class="anketa_block_cont">
-                    <div class="admin_form_h">Стоимость курса по рекуррентной схеме</div>
-                    <div class="parent kurs_cur_wrap">
-                        <input type="text" name="i_recurrent_price" class="admin_form_txt admin_form_txt_short"
-                               placeholder="Стоимость курса по рекуррентной схеме" id="recurrent-price"
-                               value="<?php if (!empty($course['recur_price'])) : echo $course['recur_price']; endif;?>" />
-                        <div class="kurs_cur">Руб.</div>
-                    </div>
-                    <div class="admin_form_h">Количество месяцев, на которое разбивается платеж</div>
-                    <select name="s_recurrent_months" class="journal_form_select" id="recurrent-months">
-                        <option value="">Выберите количество месяцев</option>
-                        <?php for ($i = 1; $i <= 12; $i++) :?>
-                            <option value="<?php echo $i;?>"
-                                <?php if (!empty($course['recur_months']) and $course['recur_months'] == $i) :?>selected="selected"<?php endif;?>
-                            ><?php echo $i;?> мес.</option>
-                        <?php endfor;?>
-                    </select>
-                    <div class="admin_form_h">Стоимость первого платежа</div>
-                    <div class="parent kurs_cur_wrap">
-                        <input type="text" name="i_recurrent_first" class="admin_form_txt admin_form_txt_short"
-                               placeholder="Стоимость первого платежа" id="recurrent-first"
-                               value="<?php if (!empty($course['recur_first'])) : echo $course['recur_first']; endif;?>" />
-                        <div class="kurs_cur">Руб.</div>
-                    </div>
-                    <div class="admin_form_h">Стоимость последующих платежей</div>
-                    <div class="parent kurs_cur_wrap">
-                        <input type="text" name="i_subsequent_payments" class="admin_form_txt admin_form_txt_short"
-                               placeholder="Стоимость последующих платежей" id="recurrent-subsequent" disabled="disabled"
-                               value="<?php if (!empty($course['recur_subsequent'])) : echo $course['recur_subsequent']; endif;?>" />
-                        <div class="kurs_cur">Руб.</div>
-                    </div>
-                </div>
+                <div class="video_down_line_name">Файл не выбран</div>
             </div>
         </div>
-        <select name="s_course_type" class="journal_form_select">
-            <?php if (!empty($types)) :
-                foreach ($types as $type) :?>
-                    <option value="<?php echo $type['id'];?>"
-                            <?php if (!empty($course['type']) and $course['type'] == $type['id']) :?>selected="selected"<?php endif;?>
-                    ><?php echo $type['name'];?></option>
-                <?php endforeach;
-                unset($type);
-            endif;?>
-        </select>
-        <div class="add_tov_in_total">
-            <div class="add_tov_in couches">
-                <input type="text" name="tren" class="admin_form_txt admin_form_txt_short" placeholder="Введите имя или ID тренера" />
-                <div class="add_tov_list"></div>
-            </div>
-            <div class="add_tov_val">
-                <?php if (!empty($course['couches'])) :
-                    foreach($course['couches'] as $key => $couch) :?>
-                        <div id="<?php echo $couch['id']; ?>tov" class="add_tov_val_item parent">
-                            <a href="/profile/<?php echo $couch['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $couch['name']; ?></span></a>
-                            <div class="add_tov_val_sale">
-                                <div class="admin_form_h">Процент, %</div>
-                                <input type="hidden" name="couches[<?php echo $couch['id']; ?>]" value="<?php echo $couch['id']?>"/>
-                                <input type="text" name="couches_percent[<?php echo $couch['id']; ?>]" class="admin_form_txt" placeholder="20" value="<?php echo $couch['percent']; ?>"/>
-                            </div>
-                            <div class="del_tov"></div>
-                        </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Категория:</div>
+            <select name="s_course_type" class="journal_form_select">
+                <?php if (!empty($types)) :
+                    foreach ($types as $type) :?>
+                        <option value="<?php echo $type['id'];?>"
+                                <?php if (!empty($course['type']) and $course['type'] == $type['id']) :?>selected="selected"<?php endif;?>
+                        ><?php echo $type['name'];?></option>
                     <?php endforeach;
-                    unset($couch);
+                    unset($type);
                 endif;?>
-            </div>
+            </select>
         </div>
         <div class="parent kurs_cur_wrap">
-            <input type="text" name="count_weeks" class="admin_form_txt kurs_time_in admin_form_txt_short" placeholder="Введите длительность курса" value="<?php if (!empty($course['count_weeks'])) : echo $course['count_weeks']; endif;?>" />
+            <div class="kurs_block_h">Наименование:</div>
+            <input type="text" name="name" class="admin_form_txt kurs_form_txt_short" placeholder="Введите наименование" value="<?php if (!empty($course['name'])) : echo $course['name']; endif;?>" required="required"/>
+        </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Описание:</div>
+            <input type="text" name="description" class="admin_form_txt kurs_form_txt_short" placeholder="Введите описание" value="<?php if (!empty($course['description'])) : echo $course['description']; endif;?>" required="required" />
+        </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Длительность курса:</div>
+            <input type="text" name="count_weeks" class="admin_form_txt kurs_time_in kurs_form_txt_short" placeholder="Введите длительность курса" value="<?php if (!empty($course['count_weeks'])) : echo $course['count_weeks']; endif;?>" />
             <div class="kurs_cur">(нед.)</div>
         </div>
         <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Количество тренировок:</div>
             <select name="count_days" class="journal_form_select kurs_length_in">
                 <?php if (!empty($course['count_days'])) :?>
                     <option value="">Выберите количество тренировок</option>
@@ -149,6 +85,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="kurs_cur">(дн./нед.)</div>
         </div>
         <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Отдых:</div>
             <select name="s_count_rest" id="count_rest" class="journal_form_select">
                 <?php if (!empty($course['count_rest']) and 0 <= $course['count_rest']) :?>
                     <option value="">Минимальный отдых между тренировками</option>
@@ -170,8 +107,81 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </select>
             <div class="kurs_cur">(дн.)</div>
         </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Стоимость курса:</div>
+            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" />
+            <div class="kurs_cur">Руб.</div>
+        </div>
+        <div class="content_block new_content_block ovv content_block_internal">
+            <div class="content_block_h parent">
+                <h3>Рекуррентный платеж</h3>
+                <div class="content_block_h_buts">
+                    <div class="content_block_h_slide price_slide"></div>
+                </div>
+            </div>
+            <div class="kurs_block_val">
+                <div class="anketa_block_cont">
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Стоимость курса:</div>
+                        <input type="text" name="i_recurrent_price" class="admin_form_txt kurs_form_txt_short"
+                               placeholder="Стоимость курса по рекуррентной схеме" id="recurrent-price"
+                               value="<?php if (!empty($course['recur_price'])) : echo $course['recur_price']; endif;?>" />
+                        <div class="kurs_cur">Руб.</div>
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Количество месяцев:</div>
+                        <select name="s_recurrent_months" class="journal_form_select" id="recurrent-months">
+                            <option value="">Выберите количество месяцев</option>
+                            <?php for ($i = 1; $i <= 12; $i++) :?>
+                                <option value="<?php echo $i;?>"
+                                    <?php if (!empty($course['recur_months']) and $course['recur_months'] == $i) :?>selected="selected"<?php endif;?>
+                                ><?php echo $i;?> мес.</option>
+                            <?php endfor;?>
+                        </select>
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Первый платеж:</div>
+                        <input type="text" name="i_recurrent_first" class="admin_form_txt kurs_form_txt_short"
+                               placeholder="Стоимость первого платежа" id="recurrent-first"
+                               value="<?php if (!empty($course['recur_first'])) : echo $course['recur_first']; endif;?>" />
+                        <div class="kurs_cur">Руб.</div>
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Последующие платежи:</div>
+                        <input type="text" name="i_subsequent_payments" class="admin_form_txt kurs_form_txt_short"
+                               placeholder="Стоимость последующих платежей" id="recurrent-subsequent" disabled="disabled"
+                               value="<?php if (!empty($course['recur_subsequent'])) : echo $course['recur_subsequent']; endif;?>" />
+                        <div class="kurs_cur">Руб.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="add_tov_in_total">
+            <div class="add_tov_in couches">
+                <div class="practice_block_h">Тренеры:</div>
+                <input type="text" name="tren" class="admin_form_txt admin_form_txt_short" placeholder="Введите имя или ID тренера" />
+                <div class="add_tov_list"></div>
+            </div>
+            <div class="add_tov_val">
+                <?php if (!empty($course['couches'])) :
+                    foreach($course['couches'] as $key => $couch) :?>
+                        <div id="<?php echo $couch['id']; ?>tov" class="add_tov_val_item parent">
+                            <a href="/profile/<?php echo $couch['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $couch['name']; ?></span></a>
+                            <div class="add_tov_val_sale">
+                                <div class="admin_form_h">Процент, %</div>
+                                <input type="hidden" name="couches[<?php echo $couch['id']; ?>]" value="<?php echo $couch['id']?>"/>
+                                <input type="text" name="couches_percent[<?php echo $couch['id']; ?>]" class="admin_form_txt" placeholder="20" value="<?php echo $couch['percent']; ?>"/>
+                            </div>
+                            <div class="del_tov"></div>
+                        </div>
+                    <?php endforeach;
+                    unset($couch);
+                endif;?>
+            </div>
+        </div>
+
         <div class="parent instruction_block">
-            <div class="practice_block_h">Инструктаж курса</div>
+            <div class="practice_block_h">Инструктаж курса:</div>
             <div class="add_tov_in_total">
                 <div class="add_tov_in video">
                     <input type="text" name="video_instruction" class="admin_form_txt admin_form_txt_short" placeholder="Введите наименование или ID видео" autocomplete="off" />
@@ -194,7 +204,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
 
         <div class="parent block_wrap">
-            <div class="practice_block_h">Тренировки курса</div>
+            <div class="practice_block_h">Тренировки:</div>
             <div class="practice_block_table">
                 <?php if (!empty($course['count_days'] and !empty($course['count_weeks']))) :
                     $i = 1;

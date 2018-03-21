@@ -607,6 +607,7 @@ span.mess_block_full_time {
     line-height: 22px;
     font-weight: bold;
     color: #33363f;
+    padding: 10px 60px 10px 15px;
 }
 .line_parent .anketa_form_line{
     margin-bottom: 0;

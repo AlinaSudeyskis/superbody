@@ -1324,7 +1324,7 @@ class Course extends CI_Controller
 
             // Тип курса
             $type = $this->input->post('s_course_type', true);
-            $course_type = is_numeric($type) and in_array($type, $course_types['types_id']) ? $type : '';
+            $course_type = (is_numeric($type) and in_array($type, $course_types['types_id'])) ? $type : '';
 
             // Длительность курса
             $count_weeks = (is_numeric($this->input->post('count_weeks', true)) and 52 >= $this->input->post('count_weeks', true))
