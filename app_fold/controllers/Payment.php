@@ -124,35 +124,32 @@ class Payment extends CI_Controller
             $this->load->model('Course_model');
 
             $payment = $this->Payment_model->getOrderPayment($payment_id);
+            log_message('debug', 'getOrderPayment: ' . print_r($payment, true));
 
-            // Сохранение последующих платежей
-            if (!empty($payment) and $payment['option'] == 'installments')
+            // Выборка курса заказа по номеру платежа
+            $courses = $this->Store_model->getOrderCourses($payment_id);
+            log_message('debug', 'getOrderCourses: ' . print_r($courses, true));
+
+            if (!empty($courses['courses']))
             {
-                // Выборка курса заказа
-                $courses = $this->Store_model->getOrderCourses('', $payment['order_id']);
-
-                // Выборка рекуррентных данных
-                if (!empty($courses))
+                // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
+                if (!empty($payment) and $payment['option'] == 'installments')
                 {
+                    // Выборка рекуррентных данных
                     $recurrent_data = $this->Course_model->getCourseRecurrentData($courses);
+                    log_message('debug', 'getCourseRecurrentData: ' . print_r($recurrent_data, true));
 
                     // Сохранение последующих платежей
                     $this->Payment_model->setSubsequentPayments($payment['order_id'], self::PAYMENT_METHOD, $payment_method_id, $recurrent_data['courses'], $this->date);
                 }
-            }
 
-            // Выборка курсов из заказа по номеру платежа
-            $res_cour = $this->Store_model->getOrderCourses($payment_id);
-
-            // Прикрепление курса(ов) к пользователю
-            if (!empty($res_cour['courses']))
-            {
+                // Прикрепление курса(ов) к пользователю
                 $start_date = '';
                 $end_date = '';
                 $training_days = '';
                 $user_couch = '';
 
-                foreach($res_cour['courses'] as $course)
+                foreach($courses['courses'] as $course)
                 {
                     $this->Course_model->setNewUserCourse($course['id'], $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
                 }
