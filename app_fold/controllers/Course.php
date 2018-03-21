@@ -4520,8 +4520,6 @@ class Course extends CI_Controller
 
         if (!empty($video_id))
         {
-            log_message('debug', print_r($video_id, true));
-
             // Проверка соответствия номера видео тренировке, курсу и пользователя
             $result = $this->Course_model->matchWorkoutVideo($this->user_id, $workout_id, $video_id);
 
@@ -4552,7 +4550,7 @@ class Course extends CI_Controller
 
                     include_once('./app_fold/views/video/player/video_player.php');
 
-                    $result = array(
+                    $display_result = array(
                         "done" => $workout_done,
                         "description" => $workout_description,
                         "video" => $workout_video,
@@ -4562,24 +4560,24 @@ class Course extends CI_Controller
                         "i_player" => $i_player
                     );
 
-                    echo json_encode($result, JSON_NUMERIC_CHECK);
+                    echo json_encode($display_result, JSON_NUMERIC_CHECK);
                 }
                 else
                 {
-                    $result['error'] = 'Video data error';
-                    echo json_encode($result, JSON_NUMERIC_CHECK);
+                    $display_result['error'] = 'Video data error';
+                    echo json_encode($display_result, JSON_NUMERIC_CHECK);
                 }
             }
             else
             {
-                $result['error'] = 'User course data error';
-                echo json_encode($result, JSON_NUMERIC_CHECK);
+                $display_result['error'] = 'User course data error';
+                echo json_encode($display_result, JSON_NUMERIC_CHECK);
             }
         }
         else
         {
-            $result['error'] = 'Video ID empty';
-            echo json_encode($result, JSON_NUMERIC_CHECK);
+            $display_result['error'] = 'Video ID empty';
+            echo json_encode($display_result, JSON_NUMERIC_CHECK);
         }
     }
 

@@ -3226,6 +3226,8 @@ class Course_model extends CI_Model
     {
         $result = array();
 
+        $video_id = (int) $video_id;
+
         $sel_video = $this->db->query('
             SELECT `video_id`, `video_type`, `video_crs_id`, `video_name`, `video_remove_url`, `video_poster`, `video_path`, `video_blocked` 
             FROM `video`
