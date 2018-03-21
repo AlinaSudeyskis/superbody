@@ -116,14 +116,13 @@ class Payment extends CI_Controller
     {
         $payment_id           = strip_tags($this->input->get('pid', true));
         $payment_status       = strip_tags($this->input->get('ps', true));
-        $payment_paid         = (strip_tags($this->input->get('pp', true)) == 1) ? 1 : 0;
+        $payment_paid         = (strip_tags($this->input->get('pp', true)) == 'true') ? 1 : 0;
         $created_at           = strip_tags($this->input->get('pcr', true));
         $expires_at           = strip_tags($this->input->get('pe', true));
         $captured_at          = strip_tags($this->input->get('pc', true));
         $payment_method_id    = strip_tags($this->input->get('pmid', true));
-        $payment_method_saved = (strip_tags($this->input->get('pms', true)) == 1) ? 1 : 0;
+        $payment_method_saved = (strip_tags($this->input->get('pms', true)) == 'true') ? 1 : 0;
 
-        log_message('debug', __METHOD__ . ' GET data: ' . print_r($this->input->get(), true));
 
         // Обновление данных платежа
         $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
@@ -135,11 +134,9 @@ class Payment extends CI_Controller
             $this->load->model('Course_model');
 
             $payment = $this->Payment_model->getOrderPayment($payment_id);
-            log_message('debug', 'getOrderPayment: ' . print_r($payment, true));
 
             // Выборка курса заказа по номеру платежа
             $courses = $this->Store_model->getOrderCourses($payment_id);
-            log_message('debug', 'getOrderCourses: ' . print_r($courses, true));
 
             if (!empty($courses['courses']))
             {
@@ -148,7 +145,7 @@ class Payment extends CI_Controller
                 {
                     // Выборка рекуррентных данных
                     $recurrent_data = $this->Course_model->getCourseRecurrentData($courses);
-                    log_message('debug', 'getCourseRecurrentData: ' . print_r($recurrent_data, true));
+                    log_message('debug', __METHOD__ . __LINE__ . ' Course_model->getCourseRecurrentData: ' . print_r($recurrent_data, true));
 
                     // Сохранение последующих платежей
                     $this->Payment_model->setSubsequentPayments($payment['order_id'], self::PAYMENT_METHOD, $payment_method_id, $recurrent_data['courses'], $this->date);
@@ -283,7 +280,7 @@ class Payment extends CI_Controller
                         $response->_status, $payment_method->_type, $paid, $created_at);
                 }
                 else{
-                    log_message('debug', __METHOD__ . ' empty $response->_id: ' . print_r($response, true));
+                    log_message('debug', __METHOD__ . __LINE__ . ' empty $response->_id: ' . print_r($response, true));
                 }
             }
             unset($payment);
