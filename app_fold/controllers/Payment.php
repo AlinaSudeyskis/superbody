@@ -114,6 +114,8 @@ class Payment extends CI_Controller
         $payment_method_id    = strip_tags($this->input->get('pmid', true));
         $payment_method_saved = (strip_tags($this->input->get('pms', true)) == 1) ? 1 : 0;
 
+        log_message('debug', __METHOD__ . ' GET data: ' . print_r($this->input->get(), true));
+
         // Обновление данных платежа
         $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
             $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
