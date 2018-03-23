@@ -11,7 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 footer_subscribe_wrap">
                 <div class="footer_h">ПОДПИСКА НА НОВОСТИ</div>
                 <div class="footer_desk">ПОДПИШИТЕСЬ НА НОВОСТИ НАШЕГО ПОРТАЛА И БУДЬТЕ В КУРСЕ ВСЕХ СОБЫТИЙ</div>
-                <form action="" id="subscribe_form" method="post">
+                <form action="/" id="subscribe_form" method="post">
                     <div class="subscribe_form_in_wrap">
                         <input type="text" name="subscribe_email" class="subscribe_form_in" placeholder="Укажите email" required="required" maxlength="255" />
                         <input type="text" name="subscribe_name" class="subscribe_form_in" placeholder="Ваше имя" required="required" maxlength="255" />

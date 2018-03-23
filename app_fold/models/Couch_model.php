@@ -615,7 +615,7 @@ class Couch_model extends CI_Model
     {
         $result = array();
 
-        if (is_int($user_id))
+        if (is_numeric($user_id))
         {
             $sel_couches = $this->db->query('
                 SELECT `uc_couch_id`, `user_name`, `user_email`, `user_image` 
@@ -639,10 +639,6 @@ class Couch_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__);
             }
-        }
-        else
-        {
-            log_message('debug', 'Var (int)$user_id: ' . print_r($user_id, true));
         }
 
         return $result;

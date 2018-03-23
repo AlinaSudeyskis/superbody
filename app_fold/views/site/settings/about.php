@@ -18,6 +18,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <form action="" method="post" class="anketa_form video_admin_form">
             <div class="anketa_form_line parent">
                 <div class="anketa_form_h"><div class="anketa_form_h_cell">О нашем проекте</div></div>
+            </div>
+            <div class="anketa_form_line parent">
                 <div class="journal_form_textarea_wrap journal_form_textarea_small">
                     <textarea name="about_us" maxlength="5000" class="journal_form_textarea formatted_textarea"><?php if (!empty($about)) { echo $about; }?></textarea>
                 </div>

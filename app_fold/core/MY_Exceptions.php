@@ -8,6 +8,9 @@ class MY_Exceptions extends CI_Exceptions
 {
     protected $CI;
 
+    /**
+     * MY_Exceptions constructor.
+     */
     public function __construct()
     {
         parent::__construct();
