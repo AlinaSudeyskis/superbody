@@ -1,7 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-?>
-<!--<!DOCTYPE html>
+?><!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -58,30 +57,8 @@ p {
 </head>
 <body>
 	<div id="container">
-		<h1><?php /*echo $heading; */?></h1>
-		<?php /*echo $message; */?>
+		<h1><?php echo $heading; ?></h1>
+		<?php echo $message; ?>
 	</div>
 </body>
-</html>-->
-
-<?php $title = 'Error';
-$page_menu = '';
-$message = '';
-include_once('./app_fold/views/header/header.php');
-include_once('./app_fold/views/header/profile.php');
-?>
-
-<div id="content" class="container">
-    <div class="content_block no_content_block">
-        <div class="no_content_block_cont">
-            <div class="no_content_val"><?php echo $heading; ?></div>
-            <div class="no_content_desk">
-                <div class="no_content_desk_line"><?php echo $message; ?></div>
-                <div class="no_content_desk_line">вы можете перейти <a href="/">на главную</a></div>
-            </div>
-        </div>
-    </div>
-</div><!-- content -->
-
-
-<?php include_once('./app_fold/views/footer/footer.php');?>
+</html>

@@ -11,8 +11,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Errors extends CI_Controller
 {
-    public function error_404()
+    public function index()
     {
-        $this->load->view('errors/html/error_404', $this->page_data);
+        show_404();
     }
 }

@@ -284,5 +284,8 @@ class Welcome_model extends CI_Model
         // 20.03.2018
         /*$this->db->query('ALTER TABLE `orders_payment` ADD `op_payment_options` ENUM("full_payment","installments","") NOT NULL AFTER `op_currency`');
         $this->db->query('ALTER TABLE `orders_payment` CHANGE `op_following_date` `op_following_date` DATE NOT NULL');*/
+
+        // 23.03.2018
+        //$this->db->query('ALTER TABLE `feedback` ADD `fb_user_id` INT UNSIGNED NOT NULL AFTER `fb_user_email`');
     }
 }

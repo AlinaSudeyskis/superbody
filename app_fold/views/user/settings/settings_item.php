@@ -23,40 +23,46 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <span class="anketa_form_info_txt">
                         <input type="password" class="anketa_form_in anketa_form_in_long pass" placeholder="Новый пароль" name="new_password" id="new-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
                     </span>
-                    <span id="pass-info" class="field_info"></span>
+                    <span class="anketa_form_info_txt">
+                        <span id="pass-info" class="field_info"></span>
+                    </span>
                 </div>
                 <div class="confirm_pass">
                     <span class="anketa_form_info_txt">
                         <input type="password" class="anketa_form_in anketa_form_in_long pass" placeholder="Подтвердите новый пароль" name="confirm_new_password" id="confirm-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
                     </span>
-                    <span id="pass-info" class="field_info"></span>
+                    <span class="anketa_form_info_txt">
+                        <span id="pass-info" class="field_info"></span>
+                    </span>
                 </div>
             </div>
         </div>
     <?php endif;?>
-    <div class="video_down_line parent">
-        <div class="video_down_line_h"><div class="anketa_form_h_cell">Фото</div></div>
+    <div class="anketa_form_line parent">
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото</div></div>
         <div class="anketa_form_info_cont">
-            <div class="video_down_line_but_wrap">
-                <label for="video_down_line_but1cs" class="video_down_line_but">
-                    <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
-                    <input type="file" name="avatar_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
-                    <span>Выберите файл</span>
-                </label>
+            <div style="width: 330px;">
+                <div class="video_down_line parent">
+                    <div class="parent kurs_cur_wrap">
+                        <div class="video_down_line_but_wrap">
+                            <label for="video_down_line_but1cs" class="video_down_line_but">
+                                <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
+                                <input type="file" name="avatar_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
+                                <span>Выберите файл</span>
+                            </label>
+                        </div>
+                        <div class="video_down_line_name" style="width:45% !important;">Файл не выбран</div>
+                    </div>
+                </div>
             </div>
-            <div class="video_down_line_name">Файл не выбран</div>
         </div>
     </div>
     <?php if (!empty($user_image)) : ?>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
-            <div class="admin_form_foto_wrap">
-                <div class="admin_form_foto">
+            <input type="submit" name="bt_delete_avatar" value="Удалить" class="full_photo_comm_reset settings"/>
+            <div class="tren_set_form_img" id="settings_img">
                     <img src="<?php echo $user_image;?>" alt="">
-                </div>
-                <div class="admin_form_buts parent">
-                    <input type="submit" name="bt_delete_avatar" class="admin_form_del" value="Удалить" />
-                </div>
             </div>
         </div>
     <?php endif;?>

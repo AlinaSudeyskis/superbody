@@ -20,16 +20,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php if (!empty($fb_messages)) :
                             foreach ($fb_messages as $conv) : ?>
                                 <div class="admin_item">
-                                    <a class="admin_feedback_link parent" href="/administration/feedback/<?php echo $conv['user_email']; ?>">
+                                    <a class="admin_feedback_link parent" href="/administration/feedback/<?php echo $conv['url']; ?>">
                                         <span class="admin_feedback_time_wrap parent">
                                             <span class="admin_feedback_time"><?php echo $conv['time']; ?></span>
                                             <span class="admin_feedback_date"><?php echo $conv['date']; ?></span>
                                         </span>
                                         <span class="admin_feedback_cont parent">
                                             <span class="admin_feedback_info parent">
-                                                <span class="admin_feedback_info_dialog"><?php echo $conv['total_new']; ?></span>
-                                                <span class="admin_feedback_info_mail"><?php echo $conv['user_email']; ?></span>
+                                                <span class="admin_feedback_info_dialog"><?php echo $conv['fb_new']; ?></span>
+                                                <span class="admin_feedback_info_mail"><?php echo $conv['user_name']; ?></span>
                                             </span>
+                                            <?php if(!empty($conv['admin_name'])):?>
+                                                <span class="admin_feedback_answer">Ответ: </span>
+                                            <?php endif;?>
                                             <span class="admin_feedback_txt"><?php echo $conv['text']; ?></span>
                                         </span>
                                     </a>

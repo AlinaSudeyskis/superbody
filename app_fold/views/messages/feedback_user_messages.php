@@ -35,7 +35,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 }?>
                                             </span>
                                         <?php else : ?>
-                                            <span class="admin_feedback_post_mail admin"><?php echo $message['user_name']; ?></span>
+                                            <span class="admin_feedback_post_mail admin"><?php echo $message['admin_name']; ?></span>
                                         <?php endif; ?>
                                         <span class="admin_feedback_post_date"><?php echo $message['date']; ?></span>
                                         <span class="admin_feedback_post_time"><?php echo $message['time']; ?></span>

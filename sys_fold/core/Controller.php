@@ -112,7 +112,8 @@ class CI_Controller {
 		$this->page_url = $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
 		// Проверка данных авторизованного пользователя
-        if (!empty($this->session->user))
+        if (!empty($this->session->user) and is_numeric($this->session->user['id']) and
+            (empty($this->session->user['email']) or filter_var($this->session->user['email'], FILTER_VALIDATE_EMAIL)))
         {
             self::checkUserSession();
 
@@ -135,12 +136,12 @@ class CI_Controller {
             $this->user_id = $this->session->user['id'];
 
             // Проверка пользовательских данных сессии
-            $this->load->model('Blog_model');
+            $this->load->model('Message_model');
             $this->load->model('User_model');
 
             // Проверка новых сообщений
-            $new_messages    = $this->Blog_model->getCountNewMessages($this->user_id);
-            $new_fb_messages = $this->Blog_model->getCountNewFeedbackMessages($this->session->user['email']);
+            $new_messages    = $this->Message_model->getCountNewMessages($this->user_id);
+            $new_fb_messages = $this->Message_model->getCountNewFeedbackMessages($this->user_id, $this->session->user['email']);
 
             // Обновление данных сессии
             if ($new_messages != $this->session->new_messages) {
@@ -173,6 +174,10 @@ class CI_Controller {
                 $this->load->model('Course_model');
                 $this->Course_model->updateUserCourseData($this->user_id, $this->date);
             }*/
+        }
+        elseif(!empty($this->session->user))
+        {
+            session_destroy();
         }
 
 		$this->list_errors = array (
@@ -227,7 +232,7 @@ class CI_Controller {
             "48" => "Ошибка! Пароль не обновлен. Пожалуйста, повторите попытку.",
             "49" => "Ошибка! Сообщение не разблокировано. Пожалуйста, повторите попытку.",
             "50" => "Ошибка! Сообщение не заблокировано. Пожалуйста, повторите попытку.",
-            "51" => "Ошибка! Сообщение не отправлено. Пожалуйста, повторите попытку.",
+            "51" => "Ошибка! Сообщение не отправлено.",
             "52" => "Сообщение отправлено. Копия сообщения отправлена Вам на почту.",
             "53" => "Ошибка! Проверьте корректность E-mail пользователя.",
             "54" => "Сообщение отправлено. Копия диалога отправлена пользователю на почту.",
@@ -306,11 +311,13 @@ class CI_Controller {
             "127" => "Ошибка! Запись блога не сохранена. Пожалуйста, повторите попытку.",
             "128" => "Ошибка! Вы не подтвердили согласие на обработку персональных данных.",
             "129" => "Ошибка! Изменения настроек соц. сетей не сохранены. Пожалуйста, повторите попытку.",
-            "130" => "Ошибка! Не все данные курса сохранены."
+            "130" => "Ошибка! Не все данные курса сохранены.",
+            "131" => "Сообщение отправлено."
 		);
 
         // Сообщение о результатах действий пользователя
-        if (!empty($this->session->tempdata('message'))) {
+        if (!empty($this->session->tempdata('message')))
+        {
             $this->page_message = $this->list_errors[$this->session->tempdata('message')];
 
             // Удаление значения сообщения
@@ -683,5 +690,16 @@ class CI_Controller {
         {
             $this->User_model->setBmiBmr($user_id, $bmi, $bmr, $this->date);
         }
+    }
+
+    /**
+     * Вывод ошибки 404 "Страница не найдена"
+     *
+     * @param $page_url
+     */
+    public function pageNotFound($page_url)
+    {
+        log_message('error', '404 Page Not Found: ' . $page_url);
+        $this->load->view('errors/html/error_404', $this->page_data);
     }
 }

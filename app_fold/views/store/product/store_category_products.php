@@ -2,6 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <?php include_once('./app_fold/views/store/product/sort_form.php');?>
+
 <div id="content" class="container shop_page">
     <?php if (!empty($products)) :
         if ((empty($category_id) or $category_id == 'courses') and !empty($products[0])) :

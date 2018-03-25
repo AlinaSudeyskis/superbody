@@ -28,8 +28,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </a>
     </li>
     <li>
+        <a href="/administration/course/type" <?php if ($page_menu == 'course_type') { echo 'class="active"'; } ?>>
+            <span><img src="/img/menu_ico6.png" alt=""></span><span>Категория курса</span>
+        </a>
+    </li>
+    <li>
         <a href="/administration/courses" <?php if ($page_menu == 'a_courses') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico3.png" alt=""></span><span>Курсы</span>
+            <span><img src="/img/menu_ico3.png" alt=""></span><span>Курс</span>
         </a>
     </li>
     <li>

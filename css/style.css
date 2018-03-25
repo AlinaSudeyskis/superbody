@@ -5451,10 +5451,9 @@ textarea.journal_post_comm_in{
     margin-bottom: 0;
 }
 .mess_block_line_wrap{
-    padding: 20px 15px 50px 16px;
-    max-height: 829px;
+    padding: 20px 16px;
+    max-height: 550px;
     overflow: auto;
-    margin-bottom: 35px;
 }
 .mess_block_line_txt:before{
     content: '';
@@ -5490,7 +5489,7 @@ textarea.journal_post_comm_in{
     display: block;
     padding: 0 90px 0 16px;
     position: relative;
-    margin-bottom: 15px;
+    margin: 15px 0;
 }
 .mess_block_in{
     display: block;
@@ -7700,6 +7699,7 @@ textarea.anketa_form_in{
 }
 .admin_item:last-child{
     margin-bottom: 0;
+    border-bottom: none;
 }
 .admin_ava,
 .tov_img{
@@ -8699,6 +8699,11 @@ textarea.anketa_form_in{
     text-decoration: underline;
     padding-right: 15px;
 }
+.admin_feedback_answer {
+     float: left;
+     margin-right: 7px;
+     color: #c1c1c1;
+ }
 .admin_feedback_info_dialog,
 .admin_feedback_info_mail{
     float: left;

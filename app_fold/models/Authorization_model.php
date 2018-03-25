@@ -181,12 +181,10 @@ class Authorization_model extends CI_Model
      * @param string $user_soc_image Изображение пользователя в соц. сети
      * @param string $user_soc_bd Дата рождения пользователя в соц. сети
      * @param string $user_soc_gender Пол пользователя в соц. сети
-     * @param string $user_soc_url URL профиля пользователя в соц. сети
      * @return bool|array
      */
     public function validSocLoginId($soc, $date, $access_token, $user_soc_id, $expires_at, $issued_at, $expires_in, $user_soc_email = '',
-                                    $user_soc_name = '', $user_soc_image = '', $user_soc_bd = '', $user_soc_gender = '',
-                                    $user_soc_url = '')
+                                    $user_soc_name = '', $user_soc_image = '', $user_soc_bd = '', $user_soc_gender = '')
     {
         $result = true;
 
@@ -200,8 +198,7 @@ class Authorization_model extends CI_Model
         {
             $row = $sel_user->row();
 
-            $result = self::userSocialAuthorization($row->us_u_id, $access_token, $expires_at, $issued_at, $expires_in,
-                $soc, $user_soc_id, $user_soc_url, $date);
+            $result = self::userSocialAuthorization($row->us_u_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id, $date);
             $result['registration'] = false;
         }
         else
@@ -224,21 +221,20 @@ class Authorization_model extends CI_Model
                     self::setUserSocial($row->user_id, $soc, $user_soc_id, $access_token, $expires_at, $issued_at, $expires_in, $date);
 
                     // Авторизуем пользователя
-                    $result = self::userSocialAuthorization($row->user_id, $access_token, $expires_at, $issued_at,
-                        $expires_in, $soc, $user_soc_id, $user_soc_url, $date);
+                    $result = self::userSocialAuthorization($row->user_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id, $date);
                     $result['registration'] = false;
                 }
                 // Регистрируем и авторизуем
                 else {
                     $result = self::userSocialRegistration($access_token, $expires_at, $issued_at, $expires_in, $soc, $date,
-                        $user_soc_id, $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender, $user_soc_url);
+                        $user_soc_id, $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender);
                     $result['registration'] = true;
                 }
             }
             // Регистрируем и авторизуем
             else {
                 $result = self::userSocialRegistration($access_token, $expires_at, $issued_at, $expires_in, $soc, $date,
-                    $user_soc_id, $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender, $user_soc_url);
+                    $user_soc_id, $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender);
                 $result['registration'] = true;
             }
         }
@@ -261,12 +257,11 @@ class Authorization_model extends CI_Model
      * @param string $user_soc_image Изображение пользователя в соц. сети
      * @param string $user_soc_bd Дата рождения пользователя в соц. сети
      * @param string $user_soc_gender Пол пользователя в соц. сети
-     * @param string $user_soc_url URL профиля пользователя в соц. сети
      * @return bool|array
      */
     protected function userSocialRegistration ($access_token, $expires_at, $issued_at, $expires_in, $soc, $date, $user_soc_id,
                                                $user_soc_email = '', $user_soc_name = '', $user_soc_image = '',
-                                               $user_soc_bd = '', $user_soc_gender = '', $user_soc_url = '')
+                                               $user_soc_bd = '', $user_soc_gender = '')
     {
         $this->db->query('
             INSERT INTO `users` (`user_email`, `user_auth_via`, `user_name`, `user_image`, `user_date_reg`, `user_activated`, 
@@ -280,10 +275,10 @@ class Authorization_model extends CI_Model
 
             // Добавление соц. сети
             $this->db->query('
-                INSERT INTO `users_social` (`us_u_id`, `us_social`, `us_social_id`, `us_url_profile`, `us_token`, `us_expires_at`, 
+                INSERT INTO `users_social` (`us_u_id`, `us_social`, `us_social_id`, `us_token`, `us_expires_at`, 
                     `us_issued_at`, `us_expires_in`, `us_update`) 
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                    array($user_id, $soc, $user_soc_id, $user_soc_url, $access_token, $expires_at, $issued_at, $expires_in, $date));
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
+                    array($user_id, $soc, $user_soc_id, $access_token, $expires_at, $issued_at, $expires_in, $date));
 
             // Добавляем данные пользователя в таблицу анкеты
             $this->db->query('
@@ -299,8 +294,7 @@ class Authorization_model extends CI_Model
             }
 
             // Авторизуем пользователя
-            $result = self::userSocialAuthorization($user_id, $access_token, $expires_at, $issued_at, $expires_in, $soc,
-                $user_soc_id, $user_soc_url, $date);
+            $result = self::userSocialAuthorization($user_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id, $date);
         }
         else
         {
@@ -320,23 +314,20 @@ class Authorization_model extends CI_Model
      * @param $expires_in
      * @param $user_soc_via
      * @param $user_soc_id
-     * @param $user_soc_url
      * @param $date
      * @return array
      */
     public function userSocialAuthorization($user_id, $access_token, $expires_at, $issued_at, $expires_in, $user_soc_via,
-                                            $user_soc_id, $user_soc_url, $date)
+                                            $user_soc_id, $date)
     {
         $result = array();
 
         // Сохраняем состояние авторизации в БД
         $this->db->query('UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_id`=? LIMIT 1', array($date, $user_id));
         // Обновление данных соц. сети
-        $this->db->query('
-            UPDATE `users_social` 
-            SET `us_token`=?, `us_expires_at`=?, `us_issued_at`=?, `us_expires_in`=?, `us_url_profile`=? 
+        $this->db->query('UPDATE `users_social` SET `us_token`=?, `us_expires_at`=?, `us_issued_at`=?, `us_expires_in`=? 
             WHERE `us_u_id`=? and `us_social`=? and `us_social_id`=? LIMIT 1',
-                array($access_token, $expires_at, $issued_at, $expires_in, $user_soc_url, $user_id, $user_soc_via, $user_soc_id));
+                array($access_token, $expires_at, $issued_at, $expires_in, $user_id, $user_soc_via, $user_soc_id));
 
         // Выборка данных пользователя
         $sel_user = $this->db->query('SELECT `user_email`, `user_type`, `user_name`, `user_image` FROM `users`
