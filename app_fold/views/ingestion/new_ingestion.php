@@ -17,21 +17,36 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <form action="" class="video_admin_form" method="post">
-                        <input type="text" name="name" class="admin_form_txt" placeholder="Наименование" value="" maxlength="255" required="required" />
-                        <select name="s_ing_type" class="journal_form_select">
-                            <?php if (!empty($types)) :
-                                foreach ($types as $type) :?>
-                                    <option value="<?php echo $type['id']; ?>"><?php echo $type['name']; ?></option>
-                                <?php endforeach;
-                                unset($type);
-                            endif;?>
-                        </select>
-                        <select name="s_time_additives" class="journal_form_select">
-                            <option value="" selected="selected">На протяжении дня</option>
-                            <option value="before">До тренировки</option>
-                            <option value="after">После тренировки тренировки</option>
-                        </select>
-                        <input type="text" name="time_additives" value="" id="time_additives" class="admin_form_txt admin_form_txt_short" placeholder="Время приема"/>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Наименование:</div>
+                            <input type="text" name="name" class="admin_form_txt admin_form_txt_middle" value="" maxlength="255" required="required" />
+                        </div>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Тип приема пищи:</div>
+                            <select name="s_ing_type" class="journal_form_select">
+                                <?php if (!empty($types)) :
+                                    foreach ($types as $type) :?>
+                                        <option value="<?php echo $type['id']; ?>"><?php echo $type['name']; ?></option>
+                                    <?php endforeach;
+                                    unset($type);
+                                endif;?>
+                            </select>
+                        </div>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Время приема:</div>
+                            <select name="s_time_additives" class="journal_form_select">
+                                <option value="" selected="selected">На протяжении дня</option>
+                                <option value="before">До тренировки</option>
+                                <option value="after">После тренировки</option>
+                            </select>
+                        </div>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">
+                                Часы приема:
+                                <div class="h_subtitle">(Прим.: за 3 часа до тренировки)</div>
+                            </div>
+                            <input type="text" name="time_additives" value="" id="time_additives" class="admin_form_txt admin_form_txt_short"/>
+                        </div>
                         <div class="video_admin_form_buts parent">
                             <input type="submit" name="bt_save_new_ingestion" value="Сохранить" class="video_admin_form_send" />
                         </div>

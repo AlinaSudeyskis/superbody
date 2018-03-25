@@ -7,16 +7,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
+            <div class="content_block new_content_block ovv">
                 <div class="content_block_h new_content_block_h parent">
                     <h3>Категория курса</h3>
-                    <a href="/administration/course/type/new" class="add_tab_but">Добавить</a>
+                    <a href="/administration/course/new" class="add_tab_but">Добавить курс</a>
+                    <a href="/administration/courses/type/new" class="tab_but">Добавить категорию</a>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <?php include_once('./app_fold/views/course/courses_menu.php'); ?>
                     <div class="admin_list">
                         <?php if (!empty($types)) :
                             foreach ($types as $type) :?>
@@ -24,7 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="admin_ava"></div>
                                     <div class="admin_cont">
                                         <div class="admin_name">
-                                            <a href="/administration/course/type/<?php echo $type['id']?>" class="admin_name"><?php echo $type['name']?></a>
+                                            <a href="/administration/courses/type/<?php echo $type['id']?>" class="admin_name"><?php echo $type['name']?></a>
                                         </div>
                                     </div>
                                 </div>

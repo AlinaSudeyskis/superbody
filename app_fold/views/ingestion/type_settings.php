@@ -17,7 +17,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <form action="" class="video_admin_form" method="post">
-                        <input type="text" name="name" class="admin_form_txt" placeholder="Наименование" value="<?php echo $type_name;?>" maxlength="255" required="required" />
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Наименование:</div>
+                            <input type="text" name="name" class="admin_form_txt admin_form_txt_middle" value="<?php echo $type_name;?>" maxlength="255" required="required" />
+                        </div>
                         <div class="video_admin_form_buts parent">
                             <input type="submit" name="bt_save_type_settings" value="Сохранить" class="video_admin_form_send" />
                         </div>

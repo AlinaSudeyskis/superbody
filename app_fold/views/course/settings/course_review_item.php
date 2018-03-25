@@ -7,7 +7,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php if (!empty($review)) :?>
                 <div class="video_admin_form">
                     <form action="" class="mess_block_form" method="post">
-                        <textarea name="ta_review_text" class="tov_form_textarea" placeholder="Оставить отзыв" required="required"><?php echo $review['text'];?></textarea>
+                        <div class="lend_form_h">Текст отзыва:</div>
+                        <textarea name="ta_review_text" class="tov_form_textarea" required="required"><?php echo $review['text'];?></textarea>
                         <div class="comment_page_cont_link"><a href="/profile/<?php echo $review['user']['id'];?>"><?php echo $review['user']['name'];?></a></div>
 
                         <div class="video_admin_form_buts parent">

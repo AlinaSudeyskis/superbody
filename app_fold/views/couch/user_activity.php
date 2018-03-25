@@ -18,7 +18,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="kurs_block_val">
                     <div class="tren_prof_page_block parent">
                         <div class="tren_prof_page_img_wrap">
-                            <div class="tren_prof_page_img"><?php if (!empty($user_data['user_image'])) :?><img src="<?php echo $user_data['user_image'];?>" alt=""><?php endif;?></div>
+                            <div class="tren_prof_page_img"><?php if (!empty($user_data['image'])) :?><img src="<?php echo $user_data['image'];?>" alt=""><?php endif;?></div>
                             <div class="tren_prof_page_name"><?php echo $user_data['split_name']['name'];?></div>
                             <div class="tren_prof_page_surname"><?php echo $user_data['split_name']['surname'];?></div>
                             <div class="tren_prof_page_soc">

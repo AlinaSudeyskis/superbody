@@ -123,9 +123,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <img src="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
-                    <input type="text" name="i_title_block2" class="admin_form_txt" placeholder="Заголовок" maxlength="60" value="<?php echo $landing['block2']['title']; ?>" />
-                    <input type="text" name="i_subtitle_block2" class="admin_form_txt" placeholder="Подзаголовок" maxlength="80" value="<?php echo $landing['block2']['subtitle']; ?>" />
-                    <input type="text" name="i_text_block2" class="admin_form_txt" placeholder="Текст" maxlength="60" value="<?php echo $landing['block2']['text']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_title_block2" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block2']['title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Подзаголовок:</div>
+                        <input type="text" name="i_subtitle_block2" class="admin_form_txt admin_form_txt_middle" maxlength="80" value="<?php echo $landing['block2']['subtitle']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст:</div>
+                        <input type="text" name="i_text_block2" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block2']['text']; ?>" />
+                    </div>
+                    <div class="lend_form_h">Кнопка</div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст кнопки:</div>
+                        <input type="text" name="i_button_block2" class="admin_form_txt admin_form_txt_middle" placeholder="Текст кнопки" maxlength="40" value="<?php echo $landing['block2']['button']; ?>" />
+                    </div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_couch_image_block2"
                             <?php if ($landing['block2']['image_default'] === true) : ?> checked="checked" <?php endif ; ?>
@@ -152,8 +166,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php if ($landing['block2']['image_default'] === false and is_file($landing['block2']['image_orig'])) :?>
                         <img src="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
-                    <div class="lend_form_h">Текст кнопки</div>
-                    <input type="text" name="i_button_block2" class="admin_form_txt" placeholder="Текст кнопки" maxlength="40" value="<?php echo $landing['block2']['button']; ?>" />
 
                     <div class="video_admin_form_buts parent">
                         <input type="submit" name="bt_save_block_2" value="Сохранить блок 2" class="video_admin_form_send" />
@@ -199,8 +211,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <img src="<?php echo mb_substr($landing['block3']['bg_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
-                    <input type="text" name="i_title_block3" class="admin_form_txt" placeholder="Заголовок" maxlength="60" value="<?php echo $landing['block3']['title']; ?>" />
-                    <input type="text" name="i_subtitle_block3" class="admin_form_txt" placeholder="Подзаголовок" maxlength="60" value="<?php echo $landing['block3']['subtitle']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_title_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block3']['title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Подзаголовок:</div>
+                        <input type="text" name="i_subtitle_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block3']['subtitle']; ?>" />
+                    </div>
                     <div class="lend_form_h">Результаты</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_photo1_block3"
@@ -254,9 +272,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php if ($landing['block3']['images_default'][1] === false and is_file($landing['block3']['images_orig'][1])) :?>
                         <img src="<?php echo mb_substr($landing['block3']['images_orig'][1], 1); ?>" alt=""/>
                     <?php endif;?>
-                    <input type="text" name="i_result_title_block3" class="admin_form_txt" placeholder="Заголовок" maxlength="60" value="<?php echo $landing['block3']['r_title']; ?>" />
-                    <input type="text" name="i_result_subtitle_block3" class="admin_form_txt" placeholder="Подзаголовок" maxlength="60" value="<?php echo $landing['block3']['r_subtitle']; ?>" />
-                    <input type="text" name="i_result_reviews_block3" class="admin_form_txt" placeholder="Отзыв пользователя" maxlength="80" value="<?php echo $landing['block3']['r_reviews']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_result_title_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block3']['r_title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Подзаголовок:</div>
+                        <input type="text" name="i_result_subtitle_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block3']['r_subtitle']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Отзыв пользователя:</div>
+                        <input type="text" name="i_result_reviews_block3" class="admin_form_txt admin_form_txt_middle" maxlength="80" value="<?php echo $landing['block3']['r_reviews']; ?>" />
+                    </div>
 
                     <div class="video_admin_form_buts parent">
                         <input type="submit" name="bt_save_block_3" value="Сохранить блок 3" class="video_admin_form_send" />
@@ -302,9 +329,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <img src="<?php echo mb_substr($landing['block4']['bg_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
-                    <input type="text" name="i_title_block4" class="admin_form_txt" placeholder="Заголовок" maxlength="60" value="<?php echo $landing['block4']['title']; ?>" />
-                    <input type="text" name="i_subtitle_block4" class="admin_form_txt" placeholder="Подзаголовок" maxlength="80" value="<?php echo $landing['block4']['subtitle']; ?>" />
-                    <div class="lend_form_h">Результаты</div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Подзаголовок:</div>
+                        <input type="text" name="i_subtitle_block4" class="admin_form_txt admin_form_txt_middle" maxlength="80" value="<?php echo $landing['block4']['subtitle']; ?>" />
+                    </div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_photo_block4"
                             <?php if ($landing['block4']['image_default'] === true) : ?> checked="checked" <?php endif ; ?>
@@ -331,10 +363,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php if ($landing['block4']['image_default'] === false and is_file($landing['block4']['image_orig'])) :?>
                         <img src="<?php echo mb_substr($landing['block4']['image_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
-                    <input type="text" name="i_result_title_block4" class="admin_form_txt" placeholder="Заголовок" maxlength="60" value="<?php echo $landing['block4']['r_title']; ?>" />
-                    <input type="text" name="i_result_desc_block4" class="admin_form_txt" placeholder="Описание" maxlength="60" value="<?php echo $landing['block4']['r_subtitle']; ?>" />
-                    <div class="lend_form_h">Текст кнопки</div>
-                    <input type="text" name="i_button_block4" class="admin_form_txt" placeholder="Текст кнопки" maxlength="40" value="<?php echo $landing['block4']['button']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_result_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['r_title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Описание:</div>
+                        <input type="text" name="i_result_desc_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['r_subtitle']; ?>" />
+                    </div>
+                    <div class="lend_form_h">Кнопка</div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст кнопки:</div>
+                        <input type="text" name="i_button_block4" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block4']['button']; ?>" />
+                    </div>
 
 
                     <div class="video_admin_form_buts parent">
@@ -381,9 +422,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <img src="<?php echo mb_substr($landing['block5']['bg_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
-                    <input type="text" name="i_title_block5" class="admin_form_txt" placeholder="Имя тренера" maxlength="60" value="<?php echo $landing['block5']['title']; ?>" />
-                    <input type="text" name="i_subtitle_block5" class="admin_form_txt" placeholder="Специализация" maxlength="60" value="<?php echo $landing['block5']['subtitle']; ?>" />
-                    <input type="text" name="i_text_block5" class="admin_form_txt" placeholder="Текст" maxlength="255" value="<?php echo $landing['block5']['text']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Имя тренера:</div>
+                        <input type="text" name="i_title_block5" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block5']['title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Специализация:</div>
+                        <input type="text" name="i_subtitle_block5" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block5']['subtitle']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст:</div>
+                        <input type="text" name="i_text_block5" class="admin_form_txt admin_form_txt_middle" maxlength="255" value="<?php echo $landing['block5']['text']; ?>" />
+                    </div>
                     <div class="lend_form_h">Изображения тренера</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_photo1_block5"
@@ -464,11 +514,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <img src="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>" alt=""/>
                     <?php endif;?>
                     <div class="lend_form_h">Слова тренера о программе</div>
-                    <input type="text" name="i_couch_title_block5" class="admin_form_txt" placeholder="Заголовок" maxlength="50" value="<?php echo $landing['block5']['r_title']; ?>" />
-                    <input type="text" name="i_couch_subtitle_block5" class="admin_form_txt" placeholder="Подзаголовок" maxlength="50" value="<?php echo $landing['block5']['r_subtitle']; ?>" />
-                    <input type="text" name="i_couch_text_block5" class="admin_form_txt" placeholder="Текст" maxlength="120" value="<?php echo $landing['block5']['r_text']; ?>" />
-                    <div class="lend_form_h">Текст кнопки</div>
-                    <input type="text" name="i_button_block5" class="admin_form_txt" placeholder="Текст кнопки" maxlength="40" value="<?php echo $landing['block5']['button']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_couch_title_block5" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block5']['r_title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Подзаголовок:</div>
+                        <input type="text" name="i_couch_subtitle_block5" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block5']['r_subtitle']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст:</div>
+                        <input type="text" name="i_couch_text_block5" class="admin_form_txt admin_form_txt_middle" maxlength="120" value="<?php echo $landing['block5']['r_text']; ?>" />
+                    </div>
+                    <div class="lend_form_h">Кнопка</div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст кнопки:</div>
+                        <input type="text" name="i_button_block5" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block5']['button']; ?>" />
+                    </div>
 
 
                     <div class="video_admin_form_buts parent">
@@ -515,9 +577,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <img src="<?php echo mb_substr($landing['block6']['bg_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
-                    <input type="text" name="i_title_block6" class="admin_form_txt" placeholder="Заголовок" maxlength="60" value="<?php echo $landing['block6']['title']; ?>" />
-                    <textarea name="ta_desc_block6" class="journal_form_textarea" placeholder="Описание" maxlength="130"><?php echo $landing['block6']['desc']; ?></textarea>
-                    <input type="text" name="i_subtitle_block6" class="admin_form_txt" placeholder="Подзаголовок" maxlength="60" value="<?php echo $landing['block6']['subtitle']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_title_block6" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block6']['title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Описание:</div>
+                        <textarea name="ta_desc_block6" class="journal_form_textarea admin_form_txt_middle" maxlength="130"><?php echo $landing['block6']['desc']; ?></textarea>
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Подзаголовок:</div>
+                        <input type="text" name="i_subtitle_block6" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block6']['subtitle']; ?>" />
+                    </div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_photo_block6"
                             <?php if ($landing['block6']['image_default'] === true) : ?> checked="checked" <?php endif ; ?>
@@ -549,17 +620,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_options">
                             <?php if (!empty($landing['block6']['advantages'])) :
                                 foreach ($landing['block6']['advantages'] as $advantage) : ?>
-                                    <input type="text" name="i_advantages_block6[]" class="admin_form_txt" value="<?php echo $advantage; ?>" placeholder="Преимущество"/>
+                                    <div class="parent kurs_cur_wrap">
+                                        <div class="kurs_block_h">Преимущество:</div>
+                                        <input type="text" name="i_advantages_block6[]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $advantage; ?>"/>
+                                    </div>
                                 <?php endforeach;
                                 unset($advantage);
                             else :?>
-                                <input type="text" name="i_advantages_block6[]" class="admin_form_txt" value="" placeholder="Преимущество"/>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Преимущество:</div>
+                                    <input type="text" name="i_advantages_block6[]" class="admin_form_txt admin_form_txt_middle" value=""/>
+                                </div>
                             <?php endif; ?>
                         </div>
                         <div class="add_new_options_but add_form_advantage">+ добавить преимущество</div>
                     </div>
-                    <div class="lend_form_h">Текст кнопки</div>
-                    <input type="text" name="i_button_block6" class="admin_form_txt" placeholder="Текст кнопки" maxlength="40" value="<?php echo $landing['block6']['button']; ?>" />
+                    <div class="lend_form_h">Кнопка</div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст кнопки:</div>
+                        <input type="text" name="i_button_block6" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block6']['button']; ?>" />
+                    </div>
 
 
                     <div class="video_admin_form_buts parent">
@@ -605,8 +685,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php if ($landing['block7']['bg_default'] === false and is_file($landing['block7']['bg_orig'])) :?>
                         <img src="<?php echo mb_substr($landing['block7']['bg_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
-                    <div class="lend_form_h">Заголовок</div>
-                    <input type="text" name="i_title_block7" class="admin_form_txt" placeholder="Заголовок" maxlength="50" value="<?php echo $landing['block7']['title']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_title_block7" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block7']['title']; ?>" />
+                    </div>
                     <div class="lend_form_h">Изображения и текст (рекомендация: количество планов кратно 2)</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_images_block7"
@@ -638,7 +720,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                         </div>
                                     </div>
-                                    <input type="text" name="i_text_block7[]" class="admin_form_txt" placeholder="Текст" value="<?php echo $b7_text;?>" maxlength="160"/>
+                                    <div class="parent kurs_cur_wrap">
+                                        <div class="kurs_block_h">Текст плана:</div>
+                                        <input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $b7_text;?>" maxlength="160"/>
+                                    </div>
                                 <?php endforeach;
                                 unset($b7_text);
                             else: ?>
@@ -659,13 +744,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         </div>
                                     </div>
                                 </div>
-                                <input type="text" name="i_text_block7[]" class="admin_form_txt" placeholder="Текст" maxlength="160" value=""/>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Текст плана:</div>
+                                    <input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" value=""/>
+                                </div>
                             <?php endif;?>
                         </div>
-                        <div class="add_new_options_but add_form_plan">+ добавить текст</div>
+                        <div class="add_new_options_but add_form_plan">+ добавить план (изображение и текст)</div>
                     </div>
-                    <div class="lend_form_h">Текст кнопки</div>
-                    <input type="text" name="i_button_block7" class="admin_form_txt" placeholder="Текст кнопки" maxlength="40" value="<?php echo $landing['block7']['button']; ?>" />
+                    <div class="lend_form_h">Кнопка</div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст кнопки:</div>
+                        <input type="text" name="i_button_block7" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block7']['button']; ?>" />
+                    </div>
 
 
                     <div class="video_admin_form_buts parent">
@@ -712,21 +803,38 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <img src="<?php echo mb_substr($landing['block8']['bg_orig'], 1); ?>" alt=""/>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
-                    <input type="text" name="i_title_block8" class="admin_form_txt" placeholder="Заголовок" maxlength="60" value="<?php echo $landing['block8']['title']; ?>" />
-                    <input type="text" name="i_desc1_block8" class="admin_form_txt" placeholder="Описание" maxlength="160" value="<?php echo $landing['block8']['desc1']; ?>" />
-                    <input type="text" name="i_subtitle_block8" class="admin_form_txt" placeholder="Подзаголовок" maxlength="60" value="<?php echo $landing['block8']['subtitle']; ?>" />
-                    <input type="text" name="i_desc2_block8" class="admin_form_txt" placeholder="Текст" maxlength="100" value="<?php echo $landing['block8']['desc2']; ?>" />
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Заголовок:</div>
+                        <input type="text" name="i_title_block8" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block8']['title']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Описание:</div>
+                        <input type="text" name="i_desc1_block8" class="admin_form_txt admin_form_txt_middle" maxlength="160" value="<?php echo $landing['block8']['desc1']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Подзаголовок:</div>
+                        <input type="text" name="i_subtitle_block8" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block8']['subtitle']; ?>" />
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст:</div>
+                        <input type="text" name="i_desc2_block8" class="admin_form_txt admin_form_txt_middle" maxlength="100" value="<?php echo $landing['block8']['desc2']; ?>" />
+                    </div>
                     <div class="lend_form_h">Цена</div>
                     <div class="parent kurs_cur_wrap">
-                        <input type="text" name="i_old_price_block8" class="admin_form_txt admin_form_txt_short" placeholder="Старая цена" maxlength="8" value="<?php echo $landing['block8']['old_price']; ?>" />
+                        <div class="kurs_block_h">Старая цена:</div>
+                        <input type="text" name="i_old_price_block8" class="admin_form_txt admin_form_txt_short" maxlength="8" value="<?php echo $landing['block8']['old_price']; ?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <input type="text" name="i_new_price_block8" class="admin_form_txt admin_form_txt_short" placeholder="Новая цена" maxlength="8" value="<?php echo $landing['block8']['new_price']; ?>" />
+                        <div class="kurs_block_h">Новая цена:</div>
+                        <input type="text" name="i_new_price_block8" class="admin_form_txt admin_form_txt_short" maxlength="8" value="<?php echo $landing['block8']['new_price']; ?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
-                    <div class="lend_form_h">Текст кнопки</div>
-                    <input type="text" name="i_button_block8" class="admin_form_txt" placeholder="Текст кнопки" maxlength="40" value="<?php echo $landing['block8']['button']; ?>" />
+                    <div class="lend_form_h">Кнопка</div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Текст кнопки:</div>
+                        <input type="text" name="i_button_block8" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block8']['button']; ?>" />
+                    </div>
 
 
                     <div class="video_admin_form_buts parent">

@@ -222,7 +222,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php endfor;
                     unset($tr_week);
                 else:?>
-                    <span class="kurs_cur">Выберите длительность курса и количество тренировок в неделю</span>
+                    <span class="h_subtitle">Выберите длительность курса и количество тренировок в неделю</span>
                 <?php endif;?>
             </div>
         </div>

@@ -127,7 +127,10 @@ $(document).ready(function() {
                             '</div>' +
                         '</div>' +
                     '</div>' +
-                    '<input type="text" name="i_text_block7[]" class="admin_form_txt" placeholder="Текст" maxlength="160" />');
+                    '<div class="parent kurs_cur_wrap">' +
+                        '<div class="kurs_block_h">Текст плана:</div>' +
+                        '<input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" />' +
+                    '</div>');
             $(this).parents(".new_form_option_wrap").find(".new_form_option").val('');
             $(this).parents(".new_form_option_wrap").hide();
         }

@@ -10,30 +10,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="content_block">
                 <div class="content_block_h new_content_block_h parent">
                     <h3>Курсы</h3>
-                    <a href="/administration/course/new" class="add_tab_but">Добавить</a>
+                    <a href="/administration/course/new" class="add_tab_but">Добавить курс</a>
+                    <a href="/administration/courses/type/new" class="tab_but">Добавить категорию</a>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <?php
-                        // TODO Перенос пунтка меню "Категория курса" на страницу списка курсов в АП
-                        // TODO Изменить вывод отображения курсов и категорий
-                        // TODO Добавить "Архив"
-                    ?>
-                    <ul class="anketa_block_nav parent">
-                        <li>
-                            <a href="/administration/courses">
-                                <span <?php if ($page_submenu == 'a_courses'): ?> class="anketa_active" <?php endif;?>>Курсы</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/administration/courses/type">
-                                <span <?php if ($page_submenu == 'course_type') { echo 'class="active"'; } ?>>Категория курса</span>
-                            </a>
-                        </li>
-                    </ul>
+                    <?php include_once('./app_fold/views/course/courses_menu.php'); ?>
                     <div class="admin_list kurs_list">
                         <?php if (!empty($courses)) :
                             foreach ($courses as $course) :?>

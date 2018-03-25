@@ -201,6 +201,7 @@ h3.landing{
     margin-top: 50px;
     border: none;
     background-color: #2acaf2;
+    padding: 10px 15px;
 }
 h3.landing span{
     color: #ffffff;
@@ -243,7 +244,9 @@ h3.landing span{
     position: absolute;
     top: 6px;
     right: 200px;
-    width: 100px;
+    min-width: 100px;
+    padding: 0 15px;
+    margin-right: 25px;
     height: 30px;
     line-height: 30px;
     color: #fff;
@@ -420,6 +423,7 @@ span.mess_block_full_time {
 }
 .admin_review_info_dialog{
     float: left;
+    width: 100%;
     padding-right: 15px;
     overflow: hidden;
     -ms-text-overflow: ellipsis;
@@ -453,13 +457,14 @@ span.mess_block_full_time {
     background-color: #f3f3f3;
     border: 1px solid #ccc;
     border-top: none;
-    width: 84px;
+    width: 95px;
+    text-align: center;
 }
 .practice_block_table .practice_weeks:first-child .practice_week {border-top: 1px solid #ccc;}
 .practice_week span{width: calc(100% - 10px);}
 .practice_block_table .practice_weeks .practice_days{
     display: block;
-    width: calc(100% - 84px);
+    width: calc(100% - 95px);
     height: 40px;
     float: left;
 
@@ -520,6 +525,8 @@ span.mess_block_full_time {
 
 .landing_block_table{
     display: flex;
+    overflow: hidden;
+    flex-wrap: wrap;
     flex-direction: row;
     margin-top: 50px;
 }
@@ -617,6 +624,10 @@ span.mess_block_full_time {
 }
 .h_subtitle{
     font-size: 10px;
+    margin-top: -10px;
+}
+.kurs_block_h .h_subtitle{
+    margin-top: -16px;
 }
 .purchase_form{
     padding:0;

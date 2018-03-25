@@ -1,0 +1,18 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
+<?php
+// TODO Добавить "Архив"
+?>
+<ul class="anketa_block_nav parent">
+    <li>
+        <a href="/administration/courses">
+            <span <?php if ($page_submenu == 'a_courses'): ?> class="anketa_active" <?php endif;?>>Курсы</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/courses/type">
+            <span <?php if ($page_submenu == 'courses_types'): ?> class="anketa_active" <?php endif; ?>>Категория курса</span>
+        </a>
+    </li>
+</ul>

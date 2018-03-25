@@ -14,9 +14,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </span>
                             <span class="admin_feedback_cont parent">
                                 <span class="admin_review_info parent">
-                                    <span class="admin_review_info_dialog"><?php echo $review['user']['name']; ?></span>
+                                    <span class="admin_review_info_dialog" title="<?php echo $review['user']['name']; ?>"><?php echo $review['user']['name']; ?></span>
                                 </span>
-                                <span class="admin_review_txt"><?php echo $review['text']; ?></span>
+                                <span class="admin_review_txt" title="<?php echo $review['text']; ?>"><?php echo $review['text']; ?></span>
                             </span>
                         </a>
                     </div>

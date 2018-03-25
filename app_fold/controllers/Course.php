@@ -21,8 +21,10 @@ class Course extends CI_Controller
         $this->load->model('Course_model');
     }
 
+    /* БЛОК ФУНКЦИЙ КАТЕГОРИИ КУРСА */
+
     /**
-     * Вывод последних сохраненных типов курса
+     * Вывод последних сохраненных категории курса
      *
      * @return void
      */
@@ -37,17 +39,18 @@ class Course extends CI_Controller
         $result = $this->Course_model->getCourseTypes();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Типы курсов';
-        $this->page_data['page_menu'] = 'course_type';
+        $this->page_data['title']        = 'АП - Категории курсов';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'courses_types';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/types', $result);
+        $this->load->view('course/types/types', $result);
         $this->load->view('footer/footer');
     }
 
     /**
-     * Вывод формы и валидация введенных данных нового типа курса
+     * Вывод формы и валидация введенных данных нового категории курса
      *
      * @return void
      */
@@ -59,37 +62,43 @@ class Course extends CI_Controller
         }
 
         // Сохранение нового типа курса
-        if ($this->input->post('bt_save_new_type', true)) {
+        if ($this->input->post('bt_save_new_type', true))
+        {
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
 
-            if (!empty($name)) {
+            if (!empty($name))
+            {
                 $result = $this->Course_model->setNewCourseType($name, $this->date);
 
-                if (is_numeric($result)) {
+                if (is_numeric($result))
+                {
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
-                    header('Location: /administration/course/type/'.$result);
-                } else {
+                    header('Location: /administration/courses/type/'.$result);
+                }
+                else
+                {
                     // Изменения не сохранены
                     $this->session->set_tempdata('message', 25, 60);
-                    header('Location: /administration/course/type/new');
+                    header('Location: /administration/courses/type/new');
                 }
             }
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Добавление нового типа курса';
-        $this->page_data['page_menu'] = 'course_type';
+        $this->page_data['title']        = 'АП - Добавление новой категории курса';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'courses_types';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/new_type');
+        $this->load->view('course/types/new_type');
         $this->load->view('footer/footer');
     }
 
     /**
-     * Вывод формы и валидация изменных данных типа курса
+     * Вывод формы и валидация изменных данных категории курса
      *
      * @param $type_id
      * @return void
@@ -97,44 +106,49 @@ class Course extends CI_Controller
     public function courseType($type_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        {
             parent::pageNotFound($this->page_url);
         }
 
         // Сохранение изменений типа курса
-        if ($this->input->post('bt_save_type_settings', true) and is_numeric($type_id)) {
+        if ($this->input->post('bt_save_type_settings', true) and is_numeric($type_id))
+        {
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
 
-            if (!empty($name)) {
+            if (!empty($name))
+            {
                 $result = $this->Course_model->setCourseTypeSettings($type_id, $name, $this->date);
 
-                if ($result === true) {
+                if ($result === true)
+                {
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
-                } else {
+                }
+                else
+                {
                     // Изменения не сохранены
                     $this->session->set_tempdata('message', 25, 60);
                 }
             }
-            header('Location: /administration/course/type/'.$type_id);
+            header('Location: /administration/courses/type/'.$type_id);
         }
 
+        $result = $this->Course_model->getCourseType($type_id);
+
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Изменение данных типа курса';
-        $this->page_data['page_menu'] = 'course_type';
+        $this->page_data['title']        = 'АП - Изменение данных категории курса';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'courses_types';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-
-        if (is_numeric($type_id)) {
-            $result = $this->Course_model->getCourseType($type_id);
-
-            $this->load->view('course/type_settings', $result);
-        }
-
+        $this->load->view('course/types/type_settings', $result);
         $this->load->view('footer/footer');
     }
+
+    /* КОНЕЦ БЛОКА ФУНКЦИЙ КАТЕГОРИИ КУРСА */
 
     /**
      * Вывод последних сохраненных типов приемов пищи
@@ -973,8 +987,9 @@ class Course extends CI_Controller
         $result = $this->Course_model->getCourses();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Курсы';
-        $this->page_data['page_menu'] = 'a_courses';
+        $this->page_data['title']        = 'АП - Курсы';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'a_courses';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
@@ -1192,8 +1207,9 @@ class Course extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Добавление нового курса';
-        $this->page_data['page_menu'] = 'a_courses';
+        $this->page_data['title']        = 'АП - Добавление нового курса';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'a_courses';
         
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');

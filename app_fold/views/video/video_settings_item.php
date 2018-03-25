@@ -1,25 +1,37 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<select name="s_type" class="journal_form_select">
-    <option value="0" <?php if (!empty($video['type']) and $video['type'] == 0) { echo 'selected="selected"'; } ?>>Без категории</option>
-    <option value="1" <?php if (!empty($video['type']) and $video['type'] == 1) { echo 'selected="selected"'; } ?>>Промо</option>
-    <option value="2" <?php if (!empty($video['type']) and $video['type'] == 2) { echo 'selected="selected"'; } ?>>Тренировка</option>
-    <option value="3" <?php if (!empty($video['type']) and $video['type'] == 3) { echo 'selected="selected"'; } ?>>Инструктаж</option>
-</select>
-<?php if (!empty($courses)):?>
-    <select name="s_courses" class="journal_form_select">
-        <option value="">Выберите курс</option>
-        <?php foreach($courses as $course):?>
-            <option value="<?php echo $course['id']; ?>"
-                <?php if(!empty($video['course_id']) and $course['id'] == $video['course_id']):?>selected="selected"<?php endif;?>
-            ><?php echo $course['name']; ?></option>
-        <?php endforeach;
-        unset($course);?>
+<div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h">Категория:</div>
+    <select name="s_type" class="journal_form_select">
+        <option value="0" <?php if (!empty($video['type']) and $video['type'] == 0) { echo 'selected="selected"'; } ?>>Без категории</option>
+        <option value="1" <?php if (!empty($video['type']) and $video['type'] == 1) { echo 'selected="selected"'; } ?>>Промо</option>
+        <option value="2" <?php if (!empty($video['type']) and $video['type'] == 2) { echo 'selected="selected"'; } ?>>Тренировка</option>
+        <option value="3" <?php if (!empty($video['type']) and $video['type'] == 3) { echo 'selected="selected"'; } ?>>Инструктаж</option>
     </select>
-<?php endif;?>
-<input type="text" name="file_name" class="admin_form_txt" placeholder="Наименование" value="<?php if (!empty($video['name'])) { echo $video['name']; }?>" />
-<input type="text" name="remove_url" class="admin_form_txt" placeholder="Полная URL ссылка на видео с сайта Vimeo.com" value="<?php if (!empty($video['name'])) { echo $video['remove_url']; }?>" />
+</div>
+<div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h">Курс:</div>
+    <?php if (!empty($courses)):?>
+        <select name="s_courses" class="journal_form_select">
+            <option value="">Выберите курс</option>
+            <?php foreach($courses as $course):?>
+                <option value="<?php echo $course['id']; ?>"
+                    <?php if(!empty($video['course_id']) and $course['id'] == $video['course_id']):?>selected="selected"<?php endif;?>
+                ><?php echo $course['name']; ?></option>
+            <?php endforeach;
+            unset($course);?>
+        </select>
+    <?php endif;?>
+</div>
+<div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h">Наименование:</div>
+    <input type="text" name="file_name" class="admin_form_txt admin_form_txt_short" placeholder="Наименование" value="<?php if (!empty($video['name'])) { echo $video['name']; }?>" />
+</div>
+<div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h">Vimeo URL:</div>
+    <input type="text" name="remove_url" class="admin_form_txt admin_form_txt_short" placeholder="Полная URL ссылка на видео с сайта Vimeo.com" value="<?php if (!empty($video['name'])) { echo $video['remove_url']; }?>" />
+</div>
 <div class="video_down_line parent">
     <div class="video_down_line_h">Постер видео:</div>
     <div class="video_down_line_but_wrap">

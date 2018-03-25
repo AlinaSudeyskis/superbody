@@ -138,9 +138,9 @@ $route['delete/poster'] = 'Course/deletePoster';
 $route['delete/video']  = 'Course/deleteVideo';
 $route['searchVideo']   = 'Course/searchVideo';
 // Тип курса
-$route['administration/course/type']        = 'Course/courseTypes';
-$route['administration/course/type/new']    = 'Course/newCourseTypes';
-$route['administration/course/type/(:num)'] = 'Course/courseType/$1';
+$route['administration/courses/type']        = 'Course/courseTypes';
+$route['administration/courses/type/new']    = 'Course/newCourseTypes';
+$route['administration/courses/type/(:num)'] = 'Course/courseType/$1';
 // Тип приемов пищи
 $route['administration/ingestion/type']        = 'Course/ingestionTypes';
 $route['administration/ingestion/type/new']    = 'Course/newIngestionTypes';

@@ -6295,6 +6295,9 @@ textarea.journal_post_comm_in{
 .tren_set_form_r{
     margin-left: 200px;
 }
+.tren_set_form_img {
+    overflow: hidden;
+}
 .tren_set_form_img img{
     display: block;
     /*width: 160px;*/
@@ -8291,6 +8294,10 @@ textarea.anketa_form_in{
 }
 .admin_form_txt_short{
     max-width: 330px;
+    width: calc(100% - 270px);
+}
+.admin_form_txt_middle{
+    width: calc(100% - 210px);
 }
 .kurs_form_txt_short{
     max-width: 330px;
@@ -10108,6 +10115,16 @@ textarea.anketa_form_in{
 }
 
 
+@media (max-width: 925px){
+    .landing_blocks{
+        font-size: 17px;
+    }
+    h3.landing{
+        font-size: 21px;
+    }
+}
+
+
 @media (max-width: 899px){
 	.tren_gal_col:nth-of-type(4n+1) {
 	    clear: none;
@@ -11685,6 +11702,7 @@ textarea.anketa_form_in{
     }
 }
 
+
 @media (max-width: 600px){
     .kurs_block_h{
         width: 100%;
@@ -11693,6 +11711,12 @@ textarea.anketa_form_in{
     }
     .kurs_form_txt_short{
         width: calc(100% - 90px) !important;
+    }
+    .admin_form_txt_middle{
+        width: 100%;
+    }
+    .admin_form_txt_short{
+        width: calc(100% - 90px);
     }
     .journal_form_select{
         width: calc(100% - 90px) !important;
