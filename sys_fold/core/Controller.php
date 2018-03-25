@@ -699,7 +699,7 @@ class CI_Controller {
      */
     public function pageNotFound($page_url)
     {
-        log_message('error', '404 Page Not Found: ' . $page_url);
+        set_status_header(404);
         $this->load->view('errors/html/error_404', $this->page_data);
     }
 }

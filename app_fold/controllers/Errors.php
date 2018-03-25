@@ -13,6 +13,8 @@ class Errors extends CI_Controller
 {
     public function error_404()
     {
+        set_status_header(404);
+        log_message('error', '404 Page Not Found: ' . $this->page_url);
         $this->load->view('errors/html/error_404', $this->page_data);
     }
 }
