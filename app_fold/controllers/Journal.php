@@ -20,7 +20,7 @@ class Journal extends CI_Controller
     {
         parent::__construct();
 
-        show_404($this->page_url);
+        parent::pageNotFound($this->page_url);
 
         $this->load->model('Journal_model');
         $this->journal_menu = array('articles', 'interviews', 'news_list');

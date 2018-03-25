@@ -459,7 +459,7 @@ class Administrator extends CI_Controller
     {
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
 
@@ -625,7 +625,7 @@ class Administrator extends CI_Controller
     {
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_banner'))
@@ -702,7 +702,7 @@ class Administrator extends CI_Controller
     {
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Administrator_model->getBanner($banner_id);

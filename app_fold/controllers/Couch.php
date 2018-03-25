@@ -478,7 +478,7 @@ class Couch extends CI_Controller
         // Если пользователь не авторизован, переход на страницу авторизации
         if (empty($this->user_id) or $this->session->user['type'] != 2)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_images', true)) {
@@ -588,7 +588,7 @@ class Couch extends CI_Controller
     {
         // Если пользователь не авторизован, переход на страницу авторизации
         if (empty($this->user_id) or $this->session->user['type'] != 2) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result   = $this->Couch_model->getCouchPortfolioPost($this->user_id, $post_id);
@@ -673,7 +673,7 @@ class Couch extends CI_Controller
     {
         // Если пользователь не авторизован, переход на страницу авторизации
         if (empty($this->user_id) or $this->session->user['type'] != 2) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_post', true)) {
@@ -777,7 +777,7 @@ class Couch extends CI_Controller
         // Если пользователь не авторизован, переход на страницу авторизации
         if (empty($this->user_id) or $this->session->user['type'] != 2)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Couch_model->getCouchClientsActivity($this->user_id);
@@ -806,7 +806,7 @@ class Couch extends CI_Controller
         // Если пользователь не авторизован, переход на страницу авторизации
         if (empty($this->user_id) or $this->session->user['type'] != 2)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->model('User_model');
@@ -842,7 +842,7 @@ class Couch extends CI_Controller
         // Если пользователь не авторизован, переход на страницу авторизации
         if (empty($this->user_id) or $this->session->user['type'] != 2)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->model('Course_model');

@@ -580,7 +580,6 @@ class Message_model extends CI_Model
             parent::logDbMessages(__METHOD__);
         }
 
-        log_message('debug', print_r($result, true));
         return $result;
     }
 

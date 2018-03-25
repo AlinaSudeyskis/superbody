@@ -30,7 +30,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Получение данных о типах курсов
@@ -55,7 +55,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Сохранение нового типа курса
@@ -98,7 +98,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Сохранение изменений типа курса
@@ -145,7 +145,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Получение данных о типах курсов
@@ -170,7 +170,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Сохранение нового типа приемов пищи
@@ -213,7 +213,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Сохранение изменений типа курса
@@ -260,7 +260,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Получение данных о типах курсов
@@ -285,7 +285,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Сохранение нового типа приемов пищи
@@ -360,7 +360,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Сохранение изменений типа курса
@@ -440,7 +440,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         if ($video_type == 'promo')
@@ -471,7 +471,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Course_model->getPromoVideo();
@@ -497,7 +497,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Course_model->getVideoCourses();
@@ -523,7 +523,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Course_model->getUncategorizedVideo();
@@ -549,7 +549,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Course_model->getInstructionsVideo();
@@ -576,7 +576,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Course_model->getCourseVideo($course_id);
@@ -601,7 +601,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $courses = $this->Course_model->getCourses();
@@ -685,7 +685,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $video   = $this->Course_model->getVideo($video_id);
@@ -803,7 +803,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $video   = $this->Course_model->getCourseVideoData($course_id, $video_id);
@@ -925,7 +925,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_deactivate_landing', true)) {
@@ -989,7 +989,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $course_types    = $this->Course_model->getCourseTypes();
@@ -1213,7 +1213,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         if ($page_type == 'settings')
@@ -3069,7 +3069,7 @@ class Course extends CI_Controller
 
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_video', true))
@@ -3177,7 +3177,7 @@ class Course extends CI_Controller
     public function usersCourses()
     {
         if (!is_numeric($this->user_id)) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Страница пользователя или администратора
@@ -3249,7 +3249,7 @@ class Course extends CI_Controller
     public function usersCourse($course_id)
     {
         if (!is_numeric($this->user_id)) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Страница пользователя или администратора
@@ -3288,7 +3288,7 @@ class Course extends CI_Controller
 
         $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id);
         if (empty($course_data)) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
         $db_course = $course_data['course'];
 
@@ -3894,7 +3894,7 @@ class Course extends CI_Controller
     {
         if (!is_numeric($this->user_id))
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         // Сохранение отзыва
@@ -3952,7 +3952,7 @@ class Course extends CI_Controller
     {
         if (!is_numeric($this->user_id))
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id);
@@ -4024,7 +4024,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->model('User_model');
@@ -4054,7 +4054,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->model('User_model');
@@ -4278,7 +4278,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $landing = $this->Course_model->getDefaultLandingPage($lp_id);
@@ -4334,7 +4334,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->helper('file');
@@ -4370,7 +4370,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->helper('file');
@@ -4412,7 +4412,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = array('result' => false);
@@ -4436,7 +4436,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = array('result' => false);
@@ -4462,7 +4462,7 @@ class Course extends CI_Controller
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3)
         {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result['video'] = false;
@@ -4590,7 +4590,7 @@ class Course extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id)) {
-            show_404($this->page_url);
+            parent::pageNotFound($this->page_url);
         }
 
         $result = array('video' => array(), 'player' => array(), 'description' => array(), 'done' => array(), 'error' => '');

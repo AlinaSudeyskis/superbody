@@ -179,16 +179,23 @@ class User extends CI_Controller
         $result = array_merge($user_data, $user_social);
 
         // Страница тренера
-        if ($result['user_data']['type'] == 2) {
+        if ($result['user_data']['type'] == 2)
+        {
             self::outsiderCouchProfile($user_id);
         }
         // Страница администратора
-        elseif ($result['user_data']['type'] == 3) {
+        elseif ($result['user_data']['type'] == 3)
+        {
             self::outsiderAdminProfile($user_id);
         }
         // Страница пользователя
-        elseif ($result['user_data']['type'] == 1) {
+        elseif ($result['user_data']['type'] == 1)
+        {
             self::outsiderUserProfile($user_id);
+        }
+        else
+        {
+            parent::pageNotFound($this->page_url);
         }
 
     }
