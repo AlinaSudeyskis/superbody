@@ -131,7 +131,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="ordering_block_side_cont">
                                     <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $order['payment']; ?></div>
                                     <div class="ordering_block_side_cont_txt">Сумма: <?php echo $order['payments'][0]['amount'] . ' ' . $order['payments'][0]['currency'];?></div>
-                                    <div class="ordering_block_side_cont_txt <?php echo $order['payments'][0]['status_code']; ?>">Статус: <?php echo $order['payments'][0]['status'];?></div>
+                                    <div class="ordering_block_side_cont_txt">Статус: <span class="<?php echo $order['payments'][0]['status_code']; ?>"><?php echo $order['payments'][0]['status'];?></span></div>
                                     <div class="ordering_block_side_cont_txt">Оплата: <?php echo $order['payments'][0]['paid'];?></div>
                                     <?php if(empty($order['payments'][0]['captured_at'])):
                                         if (!empty($order['payments'][0]['created_at'])): ?>
