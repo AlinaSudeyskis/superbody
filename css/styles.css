@@ -635,3 +635,12 @@ span.mess_block_full_time {
 .purchase_form{
     padding:0;
 }
+.ordering_block_side_cont_txt.succeeded{
+    color: #3cb878;
+}
+.ordering_block_side_cont_txt.canceled{
+    color: #dd5c5c;
+}
+.ordering_block_side_cont_txt.waiting_for_capture, .ordering_block_side_cont_txt.pending{
+    color: #ffcb38;
+}
