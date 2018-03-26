@@ -2979,6 +2979,7 @@ class Store_model extends CI_Model
                 $result['refunds'][$i]['id']          = $row->opr_refund_id;
                 $result['refunds'][$i]['amount']      = $row->opr_refund_amount;
                 $result['refunds'][$i]['description'] = $row->opr_refund_description;
+                $result['refunds'][$i]['status_code'] = $row->opr_refund_status;
 
                 $status = array('succeeded' => 'Возврат платежа успешно завершен', 'canceled' => 'Возврат платежа отменен');
                 $result['refunds'][$i]['status'] = (array_key_exists($row->opr_refund_status, $status) !== false)
