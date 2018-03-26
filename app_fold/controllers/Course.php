@@ -4194,7 +4194,23 @@ class Course extends CI_Controller
 
             // Вариант оплаты (полный, разделить на месяцы)
             $options = array('full_payment', 'installments');
-            $payment_option = in_array($this->input->post('s_payment_options', true), $options) ? $this->input->post('s_payment_options', true) : null;
+            $payment_option = (in_array($this->input->post('s_payment_options', true), $options))
+                ? $this->input->post('s_payment_options', true)
+                : 'full_payment';
+
+            // Способ оплаты
+            $methods      = array('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank');
+            $payment_type = (in_array($this->input->post('s_payment_method', true), $methods) and $payment_option == 'full_payment')
+                ? $this->input->post('s_payment_method', true)
+                : 'bank_card';
+
+            $phone_methods = array('qiwi', 'sberbank');
+            $login_methods = array('alfabank');
+            // Данные для способа оплаты
+            $phone        = is_numeric($this->input->post('i_phone', true)) ? $this->input->post('i_phone', true) : null;
+            $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : null;
+            $login        = strip_tags($this->input->post('i_login', true));
+            $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
 
             // Стоимость курса в зависимости от варианта оплаты и доступности такой оплаты в настройка курса
             if($payment_option == 'installments' and $course['recurrent'] === true)
@@ -4226,13 +4242,16 @@ class Course extends CI_Controller
                 // Кол-во товаров в корзине
                 parent::updateSessionCart(0);
 
-                $payment_type = 'bank_card';
+                $payment_data = array(
+                    'oid' => $res_order['order_id'],
+                    'amount' => $res_order['total_amount'],
+                    'type' => $payment_type,
+                    'option' => $payment_option,
+                    'phone' => $method_phone,
+                    'login' => $method_login,
+                );
 
-                if (!empty($payment_option))
-                {
-                    header('Location: /payment?oid=' . $res_order['order_id'] . '&amount=' . $res_order['total_amount']
-                        . '&type=' . $payment_type. '&option=' . $payment_option);
-                }
+                header('Location: /payment?' .http_build_query($payment_data));
 
                 /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
 

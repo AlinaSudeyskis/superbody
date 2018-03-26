@@ -6433,6 +6433,7 @@ textarea.journal_post_comm_in{
 	padding-right: 20px;
 	color: #33363f;
     min-width: 42px;
+    max-width: 180px;
 }
 .anketa_form_h_cell{
 	display: table-cell;
@@ -8141,6 +8142,10 @@ textarea.anketa_form_in{
     max-width: 330px;
     margin-bottom: 18px;
     display: block !important;
+    text-align: left;
+}
+.video_admin_form .journal_form_select.long{
+    width: 100%;
 }
 .video_admin_form .journal_form_select .jq-selectbox__select{
     width: 100%;
@@ -8296,6 +8301,10 @@ textarea.anketa_form_in{
     max-width: 330px;
     width: calc(100% - 270px);
 }
+.admin_form_txt_short.full{
+    max-width: 330px;
+    width: 100%;
+}
 .admin_form_txt_middle{
     width: calc(100% - 210px);
 }
@@ -8316,7 +8325,7 @@ textarea.anketa_form_in{
 }
 .add_tov_in{
     position: relative;
-    max-width: 330px;
+    /*max-width: 330px; Для настроек курса*/
 }
 .add_tov_list{
     position: absolute;

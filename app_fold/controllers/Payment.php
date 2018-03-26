@@ -36,18 +36,38 @@ class Payment extends CI_Controller
      */
     public function payment()
     {
+        // Вариант оплаты (полный, разделить на месяцы)
+        $options = array('full_payment', 'installments');
+        // Способ оплаты
+        $methods = array('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank');
+        // Способы оплаты с доп. данными (телефон)
+        $phone_methods = array('qiwi', 'sberbank');
+        // Способы оплаты с доп. данными (логин)
+        $login_methods = array('alfabank');
+
         $order_id       = is_numeric($this->input->get('oid', true)) ? $this->input->get('oid', true) : null;
         $total_amount   = is_numeric($this->input->get('amount', true)) ? $this->input->get('amount', true) : null;
-        $payment_type   = strip_tags($this->input->get('type', true));
-        $payment_option = strip_tags($this->input->get('option', true));
+        $payment_option = (in_array($this->input->get('option', true), $options))
+            ? $this->input->post('option', true)
+            : 'full_payment';
+        $payment_type   = (in_array($this->input->get('type', true), $methods) and $payment_option == 'full_payment')
+            ? $this->input->post('type', true)
+            : 'bank_card';
 
-        log_message('debug', __METHOD__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
-            . $payment_type . ' ' . $payment_option);
+        // Данные для способа оплаты
+        $phone        = is_numeric($this->input->get('phone', true)) ? $this->input->post('phone', true) : null;
+        $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : null;
+        $login        = strip_tags($this->input->post('login', true));
+        $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
+
+        log_message('debug', __METHOD__ . __LINE__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
+            . $payment_type . ' ' . $payment_option . ' ' . $method_phone . ' ' . $method_login);
 
         if (!empty($order_id) and !empty($total_amount) and !empty($payment_option))
         {
             // Создание платежа
-            $response = self::createPayment($order_id, $total_amount, self::CURRENCY, self::PAYMENT_METHOD, $payment_option);
+            $response = self::createPayment($order_id, $total_amount, self::CURRENCY, $payment_type, $payment_option, '',
+                $method_phone, $method_login);
 
             if (!empty($response->_id)) {
                 if ($response->_status == 'pending')
@@ -174,18 +194,23 @@ class Payment extends CI_Controller
      * @param int $order_id
      * @param float $value
      * @param string $currency
-     * @param string $payment_type ('bank_card')
+     * @param string $payment_type ('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank')
      * @param string $payment_option ('full_payment', 'installments')
      * @param string $payment_method_id
+     * @param int|string $method_phone
+     * @param string $method_login
      * @return \YandexCheckout\Request\Payments\CreatePaymentResponse
      */
-    public function createPayment($order_id, $value, $currency, $payment_type, $payment_option = '', $payment_method_id = '')
+    public function createPayment($order_id, $value, $currency, $payment_type = 'bank_card', $payment_option = 'full_payment',
+                                  $payment_method_id = '', $method_phone = '', $method_login = '')
     {
+        $external_types = array('sberbank', 'alfabank');
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
-        $return_url     = 'https://superbody.pro/ordering/' . $order_id;
+        $return_url     = 'https://superbody.pro/order/' . $order_id;
         $save           = ($payment_option == 'installments') ? true : false;
-        $method_id     = strip_tags($payment_method_id);
+        $method_id      = strip_tags($payment_method_id);
+        $confirm_type   = (in_array($payment_type, $external_types)) ? 'external' : 'redirect';
 
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
@@ -198,10 +223,12 @@ class Payment extends CI_Controller
                 ),
                 'payment_method_data' => array(
                     'type' => $payment_type,
+                    'login' => $method_login,
+                    'phone' => $method_phone,
                 ),
                 'description' => $description,
                 'confirmation' => array(
-                    'type' => 'redirect',
+                    'type' => $confirm_type,
                     'return_url' => $return_url,
                 ),
                 'save_payment_method' => $save,

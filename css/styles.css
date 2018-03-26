@@ -622,6 +622,9 @@ span.mess_block_full_time {
 .line_parent .anketa_form_line:last-child{
     margin-bottom: 20px;
 }
+#recurrent-block, #method-phone, #method-login{
+    display: none;
+}
 .h_subtitle{
     font-size: 10px;
     margin-top: -10px;

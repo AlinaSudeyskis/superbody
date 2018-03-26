@@ -50,9 +50,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="anketa_form_line parent">
                                         <div class="anketa_form_h">
                                             <div class="anketa_form_h_cell">Стоимость курса:</div>
-                                            <?php if($course['recurrent'] === true):?>
-                                                <div class="h_subtitle">(оплата единым платежом)</div>
-                                            <?php endif;?>
                                         </div>
                                         <?php if ($course['new_price'] != 0 or $course['price'] != 0):?>
                                             <div class="anketa_form_h"><div class="anketa_form_h_cell">
@@ -71,15 +68,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php endif;?>
                                     </div>
                                     <?php if ($course['price'] != 0 and $course['recurrent'] === true):?>
-                                        <div class="line_parent">
-                                            <div class="anketa_form_line parent">
+                                        <div class="anketa_form_line parent">
+                                            <div class="anketa_form_h">
+                                                <div class="anketa_form_h_cell"><label for="payment-options">Вариант оплаты:</label></div>
+                                            </div>
+                                            <div class="anketa_form_h">
+                                                <div class="anketa_form_h_cell">
+                                                    <select name="s_payment_options" class="journal_form_select long" required="required" id="payment-options">
+                                                        <option value="">Выберите вариант</option>
+                                                        <option value="full_payment">Полная оплата стоимости</option>
+                                                        <option value="installments">Разделить оплату на <?php echo $course['recur_months']; ?> мес.</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="line_parent" id="recurrent-block">
+                                            <!--<div class="anketa_form_line parent">
                                                 <div class="anketa_form_h">
                                                     <div class="anketa_form_h_cell">Стоимость курса:</div>
-                                                    <div class="h_subtitle">(разделить оплату на <?php echo $course['recur_months']; ?> мес.*)</div>
+                                                    <div class="h_subtitle">(разделить оплату на <?php /*echo $course['recur_months']; */?> мес.*)</div>
                                                 </div>
-                                                <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo $course['recur_price']; ?></div></div>
+                                                <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php /*echo $course['recur_price'];*/ ?></div></div>
                                                 <div class="anketa_form_desk"> руб.</div>
-                                            </div>
+                                            </div>-->
                                             <div class="anketa_form_line parent">
                                                 <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
                                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Первый платеж:</div></div>
@@ -93,20 +104,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 <div class="anketa_form_desk"> руб.</div>
                                             </div>
                                         </div>
-                                        <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h">
-                                                <div class="anketa_form_h_cell"><label for="payment-options">Вариант оплаты:</label></div>
-                                            </div>
-                                            <div class="anketa_form_h">
-                                                <div class="anketa_form_h_cell">
-                                                    <select name="s_payment_options" class="journal_form_select" required="required" id="payment-options">
-                                                        <option value="">Выберите вариант</option>
-                                                        <option value="full_payment">Полная оплата стоимости</option>
-                                                        <option value="installments">Разделить оплату на <?php echo $course['recur_months']; ?> мес.</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
                                     <?php endif;
                                     if($course['new_price'] != 0 or $course['price'] != 0):?>
                                         <div class="anketa_form_line parent">
@@ -115,9 +112,36 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                             <div class="anketa_form_h">
                                                 <div class="anketa_form_h_cell">
-                                                    <select name="s_payment_method" class="journal_form_select" required="required" id="payment-methods">
+                                                    <select name="s_payment_method" class="journal_form_select long" required="required" id="payment-methods">
                                                         <option value="bank_card">Банковская карта</option>
+                                                        <option value="yandex_money">Яндекс.Деньги</option>
+                                                        <option value="sberbank">Сбербанк Онлайн</option>
+                                                        <option value="qiwi">QIWI Wallet</option>
+                                                        <option value="webmoney">Webmoney</option>
+                                                        <option value="alfabank">Альфа-Клик</option>
                                                     </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="anketa_form_line parent" id="method-phone">
+                                            <div class="anketa_form_h">
+                                                <div class="anketa_form_h_cell">Телефон:</div>
+                                                <div class="h_subtitle">(Прим. 79000000000)</div>
+                                            </div>
+                                            <div class="anketa_form_h">
+                                                <div class="anketa_form_h_cell">
+                                                    <input type="text" name="i_phone" value="" class="admin_form_txt admin_form_txt_short full" required="required" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="anketa_form_line parent" id="method-login">
+                                            <div class="anketa_form_h">
+                                                <div class="anketa_form_h_cell">Логин:</div>
+                                                <div class="h_subtitle">(Логин пользователя в Альфа-Клике)</div>
+                                            </div>
+                                            <div class="anketa_form_h">
+                                                <div class="anketa_form_h_cell">
+                                                    <input type="text" name="i_login" value="" class="admin_form_txt admin_form_txt_short full" required="required" />
                                                 </div>
                                             </div>
                                         </div>

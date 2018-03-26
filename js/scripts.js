@@ -1186,6 +1186,39 @@ $(document).ready(function() {
         $("#recurrent-price, #recurrent-months, #recurrent-first").on('keyup change', function(){
             calc_recurrent();
         });
+
+        $("#payment-options").on('change', function(){
+            if ($(this).val() == 'installments')
+            {
+                $("#recurrent-block").show();
+                $("#payment-methods option[value!='bank_card']").attr('disabled', true );
+                $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
+            }
+            else
+            {
+                $("#recurrent-block").hide();
+                $("#payment-methods option[value!='bank_card']").attr('disabled', false );
+                $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
+            }
+        });
+
+        $("#payment-methods").on('change', function(){
+            if ($(this).val() == 'qiwi' || $(this).val() == 'sberbank')
+            {
+                $("#method-phone").show();
+                $("#method-login").hide();
+            }
+            else if($(this).val() == 'alfabank')
+            {
+                $("#method-phone").hide();
+                $("#method-login").show();
+            }
+            else
+            {
+                $("#method-phone").hide();
+                $("#method-login").hide();
+            }
+        });
 });
 
     /**
