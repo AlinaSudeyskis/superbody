@@ -493,8 +493,9 @@ class Message_model extends CI_Model
      */
     public function getFeedbackConvId($user_id = null, $user_email = null)
     {
-        $result = 1;
+        $result = null;
 
+        // Определени ID диалога по ID или email пользователя
         if (is_numeric($user_id))
         {
             $sel_conv = $this->db->query('SELECT `fb_conv_id` FROM `feedback` WHERE `fb_user_id`=? LIMIT 1', $user_id);
@@ -523,8 +524,9 @@ class Message_model extends CI_Model
                 parent::logDbMessages(__METHOD__);
             }
         }
+
         // Вычисление нового ID
-        elseif(empty($user_id) and empty($user_email))
+        if((empty($user_id) and empty($user_email)) or empty($result))
         {
             $sel_last_conv = $this->db->query('SELECT `fb_conv_id` FROM `feedback` ORDER BY `fb_conv_id` DESC LIMIT 1');
             if ($sel_last_conv !== false and 1 == $sel_last_conv->num_rows())
@@ -959,6 +961,62 @@ class Message_model extends CI_Model
             return $new_fb_messages;
         }
         elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Отправка системного сообщения пользователю. В данном случае о возврате платежа
+     *
+     * @param $user_id
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function sendUserMessage($user_id, $admin_id, $date)
+    {
+        $sel_u_data = $this->db->query('SELECT `user_email`, `user_name` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+
+        if ($sel_u_data !== false and 1 == $sel_u_data->num_rows())
+        {
+            $row = $sel_u_data->row();
+
+            $conv_id = self::getFeedbackConvId($user_id);
+            $text    = 'Здравствуйте, Вам был произведен возврат средств за услуги доступа к сайту Superbody.pro. на карту, с которой производилась оплата. '
+                . 'Поступление денежных средств на Вашу карту произойдет в соответствии с регламентом возврата Вашего банка.';
+
+            if (!empty($conv_id))
+            {
+                $send_message = $this->db->query('
+                INSERT INTO `feedback`(`fb_conv_id`, `fb_user_name`, `fb_user_email`, `fb_user_id`, `fb_admin_id`, `fb_text`, `fb_new`, `fb_date_add`) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)', array($conv_id, $row->user_name, $row->user_email, $user_id, $admin_id, $text, 1, $date));
+
+                if ($send_message !== false and 1 == $this->db->affected_rows())
+                {
+                    return true;
+                }
+                elseif($send_message === false)
+                {
+                    parent::logDbMessages(__METHOD__);
+                    return false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        elseif ($sel_u_data === false)
         {
             parent::logDbMessages(__METHOD__);
             return false;

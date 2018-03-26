@@ -803,9 +803,11 @@ class Store extends CI_Controller
                     if ($response->_status == 'succeeded')
                     {
                         $this->load->model('Course_model');
+                        $this->load->model('Message_model');
 
                         // Блокировка курсов пользователя
                         $this->Course_model->blockUserOrderCourses($order_courses['user_id'], $order_courses['courses']);
+                        $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
                     }
                 }
             }

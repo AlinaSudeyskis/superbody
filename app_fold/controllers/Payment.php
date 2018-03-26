@@ -207,7 +207,7 @@ class Payment extends CI_Controller
         $external_types = array('sberbank', 'alfabank');
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
-        $return_url     = 'https://superbody.pro/order/' . $order_id;
+        $return_url     = (in_array($payment_type, $external_types)) ? '' : 'https://superbody.pro/order/' . $order_id;
         $save           = ($payment_option == 'installments') ? true : false;
         $method_id      = strip_tags($payment_method_id);
         $confirm_type   = (in_array($payment_type, $external_types)) ? 'external' : 'redirect';

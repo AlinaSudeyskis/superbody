@@ -102,10 +102,10 @@ $route['post/(:num)'] = 'Blog/getCouchPost/$1';
 // Записи блога
 $route['blog/(:num)'] = 'Blog/getPost/$1';
 // Сообщения
-$route['messages']               = 'Blog/userMessages';
-$route['messages/(:num)']        = 'Blog/userConversation/$1';
+$route['messages']        = 'Message/userConversation';
+$route['messages/(:num)'] = 'Message/userConversation/$1';
 // Обратная связь
-$route['messages/feedback']      = 'Blog/userConversation/feedback';
+$route['messages/feedback'] = 'Message/userConversation/feedback';
 
 // Админ. панель
 $route['administration'] = 'Administrator/index';
@@ -172,10 +172,10 @@ $route['administration/blog/post/(:num)']    = 'Blog/blogPost/$1';
 $route['administration/blog/comments']       = 'Blog/blogComments';
 $route['administration/blog/comment/(:num)'] = 'Blog/blogComment/$1';
 // Сообщения
-$route['administration/messages']            = 'Blog/messages';
-$route['administration/message/(:num)']      = 'Blog/message/$1';
-$route['administration/feedback']            = 'Blog/feedbackMessages';
-$route['administration/feedback/(:any)']     = 'Blog/feedbackUserMessages/$1';
+$route['administration/messages']            = 'Message/messages';
+$route['administration/message/(:num)']      = 'Message/message/$1';
+$route['administration/feedback']            = 'Message/feedbackMessages';
+$route['administration/feedback/(:any)']     = 'Message/feedbackUserMessages/$1';
 // Подписчики
 $route['administration/sublist'] = 'Administrator/sublist';
 // Информация о сайте

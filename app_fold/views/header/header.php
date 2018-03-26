@@ -7,6 +7,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title><?php echo $title; ?> - Super Body</title>
+    <link rel="icon" type="image/png" href="/favicon.ico" />
+
     <link rel="stylesheet" href="/css/google_fonts.css">
     <link rel="stylesheet" href="/css/grid.css">
     <link rel="stylesheet" href="/css/fullcalendar.css">
