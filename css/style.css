@@ -1385,7 +1385,7 @@ tr:first-child > td > .fc-day-grid-event{
     opacity: 1 !important;
 }
 #purchase_pop-up{
-    background: #f1f2f3;
+    background: #ffffff;
     width: 80%;
     max-width: 570px;
     max-height: 600px;
@@ -1415,6 +1415,9 @@ tr:first-child > td > .fc-day-grid-event{
     right: -20px;
     cursor: pointer;
     opacity: 1 !important;
+}
+.anketa_form_h_cell.strikeout{
+    text-decoration: line-through;
 }
 #shadow, #shadow2, #shadow3{
     background: #000;

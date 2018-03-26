@@ -28,7 +28,7 @@ $(document).ready(function(){
         });
     }
 
-    $('.anketa_form_select').styler();
+    $('.anketa_form_select, .journal_form_select').styler();
 
     if($("#policy_pop-up").length > 0){
         $(".policy").on('click', function(){
@@ -49,5 +49,50 @@ $(document).ready(function(){
             });
         });
     }
+
+
+
+    $("#payment-options").on('change', function(){
+        if ($(this).val() == 'installments')
+        {
+            $("#recurrent-block").show();
+            if ($("#course-new-price").length == 1)
+            {
+                $("#course-new-price").hide();
+                $("#course-price").children(".anketa_form_h_cell").removeClass('strikeout');
+            }
+            $("#payment-methods option[value!='bank_card']").attr('disabled', true );
+            $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
+        }
+        else
+        {
+            $("#recurrent-block").hide();
+            if ($("#course-new-price").length == 1)
+            {
+                $("#course-new-price").show();
+                $("#course-price").children(".anketa_form_h_cell").addClass('strikeout');
+            }
+            $("#payment-methods option[value!='bank_card']").attr('disabled', false );
+            $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
+        }
+    });
+
+    $("#payment-methods").on('change', function(){
+        if ($(this).val() == 'qiwi' || $(this).val() == 'sberbank')
+        {
+            $("#method-phone").show();
+            $("#method-login").hide();
+        }
+        else if($(this).val() == 'alfabank')
+        {
+            $("#method-phone").hide();
+            $("#method-login").show();
+        }
+        else
+        {
+            $("#method-phone").hide();
+            $("#method-login").hide();
+        }
+    });
 
 });

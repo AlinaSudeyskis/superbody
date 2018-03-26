@@ -1191,12 +1191,22 @@ $(document).ready(function() {
             if ($(this).val() == 'installments')
             {
                 $("#recurrent-block").show();
+                if ($("#course-new-price").length == 1)
+                {
+                    $("#course-new-price").hide();
+                    $("#course-price").children(".anketa_form_h_cell").removeClass('strikeout');
+                }
                 $("#payment-methods option[value!='bank_card']").attr('disabled', true );
                 $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
             }
             else
             {
                 $("#recurrent-block").hide();
+                if ($("#course-new-price").length == 1)
+                {
+                    $("#course-new-price").show();
+                    $("#course-price").children(".anketa_form_h_cell").addClass('strikeout');
+                }
                 $("#payment-methods option[value!='bank_card']").attr('disabled', false );
                 $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
             }
