@@ -21,12 +21,13 @@ if (!empty($user_session)) :
                 <span><img src="/img/menu_ico2.png" alt=""></span><span>Настройки</span>
             </a>
         </li>
-        <li>
+        <?php $user_blocked = ($user_session['blocked'] == 1) ? 'class="disabled"' : '';?>
+        <li <?php echo $user_blocked; ?> >
             <a href="/questionnaire" <?php if ($page_menu == 'questionnaire') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico3.png" alt=""></span><span>Анкета</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/calendar" <?php if ($page_menu == 'calendar') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico5.png" alt=""></span><span>Календарь</span>
             </a>
@@ -36,12 +37,12 @@ if (!empty($user_session)) :
                 <span><img src="/img/menu_ico4.png" alt=""></span><span>Сообщения</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/profile/courses" <?php if ($page_menu == 'u_courses') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico6.png" alt=""></span><span>Мои курсы</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/progress" <?php if ($page_menu == 'progress') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico7.png" alt=""></span><span>Прогресс</span>
             </a>

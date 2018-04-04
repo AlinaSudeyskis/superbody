@@ -30,7 +30,8 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                             <input type="text" class="ordering_in" name="i_o_name" placeholder="Ваше имя" value="<?php if(!empty($user_session)) : echo $user_session['s_name']; endif; ?>" />
                             <input type="text" class="ordering_in" name="i_o_surname" placeholder="Ваша фамилия" value="<?php if(!empty($user_session)) : echo $user_session['s_surname']; endif; ?>" maxlength="255"/>
                             <input type="text" class="ordering_in" name="i_o_phone" placeholder="Телефон" maxlength="255"/>
-                            <input type="text" class="ordering_in" name="i_o_email" placeholder="E-mail" value="<?php if(!empty($user_session)) : echo $user_session['email']; endif; ?>" maxlength="255"/>
+                            <input type="text" class="ordering_in" name="i_o_email" placeholder="E-mail<?php if(empty($user_session)): ?> (обязателен для заполнения)<?php endif; ?>"
+                                   value="<?php if(!empty($user_session)) : echo $user_session['email']; endif; ?>" maxlength="255" <?php if(empty($user_session)): ?>required="required"<?php endif; ?>/>
                             <?php if (!empty($addresses)):?>
                                 <div class="ordering_check_wrap">
                                     <div class="anketa_form_one_wrap anketa_form_three_wrap">
@@ -96,7 +97,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                                             <div class="ordering_block_tov_name"><?php echo $product['name']; ?></div>
                                             <div class="ordering_block_tov_info">
                                                 <div class="ordering_block_tov_info_line">Количество: <?php echo $product['cart_quantity']; ?> шт.</div>
-                                                <div class="ordering_block_tov_info_line">Стоимость: <?php echo $product_sum; ?> руб.</div>
+                                                <div class="ordering_block_tov_info_line">Стоимость: <?php echo money_format('%!.2n', $product_sum); ?> руб.</div>
                                             </div>
                                         </div>
                                     </div>
@@ -117,7 +118,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                                                     <div class="ordering_block_tov_name"><?php echo $attached['name']; ?></div>
                                                     <div class="ordering_block_tov_info">
                                                         <div class="ordering_block_tov_info_line">Количество: <?php echo $attached['cart_quantity']; ?> шт.</div>
-                                                        <div class="ordering_block_tov_info_line">Стоимость: <?php echo $product_sum; ?> руб.</div>
+                                                        <div class="ordering_block_tov_info_line">Стоимость: <?php echo money_format('%!.2n', $product_sum); ?> руб.</div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -129,7 +130,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                             </div>
                             <div class="ordering_block_price parent">
                                 <div class="ordering_block_price_h">Итого</div>
-                                <div class="ordering_block_price_val"><?php echo $price_sum;?> руб.</div>
+                                <div class="ordering_block_price_val"><?php echo money_format('%!.2n', $price_sum);?> руб.</div>
                             </div>
                         </div>
                     </div>
@@ -197,7 +198,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                                             <div class="ordering_block_tov_name"><?php echo $product['name']; ?></div>
                                             <div class="ordering_block_tov_info">
                                                 <div class="ordering_block_tov_info_line">Количество: <?php echo $product['cart_quantity']; ?> шт.</div>
-                                                <div class="ordering_block_tov_info_line">Стоимость: <?php echo $product_sum; ?> руб.</div>
+                                                <div class="ordering_block_tov_info_line">Стоимость: <?php echo money_format('%!.2n', $product_sum); ?> руб.</div>
                                             </div>
                                         </div>
                                     </div>
@@ -218,7 +219,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                                                 <div class="ordering_block_tov_name"><?php echo $attached['name']; ?></div>
                                                 <div class="ordering_block_tov_info">
                                                     <div class="ordering_block_tov_info_line">Количество: <?php echo $attached['cart_quantity']; ?> шт.</div>
-                                                    <div class="ordering_block_tov_info_line">Стоимость: <?php echo $product_sum; ?> руб.</div>
+                                                    <div class="ordering_block_tov_info_line">Стоимость: <?php echo money_format('%!.2n', $product_sum); ?> руб.</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -230,7 +231,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                             </div>
                             <div class="ordering_block_price parent">
                                 <div class="ordering_block_price_h">Итого</div>
-                                <div class="ordering_block_price_val"><?php echo $price_sum;?> руб.</div>
+                                <div class="ordering_block_price_val"><?php echo money_format('%!.2n', $price_sum);?> руб.</div>
                             </div>
                         </div>
                         <div class="ordering_block_side_info">

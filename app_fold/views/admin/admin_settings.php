@@ -32,7 +32,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_block_item_h">Личные данные</div>
                                 <div class="anketa_block_item_cont">
                                     <form action="" class="anketa_form" method="post">
-                                        <?php include_once('./app_fold/views/user/settings_bg_item.php'); ?>
+                                        <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?>
                                         <div class="admin_form_bats parent">
                                             <input type="submit" name="bt_save_data" class="admin_form_submit" value="Сохранить">
                                         </div>

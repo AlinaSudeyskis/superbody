@@ -1589,7 +1589,7 @@ $(".ordering_next2").click(function(){
 	$(".ordering_tov_summ").each(function(){
 		summ += parseFloat($(this).text().replace(/\s/g, ""));
 	});
-	$(".info_ordering_price").text(String(summ).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
+	$(".info_ordering_price").text(String(parseFloat(summ).toFixed(2)).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
 
     var destination = $("h2.ordering_block_title").offset().top;
     $("html, body").animate({scrollTop: destination },"slow");
@@ -1618,9 +1618,11 @@ $(".ordering_block_side_info_edit").click(function(){
 $("input.tov_number").change(function(){
     var b_p     = $(this),
         p_id    = b_p.parents('.ordering_block_col_cont').children('input#c_id').val(),
+        c_ap_id = b_p.parents('.ordering_block_col_cont').children('input#c_ap_id').val(),
         p_q     = b_p.val(),
         b_p_sum = b_p.parents(".busket_block_tab_item").find(".ordering_tov_summ #product_sum"),
-        p_p     = b_p.parents(".busket_block_tab_item").find(".ordering_tov_price");
+        p_p     = b_p.parents(".busket_block_tab_item").find(".ordering_tov_price"),
+        p_sum   = 0;
 
     $.ajax({
         url: '/updateCartProduct',
@@ -1628,13 +1630,15 @@ $("input.tov_number").change(function(){
         dataType: 'json',
         data: {
             product_id: p_id,
+            product_a_id: c_ap_id,
             product_quantity: p_q
         },
         complete: function (result) {
             var data = result.responseJSON;
 
             if ($.isNumeric(data.cart)) {
-                b_p_sum.text(String(data.cart * parseFloat(p_p.text().replace(/\s/g, ""))).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
+                p_sum = data.cart * parseFloat(p_p.text().replace(/\s/g, ""));
+                b_p_sum.text(String(parseFloat(p_sum).toFixed(2)).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
                 b_p.val(data.cart);
 
                 totalCartPrice();
@@ -1660,14 +1664,14 @@ $("input.tov_number").change(function(){
             $(".info_ordering_price").text("");
             $(".info_ordering_currency").text("");
         } else {
-            $(".info_ordering_price").text(String(sum_price).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
+            $(".info_ordering_price").text(String(parseFloat(sum_price).toFixed(2)).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
             $(".info_ordering_currency").text(" руб.");
         }
         if (sum_fc == NaN || sum_fc == 0) {
             $(".info_ordering_fc_price").text("");
             $("#info_ordering_fc_currency").text("");
         } else {
-            $(".info_ordering_fc_price").text(String(sum_fc).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
+            $(".info_ordering_fc_price").text(String(parseFloat(sum_fc).toFixed(2)).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
             $("#info_ordering_fc_currency").text(" FitCoin");
         }
     }

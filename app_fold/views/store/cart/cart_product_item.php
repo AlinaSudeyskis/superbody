@@ -28,7 +28,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     $price = !empty($product_item['discount_price']) ? $product_item['discount_price'] : $product_item['price'];
                     if ($price != '0.00'):?>
                         <input type="radio" name="price[<?php echo $product_item['c_id'];?>]" value="<?php echo $price;?>" id="price_rub[<?php echo $product_item['c_id'];?>]" class="form_radio" checked="checked" />
-                        <label for="price_rub[<?php echo $product_item['c_id'];?>]"><?php echo $price .' руб.';?></label>
+                        <label for="price_rub[<?php echo $product_item['c_id'];?>]"><?php echo money_format('%!.2n', $price) .' руб.';?></label>
                     <?php else:?>
                         <label>Бесплатно</label>
                     <?php endif;?>
@@ -44,6 +44,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 $quantity = $product_item['quantity'];?>
                 <input type="number" name="product_quantity[<?php echo $product_item['c_id'];?>]" class="tov_number" value="<?php echo $product_item['cart_quantity']; ?>" max="<?php echo $quantity; ?>" min="1"/>
                 <input type="hidden" name="c_id" value="<?php echo $product_item['c_id']; ?>" id="c_id"/>
+                <input type="hidden" name="c_ap_id" value="<?php echo $product_item['c_ap_id']; ?>" id="c_ap_id"/>
             <?php elseif ($product_item['course_id'] > 0) :
                 $quantity = 1;?>
                 <input type="hidden" name="course_quantity" value="1" />
@@ -67,12 +68,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="ordering_block_col_cont">
             <div class="ordering_block_col_val ordering_tov_summ">
                 <?php if (!empty($product_item['price']) and $product_item['quantity'] > 0 and $product_item['course_id'] == 0) :
-                    $product_item_sum = $price * $product_item['cart_quantity'];
+                    $product_item_sum = money_format('%!.2n', ($price * $product_item['cart_quantity']));
                     $product_item_currency = ' руб.';
                     // Общая итоговая сумма корзины
                     $price_sum += $product_item_sum;
                 elseif (!empty($product_item['price']) and $product_item['course_id'] > 0) :
-                    $product_item_sum = $price;
+                    $product_item_sum = money_format('%!.2n', $price);
                     $product_item_currency = ' руб.';
                     // Общая итоговая сумма корзины
                     $price_sum += $product_item_sum;

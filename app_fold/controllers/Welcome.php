@@ -52,6 +52,8 @@ class Welcome extends CI_Controller
                 {
                     // Сохранено
                     $this->session->set_tempdata('message', 74, 60);
+
+                    parent::checkEmail($email, $name);
                 }
                 elseif ($result == 2)
                 {

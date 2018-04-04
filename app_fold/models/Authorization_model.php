@@ -15,19 +15,22 @@ class Authorization_model extends CI_Model
      * @param string $password
      * @param string $email_hash
      * @param string $date
+     * @param string $name
      * @return int|string ID пользователя или ошибку
      */
-    public function userRegistration($email, $password, $email_hash, $date)
+    public function userRegistration($email, $password, $email_hash, $date, $name = '')
     {
         $sel_user = $this->db->query('SELECT `user_id` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
         
-        if ($sel_user->num_rows() == 0) {
+        if ($sel_user !== false and $sel_user->num_rows() == 0)
+        {
             $this->db->query('
-            INSERT INTO `users`
-            (`user_email`, `user_password`, `user_activate_code`, `user_date_reg`, `user_date_update`)
-            VALUES (?, ?, ?, ?, ?)', array($email, $password, $email_hash, $date, $date));
+                INSERT INTO `users`
+                  (`user_email`, `user_password`, `user_activate_code`, `user_date_reg`, `user_date_update`, `user_name`, `user_auth_via`)
+                VALUES (?, ?, ?, ?, ?, ?, ?)', array($email, $password, $email_hash, $date, $date, $name, 'native'));
 
-            if ($this->db->affected_rows() == 1) {
+            if ($this->db->affected_rows() == 1)
+            {
                 $user_id = $this->db->insert_id();
 
                 // Добавляем данные пользователя в таблицу анкеты
@@ -37,10 +40,19 @@ class Authorization_model extends CI_Model
                 $this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($email, $date));
                 
                 return $user_id;
-            } else {
+            }
+            else
+            {
                 return 'e2'; // Не удалось зарегестрировать E-mail
             }            
-        } else {
+        }
+        elseif($sel_user === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return 'e2'; // Не удалось зарегестрировать E-mail
+        }
+        else
+        {
             return 'e1'; // Пользователь с таким E-mail уже зарегистрирован.
         }
     }
@@ -74,15 +86,60 @@ class Authorization_model extends CI_Model
      * Активация пользователя
      *
      * @param $user_id
+     * @param $password
      * @return bool
      */
-    public function activateUser($user_id)
+    public function activateUser($user_id, $password)
     {
-        $this->db->query('UPDATE `users` SET `user_activated`=1 WHERE `user_id`=? LIMIT 1', $user_id);
+        $this->db->query('UPDATE `users` SET `user_activated`=1, `user_password`=? WHERE `user_id`=? LIMIT 1',
+            array($password, $user_id));
 
-        if ($this->db->affected_rows() == 1) {
+        if ($this->db->affected_rows() == 1)
+        {
             return true;
-        } else {
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Проверка активации аккаунта
+     *
+     * @param $email
+     * @param $activate_code
+     * @return bool
+     */
+    public function getUserAccountData($email, $activate_code)
+    {
+        if (!empty($email) and !empty($activate_code))
+        {
+            $sel_account = $this->db->query('SELECT `user_activated` FROM `users` 
+                WHERE `user_email`=? and `user_activate_code`=? LIMIT 1', array($email, $activate_code));
+
+            if ($sel_account !== false and 1 == $sel_account->num_rows())
+            {
+                $row = $sel_account->row();
+
+                $account['activated'] = ($row->user_activated == 1) ? true : false;
+
+                log_message('debug', __METHOD__ . ' ' . print_r($account, true));
+
+                return $account;
+            }
+            elseif ($sel_account === false)
+            {
+                parent::logDbMessages(__METHOD__);
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
             return false;
         }
     }
@@ -293,6 +350,23 @@ class Authorization_model extends CI_Model
                     VALUES (?, ?, ?)', array($user_soc_email, $user_soc_name, $date));
             }
 
+            // Отправляем письмо с уведомлением об регистрации
+            if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
+            {
+                $email_to  = "<$user_soc_email>";
+
+                $subject   = "Регистрация на сайте SuperBody";
+
+                $message   = '<p>Вы зарегистрированны на сайте SuperBody.pro</p> </br>';
+                $message  .= '<b><a href="https://superbody.pro/">Перейти на сайт</a></b>';
+
+                $headers   = "Content-type: text/html; charset=utf-8 \r\n";
+                $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
+                $headers   .= "Reply-To: info@superbody.pro\r\n";
+
+                mail($email_to, $subject, $message, $headers);
+            }
+
             // Авторизуем пользователя
             $result = self::userSocialAuthorization($user_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id, $date);
         }
@@ -330,7 +404,7 @@ class Authorization_model extends CI_Model
                 array($access_token, $expires_at, $issued_at, $expires_in, $user_id, $user_soc_via, $user_soc_id));
 
         // Выборка данных пользователя
-        $sel_user = $this->db->query('SELECT `user_email`, `user_type`, `user_name`, `user_image` FROM `users`
+        $sel_user = $this->db->query('SELECT `user_email`, `user_type`, `user_blocked`, `user_name`, `user_image` FROM `users`
             WHERE `user_id`=? LIMIT 1', $user_id);
 
         if ($sel_user !== false and 1 == $sel_user->num_rows())
@@ -340,6 +414,7 @@ class Authorization_model extends CI_Model
             $result['user']['id']           = $user_id;
             $result['user']['email']        = $row->user_email;
             $result['user']['type']         = $row->user_type;
+            $result['user']['blocked']      = $row->user_blocked;
             $result['user']['name']         = $row->user_name;
             $result['user']['image']        = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
             $result['user']['access_token'] = $access_token;
@@ -367,16 +442,17 @@ class Authorization_model extends CI_Model
     public function userAuthorization($email, $password, $date)
     {
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_type`, `user_image` 
+            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_type`, `user_blocked`, `user_image` 
             FROM `users` 
             WHERE `user_email`=? LIMIT 1', $email);
 
-        if ($sel_user->num_rows() == 1) {
+        if ($sel_user !== false and 1 == $sel_user->num_rows())
+        {
             $row = $sel_user->row();
 
             // Сравнение введенного пароля и хэш пароля из БД
-            if (password_verify($password, $row->user_password)) {
-
+            if (password_verify($password, $row->user_password))
+            {
                 $this->db->query('
                     UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_email`=? LIMIT 1',  array($date, $email));
 
@@ -385,13 +461,23 @@ class Authorization_model extends CI_Model
 
                 $result['user_email'] = $row->user_email;
                 $result['user_type']  = $row->user_type;
+                $result['user_blocked']  = $row->user_blocked;
                 $result['user_image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
 
                 return $result;
-            } else {
+            }
+            else
+            {
                 return false;
             }
-        } else {
+        }
+        elseif($sel_user === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
             return false;
         }
     }
@@ -414,6 +500,107 @@ class Authorization_model extends CI_Model
         if (1 == $this->db->affected_rows()) {
             return true;
         } else {
+            return false;
+        }
+    }
+
+    /**
+     * Добавление данных восстановления пароля
+     *
+     * @param $email
+     * @param $email_hash
+     * @param $idempotent
+     * @param $today
+     * @return bool
+     */
+    public function setRestore($email, $email_hash, $idempotent, $today)
+    {
+        $up_data = $this->db->query('UPDATE `users` SET `user_activate_code`=?, `user_idempotent`=?, `user_restore_date`=? 
+            WHERE `user_email`=? LIMIT 1', array($email_hash, $idempotent, $today, $email));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public function checkRestore($email, $code, $idempotent, $date)
+    {
+        $sel_data = $this->db->query('SELECT `user_restore_date`, `user_idempotent` FROM `users` 
+            WHERE `user_email`=? and `user_activate_code`=? and `user_idempotent`=? LIMIT 1', array($email, $code, $idempotent));
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $datetime1 = new DateTime($date); // Текущая дата
+            $datetime2 = new DateTime($row->user_restore_date); // Дата уставновления запроса на восстановления пароля
+            $interval = $datetime1->diff($datetime2);
+
+            // Разница во времени не должна превышать 60 минут
+            if($interval->format('a') == 0 and $interval->format('h') == 0 and $interval->format('i') <= 59)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Обновление пароля пользователя
+     *
+     * @param string $email Email пользователя
+     * @param string $code Код активации
+     * @param string $idempotent Код идемпотентности
+     * @param string $password_hash Хэш пароля
+     * @param string $date Текущая дата
+     * @return bool
+     */
+    public function updatePassword($email, $code, $idempotent, $password_hash, $date)
+    {
+        if(!empty($password_hash))
+        {
+            $up_data = $this->db->query('UPDATE `users` SET `user_password`=?, `user_restore_date`="", `user_idempotent`="", `user_date_update`=?
+                WHERE `user_email`=? and `user_activate_code`=? and `user_idempotent`=? LIMIT 1',
+                    array($password_hash, $date, $email, $code, $idempotent));
+
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                return true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__);
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
             return false;
         }
     }
@@ -517,5 +704,53 @@ class Authorization_model extends CI_Model
         {
             return false;
         }
+    }
+
+    /**
+     * Поиск email в БД
+     *
+     * @param $email
+     * @param $name
+     * @param $surname
+     * @param $date
+     * @return array
+     */
+    public function checkEmail($email, $name, $surname, $date)
+    {
+        $result = array('user_id' => null, 'new_user' => false);
+
+        // Поиск email в БД
+        $sel_email = $this->db->query('SELECT `user_email`, `user_id`, `user_auth_via` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
+
+        if($sel_email !== false and 1 == $sel_email->num_rows())
+        {
+            $row = $sel_email->row();
+
+            // Возвращаем ID пользователя введенного email
+            $result['user_id']  = $row->user_id;
+            $result['auth_via'] = $row->user_auth_via;
+
+            unset($row);
+        }
+        elseif($sel_email === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+        // Если email не найден в БД, регистрируем
+        else
+        {
+            $password   = '';
+            $email_hash = password_hash($email, PASSWORD_DEFAULT);
+            $name       = $name . ' ' . $surname;
+
+            $user_id = self::userRegistration($email, $password, $email_hash, $date, $name);
+
+            // Возвращаем ID нового пользователя
+            $result['user_id']  = is_numeric($user_id) ? $user_id : null;
+            $result['new_user'] = is_numeric($user_id) ? $user_id : false;
+            $result['auth_via'] = is_numeric($user_id) ? 'native' : null;
+        }
+
+        return $result;
     }
 }

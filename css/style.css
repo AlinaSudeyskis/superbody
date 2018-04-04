@@ -93,7 +93,8 @@ audio, canvas, progress, video{
     z-index: 100;
 }
 .sing-in.page_form{
-    /*width: 620px;*/
+    width: 100%;
+    max-width: 620px;
     background: rgba(114,208,244,.61);
     color: #fff;
     padding: 10px 0;
@@ -564,7 +565,7 @@ audio, canvas, progress, video{
 .profile_line_name{
     height: 40px;
     line-height: 40px;
-    margin-right: 60px;
+    /*margin-right: 60px;*/
     color: #fff;
     font-style: italic;
     font-size: 14px;
@@ -575,6 +576,7 @@ audio, canvas, progress, video{
     float: right;
     width: 40px;
     height: 40px;
+    margin-left: 15px;
     border-radius: 50%;
     box-shadow: -1px 1px 1px #fff;
     overflow: hidden;
@@ -1388,7 +1390,7 @@ tr:first-child > td > .fc-day-grid-event{
     background: #ffffff;
     width: 80%;
     max-width: 570px;
-    max-height: 600px;
+    max-height: 900px;
     z-index: 113;
     left: 50%;
     top: 50%;
@@ -1397,13 +1399,14 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .purchase_pop-up_cont{
     padding: 0 40px;
-    max-height: 600px;
+    max-height: 900px;
 }
 .purchase_pop-up_h{
     font-size: 16px;
     line-height: 25px;
     color: #505961;
     padding: 16px 0;
+    overflow: hidden;
 }
 .purchase_pop-up_close{
     width: 40px;
@@ -8335,6 +8338,7 @@ textarea.anketa_form_in{
     left: 0;
     top: 100%;
     width: 100%;
+    max-width: 330px;
     max-height: 166px;
     overflow: auto;
     background: #fff;

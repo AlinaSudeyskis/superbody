@@ -21,23 +21,28 @@ class Welcome_model extends CI_Model
     {
         $sel_email = $this->db->query('SELECT `s_id` FROM `subscription` WHERE `s_email`=? LIMIT 1', $email);
         
-        if ($sel_email !== false and 0 == $sel_email->num_rows()) {
+        if ($sel_email !== false and 0 == $sel_email->num_rows())
+        {
             $ins_email = $this->db->query('
                 INSERT INTO `subscription` (`s_email`, `s_name`, `s_date`)
                 VALUES (?, ?, ?)', array($email, $name, $date));
 
-            if ($ins_email !== false and 1 == $this->db->affected_rows()) {
+            if ($ins_email !== false and 1 == $this->db->affected_rows())
+            {
                 return true;
             }
-            elseif ($ins_email === false) {
+            elseif ($ins_email === false)
+            {
                 parent::logDbMessages(__METHOD__);
                 return false;
             }
-            else {
+            else
+            {
                 return 2;
             }
         }
-        elseif ($sel_email === false) {
+        elseif ($sel_email === false)
+        {
             parent::logDbMessages(__METHOD__);
             return false;
         }
@@ -287,5 +292,8 @@ class Welcome_model extends CI_Model
 
         // 23.03.2018
         //$this->db->query('ALTER TABLE `feedback` ADD `fb_user_id` INT UNSIGNED NOT NULL AFTER `fb_user_email`');
+
+        // 03.04.2018
+        //$this->db->query('ALTER TABLE `users` ADD `user_idempotent` VARCHAR(255) NOT NULL AFTER `user_date_update`, ADD `user_restore_date` DATETIME NOT NULL AFTER `user_idempotent`');
     }
 }

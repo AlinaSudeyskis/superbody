@@ -22,6 +22,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                         foreach ($products as $product) :
 
                             $product_item = $product;
+                            // Блок товара
                             include('./app_fold/views/store/cart/cart_product_item.php');
 
                             // Прикрепленные товары
@@ -36,6 +37,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                                 <?php foreach ($product['attached'] as $attached) :
 
                                     $product_item = $attached;
+                                    // Блок товара
                                     include('./app_fold/views/store/cart/cart_product_item.php');
 
                                 endforeach;
@@ -53,7 +55,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                         <div class="busket_bottom_cont parent">
                             <div class="busket_bottom_cont_h">Итого</div>
                             <div class="busket_bottom_cont_val">
-                                <span class="info_ordering_price"><?php echo money_format('%.2n', $price_sum); ?></span>
+                                <span class="info_ordering_price"><?php echo money_format('%!.2n', $price_sum); ?></span>
                                 <span id="info_ordering_currency"> руб.</span><br/>
                                 <?php if (!empty($fc_price_sum)) :?>
                                     <span class="info_ordering_fc_price"><?php echo $fc_price_sum; ?></span>
@@ -66,6 +68,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                 </form>
             </div>
         </div>
+    <?php else:?>
+        <div class="ordering_block_wrap <?php echo $empty_cart; ?>"><h2 class="shop_block_title">Корзина пуста</h2></div>
     <?php endif;?>
-    <div class="ordering_block_wrap <?php echo $empty_cart; ?>"><h2 class="shop_block_title">Корзина пуста</h2></div>
 </div>

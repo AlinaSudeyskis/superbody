@@ -31,8 +31,8 @@ class Store extends CI_Controller
     public function categories()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Store_model->getECategories();
@@ -55,8 +55,8 @@ class Store extends CI_Controller
     public function newCategory()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_new_category', true)) {
@@ -99,8 +99,8 @@ class Store extends CI_Controller
     public function category($category_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_category', true)) {
@@ -169,8 +169,8 @@ class Store extends CI_Controller
     public function newSubcategory($category_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_new_subcategory', true)) {
@@ -214,8 +214,8 @@ class Store extends CI_Controller
     public function subcategory($category_id, $subcategory_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_subcategory', true)) {
@@ -289,8 +289,8 @@ class Store extends CI_Controller
     public function products()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Store_model->getProducts();
@@ -313,8 +313,8 @@ class Store extends CI_Controller
     public function newProduct()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_new_product', true)) {
@@ -471,8 +471,8 @@ class Store extends CI_Controller
     public function product($product_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $categories    = $this->Store_model->getCategories();
@@ -720,8 +720,8 @@ class Store extends CI_Controller
     public function orders()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Store_model->getOrders();
@@ -744,8 +744,8 @@ class Store extends CI_Controller
     public function order($order_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         // Курсы заказа
@@ -849,11 +849,6 @@ class Store extends CI_Controller
      */
     public function store($category_id = null, $subcategory_id = null)
     {
-        // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id)) {
-            header('Location: /login');
-        }
-
         $this->load->model('Course_model');
 
         $category = (!empty($category_id) and $category_id == 'courses') ? 'courses' : $category_id;
@@ -868,9 +863,12 @@ class Store extends CI_Controller
             ? $this->input->post('sort', true)
             : 1; // Цена по возрастанию
 
+        // Лимит вывода кол-ва товаров на странице
         $limit = !empty($category) ? 9 : 5;
 
-        $user_cart    = !empty($this->user_id) ? $this->Store_model->getCartProductsId($this->user_id) : array();
+        $user_cart    = !empty($this->user_id)
+            ? $this->Store_model->getCartProductsId($this->user_id)
+            : parent::getSessionCartProductsId();
         $user_courses = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id) : array();
         $categories   = $this->Store_model->getCategories();
 
@@ -891,7 +889,9 @@ class Store extends CI_Controller
         {
             $products = $this->Store_model->getStoreProducts($category, $subcategory_id, $sort, $search, $limit);
         }
-        $result   = array_merge($user_cart, $user_courses, $products);
+
+        $result = array_merge($user_cart, $user_courses, $products, $categories);
+        //log_message('debug', __METHOD__ . ' ' . __LINE__ . ' Товары: ' . print_r($products['products'], true));
         //print_r($products['products']);
 
         $this->load->view('header/header', $this->page_data);
@@ -910,36 +910,62 @@ class Store extends CI_Controller
      */
     public function storeProduct($product_id, $category_id = null, $subcategory_id = null)
     {
-        // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id)) {
-            header('Location: /login');
-        }
-
         $categories = $this->Store_model->getCategories();
         $products   = $this->Store_model->getStoreProduct($product_id);
-        $user_cart  = $this->Store_model->getCartProductsId($this->user_id);
-        $result     = array_merge($categories, $products, $user_cart);
+
+        if (is_numeric($this->user_id))
+        {
+            $user_cart = $this->Store_model->getCartProductsId($this->user_id);
+        }
+        else
+        {
+            $user_cart = parent::getSessionCartProductsId();
+        }
+
+        $result = array_merge($categories, $products, $user_cart);
 
         $result['category_id']    = $category_id;
         $result['subcategory_id'] = $subcategory_id;
 
-        if ($this->input->post('bt_to_cart', true)) {
+        if ($this->input->post('bt_to_cart', true))
+        {
             $db_quantity = $products['product']['quantity'];
 
             $i_quantity = $this->input->post('product_quantity', true);
-            $quantity = (is_numeric($i_quantity) and $i_quantity <= $db_quantity)
+            $quantity   = (is_numeric($i_quantity) and $i_quantity <= $db_quantity)
                 ? $i_quantity : 1;
 
             $with_attached = !empty($this->input->post('cb_with_attached', true)) ? 1 : 0;
 
-            $res_cart = $this->Store_model->setProductToCart($product_id, $this->user_id, $this->date, $quantity, $with_attached);
+            if (!empty($this->user_id) and is_numeric($this->user_id))
+            {
+                $res_cart = $this->Store_model->setProductToCart($product_id, $this->user_id, $this->date, $quantity, $with_attached);
 
-            if ($res_cart) {
-                // Сохранено
-                $this->session->set_tempdata('message', 10, 60);
-            } else {
-                // Не удалось сохранить
-                $this->session->set_tempdata('message', 71, 60);
+                if ($res_cart)
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Не удалось сохранить
+                    $this->session->set_tempdata('message', 71, 60);
+                }
+            }
+            else
+            {
+                $res_cart = parent::setProductToSessionCart($product_id, $this->date, $quantity, $with_attached);
+
+                if ($res_cart['add'] == true)
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Не удалось сохранить
+                    $this->session->set_tempdata('message', 71, 60);
+                }
             }
 
             $path = !empty($category_id) ? '/store/'.$category_id.'/product/'.$product_id : '/store/product/'.$product_id;
@@ -969,12 +995,8 @@ class Store extends CI_Controller
      */
     public function cart()
     {
-        // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id)) {
-            header('Location: /login');
-        }
-
-        if ($this->input->post('bt_update_cart', true)) {
+        if ($this->input->post('bt_update_cart', true))
+        {
             $result_cart = true;
             if (!empty($this->input->post('product_quantity', true)) and !empty($this->input->post('product_id', true))) {
                 $quantity = $this->input->post('product_quantity', true);
@@ -997,27 +1019,49 @@ class Store extends CI_Controller
                 $this->session->set_tempdata('message', 68, 60);
             }
 
-            header('Location: /store/cart');
+            header('Location: /cart');
         }
-        elseif ($this->input->post('bt_delete_product', true)) {
-            $product_id = key($this->input->post('bt_delete_product', true));
+        elseif ($this->input->post('bt_delete_product', true))
+        {
+            $product_id = is_numeric(key($this->input->post('bt_delete_product', true))) ? key($this->input->post('bt_delete_product', true)) : null;
 
-            $result = $this->Store_model->deleteCartProduct($product_id, $this->user_id);
+            if (!empty($product_id))
+            {
+                if (!empty($this->user_id) and is_numeric($this->user_id))
+                {
+                    $this->Store_model->deleteCartProduct($product_id, $this->user_id);
+                }
+                else
+                {
+                    parent::deleteSessionCartProduct($product_id);
+                }
+            }
 
-            header('Location: /store/cart');
+            header('Location: /cart');
         }
-        elseif ($this->input->post('bt_detach_products', true)) {
+        elseif ($this->input->post('bt_detach_products', true))
+        {
             $attached_id = key($this->input->post('bt_detach_products', true));
 
-            if (is_numeric($attached_id)) {
-                $this->Store_model->detachCartProducts($this->user_id, $attached_id);
-
-                header('Location: /cart');
+            if (is_numeric($attached_id))
+            {
+                if (!empty($this->user_id) and is_numeric($this->user_id))
+                {
+                    $this->Store_model->detachCartProducts($this->user_id, $attached_id);
+                }
+                else
+                {
+                    parent::detachSessionCartProduct($attached_id);
+                }
             }
+
+            header('Location: /cart');
         }
 
         $categories = $this->Store_model->getCategories();
-        $result     = $this->Store_model->getUserCartProducts($this->user_id);
+        $result     = (!empty($this->user_id) and is_numeric($this->user_id))
+            ? $this->Store_model->getUserCartProducts($this->user_id)
+            : $this->Store_model->getSessionCartProducts($this->session->cart['products']);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Корзина';
@@ -1037,30 +1081,49 @@ class Store extends CI_Controller
      */
     public function ordering($order_id = null)
     {
-        // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id)) {
-            header('Location: /login');
-        }
-
         $categories = $this->Store_model->getCategories();
-        $products   = $this->Store_model->getUserCartInStockProducts($this->user_id);
-        $addresses  = $this->Store_model->getUserOrderAddresses($this->user_id);
+        $products   = (is_numeric($this->user_id))
+            ? $this->Store_model->getUserCartInStockProducts($this->user_id)
+            : $this->Store_model->getSessionCartInStockProducts($this->session->cart['products']);
+        $addresses  = (is_numeric($this->user_id))
+            ? $this->Store_model->getUserOrderAddresses($this->user_id)
+            : array();
 
-        if ($this->input->post('bt_delete_product', true)) {
+        if ($this->input->post('bt_delete_product', true))
+        {
             $product_id = key($this->input->post('bt_delete_product', true));
 
-            $result = $this->Store_model->deleteCartProduct($product_id, $this->user_id);
+            if (is_numeric($product_id))
+            {
+                if (!empty($this->user_id) and is_numeric($this->user_id))
+                {
+                    $this->Store_model->deleteCartProduct($product_id, $this->user_id);
+                }
+                else
+                {
+                    parent::deleteSessionCartProduct($product_id);
+                }
+            }
 
             header('Location: /ordering');
         }
-        elseif ($this->input->post('bt_detach_products', true)) {
+        elseif ($this->input->post('bt_detach_products', true))
+        {
             $attached_id = key($this->input->post('bt_detach_products', true));
 
-            if (is_numeric($attached_id)) {
-                $this->Store_model->detachCartProducts($this->user_id, $attached_id);
-
-                header('Location: /ordering');
+            if (is_numeric($attached_id))
+            {
+                if (!empty($this->user_id) and is_numeric($this->user_id))
+                {
+                    $this->Store_model->detachCartProducts($this->user_id, $attached_id);
+                }
+                else
+                {
+                    parent::detachSessionCartProduct($attached_id);
+                }
             }
+
+            header('Location: /ordering');
         }
         elseif ($this->input->post('bt_to_order', true))
         {
@@ -1070,7 +1133,7 @@ class Store extends CI_Controller
             // Данные пользователя
             $name    = !empty($this->input->post('i_o_name', true)) ? mb_substr(strip_tags($this->input->post('i_o_name', true)), 0, 255) : '';
             $surname = !empty($this->input->post('i_o_surname', true)) ? mb_substr(strip_tags($this->input->post('i_o_surname', true)), 0, 255) : '';
-            $email   = !empty($this->input->post('i_o_email', true)) ? mb_substr(strip_tags($this->input->post('i_o_email', true)), 0, 255) : '';
+            $email   = filter_var($this->input->post('i_o_email', true), FILTER_VALIDATE_EMAIL) ? $this->input->post('i_o_email', true) : '';
             $phone   = !empty($this->input->post('i_o_phone', true)) ? mb_substr(strip_tags($this->input->post('i_o_phone', true)), 0, 255) : '';
 
             // Адрес доставки
@@ -1096,30 +1159,53 @@ class Store extends CI_Controller
             $a_p = array(1 => 'Оплата наличными при получении', 2 => 'Онлайн оплата', 3 => 'Банковский перевод');
             $payment_type = 'bank_card';
 
-            // Варианты оплаты. full_payment - полная оплата стоимостиж installments - оплата частями
+            // Варианты оплаты. full_payment - полная оплата стоимостиж; installments - оплата частями
             $options = array('full_payment', 'installments');
             $payment_option = 'full_payment';
 
-            // Товары заказа
-            $products = $this->Store_model->getUserCartInStockProducts($this->user_id);
-
+            // Если есть доступные товары
             if (!empty($products))
             {
-                $res_order = $this->Store_model->setOrder($this->user_id, $prev_address, $name, $surname, $email, $phone,
-                    $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
+                $user_id = (is_numeric($this->user_id)) ? $this->user_id : null;
 
-                if ($res_order !== false and is_numeric($res_order['order_id']))
+                // Если пользователь не авторизован, проверяем введенный им email (нет в БД - регистрация)
+                if (empty($this->user_id) and !empty($email))
                 {
-                    // Кол-во товаров в корзине
-                    parent::updateSessionCart(0);
+                    $user_id = parent::checkEmail($email, $name, $surname);
+                }
+                elseif(empty($this->user_id) and empty($email))
+                {
+                    // Некорректный email
+                    $this->session->set_tempdata('message', 6, 60);
+                }
 
-                    header('Location: /payment?oid=' . $res_order['order_id'] . '&amount=' . $res_order['total_amount']
-                        . '&type=' . $payment_type. '&option=' . $payment_option);
+                if (!empty($user_id))
+                {
+                    $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $phone,
+                        $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
+
+                    if ($res_order !== false and is_numeric($res_order['order_id']))
+                    {
+                        // Кол-во товаров в корзине
+                        parent::updateSessionCart(0);
+
+                        $payment_data = array(
+                            'oid' => $res_order['order_id'],
+                            'amount' => $res_order['total_amount'],
+                            'type' => $payment_type,
+                            'option' => $payment_option
+                        );
+                        header('Location: /payment?' . http_build_query($payment_data));
+                    }
+                    else
+                    {
+                        // Не сохранено
+                        $this->session->set_tempdata('message', 101, 60);
+                        header('Location: /ordering');
+                    }
                 }
                 else
                 {
-                    // Не сохранено
-                    $this->session->set_tempdata('message', 101, 60);
                     header('Location: /ordering');
                 }
             }
@@ -1132,15 +1218,19 @@ class Store extends CI_Controller
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/store');
-        if (is_numeric($order_id)) {
+
+        if (is_numeric($order_id) and is_numeric($this->user_id))
+        {
             $order = $this->Store_model->getUserOrder($this->user_id, $order_id);
             $result = array_merge($categories, $order);
             $this->load->view('store/cart/ordering_end', $result);
         }
-        else {
+        else
+        {
             $result = array_merge($categories, $products, $addresses);
             $this->load->view('store/cart/ordering', $result);
         }
+
         $this->load->view('footer/footer');
     }
 
@@ -1148,7 +1238,7 @@ class Store extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id)) {
-            show_404();
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Store_model->getUserOrders($this->user_id);
@@ -1173,7 +1263,7 @@ class Store extends CI_Controller
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id)) {
-            show_404();
+            parent::pageNotFound($this->page_url);
         }
 
         $categories = $this->Store_model->getCategories();
@@ -1240,16 +1330,16 @@ class Store extends CI_Controller
     {
         $result = array('cart' => false, 'cart_info' => '');
 
-        // Если пользователь авторизован
-        if (!empty($this->user_id))
-        {
-            $product_id       = $this->input->post('product_id', true) and is_numeric($this->input->post('product_id', true))
-                ? $this->input->post('product_id', true)
-                : null;
-            $product_quantity = ($this->input->post('product_quantity', true) and is_numeric($this->input->post('product_quantity', true)))
-                ? $this->input->post('product_quantity', true)
-                : 1;
+        $product_id       = $this->input->post('product_id', true) and is_numeric($this->input->post('product_id', true))
+            ? $this->input->post('product_id', true)
+            : null;
+        $product_quantity = ($this->input->post('product_quantity', true) and is_numeric($this->input->post('product_quantity', true)))
+            ? $this->input->post('product_quantity', true)
+            : 1;
 
+        // Если пользователь авторизован
+        if (!empty($this->user_id) and is_numeric($this->user_id))
+        {
             if(!empty($product_id))
             {
                 $res = $this->Store_model->setProductToCart($product_id, $this->user_id, $this->date, $product_quantity);
@@ -1261,9 +1351,23 @@ class Store extends CI_Controller
 
                     parent::updateSessionCart($cart_products);
 
-                    $result['cart_info'] = '<div class="not_available">В корзине</div>';
-                    $result['cart'] = true;
-                    $result['cart_count'] = (!empty($this->session->cart)) ? $this->session->cart : 0;
+                    $result['cart_info']  = '<div class="not_available">В корзине</div>';
+                    $result['cart']       = true;
+                    $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
+                }
+            }
+        }
+        else
+        {
+            if(!empty($product_id))
+            {
+                $res = parent::setProductToSessionCart($product_id, $this->date, $product_quantity);
+
+                if ($res['add'] === true)
+                {
+                    $result['cart_info']  = '<div class="not_available">В корзине</div>';
+                    $result['cart']       = true;
+                    $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
                 }
             }
         }
@@ -1278,19 +1382,31 @@ class Store extends CI_Controller
     {
         $result = array('cart' => false);
 
-        // Если пользователь авторизован
-        if (!empty($this->user_id)) {
-            $product_id       = !empty($this->input->post('product_id', true)) ? $this->input->post('product_id', true) : null;
-            $product_quantity = (!empty($this->input->post('product_quantity', true)) and is_numeric($this->input->post('product_quantity', true)))
-                ? $this->input->post('product_quantity', true)
-                : 1;
+        $product_id       = (is_numeric($this->input->post('product_id', true)))
+            ? $this->input->post('product_id', true)
+            : null;
+        $product_a_id     = (is_numeric($this->input->post('product_a_id', true)))
+            ? $this->input->post('product_a_id', true)
+            : null;
+        $product_quantity = (!empty($this->input->post('product_quantity', true)) and is_numeric($this->input->post('product_quantity', true)))
+            ? $this->input->post('product_quantity', true)
+            : 1;
 
-            if(is_numeric($product_id)){
+        if(is_numeric($product_id))
+        {
+            // Если пользователь авторизован
+            if (!empty($this->user_id) and is_numeric($this->user_id))
+            {
                 $res_up = $this->Store_model->updateCart($product_id, $this->user_id, $this->date, $product_quantity);
+            }
+            else
+            {
+                $res_up = parent::updateSessionCartProduct($product_id, $product_a_id, $this->date, $product_quantity);
+            }
 
-                if (is_numeric($res_up)) {
-                    $result['cart'] = $res_up;
-                }
+            if (is_numeric($res_up))
+            {
+                $result['cart'] = $res_up;
             }
         }
 
@@ -1304,25 +1420,39 @@ class Store extends CI_Controller
     {
         $result = array('cart' => false);
 
+        $product_id = ($this->input->post('product_id', true) and is_numeric($this->input->post('product_id', true)))
+            ? $this->input->post('product_id', true)
+            : null;
+
         // Если пользователь авторизован
         if (!empty($this->user_id))
         {
-            $product_id = !empty($this->input->post('product_id', true)) ? $this->input->post('product_id', true) : null;
-
-            if(is_numeric($product_id))
+            if(!empty($product_id) and is_numeric($this->user_id))
             {
                 $res_del = $this->Store_model->deleteCartProduct($product_id, $this->user_id);
 
                 if ($res_del === true)
                 {
-                    $result['cart'] = true;
-
                     // Кол-во товаров в корзине
                     $cart_products = $this->Store_model->getCartCountProducts($this->user_id);
 
                     parent::updateSessionCart($cart_products);
 
-                    $result['cart_count'] = (!empty($this->session->cart)) ? $this->session->cart : 0;
+                    $result['cart']       = true;
+                    $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
+                }
+            }
+        }
+        else
+        {
+            if(!empty($product_id))
+            {
+                $res_del = parent::deleteSessionCartProduct($product_id);
+
+                if ($res_del === true)
+                {
+                    $result['cart']       = true;
+                    $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
                 }
             }
         }
@@ -1337,12 +1467,14 @@ class Store extends CI_Controller
     {
         $result = array('cart' => false);
 
-        // Если пользователь авторизован
-        if (!empty($this->user_id))
-        {
-            $product_id = !empty($this->input->post('product_id', true)) ? $this->input->post('product_id', true) : null;
+        $product_id = ($this->input->post('product_id', true) and is_numeric($this->input->post('product_id', true)))
+            ? $this->input->post('product_id', true)
+            : null;
 
-            if(is_numeric($product_id))
+        if(!empty($product_id))
+        {
+            // Если пользователь авторизован
+            if (!empty($this->user_id))
             {
                 $res_del = $this->Store_model->detachCartProducts($this->user_id, $product_id);
 
@@ -1355,7 +1487,17 @@ class Store extends CI_Controller
 
                     parent::updateSessionCart($cart_products);
 
-                    $result['cart_count'] = (!empty($this->session->cart)) ? $this->session->cart : 0;
+                    $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
+                }
+            }
+            else
+            {
+                $res_del = parent::detachSessionCartProduct($product_id);
+
+                if ($res_del === true)
+                {
+                    $result['cart']       = true;
+                    $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
                 }
             }
         }

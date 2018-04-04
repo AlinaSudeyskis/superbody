@@ -32,8 +32,8 @@ class Journal extends CI_Controller
     public function journalNew()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_new_post', true)) {
@@ -82,8 +82,8 @@ class Journal extends CI_Controller
     public function journalPost($post_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Journal_model->getJournalPost($post_id);
@@ -137,8 +137,8 @@ class Journal extends CI_Controller
     public function journalPosts($type = 'articles')
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($type == 'articles') {
@@ -185,8 +185,8 @@ class Journal extends CI_Controller
     public function journalArticles()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Journal_model->getEArticlesList();
@@ -210,8 +210,8 @@ class Journal extends CI_Controller
     public function journalNewArticle()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_new_article', true)) {
@@ -276,8 +276,8 @@ class Journal extends CI_Controller
     public function journalArticle($article_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $article_data = $this->Journal_model->getEArticle($article_id);
@@ -371,8 +371,8 @@ class Journal extends CI_Controller
     public function journalInterviews()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Journal_model->getEInterviewsList();
@@ -397,8 +397,8 @@ class Journal extends CI_Controller
     public function journalInterview($interview_id = null)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $interview_data = $this->Journal_model->getEInterview($interview_id);
@@ -493,8 +493,8 @@ class Journal extends CI_Controller
     public function journalNewInterview()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_new_interview', true)) {
@@ -558,8 +558,8 @@ class Journal extends CI_Controller
     public function journalNews($news_id = null)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if (!empty($news_id)) {
@@ -666,8 +666,8 @@ class Journal extends CI_Controller
     public function journalNewNews()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_new_news', true)) {
@@ -895,8 +895,8 @@ class Journal extends CI_Controller
     public function uploadImages()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->helper('file');
@@ -973,8 +973,8 @@ class Journal extends CI_Controller
     public function deleteImage()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $image   = file_exists($this->input->post('image', true)) ? $this->input->post('image', true) : null;

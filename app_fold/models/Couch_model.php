@@ -25,23 +25,63 @@ class Couch_model extends CI_Model
     {
         $sel_user = $this->db->query('SELECT `user_id` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
 
-        if ($sel_user->num_rows() == 0) {
+        if ($sel_user !== false and 0 == $sel_user->num_rows())
+        {
             $this->db->query('
                 INSERT INTO `users` 
                     (`user_email`, `user_name`, `user_password`, `user_type`, `user_activated`, `user_activate_code`, `user_date_reg`, `user_date_update`)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)', array($email, $name, $password_hash, 2, 1, $email_hash, $date, $date));
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)', array($email, $name, $password_hash, 2, 0, $email_hash, $date, $date));
 
-            if (1 == $this->db->affected_rows()) {
+            if (1 == $this->db->affected_rows())
+            {
                 $this->db->query('INSERT INTO `questionnaire` (`user_id`) VALUES (?)', $this->db->insert_id());
                 $this->db->query('INSERT INTO `couch_data` (`cd_u_id`) VALUES (?)', $this->db->insert_id());
 
                 return $this->db->insert_id();
-            }else {
+            }
+            else
+            {
                 return 'e2'; // Не удалось зарегестрировать E-mail
             }
-        } else {
+        }
+        elseif($sel_user === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return 'e2'; // Не удалось зарегестрировать E-mail
+        }
+        else
+        {
             return 'e1'; // Пользователь с таким E-mail уже зарегистрирован.
         }
+    }
+
+    /**
+     * Сохранение изображения администратора
+     *
+     * @param $user_id
+     * @param $path_avatar
+     * @return bool
+     */
+    public function setCouchAvatar($user_id, $path_avatar)
+    {
+        $result = false;
+
+        if (is_numeric($user_id))
+        {
+            $up_data = $this->db->query('UPDATE `users` SET `user_image`=? WHERE `user_id`=? and `user_type`=2 LIMIT 1',
+                array($path_avatar, $user_id));
+
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif ($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -54,7 +94,7 @@ class Couch_model extends CI_Model
     public function getCouch($user_id, $today = null)
     {
         // Массив возвращаемых значений
-        $result = array (
+        $result = array ( 'user_data' => array(
             'user_email' => '',
             'user_name' => '',
             'user_image' => '',
@@ -72,7 +112,7 @@ class Couch_model extends CI_Model
             'user_experience_y' => '',
             'user_titles_awards' => '',
             'user_about' => ''
-        );
+        ));
 
         $sel_admin = $this->db->query('
             SELECT `user_email`, `user_name`, `user_image`, `user_blocked`, `user_password`, 
@@ -85,21 +125,23 @@ class Couch_model extends CI_Model
               ON `questionnaire`.`user_id`=`users`.`user_id`
             WHERE `users`.`user_id`=? and `user_type`=2 LIMIT 1', $user_id);
 
-        if (1 == $sel_admin->num_rows()) {
+        if (1 == $sel_admin->num_rows())
+        {
             $row = $sel_admin->row();
 
-            $result['user_email']    = $row->user_email;
-            $result['user_name']     = !empty($row->user_name) ? $row->user_name : 'Тренер';
-            $result['user_image']    = mb_substr($row->user_image, 1);
-            $result['user_blocked']  = $row->user_blocked;
-            $result['user_password'] = $row->user_password;
+            $result['user_data']['user_email']    = $row->user_email;
+            $result['user_data']['user_name']     = !empty($row->user_name) ? $row->user_name : 'Тренер';
+            $result['user_data']['user_image']    = mb_substr($row->user_image, 1);
+            $result['user_data']['user_blocked']  = $row->user_blocked;
+            $result['user_data']['user_password'] = $row->user_password;
 
             $split_name = !empty($row->user_name) ? explode(" ", $row->user_name) : '';
-            $result['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Тренер';
-            $result['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
+            $result['user_data']['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Тренер';
+            $result['user_data']['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
 
-            $result['user_age'] = '';
-            if (!empty($today)) {
+            $result['user_data']['user_age'] = '';
+            if (!empty($today))
+            {
                 $bdate = DateTime::createFromFormat('Y-m-d', $row->user_birthday);
                 $cdate = DateTime::createFromFormat('Y-m-d H:i:s', $today);
 
@@ -107,32 +149,34 @@ class Couch_model extends CI_Model
                     ? $cdate->diff($bdate)
                     : '';
 
-                if (!empty($user_age)) {
+                if (!empty($user_age))
+                {
                     $age_string = parent::endingWords($user_age->format('%y'), 'год', 'лет', 'года');
 
-                    $result['user_age'] = $age_string;
+                    $result['user_data']['user_age'] = $age_string;
                 }
             }
             $date = DateTime::createFromFormat('Y-m-d', $row->user_birthday);
             $birthday = ($row->user_birthday != '0000-00-00' and $date !== false) ? $date->format('d.m.Y') : '';
 
-            if (!empty($birthday)) {
+            if (!empty($birthday))
+            {
                 $b_day  = $date->format('d');
                 $b_mon  = $date->format('m');
                 $b_year = $date->format('Y');
 
-                $result['user_b_day']  = $b_day;
-                $result['user_b_mon']  = $b_mon;
-                $result['user_b_year'] = $b_year;
+                $result['user_data']['user_b_day']  = $b_day;
+                $result['user_data']['user_b_mon']  = $b_mon;
+                $result['user_data']['user_b_year'] = $b_year;
             }
 
-            $result['user_gender']        = ($row->user_gender == 'female') ? 'Женщина' : 'Мужчина';
-            $result['user_gender_eng']    = ($row->user_gender == 'female') ? 'female' : 'male';
-            $result['user_special']       = $row->cd_specialization;
-            $result['user_experience']    = $row->cd_experience != 0 ? parent::endingWords($row->cd_experience, 'год', 'лет', 'года') : '';
-            $result['user_experience_y']  = $row->cd_experience != 0 ? $row->cd_experience : '';
-            $result['user_titles_awards'] = $row->cd_titles_awards;
-            $result['user_about']         = !empty($row->cd_about) ? parent::showBBcodes($row->cd_about) : '';
+            $result['user_data']['user_gender']        = ($row->user_gender == 'female') ? 'Женщина' : 'Мужчина';
+            $result['user_data']['user_gender_eng']    = ($row->user_gender == 'female') ? 'female' : 'male';
+            $result['user_data']['user_special']       = $row->cd_specialization;
+            $result['user_data']['user_experience']    = $row->cd_experience != 0 ? parent::endingWords($row->cd_experience, 'год', 'лет', 'года') : '';
+            $result['user_data']['user_experience_y']  = $row->cd_experience != 0 ? $row->cd_experience : '';
+            $result['user_data']['user_titles_awards'] = $row->cd_titles_awards;
+            $result['user_data']['user_about']         = !empty($row->cd_about) ? parent::showBBcodes($row->cd_about) : '';
         }
 
         return $result;

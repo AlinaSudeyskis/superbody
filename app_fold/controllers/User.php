@@ -34,7 +34,7 @@ class User extends CI_Controller
     public function profile($user_id)
     {
         if (!is_numeric($user_id)) {
-            show_404();
+            parent::pageNotFound($this->page_url);
         }
 
         // Страница пользователя или администратора
@@ -90,12 +90,13 @@ class User extends CI_Controller
             }
         }*/
 
-        $u_training_time = $this->User_model->getUserTrainingTime($this->user_id); // Тренировочное время пользователя
-        $user_courses    = $this->Course_model->getUserCourses($this->user_id, $this->date, $u_training_time); // Выборка курсов пользователя
+        $u_training_time = $this->User_model->getUserTrainingTime($user_id); // Тренировочное время пользователя
+        $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, $u_training_time); // Выборка курсов пользователя
         $anthrop_data    = $this->User_model->getAnthropometricData($user_id); // Антропометрические данные пользователя
-        $user_social     = $this->User_model->getUserSocial($this->user_id);
+        $user_social     = $this->User_model->getUserSocial($user_id);
+        $u_data          = $this->User_model->getUser($user_id);
 
-        $result = array_merge($user_courses, $anthrop_data, $user_social);
+        $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data);
 
         // Объединенные данные страница
         $this->page_data['title'] = $title;
@@ -136,11 +137,11 @@ class User extends CI_Controller
             }
         }
 
-        $portfolio      = $this->Couch_model->getCouchPortfolioData($couch_id);
-        $posts          = $this->Blog_model->getCouchBlogPosts($couch_id);
-        $clients        = $this->Couch_model->getCouchClientsActivity($couch_id);
-        $c_data['data'] = $this->Couch_model->getCouch($couch_id, $this->date);
-        $user_social    = $this->User_model->getUserSocial($this->user_id);
+        $portfolio   = $this->Couch_model->getCouchPortfolioData($couch_id);
+        $posts       = $this->Blog_model->getCouchBlogPosts($couch_id);
+        $clients     = $this->Couch_model->getCouchClientsActivity($couch_id);
+        $c_data      = $this->Couch_model->getCouch($couch_id, $this->date);
+        $user_social = $this->User_model->getUserSocial($this->user_id);
 
         $result = array_merge($portfolio, $posts, $clients, $c_data, $user_social);
 
@@ -249,12 +250,12 @@ class User extends CI_Controller
             }
         }
 
-        $portfolio      = $this->Couch_model->getCouchPortfolioData($couch_id);
-        $posts          = $this->Blog_model->getPublicBlogPosts($couch_id);
-        $result['data'] = $this->Couch_model->getCouch($couch_id, $this->date);
-        $result         = array_merge($portfolio, $posts, $result);
+        $portfolio = $this->Couch_model->getCouchPortfolioData($couch_id);
+        $posts     = $this->Blog_model->getPublicBlogPosts($couch_id);
+        $user      = $this->Couch_model->getCouch($couch_id, $this->date);
+        $result    = array_merge($portfolio, $posts, $user);
 
-        $title = !empty($result['data']['user_name']) ? $result['data']['user_name'] . ' - тренер' : 'Страница тренера' ;
+        $title = !empty($result['user_data']['user_name']) ? $result['user_data']['user_name'] . ' - тренер' : 'Страница тренера' ;
         // Объединенные данные страница
         $this->page_data['title'] = $title;
         $this->page_data['page_menu'] = 'user_page';
@@ -295,27 +296,32 @@ class User extends CI_Controller
     public function settings()
     {
         if (!is_numeric($this->user_id)) {
-            show_404();
+            parent::pageNotFound($this->page_url);
         }
 
         // Получение данных пользователя из БД
         // Страница пользователя или администратора
-        if (!empty($this->user_id) and $this->session->user['type'] != 2) {
-            $user_data = $this->User_model->getUserSettingsData($this->user_id);
+        if (!empty($this->user_id) and $this->session->user['type'] != 2)
+        {
+            $user = $this->User_model->getUserSettingsData($this->user_id);
         }
         // Страница тренера
-        elseif (!empty($this->user_id) and $this->session->user['type'] == 2) {
+        elseif (!empty($this->user_id) and $this->session->user['type'] == 2)
+        {
             $this->load->model('Couch_model');
 
             // Получение данных тренера из БД
-            $user_data = $this->Couch_model->getCouch($this->user_id);
+            $user = $this->Couch_model->getCouch($this->user_id);
         }
 
+        $user_data = (!empty($user)) ? $user['user_data'] : null;
+
         // Сохранение изменений данных
-        if ($this->input->post('bt_save_settings', true)) {
+        if ($this->input->post('bt_save_settings', true))
+        {
             // Валидация E-mail
             if (!empty($this->input->post('email', true))
-                && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+                and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
             {
                 $email = $this->input->post('email', true);
             } else {
@@ -585,7 +591,7 @@ class User extends CI_Controller
     public function progress()
     {
         if (!is_numeric($this->user_id)) {
-            show_404();
+            parent::pageNotFound($this->page_url);
         }
         $result = $this->User_model->getAnthropometricData($this->user_id); // Антропометрические данные пользователя
 
@@ -1235,8 +1241,8 @@ class User extends CI_Controller
     public function users()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $result['users'] = $this->User_model->getUsersData();
@@ -1259,15 +1265,15 @@ class User extends CI_Controller
     public function userASettings($user_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
-        $user_data = $this->User_model->getUserSettingsData($user_id);
+        $user = $this->User_model->getUserSettingsData($user_id);
+        $user_data = $user['user_data'];
 
-        if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id)) {
-            $user_data = $this->User_model->getUserSettingsData($user_id);
-
+        if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))
+        {
             // Валидация E-mail
             if (!empty($this->input->post('email', true))
                 && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
@@ -1329,7 +1335,8 @@ class User extends CI_Controller
 
             header('Location: /administration/user/'.$user_id);
         }
-        elseif ($this->input->post('bt_block_user', true) and is_numeric($user_id)) {
+        elseif ($this->input->post('bt_block_user', true) and is_numeric($user_id))
+        {
             $result = $this->User_model->blockUser($user_id, $this->date);
 
             if ($result === true) {
@@ -1340,7 +1347,8 @@ class User extends CI_Controller
                 $this->session->set_tempdata('message', 17, 60);
             }
         }
-        elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id)) {
+        elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id))
+        {
             $result = $this->User_model->unblockUser($user_id, $this->date);
 
             if ($result === true) {
@@ -1351,7 +1359,8 @@ class User extends CI_Controller
                 $this->session->set_tempdata('message', 19, 60);
             }
         }
-        elseif ($this->input->post('bt_delete_avatar', true)) {
+        elseif ($this->input->post('bt_delete_avatar', true))
+        {
             $res_del = $this->User_model->deleteUserAvatar($user_id);
 
             if ($res_del === false) {
@@ -1410,7 +1419,7 @@ class User extends CI_Controller
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('user/settings/user_settings', $user_data);
+        $this->load->view('user/settings/user_settings', $user);
         $this->load->view('footer/footer');
     }
 
@@ -1422,8 +1431,8 @@ class User extends CI_Controller
     public function searchUsers()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         $result      = '';

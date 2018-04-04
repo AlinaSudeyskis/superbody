@@ -136,14 +136,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <div class="mess_block_line <?php echo $fb_class; ?> parent no_ava">
                                                 <div class="mess_block_line_txt">
                                                     <div class="mess_block_line_val"><?php echo $fb_mess['text'];?></div>
-                                                    <div class="mess_block_line_time">
-                                                        <span class="mess_block_full_time">
-                                                            <?php echo $fb_mess['user_name']; ?>
-                                                            <?php if(!empty($fb_mess['user_email'])):?>
-                                                                [<?php echo $fb_mess['user_email']; ?>]
-                                                            <?php endif;?>
-                                                        </span>
-                                                    </div>
+                                                    <?php if($fb_mess['admin_id'] > 0): ?>
+                                                        <div class="mess_block_line_time">
+                                                            <span class="mess_block_full_time">
+                                                                <?php echo $fb_mess['admin_name']; ?>
+                                                            </span>
+                                                        </div>
+                                                    <?php endif; ?>
                                                     <div class="mess_block_line_time">
                                                         <span class="mess_block_full_time">
                                                             <?php if ($fb_mess['fl_date'] == 1) :?>
@@ -165,7 +164,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="no_mess_block">Выберите диалог из списка</div>
                                 <?php endif;?>
                             </div>
-                            <?php if (!empty($user_with)) :?>
+                            <?php if ((!empty($user_with) and $user_session['blocked'] == 0) or $user_with == 'feedback') :?>
                                 <div class="mess_form">
                                     <form action="" class="mess_block_form" method="post">
                                         <textarea name="ta_message_text" class="mess_block_in" placeholder="Написать сообщение" autofocus="autofocus"></textarea>

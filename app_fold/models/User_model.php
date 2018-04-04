@@ -19,14 +19,15 @@ class User_model extends CI_Model
      */
     public function getUser($user_id)
     {
-        $result = array();
+        $result = array('user_data' => array());
         
         $sel_user = $this->db->query('
             SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`
             FROM `users`
             WHERE `user_id`=? LIMIT 1', $user_id);
         
-        if ($sel_user !== false and 1 == $sel_user->num_rows()) {
+        if ($sel_user !== false and 1 == $sel_user->num_rows())
+        {
             $row = $sel_user->row();
             
             $result['user_data']['id']    = $row->user_id; 
@@ -48,7 +49,8 @@ class User_model extends CI_Model
             }
             $result['user_data']['image'] = $user_image;
         }
-        elseif ($sel_user === false) {
+        elseif ($sel_user === false)
+        {
             parent::logDbMessages(__METHOD__);
         }
         
@@ -104,7 +106,7 @@ class User_model extends CI_Model
     public function getUserSettingsData($user_id)
     {
         // Массив возвращаемых значений
-        $result = array (
+        $result = array ( 'user_data' => array(
             'user_email' => '',
             'user_name' => '',
             'user_image' => '',
@@ -118,7 +120,7 @@ class User_model extends CI_Model
             'user_gender' => '',
             'user_gender_eng' => '',
             'user_weight' => ''
-        );
+        ));
 
         $sel_data = $this->db->query('
             SELECT `user_name`, `user_email`, `user_password`, `user_image`, `user_blocked`, `user_type`, 
@@ -132,20 +134,22 @@ class User_model extends CI_Model
         {
             $row = $sel_data->row();
 
-            $result['user_name']          = $row->user_name;
-            $result['user_email']         = $row->user_email;
-            $result['user_password_hash'] = $row->user_password;
-            $result['user_blocked']       = $row->user_blocked;
-            $result['user_type']          = $row->user_type;
+            $result['user_data']['user_name']          = $row->user_name;
+            $result['user_data']['user_email']         = $row->user_email;
+            $result['user_data']['user_password_hash'] = $row->user_password;
+            $result['user_data']['user_blocked']       = $row->user_blocked;
+            $result['user_data']['user_type']          = $row->user_type;
 
             $user_image = '';
-            if (!empty($row->user_image)) {
+            if (!empty($row->user_image))
+            {
                 $user_image = $row->user_image;
-                if (mb_substr($row->user_image, 0, 1) == '.' and is_file($row->user_image)) {
+                if (mb_substr($row->user_image, 0, 1) == '.' and is_file($row->user_image))
+                {
                     $user_image = mb_substr($row->user_image, 1);
                 }
             }
-            $result['user_image'] = $user_image;
+            $result['user_data']['user_image'] = $user_image;
 
             $date = DateTime::createFromFormat('Y-m-d', $row->user_birthday);
             $birthday = ($row->user_birthday != '0000-00-00' and $date !== false) ? $date->format('d.m.Y') : '';
@@ -155,22 +159,23 @@ class User_model extends CI_Model
                 $b_mon  = $date->format('m');
                 $b_year = $date->format('Y');
 
-                $result['user_b_day']  = $b_day;
-                $result['user_b_mon']  = $b_mon;
-                $result['user_b_year'] = $b_year;
+                $result['user_data']['user_b_day']  = $b_day;
+                $result['user_data']['user_b_mon']  = $b_mon;
+                $result['user_data']['user_b_year'] = $b_year;
             }
 
-            $result['user_birthday']   = $birthday;
-            $result['user_gender']     = ($row->user_gender == 'female') ? 'Женщина' : 'Мужчина';
-            $result['user_gender_eng'] = ($row->user_gender == 'female') ? 'female' : 'male';
+            $result['user_data']['user_birthday']   = $birthday;
+            $result['user_data']['user_gender']     = ($row->user_gender == 'female') ? 'Женщина' : 'Мужчина';
+            $result['user_data']['user_gender_eng'] = ($row->user_gender == 'female') ? 'female' : 'male';
 
             $sel_weight = $this->db->query('
                 SELECT `user_weight` FROM `anthropometric` WHERE `user_id`=? ORDER BY `user_date_add` DESC LIMIT 1', $user_id);
 
-            if (1 == $sel_weight->num_rows()) {
+            if (1 == $sel_weight->num_rows())
+            {
                 $row2 = $sel_weight->row();
 
-                $result['user_weight'] = $row2->user_weight;
+                $result['user_data']['user_weight'] = $row2->user_weight;
             }
 
             return $result;

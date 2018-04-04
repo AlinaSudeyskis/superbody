@@ -111,26 +111,24 @@ class CI_Controller {
 
 		$this->page_url = $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
 
+        $this->load->model('Welcome_model');
+        $this->load->model('Course_model');
+
 		// Проверка данных авторизованного пользователя
         if (!empty($this->session->user) and is_numeric($this->session->user['id']) and
             (empty($this->session->user['email']) or filter_var($this->session->user['email'], FILTER_VALIDATE_EMAIL)))
         {
+            // Проверка авторизации пользователя (способ авторизации - соц. сети)
             self::checkUserSession();
 
-            // Уничтожение сессии, для повтороной авторизации (при необходимости)
-            $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->session->user['date_auth']);
-            $u_date = $tmp_date->format('U');
             // Уничтожение сессии, для повтороной авторизации, если дата авторизации меньше метки,
             // заданной для обновления сессий пользователя
-            if ($u_date < '1511022412') {
+            $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->session->user['date_auth']);
+            $u_date = $tmp_date->format('U');
+            if ($u_date < '1511022412')
+            {
                 header('Location: /logout');
             }
-
-            // Проверка авторизации пользователя (способ авторизации - соц. сети)
-            /*if (!empty($this->session->user['auth_via']) and $this->session->user['auth_via'] != 'native') {
-                $this->load->model('Authorization_model');
-
-            }*/
 
             // ID пользователя
             $this->user_id = $this->session->user['id'];
@@ -138,12 +136,12 @@ class CI_Controller {
             // Проверка пользовательских данных сессии
             $this->load->model('Message_model');
             $this->load->model('User_model');
+            $this->load->model('Store_model');
 
             // Проверка новых сообщений
             $new_messages    = $this->Message_model->getCountNewMessages($this->user_id);
             $new_fb_messages = $this->Message_model->getCountNewFeedbackMessages($this->user_id, $this->session->user['email']);
 
-            // Обновление данных сессии
             if ($new_messages != $this->session->new_messages) {
                 $this->session->set_userdata("new_messages", $new_messages);
             }
@@ -153,12 +151,23 @@ class CI_Controller {
 
             // Сверка данных пользователя
             $user_data = $this->User_model->getUserSettingsData($this->user_id);
-            $user_session_data = array('user' => $this->session->user);
 
-            $user_session_data['user']['email'] = $user_data['user_email'];
-            $user_session_data['user']['name'] = $user_data['user_name'];
-            $user_session_data['user']['image'] = $user_data['user_image'];
-            $user_session_data['user']['type'] = $user_data['user_type'];
+            // Сверка данных коризны
+            $cart_data = $this->Store_model->getCartCountProducts($this->user_id);
+
+            // Обновление данных сессии
+            $user_session_data = array(
+                'user' => $this->session->user,
+                'cart' => array(
+                    'count' => $cart_data,
+                    'products' => $this->session->cart['products'],
+                ));
+
+            $user_session_data['user']['email']     = $user_data['user_data']['user_email'];
+            $user_session_data['user']['name']      = $user_data['user_data']['user_name'];
+            $user_session_data['user']['image']     = $user_data['user_data']['user_image'];
+            $user_session_data['user']['type']      = $user_data['user_data']['user_type'];
+            $user_session_data['user']['blocked']   = $user_data['user_data']['user_blocked'];
             $user_session_data['user']['date_auth'] = $this->date;
 
             $this->session->set_userdata($user_session_data);
@@ -187,8 +196,8 @@ class CI_Controller {
 			"3" => "Ошибка! Не удалось активировать аккаунт. Пожалуйста, повторите попытку.",
 			"4" => "Ошибка! Аккаунт не активирован. Неверный код активации.",
 			"5" => "Ошибка! Не удалось авторизовать Вас. Пожалуйста, повторите попытку.",
-			"6" => "Ошибка! Не корректный E-mail",
-			"7" => "Ошибка! Не верный E-mail или пароль. Пожалуйста, повторите попытку.",
+			"6" => "Ошибка! Некорректный E-mail",
+			"7" => "Ошибка! Неверный E-mail или пароль. Пожалуйста, повторите попытку.",
 			"8" => "Ошибка! Проверьте, пожалуйста, корректность и заполните все поля регистрации.",
 			"9" => "Ошибка! Изменения не были сохранены. Пожалуйста, повторите попытку.",
 			"10" => "Сохранено!",
@@ -227,7 +236,7 @@ class CI_Controller {
             "43" => "Ошибка! Видео не заблокировано. Пожалуйста, повторите попытку.",
             "44" => "Видео разблокировано.",
             "45" => "Ошибка! Видео не разблокировано. Пожалуйста, повторите попытку.",
-            "46" => "На указанный Вами E-mail отправлено письмо с новым паролем.",
+            "46" => "На указанный Вами E-mail отправлено письмо с указаниями по смене пароля.",
             "47" => "Ошибка! Пользователь с таким E-mail не найден.",
             "48" => "Ошибка! Пароль не обновлен. Пожалуйста, повторите попытку.",
             "49" => "Ошибка! Сообщение не разблокировано. Пожалуйста, повторите попытку.",
@@ -312,7 +321,9 @@ class CI_Controller {
             "128" => "Ошибка! Вы не подтвердили согласие на обработку персональных данных.",
             "129" => "Ошибка! Изменения настроек соц. сетей не сохранены. Пожалуйста, повторите попытку.",
             "130" => "Ошибка! Не все данные курса сохранены.",
-            "131" => "Сообщение отправлено."
+            "131" => "Сообщение отправлено.",
+            "132" => "Ошибка! Пароли не совпадают. Пожалуйста, повторите попытку.",
+            "133" => "Пароль успешно обновлен."
 		);
 
         // Сообщение о результатах действий пользователя
@@ -324,20 +335,22 @@ class CI_Controller {
             $this->session->unset_tempdata('message');
         }
 
-        $this->load->model('Course_model');
+        // Список доступных пользователю курсов
         $courses = $this->Course_model->getAvailableCourses();
 
-        $this->load->model('Welcome_model');
+        // Обновление БД
         $this->Welcome_model->updateDatabase($this->date);
+        // Данные сайта (контактные данные, о нас, соц. сети и т.д.)
         $site_info = $this->Welcome_model->getSiteInfo();
 
+        // Данные страницы
         $this->page_data = array(
             "title" => '',
             "site_info" => !empty($site_info) ? $site_info : '',
             "user_session" => !empty($this->session->user) ? $this->session->user : '',
             "new_messages" => !empty($this->session->new_messages) ? $this->session->new_messages : 0,
             "new_fb_messages" => !empty($this->session->new_fb_messages) ? $this->session->new_fb_messages : 0,
-            "cart_count" => !empty($this->session->cart) ? $this->session->cart : 0,
+            "cart_count" => !empty($this->session->cart['count']) ? $this->session->cart['count'] : 0,
             "message" => $this->page_message,
             "page_menu" => '',
             "page_submenu" => '',
@@ -437,6 +450,7 @@ class CI_Controller {
      * @param $user_id
      * @param $user_email
      * @param $user_type
+     * @param $user_blocked
      * @param $user_name
      * @param $user_image
      * @param $access_token
@@ -444,33 +458,38 @@ class CI_Controller {
      * @param $user_soc_id
      * @param $date
      */
-    public function updateSession($user_id, $user_email, $user_type, $user_name, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
+    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
     {
         $split_name = mb_split(' ', $user_name);
         $s_name     = !empty($split_name[0]) ? $split_name[0] : '';
         $s_surname  = !empty($split_name[1]) ? $split_name[1] : '';
 
-        if (!empty($this->session->user)) {
+        if (!empty($this->session->user))
+        {
             // Обновление данных сессии, если она пренадлежит ему
             if ($this->session->user['id'] == $user_id or
-                ($this->session->user['social_id'] == $user_soc_id and $this->session->user['social_id'] == $user_soc_via)) {
-
+                ($this->session->user['social_id'] == $user_soc_id and $this->session->user['social_id'] == $user_soc_via))
+            {
                 $user_data['user'] = $this->session->user;
+
+                $user_data['user']['blocked']      = $user_blocked;
                 $user_data['user']['access_token'] = $access_token;
-                $user_data['user']['date_auth'] = $date;
+                $user_data['user']['date_auth']    = $date;
 
                 $this->session->set_userdata($user_data);
             }
             // Удаляем сессию и создаем новую
-            else {
+            else
+            {
                 $this->session->sess_destroy();
                 // Создание сессии
-                self::createUserSession($user_id, $user_email, $user_type, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
+                self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
             }
         }
-        else {
+        else
+        {
             // Создание сессии
-            self::createUserSession($user_id, $user_email, $user_type, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
+            self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
         }
     }
 
@@ -480,6 +499,7 @@ class CI_Controller {
      * @param $user_id
      * @param $user_email
      * @param $user_type
+     * @param $user_blocked
      * @param $user_name
      * @param $s_name
      * @param $s_surname
@@ -489,8 +509,17 @@ class CI_Controller {
      * @param $user_soc_id
      * @param $date
      */
-    protected function createUserSession($user_id, $user_email, $user_type, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
+    protected function createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
     {
+        $cart_count = (!empty($this->session->cart['count']) and is_numeric($this->session->cart['count']) and $this->session->cart['count'] > 0) ? $this->session->cart['count'] : 0;
+        $cart_products = (!empty($this->session->cart['products']) and is_array($this->session->cart['products'])) ? $this->session->cart['products'] : array();
+
+        if (!empty($cart_products))
+        {
+            $this->load->model('Store_model');
+            $this->Store_model->setSessionCartToDB($user_id, $cart_products, $this->date);
+        }
+
         $user_data = array (
             "user" => array (
                 "id" => $user_id,
@@ -499,6 +528,7 @@ class CI_Controller {
                 "s_name" => $s_name,
                 "s_surname" => $s_surname,
                 "type" => $user_type,
+                "blocked" => $user_blocked,
                 "image" => $user_image,
                 "access_token" => $access_token,
                 "auth_via" => $user_soc_via,
@@ -507,7 +537,10 @@ class CI_Controller {
             ),
             "new_messages" => 0,
             "new_fb_messages" => 0,
-            "cart" => 0
+            "cart" => array(
+                "count" => $cart_count,
+                "products" => array()
+            )
         );
 
         $this->session->set_userdata($user_data);
@@ -516,14 +549,16 @@ class CI_Controller {
     protected function checkUserSession()
     {
         // Если пользователь авторизован при помощи соц. сетей
-        if ($this->session->user['auth_via'] != 'native') {
+        if ($this->session->user['auth_via'] != 'native')
+        {
             $this->load->model('Authorization_model');
             $access_token = $this->session->user['access_token'];
             $user_soc_id  = $this->session->user['social_id'];
             $auth_via     = $this->session->user['auth_via'];
 
             // Проверяем не отзывал ли пользователь своё разрешение на использование его данных
-            if ($auth_via == 'vk.com') {
+            if ($auth_via == 'vk.com')
+            {
                 $myCurl = curl_init();
                 curl_setopt_array($myCurl, array(
                     CURLOPT_URL => 'https://api.vk.com/method/users.get',
@@ -537,11 +572,13 @@ class CI_Controller {
                 curl_close($myCurl);
                 $resp_info = json_decode($response);
 
-                if (empty($resp_info->response)) {
+                if (empty($resp_info->response))
+                {
                     header('Location: /logout');
                 }
             }
-            elseif ($auth_via == 'instagram.com') {
+            elseif ($auth_via == 'instagram.com')
+            {
 
                 $myCurl = curl_init();
                 curl_setopt_array($myCurl, array(
@@ -553,11 +590,13 @@ class CI_Controller {
                 curl_close($myCurl);
                 $resp_info = json_decode($response);
 
-                if (empty($resp_info->data->id)) {
+                if (empty($resp_info->data->id))
+                {
                     header('Location: /logout');
                 }
             }
-            elseif ($auth_via == 'facebook.com') {
+            elseif ($auth_via == 'facebook.com')
+            {
                 $client_secret = 'c4730a166b67b5c5404fccabd7d3ae00';
                 $appsecret_proof = hash_hmac('sha256', $access_token, $client_secret);
 
@@ -575,11 +614,13 @@ class CI_Controller {
                 curl_close($myCurl);
                 $resp_info = json_decode($response);
 
-                if (empty($resp_info->id)) {
+                if (empty($resp_info->id))
+                {
                     header('Location: /logout');
                 }
             }
-            elseif ($auth_via == 'ok.ru') {
+            elseif ($auth_via == 'ok.ru')
+            {
                 $app_key       = 'CBAQKKPLEBABABABA';
                 $client_secret = '7A370FC2FF713947EAAF9654';
 
@@ -601,7 +642,8 @@ class CI_Controller {
 
                 $resp_info = json_decode($response);
 
-                if (empty($resp_info->uid)) {
+                if (empty($resp_info->uid))
+                {
                     header('Location: /logout');
                 }
             }
@@ -615,14 +657,12 @@ class CI_Controller {
      */
     protected function updateSessionCart($count_products)
     {
-        if (!empty($this->session->user))
+        // Если кол-во товаров в корзине изменено, обновляем данные сессии
+        if ($this->session->cart['count'] != $count_products and is_numeric($count_products))
         {
-            // Если кол-во товаров в корзине изменено, обновляем данные сессии
-            if ($this->session->cart != $count_products and is_numeric($count_products))
-            {
-                $user_data['cart'] = $count_products;
-                $this->session->set_userdata($user_data);
-            }
+            $user_data['cart']['products'] = $this->session->cart['products'];
+            $user_data['cart']['count']    = $count_products;
+            $this->session->set_userdata($user_data);
         }
     }
 
@@ -700,6 +740,381 @@ class CI_Controller {
     public function pageNotFound($page_url)
     {
         set_status_header(404);
+        log_message('error', 'Page not found (404): ' . $page_url);
         $this->load->view('errors/html/error_404', $this->page_data);
+    }
+
+    /**
+     * Данные корзины из сессии
+     *
+     * @return array
+     */
+    public function getSessionCartProductsId()
+    {
+        $result = array('products_id' => array());
+
+        if (!empty($this->session->cart['products']))
+        {
+            $i = 0;
+            foreach($this->session->cart['products'] as $product)
+            {
+                $result['products_id'][$i] = $product['id'];
+                $i++;
+            }
+            unset($product);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение/обновление данных товара в корзине сессии пользователя
+     *
+     * @param int $product_id ID товара
+     * @param int $user_id ID пользователя
+     * @param string $date Текущая дата
+     * @param int $product_quantity Количество товара
+     * @param int $cb_attached Добавлять ли в корзину прикрепленные товары
+     * @return bool
+     */
+    public function setProductToSessionCart($product_id, $date, $product_quantity, $cb_attached = 0)
+    {
+        $result['add']    = false;
+        $result['cart']   = 0;
+        $cart             = 0;
+        $new_product      = true;
+        $cart_p_id        = null;
+        $product_id       = is_numeric($product_id) ? $product_id : null;
+        $product_quantity = is_numeric($product_quantity) ? $product_quantity : null;
+        $cb_attached      = $cb_attached == 1 ? 1 : 0;
+        $date             = strip_tags($date);
+
+        $user_data['cart']['products'] = $this->session->cart['products'];
+
+        // Проверка корзина на присутствие товара. Обновление данных
+        if (!empty($this->session->cart['products']) and is_array($this->session->cart['products'])
+            and !empty($product_id) and !empty($product_quantity))
+        {
+            foreach($this->session->cart['products'] as $key => $product)
+            {
+                if ($product['id'] == $product_id)
+                {
+                    // Обновление корзины
+                    $user_data['cart']['products'][$key]['quantity'] = $product['quantity'] + $product_quantity;
+
+                    // Обновление данных прикрепленных товаров, если пользователь дал согласие на это
+                    if ($cb_attached == 1)
+                    {
+                        $attached_products = $this->Store_model->getAttachedProducts($product_id);
+                        $cart_p_id = $key;
+
+                        if (!empty($attached_products))
+                        {
+                            // Добавление в корзину
+                            if($product['attached'] === false)
+                            {
+                                $i = 0;
+                                foreach($attached_products as $attached_product)
+                                {
+                                    $user_data['cart']['products'][$cart_p_id]['attached'][$i]['id']       = $attached_product['id'];
+                                    $user_data['cart']['products'][$cart_p_id]['attached'][$i]['quantity'] = $product_quantity;
+                                    $user_data['cart']['products'][$cart_p_id]['attached'][$i]['date']     = $date;
+
+                                    $i++;
+                                }
+                                unset($attached_product);
+                            }
+                            // Обновление данных прикрепленных товаров
+                            elseif(is_array($product['attached']))
+                            {
+                                foreach($product['attached'] as $a_key => $attached)
+                                {
+                                    foreach($attached_products as $attached_product)
+                                    {
+                                        if ($attached['id'] == $attached_product['id'])
+                                        {
+                                            $user_data['cart']['products'][$cart_p_id]['attached'][$a_key]['quantity'] = $attached['quantity'] + $product_quantity;
+                                        }
+                                    }
+                                    unset($attached_product);
+                                }
+                                unset($attached);
+                            }
+                        }
+                    }
+
+                    //log_message('debug', __METHOD__ . __LINE__ . ' Обновление товара в корзине ' . print_r($user_data, true));
+                    $this->session->set_userdata($user_data);
+                    $result['add'] = true;
+                    $new_product   = false;
+
+                    // Кол-во товаров в корзине
+                    $cart_products = self::getSessionCartCountProducts();
+
+                    self::updateSessionCart($cart_products);
+                }
+            }
+            unset($products);
+        }
+
+        // Добавление товара в корзину
+        if((empty($this->session->cart['products']) or $new_product === true)
+            and !empty($product_id) and !empty($product_quantity))
+        {
+            $new_cart_p_id = (!empty($this->session->cart['products']) and count($this->session->cart['products']) > 0)
+                ? (count($this->session->cart['products']) + 1)
+                : 0;
+
+            $user_data['cart']['products'][$new_cart_p_id]['id']       = $product_id;
+            $user_data['cart']['products'][$new_cart_p_id]['quantity'] = $product_quantity;
+            $user_data['cart']['products'][$new_cart_p_id]['attached'] = false;
+            $user_data['cart']['products'][$new_cart_p_id]['date']     = $date;
+
+            if ($cb_attached == 1)
+            {
+                $attached_products = $this->Store_model->getAttachedProducts($product_id);
+                if (!empty($attached_products))
+                {
+                    $i = 0;
+                    foreach($attached_products as $attached_product)
+                    {
+                        $user_data['cart']['products'][$new_cart_p_id]['attached'][$i]['id']       = $attached_product['id'];
+                        $user_data['cart']['products'][$new_cart_p_id]['attached'][$i]['quantity'] = $product_quantity;
+                        $user_data['cart']['products'][$new_cart_p_id]['attached'][$i]['date']     = $date;
+
+                        $i++;
+                    }
+                    unset($attached_product);
+                }
+            }
+
+            $this->session->set_userdata($user_data);
+            $result['add'] = true;
+
+            // Кол-во товаров в корзине
+            $cart_products = self::getSessionCartCountProducts();
+
+            self::updateSessionCart($cart_products);
+        }
+
+        $result['cart'] = $cart;
+
+        return $result;
+    }
+
+    /**
+     * Количество товаров в корзине сессии
+     *
+     * @return int
+     */
+    public function getSessionCartCountProducts()
+    {
+        $count_products = 0;
+
+        if (!empty($this->session->cart['products']) and is_array($this->session->cart['products']))
+        {
+            foreach ($this->session->cart['products'] as $product)
+            {
+                $count_products++;
+
+                if ($product['attached'] !== false and is_array($product['attached']))
+                {
+                    $count_products += count($product['attached']);
+                }
+            }
+            unset($product);
+        }
+
+        return $count_products;
+    }
+
+    /**
+     * Удаление товара из корзины сессии пользователя
+     *
+     * @param $product_id
+     * @return bool
+     */
+    public function deleteSessionCartProduct($product_id)
+    {
+        $result = false;
+
+        if (!empty($this->session->cart['products']) and is_array($this->session->cart['products']) and is_numeric($product_id))
+        {
+            $user_data['cart']['products'] = $this->session->cart['products'];
+
+            foreach ($this->session->cart['products'] as $key => $product)
+            {
+                if ($key == $product_id)
+                {
+                    unset($user_data['cart']['products'][$key]);
+                    $result = true;
+                }
+            }
+            unset($product);
+
+            $this->session->set_userdata($user_data);
+
+            // Кол-во товаров в корзине
+            $cart_products = self::getSessionCartCountProducts();
+
+            self::updateSessionCart($cart_products);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Удаление прикрепленных товаров из корзины сессии пользователя
+     *
+     * @param $product_id
+     * @return bool
+     */
+    public function detachSessionCartProduct($product_id)
+    {
+        $result = false;
+
+        if (!empty($this->session->cart['products']) and is_array($this->session->cart['products']) and is_numeric($product_id))
+        {
+            $user_data['cart']['products'] = $this->session->cart['products'];
+
+            foreach ($this->session->cart['products'] as $key => $product)
+            {
+                if ($key == $product_id and is_array($product['attached']))
+                {
+                    $user_data['cart']['products'][$key]['attached'] = false;
+                    $result = true;
+                }
+            }
+            unset($product);
+
+            $this->session->set_userdata($user_data);
+
+            // Кол-во товаров в корзине
+            $cart_products = self::getSessionCartCountProducts();
+
+            self::updateSessionCart($cart_products);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление данных корзины сессии
+     *
+     * @param int $product_id
+     * @param int|null $product_a_id
+     * @param string $date
+     * @param int $product_quantity
+     * @return bool|int
+     */
+    public function updateSessionCartProduct($product_id, $product_a_id, $date, $product_quantity)
+    {
+        $result           = false;
+        $product_id       = is_numeric($product_id) ? $product_id : null;
+        $product_a_id     = is_numeric($product_a_id) ? $product_a_id : null;
+        $product_quantity = is_numeric($product_quantity) ? $product_quantity : null;
+        $date             = strip_tags($date);
+
+        if (!empty($this->session->cart['products']) and is_array($this->session->cart['products'])
+            and is_numeric($product_id) and is_numeric($product_quantity))
+        {
+            $user_data['cart']['products'] = $this->session->cart['products'];
+
+            // Если товар прикреплен к другому товару, то кол-во выбранного товара не должно превышать кол-во основного
+            if (is_numeric($product_a_id) and !empty($user_data['cart']['products'][$product_a_id])
+                and !empty($user_data['cart']['products'][$product_a_id]['attached'][$product_id]))
+            {
+                $base_quantity = $user_data['cart']['products'][$product_a_id]['quantity'];
+
+                // Сравнение с количеством основного товара
+                $product_quantity = $product_quantity <= $base_quantity ? $product_quantity : $base_quantity;
+
+                // Изменение количества текущего прикрепленного товара
+                $user_data['cart']['products'][$product_a_id]['attached'][$product_id]['quantity'] = $product_quantity;
+
+                $result = $product_quantity;
+
+                $this->session->set_userdata($user_data);
+
+                // Кол-во товаров в корзине
+                $cart_products = self::getSessionCartCountProducts();
+
+                self::updateSessionCart($cart_products);
+            }
+            // Обновить данные, если текущее значение кол-ва не совпадает с данными в сессии
+            elseif (!empty($user_data['cart']['products'][$product_id])
+                and $product_quantity != $user_data['cart']['products'][$product_id]['quantity'])
+            {
+                $product = $this->Store_model->getStoreProduct($user_data['cart']['products'][$product_id]['id']);
+
+                if (!empty($product['product']))
+                {
+                    $product_quantity = ($product_quantity <= $product['product']['quantity']) ? $product_quantity : $product['product']['quantity'];
+
+                    // Изменение количества текущего прикрепленного товара
+                    $user_data['cart']['products'][$product_id]['quantity'] = $product_quantity;
+
+                    $result = $product_quantity;
+
+                    $this->session->set_userdata($user_data);
+
+                    // Кол-во товаров в корзине
+                    $cart_products = self::getSessionCartCountProducts();
+
+                    self::updateSessionCart($cart_products);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка email в БД
+     *
+     * @param $email
+     * @param $name
+     * @param $surname
+     * @return int|null|string
+     */
+    public function checkEmail($email, $name = '', $surname = '')
+    {
+        $result = null;
+        $email  = (filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : null;
+
+        if (!empty($email))
+        {
+            $this->load->model('Authorization_model');
+
+            $res_check = $this->Authorization_model->checkEmail($email, $name, $surname, $this->date);
+
+            // Возвращаем ID пользователя
+            if (is_numeric($res_check['user_id']))
+            {
+                $result     = $res_check['user_id'];
+                $email_hash = password_hash($email, PASSWORD_DEFAULT);
+
+                // Отправление письма о подтвержении регистрации пользователю
+                if ($res_check['new_user'] === true and $res_check['auth_via'] == 'native')
+                {
+                    $email_to  = "<$email>";
+
+                    $subject   = "Подтвеждение регистрации на сайте SuperBody";
+
+                    $message   = '<p>Для подтверждения регистрации на сайте перейдите по ссылке</p> </br>';
+                    $message  .= '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash . '">';
+                    $message  .= 'https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash;
+                    $message  .= '</a></b>';
+
+                    $headers   = "Content-type: text/html; charset=utf-8 \r\n";
+                    $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
+                    $headers   .= "Reply-To: info@superbody.pro\r\n";
+
+                    mail($email_to, $subject, $message, $headers);
+                }
+            }
+        }
+
+        return $result;
     }
 }

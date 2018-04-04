@@ -45,15 +45,20 @@ class Authorization extends CI_Controller
                 {
                     $email      = $this->input->post('email', true);
                     $email_hash = password_hash($this->input->post('email', true), PASSWORD_DEFAULT);
-                } else {
+                }
+                else
+                {
                     $email      = null;
                     $email_hash = null;
                 }
 
                 // Хэширование пароля
-                if (!empty($this->input->post('password', true))) {
+                if (!empty($this->input->post('password', true)))
+                {
                     $password_hash = password_hash($this->input->post('password', true), PASSWORD_DEFAULT);
-                } else {
+                }
+                else
+                {
                     $password_hash = null;
                 }
 
@@ -62,27 +67,35 @@ class Authorization extends CI_Controller
                 {
                     $result_registration = $this->Authorization_model->userRegistration($email, $password_hash, $email_hash, $this->date);
 
-                    if (is_numeric($result_registration)) {
+                    if (is_numeric($result_registration))
+                    {
                         $reg_user_id = $result_registration;
 
                         // Отправление письма о подтвержении регистрации пользователю
                         self::sendRegistrationEmail($email, $email_hash);
 
                         // Обновление данных сессии
-                        parent::updateSession($reg_user_id, $email, 1, '', '', '', 'native', 0, $this->date);
+                        parent::updateSession($reg_user_id, $email, 1, 0, '', '', '', 'native', 0, $this->date);
 
                         // После успешной регистрации переход на страницу анкеты
                         header('Location: /questionnaire');
-                    } else {
-                        if ($result_registration == 'e1') {
+                    }
+                    else
+                    {
+                        if ($result_registration == 'e1')
+                        {
                             // Пользователь с таким E-mail существует
                             $this->session->set_tempdata('message', 1, 60);
-                        } elseif ($result_registration == 'e2') {
+                        }
+                        elseif ($result_registration == 'e2')
+                        {
                             // Не удалось сохранить запись в БД
                             $this->session->set_tempdata('message', 2, 60);
                         }
                     }
-                } else {
+                }
+                else
+                {
                     // Не все поля для регистрации были заполнены
                     $this->session->set_tempdata('message', 8, 60);
                 }
@@ -133,36 +146,45 @@ class Authorization extends CI_Controller
         }
 
         // Проверка введенных данных, поиск пользователя в БД
-        if ($this->input->post('bt_login', true) and $this->input->post('cb_politics', true)) {
+        if ($this->input->post('bt_login', true) and $this->input->post('cb_politics', true))
+        {
             if ($this->input->post('cb_politics', true))
             {
                 // Валидация E-mail
                 if (!empty($this->input->post('email', true))
-                    && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+                    and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
                 {
                     $email = $this->input->post('email', true);
-                } else {
+                }
+                else
+                {
                     $email = null;
                 }
 
                 $password = $this->input->post('password', true);
 
                 // Авторизация пользователя
-                if (!empty($email)) {
+                if (!empty($email) and !empty($password))
+                {
                     $result = $this->Authorization_model->userAuthorization($email, $password, $this->date);
 
-                    if ($result !== false) {
-                        parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_name'],
+                    if ($result !== false)
+                    {
+                        parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'], $result['user_name'],
                             $result['user_image'], '', 'native', 0, $this->date);
 
                         // После успешной авторизации переход на страницу пользователя
                         header('Location: /profile/'.$result['user_id']);
-                    } else {
+                    }
+                    else
+                    {
                         // Не верный E-mail или пароль
                         $this->session->set_tempdata('message', 7, 60);
                         header('Location: /login');
                     }
-                } else {
+                }
+                else
+                {
                     // Не корректный E-mail
                     $this->session->set_tempdata('message', 6, 60);
                     header('Location: /login');
@@ -209,12 +231,15 @@ class Authorization extends CI_Controller
      */
     public function logout()
     {
-        if ($this->session->user['auth_via'] == 'native') {
+        if ($this->session->user['auth_via'] == 'native')
+        {
             $this->Authorization_model->userLogout($this->session->user['id'], $this->date);
         }
-        else {
+        else
+        {
             $this->Authorization_model->userSocialLogout($this->session->user['auth_via'], $this->session->user['social_id'], $this->date);
         }
+
         $this->session->sess_destroy();
         header('Location: /');
     }
@@ -226,40 +251,129 @@ class Authorization extends CI_Controller
      */
     public function userActivate()
     {
-        $email = $this->input->get('e');
-        $activate_code = $this->input->get('ac');
+        $email         = (filter_var($this->input->get('e'), FILTER_VALIDATE_EMAIL)) ? $this->input->get('e') : null;
+        $activate_code = strip_tags($this->input->get('ac'));
+
+        $account = $this->Authorization_model->getUserAccountData($email, $activate_code);
+
+        if (is_array($account) and $account['activated'] === true)
+        {
+            header('Location: /activated');
+        }
+        elseif($account === false)
+        {
+            parent::pageNotFound($this->page_url);
+        }
 
         // Валидация E-mail
-        if (!empty($email)
-            and filter_var($email, FILTER_VALIDATE_EMAIL))
+        if (!empty($email) and $this->input->post('bt_activate', true))
         {
             // Получение ID и код активации пользователя
             $result = $this->Authorization_model->getActivateCode($email);
 
-            if ($result !== false) {
+            if ($result !== false)
+            {
                 $user_id            = $result['user_id'];
                 $user_activate_code = $result['user_activate_code'];
+                $password           = $this->input->post('i_password', true);
+                $confirm_password   = $this->input->post('i_confirm_password', true);
 
-                // Активация пользователя
-                if (password_verify($email, $user_activate_code) and $activate_code == $user_activate_code) {
-                    $this->Authorization_model->activateUser($user_id);
+                if (password_verify($email, $user_activate_code) and $activate_code == $user_activate_code)
+                {
+                    if ($password === $confirm_password)
+                    {
+                        $password_hash = password_hash($this->input->post('i_password', true), PASSWORD_DEFAULT);
 
-                    // Аккаунт активирован.
-                    $this->session->set_tempdata('message', 20, 60);
-                } else {
+                        // Активация пользователя
+                        $res_activate = $this->Authorization_model->activateUser($user_id, $password_hash);
+
+                        if ($res_activate === true)
+                        {
+                            // Аккаунт активирован.
+                            $this->session->set_tempdata('message', 20, 60);
+                            header('Location: /activated');
+                        }
+                        else
+                        {
+                            // Аккаунт не активирован.
+                            $this->session->set_tempdata('message', 3, 60);
+
+                            $url_data = array(
+                                'e' => $this->input->get('e'),
+                                'ac' => $this->input->get('ac')
+                            );
+                            header('Location: /activate?' . http_build_query($url_data));
+                        }
+                    }
+                    else
+                    {
+                        // Пароли не совпадают.
+                        $this->session->set_tempdata('message', 132, 60);
+
+                        $url_data = array(
+                            'e' => $this->input->get('e'),
+                            'ac' => $this->input->get('ac')
+                        );
+                        header('Location: /activate?' . http_build_query($url_data));
+                    }
+                }
+                else
+                {
                     // Аккаунт не активирован. Неверный код активации.
                     $this->session->set_tempdata('message', 4, 60);
+
+                    $url_data = array(
+                        'e' => $this->input->get('e'),
+                        'ac' => $this->input->get('ac')
+                    );
+                    header('Location: /activate?' . http_build_query($url_data));
                 }
-            } else {
+            }
+            else
+            {
                 // Пользователь не найден
                 $this->session->set_tempdata('message', 0, 60);
+
+                $url_data = array(
+                    'e' => $this->input->get('e'),
+                    'ac' => $this->input->get('ac')
+                );
+                header('Location: /activate?' . http_build_query($url_data));
             }
-        } else {
+        }
+        elseif(empty($email))
+        {
             // Не корректный E-mail
             $this->session->set_tempdata('message', 6, 60);
+
+            $url_data = array(
+                'e' => $this->input->get('e'),
+                'ac' => $this->input->get('ac')
+            );
+            header('Location: /activate?' . http_build_query($url_data));
         }
 
-        header('Location: /');
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'Активация аккаунта';
+        $this->page_data['page_menu'] = '';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/secondary');
+        $this->load->view('authorization/activate', $account);
+        $this->load->view('footer/footer');
+    }
+
+    public function userActivated()
+    {
+        // Объединенные данные страница
+        $this->page_data['title'] = 'Активация аккаунта';
+        $this->page_data['page_menu'] = '';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/secondary');
+        $this->load->view('authorization/activated');
+        $this->load->view('footer/footer');
     }
 
     /**
@@ -276,20 +390,32 @@ class Authorization extends CI_Controller
             header('Location: /');
         }
 
+        $restore_password = false;
+
         // Проверка введенных данных и сохранение в БД
         if($this->input->post('bt_restore', true))
         {
+            $email      = null;
+            $email_hash = null;
+            $idempotent = null;
+            $today      = $this->date;
+            $date_in_an_hour = null;
+
             // Валидация E-mail
             if (!empty($this->input->post('email', true))
                 && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
             {
                 $email      = $this->input->post('email', true);
                 $email_hash = password_hash($this->input->post('email', true), PASSWORD_DEFAULT);
-            } else {
-                $email = null;
+                $idempotent = password_hash($today, PASSWORD_DEFAULT);
+
+                // Дата и время через час после сохранения данных о восстановлении пароля
+                $tmp_date = new DateTime($today);
+                $tmp_date->add(new DateInterval('PT1H'));
+                $date_in_an_hour = $tmp_date->format('Y-m-d H:i:s');
             }
 
-            // Генерация пароля
+           /* // Генерация пароля
             $arr = array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','r','s',
                 't','u','v','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S',
                 'T','U','V','X','Y','Z','1','2','3','4','5','6','7','8','9','0','.',',','(',')','[',']','!','?',
@@ -307,20 +433,25 @@ class Authorization extends CI_Controller
                 $password_hash = password_hash($password, PASSWORD_DEFAULT);
             } else {
                 $password_hash = null;
-            }
+            }*/
 
-            // Сохранение данных в БД
-            if (!empty($email) and !empty($password_hash))
+            // Сохранение данных в БД, отправка письма
+            if (!empty($email))
             {
-                $result_restore_password = $this->Authorization_model->userRestorePassword($email, $password_hash, $this->date);
+                $result_restore = $this->Authorization_model->setRestore($email, $email_hash, $idempotent, $today);
 
-                if ($result_restore_password === true) {
-                    // Отправление письма с новым паролем
+                if ($result_restore === true)
+                {
+                    // Отправление письма с указаниями по восстановлению пароля
                     $email_to  = "<$email>";
 
                     $subject   = "Восставновление пароля на сайте SuperBody";
 
-                    $message   = '<p>Новый пароль для входа на сайт SuperBody: <b>' . $password . '</b></p>';
+                    $message   = '<p>Для ввода нового пароля перейдите по ссылке.</p> </br>';
+                    $message  .= '<p>Ссылка работает до ' . $date_in_an_hour . '</p> </br>';
+                    $message  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent . '">';
+                    $message  .= 'https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent;
+                    $message  .= '</a></b>';
 
                     $headers   = "Content-type: text/html; charset=utf-8 \r\n";
                     $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
@@ -330,16 +461,89 @@ class Authorization extends CI_Controller
                     
                     // Письмо отправлено
                     $this->session->set_tempdata('message', 46, 60);
-                } else {
+
+                }
+                else {
                     // Пользователь с таким E-mail не существует
                     $this->session->set_tempdata('message', 47, 60);
                 }
-            } else {
+            }
+            else
+            {
                 // Не корректный E-mail
                 $this->session->set_tempdata('message', 6, 60);
             }
 
             header('Location: /restore');
+        }
+        elseif(!empty($this->input->get('e', true)) and !empty($this->input->get('ac', true))
+            and !empty($this->input->get('i', true)) and empty($this->input->post('bt_restore_password', true)))
+        {
+            $email      = filter_var($this->input->get('e', true), FILTER_VALIDATE_EMAIL) ? $this->input->get('e', true) : null;
+            $code       = mb_substr(strip_tags($this->input->get('ac', true)), 0, 255);
+            $idempotent = mb_substr(strip_tags($this->input->get('i', true)), 0, 255);
+
+            if(!empty($email) and !empty($code) and !empty($idempotent))
+            {
+                $result_restore = $this->Authorization_model->checkRestore($email, $code, $idempotent, $this->date);
+
+                // Доступ к странице ввода нового пароля
+                if($result_restore === true)
+                {
+                    $restore_password = true;
+                }
+            }
+            else
+            {
+                parent::pageNotFound(__METHOD__ . ' ' . __LINE__ . ' ' . $this->page_url);
+            }
+        }
+        elseif(!empty($this->input->get('e', true)) and !empty($this->input->get('ac', true))
+            and !empty($this->input->get('i', true)) and $this->input->post('bt_restore_password', true))
+        {
+            $password           = $this->input->post('i_password', true);
+            $confirm_password   = $this->input->post('i_confirm_password', true);
+
+            $email      = filter_var($this->input->get('e', true), FILTER_VALIDATE_EMAIL) ? $this->input->get('e', true) : null;
+            $code       = mb_substr(strip_tags($this->input->get('ac', true)), 0, 255);
+            $idempotent = mb_substr(strip_tags($this->input->get('i', true)), 0, 255);
+
+            if(!empty($email) and !empty($code) and !empty($idempotent))
+            {
+                $result_restore = $this->Authorization_model->checkRestore($email, $code, $idempotent, $this->date);
+
+                // Доступ к странице ввода нового пароля
+                if($result_restore === true)
+                {
+                    $restore_password = true;
+                }
+            }
+
+            if($password === $confirm_password and $restore_password === true)
+            {
+                $password_hash = password_hash($this->input->post('i_password', true), PASSWORD_DEFAULT);
+
+                $up_pass = $this->Authorization_model->updatePassword($email, $code, $idempotent, $password_hash, $this->date);
+
+                if($up_pass === true)
+                {
+                    // Пароль изменен
+                    $this->session->set_tempdata('message', 133, 60);
+                    header('Location: /');
+                }
+                else
+                {
+                    // Пароль не изменен
+                    $this->session->set_tempdata('message', 48, 60);
+                    header('Location: /restore');
+                }
+            }
+            else
+            {
+                // Пароли не совпадают
+                $this->session->set_tempdata('message', 132, 60);
+                header('Location: /restore');
+            }
         }
 
         // Объединенные данные страница
@@ -347,8 +551,15 @@ class Authorization extends CI_Controller
         $this->page_data['page_menu'] = '';
 
         $this->load->view('header/header', $this->page_data);
-        $this->load->view('header/secondary');       
-        $this->load->view('authorization/restore_password');        
+        $this->load->view('header/secondary');
+        if($restore_password === true)
+        {
+            $this->load->view('authorization/new_password');
+        }
+        else
+        {
+            $this->load->view('authorization/restore_password');
+        }
         $this->load->view('footer/footer');
     }
 
@@ -480,7 +691,7 @@ class Authorization extends CI_Controller
 
                     if (!empty($result['user']))
                     {
-                        parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'],
+                        parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'], $result['user']['blocked'],
                             $result['user']['name'], $result['user']['image'], $result['user']['access_token'], $result['user']['soc_via'], $result['user']['soc_id'], $this->date);
 
                         header('Location: /profile/'.$this->session->user['id']);
@@ -607,7 +818,7 @@ class Authorization extends CI_Controller
                         //echo $user_id;
                         if (!empty($result['user']))
                         {
-                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'],
+                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'], $result['user']['blocked'],
                                 $result['user']['name'], $result['user']['image'], $result['user']['access_token'], $result['user']['soc_via'], $result['user']['soc_id'], $this->date);
 
                             header('Location: /profile/'.$this->session->user['id']);
@@ -719,7 +930,7 @@ class Authorization extends CI_Controller
 
                         if (!empty($result['user']))
                         {
-                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'],
+                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'], $result['user']['blocked'],
                                 $result['user']['name'], $result['user']['image'], $result['user']['access_token'],
                                 $result['user']['soc_via'], $result['user']['soc_id'], $this->date);
 
@@ -943,7 +1154,7 @@ class Authorization extends CI_Controller
 
                         if (!empty($result['user']))
                         {
-                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'],
+                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'], $result['user']['blocked'],
                                 $result['user']['name'], $result['user']['image'], $result['user']['access_token'],
                                 $result['user']['soc_via'], $result['user']['soc_id'], $this->date);
 

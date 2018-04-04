@@ -18,8 +18,9 @@ class Administrator extends CI_Controller
     {
         parent::__construct();
 
-        if (empty($this->user_id) or 3 != $this->session->user['type']) {
-            show_404();
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->model('Administrator_model');
@@ -70,8 +71,10 @@ class Administrator extends CI_Controller
     {
         if ($this->input->post('bt_save_new_admin', true)) {
             // Валидация E-mail
-            $email = null;
-            $email_hash = null;
+            $email         = null;
+            $email_hash    = null;
+            $password_hash = '';
+
             if (!empty($this->input->post('email', true))
                 && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
             {
@@ -82,44 +85,75 @@ class Administrator extends CI_Controller
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
 
-            $arr = array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','r','s',
-                't','u','v','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S',
-                'T','U','V','X','Y','Z','1','2','3','4','5','6','7','8','9','0','.',',','(',')','[',']','!','?',
-                '&','^','%','@','*','$','<','>','/','|','+','-','{','}','`','~');
-            // Генерируем 8мизначный пароль
-            $password = "";
-            for($i = 0; $i < 8; $i++)
-            {
-                // Вычисляем случайный индекс массива
-                $index = rand(0, count($arr) - 1);
-                $password .= $arr[$index];
-            }
-            
-            // Хэш пароля
-            $password_hash = password_hash($password, PASSWORD_DEFAULT);
-
             // Сохранение данных в БД
-            if (!empty($email) and !empty($password_hash))
+            if (!empty($email))
             {
                 $result = $this->Administrator_model->setNewAdmin($email, $name, $password_hash, $email_hash, $this->date);
 
                 if (is_numeric($result))
                 {
-                    $admin_id = $result;
                     // Отправление письма с данными администратора
                     $email_to  = "<$email>";
 
-                    $subject   = "Регистрации на сайте SuperBody";
+                    $subject   = "Подтвеждение регистрации на сайте SuperBody";
 
-                    $message   = "<p>Ваши данные для авторизации на сайте SuperBody:</p> 
-                    <p>E-mail: $email</p> 
-                    <p>Пароль: $password</p>";
+                    $message   = '<p>Для подтверждения регистрации на сайте перейдите по ссылке</p> </br>';
+                    $message  .= '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash . '">';
+                    $message  .= 'https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash;
+                    $message  .= '</a></b>';
 
                     $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                    $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
+                    $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
                     $headers   .= "Reply-To: info@superbody.pro\r\n";
 
                     mail($email_to, $subject, $message, $headers);
+
+                    $admin_id    = $result;
+                    $path_avatar = '';
+
+                    // Загрузка изображения на сервер
+                    if(is_uploaded_file($_FILES['avatar_file']['tmp_name']))
+                    {
+                        $path = './user_files/'.$admin_id.'/avatar/';
+
+                        if(!file_exists($path))
+                        {
+                            chdir('user_files');
+                            if(!is_dir($admin_id))
+                            {
+                                mkdir($admin_id);
+                            }
+                            chmod($admin_id, 0777);
+                            chdir($admin_id);
+                            if(!is_dir('avatar'))
+                            {
+                                mkdir('avatar');
+                            }
+                            chmod('avatar', 0777);
+                            chdir('avatar');
+                            chdir('../../../');
+                        }
+                        $this->load->helper('file');
+
+                        $path_image = parent::uploadImage('avatar_file', $_FILES['avatar_file']['type'], $path);
+                        if(file_exists($path.$path_image))
+                        {
+                            if ($this->security->xss_clean($path.$path_image, TRUE) !== FALSE)
+                            {
+                                // файл прошел XSS тест
+                                $path_avatar = $path.$path_image;
+                            }
+                            else
+                            {
+                                unlink($path);
+                            }
+                        }
+                    }
+
+                    if (!empty($path_avatar))
+                    {
+                        $this->Administrator_model->setAdminAvatar($admin_id, $path_avatar);
+                    }
 
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
@@ -241,17 +275,17 @@ class Administrator extends CI_Controller
      */
     public function adminSettings($user_id)
     {
-        $user_data = $this->Administrator_model->getAdmin($user_id);
-        if (!empty($user_data))
+        $user = $this->Administrator_model->getAdmin($user_id);
+        if (!empty($user['user_data']))
         {
             $this->load->model('User_model');
-            $user_data = $this->User_model->getUserSettingsData($user_id);
+            $user = $this->User_model->getUserSettingsData($user_id);
         }
+
+        $user_data = $user['user_data'];
 
         if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))
         {
-            $user_data = $this->Administrator_model->getAdmin($user_id);
-
             // Валидация E-mail
             if (!empty($this->input->post('email', true))
                 && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
@@ -427,7 +461,7 @@ class Administrator extends CI_Controller
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/admin_settings', $user_data);
+        $this->load->view('admin/admin_settings', $user);
         $this->load->view('footer/footer');
     }
 

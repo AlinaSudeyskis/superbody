@@ -1615,36 +1615,48 @@ class Store_model extends CI_Model
 
             $result['product'] = self::parseProductData($row);
 
-            $result['product']['attached'] = array();
+            $result['product']['attached'] = self::getAttachedProducts($product_id);
 
             unset($row);
-
-            // Выборка прикрепленных товаров
-            $sel_attached_products = $this->db->query('
-                SELECT `pg_attached_p_id`, `pg_discount`, `p_name`, `p_price`, `p_fitcoin_price`, `p_images`, 
-                  `p_short_description`, `p_quantity`
-                FROM `products_group`
-                LEFT JOIN `products`
-                  ON `p_id`=`pg_attached_p_id`
-                WHERE `pg_p_id`=?' , $product_id);
-
-            if ($sel_attached_products !== false and 0 < $sel_attached_products->num_rows())
-            {
-                $i = 0;
-                foreach ($sel_attached_products->result() as $row)
-                {
-                    $result['product']['attached'][$i] = self::parseAttachedProductData($row);
-
-                    $i++;
-                }
-                unset($row);
-            }
-            elseif ($sel_attached_products === false)
-            {
-                parent::logDbMessages(__METHOD__);
-            }
         }
         elseif ($sel_product === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка прикрепленных товаров к товару
+     *
+     * @param $product_id
+     * @return array
+     */
+    public function getAttachedProducts($product_id)
+    {
+        $result = array();
+
+        $sel_attached_products = $this->db->query('
+            SELECT `pg_attached_p_id`, `pg_discount`, `p_name`, `p_price`, `p_fitcoin_price`, `p_images`, 
+              `p_short_description`, `p_quantity`
+            FROM `products_group`
+            LEFT JOIN `products`
+              ON `p_id`=`pg_attached_p_id`
+            WHERE `pg_p_id`=?' , $product_id);
+
+        if ($sel_attached_products !== false and 0 < $sel_attached_products->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_attached_products->result() as $row)
+            {
+                $result[$i] = self::parseAttachedProductData($row);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_attached_products === false)
         {
             parent::logDbMessages(__METHOD__);
         }
@@ -1666,7 +1678,9 @@ class Store_model extends CI_Model
     {
         $result = array();
 
-        $sel_products = $this->db->query('
+        if (!empty($user_id) and is_numeric($user_id))
+        {
+            $sel_products = $this->db->query('
             SELECT `c_id`, `c_attached_c_id`, `c_p_id`, `c_p_quantity`, 
               `p_id`, `p_course_id`, `p_name`, `p_price`, `p_fitcoin_price`, `p_discount`, `p_images`, `p_quantity`, 
               `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`
@@ -1676,12 +1690,67 @@ class Store_model extends CI_Model
             WHERE `c_user_id`=?
             ORDER BY `c_date_update` DESC', $user_id);
 
-        if ($sel_products !== false and 0 < $sel_products->num_rows())
-        {
-            $i = 0;
-            foreach ($sel_products->result() as $row)
+            if ($sel_products !== false and 0 < $sel_products->num_rows())
             {
-                if ($row->c_attached_c_id == 0)
+                $i = 0;
+                foreach ($sel_products->result() as $row)
+                {
+                    if ($row->c_attached_c_id == 0)
+                    {
+                        // Данные
+                        if ($row->p_course_id > 0)
+                        {
+                            $result['products'][$i] = self::parseProductCourseData($row);
+                        }
+                        else
+                        {
+                            $result['products'][$i] = self::parseProductData($row);
+                        }
+
+                        // Прикрепленные товары
+                        $result['products'][$i]['attached'] = self::getAttachedCartProducts($row->p_id, $row->c_id);
+
+                        $i++;
+                    }
+                }
+                unset($row);
+            }
+            elseif ($sel_products === false)
+            {
+                $params = array('user_id' => $user_id);
+                parent::logDbMessages(__METHOD__, $params);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка всех товаров пользователя, добавленных в корзину
+     *
+     * @param $user_id
+     * @return array
+     */
+    public function getUserCartInStockProducts($user_id)
+    {
+        $result = array();
+
+        if (is_numeric($user_id))
+        {
+            $sel_products = $this->db->query('
+            SELECT `c_id`, `c_attached_c_id`, `c_p_id`, `c_p_quantity`, 
+              `p_id`, `p_course_id`, `p_name`, `p_price`, `p_fitcoin_price`, `p_discount`, `p_images`, `p_quantity`, 
+              `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`
+            FROM `cart`
+            LEFT JOIN `products` ON `c_p_id`=`p_id`
+            LEFT JOIN `courses` ON `p_course_id`=`crs_id`
+            WHERE `c_user_id`=? and `c_attached_c_id`=0
+            ORDER BY `c_date_update` DESC', $user_id);
+
+            if ($sel_products !== false and 0 < $sel_products->num_rows())
+            {
+                $i = 0;
+                foreach ($sel_products->result() as $row)
                 {
                     // Данные
                     if ($row->p_course_id > 0)
@@ -1698,88 +1767,37 @@ class Store_model extends CI_Model
 
                     $i++;
                 }
-            }
-            unset($row);
-        }
-        elseif ($sel_products === false)
-        {
-            $params = array('user_id' => $user_id);
-            parent::logDbMessages(__METHOD__, $params);
-        }
+                unset($row);
 
-        return $result;
-    }
-
-    /**
-     * Выборка всех товаров пользователя, добавленных в корзину
-     *
-     * @param $user_id
-     * @return array
-     */
-    public function getUserCartInStockProducts($user_id)
-    {
-        $result = array();
-
-        $sel_products = $this->db->query('
-            SELECT `c_id`, `c_attached_c_id`, `c_p_id`, `c_p_quantity`, 
-              `p_id`, `p_course_id`, `p_name`, `p_price`, `p_fitcoin_price`, `p_discount`, `p_images`, `p_quantity`, 
-              `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`
-            FROM `cart`
-            LEFT JOIN `products` ON `c_p_id`=`p_id`
-            LEFT JOIN `courses` ON `p_course_id`=`crs_id`
-            WHERE `c_user_id`=? and `c_attached_c_id`=0
-            ORDER BY `c_date_update` DESC', $user_id);
-
-        if ($sel_products !== false and 0 < $sel_products->num_rows())
-        {
-            $i = 0;
-            foreach ($sel_products->result() as $row)
-            {
-                // Данные
-                if ($row->p_course_id > 0)
+                // Очистка массива от группы товаров "Нет в наличии"
+                if (!empty($result['products']))
                 {
-                    $result['products'][$i] = self::parseProductCourseData($row);
-                }
-                else
-                {
-                    $result['products'][$i] = self::parseProductData($row);
-                }
-
-                // Прикрепленные товары
-                $result['products'][$i]['attached'] = self::getAttachedCartProducts($row->p_id, $row->c_id);
-
-                $i++;
-            }
-            unset($row);
-
-            // Очистка массива от группы прикрепленных товаров "Нет в наличии"
-            if (!empty($result['products']))
-            {
-                foreach ($result['products'] as $key => $product)
-                {
-                    if ($product['quantity'] == 0)
+                    foreach ($result['products'] as $key => $product)
                     {
-                        unset($result['products'][$key]);
-                    }
-                    else
-                    {
-                        foreach ($product['attached'] as $attached)
+                        if ($product['quantity'] == 0)
                         {
-                            if ($attached['quantity'] == 0)
-                            {
-                                unset($result['products'][$key]['attached']);
-                                break;
-                            }
+                            unset($result['products'][$key]);
                         }
-                        unset($attached);
+                        else
+                        {
+                            foreach ($product['attached'] as $attached)
+                            {
+                                if ($attached['quantity'] == 0)
+                                {
+                                    unset($result['products'][$key]['attached']);
+                                    break;
+                                }
+                            }
+                            unset($attached);
+                        }
                     }
+                    unset($product);
                 }
-                unset($product);
             }
-        }
-        elseif ($sel_products === false)
-        {
-            parent::logDbMessages(__METHOD__);
+            elseif ($sel_products === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
         }
 
         return $result;
@@ -2209,6 +2227,255 @@ class Store_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Получение товаров корзины неавторизованного пользователя
+     *
+     * @param array $products Товары сохраненные в корзине сессии пользователя
+     * @return array
+     */
+    public function getSessionCartProducts($products)
+    {
+        $result = array();
+
+        if (is_array($products) and !empty($products))
+        {
+            $i = 0;
+            foreach ($products as $key => $product)
+            {
+                $sel_product = $this->db->query('
+                    SELECT `p_id`, `p_course_id`, `p_name`, `p_price`, `p_fitcoin_price`, `p_discount`, `p_images`, `p_quantity`, 
+                      `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`
+                    FROM `products`
+                    LEFT JOIN `courses` ON `p_course_id`=`crs_id`
+                    WHERE `p_id`=? LIMIT 1', $product['id']);
+
+                if ($sel_product !== false and 1 == $sel_product->num_rows())
+                {
+                    $row = $sel_product->row();
+
+                    // Данные
+                    if ($row->p_course_id > 0)
+                    {
+                        $result['products'][$i] = self::parseProductCourseData($row);
+                    }
+                    else
+                    {
+                        $result['products'][$i] = self::parseProductData($row);
+                    }
+
+                    $result['products'][$i]['c_id'] = $key;
+                    $result['products'][$i]['cart_quantity'] = $product['quantity'];
+
+                    // Прикрепленные товары
+                    $result['products'][$i]['attached'] = self::getAttachedSessionCartProducts($key, $product['attached']);
+
+                    $i++;
+                }
+            }
+            unset($product);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Прикрепленные товары корзины сессии пользователя
+     *
+     * @param int $product_id
+     * @param array $attached_products
+     * @return array
+     */
+    public function getAttachedSessionCartProducts($product_id, $attached_products)
+    {
+        $result = array();
+
+        if (is_array($attached_products) and !empty($attached_products))
+        {
+            $i = 0;
+
+            foreach($attached_products as $key => $product)
+            {
+                $sel_product = $this->db->query('
+                    SELECT `p_id`, `p_course_id`, `p_name`, `p_price`, `p_fitcoin_price`, `p_discount`, `p_images`, `p_quantity`, 
+                      `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`
+                    FROM `products`
+                    LEFT JOIN `courses` ON `p_course_id`=`crs_id`
+                    WHERE `p_id`=? LIMIT 1', $product['id']);
+
+                if ($sel_product !== false and 1 == $sel_product->num_rows())
+                {
+                    $row = $sel_product->row();
+
+                    // Данные
+                    if ($row->p_course_id > 0)
+                    {
+                        $result[$i] = self::parseProductCourseData($row);
+                    }
+                    else
+                    {
+                        $result[$i] = self::parseProductData($row);
+                    }
+
+                    $result[$i]['c_id']          = $key;
+                    $result[$i]['c_ap_id']       = $product_id;
+                    $result[$i]['cart_quantity'] = $product['quantity'];
+
+                    $i++;
+                }
+            }
+            unset($product);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение товаров корзины сессии в БД авторизованного пользователя
+     *
+     * @param int $user_id
+     * @param array $products
+     * @param string $date
+     * @return bool
+     */
+    public function setSessionCartToDB($user_id, $products, $date)
+    {
+        $result = false;
+
+        // Если данные пользователя корректны и массив товаров корзины не пуст
+        if(is_array($products) and !empty($products) and is_numeric($user_id))
+        {
+            foreach ($products as $product)
+            {
+                $product_id       = (is_numeric($product['id'])) ? $product['id'] : null;
+                $product_quantity = (is_numeric($product['quantity'])) ? $product['quantity'] : 1;
+
+                // Если корректны данные товара, добавляем в БД
+                if (!empty($product_id))
+                {
+                    $ins_data = $this->db->query('
+                        INSERT INTO `cart` (`c_user_id`, `c_p_id`, `c_p_quantity`, `c_date_update`)
+                        VALUES (?, ?, ?, ?)', array($user_id, $product_id, $product_quantity, $date));
+
+                    if ($ins_data !== false and 1 == $this->db->affected_rows())
+                    {
+                        // Если массив прикрепленных товаров не пуст, проверяем и добавляем в БД
+                        if(is_array($product['attached']) and !empty($product['attached']))
+                        {
+                            // ID товарв в коризне БД пользователя
+                            $c_p_id = $this->db->insert_id();
+
+                            foreach ($product['attached'] as $attached)
+                            {
+                                $attached_id       = (is_numeric($attached['id'])) ? $attached['id'] : null;
+                                $attached_quantity = (is_numeric($attached['quantity'])) ? $attached['quantity'] : 1;
+
+                                // Если корректны данные товара, добавляем в БД
+                                if(!empty($attached_id))
+                                {
+                                    $ins_attached = $this->db->query('
+                                        INSERT INTO `cart` (`c_attached_c_id`, `c_user_id`, `c_p_id`, `c_p_quantity`, `c_date_update`)
+                                        VALUES (?, ?, ?, ?, ?)', array($c_p_id, $user_id, $attached_id, $attached_quantity, $date));
+
+                                    if($ins_attached === false)
+                                    {
+                                        parent::logDbMessages(__METHOD__);
+                                    }
+
+                                }
+                            }
+                            unset($attached);
+                        }
+
+                        $result = true;
+                    }
+                    elseif($ins_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__);
+                    }
+                }
+            }
+            unset($product);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Получение товаров корзины неавторизованного пользователя
+     *
+     * @param array $products Товары сохраненные в корзине сессии пользователя
+     * @return array
+     */
+    public function getSessionCartInStockProducts($products)
+    {
+        $result = array();
+
+        if (is_array($products) and !empty($products))
+        {
+            $i = 0;
+            foreach ($products as $key => $product)
+            {
+                $sel_product = $this->db->query('
+                    SELECT `p_id`, `p_course_id`, `p_name`, `p_price`, `p_fitcoin_price`, `p_discount`, `p_images`, `p_quantity`, 
+                      `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`
+                    FROM `products`
+                    LEFT JOIN `courses` ON `p_course_id`=`crs_id`
+                    WHERE `p_id`=? LIMIT 1', $product['id']);
+
+                if ($sel_product !== false and 1 == $sel_product->num_rows())
+                {
+                    $row = $sel_product->row();
+
+                    // Данные
+                    if ($row->p_course_id > 0)
+                    {
+                        $result['products'][$i] = self::parseProductCourseData($row);
+                    }
+                    else
+                    {
+                        $result['products'][$i] = self::parseProductData($row);
+                    }
+
+                    $result['products'][$i]['c_id'] = $key;
+                    $result['products'][$i]['cart_quantity'] = $product['quantity'];
+
+                    // Прикрепленные товары
+                    $result['products'][$i]['attached'] = self::getAttachedSessionCartProducts($key, $product['attached']);
+
+                    $i++;
+                }
+            }
+            unset($product);
+
+            // Очистка массива от группы товаров "Нет в наличии"
+            if (!empty($result['products']))
+            {
+                foreach ($result['products'] as $key => $product)
+                {
+                    if ($product['quantity'] == 0)
+                    {
+                        unset($result['products'][$key]);
+                    }
+                    else
+                    {
+                        foreach ($product['attached'] as $attached)
+                        {
+                            if ($attached['quantity'] == 0)
+                            {
+                                unset($result['products'][$key]['attached']);
+                                break;
+                            }
+                        }
+                        unset($attached);
+                    }
+                }
+                unset($product);
+            }
+        }
+
+        return $result;
+    }
+
     /* КОНЕЦ БЛОКА ФУНКЦИЙ КОРЗИНЫ */
 
     /* НАЧАЛО БЛОКА ФУНКЦИЙ ЗАКАЗА */
@@ -2223,31 +2490,35 @@ class Store_model extends CI_Model
     {
         $result = array();
 
-        $sel_addresses = $this->db->query('
-          SELECT `oud_id`, `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode` 
-          FROM `orders_users_data`
-          WHERE `oud_u_id`=?', $user_id);
-
-        if ($sel_addresses !== false and 0 < $sel_addresses->num_rows()) {
-            $i = 0;
-
-            foreach ($sel_addresses->result() as $row)
-            {
-                $result['addresses'][$i]['id']       = $row->oud_id;
-                $result['addresses'][$i]['country']  = $row->oud_country;
-                $result['addresses'][$i]['city']     = $row->oud_city;
-                $result['addresses'][$i]['street']   = $row->oud_street;
-                $result['addresses'][$i]['building'] = $row->oud_building;
-                $result['addresses'][$i]['house']    = $row->oud_house;
-                $result['addresses'][$i]['postcode'] = $row->oud_postcode;
-
-                $i++;
-            }
-            unset($row);
-        }
-        elseif ($sel_addresses === false)
+        if(is_numeric($user_id))
         {
-            parent::logDbMessages(__METHOD__);
+            $sel_addresses = $this->db->query('
+                SELECT `oud_id`, `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode` 
+                FROM `orders_users_data`
+                WHERE `oud_u_id`=?', $user_id);
+
+            if ($sel_addresses !== false and 0 < $sel_addresses->num_rows())
+            {
+                $i = 0;
+
+                foreach ($sel_addresses->result() as $row)
+                {
+                    $result['addresses'][$i]['id']       = $row->oud_id;
+                    $result['addresses'][$i]['country']  = $row->oud_country;
+                    $result['addresses'][$i]['city']     = $row->oud_city;
+                    $result['addresses'][$i]['street']   = $row->oud_street;
+                    $result['addresses'][$i]['building'] = $row->oud_building;
+                    $result['addresses'][$i]['house']    = $row->oud_house;
+                    $result['addresses'][$i]['postcode'] = $row->oud_postcode;
+
+                    $i++;
+                }
+                unset($row);
+            }
+            elseif ($sel_addresses === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
         }
 
         return $result;

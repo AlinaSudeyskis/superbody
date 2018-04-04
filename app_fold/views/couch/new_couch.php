@@ -17,29 +17,47 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" class="set_admin_form" method="post" enctype="multipart/form-data">
-                        <div class="parent">
-                            <div class="admin_form_l">
-                                <div class="admin_form_h">Фото</div>
-                                <div class="admin_form_foto_wrap">
-                                    <div class="admin_form_foto"></div>
+                    <div class="anketa_block">
+                        <div class="anketa_block_cont">
+                            <div class="anketa_block_item">
+                                <div class="anketa_block_item_cont">
+                                    <form action="" method="post" class="set_admin_form" enctype="multipart/form-data">
+                                        <div class="anketa_form_line parent">
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Польное имя</div></div>
+                                            <input type="text" name="name" class="anketa_form_in anketa_form_in_long" placeholder="Полное имя" value="<?php if (!empty($user_name)) { echo $user_name; }?>" maxlength="255"/>
+                                        </div>
+                                        <div class="anketa_form_line parent">
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Email</div></div>
+                                            <input type="text" name="email" class="anketa_form_in anketa_form_in_long" placeholder="Email" value="<?php if (!empty($user_email)) { echo $user_email; }?>" maxlength="255"/>
+                                        </div>
+                                        <div class="anketa_form_line parent">
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото</div></div>
+                                            <div class="anketa_form_info_cont">
+                                                <div style="width: 330px;">
+                                                    <div class="video_down_line parent">
+                                                        <div class="parent kurs_cur_wrap">
+                                                            <div class="video_down_line_but_wrap">
+                                                                <label for="video_down_line_but1cs" class="video_down_line_but">
+                                                                    <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
+                                                                    <input type="file" name="avatar_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
+                                                                    <span>Выберите файл</span>
+                                                                </label>
+                                                            </div>
+                                                            <div class="video_down_line_name" style="width:45% !important;">Файл не выбран</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="anketa_form_buts_wrap parent">
+                                            <input type="submit" name="bt_save_new_couch" value="Сохранить" class="anketa_form_but">
+                                        </div>
+                                    </form>
                                 </div>
-                                <label for="admin_add_file" class="admin_add_file">
-                                    <input type="file" name="avatar_file" class="admin_form_file_but" id="admin_add_file" />
-                                    <span>Добавить фото</span>
-                                </label>
-                            </div>
-                            <div class="admin_form_r">
-                                <div class="admin_form_h">ФИО</div>
-                                <input type="text" name="name" class="admin_form_txt" placeholder="Полное имя" value="" maxlength="255" required="required"/>
-                                <div class="admin_form_h">E-mail</div>
-                                <input type="text" name="email" class="admin_form_txt" placeholder="e-mail" value="" maxlength="255" required="required"/>
                             </div>
                         </div>
-                        <div class="admin_form_bats parent">
-                            <input type="submit" name="bt_save_new_couch" class="admin_form_submit" value="Сохранить">
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div><!-- content_col -->

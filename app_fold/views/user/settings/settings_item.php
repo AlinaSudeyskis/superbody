@@ -4,11 +4,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <form action="" method="post" class="anketa_form" enctype="multipart/form-data">
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Польное имя</div></div>
-        <input type="text" class="anketa_form_in anketa_form_in_long" placeholder="Полное имя" name="name" value="<?php if (!empty($user_name)) { echo $user_name; }?>" maxlength="255"/>
+        <input type="text" class="anketa_form_in anketa_form_in_long" placeholder="Полное имя" name="name" value="<?php if (!empty($user_data['user_name'])) { echo $user_data['user_name']; }?>" maxlength="255"/>
     </div>
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Email</div></div>
-        <input type="text" class="anketa_form_in anketa_form_in_long" placeholder="Email" name="email" value="<?php if (!empty($user_email)) { echo $user_email; }?>" maxlength="255"/>
+        <input type="text" class="anketa_form_in anketa_form_in_long" placeholder="Email" name="email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255"/>
     </div>
     <?php if ($user_session['auth_via'] == 'native') :?>
         <div class="anketa_form_line parent">
@@ -57,12 +57,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     </div>
-    <?php if (!empty($user_image)) : ?>
+    <?php if (!empty($user_data['user_image'])) : ?>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
             <input type="submit" name="bt_delete_avatar" value="Удалить" class="full_photo_comm_reset settings"/>
             <div class="tren_set_form_img" id="settings_img">
-                    <img src="<?php echo $user_image;?>" alt="">
+                    <img src="<?php echo $user_data['user_image'];?>" alt="">
             </div>
         </div>
     <?php endif;?>

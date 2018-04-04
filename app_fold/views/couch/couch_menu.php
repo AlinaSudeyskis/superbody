@@ -20,37 +20,38 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <span><img src="/img/menu_ico2.png" alt=""></span><span>Настройки</span>
             </a>
         </li>
+        <?php $user_blocked = ($user_session['blocked'] == 1) ? 'class="disabled"' : '';?>
         <li>
             <a href="/messages" <?php if ($page_menu == 'messages') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico4.png" alt=""></span><span>Сообщения</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/profile/courses" <?php if ($page_menu == 'u_courses') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico6.png" alt=""></span><span>Курсы</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/portfolio" <?php if ($page_menu == 'portfolio') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico12.png" alt=""></span><span>Портфолио</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/clients/activity" <?php if ($page_menu == 'activity') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico13.png" alt=""></span><span>Активность клиентов</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/posts" <?php if ($page_menu == 'blog') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico14.png" alt=""></span><span>Блог</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/partner" <?php if ($page_menu == 'partner') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico15.png" alt=""></span><span>Партнерка</span>
             </a>
         </li>
-        <li>
+        <li <?php echo $user_blocked; ?> >
             <a href="#" <?php if ($page_menu == 'wallet') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico16.png" alt=""></span><span>Кошелек</span>
             </a>

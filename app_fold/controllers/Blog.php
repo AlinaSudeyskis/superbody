@@ -31,8 +31,8 @@ class Blog extends CI_Controller
     public function blogPosts()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         // Объединенные данные страница
@@ -58,8 +58,8 @@ class Blog extends CI_Controller
     public function blogPost($post_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if($this->input->post('bt_save_post', true))
@@ -159,8 +159,8 @@ class Blog extends CI_Controller
     public function blogComments()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         // Объединенные данные страница
@@ -186,8 +186,8 @@ class Blog extends CI_Controller
     public function blogComment($comment_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_approval_comment', true)) {
@@ -234,16 +234,20 @@ class Blog extends CI_Controller
     public function getCouchPosts()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 2)
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
         {
-            show_404();
+            parent::pageNotFound($this->page_url);
         }
+
+        $this->load->model('Couch_model');
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Блог';
         $this->page_data['page_menu'] = 'blog';
 
-        $result = $this->Blog_model->getCouchBlogPosts($this->user_id);
+        $c_data = $this->Couch_model->getCouch($this->user_id, $this->date);
+        $posts  = $this->Blog_model->getCouchBlogPosts($this->user_id);
+        $result = array_merge($posts, $c_data);
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -259,9 +263,9 @@ class Blog extends CI_Controller
      */
     public function getCouchPost($post_id)
     {
-        if (empty($this->user_id) or $this->session->user['type'] != 2)
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
         {
-            show_404();
+            parent::pageNotFound($this->page_url);
         }
 
         if($this->input->post('bt_save_post', true))
@@ -369,9 +373,9 @@ class Blog extends CI_Controller
     public function newCouchPost()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 2)
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
         {
-            show_404();
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_post', true))

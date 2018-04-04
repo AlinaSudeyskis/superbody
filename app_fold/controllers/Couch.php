@@ -29,8 +29,9 @@ class Couch extends CI_Controller
     public function couches()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
         }
 
         $result = $this->Couch_model->getCouches();
@@ -72,16 +73,20 @@ class Couch extends CI_Controller
     public function newCouch()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
         }
 
-        if ($this->input->post('bt_save_new_couch', true)) {
+        if ($this->input->post('bt_save_new_couch', true))
+        {
             // Валидация E-mail
-            $email      = null;
-            $email_hash = null;
+            $email         = null;
+            $email_hash    = null;
+            $password_hash = '';
+
             if (!empty($this->input->post('email', true))
-                && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+                and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
             {
                 $email      = $this->input->post('email', true);
                 $email_hash = password_hash($this->input->post('email', true), PASSWORD_DEFAULT);
@@ -90,44 +95,75 @@ class Couch extends CI_Controller
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
 
-            $arr = array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','r','s',
-                't','u','v','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S',
-                'T','U','V','X','Y','Z','1','2','3','4','5','6','7','8','9','0','.',',','(',')','[',']','!','?',
-                '&','^','%','@','*','$','<','>','/','|','+','-','{','}','`','~');
-            // Генерируем 8мизначный пароль
-            $password = "";
-            for($i = 0; $i < 8; $i++)
-            {
-                // Вычисляем случайный индекс массива
-                $index = rand(0, count($arr) - 1);
-                $password .= $arr[$index];
-            }
-
-            // Хэш пароля
-            $password_hash = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : null;
-
             // Сохранение данных в БД
-            if (!empty($email) and !empty($password))
+            if (!empty($email))
             {
                 $result = $this->Couch_model->setNewCouch($email, $name, $password_hash, $email_hash, $this->date);
 
                 if (is_numeric($result))
                 {
-                    $couch_id = $result;
-                    // Отправление письма с данными администратора
+                    // Отправление письма о подтвержении регистрации пользователю
                     $email_to  = "<$email>";
 
-                    $subject   = "Регистрации на сайте SuperBody";
+                    $subject   = "Подтвеждение регистрации на сайте SuperBody";
 
-                    $message   = "<p>Ваши данные для авторизации на сайте SuperBody:</p> 
-                    <p>E-mail: $email</p> 
-                    <p>Пароль: $password</p>";
+                    $message   = '<p>Для подтверждения регистрации на сайте перейдите по ссылке</p> </br>';
+                    $message  .= '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash . '">';
+                    $message  .= 'https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash;
+                    $message  .= '</a></b>';
 
                     $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                    $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
+                    $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
                     $headers   .= "Reply-To: info@superbody.pro\r\n";
 
                     mail($email_to, $subject, $message, $headers);
+
+                    $couch_id = $result;
+                    $path_avatar = '';
+
+                    // Загрузка изображения на сервер
+                    if(is_uploaded_file($_FILES['avatar_file']['tmp_name']))
+                    {
+                        $path = './user_files/'.$couch_id.'/avatar/';
+
+                        if(!file_exists($path))
+                        {
+                            chdir('user_files');
+                            if(!is_dir($couch_id))
+                            {
+                                mkdir($couch_id);
+                            }
+                            chmod($couch_id, 0777);
+                            chdir($couch_id);
+                            if(!is_dir('avatar'))
+                            {
+                                mkdir('avatar');
+                            }
+                            chmod('avatar', 0777);
+                            chdir('avatar');
+                            chdir('../../../');
+                        }
+                        $this->load->helper('file');
+
+                        $path_image = parent::uploadImage('avatar_file', $_FILES['avatar_file']['type'], $path);
+                        if(file_exists($path.$path_image))
+                        {
+                            if ($this->security->xss_clean($path.$path_image, TRUE) !== FALSE)
+                            {
+                                // файл прошел XSS тест
+                                $path_avatar = $path.$path_image;
+                            }
+                            else
+                            {
+                                unlink($path);
+                            }
+                        }
+                    }
+
+                    if (!empty($path_avatar))
+                    {
+                        $this->Couch_model->setCouchAvatar($couch_id, $path_avatar);
+                    }
 
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
@@ -150,13 +186,13 @@ class Couch extends CI_Controller
                     header('Location: /administration/couch/new');
                 }
             }
-        }
-        else
-        {
-            // Некорректные данные
-            $this->session->set_tempdata('message', 15, 60);
+            else
+            {
+                // Некорректные данные
+                $this->session->set_tempdata('message', 15, 60);
 
-            header('Location: /administration/couch/new');
+                header('Location: /administration/couch/new');
+            }
         }
 
         // Объединенные данные страница
@@ -177,8 +213,8 @@ class Couch extends CI_Controller
     public function newCouchOfTheUsers()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
         }
 
         if ($this->input->post('bt_save_new_couches', true)) {
@@ -255,15 +291,16 @@ class Couch extends CI_Controller
     public function couchSettings($user_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
         }
 
-        $user_data = $this->Couch_model->getCouch($user_id);
+        $user = $this->Couch_model->getCouch($user_id);
 
         if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))
         {
-            $user_data = $this->Couch_model->getCouch($user_id);
+            $user_data = $user['user_data'];
 
             // Валидация E-mail
             if (!empty($this->input->post('email', true))
@@ -351,12 +388,14 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 19, 60);
             }
         }
-        elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id)) {
+        elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id))
+        {
             $type = 1;
             $this->load->model('Administrator_model');
             $result = $this->Administrator_model->changeUserType($user_id, $type, $this->date);
 
-            if ($result === true) {
+            if ($result === true)
+            {
                 $result = $this->User_model->getUser($user_id);
                 $user_data = $result['user_data'];
 
@@ -397,6 +436,7 @@ class Couch extends CI_Controller
         }
         elseif ($this->input->post('bt_save_data', true))
         {
+            $user_data = $user['user_data'];
             $res_gb = false;
             $res_cd = false;
 
@@ -462,7 +502,7 @@ class Couch extends CI_Controller
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('couch/settings/couch_settings', $user_data);
+        $this->load->view('couch/settings/couch_settings', $user);
         $this->load->view('footer/footer');
     }
 
@@ -476,7 +516,7 @@ class Couch extends CI_Controller
     public function couchPortfolio()
     {
         // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id) or $this->session->user['type'] != 2)
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -748,8 +788,9 @@ class Couch extends CI_Controller
     public function searchCouches()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
-            show_404();
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
         }
 
         $result['couches'] = false;
@@ -775,7 +816,7 @@ class Couch extends CI_Controller
     public function usersActivity()
     {
         // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id) or $this->session->user['type'] != 2)
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -804,7 +845,7 @@ class Couch extends CI_Controller
     public function userActivity($user_id)
     {
         // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id) or $this->session->user['type'] != 2)
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -840,7 +881,7 @@ class Couch extends CI_Controller
     public function partner()
     {
         // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id) or $this->session->user['type'] != 2)
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -869,8 +910,9 @@ class Couch extends CI_Controller
     public function partnerCourse($course_id)
     {
         // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id)) {
-            header('Location: /login');
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
         }
 
         $this->load->model('Course_model');

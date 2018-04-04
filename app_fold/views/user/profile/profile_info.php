@@ -12,7 +12,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="kurs_block_val">
         <div class="tren_prof_page_block parent">
             <div class="tren_prof_page_img_wrap">
-                <div class="tren_prof_page_img"><?php if (!empty($user_data['image'])) :?><img src="<?php echo $user_data['image'];?>" alt=""><?php endif;?></div>
+                <?php if (!empty($user_data['image'])) :?>
+                    <div class="tren_prof_page_img"><img src="<?php echo $user_data['image'];?>" alt=""></div>
+                <?php endif;?>
                 <?php
                 $split_name['name']    = '';
                 $split_name['surname'] = '';

@@ -87,7 +87,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="shop_tov_buts_col">
             <?php $cart_match = false;
             $bought_match = false;
-            if (!empty($products_id) and $product['course_id'] == 0)
+            if (!empty($products_id)) //  and $product['course_id'] == 0
             {
                 $cart_match = in_array($product['id'], $products_id);
             }

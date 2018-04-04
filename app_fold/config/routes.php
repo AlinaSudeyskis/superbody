@@ -70,6 +70,7 @@ $route['ok_login']               = 'Authorization/okLogin';
 //$route['google_login']           = 'Authorization/googleLogin';
 $route['logout']                 = 'Authorization/logout';
 $route['activate']               = 'Authorization/userActivate';
+$route['activated']              = 'Authorization/userActivated';
 $route['restore']                = 'Authorization/restorePassword';
 $route['block']                  = 'Authorization/blockAccount';
 

@@ -31,7 +31,7 @@ class Course extends CI_Controller
     public function courseTypes()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -57,7 +57,7 @@ class Course extends CI_Controller
     public function newCourseTypes()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -106,7 +106,7 @@ class Course extends CI_Controller
     public function courseType($type_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -158,7 +158,7 @@ class Course extends CI_Controller
     public function ingestionTypes()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -183,7 +183,7 @@ class Course extends CI_Controller
     public function newIngestionTypes()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -226,7 +226,7 @@ class Course extends CI_Controller
     public function ingestionType($type_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -273,7 +273,7 @@ class Course extends CI_Controller
     public function ingestions()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -298,7 +298,7 @@ class Course extends CI_Controller
     public function newIngestion()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -373,7 +373,7 @@ class Course extends CI_Controller
     public function ingestion($ing_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -453,7 +453,7 @@ class Course extends CI_Controller
     public function video($video_type = 'promo')
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -483,7 +483,7 @@ class Course extends CI_Controller
     protected function videoPromo()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -509,7 +509,7 @@ class Course extends CI_Controller
     protected function videoCourses()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -535,7 +535,7 @@ class Course extends CI_Controller
     protected function videoUncategorized()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -561,7 +561,7 @@ class Course extends CI_Controller
     protected function videoInstructions()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -588,7 +588,7 @@ class Course extends CI_Controller
     public function courseVideo($course_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -614,7 +614,7 @@ class Course extends CI_Controller
     public function newVideo()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -698,7 +698,7 @@ class Course extends CI_Controller
     public function videoSettings($video_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -816,7 +816,7 @@ class Course extends CI_Controller
     public function courseVideoSettings($course_id, $video_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -938,7 +938,7 @@ class Course extends CI_Controller
     public function courses()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -1003,7 +1003,7 @@ class Course extends CI_Controller
     public function newCourse()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -1228,7 +1228,7 @@ class Course extends CI_Controller
     public function course($course_id, $page_type = 'settings', $review_id = null)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -3081,12 +3081,12 @@ class Course extends CI_Controller
      */
     protected function newCourseVideo($course_id)
     {
-        $result = $this->Course_model->getShortCourse($course_id);
-
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
+
+        $result = $this->Course_model->getShortCourse($course_id);
 
         if ($this->input->post('bt_save_video', true))
         {
@@ -3197,12 +3197,18 @@ class Course extends CI_Controller
         }
 
         // Страница пользователя или администратора
-        if ($this->session->user['type'] != 2) {
+        if ($this->session->user['type'] != 2 and $this->session->user['blocked'] == 0)
+        {
             self::userCourses();
         }
         // Страница тренера
-        elseif ($this->session->user['type'] == 2) {
+        elseif ($this->session->user['type'] == 2 and $this->session->user['blocked'] == 0)
+        {
             self::couchCourses();
+        }
+        else
+        {
+            parent::pageNotFound($this->page_url);
         }
     }
 
@@ -4039,7 +4045,7 @@ class Course extends CI_Controller
     public function courseUsersActivity($course_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -4069,7 +4075,7 @@ class Course extends CI_Controller
     public function courseUserActivity($course_id, $user_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -4222,56 +4228,95 @@ class Course extends CI_Controller
                 $course_price = $course['price'];
             }
 
-            // Добавление товара в заказы пользователя
-            $this->load->model('Store_model');
-
-            $products['products'] = array( 0 => array(
-                'id' => $course['p_id'],
-                'cart_quantity' => 1,
-                'price' => $course_price,
-                'fc_price' => '',
-                'discount_price' => '',
-                'discount_fc_price' => '')
-            );
-
-            $res_order = $this->Store_model->setOrder($this->user_id, '', $this->session->user['name'], '', $this->session->user['email'], '',
-                '', '', '', '', '', '', '', $products, $this->date);
-
-            if ($res_order !== false and is_numeric($res_order['order_id']))
+            // Проверка данных пользователя (использовать данные авторизованного пользователя или данные с формы оплаты)
+            if(is_numeric($this->user_id))
             {
-                // Кол-во товаров в корзине
-                parent::updateSessionCart(0);
-
-                $payment_data = array(
-                    'oid' => $res_order['order_id'],
-                    'amount' => $res_order['total_amount'],
-                    'type' => $payment_type,
-                    'option' => $payment_option,
-                    'phone' => $method_phone,
-                    'login' => $method_login,
-                );
-
-                header('Location: /payment?' .http_build_query($payment_data));
-
-                /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
-
-                if (is_numeric($res_buy))
-                {
-                    $uc_id = $res_buy;
-
-                    if (!empty($training_days)) {
-                        $this->Course_model->setUserTrainingWeeks($uc_id, $start_date, $training_days, $count_workouts, $course['count_days'], $this->date);
-                    }
-                }
-
-                // Сохранено
-                $this->session->set_tempdata('message', 10, 60);*/
+                $user_id = $this->user_id;
+                $email   = $this->session->user['email'];
             }
             else
             {
-                // Не сохранено
-                $this->session->set_tempdata('message', 101, 60);
-                header('Location: /course/' . $course_id);
+                $user_id = null;
+                $email   = filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL) ? $this->input->post('email', true) : null;
+            }
+
+            // Если пользователь не авторизован, проверяем введенный им email (нет в БД - регистрация)
+            if (empty($user_id) and !empty($email))
+            {
+                $user_id = parent::checkEmail($email);
+            }
+            elseif(empty($user_id) and empty($email))
+            {
+                // Некорректный email
+                $this->session->set_tempdata('message', 6, 60);
+            }
+
+            if(!empty($user_id))
+            {
+                // Добавление товара в заказы пользователя
+                $this->load->model('Store_model');
+
+                $products['products'] = array( 0 => array(
+                    'id' => $course['p_id'],
+                    'cart_quantity' => 1,
+                    'price' => $course_price,
+                    'fc_price' => '',
+                    'discount_price' => '',
+                    'discount_fc_price' => '')
+                );
+
+                $prev_address = '';
+                $name = '';
+                $surname = '';
+                $phone = '';
+                $country = '';
+                $city = '';
+                $street = '';
+                $building = '';
+                $house = '';
+                $postcode = '';
+                $delivery = '';
+
+                $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $phone,
+                    $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
+
+                if ($res_order !== false and is_numeric($res_order['order_id']))
+                {
+                    // Кол-во товаров в корзине
+                    parent::updateSessionCart(0);
+
+                    $payment_data = array(
+                        'oid' => $res_order['order_id'],
+                        'amount' => $res_order['total_amount'],
+                        'type' => $payment_type,
+                        'option' => $payment_option,
+                        'phone' => $method_phone,
+                        'login' => $method_login,
+                    );
+
+                    header('Location: /payment?' .http_build_query($payment_data));
+
+                    /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
+
+                    if (is_numeric($res_buy))
+                    {
+                        $uc_id = $res_buy;
+
+                        if (!empty($training_days)) {
+                            $this->Course_model->setUserTrainingWeeks($uc_id, $start_date, $training_days, $count_workouts, $course['count_days'], $this->date);
+                        }
+                    }
+
+                    // Сохранено
+                    $this->session->set_tempdata('message', 10, 60);*/
+                }
+                else
+                {
+                    // Не сохранено
+                    $this->session->set_tempdata('message', 101, 60);
+                    header('Location: /course/' . $course_id);
+                }
+
             }
 
             /*// Курс куплен (добавлен)
@@ -4312,7 +4357,7 @@ class Course extends CI_Controller
     public function defaultLanding($lp_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -4368,7 +4413,7 @@ class Course extends CI_Controller
     public function uploadVideo()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -4403,7 +4448,7 @@ class Course extends CI_Controller
     public function uploadPoster()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -4445,7 +4490,7 @@ class Course extends CI_Controller
     public function deleteVideo()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -4469,7 +4514,7 @@ class Course extends CI_Controller
     public function deletePoster()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
@@ -4495,7 +4540,7 @@ class Course extends CI_Controller
     public function searchVideo()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3)
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }

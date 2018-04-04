@@ -644,3 +644,12 @@ span.mess_block_full_time {
 .ordering_block_side_cont_txt .waiting_for_capture, .ordering_block_side_cont_txt .pending{
     color: #ffcb38;
 }
+.center_txt{
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    line-height: 24px;
+    font-weight: 300;
+    color: #606060;
+    padding: 15px 0;
+}
