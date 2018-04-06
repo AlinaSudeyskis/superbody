@@ -468,7 +468,7 @@ class Authorization_model extends CI_Model
             }
             else
             {
-                return false;
+                return 'error_password';
             }
         }
         elseif($sel_user === false)
@@ -478,7 +478,7 @@ class Authorization_model extends CI_Model
         }
         else
         {
-            return false;
+            return 'error_user';
         }
     }
 

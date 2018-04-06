@@ -40,26 +40,20 @@ class Authorization extends CI_Controller
             if ($this->input->post('cb_politics', true))
             {
                 // Валидация E-mail
-                if (!empty($this->input->post('email', true))
-                    && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-                {
-                    $email      = $this->input->post('email', true);
-                    $email_hash = password_hash($this->input->post('email', true), PASSWORD_DEFAULT);
-                }
-                else
-                {
-                    $email      = null;
-                    $email_hash = null;
-                }
+                $email = (!empty($this->input->post('email', true))  and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+                    ? $this->input->post('email', true)
+                    : null;
+                $email_hash = (!empty($email)) ? password_hash($email, PASSWORD_DEFAULT) : null;
+
+                // Пароль
+                $password         = $this->input->post('password', true);
+                $password_confirm = $this->input->post('password_confirm', true);
+                $password_hash    = null;
 
                 // Хэширование пароля
-                if (!empty($this->input->post('password', true)))
+                if (!empty($password) and $password === $password_confirm)
                 {
-                    $password_hash = password_hash($this->input->post('password', true), PASSWORD_DEFAULT);
-                }
-                else
-                {
-                    $password_hash = null;
+                    $password_hash = password_hash($password, PASSWORD_DEFAULT);
                 }
 
                 // Сохранение данных в БД
@@ -145,21 +139,18 @@ class Authorization extends CI_Controller
             header('Location: /');
         }
 
+        $registration = false;
+        $reg_data     = null;
+
         // Проверка введенных данных, поиск пользователя в БД
         if ($this->input->post('bt_login', true) and $this->input->post('cb_politics', true))
         {
             if ($this->input->post('cb_politics', true))
             {
                 // Валидация E-mail
-                if (!empty($this->input->post('email', true))
-                    and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-                {
-                    $email = $this->input->post('email', true);
-                }
-                else
-                {
-                    $email = null;
-                }
+                $email = (!empty($this->input->post('email', true))  and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+                    ? $this->input->post('email', true)
+                    : null;
 
                 $password = $this->input->post('password', true);
 
@@ -168,7 +159,7 @@ class Authorization extends CI_Controller
                 {
                     $result = $this->Authorization_model->userAuthorization($email, $password, $this->date);
 
-                    if ($result !== false)
+                    if (is_array($result))
                     {
                         parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'], $result['user_name'],
                             $result['user_image'], '', 'native', 0, $this->date);
@@ -176,11 +167,16 @@ class Authorization extends CI_Controller
                         // После успешной авторизации переход на страницу пользователя
                         header('Location: /profile/'.$result['user_id']);
                     }
-                    else
+                    elseif($result == 'error_password')
                     {
                         // Не верный E-mail или пароль
                         $this->session->set_tempdata('message', 7, 60);
                         header('Location: /login');
+                    }
+                    elseif($result == 'error_user')
+                    {
+                        $registration      = true;
+                        $reg_data['email'] = $email;
                     }
                 }
                 else
@@ -220,7 +216,16 @@ class Authorization extends CI_Controller
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');
-        $this->load->view('authorization/login');
+
+        if($registration === false)
+        {
+            $this->load->view('authorization/login');
+        }
+        else
+        {
+            $this->load->view('authorization/registration', $reg_data);
+        }
+
         $this->load->view('footer/footer');
     }
 
