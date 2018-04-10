@@ -693,15 +693,35 @@ class Authorization_model extends CI_Model
      */
     protected function setUserSocial($user_id, $social, $social_id, $access_token, $expires_at, $issued_at, $expires_in, $date)
     {
-        $this->db->query('
-            INSERT INTO `users_social` (`us_u_id`, `us_social`, `us_social_id`, `us_token`, `us_expires_at`, 
-                `us_issued_at`, `us_expires_in`, `us_update`) 
-            VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
-                array($user_id, $social, $social_id, $access_token, $expires_at, $issued_at, $expires_in, $date));
+        $sel_social = $this->db->query('SELECT `us_id` FROM `users_social` 
+            WHERE `us_u_id`=? and `us_social`=? and `us_social_id`=? LIMIT 1', array($user_id, $social, $social_id));
 
-        if (1 == $this->db->affected_rows())
+        if($sel_social !== false and 0 == $sel_social->num_rows())
         {
-            return true;
+            $ins_data = $this->db->query('
+                INSERT INTO `users_social` (`us_u_id`, `us_social`, `us_social_id`, `us_token`, `us_expires_at`, 
+                    `us_issued_at`, `us_expires_in`, `us_update`) 
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
+                    array($user_id, $social, $social_id, $access_token, $expires_at, $issued_at, $expires_in, $date));
+
+            if ($ins_data !== false and 1 == $this->db->affected_rows())
+            {
+                return true;
+            }
+            elseif ($ins_data === false)
+            {
+                parent::logDbMessages(__METHOD__);
+                return false;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        elseif($sel_social === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
         }
         else
         {

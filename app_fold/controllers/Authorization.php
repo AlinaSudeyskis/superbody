@@ -788,8 +788,8 @@ class Authorization extends CI_Controller
     public function vkLogin($email = '', $return = '')
     {
         // Instagram
-        $url_authorize = 'https://oauth.vk.com/authorize';
-        $url_token     = 'https://oauth.vk.com/access_token';
+        $url_authorize = 'https://oauth.vk.com/authorize?v=5.73';
+        $url_token     = 'https://oauth.vk.com/access_token?v=5.73';
         $client_id     = '6241173';
         $client_secret = 'sbeAsVwV4nZP57upZCrS';
         $redirect_uri  = 'https://superbody.pro/vk_login';
@@ -798,14 +798,14 @@ class Authorization extends CI_Controller
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
-        $return        = (mb_substr($return, 0, 8) == '/course/') ? $return . '?ref=1' : $return;
+        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
         $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_vk_login', true) or $this->input->post('bt_connect_vk', true))
         {
             header(
                 sprintf(
-                    'Location:https://oauth.vk.com/authorize?client_id=%s&display=popup&redirect_uri=%s&scope=%s&response_type=code&v=5.69',
+                    'Location:https://oauth.vk.com/authorize??v=5.73&client_id=%s&display=popup&redirect_uri=%s&scope=%s&response_type=code&v=5.69',
                     $client_id,
                     $redirect_uri,
                     implode( ',', $scope )
@@ -845,7 +845,7 @@ class Authorization extends CI_Controller
                 // Получение подробной информации о пользователе
                 $myCurl = curl_init();
                 curl_setopt_array($myCurl, array(
-                    CURLOPT_URL => 'https://api.vk.com/method/users.get',
+                    CURLOPT_URL => 'https://api.vk.com/method/users.get?v=5.73',
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_POST => true,
                     CURLOPT_FOLLOWLOCATION => true,
@@ -858,10 +858,10 @@ class Authorization extends CI_Controller
 
                 if (!empty($resp_info->response))
                 {
-                    $user_soc_id     = $resp_info->response[0]->uid;
-                    $user_soc_name   = !empty($resp_info->response[0]->last_name) and !empty($resp_info->response[0]->first_name)
-                        ? $resp_info->response[0]->last_name . ' ' . $resp_info->response[0]->first_name
-                        : '';
+                    //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Данные ответа соц. сети. $resp_info:' . print_r($resp_info, true));
+
+                    $user_soc_id     = $resp_info->response[0]->id;
+                    $user_soc_name   = $resp_info->response[0]->last_name . ' ' . $resp_info->response[0]->first_name;
                     $user_soc_image  = is_file($resp_info->response[0]->photo_200) ? $resp_info->response[0]->photo_200 : '';
                     $user_soc_bd     = !empty($resp_info->response[0]->bdate) ? $resp_info->response[0]->bdate : '';
                     $user_soc_gender = !empty($resp_info->response[0]->sex) ? $resp_info->response[0]->sex : '';
@@ -881,7 +881,7 @@ class Authorization extends CI_Controller
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                                 $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
+                            $return = ($return == '/profile/') ? ($return . $this->session->user['id']) : $return;
 
                             header('Location: ' . $return);
                         }
@@ -890,15 +890,28 @@ class Authorization extends CI_Controller
                             // Не удалось авторизоваться. Повторите попытку
                             $this->session->set_tempdata('message', 5, 60);
 
+                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
+
                             header('Location: ' . $fail_return);
                         }
                     }
                     else
                     {
-                        $this->Authorization_model->connectSocial($this->user_id, 'vk', $this->date, $user_access_token,
+                        $result = $this->Authorization_model->connectSocial($this->user_id, 'vk', $this->date, $user_access_token,
                             $user_soc_id, $expires_at, $issued_at, $expires_in);
 
-                        header('Location: ' . $return);
+                        if($result === true)
+                        {
+
+                            header('Location: ' . $return);
+                        }
+                        else
+                        {
+                            // Не удалось присоединить соц. сеть
+                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Не удалось присоединить соц. сеть');
+
+                            header('Location: ' . $fail_return);
+                        }
                     }
                 }
                 else
