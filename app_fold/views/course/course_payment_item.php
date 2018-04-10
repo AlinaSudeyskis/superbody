@@ -55,13 +55,13 @@ if($course['new_price'] != 0 or $course['price'] != 0):?>
         <div class="kurs_block_h">Телефон:
             <div class="h_subtitle">(Прим. 79000000000)</div>
         </div>
-        <input type="text" name="i_phone" value="" class="admin_form_txt admin_form_txt_short" required="required" />
+        <input type="text" name="i_phone" value="" class="admin_form_txt admin_form_txt_short" />
     </div>
     <div class="parent kurs_cur_wrap" id="method-login">
         <div class="kurs_block_h">Логин:
             <div class="h_subtitle">(пользователя в Альфа-Клике)</div>
         </div>
-        <input type="text" name="i_login" value="" class="admin_form_txt admin_form_txt_short" required="required" />
+        <input type="text" name="i_login" value="" class="admin_form_txt admin_form_txt_short" />
     </div>
 <?php endif;?>
 <div class="anketa_form_buts_wrap parent">
