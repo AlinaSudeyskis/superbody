@@ -773,6 +773,8 @@ class Authorization extends CI_Controller
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
 
+            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
+
             header('Location: ' . $fail_return);
         }
     }
@@ -920,6 +922,8 @@ class Authorization extends CI_Controller
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
 
+            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
+
             header('Location: ' . $fail_return);
         }
     }
@@ -1044,7 +1048,9 @@ class Authorization extends CI_Controller
         {
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
+
             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
+
             header('Location: ' . $fail_return);
         }
     }
@@ -1289,6 +1295,8 @@ class Authorization extends CI_Controller
         {
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
+
+            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
 
             header('Location: ' . $fail_return);
         }
