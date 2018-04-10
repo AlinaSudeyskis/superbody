@@ -3,25 +3,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <form action="" method="post" class="anketa_form" enctype="multipart/form-data">
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell">Польное имя</div></div>
-        <input type="text" class="anketa_form_in anketa_form_in_long" placeholder="Полное имя" name="name" value="<?php if (!empty($user_data['user_name'])) { echo $user_data['user_name']; }?>" maxlength="255"/>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Польное имя:</div></div>
+        <input type="text" name="name" class="anketa_form_in anketa_form_in_long" placeholder="Полное имя" value="<?php if (!empty($user_data['user_name'])) { echo $user_data['user_name']; }?>" maxlength="255"/>
     </div>
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell">Email</div></div>
-        <input type="text" class="anketa_form_in anketa_form_in_long" placeholder="Email" name="email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255"/>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Email:</div></div>
+        <input type="text" name="email" class="anketa_form_in anketa_form_in_long" placeholder="Email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255"/>
     </div>
-    <?php if ($user_session['auth_via'] == 'native') :?>
+    <?php if (!empty($user_session) and $user_session['auth_via'] == 'native') :?>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell">Пароль</div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Пароль:</div></div>
             <div class="anketa_form_info_cont">
                 <div class="">
                     <span class="anketa_form_info_txt">
-                        <input type="password" class="anketa_form_in anketa_form_in_long pass" placeholder="Старый пароль" name="old_password" id="old-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
+                        <input type="password" name="old_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Старый пароль" id="old-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
                     </span>
                 </div>
                 <div class="new_pass">
                     <span class="anketa_form_info_txt">
-                        <input type="password" class="anketa_form_in anketa_form_in_long pass" placeholder="Новый пароль" name="new_password" id="new-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
+                        <input type="password" name="new_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Новый пароль" id="new-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
                     </span>
                     <span class="anketa_form_info_txt">
                         <span id="pass-info" class="field_info"></span>
@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="confirm_pass">
                     <span class="anketa_form_info_txt">
-                        <input type="password" class="anketa_form_in anketa_form_in_long pass" placeholder="Подтвердите новый пароль" name="confirm_new_password" id="confirm-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
+                        <input type="password" name="confirm_new_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Подтвердите новый пароль" id="confirm-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
                     </span>
                     <span class="anketa_form_info_txt">
                         <span id="pass-info" class="field_info"></span>
@@ -38,6 +38,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     <?php endif;?>
+    <div class="anketa_form_line parent">
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Телефон:</div></div>
+        <input type="text" name="phone" class="anketa_form_in anketa_form_in_long" placeholder="Телефон" value="<?php if (!empty($user_data['user_phone'])) { echo $user_data['user_phone']; }?>" maxlength="50"/>
+    </div>
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото</div></div>
         <div class="anketa_form_info_cont">

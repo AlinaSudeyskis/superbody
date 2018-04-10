@@ -8,20 +8,22 @@ $(document).ready(function(){
 	  arrows: false
 	});
 
+    var opacity = 0.8;
+
     if($("#purchase_pop-up").length > 0){
         $(".lp_block_but").on('click', function(){
             event.preventDefault();
             var popup = $("#purchase_pop-up"),
-                shadow = $("#shadow");
+                shadow = $("#shadow2");
 
             if (shadow.length == 0)
             {
-                $("body").append("<div id='shadow'></div>");
-                shadow = $("#shadow");
+                $("body").append("<div id='shadow2'></div>");
+                shadow = $("#shadow2");
             }
 
             popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
-            $("#shadow, .purchase_pop-up_close").fadeTo(600,0.8).click(function() {
+            $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
                 shadow.fadeOut(600);
                 popup.fadeOut(600);
             });
@@ -42,8 +44,13 @@ $(document).ready(function(){
                 shadow = $("#shadow");
             }
 
+            if($("#shadow2").is(':visible'))
+            {
+                opacity = 0.6;
+            }
+
             popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
-            $("#shadow, .policy_pop-up_close").fadeTo(600,0.8).click(function() {
+            $("#shadow, .policy_pop-up_close").fadeTo(600, opacity).click(function() {
                 shadow.fadeOut(600);
                 popup.fadeOut(600);
             });

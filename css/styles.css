@@ -511,6 +511,14 @@ span.mess_block_full_time {
     background-size: 14px;
     padding-left: 25px;
 }
+.purchase_form .sing-in_h.tren_form_block_check_wrap label{
+    color: #33363f;
+    background: url(/img/check.png) 0 0 no-repeat;
+    background-size: 14px;
+}
+.purchase_form .reg_in_link{
+    color: #33363f;
+}
 .sing-in_h.tren_form_block_check_wrap input:checked + label {
     background-position: 0 -14px;
 }

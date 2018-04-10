@@ -8,6 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="anketa_form_but social_connect">Подключено</div>
         <?php else:?>
             <form action="/facebook_login" method="post" class="anketa_form">
+                <input type="hidden" name="hi_return" value="/settings" />
                 <input type="submit" name="bt_connect_facebook" value="Подключить" class="anketa_form_but"/>
             </form>
         <?php endif;?>
@@ -18,6 +19,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="anketa_form_but social_connect">Подключено</div>
         <?php else:?>
             <form action="/vk_login" method="post" class="anketa_form">
+                <input type="hidden" name="hi_return" value="/settings" />
                 <input type="submit" name="bt_connect_vk" value="Подключить" class="anketa_form_but"/>
             </form>
         <?php endif;?>
@@ -28,6 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="anketa_form_but social_connect">Подключено</div>
         <?php else:?>
             <form action="/ok_login" method="post" class="anketa_form">
+                <input type="hidden" name="hi_return" value="/settings" />
                 <input type="submit" name="bt_connect_ok" value="Подключить" class="anketa_form_but"/>
             </form>
         <?php endif;?>
@@ -38,6 +41,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="anketa_form_but social_connect">Подключено</div>
         <?php else:?>
             <form action="/instagram_login" method="post" class="anketa_form">
+                <input type="hidden" name="hi_return" value="/settings" />
                 <input type="submit" name="bt_connect_instagram" value="Подключить" class="anketa_form_but"/>
             </form>
         <?php endif;?>

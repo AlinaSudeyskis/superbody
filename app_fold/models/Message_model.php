@@ -467,7 +467,8 @@ class Message_model extends CI_Model
 
         $ins_data = $this->db->query('
             INSERT INTO `feedback` (`fb_conv_id`, `fb_user_id`, `fb_user_name`, `fb_user_email`, `fb_text`, `fb_date_add`) 
-            VALUES (?, ?, ?, ?, ?, ?)', array($conv_id, $user_id, $user_name, $user_email, $message_text, $date));
+            VALUES (?, ?, ?, ?, ?, ?)',
+                array($conv_id, $user_id, $user_name, $user_email, $message_text, $date));
 
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {

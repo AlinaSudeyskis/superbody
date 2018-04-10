@@ -1553,6 +1553,8 @@ $(".ordering_next1").click(function(){
 
     $(".info_ordering_t_name").text($("input[name=i_o_surname]").val());
     $(".info_ordering_name").text($("input[name=i_o_name]").val());
+    $(".info_ordering_email").text($("input[name=i_o_email]").val());
+    $(".edit_email input[name=e_email]").val($("input[name=i_o_email]").val());
     $(".info_ordering_type").text($("input[name=i_o_delivery]:checked").val());
 
 	if ($("select[name=s_o_address] option:selected").val() != '') {
@@ -1614,6 +1616,23 @@ $(".ordering_block_side_info_edit").click(function(){
 
     var destination = $("h2.ordering_block_title").offset().top;
     $("html, body").animate({scrollTop: destination },"slow");
+});
+$(".ordering_block_side_email_edit").click(function(){
+    $(".info_edit_email").toggle();
+    $(".info_ordering_email").toggle();
+});
+$(".edit_email_save").click(function(){
+    var edit_email = $(".edit_email input[name=e_email]").val(),
+        confirm = $(".edit_email_confirm input[name=e_email_confirm]").val();
+    if(edit_email == confirm && edit_email != '')
+    {
+        $(".info_ordering_email").text(edit_email);
+        $("input[name=i_o_email]").val(edit_email);
+        $(".edit_email_confirm input[name=e_email_confirm]").val('');
+
+        $(".info_edit_email").css('display','none');
+        $(".info_ordering_email").css('display','block');
+    }
 });
 $("input.tov_number").change(function(){
     var b_p     = $(this),

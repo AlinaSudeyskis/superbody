@@ -320,13 +320,9 @@ class User extends CI_Controller
         if ($this->input->post('bt_save_settings', true))
         {
             // Валидация E-mail
-            if (!empty($this->input->post('email', true))
-                and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-            {
-                $email = $this->input->post('email', true);
-            } else {
-                $email = null;
-            }
+            $email = (!empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+                    ? $this->input->post('email', true)
+                    : null;
 
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
@@ -347,6 +343,9 @@ class User extends CI_Controller
                     }
                 }
             }
+
+            // Телефон
+            $phone = mb_substr(strip_tags($this->input->post('phone', true)), 0, 50);
 
             // Загрузка изображения на сервер
             $path_avatar = '.' . $user_data['user_image'];
@@ -387,20 +386,27 @@ class User extends CI_Controller
             }
 
             // Сохранение данных в БД
-            if ($email != $user_data['user_email'] or $name != $user_data['user_name']
-                or $password_hash != $user_data['user_password_hash'] or $avatar != $user_data['user_image']) {
-                $result = $this->User_model->setUserSettingsData($this->user_id, $email, $name, $password_hash, $path_avatar, $this->date);
+            if ($email != $user_data['user_email'] or $name != $user_data['user_name'] or $phone != $user_data['user_phone']
+                or $password_hash != $user_data['user_password_hash'] or $avatar != $user_data['user_image'])
+            {
+                $result = $this->User_model->setUserSettingsData($this->user_id, $email, $name, $password_hash, $phone, $path_avatar, $this->date);
 
-                if ($result === false) {
+                if ($result === false)
+                {
                     // Изменения не были сохранены
                     $this->session->set_tempdata('message', 9, 60);
-                } else {
+                }
+                else
+                {
                     // Обновление данных сессии
                     $user_data = array('user' => $this->session->user);
+
                     $user_data['user']['email'] = $email;
-                    $user_data['user']['name'] = $name;
+                    $user_data['user']['name']  = $name;
+                    $user_data['user']['phone'] = $phone;
                     $user_data['user']['image'] = $avatar;
-                    $user_data['user']['date'] = $this->date;
+                    $user_data['user']['date']  = $this->date;
+
                     $this->session->set_userdata($user_data);
 
                     // Изменения сохранены

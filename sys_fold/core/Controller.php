@@ -165,6 +165,7 @@ class CI_Controller {
 
             $user_session_data['user']['email']     = $user_data['user_data']['user_email'];
             $user_session_data['user']['name']      = $user_data['user_data']['user_name'];
+            $user_session_data['user']['phone']     = $user_data['user_data']['user_phone'];
             $user_session_data['user']['image']     = $user_data['user_data']['user_image'];
             $user_session_data['user']['type']      = $user_data['user_data']['user_type'];
             $user_session_data['user']['blocked']   = $user_data['user_data']['user_blocked'];
@@ -458,7 +459,7 @@ class CI_Controller {
      * @param $user_soc_id
      * @param $date
      */
-    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
+    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
     {
         $split_name = mb_split(' ', $user_name);
         $s_name     = !empty($split_name[0]) ? $split_name[0] : '';
@@ -483,13 +484,13 @@ class CI_Controller {
             {
                 $this->session->sess_destroy();
                 // Создание сессии
-                self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
+                self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
             }
         }
         else
         {
             // Создание сессии
-            self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
+            self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
         }
     }
 
@@ -503,13 +504,14 @@ class CI_Controller {
      * @param $user_name
      * @param $s_name
      * @param $s_surname
+     * @param $user_phone
      * @param $user_image
      * @param $access_token
      * @param $user_soc_via
      * @param $user_soc_id
      * @param $date
      */
-    protected function createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
+    protected function createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
     {
         $cart_count = (!empty($this->session->cart['count']) and is_numeric($this->session->cart['count']) and $this->session->cart['count'] > 0) ? $this->session->cart['count'] : 0;
         $cart_products = (!empty($this->session->cart['products']) and is_array($this->session->cart['products'])) ? $this->session->cart['products'] : array();
@@ -527,6 +529,7 @@ class CI_Controller {
                 "name" => $user_name,
                 "s_name" => $s_name,
                 "s_surname" => $s_surname,
+                "phone" => $user_phone,
                 "type" => $user_type,
                 "blocked" => $user_blocked,
                 "image" => $user_image,

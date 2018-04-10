@@ -29,7 +29,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                             <div class="ordering_block_info_h">Введите ваши данные</div>
                             <input type="text" class="ordering_in" name="i_o_name" placeholder="Ваше имя" value="<?php if(!empty($user_session)) : echo $user_session['s_name']; endif; ?>" />
                             <input type="text" class="ordering_in" name="i_o_surname" placeholder="Ваша фамилия" value="<?php if(!empty($user_session)) : echo $user_session['s_surname']; endif; ?>" maxlength="255"/>
-                            <input type="text" class="ordering_in" name="i_o_phone" placeholder="Телефон" maxlength="255"/>
+                            <input type="text" class="ordering_in" name="i_o_phone" placeholder="Телефон" value="<?php if(!empty($user_session)) : echo $user_session['phone']; endif; ?>" maxlength="255"/>
                             <input type="text" class="ordering_in" name="i_o_email" placeholder="E-mail<?php if(empty($user_session)): ?> (обязателен для заполнения)<?php endif; ?>"
                                    value="<?php if(!empty($user_session)) : echo $user_session['email']; endif; ?>" maxlength="255" <?php if(empty($user_session)): ?>required="required"<?php endif; ?>/>
                             <?php if (!empty($addresses)):?>
@@ -260,6 +260,23 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                                 </div>
                             </div>
                         </div>
+                        <div class="ordering_block_side_info">
+                            <div class="ordering_block_side_info_h_wrap parent">
+                                <div class="ordering_block_side_info_h">Email</div>
+                                <div class="ordering_block_side_email_edit">Изменить</div>
+                            </div>
+                            <div class="ordering_block_side_cont">
+                                <div class="ordering_block_side_cont_h"></div>
+                                <div class="ordering_block_side_cont_txt">
+                                    <span class="info_ordering_email"></span>
+                                    <div class="info_edit_email">
+                                        <div class="edit_email"><input type="text" name="e_email" value="" placeholder="Введите Email" class="ordering_in" maxlength="255" /></div>
+                                        <div class="edit_email_confirm"><input type="text" name="e_email_confirm" value="" placeholder="Подтвердите Email" class="ordering_in" maxlength="255" /></div>
+                                        <div class="edit_email_save"><input type="button" name="e_email_save" value="Сохранить" class="shop_tov_more" /></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="ordering_block ordering_block3 parent">
@@ -333,7 +350,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                             </div>
                             <div class="ordering_buts parent">
                                 <div class="ordering_prev ordering_prev2">Вернуться</div>
-                                <input type="submit" name="bt_to_order" class="ordering_next" value="КУПИТЬ" />
+                                <input type="submit" name="bt_to_order" class="ordering_next to_order" value="КУПИТЬ" />
                             </div>
                         </div>
                     </div>
@@ -372,6 +389,23 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                             <div class="ordering_block_side_cont">
                                 <div class="ordering_block_side_cont_h info_ordering_pay"></div>
                                 <div class="ordering_block_side_cont_txt">Сумма: <span class="info_ordering_price"></span> pуб.</div>
+                            </div>
+                        </div>
+                        <div class="ordering_block_side_info">
+                            <div class="ordering_block_side_info_h_wrap parent">
+                                <div class="ordering_block_side_info_h">Email</div>
+                                <div class="ordering_block_side_email_edit">Изменить</div>
+                            </div>
+                            <div class="ordering_block_side_cont">
+                                <div class="ordering_block_side_cont_h"></div>
+                                <div class="ordering_block_side_cont_txt">
+                                    <span class="info_ordering_email"></span>
+                                    <div class="info_edit_email">
+                                        <div class="edit_email"><input type="text" name="e_email" value="" placeholder="Введите Email" class="ordering_in" maxlength="255" /></div>
+                                        <div class="edit_email_confirm"><input type="text" name="e_email_confirm" value="" placeholder="Подтвердите Email" class="ordering_in" maxlength="255" /></div>
+                                        <div class="edit_email_save"><input type="button" name="e_email_save" value="Сохранить" class="shop_tov_more" /></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

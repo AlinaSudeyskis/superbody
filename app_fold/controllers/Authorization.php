@@ -69,7 +69,17 @@ class Authorization extends CI_Controller
                         self::sendRegistrationEmail($email, $email_hash);
 
                         // Обновление данных сессии
-                        parent::updateSession($reg_user_id, $email, 1, 0, '', '', '', 'native', 0, $this->date);
+                        $user_type = 1;
+                        $user_blocked = 0;
+                        $user_name = '';
+                        $user_phone = '';
+                        $user_image = '';
+                        $access_token = '';
+                        $user_soc_via = 'native';
+                        $user_soc_id = 0;
+
+                        parent::updateSession($reg_user_id, $email, $user_type, $user_blocked, $user_name, $user_phone,
+                            $user_image, $access_token, $user_soc_via, $user_soc_id, $this->date);
 
                         // После успешной регистрации переход на страницу анкеты
                         header('Location: /questionnaire');
@@ -161,8 +171,8 @@ class Authorization extends CI_Controller
 
                     if (is_array($result))
                     {
-                        parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'], $result['user_name'],
-                            $result['user_image'], '', 'native', 0, $this->date);
+                        parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'],
+                            $result['user_name'], $result['user_phone'], $result['user_image'], '', 'native', 0, $this->date);
 
                         // После успешной авторизации переход на страницу пользователя
                         header('Location: /profile/'.$result['user_id']);
@@ -194,19 +204,39 @@ class Authorization extends CI_Controller
         }
         elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
         {
-            self::facebookLogin();
+            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
+            $return = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+                ? $this->input->post('hi_return', true)
+                : '/';
+
+            self::facebookLogin($email, $return);
         }
         elseif($this->input->post('bt_ok_login', true) and $this->input->post('cb_politics', true))
         {
-            self::okLogin();
+            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
+            $return = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+                ? $this->input->post('hi_return', true)
+                : '/';
+
+            self::okLogin($email, $return);
         }
         elseif($this->input->post('bt_vk_login', true) and $this->input->post('cb_politics', true))
         {
-            self::vkLogin();
+            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
+            $return = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+                ? $this->input->post('hi_return', true)
+                : '/';
+
+            self::vkLogin($email, $return);
         }
         elseif($this->input->post('bt_insta_login', true) and $this->input->post('cb_politics', true))
         {
-            self::instagramLogin();
+            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
+            $return = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+                ? $this->input->post('hi_return', true)
+                : '/';
+
+            self::instagramLogin($email, $return);
         }
         
         // Объединенные данные страница
@@ -631,17 +661,25 @@ class Authorization extends CI_Controller
 
     /**
      * Авторизация при помощи Instargram
+     *
+     * @param $email
+     * @param $return
      */
-    public function instagramLogin()
+    public function instagramLogin($email = '', $return = '')
     {
         // Instagram
         $url_authorize = 'https://api.instagram.com/oauth/authorize/';
-        $url_token = 'https://api.instagram.com/oauth/access_token';
-        $client_id = '39c0baec30bd477f9738b7630466661d';
+        $url_token     = 'https://api.instagram.com/oauth/access_token';
+        $client_id     = '39c0baec30bd477f9738b7630466661d';
         $client_secret = '1697413dde4f41a881516f97fce4d28a';
-        $redirect_uri = 'https://superbody.pro/instagram_login';
-        $grant_type = 'authorization_code';
-        $scope = array( 'basic' );
+        $redirect_uri  = 'https://superbody.pro/instagram_login';
+        $grant_type    = 'authorization_code';
+        $scope         = array( 'basic' );
+        $i_return      = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+            ? $this->input->post('hi_return', true)
+            : '/';
+        $return        = (!empty($return)) ? $return : $i_return;
+        $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_insta_login', true) or $this->input->post('bt_connect_instagram', true)) {
             header(
@@ -681,7 +719,7 @@ class Authorization extends CI_Controller
                 $user_soc_id      = $resp_data->user->id;
                 $user_name        = $resp_data->user->full_name;
                 $user_image       = $resp_data->user->profile_picture;
-                $user_email       = '';
+                $user_email       = (!empty($email)) ? $email : '';
                 $user_birthday    = '';
                 $user_gender      = '';
                 $user_profile_url = (!empty($resp_data->user->user_name)) ? 'https://www.instagram.com/'.$resp_data->user->user_name : '';
@@ -696,17 +734,21 @@ class Authorization extends CI_Controller
 
                     if (!empty($result['user']))
                     {
-                        parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'], $result['user']['blocked'],
-                            $result['user']['name'], $result['user']['image'], $result['user']['access_token'], $result['user']['soc_via'], $result['user']['soc_id'], $this->date);
+                        $user = $result['user'];
 
-                        header('Location: /profile/'.$this->session->user['id']);
+                        parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
+                            $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+
+                        $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
+
+                        header('Location: ' . $return);
                     }
                     else
                     {
                         // Не удалось авторизоваться. Повторите попытку
                         $this->session->set_tempdata('message', 5, 60);
 
-                        header('Location: /');
+                        header('Location: ' . $fail_return);
                     }
                 }
                 else
@@ -714,7 +756,7 @@ class Authorization extends CI_Controller
                     $this->Authorization_model->connectSocial($this->user_id, 'instagram', $this->date, $user_access_token,
                         $user_soc_id, $expires_at, $issued_at, $expires_in);
 
-                    header('Location: /settings');
+                    header('Location: ' . $return);
                 }
             }
             else
@@ -722,7 +764,7 @@ class Authorization extends CI_Controller
                 // Не удалось получить доступ к данным. Повторите попытку
                 $this->session->set_tempdata('message', 102, 60);
 
-                header('Location: /');
+                header('Location: ' . $fail_return);
             }
         }
         elseif($this->input->get('error', true))
@@ -730,22 +772,30 @@ class Authorization extends CI_Controller
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
 
-            header('Location: /');
+            header('Location: ' . $fail_return);
         }
     }
 
     /**
      * Авторизация при помощи Vkontakte
+     *
+     * @param $email
+     * @param $return
      */
-    public function vkLogin()
+    public function vkLogin($email, $return)
     {
         // Instagram
         $url_authorize = 'https://oauth.vk.com/authorize';
-        $url_token = 'https://oauth.vk.com/access_token';
-        $client_id = '6241173';
+        $url_token     = 'https://oauth.vk.com/access_token';
+        $client_id     = '6241173';
         $client_secret = 'sbeAsVwV4nZP57upZCrS';
-        $redirect_uri = 'https://superbody.pro/vk_login';
-        $scope = array( 'email', 'offline' );
+        $redirect_uri  = 'https://superbody.pro/vk_login';
+        $scope         = array( 'email', 'offline' );
+        $i_return      = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+            ? $this->input->post('hi_return', true)
+            : '/';
+        $return        = (!empty($return)) ? $return : $i_return;
+        $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_vk_login', true) or $this->input->post('bt_connect_vk', true))
         {
@@ -823,17 +873,20 @@ class Authorization extends CI_Controller
                         //echo $user_id;
                         if (!empty($result['user']))
                         {
-                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'], $result['user']['blocked'],
-                                $result['user']['name'], $result['user']['image'], $result['user']['access_token'], $result['user']['soc_via'], $result['user']['soc_id'], $this->date);
+                            $user = $result['user'];
+                            parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
+                                $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            header('Location: /profile/'.$this->session->user['id']);
+                            $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
+
+                            header('Location: ' . $return);
                         }
                         else
                         {
                             // Не удалось авторизоваться. Повторите попытку
                             $this->session->set_tempdata('message', 5, 60);
 
-                            header('Location: /');
+                            header('Location: ' . $fail_return);
                         }
                     }
                     else
@@ -841,7 +894,7 @@ class Authorization extends CI_Controller
                         $this->Authorization_model->connectSocial($this->user_id, 'vk', $this->date, $user_access_token,
                             $user_soc_id, $expires_at, $issued_at, $expires_in);
 
-                        header('Location: /settings');
+                        header('Location: ' . $return);
                     }
                 }
                 else
@@ -849,7 +902,7 @@ class Authorization extends CI_Controller
                     // Не удалось получить доступ к данным. Повторите попытку
                     $this->session->set_tempdata('message', 102, 60);
 
-                    header('Location: /');
+                    header('Location: ' . $fail_return);
                 }
             }
             else
@@ -857,7 +910,7 @@ class Authorization extends CI_Controller
                 // Не удалось получить доступ к данным. Повторите попытку
                 $this->session->set_tempdata('message', 102, 60);
 
-                header('Location: /');
+                header('Location: ' . $fail_return);
             }
         }
         elseif($this->input->get('error', true))
@@ -865,14 +918,17 @@ class Authorization extends CI_Controller
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
 
-            header('Location: /');
+            header('Location: ' . $fail_return);
         }
     }
 
     /**
      * Авторизация при помощи Facebook
+     *
+     * @param $email
+     * @param $return
      */
-    public function facebookLogin()
+    public function facebookLogin($email, $return)
     {
         // Instagram
         $url_authorize   = 'https://www.facebook.com/v2.12/dialog/oauth';
@@ -883,6 +939,11 @@ class Authorization extends CI_Controller
         $redirect_uri    = 'https://superbody.pro/facebook_login';
         $scope           = array( 'public_profile', 'email' );
         $state           = uniqid('', true);
+        $i_return        = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+            ? $this->input->post('hi_return', true)
+            : '/';
+        $return          = (!empty($return)) ? $return : $i_return;
+        $fail_return     = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_facebook_login', true) or $this->input->post('bt_connect_facebook', true))
         {
@@ -928,6 +989,8 @@ class Authorization extends CI_Controller
                     // Сравнение данных соц. сети с данными БД -> авторизация (обновление данных) или регистрация
                     if (empty($this->session->user))
                     {
+                        $fb_u_data['user_email'] = (!empty($email)) ? $email : $fb_u_data['user_email'];
+
                         $result = $this->Authorization_model->validSocLoginId('facebook', $this->date, $fb_u_data['user_access_token'],
                             $fb_u_data['user_soc_id'], $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in'],
                             $fb_u_data['user_email'], $fb_u_data['user_name'], $fb_u_data['user_image'], $fb_u_data['user_birthday'],
@@ -935,16 +998,20 @@ class Authorization extends CI_Controller
 
                         if (!empty($result['user']))
                         {
-                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'], $result['user']['blocked'],
-                                $result['user']['name'], $result['user']['image'], $result['user']['access_token'],
-                                $result['user']['soc_via'], $result['user']['soc_id'], $this->date);
+                            $user = $result['user'];
+                            parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
+                                $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            header('Location: /profile/'.$this->session->user['id']);
+                            $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
+
+                            header('Location: ' . $return);
                         }
                         else
                         {
                             // Не удалось авторизоваться. Повторите попытку
                             $this->session->set_tempdata('message', 5, 60);
+
+                            header('Location: ' . $fail_return);
                         }
                     }
                     else
@@ -952,13 +1019,13 @@ class Authorization extends CI_Controller
                         $result = $this->Authorization_model->connectSocial($this->user_id, 'facebook', $this->date, $fb_u_data['user_access_token'],
                             $fb_u_data['user_soc_id'], $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in']);
 
-                        header('Location: /settings');
+                        header('Location: ' . $return);
                     }
                 }
                 else
                 {
                     log_message('debug', print_r($fb_u_data, true));
-                    header('Location: /');
+                    header('Location: ' . $fail_return);
                 }
             }
             else
@@ -967,14 +1034,14 @@ class Authorization extends CI_Controller
                 $this->session->set_tempdata('message', 102, 60);
 
                 log_message('debug', print_r($resp_data, true));
-                header('Location: /');
+                header('Location: ' . $fail_return);
             }
         }
         elseif($this->input->get('error', true))
         {
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
-            header('Location: /');
+            header('Location: ' . $fail_return);
         }
     }
 
@@ -1069,8 +1136,11 @@ class Authorization extends CI_Controller
 
     /**
      * Авторизация при помощи Odnoklasniki
+     *
+     * @param $email
+     * @param $return
      */
-    public function okLogin()
+    public function okLogin($email, $return)
     {
         // Instagram
         $url_authorize = 'https://connect.ok.ru/oauth/authorize';
@@ -1081,6 +1151,11 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/ok_login';
         $grant_type    = 'authorization_code';
         $scope         = array( 'VALUABLE_ACCESS', 'GET_EMAIL' );
+        $i_return      = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+            ? $this->input->post('hi_return', true)
+            : '/';
+        $return        = (!empty($return)) ? $return : $i_return;
+        $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_ok_login', true) or $this->input->post('bt_connect_ok', true))
         {
@@ -1159,11 +1234,14 @@ class Authorization extends CI_Controller
 
                         if (!empty($result['user']))
                         {
-                            parent::updateSession($result['user']['id'], $result['user']['email'], $result['user']['type'], $result['user']['blocked'],
-                                $result['user']['name'], $result['user']['image'], $result['user']['access_token'],
-                                $result['user']['soc_via'], $result['user']['soc_id'], $this->date);
+                            $user = $result['user'];
 
-                            header('Location: /profile/'.$this->session->user['id']);
+                            parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
+                                $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+
+                            $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
+
+                            header('Location: ' . $return);
                         }
                         else
                         {
@@ -1172,7 +1250,7 @@ class Authorization extends CI_Controller
 
                             log_message('debug', 'OK validSocLoginId: '.print_r($result, true));
 
-                            header('Location: /');
+                            header('Location: ' . $fail_return);
                         }
                     }
                     else
@@ -1180,7 +1258,7 @@ class Authorization extends CI_Controller
                         $this->Authorization_model->connectSocial($this->user_id, 'ok', $this->date, $user_access_token,
                             $user_soc_id, $expires_at, $issued_at, $expires_in);
 
-                        header('Location: /settings');
+                        header('Location: ' . $return);
                     }
                 }
                 elseif(!empty($resp_info->error_msg))
@@ -1190,7 +1268,7 @@ class Authorization extends CI_Controller
 
                     log_message('debug', 'OK getCurrentUser: '.print_r($resp_info, true));
 
-                    header('Location: /');
+                    header('Location: ' . $fail_return);
                 }
             }
             else
@@ -1199,7 +1277,7 @@ class Authorization extends CI_Controller
                 $this->session->set_tempdata('message', 102, 60);
                 log_message('debug', 'OK OAuth: '.print_r($resp_data, true));
 
-                header('Location: /');
+                header('Location: ' . $fail_return);
             }
         }
         elseif($this->input->get('error', true))
@@ -1207,7 +1285,7 @@ class Authorization extends CI_Controller
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
 
-            header('Location: /');
+            header('Location: ' . $fail_return);
         }
     }
 }

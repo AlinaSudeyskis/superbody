@@ -132,6 +132,62 @@ class Welcome extends CI_Controller
      */
     public function contacts()
     {
+        if($this->input->post('bt_send_message', true))
+        {
+            $email   = (filter_var($this->input->post('email'), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email') : null;
+            $name    = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+            $message = mb_substr(strip_tags($this->input->post('message', true)), 0, 1000);
+
+            if (!empty($email) and !empty($message))
+            {
+                $this->load->model('Message_model');
+
+                $user_id = null;
+                $today   = $this->date;
+
+                $res_send = $this->Message_model->setFeedbackMessage($user_id, $name, $email, $message, $today);
+
+                if ($res_send === true)
+                {
+                    setlocale(LC_ALL, 'ru_RU.UTF-8');
+                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $today);
+                    $message_date = ($date !== false) ? $date->format('d.m.Y') : '';
+                    $message_time = ($date !== false) ? $date->format('H:i') : '';
+
+                    // Отправление письма с копией сообщения обратной связи
+                    $email_to = "<$email>";
+                    $subject  = "Обратная связь SuperBody";
+
+                    $message_text  =
+                        '<div style="margin-bottom: 10px;">' .
+                        '<div style="margin-left: 10px; padding-top: 2px; color: #b7b7b7;">' . $message_date . ' ' . $message_time . '</div>' .
+                        '<div style="margin: 10px 0 0 20px;">' . nl2br($message) . '</div>' .
+                        '</div>';
+
+                    $headers   = "Content-type: text/html; charset=utf-8 \r\n";
+                    $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
+                    $headers   .= "Reply-To: info@superbody.pro\r\n";
+
+                    mail($email_to, $subject, $message_text, $headers); //  '-fsupport@theoutlines.ru'
+
+                    // Сохранено
+                    $this->session->set_tempdata('message', 52, 60);
+                }
+                else
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 51, 60);
+                }
+            }
+            else
+            {
+                // Сохранено
+                $this->session->set_tempdata('message', 51, 60);
+            }
+
+            header('Location: /contacts');
+        }
+
         $this->load->model('Couch_model');
         $gallery = $this->Couch_model->getGallery();
         $couches = $this->Couch_model->getCouches();

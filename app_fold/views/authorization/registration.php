@@ -17,6 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <a href="#" class="reg_in_link policy">обработку персональных данных</a>
                 </label>
             </div>
+            <input type="hidden" name="hi_return" value="/profile/" />
             <input type="submit" value="Зарегистрироваться" class="sing-in_but" name="bt_registry"/>
         </form>
         <div class="reg_in_link_wrap">

@@ -404,7 +404,9 @@ class Authorization_model extends CI_Model
                 array($access_token, $expires_at, $issued_at, $expires_in, $user_id, $user_soc_via, $user_soc_id));
 
         // Выборка данных пользователя
-        $sel_user = $this->db->query('SELECT `user_email`, `user_type`, `user_blocked`, `user_name`, `user_image` FROM `users`
+        $sel_user = $this->db->query('
+            SELECT `user_email`, `user_type`, `user_blocked`, `user_name`, `user_phone`, `user_image` 
+            FROM `users`
             WHERE `user_id`=? LIMIT 1', $user_id);
 
         if ($sel_user !== false and 1 == $sel_user->num_rows())
@@ -416,6 +418,7 @@ class Authorization_model extends CI_Model
             $result['user']['type']         = $row->user_type;
             $result['user']['blocked']      = $row->user_blocked;
             $result['user']['name']         = $row->user_name;
+            $result['user']['phone']        = $row->user_phone;
             $result['user']['image']        = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
             $result['user']['access_token'] = $access_token;
             $result['user']['soc_via']      = $user_soc_via;
@@ -442,7 +445,7 @@ class Authorization_model extends CI_Model
     public function userAuthorization($email, $password, $date)
     {
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_type`, `user_blocked`, `user_image` 
+            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, `user_image` 
             FROM `users` 
             WHERE `user_email`=? LIMIT 1', $email);
 
@@ -456,13 +459,13 @@ class Authorization_model extends CI_Model
                 $this->db->query('
                     UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_email`=? LIMIT 1',  array($date, $email));
 
-                $result['user_id']   = $row->user_id;
-                $result['user_name'] = $row->user_name;
-
-                $result['user_email'] = $row->user_email;
-                $result['user_type']  = $row->user_type;
+                $result['user_id']       = $row->user_id;
+                $result['user_name']     = $row->user_name;
+                $result['user_phone']    = $row->user_phone;
+                $result['user_email']    = $row->user_email;
+                $result['user_type']     = $row->user_type;
                 $result['user_blocked']  = $row->user_blocked;
-                $result['user_image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                $result['user_image']    = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
 
                 return $result;
             }

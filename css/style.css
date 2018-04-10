@@ -110,6 +110,8 @@ audio, canvas, progress, video{
     line-height: 14px;
     text-align: center;
     margin-bottom: 10px;
+    white-space: nowrap;
+    position: relative;
 }
 .sing-in_in{
     display: block;
@@ -143,6 +145,7 @@ audio, canvas, progress, video{
     font-size: 12px;
     line-height: 14px;
     color: #fff;
+    white-space: normal;
 }
 .sing-in_soc_wrap{
     text-align: center;
@@ -1359,7 +1362,7 @@ tr:first-child > td > .fc-day-grid-event{
     width: 80%;
     max-width: 570px;
     max-height: 400px;
-    z-index: 113;
+    z-index: 114;
     left: 50%;
     top: 50%;
     position: fixed;
@@ -1419,8 +1422,35 @@ tr:first-child > td > .fc-day-grid-event{
     cursor: pointer;
     opacity: 1 !important;
 }
-.anketa_form_h_cell.strikeout{
+.purchase_form .sing-in_soc_wrap{
+    margin-top: 10px;
+}
+.purchase_form .sing-in_soc_ico {
+    color: #aab0b5;
+    line-height: 20px;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+}
+.purchase_form .sing-in_soc_ico:hover {
+    color: #505961;
+}
+.sing-in_form.purchase_form{
+    max-width: 490px;
+}
+.purchase_form .kurs_block_h{
+    text-align: right;
+}
+.purchase_form .journal_form_select{
+    width: 100%;
+    max-width: 280px;
+}
+.strikeout{
     text-decoration: line-through;
+}
+.separator{
+    border-bottom: 1px solid #c1c1c1;
+    margin-bottom: 15px;
 }
 #shadow, #shadow2, #shadow3{
     background: #000;
@@ -1429,8 +1459,11 @@ tr:first-child > td > .fc-day-grid-event{
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 112;
+    z-index: 113;
     display: none;
+}
+#shadow2{
+    z-index: 112;
 }
 #shadow3{
     z-index: 99;
@@ -2600,7 +2633,17 @@ tr:first-child > td > .fc-day-grid-event{
     font-size: 12px;
     line-height: 14px;
     font-weight: 300;
-    padding-top: 7px;
+    padding: 0;
+    margin: 10px 0;
+    height: 14px;
+}
+.contact_but_desk .sing-in_h {
+    position: absolute;
+    top: 0;
+    height: 14px;
+}
+.contact_but_desk .sing-in_h label{
+    text-align: left;
 }
 .contact_desk{
     padding-top: 15px;
@@ -4183,6 +4226,8 @@ textarea.journal_post_comm_in{
     color: #a7a7a7;
     text-decoration: none;
     border-radius: 5px;
+    background: none;
+    cursor: pointer;
 }
 .shop_tov_bay{
     height: 30px;
@@ -4665,6 +4710,9 @@ textarea.journal_post_comm_in{
     padding: 0;
     display: block;
 }
+.ordering_next.to_order{
+    background: #e25050;
+}
 .ordering_block_side_head{
 	text-transform: uppercase;
 	font-size: 18px;
@@ -4792,7 +4840,7 @@ textarea.journal_post_comm_in{
     line-height: 15px;
     text-transform: uppercase;
 }
-.ordering_block_side_info_edit{
+.ordering_block_side_info_edit, .ordering_block_side_email_edit{
 	float: right;
 	color: #000;
     font-size: 13px;
@@ -4800,9 +4848,21 @@ textarea.journal_post_comm_in{
     text-decoration: underline;
     cursor: pointer;
 }
-.ordering_block_side_info_edit:hover{
+.ordering_block_side_info_edit:hover, .ordering_block_side_email_edit:hover{
 	text-decoration: none;
 }
+.info_edit_email{
+    display: none;
+}
+.info_edit_email .ordering_in {
+    width: 100%;
+}
+.edit_email_save .shop_tov_more {
+     width: 78px;
+     height: 30px;
+     margin-left: auto;
+     margin-right: 0;
+ }
 .ordering_block_side_cont{
 	color: #737373;
 	font-size: 12px;
@@ -6495,7 +6555,7 @@ textarea.journal_post_comm_in{
 	color: #fff;
 	border-radius: 5px;
 	border: none;
-	background: #2acaf2;
+	background: #e25050;
 	font-size: 13px;
 	cursor: pointer;
 }
@@ -8538,11 +8598,14 @@ textarea.anketa_form_in{
 }
 .tren_form_block_check_wrap{
     margin-bottom: 15px;
+    position: relative;
 }
-.tren_form_block_check_wrap input{
+input.tren_form_block_check{
     /*display: none;*/
     opacity: 0;
-    margin-right: -15px;
+    position: absolute;
+    top: 0;
+    margin: 0 -15px 0 0;
 }
 .tren_form_block_check_wrap label{
     display: inline-block;
@@ -10922,6 +10985,9 @@ textarea.anketa_form_in{
     }
     .contact_but_desk{
         text-align: center;
+    }
+    .contact_but_desk .sing-in_h{
+        position: relative;
     }
     .admin_feedback_info{
         float: none;

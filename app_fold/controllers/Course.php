@@ -4228,16 +4228,13 @@ class Course extends CI_Controller
                 $course_price = $course['price'];
             }
 
-            // Проверка данных пользователя (использовать данные авторизованного пользователя или данные с формы оплаты)
+            // Проверка данных пользователя
+            $user_id = null;
+            $email   = null;
             if(is_numeric($this->user_id))
             {
                 $user_id = $this->user_id;
                 $email   = $this->session->user['email'];
-            }
-            else
-            {
-                $user_id = null;
-                $email   = filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL) ? $this->input->post('email', true) : null;
             }
 
             // Если пользователь не авторизован, проверяем введенный им email (нет в БД - регистрация)
@@ -4318,16 +4315,24 @@ class Course extends CI_Controller
                 }
 
             }
+            else
+            {
+                // Пользователь не авторизован
+                $this->session->set_tempdata('message', 5, 60);
+            }
 
             /*// Курс куплен (добавлен)
             $this->session->set_tempdata('message', 109, 60);
             header('Location: /profile/course/'.$course_id);*/
 
+            header('Location: /course/' . $course_id);
+
         }
 
         // Объединенные данные страница
-        $this->page_data['title']     = (!empty($course['course']['name'])) ? $course['course']['name'] : 'Курс №' . $course_id;
-        $this->page_data['page_menu'] = 'courses';
+        $this->page_data['title']       = (!empty($course['course']['name'])) ? $course['course']['name'] : 'Курс №' . $course_id;
+        $this->page_data['page_menu']   = 'courses';
+        $this->page_data['course_id']   = $course_id;
 
         $result = array_merge($course, $course_couches, $user_courses, $landing, $this->page_data);
 

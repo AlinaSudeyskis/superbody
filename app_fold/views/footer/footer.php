@@ -80,6 +80,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <?php include_once('./app_fold/views/footer/last_line.php'); ?>
 
 <div id="shadow"></div>
+<div id="shadow2"></div>
 
 <div id="pop-up_video">
     <div class="close_video"></div>
