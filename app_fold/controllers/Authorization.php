@@ -883,6 +883,8 @@ class Authorization extends CI_Controller
 
                             $return = ($return == '/profile/') ? ($return . $this->session->user['id']) : $return;
 
+                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
+
                             header('Location: ' . $return);
                         }
                         else
@@ -902,6 +904,7 @@ class Authorization extends CI_Controller
 
                         if($result === true)
                         {
+                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
 
                             header('Location: ' . $return);
                         }

@@ -536,6 +536,15 @@ class Authorization_model extends CI_Model
         }
     }
 
+    /**
+     * Проверка данных восстановления пароля
+     *
+     * @param $email
+     * @param $code
+     * @param $idempotent
+     * @param $date
+     * @return bool
+     */
     public function checkRestore($email, $code, $idempotent, $date)
     {
         $sel_data = $this->db->query('SELECT `user_restore_date`, `user_idempotent` FROM `users` 
@@ -663,7 +672,7 @@ class Authorization_model extends CI_Model
      */
     public function connectSocial($user_id, $social, $date, $access_token, $social_id, $expires_at, $issued_at, $expires_in)
     {
-        $result = false;
+        $result = true;
 
         $sel_social = $this->db->query('
             SELECT `us_u_id` FROM `users_social` 
@@ -725,7 +734,7 @@ class Authorization_model extends CI_Model
         }
         else
         {
-            return false;
+            return true;
         }
     }
 
