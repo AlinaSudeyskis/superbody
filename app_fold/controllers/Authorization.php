@@ -906,6 +906,8 @@ class Authorization extends CI_Controller
                     // Не удалось получить доступ к данным. Повторите попытку
                     $this->session->set_tempdata('message', 102, 60);
 
+                    log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_info:' . print_r($resp_info, true));
+
                     header('Location: ' . $fail_return);
                 }
             }
@@ -913,6 +915,8 @@ class Authorization extends CI_Controller
             {
                 // Не удалось получить доступ к данным. Повторите попытку
                 $this->session->set_tempdata('message', 102, 60);
+
+                log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_data:' . print_r($resp_data, true));
 
                 header('Location: ' . $fail_return);
             }
