@@ -785,7 +785,7 @@ class Authorization extends CI_Controller
      * @param $email
      * @param $return
      */
-    public function vkLogin($email, $return)
+    public function vkLogin($email = '', $return = '')
     {
         // Instagram
         $url_authorize = 'https://oauth.vk.com/authorize';
@@ -934,7 +934,7 @@ class Authorization extends CI_Controller
      * @param $email
      * @param $return
      */
-    public function facebookLogin($email, $return)
+    public function facebookLogin($email = '', $return = '')
     {
         // Instagram
         $url_authorize   = 'https://www.facebook.com/v2.12/dialog/oauth';
@@ -1150,7 +1150,7 @@ class Authorization extends CI_Controller
      * @param $email
      * @param $return
      */
-    public function okLogin($email, $return)
+    public function okLogin($email = '', $return = '')
     {
         // Instagram
         $url_authorize = 'https://connect.ok.ru/oauth/authorize';
