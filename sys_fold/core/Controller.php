@@ -88,6 +88,11 @@ class CI_Controller {
      */
     public $page_url;
 
+    /**
+     * @var array URL доступные для переадресации
+     */
+    public $return_urls = array('/settings', '/course/', '/profile');
+
 	/**
 	 * Class constructor
 	 */
@@ -1119,5 +1124,37 @@ class CI_Controller {
         }
 
         return $result;
+    }
+
+    /**
+     * Обновление данных сессии url возврата на страницу
+     *
+     * @param $return_data
+     * @param $return
+     */
+    public function setSessionReturnUrl($return_data, $return)
+    {
+        // Обрезаем строку для сравнения с массивом разрешенных url
+        $cut_return    = (!empty($return_data)) ? mb_substr($return_data, 0, 8) : '' ;
+        // Сравнение
+        $i_return      = (in_array($cut_return, $this->return_urls))
+            ? $return_data
+            : '/';
+        $return        = (!empty($return)) ? $return : $i_return;
+        // Добавляем параметр ref к строке, если переход на страницу курса
+        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
+        // Возврат в случае ошибки
+        $fail_return   = ($return == '/profile/') ? '/' : $return;
+
+        // Запись в сессию
+        $user_data['return_url']      = $return;
+        $user_data['fail_return_url'] = $fail_return;
+        $this->session->set_userdata($user_data);
+    }
+
+    public function deleteSessionReturnUrl()
+    {
+        $this->session->unset_userdata('return_url');
+        $this->session->unset_userdata('fail_return_url');
     }
 }

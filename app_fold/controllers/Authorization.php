@@ -12,8 +12,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Authorization extends CI_Controller
 {
-    public $return_urls = array('/settings', '/course/', '/profile');
-
     /**
      * Authorization constructor.
      */
@@ -202,41 +200,34 @@ class Authorization extends CI_Controller
             {
                 // Нет подтверждения использования персональных данных
                 $this->session->set_tempdata('message', 128, 60);
+                header('Location: /login');
             }
         }
         elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
         {
             $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
-            $return = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
-                ? $this->input->post('hi_return', true)
-                : '/';
+            $return = $this->input->post('hi_return', true);
 
             self::facebookLogin($email, $return);
         }
         elseif($this->input->post('bt_ok_login', true) and $this->input->post('cb_politics', true))
         {
             $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
-            $return = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
-                ? $this->input->post('hi_return', true)
-                : '/';
+            $return = $this->input->post('hi_return', true);
 
             self::okLogin($email, $return);
         }
         elseif($this->input->post('bt_vk_login', true) and $this->input->post('cb_politics', true))
         {
             $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
-            $return = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
-                ? $this->input->post('hi_return', true)
-                : '/';
+            $return = $this->input->post('hi_return', true);
 
             self::vkLogin($email, $return);
         }
         elseif($this->input->post('bt_insta_login', true) and $this->input->post('cb_politics', true))
         {
             $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
-            $return = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
-                ? $this->input->post('hi_return', true)
-                : '/';
+            $return = $this->input->post('hi_return', true);
 
             self::instagramLogin($email, $return);
         }
@@ -679,19 +670,23 @@ class Authorization extends CI_Controller
         $scope         = array( 'basic' );
 
         // Обработка ссылки для возврата
-        // Данные POST или GET
-        $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
-        // Обрезаем строку для сравнения с массивом разрешенных url
-        $cut_return    = (!empty($return_data)) ? mb_substr($this->input->post('hi_return', true), 0, 8) : '' ;
-        // Сравнение
-        $i_return      = (in_array($cut_return, $this->return_urls))
-            ? $this->input->post('hi_return', true)
-            : '/';
-        $return        = (!empty($return)) ? $return : $i_return;
-        // Добавляем параметр ref к строке, если переход на страницу курса
-        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
-        // Возврат в случае ошибки
-        $fail_return   = ($return == '/profile/') ? '/' : $return;
+        if(empty($this->session->return_url))
+        {
+            // Данные POST или GET
+            $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
+
+            parent::setSessionReturnUrl($return_data, $return);
+
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+        else
+        {
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+
+        log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_insta_login', true) or $this->input->post('bt_connect_instagram', true)) {
             header(
@@ -753,6 +748,8 @@ class Authorization extends CI_Controller
 
                         $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 
+                        parent::deleteSessionReturnUrl();
+
                         header('Location: ' . $return);
                     }
                     else
@@ -761,6 +758,8 @@ class Authorization extends CI_Controller
                         $this->session->set_tempdata('message', 5, 60);
 
                         log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
+
+                        parent::deleteSessionReturnUrl();
 
                         header('Location: ' . $fail_return);
                     }
@@ -774,12 +773,16 @@ class Authorization extends CI_Controller
                     {
                         log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
 
+                        parent::deleteSessionReturnUrl();
+
                         header('Location: ' . $return);
                     }
                     else
                     {
                         // Не удалось присоединить соц. сеть
                         log_message('error', __METHOD__ . ':' . __LINE__ . ' Не удалось присоединить соц. сеть');
+
+                        parent::deleteSessionReturnUrl();
 
                         header('Location: ' . $fail_return);
                     }
@@ -792,6 +795,8 @@ class Authorization extends CI_Controller
 
                 log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_data:' . print_r($resp_data, true));
 
+                parent::deleteSessionReturnUrl();
+
                 header('Location: ' . $fail_return);
             }
         }
@@ -801,6 +806,8 @@ class Authorization extends CI_Controller
             $this->session->set_tempdata('message', 103, 60);
 
             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
+
+            parent::deleteSessionReturnUrl();
 
             header('Location: ' . $fail_return);
         }
@@ -819,25 +826,27 @@ class Authorization extends CI_Controller
         $url_token     = 'https://oauth.vk.com/access_token?v=5.73';
         $client_id     = '6241173';
         $client_secret = 'sbeAsVwV4nZP57upZCrS';
-        $redirect_uri  = 'https://superbody.pro/vk_login?hi_return=' . $this->input->post('hi_return', true);
+        $redirect_uri  = 'https://superbody.pro/vk_login';
         $scope         = array( 'email', 'offline' );
 
         // Обработка ссылки для возврата
-        // Данные POST или GET
-        $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
-        // Обрезаем строку для сравнения с массивом разрешенных url
-        $cut_return    = (!empty($return_data)) ? mb_substr($this->input->post('hi_return', true), 0, 8) : '' ;
-        // Сравнение
-        $i_return      = (in_array($cut_return, $this->return_urls))
-            ? $this->input->post('hi_return', true)
-            : '/';
-        $return        = (!empty($return)) ? $return : $i_return;
-        // Добавляем параметр ref к строке, если переход на страницу курса
-        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
-        // Возврат в случае ошибки
-        $fail_return   = ($return == '/profile/') ? '/' : $return;
+        if(empty($this->session->return_url))
+        {
+            // Данные POST или GET
+            $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
 
-        log_message('debug', __METHOD__ . ':' . __LINE__ . ' $i_return:' . print_r($i_return, true));
+            parent::setSessionReturnUrl($return_data, $return);
+
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+        else
+        {
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+
+        log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_vk_login', true) or $this->input->post('bt_connect_vk', true))
         {
@@ -921,6 +930,8 @@ class Authorization extends CI_Controller
 
                             $return = ($return == '/profile/') ? ($return . $this->session->user['id']) : $return;
 
+                            parent::deleteSessionReturnUrl();
+
                             header('Location: ' . $return);
                         }
                         else
@@ -929,6 +940,8 @@ class Authorization extends CI_Controller
                             $this->session->set_tempdata('message', 5, 60);
 
                             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
+
+                            parent::deleteSessionReturnUrl();
 
                             header('Location: ' . $fail_return);
                         }
@@ -942,12 +955,16 @@ class Authorization extends CI_Controller
                         {
                             log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
 
+                            parent::deleteSessionReturnUrl();
+
                             header('Location: ' . $return);
                         }
                         else
                         {
                             // Не удалось присоединить соц. сеть
                             log_message('error', __METHOD__ . ':' . __LINE__ . ' Не удалось присоединить соц. сеть');
+
+                            parent::deleteSessionReturnUrl();
 
                             header('Location: ' . $fail_return);
                         }
@@ -960,6 +977,8 @@ class Authorization extends CI_Controller
 
                     log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_info:' . print_r($resp_info, true));
 
+                    parent::deleteSessionReturnUrl();
+
                     header('Location: ' . $fail_return);
                 }
             }
@@ -970,6 +989,8 @@ class Authorization extends CI_Controller
 
                 log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_data:' . print_r($resp_data, true));
 
+                parent::deleteSessionReturnUrl();
+
                 header('Location: ' . $fail_return);
             }
         }
@@ -979,6 +1000,8 @@ class Authorization extends CI_Controller
             $this->session->set_tempdata('message', 103, 60);
 
             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
+
+            parent::deleteSessionReturnUrl();
 
             header('Location: ' . $fail_return);
         }
@@ -1003,19 +1026,23 @@ class Authorization extends CI_Controller
         $state           = uniqid('', true);
 
         // Обработка ссылки для возврата
-        // Данные POST или GET
-        $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
-        // Обрезаем строку для сравнения с массивом разрешенных url
-        $cut_return    = (!empty($return_data)) ? mb_substr($this->input->post('hi_return', true), 0, 8) : '' ;
-        // Сравнение
-        $i_return      = (in_array($cut_return, $this->return_urls))
-            ? $this->input->post('hi_return', true)
-            : '/';
-        $return        = (!empty($return)) ? $return : $i_return;
-        // Добавляем параметр ref к строке, если переход на страницу курса
-        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
-        // Возврат в случае ошибки
-        $fail_return   = ($return == '/profile/') ? '/' : $return;
+        if(empty($this->session->return_url))
+        {
+            // Данные POST или GET
+            $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
+
+            parent::setSessionReturnUrl($return_data, $return);
+
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+        else
+        {
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+
+        log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_facebook_login', true) or $this->input->post('bt_connect_facebook', true))
         {
@@ -1076,6 +1103,8 @@ class Authorization extends CI_Controller
 
                             $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 
+                            parent::deleteSessionReturnUrl();
+
                             header('Location: ' . $return);
                         }
                         else
@@ -1084,6 +1113,8 @@ class Authorization extends CI_Controller
                             $this->session->set_tempdata('message', 5, 60);
 
                             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
+
+                            parent::deleteSessionReturnUrl();
 
                             header('Location: ' . $fail_return);
                         }
@@ -1097,12 +1128,16 @@ class Authorization extends CI_Controller
                         {
                             log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
 
+                            parent::deleteSessionReturnUrl();
+
                             header('Location: ' . $return);
                         }
                         else
                         {
                             // Не удалось присоединить соц. сеть
                             log_message('error', __METHOD__ . ':' . __LINE__ . ' Не удалось присоединить соц. сеть');
+
+                            parent::deleteSessionReturnUrl();
 
                             header('Location: ' . $fail_return);
                         }
@@ -1111,6 +1146,8 @@ class Authorization extends CI_Controller
                 else
                 {
                     log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $fb_u_data:' . print_r($fb_u_data, true));
+
+                    parent::deleteSessionReturnUrl();
 
                     header('Location: ' . $fail_return);
                 }
@@ -1122,6 +1159,8 @@ class Authorization extends CI_Controller
 
                 log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_data:' . print_r($resp_data, true));
 
+                parent::deleteSessionReturnUrl();
+
                 header('Location: ' . $fail_return);
             }
         }
@@ -1131,6 +1170,8 @@ class Authorization extends CI_Controller
             $this->session->set_tempdata('message', 103, 60);
 
             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
+
+            parent::deleteSessionReturnUrl();
 
             header('Location: ' . $fail_return);
         }
@@ -1244,19 +1285,23 @@ class Authorization extends CI_Controller
         $scope         = array( 'VALUABLE_ACCESS', 'GET_EMAIL' );
 
         // Обработка ссылки для возврата
-        // Данные POST или GET
-        $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
-        // Обрезаем строку для сравнения с массивом разрешенных url
-        $cut_return    = (!empty($return_data)) ? mb_substr($this->input->post('hi_return', true), 0, 8) : '' ;
-        // Сравнение
-        $i_return      = (in_array($cut_return, $this->return_urls))
-            ? $this->input->post('hi_return', true)
-            : '/';
-        $return        = (!empty($return)) ? $return : $i_return;
-        // Добавляем параметр ref к строке, если переход на страницу курса
-        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
-        // Возврат в случае ошибки
-        $fail_return   = ($return == '/profile/') ? '/' : $return;
+        if(empty($this->session->return_url))
+        {
+            // Данные POST или GET
+            $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
+
+            parent::setSessionReturnUrl($return_data, $return);
+
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+        else
+        {
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+
+        log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_ok_login', true) or $this->input->post('bt_connect_ok', true))
         {
@@ -1342,6 +1387,8 @@ class Authorization extends CI_Controller
 
                             $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 
+                            parent::deleteSessionReturnUrl();
+
                             header('Location: ' . $return);
                         }
                         else
@@ -1350,6 +1397,8 @@ class Authorization extends CI_Controller
                             $this->session->set_tempdata('message', 5, 60);
 
                             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
+
+                            parent::deleteSessionReturnUrl();
 
                             header('Location: ' . $fail_return);
                         }
@@ -1363,12 +1412,16 @@ class Authorization extends CI_Controller
                         {
                             log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
 
+                            parent::deleteSessionReturnUrl();
+
                             header('Location: ' . $return);
                         }
                         else
                         {
                             // Не удалось присоединить соц. сеть
                             log_message('error', __METHOD__ . ':' . __LINE__ . ' Не удалось присоединить соц. сеть');
+
+                            parent::deleteSessionReturnUrl();
 
                             header('Location: ' . $fail_return);
                         }
@@ -1381,6 +1434,8 @@ class Authorization extends CI_Controller
 
                     log_message('debug', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_info:' . print_r($resp_info, true));
 
+                    parent::deleteSessionReturnUrl();
+
                     header('Location: ' . $fail_return);
                 }
             }
@@ -1391,6 +1446,8 @@ class Authorization extends CI_Controller
 
                 log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_data:' . print_r($resp_data, true));
 
+                parent::deleteSessionReturnUrl();
+
                 header('Location: ' . $fail_return);
             }
         }
@@ -1400,6 +1457,8 @@ class Authorization extends CI_Controller
             $this->session->set_tempdata('message', 103, 60);
 
             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
+
+            parent::deleteSessionReturnUrl();
 
             header('Location: ' . $fail_return);
         }
