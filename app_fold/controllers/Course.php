@@ -4319,6 +4319,7 @@ class Course extends CI_Controller
             {
                 // Пользователь не авторизован
                 $this->session->set_tempdata('message', 5, 60);
+                header('Location: /course/' . $course_id . '?ref=1');
             }
 
             /*// Курс куплен (добавлен)
