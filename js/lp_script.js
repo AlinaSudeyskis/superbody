@@ -8,10 +8,12 @@ $(document).ready(function(){
 	  arrows: false
 	});
 
-    var opacity = 0.8;
+    var opacity  = 0.8,
+        purchase = $("#purchase_pop-up"),
+        shadow2 = $("#shadow2");
 
-    if($("#purchase_pop-up").length > 0){
-        if($("#purchase_pop-up").hasClass("ref_pop-up")){
+    if(purchase.length > 0){
+        if(purchase.hasClass("ref_pop-up")){
             purchase_up();
         }
 
@@ -23,19 +25,16 @@ $(document).ready(function(){
 
     function purchase_up()
     {
-        var popup = $("#purchase_pop-up"),
-            shadow = $("#shadow2");
-
-        if (shadow.length == 0)
+        if (shadow2.length == 0)
         {
             $("body").append("<div id='shadow2'></div>");
-            shadow = $("#shadow2");
+            shadow2 = $("#shadow2");
         }
 
-        popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
+        purchase.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
         $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
-            shadow.fadeOut(600);
-            popup.fadeOut(600);
+            shadow2.fadeOut(600);
+            purchase.fadeOut(600);
         });
     }
 
