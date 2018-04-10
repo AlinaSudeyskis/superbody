@@ -4333,6 +4333,7 @@ class Course extends CI_Controller
         $this->page_data['title']       = (!empty($course['course']['name'])) ? $course['course']['name'] : 'Курс №' . $course_id;
         $this->page_data['page_menu']   = 'courses';
         $this->page_data['course_id']   = $course_id;
+        $this->page_data['purchase_up'] = ($this->input->get('ref', true)) ? true : false;
 
         $result = array_merge($course, $course_couches, $user_courses, $landing, $this->page_data);
 

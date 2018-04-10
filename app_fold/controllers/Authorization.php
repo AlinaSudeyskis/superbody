@@ -679,6 +679,7 @@ class Authorization extends CI_Controller
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
+        $return        = (mb_substr($return, 0, 8) == '/course/') ? $return . '?ref=1' : $return;
         $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_insta_login', true) or $this->input->post('bt_connect_instagram', true)) {
@@ -795,6 +796,7 @@ class Authorization extends CI_Controller
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
+        $return        = (mb_substr($return, 0, 8) == '/course/') ? $return . '?ref=1' : $return;
         $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_vk_login', true) or $this->input->post('bt_connect_vk', true))
@@ -943,6 +945,7 @@ class Authorization extends CI_Controller
             ? $this->input->post('hi_return', true)
             : '/';
         $return          = (!empty($return)) ? $return : $i_return;
+        $return          = (mb_substr($return, 0, 8) == '/course/') ? $return . '?ref=1' : $return;
         $fail_return     = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_facebook_login', true) or $this->input->post('bt_connect_facebook', true))
@@ -1037,10 +1040,11 @@ class Authorization extends CI_Controller
                 header('Location: ' . $fail_return);
             }
         }
-        elseif($this->input->get('error', true))
+        elseif($this->input->get('error_code', true))
         {
             // Отказано в доступе
             $this->session->set_tempdata('message', 103, 60);
+            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
             header('Location: ' . $fail_return);
         }
     }
@@ -1155,6 +1159,7 @@ class Authorization extends CI_Controller
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
+        $return        = (mb_substr($return, 0, 8) == '/course/') ? $return . '?ref=1' : $return;
         $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_ok_login', true) or $this->input->post('bt_connect_ok', true))

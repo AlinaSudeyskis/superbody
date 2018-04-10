@@ -1409,7 +1409,7 @@ tr:first-child > td > .fc-day-grid-event{
     line-height: 25px;
     color: #505961;
     padding: 16px 0;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 .purchase_pop-up_close{
     width: 40px;

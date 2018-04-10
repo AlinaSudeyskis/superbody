@@ -297,6 +297,6 @@ class Welcome_model extends CI_Model
         //$this->db->query('ALTER TABLE `users` ADD `user_idempotent` VARCHAR(255) NOT NULL AFTER `user_date_update`, ADD `user_restore_date` DATETIME NOT NULL AFTER `user_idempotent`');
 
         // 09.04.2018
-        $this->db->query('ALTER TABLE `users` ADD `user_phone` VARCHAR(50) NOT NULL AFTER `user_image`');
+        //$this->db->query('ALTER TABLE `users` ADD `user_phone` VARCHAR(50) NOT NULL AFTER `user_image`');
     }
 }
