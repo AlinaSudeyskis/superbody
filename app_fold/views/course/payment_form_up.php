@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-$display = (!empty($purchase_up) and $purchase_up === true) ? 'style="display: block;"' : '';
+$display = (!empty($purchase_up) and $purchase_up === true) ? 'class="ref_pop-up"' : '';
 ?>
 <div id="purchase_pop-up" <?php echo $display; ?>>
     <div class="purchase_pop-up_cont">

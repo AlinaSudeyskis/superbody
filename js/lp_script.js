@@ -11,22 +11,31 @@ $(document).ready(function(){
     var opacity = 0.8;
 
     if($("#purchase_pop-up").length > 0){
+        if($("#purchase_pop-up").hasClass("ref_pop-up")){
+            purchase_up();
+        }
+
         $(".lp_block_but").on('click', function(){
             event.preventDefault();
-            var popup = $("#purchase_pop-up"),
-                shadow = $("#shadow2");
+            purchase_up();
+        });
+    }
 
-            if (shadow.length == 0)
-            {
-                $("body").append("<div id='shadow2'></div>");
-                shadow = $("#shadow2");
-            }
+    function purchase_up()
+    {
+        var popup = $("#purchase_pop-up"),
+            shadow = $("#shadow2");
 
-            popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
-            $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
-                shadow.fadeOut(600);
-                popup.fadeOut(600);
-            });
+        if (shadow.length == 0)
+        {
+            $("body").append("<div id='shadow2'></div>");
+            shadow = $("#shadow2");
+        }
+
+        popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
+        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
+            shadow.fadeOut(600);
+            popup.fadeOut(600);
         });
     }
 
