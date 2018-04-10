@@ -11,7 +11,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 
 class Authorization extends CI_Controller
-{    
+{
+    public $return_urls = array('settings', 'course/', 'profile');
+
     /**
      * Authorization constructor.
      */
@@ -675,7 +677,8 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/instagram_login';
         $grant_type    = 'authorization_code';
         $scope         = array( 'basic' );
-        $i_return      = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+        $cut_return    = mb_substr($this->input->post('hi_return', true), 0, 7);
+        $i_return      = (in_array($cut_return, $this->return_urls))
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
@@ -749,21 +752,37 @@ class Authorization extends CI_Controller
                         // Не удалось авторизоваться. Повторите попытку
                         $this->session->set_tempdata('message', 5, 60);
 
+                        log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
+
                         header('Location: ' . $fail_return);
                     }
                 }
                 else
                 {
-                    $this->Authorization_model->connectSocial($this->user_id, 'instagram', $this->date, $user_access_token,
+                    $result = $this->Authorization_model->connectSocial($this->user_id, 'instagram', $this->date, $user_access_token,
                         $user_soc_id, $expires_at, $issued_at, $expires_in);
 
-                    header('Location: ' . $return);
+                    if($result === true)
+                    {
+                        log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
+
+                        header('Location: ' . $return);
+                    }
+                    else
+                    {
+                        // Не удалось присоединить соц. сеть
+                        log_message('error', __METHOD__ . ':' . __LINE__ . ' Не удалось присоединить соц. сеть');
+
+                        header('Location: ' . $fail_return);
+                    }
                 }
             }
             else
             {
                 // Не удалось получить доступ к данным. Повторите попытку
                 $this->session->set_tempdata('message', 102, 60);
+
+                log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_data:' . print_r($resp_data, true));
 
                 header('Location: ' . $fail_return);
             }
@@ -794,7 +813,8 @@ class Authorization extends CI_Controller
         $client_secret = 'sbeAsVwV4nZP57upZCrS';
         $redirect_uri  = 'https://superbody.pro/vk_login';
         $scope         = array( 'email', 'offline' );
-        $i_return      = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+        $cut_return    = mb_substr($this->input->post('hi_return', true), 0, 7);
+        $i_return      = (in_array($cut_return, $this->return_urls))
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
@@ -883,8 +903,6 @@ class Authorization extends CI_Controller
 
                             $return = ($return == '/profile/') ? ($return . $this->session->user['id']) : $return;
 
-                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
-
                             header('Location: ' . $return);
                         }
                         else
@@ -965,7 +983,8 @@ class Authorization extends CI_Controller
         $redirect_uri    = 'https://superbody.pro/facebook_login';
         $scope           = array( 'public_profile', 'email' );
         $state           = uniqid('', true);
-        $i_return        = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+        $cut_return      = mb_substr($this->input->post('hi_return', true), 0, 7);
+        $i_return        = (in_array($cut_return, $this->return_urls))
             ? $this->input->post('hi_return', true)
             : '/';
         $return          = (!empty($return)) ? $return : $i_return;
@@ -1038,6 +1057,8 @@ class Authorization extends CI_Controller
                             // Не удалось авторизоваться. Повторите попытку
                             $this->session->set_tempdata('message', 5, 60);
 
+                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
+
                             header('Location: ' . $fail_return);
                         }
                     }
@@ -1046,12 +1067,25 @@ class Authorization extends CI_Controller
                         $result = $this->Authorization_model->connectSocial($this->user_id, 'facebook', $this->date, $fb_u_data['user_access_token'],
                             $fb_u_data['user_soc_id'], $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in']);
 
-                        header('Location: ' . $return);
+                        if($result === true)
+                        {
+                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
+
+                            header('Location: ' . $return);
+                        }
+                        else
+                        {
+                            // Не удалось присоединить соц. сеть
+                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Не удалось присоединить соц. сеть');
+
+                            header('Location: ' . $fail_return);
+                        }
                     }
                 }
                 else
                 {
-                    log_message('debug', print_r($fb_u_data, true));
+                    log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $fb_u_data:' . print_r($fb_u_data, true));
+
                     header('Location: ' . $fail_return);
                 }
             }
@@ -1060,7 +1094,8 @@ class Authorization extends CI_Controller
                 // Не удалось получить доступ к данным. Повторите попытку
                 $this->session->set_tempdata('message', 102, 60);
 
-                log_message('debug', print_r($resp_data, true));
+                log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_data:' . print_r($resp_data, true));
+
                 header('Location: ' . $fail_return);
             }
         }
@@ -1181,7 +1216,8 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/ok_login';
         $grant_type    = 'authorization_code';
         $scope         = array( 'VALUABLE_ACCESS', 'GET_EMAIL' );
-        $i_return      = (filter_var($this->input->post('hi_return', true), FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED))
+        $cut_return    = mb_substr($this->input->post('hi_return', true), 0, 7);
+        $i_return      = (in_array($cut_return, $this->return_urls))
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
@@ -1279,17 +1315,29 @@ class Authorization extends CI_Controller
                             // Не удалось авторизоваться. Повторите попытку
                             $this->session->set_tempdata('message', 5, 60);
 
-                            log_message('debug', 'OK validSocLoginId: '.print_r($result, true));
+                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
 
                             header('Location: ' . $fail_return);
                         }
                     }
                     else
                     {
-                        $this->Authorization_model->connectSocial($this->user_id, 'ok', $this->date, $user_access_token,
+                        $result = $this->Authorization_model->connectSocial($this->user_id, 'ok', $this->date, $user_access_token,
                             $user_soc_id, $expires_at, $issued_at, $expires_in);
 
-                        header('Location: ' . $return);
+                        if($result === true)
+                        {
+                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
+
+                            header('Location: ' . $return);
+                        }
+                        else
+                        {
+                            // Не удалось присоединить соц. сеть
+                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Не удалось присоединить соц. сеть');
+
+                            header('Location: ' . $fail_return);
+                        }
                     }
                 }
                 elseif(!empty($resp_info->error_msg))
@@ -1297,7 +1345,7 @@ class Authorization extends CI_Controller
                     // Не удалось получить доступ к данным. Повторите попытку
                     $this->session->set_tempdata('message', 102, 60);
 
-                    log_message('debug', 'OK getCurrentUser: '.print_r($resp_info, true));
+                    log_message('debug', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_info:' . print_r($resp_info, true));
 
                     header('Location: ' . $fail_return);
                 }
@@ -1306,7 +1354,8 @@ class Authorization extends CI_Controller
             {
                 // Не удалось получить доступ к данным. Повторите попытку
                 $this->session->set_tempdata('message', 102, 60);
-                log_message('debug', 'OK OAuth: '.print_r($resp_data, true));
+
+                log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. $resp_data:' . print_r($resp_data, true));
 
                 header('Location: ' . $fail_return);
             }
