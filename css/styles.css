@@ -33,6 +33,13 @@
     font-weight: lighter;
     z-index: 1;
 }
+#purchase_pop-up #block-message{
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    max-width: none;
+}
 #page-info{font-size: 12px; height: 12px; margin-bottom: 10px; line-height: normal;}
 
 .select_input{width:500px; display: inline-block;}

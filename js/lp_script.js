@@ -109,5 +109,4 @@ $(document).ready(function(){
             $("#method-login").hide();
         }
     });
-
 });

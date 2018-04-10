@@ -4311,7 +4311,7 @@ class Course extends CI_Controller
                 {
                     // Не сохранено
                     $this->session->set_tempdata('message', 101, 60);
-                    header('Location: /course/' . $course_id);
+                    header('Location: /course/' . $course_id . '?ref=1');
                 }
 
             }
@@ -4325,8 +4325,6 @@ class Course extends CI_Controller
             /*// Курс куплен (добавлен)
             $this->session->set_tempdata('message', 109, 60);
             header('Location: /profile/course/'.$course_id);*/
-
-            header('Location: /course/' . $course_id);
 
         }
 
