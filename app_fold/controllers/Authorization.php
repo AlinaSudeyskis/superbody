@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Authorization extends CI_Controller
 {
-    public $return_urls = array('settings', 'course/', 'profile');
+    public $return_urls = array('/settings', '/course/', '/profile');
 
     /**
      * Authorization constructor.
@@ -677,12 +677,20 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/instagram_login';
         $grant_type    = 'authorization_code';
         $scope         = array( 'basic' );
-        $cut_return    = mb_substr($this->input->post('hi_return', true), 0, 7);
+
+        // Обработка ссылки для возврата
+        // Данные POST или GET
+        $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
+        // Обрезаем строку для сравнения с массивом разрешенных url
+        $cut_return    = (!empty($return_data)) ? mb_substr($this->input->post('hi_return', true), 0, 8) : '' ;
+        // Сравнение
         $i_return      = (in_array($cut_return, $this->return_urls))
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
-        $return        = (mb_substr($return, 0, 8) == '/course/') ? $return . '?ref=1' : $return;
+        // Добавляем параметр ref к строке, если переход на страницу курса
+        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
+        // Возврат в случае ошибки
         $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_insta_login', true) or $this->input->post('bt_connect_instagram', true)) {
@@ -811,21 +819,31 @@ class Authorization extends CI_Controller
         $url_token     = 'https://oauth.vk.com/access_token?v=5.73';
         $client_id     = '6241173';
         $client_secret = 'sbeAsVwV4nZP57upZCrS';
-        $redirect_uri  = 'https://superbody.pro/vk_login';
+        $redirect_uri  = 'https://superbody.pro/vk_login?hi_return=' . $this->input->post('hi_return', true);
         $scope         = array( 'email', 'offline' );
-        $cut_return    = mb_substr($this->input->post('hi_return', true), 0, 7);
+
+        // Обработка ссылки для возврата
+        // Данные POST или GET
+        $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
+        // Обрезаем строку для сравнения с массивом разрешенных url
+        $cut_return    = (!empty($return_data)) ? mb_substr($this->input->post('hi_return', true), 0, 8) : '' ;
+        // Сравнение
         $i_return      = (in_array($cut_return, $this->return_urls))
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
+        // Добавляем параметр ref к строке, если переход на страницу курса
         $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
+        // Возврат в случае ошибки
         $fail_return   = ($return == '/profile/') ? '/' : $return;
+
+        log_message('debug', __METHOD__ . ':' . __LINE__ . ' $i_return:' . print_r($i_return, true));
 
         if ($this->input->post('bt_vk_login', true) or $this->input->post('bt_connect_vk', true))
         {
             header(
                 sprintf(
-                    'Location:https://oauth.vk.com/authorize??v=5.73&client_id=%s&display=popup&redirect_uri=%s&scope=%s&response_type=code&v=5.69',
+                    'Location:https://oauth.vk.com/authorize??v=5.73&client_id=%s&display=popup&redirect_uri=%s&scope=%s&response_type=code',
                     $client_id,
                     $redirect_uri,
                     implode( ',', $scope )
@@ -983,13 +1001,21 @@ class Authorization extends CI_Controller
         $redirect_uri    = 'https://superbody.pro/facebook_login';
         $scope           = array( 'public_profile', 'email' );
         $state           = uniqid('', true);
-        $cut_return      = mb_substr($this->input->post('hi_return', true), 0, 7);
-        $i_return        = (in_array($cut_return, $this->return_urls))
+
+        // Обработка ссылки для возврата
+        // Данные POST или GET
+        $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
+        // Обрезаем строку для сравнения с массивом разрешенных url
+        $cut_return    = (!empty($return_data)) ? mb_substr($this->input->post('hi_return', true), 0, 8) : '' ;
+        // Сравнение
+        $i_return      = (in_array($cut_return, $this->return_urls))
             ? $this->input->post('hi_return', true)
             : '/';
-        $return          = (!empty($return)) ? $return : $i_return;
-        $return          = (mb_substr($return, 0, 8) == '/course/') ? $return . '?ref=1' : $return;
-        $fail_return     = ($return == '/profile/') ? '/' : $return;
+        $return        = (!empty($return)) ? $return : $i_return;
+        // Добавляем параметр ref к строке, если переход на страницу курса
+        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
+        // Возврат в случае ошибки
+        $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_facebook_login', true) or $this->input->post('bt_connect_facebook', true))
         {
@@ -1216,12 +1242,20 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/ok_login';
         $grant_type    = 'authorization_code';
         $scope         = array( 'VALUABLE_ACCESS', 'GET_EMAIL' );
-        $cut_return    = mb_substr($this->input->post('hi_return', true), 0, 7);
+
+        // Обработка ссылки для возврата
+        // Данные POST или GET
+        $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
+        // Обрезаем строку для сравнения с массивом разрешенных url
+        $cut_return    = (!empty($return_data)) ? mb_substr($this->input->post('hi_return', true), 0, 8) : '' ;
+        // Сравнение
         $i_return      = (in_array($cut_return, $this->return_urls))
             ? $this->input->post('hi_return', true)
             : '/';
         $return        = (!empty($return)) ? $return : $i_return;
-        $return        = (mb_substr($return, 0, 8) == '/course/') ? $return . '?ref=1' : $return;
+        // Добавляем параметр ref к строке, если переход на страницу курса
+        $return        = (mb_substr($return, 0, 8) == '/course/') ? ($return . '?ref=1') : $return;
+        // Возврат в случае ошибки
         $fail_return   = ($return == '/profile/') ? '/' : $return;
 
         if ($this->input->post('bt_ok_login', true) or $this->input->post('bt_connect_ok', true))
