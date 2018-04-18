@@ -345,7 +345,9 @@ class User extends CI_Controller
             }
 
             // Телефон
-            $phone = mb_substr(strip_tags($this->input->post('phone', true)), 0, 50);
+            $code  = mb_substr(strip_tags($this->input->post('country', true)), 0, 2);
+            $code  = (array_key_exists($code, $this->countries_codes)) ? $this->countries_codes[$code] : '';
+            $phone = is_numeric($this->input->post('phone', true)) ? $this->input->post('phone', true) : '';
 
             // Загрузка изображения на сервер
             $path_avatar = '.' . $user_data['user_image'];
@@ -387,9 +389,10 @@ class User extends CI_Controller
 
             // Сохранение данных в БД
             if ($email != $user_data['user_email'] or $name != $user_data['user_name'] or $phone != $user_data['user_phone']
-                or $password_hash != $user_data['user_password_hash'] or $avatar != $user_data['user_image'])
+                or $code != $user_data['user_country_code'] or $password_hash != $user_data['user_password_hash']
+                or $avatar != $user_data['user_image'])
             {
-                $result = $this->User_model->setUserSettingsData($this->user_id, $email, $name, $password_hash, $phone, $path_avatar, $this->date);
+                $result = $this->User_model->setUserSettingsData($this->user_id, $email, $name, $password_hash, $code, $phone, $path_avatar, $this->date);
 
                 if ($result === false)
                 {
@@ -517,6 +520,7 @@ class User extends CI_Controller
             header('Location: /settings');
         }
 
+
         // Страница пользователя или администратора
         if (!empty($this->user_id) and $this->session->user['type'] != 2) {
             self::userSettings();
@@ -541,17 +545,20 @@ class User extends CI_Controller
         $result = array_merge($user_data, $user_social);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Настройки';
-        $this->page_data['page_menu'] = 'settings';
+        $this->page_data['title']        = 'Настройки';
+        $this->page_data['page_menu']    = 'settings';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
 
-        if ($user_data !== false) {
+        if ($user_data !== false)
+        {
             // Вывод страницы настроек пользователя
             $this->load->view('user/settings/settings', $result);
-        } else {
+        }
+        else
+        {
             // Пользователь не найден
             $this->session->set_tempdata('message', 0, 60);
         }
@@ -573,17 +580,20 @@ class User extends CI_Controller
         $result = array_merge($user_data, $user_social);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Настройки';
-        $this->page_data['page_menu'] = 'settings';
+        $this->page_data['title']        = 'Настройки';
+        $this->page_data['page_menu']    = 'settings';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
 
-        if ($user_data !== false) {
+        if ($user_data !== false)
+        {
             // Вывод страницы настроек пользователя
             $this->load->view('couch/settings/settings', $result);
-        } else {
+        }
+        else
+        {
             // Пользователь не найден
             $this->session->set_tempdata('message', 0, 60);
         }

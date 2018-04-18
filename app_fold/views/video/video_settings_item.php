@@ -13,16 +13,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Курс:</div>
     <?php if (!empty($courses)):?>
-        <select name="s_courses" class="journal_form_select">
+        <select name="s_courses" class="journal_form_select" id="video-course">
             <option value="">Выберите курс</option>
-            <?php foreach($courses as $course):?>
-                <option value="<?php echo $course['id']; ?>"
-                    <?php if(!empty($video['course_id']) and $course['id'] == $video['course_id']):?>selected="selected"<?php endif;?>
-                ><?php echo $course['name']; ?></option>
+            <?php foreach($courses as $crs):?>
+                <option value="<?php echo $crs['id']; ?>"
+                    <?php if(!empty($video['course_id']) and $crs['id'] == $video['course_id']):?>selected="selected"<?php endif;?>
+                ><?php echo $crs['name']; ?></option>
             <?php endforeach;
-            unset($course);?>
+            unset($crs);?>
         </select>
+        <input type="hidden" name="hi_ctw" value="" id="crs_tr_w"/>
     <?php endif;?>
+</div>
+<div class="parent kurs_cur_wrap course_length" <?php if(!empty($course_length)):?>style="display: block;"<?php endif;?>>
+    <div class="kurs_block_h">Тренировки:</div>
+    <div class="practice_block_table">
+        <?php if(!empty($course_length)) :
+            $course['count_weeks'] = $course_length['count_weeks'];
+            $course['count_days']  = $course_length['count_days'];
+            $course['workouts']    = $workouts;
+            include_once('./app_fold/views/course/settings/course_length_item.php');
+        endif; ?>
+    </div>
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Наименование:</div>
@@ -32,18 +44,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="kurs_block_h">Vimeo URL:</div>
     <input type="text" name="remove_url" class="admin_form_txt admin_form_txt_short" placeholder="Полная URL ссылка на видео с сайта Vimeo.com" value="<?php if (!empty($video['name'])) { echo $video['remove_url']; }?>" />
 </div>
-<div class="video_down_line parent">
-    <div class="video_down_line_h">Постер видео:</div>
-    <div class="video_down_line_but_wrap">
-        <label for="poster_file" class="video_down_line_but">
-            <input type="file" name="poster_file" class="admin_form_videofile" id="poster_file" />
-            <input type="hidden" value="" name="poster_path" id="poster_path"/>
-            <span>Выберите файл</span>
-        </label>
-    </div>
-    <div class="video_down_line_name">Файл не выбран</div>
-    <div class="progressbar_wrap">
-        <progress class="progressbar" id="poster_progressbar" value="0" max="100"></progress>
+<div class="parent kurs_cur_wrap down_line">
+    <div class="kurs_block_h">Постер видео:</div>
+    <div class="video_down_line parent">
+        <div class="video_down_line_but_wrap">
+            <label for="poster_file" class="video_down_line_but">
+                <input type="file" name="poster_file" class="admin_form_videofile" id="poster_file" />
+                <input type="hidden" value="" name="poster_path" id="poster_path"/>
+                <span>Выберите файл</span>
+            </label>
+        </div>
+        <div class="video_down_line_name">Файл не выбран</div>
+        <div class="progressbar_wrap">
+            <progress class="progressbar" id="poster_progressbar" value="0" max="100"></progress>
+        </div>
     </div>
 </div>
 <?php if (!empty($video['poster'])) : ?>
@@ -51,18 +65,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <img src="<?php echo $video['poster'];?>" alt="">
     </div>
 <?php endif; ?>
-<div class="video_down_line parent">
-    <div class="video_down_line_h">Файл видео:</div>
-    <div class="video_down_line_but_wrap">
-        <label for="video_down_line_but2" class="video_down_line_but">
-            <input type="file" name="upload_file" class="admin_form_videofile" id="video_down_line_but2">
-            <input type="hidden" value="" name="video_path" id="video_path"/>
-            <span>Выберите файл</span>
-        </label>
-    </div>
-    <div class="video_down_line_name">Файл не выбран</div>
-    <div class="progressbar_wrap">
-        <progress class="progressbar" id="progressbar2" value="0" max="100"></progress>
+<div class="parent kurs_cur_wrap down_line">
+    <div class="kurs_block_h">Постер видео:</div>
+    <div class="video_down_line parent">
+        <div class="video_down_line_but_wrap">
+            <label for="video_down_line_but2" class="video_down_line_but">
+                <input type="file" name="upload_file" class="admin_form_videofile" id="video_down_line_but2">
+                <input type="hidden" value="" name="video_path" id="video_path"/>
+                <span>Выберите файл</span>
+            </label>
+        </div>
+        <div class="video_down_line_name">Файл не выбран</div>
+        <div class="progressbar_wrap">
+            <progress class="progressbar" id="progressbar2" value="0" max="100"></progress>
+        </div>
     </div>
 </div>
 <?php if (!empty($video['video'])) : ?>

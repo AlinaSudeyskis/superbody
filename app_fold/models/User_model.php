@@ -109,6 +109,7 @@ class User_model extends CI_Model
         $result = array ( 'user_data' => array(
             'user_email' => '',
             'user_name' => '',
+            'user_country_code' => '',
             'user_phone' => '',
             'user_image' => '',
             'user_blocked' => '',
@@ -124,7 +125,7 @@ class User_model extends CI_Model
         ));
 
         $sel_data = $this->db->query('
-            SELECT `user_name`, `user_email`, `user_password`, `user_phone`, `user_image`, `user_blocked`, `user_type`, 
+            SELECT `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, `user_image`, `user_blocked`, `user_type`, 
               `user_gender`, `user_birthday`
             FROM `users` 
             LEFT JOIN `questionnaire`
@@ -137,6 +138,7 @@ class User_model extends CI_Model
 
             $result['user_data']['user_name']          = $row->user_name;
             $result['user_data']['user_email']         = $row->user_email;
+            $result['user_data']['user_country_code']  = $row->user_country_code;
             $result['user_data']['user_phone']         = $row->user_phone;
             $result['user_data']['user_password_hash'] = $row->user_password;
             $result['user_data']['user_blocked']       = $row->user_blocked;
@@ -201,18 +203,19 @@ class User_model extends CI_Model
      * @param string $email E-mail пользователя
      * @param string $name Ф.И.О. пользователя
      * @param string $password_hash Хэш пароля
+     * @param string $code Код страны
      * @param string $phone Телефон пользователя
      * @param string $path_avatar Путь к изображению пользователя
      * @param datetime $date Текущая дата
      * @return bool
      */
-    public function setUserSettingsData($user_id, $email, $name, $password_hash, $phone, $path_avatar, $date)
+    public function setUserSettingsData($user_id, $email, $name, $password_hash, $code, $phone, $path_avatar, $date)
     {
         $up_data = $this->db->query('
             UPDATE `users` 
-            SET `user_email`=?, `user_name`=?, `user_password`=?, `user_phone`=?, `user_image`=?, `user_date_update`=?
+            SET `user_email`=?, `user_name`=?, `user_password`=?, `user_country_code`=?, `user_phone`=?, `user_image`=?, `user_date_update`=?
             WHERE `user_id`=? LIMIT 1', 
-                array($email, $name, $password_hash, $phone, $path_avatar, $date, $user_id));
+                array($email, $name, $password_hash, $code, $phone, $path_avatar, $date, $user_id));
         
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {

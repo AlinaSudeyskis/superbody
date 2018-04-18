@@ -9,6 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Email:</div></div>
         <input type="text" name="email" class="anketa_form_in anketa_form_in_long" placeholder="Email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255"/>
+        <span class="email_error"></span>
     </div>
     <?php if (!empty($user_session) and $user_session['auth_via'] == 'native') :?>
         <div class="anketa_form_line parent">
@@ -38,26 +39,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     <?php endif;?>
+    <div class="anketa_form_line parent country_code">
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Код страны:</div></div>
+        <div class="anketa_form_one_wrap anketa_form_three_wrap">
+            <?php include_once('./app_fold/views/user/settings/country_code.php'); ?>
+        </div>
+    </div>
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell">Телефон:</div></div>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Номер телефона:</div></div>
         <input type="text" name="phone" class="anketa_form_in anketa_form_in_long" placeholder="Телефон" value="<?php if (!empty($user_data['user_phone'])) { echo $user_data['user_phone']; }?>" maxlength="50"/>
     </div>
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото</div></div>
-        <div class="anketa_form_info_cont">
-            <div style="width: 330px;">
-                <div class="video_down_line parent">
-                    <div class="parent kurs_cur_wrap">
-                        <div class="video_down_line_but_wrap">
-                            <label for="video_down_line_but1cs" class="video_down_line_but">
-                                <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
-                                <input type="file" name="avatar_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
-                                <span>Выберите файл</span>
-                            </label>
-                        </div>
-                        <div class="video_down_line_name" style="width:45% !important;">Файл не выбран</div>
-                    </div>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото:</div></div>
+        <div class="video_down_line parent">
+            <div class="parent kurs_cur_wrap">
+                <div class="video_down_line_but_wrap">
+                    <label for="video_down_line_but1cs" class="video_down_line_but">
+                        <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
+                        <input type="file" name="avatar_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
+                        <span>Выберите файл</span>
+                    </label>
                 </div>
+                <div class="video_down_line_name" style="width:45% !important;">Файл не выбран</div>
             </div>
         </div>
     </div>

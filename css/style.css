@@ -2282,7 +2282,7 @@ tr:first-child > td > .fc-day-grid-event{
     padding: 15px;
     background: #fff;
     margin-bottom: 30px;
-    min-height: 226px;
+    height: 270px;
 }
 .trainers_block .tren_item{
     float: left;
@@ -2292,7 +2292,7 @@ tr:first-child > td > .fc-day-grid-event{
 .trainers_cont{
     float: left;
     width: 56%;
-    overflow: hidden;
+    height: 100%;
     padding-left: 15px;
     color: #00bff0;
 }
@@ -2307,6 +2307,9 @@ tr:first-child > td > .fc-day-grid-event{
     line-height: 16px;
     font-weight: 300;
     margin-bottom: 15px;
+    height: calc(50% - 40px);
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 .trainers_txt:last-child{
     margin-bottom: 0;
@@ -4137,7 +4140,7 @@ textarea.journal_post_comm_in{
 .shop_tov_wrap{
     float: left;
     width: 20%;
-    padding: 0 15px;
+    padding: 15px 15px; /* 0 15px */
 }
 .shop_block_tov{
     padding: 0 35px;
@@ -4854,16 +4857,36 @@ textarea.journal_post_comm_in{
 }
 .info_edit_email{
     display: none;
+    padding-top: 15px;
 }
 .info_edit_email .ordering_in {
     width: 100%;
 }
 .edit_email_save .shop_tov_more {
-     width: 78px;
-     height: 30px;
-     margin-left: auto;
-     margin-right: 0;
+    width: 78px;
+    height: 30px;
+    margin-left: auto;
+    margin-right: 0;
+    border: 1px solid #FFFFFF;
+    color: #464646;
+    background-color: #FFFFFF;
  }
+.ordering_block_side_info.red_block {
+    background-color: #e46c6c;
+    color: #FFFFFF;
+    border: 1px solid #FFFFFF;
+}
+.red_block .ordering_block_side_info_h, .red_block .ordering_block_side_email_edit,
+.red_block .ordering_block_side_cont, .red_block .email_errors {
+    color: #FFFFFF;
+}
+.email_errors, .red_block .info_ordering_email{
+    display: block;
+    margin-top: 10px;
+}
+.red_block .ordering_block_side_cont_h{
+    padding: 0;
+}
 .ordering_block_side_cont{
 	color: #737373;
 	font-size: 12px;
@@ -6543,6 +6566,9 @@ textarea.journal_post_comm_in{
 	margin-bottom: 20px;
     min-height: 36px;
 }
+.anketa_form_line.country_code{
+    margin-bottom: 5px;
+}
 .anketa_form_buts_wrap{
 	padding-left: 180px;
 	padding-top: 10px;
@@ -6756,6 +6782,16 @@ textarea.anketa_form_in{
 	float: left;
 }
 
+.email_error{
+    float: left;
+    line-height: 35px;
+    max-width: calc(100% - 510px);
+    width: 100%;
+    padding-left: 15px;
+    font-size: 13px;
+    font-style: italic;
+    color: #b2b2b2;
+}
 
 
 
@@ -8147,13 +8183,14 @@ textarea.anketa_form_in{
  }
 .progressbar_wrap{
     float: left;
-    width: calc(55% - 166px);
+    width: calc(55% - 120px);
     height: 25px;
-    padding-top: 5px;
+    /*padding-top: 5px;*/
 }
 .video_down_line{
     padding-top: 2px;
-    width: 100%;
+    width: calc(100% - 180px);
+    float: left;
     height: 35px;
     line-height: 35px;
 }
@@ -10217,6 +10254,15 @@ input.tren_form_block_check{
 	}
 }
 
+@media (max-width: 889px){
+    .email_error{
+        clear: both;
+        margin-left: 180px;
+        width: calc(100% - 180px);
+        max-width: calc(100% - 180px);
+    }
+}
+
 
 @media (max-width: 799px) and (min-width: 640px){
 	.tren_gal_col:nth-of-type(3n+1):hover .tren_gal_cont, .tren_gal_col:first-child:hover .tren_gal_cont{
@@ -10329,6 +10375,12 @@ input.tren_form_block_check{
     .anketa_form .video_down_line_h{
         width: min-content;
         text-align: left;
+    }
+
+    .email_error{
+        margin-left: 0;
+        width: 100%;
+        max-width: 100%;
     }
 
 	.site_info .anketa_form_h, .site_info .anketa_form_info_h{

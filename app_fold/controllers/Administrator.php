@@ -496,7 +496,6 @@ class Administrator extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-
         $result = null;
 
         if ($page == '')
@@ -516,15 +515,18 @@ class Administrator extends CI_Controller
         }
         elseif ($page == 'about')
         {
-
             $result = $this->Administrator_model->getSiteAbout();
             $this->page_data['page_submenu'] = 'a_about';
         }
         elseif ($page == 'contacts')
         {
-
             $result = $this->Administrator_model->getSiteContacts();
             $this->page_data['page_submenu'] = 'a_contacts';
+        }
+        elseif ($page == 'auth')
+        {
+            $result = $this->Administrator_model->getSiteAuth();
+            $this->page_data['page_submenu'] = 'a_auth';
         }
 
         // Сохранение изменений
@@ -640,6 +642,35 @@ class Administrator extends CI_Controller
             }
 
             header('Location: /administration/site/contacts');
+        }
+        elseif ($this->input->post('bt_save_auth', true))
+        {
+            $title_1 = mb_substr(strip_tags($this->input->post('i_title_1', true)), 0, 30);
+            $title_2 = mb_substr(strip_tags($this->input->post('i_title_2', true)), 0, 30);
+            $subtitle_1 = mb_substr(strip_tags($this->input->post('i_subtitle_1', true)), 0, 30);
+            $subtitle_2 = mb_substr(strip_tags($this->input->post('i_subtitle_2', true)), 0, 30);
+            $text_1 = mb_substr(strip_tags($this->input->post('ta_text_1', true)), 0, 150);
+            $text_2 = mb_substr(strip_tags($this->input->post('ta_text_2', true)), 0, 150);
+            $url_1 = mb_substr(strip_tags($this->input->post('i_url_1', true)), 0, 255);
+            $url_2 = mb_substr(strip_tags($this->input->post('i_url_2', true)), 0, 255);
+            $url_name_1 = mb_substr(strip_tags($this->input->post('i_url_name_1', true)), 0, 30);
+            $url_name_2 = mb_substr(strip_tags($this->input->post('i_url_name_2', true)), 0, 15);
+
+            $result = $this->Administrator_model->setSiteAuth($title_1, $title_2, $subtitle_1, $subtitle_2, $text_1,
+                $text_2, $url_1, $url_2, $url_name_1, $url_name_2, $this->date, $this->user_id);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 134, 60);
+            }
+
+            header('Location: /administration/site/auth');
         }
 
         // Объединенные данные страница

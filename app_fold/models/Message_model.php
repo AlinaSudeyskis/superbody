@@ -497,9 +497,9 @@ class Message_model extends CI_Model
         $result = null;
 
         // Определени ID диалога по ID или email пользователя
-        if (is_numeric($user_id))
+        if (!empty($user_email))
         {
-            $sel_conv = $this->db->query('SELECT `fb_conv_id` FROM `feedback` WHERE `fb_user_id`=? LIMIT 1', $user_id);
+            $sel_conv = $this->db->query('SELECT `fb_conv_id` FROM `feedback` WHERE `fb_user_email`=? LIMIT 1', $user_email);
             if ($sel_conv !== false and 1 == $sel_conv->num_rows())
             {
                 $row = $sel_conv->row();
@@ -511,9 +511,9 @@ class Message_model extends CI_Model
                 parent::logDbMessages(__METHOD__);
             }
         }
-        elseif (!empty($user_email))
+        elseif (is_numeric($user_id))
         {
-            $sel_conv = $this->db->query('SELECT `fb_conv_id` FROM `feedback` WHERE `fb_user_email`=? LIMIT 1', $user_email);
+            $sel_conv = $this->db->query('SELECT `fb_conv_id` FROM `feedback` WHERE `fb_user_id`=? LIMIT 1', $user_id);
             if ($sel_conv !== false and 1 == $sel_conv->num_rows())
             {
                 $row = $sel_conv->row();
@@ -678,17 +678,17 @@ class Message_model extends CI_Model
             $field        = '`fb_conv_id`';
             $param        = 0;
 
-            // Поиск по ID пользователя
-            if (is_numeric($user_id))
-            {
-                $field = '`fb_user_id`';
-                $param = $user_id;
-            }
             // Поиск по Email пользователя
-            elseif (!empty($user_email))
+            if (!empty($user_email))
             {
                 $field = '`fb_user_email`';
                 $param = $user_email;
+            }
+            // Поиск по ID пользователя
+            elseif (is_numeric($user_id))
+            {
+                $field = '`fb_user_id`';
+                $param = $user_id;
             }
             // Поиск по ID беседы
             elseif (is_numeric($conv_id))
@@ -718,6 +718,81 @@ class Message_model extends CI_Model
                 }
                 unset($row);
 
+                $result['fb_total_new'] = $total_new;
+            }
+            elseif($sel_messages === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сообщения диалога обратной связи для пользователя
+     *
+     * @param null|int $user_id ID пользователя
+     * @param null|string $user_email E-mail пользователя
+     * @param null|int $conv_id ID беседы
+     * @param string $date Текущая дата
+     * @return array
+     */
+    public function getLastTwoUserFeedbackMessages($user_id = null, $user_email = null, $conv_id = null, $date = null)
+    {
+        $result = array('fb_user_messages' => array(), 'fb_conv_id' => '', 'fb_total_new' => 0);
+
+        if (is_numeric($user_id) or !empty($user_email) or is_numeric($conv_id))
+        {
+            $total_new    = 0;
+            $sel_messages = null;
+            $field        = '`fb_conv_id`';
+            $param        = 0;
+
+            // Поиск по Email пользователя
+            if (!empty($user_email))
+            {
+                $field = '`fb_user_email`';
+                $param = $user_email;
+            }
+            // Поиск по ID пользователя
+            elseif (is_numeric($user_id))
+            {
+                $field = '`fb_user_id`';
+                $param = $user_id;
+            }
+            // Поиск по ID беседы
+            elseif (is_numeric($conv_id))
+            {
+                $field = '`fb_conv_id`';
+                $param = $conv_id;
+            }
+
+            $sel_messages = $this->db->query('
+                SELECT `fb_conv_id`, `fb_user_name`, `fb_user_email`, `fb_user_id`, `fb_text`, `fb_date_add`, `fb_admin_id`, 
+                  `fb_new`, `user_name` as `admin_name`, `user_email` as `admin_email`
+                FROM `feedback`
+                LEFT JOIN `users` ON `fb_admin_id`=`user_id`
+                WHERE ' . $field . '=?
+                ORDER BY `fb_date_add` DESC
+                LIMIT 2', $param);
+
+            if ($sel_messages !== false and !empty($sel_messages) and 0 < $sel_messages->num_rows())
+            {
+                $i = 0;
+                foreach ($sel_messages->result() as $row)
+                {
+                    $result['fb_conv_id'] = $row->fb_conv_id;
+                    $result['fb_user_messages'][$i] = self::parseFeedbackData($row, $date);
+
+                    $total_new += ($row->fb_admin_id > 0) ? $row->fb_new : 0;
+
+                    $i++;
+                }
+                unset($row);
+
+                krsort($result['fb_user_messages']);
                 $result['fb_total_new'] = $total_new;
             }
             elseif($sel_messages === false)
@@ -771,7 +846,7 @@ class Message_model extends CI_Model
      * @param string $message_text Текст сообщения
      * @param int|null $conv_id ID диалога
      * @param $date
-     * @return bool|int
+     * @return bool|array
      */
     public function setFeedbackAnswer($admin_id, $user_id = null, $user_email = null, $message_text, $conv_id = null, $date)
     {
@@ -820,9 +895,16 @@ class Message_model extends CI_Model
 
             if ($ins_data !== false and 1 == $this->db->affected_rows())
             {
-                // Обновление статуса сообщение на прочитанный
+                // Обновление статуса сообщения на прочитанный
                 $this->db->query('UPDATE `feedback` SET `fb_read`=?, `fb_new`=0 
                     WHERE `fb_conv_id`=? and `fb_admin_id`=0 and `fb_new`=1', array($admin_id, $conv_id));
+
+                // Выборка последних сообщений переписки для отправки на почту не зарегистрированного пользователя
+                if($user_id == 0)
+                {
+                    $two_messages = self::getLastTwoUserFeedbackMessages($user_id, $user_email, $conv_id, $date);
+                    return $two_messages;
+                }
 
                 return true;
             }

@@ -97,6 +97,8 @@ class Couch_model extends CI_Model
         $result = array ( 'user_data' => array(
             'user_email' => '',
             'user_name' => '',
+            'user_country_code' => '',
+            'user_phone' => '',
             'user_image' => '',
             'user_blocked' => '',
             'user_password' => '',
@@ -116,24 +118,24 @@ class Couch_model extends CI_Model
 
         $sel_admin = $this->db->query('
             SELECT `user_email`, `user_name`, `user_image`, `user_blocked`, `user_password`, 
-              `user_gender`, `user_birthday`,
+              `user_gender`, `user_birthday`, `user_country_code`, `user_phone`,
               `cd_specialization`, `cd_experience`, `cd_titles_awards`, `cd_about` 
             FROM `users` 
-            LEFT JOIN `couch_data`
-              ON `cd_u_id`=`users`.`user_id`
-            LEFT JOIN `questionnaire`
-              ON `questionnaire`.`user_id`=`users`.`user_id`
+            LEFT JOIN `couch_data` ON `cd_u_id`=`users`.`user_id`
+            LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
             WHERE `users`.`user_id`=? and `user_type`=2 LIMIT 1', $user_id);
 
         if (1 == $sel_admin->num_rows())
         {
             $row = $sel_admin->row();
 
-            $result['user_data']['user_email']    = $row->user_email;
-            $result['user_data']['user_name']     = !empty($row->user_name) ? $row->user_name : 'Тренер';
-            $result['user_data']['user_image']    = mb_substr($row->user_image, 1);
-            $result['user_data']['user_blocked']  = $row->user_blocked;
-            $result['user_data']['user_password'] = $row->user_password;
+            $result['user_data']['user_email']         = $row->user_email;
+            $result['user_data']['user_name']          = !empty($row->user_name) ? $row->user_name : 'Тренер';
+            $result['user_data']['user_country_code']  = $row->user_country_code;
+            $result['user_data']['user_phone']         = $row->user_phone;
+            $result['user_data']['user_image']         = mb_substr($row->user_image, 1);
+            $result['user_data']['user_blocked']       = $row->user_blocked;
+            $result['user_data']['user_password']      = $row->user_password;
 
             $split_name = !empty($row->user_name) ? explode(" ", $row->user_name) : '';
             $result['user_data']['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Тренер';
@@ -263,16 +265,18 @@ class Couch_model extends CI_Model
     public function getCouches()
     {
         $result = array();
-        $sel_couches = $this->db->query('
-          SELECT `user_name`, `user_email`, `user_id`, `user_image`, `cd_specialization` 
-          FROM `users` 
-          LEFT JOIN `couch_data`
-            ON `cd_u_id`=`user_id`
-          WHERE `user_type`=2');
 
-        if ($sel_couches->num_rows() > 0) {
+        $sel_couches = $this->db->query('
+            SELECT `user_name`, `user_email`, `user_id`, `user_image`, `cd_specialization`, `cd_titles_awards`, `cd_about` 
+            FROM `users` 
+              LEFT JOIN `couch_data` ON `cd_u_id`=`user_id`
+            WHERE `user_type`=2');
+
+        if ($sel_couches !== false and 0 < $sel_couches->num_rows())
+        {
             $i = 0;
-            foreach ($sel_couches->result() as $row) {
+            foreach ($sel_couches->result() as $row)
+            {
                 $result['couches'][$i]['id']      = $row->user_id;
 
                 $user_name = explode(' ', $row->user_name);
@@ -280,8 +284,11 @@ class Couch_model extends CI_Model
                 $result['couches'][$i]['name']    = $user_name[0];
                 $result['couches'][$i]['surname'] = !empty($user_name[1]) ? $user_name[1] : '';
                 
-                $result['couches'][$i]['image']   = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
-                $result['couches'][$i]['special'] = $row->cd_specialization;
+                $result['couches'][$i]['image']         = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                $result['couches'][$i]['special']       = $row->cd_specialization;
+                $result['couches'][$i]['titles_awards'] = $row->cd_titles_awards;
+                $result['couches'][$i]['about']         = !empty($row->cd_about) ? parent::showBBcodes($row->cd_about) : '';
+                $result['couches'][$i]['about']         = $row->cd_about;
 
                 $i++;
             }

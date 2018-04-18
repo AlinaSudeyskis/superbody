@@ -242,6 +242,31 @@ $(document).ready(function() {
         }
     });
 
+    $("#video-course").on('change', function(){
+        if ($.isNumeric($(this).val()))
+        {
+            var crs_id = $(this).val(),
+                crs_block = $(".course_length");
+
+            $.ajax({
+                url: '/show/weeks',
+                type: 'post',
+                dataType: 'json',
+                data: {crs_id: crs_id},
+                complete: function (result) {
+                    var data = result.responseJSON;
+                    if (data.crs_sch !== false) {
+                        crs_block.show();
+                        crs_block.children(".practice_block_table").html(data.crs_sch);
+                    }
+                    else {
+                        crs_block.hide();
+                    }
+                }
+            });
+        }
+    });
+
 
 	/* Оформление форм */
 
@@ -622,27 +647,6 @@ function pop_up_home(popup) {
     popup.fadeOut(600);
   });
 }
-
-
-function getInternetExplorerVersion() {
-    var rv = -1;
-    if (navigator.appName == 'Microsoft Internet Explorer')
-    {
-        var ua = navigator.userAgent;
-        var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-        if (re.exec(ua) != null)
-            rv = parseFloat( RegExp.$1 );
-    }
-    else if (navigator.appName == 'Netscape')
-    {
-        var ua = navigator.userAgent;
-        var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
-        if (re.exec(ua) != null)
-            rv = parseFloat( RegExp.$1 );
-    }
-    return rv;
-}
-
 
 
 $(document).ready(function(){
@@ -1557,6 +1561,11 @@ $(".ordering_next1").click(function(){
     $(".edit_email input[name=e_email]").val($("input[name=i_o_email]").val());
     $(".info_ordering_type").text($("input[name=i_o_delivery]:checked").val());
 
+    if($("input[name=i_o_email]").val() == '')
+    {
+        $(".info_ordering_email").text('Введите Email');
+    }
+
 	if ($("select[name=s_o_address] option:selected").val() != '') {
         $(".info_ordering_country").text($("select[name=s_o_address] option:selected").text());
     }
@@ -1620,18 +1629,33 @@ $(".ordering_block_side_info_edit").click(function(){
 $(".ordering_block_side_email_edit").click(function(){
     $(".info_edit_email").toggle();
     $(".info_ordering_email").toggle();
+    $(".email_errors").hide();
 });
 $(".edit_email_save").click(function(){
-    var edit_email = $(".edit_email input[name=e_email]").val(),
-        confirm = $(".edit_email_confirm input[name=e_email_confirm]").val();
-    if(edit_email == confirm && edit_email != '')
+    var edit_email   = $(".edit_email input[name=e_email]").val(),
+        confirm      = $(".edit_email_confirm input[name=e_email_confirm]").val(),
+        errors_block = $(".email_errors");
+    if(edit_email != '')
     {
-        $(".info_ordering_email").text(edit_email);
-        $("input[name=i_o_email]").val(edit_email);
-        $(".edit_email_confirm input[name=e_email_confirm]").val('');
+        if(edit_email == confirm)
+        {
+            $(".info_ordering_email").text(edit_email);
+            $("input[name=i_o_email]").val(edit_email);
+            $(".edit_email_confirm input[name=e_email_confirm]").val('');
 
-        $(".info_edit_email").css('display','none');
-        $(".info_ordering_email").css('display','block');
+            $(".info_edit_email").css('display','none');
+            $(".info_ordering_email").css('display','block');
+        }
+        else
+        {
+            errors_block.text('Email не совпадают');
+            errors_block.show();
+        }
+    }
+    else
+    {
+        errors_block.text('Введите Email');
+        errors_block.show();
     }
 });
 $("input.tov_number").change(function(){
@@ -1694,8 +1718,6 @@ $("input.tov_number").change(function(){
             $("#info_ordering_fc_currency").text(" FitCoin");
         }
     }
-
-
 
 $('.graf_block_grafik_item').each(function(){
 	$(this).css('height', $(this).text()).text(' ');

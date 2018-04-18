@@ -431,6 +431,44 @@ class Administrator_model extends CI_Model
     }
 
     /**
+     * Выборка данных блока авторизации
+     *
+     * @return bool|array
+     */
+    public function getSiteAuth()
+    {
+        $result = false;
+
+        $sel_info = $this->db->query('
+            SELECT `si_id`, `si_auth_title1`, `si_auth_title2`, `si_auth_subtitle1`, `si_auth_subtitle2`, `si_auth_text1`, 
+              `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, `si_auth_url_name1`, `si_auth_url_name2` 
+            FROM `site_info` LIMIT 1');
+
+        if ($sel_info !== false and 1 == $sel_info->num_rows())
+        {
+            $row = $sel_info->row();
+
+            $result['si_id']          = $row->si_id;
+            $result['auth_title1']    = $row->si_auth_title1;
+            $result['auth_title2']    = $row->si_auth_title2;
+            $result['auth_subtitle1'] = $row->si_auth_subtitle1;
+            $result['auth_subtitle2'] = $row->si_auth_subtitle2;
+            $result['auth_text1']     = $row->si_auth_text1;
+            $result['auth_text2']     = $row->si_auth_text2;
+            $result['auth_url1']      = $row->si_auth_url1;
+            $result['auth_url2']      = $row->si_auth_url2;
+            $result['auth_url_name1'] = $row->si_auth_url_name1;
+            $result['auth_url_name2'] = $row->si_auth_url_name2;
+        }
+        elseif ($sel_info === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка баннеров сайта
      *
      * @return bool
@@ -586,6 +624,46 @@ class Administrator_model extends CI_Model
             SET `si_email`=?, `si_phone`=?, `si_contacts_text1`=?, `si_contacts_text2`=?, `si_user_id`=?, `si_date`=? 
             WHERE `si_id`=? LIMIT 1',
             array($email, $phone, $contacts_text1, $contacts_text2, $user_id, $date, 1));
+
+        if ($up_info !== false and 1 == $this->db->affected_rows()) {
+            return true;
+        }
+        elseif ($up_info === false) {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Сохранение изменений данных о блоке авторизации
+     *
+     * @param $title_1
+     * @param $title_2
+     * @param $subtitle_1
+     * @param $subtitle_2
+     * @param $text_1
+     * @param $text_2
+     * @param $url_1
+     * @param $url_2
+     * @param $url_name_1
+     * @param $url_name_2
+     * @param $date
+     * @param $user_id
+     * @return bool
+     */
+    public function setSiteAuth($title_1, $title_2, $subtitle_1, $subtitle_2, $text_1, $text_2, $url_1, $url_2,
+                                $url_name_1, $url_name_2, $date, $user_id)
+    {
+        $up_info = $this->db->query('
+            UPDATE `site_info` SET `si_auth_title1`=?, `si_auth_title2`=?, `si_auth_subtitle1`=?, `si_auth_subtitle2`=?,
+              `si_auth_text1`=?,`si_auth_text2`=?,`si_auth_url1`=?,`si_auth_url2`=?,`si_auth_url_name1`=?,
+              `si_auth_url_name2`=?,`si_user_id`=?,`si_date`=? 
+            WHERE `si_id`=? LIMIT 1',
+                array($title_1, $title_2, $subtitle_1, $subtitle_2, $text_1, $text_2, $url_1, $url_2, $url_name_1,
+                    $url_name_2, $user_id, $date, 1));
 
         if ($up_info !== false and 1 == $this->db->affected_rows()) {
             return true;

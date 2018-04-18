@@ -28,10 +28,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
         <div class="trainers_cont">
-            <div class="trainers_h">Заголовок</div>
-            <div class="trainers_txt">Ознакомьтесь с доступными курсами. Любой курс содержит программу питания и синхронизируется с вашим календарем.</div>
-            <div class="trainers_h">Заголовок</div>
-            <div class="trainers_txt">Ознакомьтесь с доступными курсами. Любой курс содержит программу питания и синхронизируется с вашим календарем.</div>
+            <div class="trainers_h">Титулы и награды</div>
+            <div class="trainers_txt">
+                <?php if (!empty($couch['titles_awards'])):
+                    echo $couch['titles_awards'];
+                else:?>
+                    Нет информации
+                <?php endif; ?>
+            </div>
+            <div class="trainers_h">О себе</div>
+            <div class="trainers_txt">
+                <?php if (!empty($couch['about'])):
+                    echo $couch['about'];
+                else: ?>
+                    Тренер еще не добавил информацию о себе
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>

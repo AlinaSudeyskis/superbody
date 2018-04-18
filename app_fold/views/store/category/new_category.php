@@ -17,10 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <form action="" class="video_admin_form" method="post">
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Наименование:</div>
-                            <input type="text" name="name" class="admin_form_txt admin_form_txt_middle" value="" maxlength="255" required="required" />
-                        </div>
+                        <?php include_once('./app_fold/views/store/category/settings_item.php'); ?>
                         <div class="video_admin_form_buts parent">
                             <input type="submit" name="bt_save_new_category" value="Сохранить" class="video_admin_form_send" />
                         </div>

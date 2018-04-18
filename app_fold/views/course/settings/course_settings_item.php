@@ -179,7 +179,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 endif;?>
             </div>
         </div>
-
+        <!-- TODO !! Поля для поиска видео, тренера, а также тренировки выводить рядом с описанием полей -->
         <div class="parent instruction_block">
             <div class="practice_block_h">Инструктаж курса:</div>
             <div class="add_tov_in_total">
@@ -206,24 +206,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="parent block_wrap">
             <div class="practice_block_h">Тренировки:</div>
             <div class="practice_block_table">
-                <?php if (!empty($course['count_days'] and !empty($course['count_weeks']))) :
-                    $i = 1;
-                    for($tr_week = 1; $tr_week <= $course['count_weeks']; $tr_week++) :?>
-                        <div class="practice_weeks">
-                            <div class="practice_week"><span>Неделя</span> <?php echo $tr_week; ?></div>
-                            <div class="practice_days">
-                                <?php for($tr_day = 1; $tr_day <= $course['count_days']; $tr_day++) :?>
-                                    <div class="practice_day" id="practice<?php echo $i; ?>">Т <?php echo $tr_day; ?></div>
-                                <?php $i++;
-                                endfor;
-                                unset($tr_day);?>
-                            </div>
-                        </div>
-                    <?php endfor;
-                    unset($tr_week);
-                else:?>
-                    <span class="h_subtitle">Выберите длительность курса и количество тренировок в неделю</span>
-                <?php endif;?>
+                <?php include_once('./app_fold/views/course/settings/course_length_item.php'); ?>
             </div>
         </div>
 

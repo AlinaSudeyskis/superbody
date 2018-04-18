@@ -668,6 +668,9 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/instagram_login';
         $grant_type    = 'authorization_code';
         $scope         = array( 'basic' );
+        $email         = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+            ? $this->input->post('email', true)
+            : $email;
 
         // Обработка ссылки для возврата
         if(empty($this->session->return_url))
@@ -679,14 +682,18 @@ class Authorization extends CI_Controller
 
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
+
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
         }
         else
         {
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
+            $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
-        log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
+        //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_insta_login', true) or $this->input->post('bt_connect_instagram', true)) {
             header(
@@ -828,6 +835,9 @@ class Authorization extends CI_Controller
         $client_secret = 'sbeAsVwV4nZP57upZCrS';
         $redirect_uri  = 'https://superbody.pro/vk_login';
         $scope         = array( 'email', 'offline' );
+        $email         = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+            ? $this->input->post('email', true)
+            : $email;
 
         // Обработка ссылки для возврата
         if(empty($this->session->return_url))
@@ -839,11 +849,15 @@ class Authorization extends CI_Controller
 
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
+
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
         }
         else
         {
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
+            $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
         log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
@@ -887,7 +901,7 @@ class Authorization extends CI_Controller
                 $issued_at         = 0;
 
                 $user_soc_id    = $resp_data->user_id;
-                $user_soc_email = !empty($resp_data->email) ? $resp_data->email : '';
+                $user_soc_email = !empty($email) ? $email : $resp_data->email;
 
                 // Получение подробной информации о пользователе
                 $myCurl = curl_init();
@@ -1024,25 +1038,32 @@ class Authorization extends CI_Controller
         $redirect_uri    = 'https://superbody.pro/facebook_login';
         $scope           = array( 'public_profile', 'email' );
         $state           = uniqid('', true);
+        $email           = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+            ? $this->input->post('email', true)
+            : $email;
 
         // Обработка ссылки для возврата
         if(empty($this->session->return_url))
         {
             // Данные POST или GET
-            $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
+            $return_data = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
 
             parent::setSessionReturnUrl($return_data, $return);
 
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
+
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
         }
         else
         {
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
+            $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
-        log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
+        //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_facebook_login', true) or $this->input->post('bt_connect_facebook', true))
         {
@@ -1283,6 +1304,9 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/ok_login';
         $grant_type    = 'authorization_code';
         $scope         = array( 'VALUABLE_ACCESS', 'GET_EMAIL' );
+        $email         = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+            ? $this->input->post('email', true)
+            : $email;
 
         // Обработка ссылки для возврата
         if(empty($this->session->return_url))
@@ -1294,11 +1318,15 @@ class Authorization extends CI_Controller
 
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
+
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
         }
         else
         {
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
+            $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
         log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
@@ -1364,7 +1392,7 @@ class Authorization extends CI_Controller
                     $expires_at      = 0;
                     $issued_at       = 0;
                     $user_soc_name   = !empty($resp_info->name) ? $resp_info->name : '';
-                    $user_soc_email  = !empty($resp_info->email) ? $resp_info->email : '';
+                    $user_soc_email  = !empty($email) ? $email : $resp_info->email;
                     $user_soc_image  = is_file($resp_info->pic_3) ? $resp_info->pic_3 : '';
                     $user_soc_bd     = !empty($resp_info->birthday) ? $resp_info->birthday : '';
                     $user_soc_gender = !empty($resp_info->gender) ? $resp_info->gender : '';

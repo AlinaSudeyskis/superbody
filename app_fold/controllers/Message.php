@@ -299,7 +299,8 @@ class Message extends CI_Controller
     public function feedbackUserMessages($identification = '', $conv_id = '')
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
             parent::pageNotFound($this->page_url);
         }
 
@@ -345,26 +346,40 @@ class Message extends CI_Controller
                 {
                     $result = $this->Message_model->setFeedbackAnswer($this->user_id, null, $identification, $text, null, $this->date);
 
-                    if ($result === true)
+                    // Отправление письма с копией сообщений обратной связи
+                    if (is_array($result))
                     {
-                        setlocale(LC_ALL, 'ru_RU.UTF-8');
-                        $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
-                        $message_date = ($this->date != '0000-00-00 00:00:00' and $date !== false)
-                            ? $date->format('d.m.Y')
-                            : '';
-                        $message_time = ($this->date != '0000-00-00 00:00:00' and $date !== false)
-                            ? $date->format('H:i')
-                            : '';
+                        $email_to     = "<$identification>";
+                        $subject      = "Обратная связь SuperBody";
+                        $message_text = '';
 
-                        // Отправление письма с копией сообщения обратной связи
+                        foreach ($result['fb_user_messages'] as $fb_message)
+                        {
+                            $message_text  .=
+                                '<div style="margin-bottom: 10px;">' .
+                                '<div style="margin-left: 10px; padding-top: 2px; color: #b7b7b7;">' . $fb_message['date'] . ' ' . $fb_message['time'] . '</div>' .
+                                '<div style="margin: 10px 0 0 20px;">' . nl2br($fb_message['text']) . '</div>' .
+                                '</div>';
+                        }
+
+                        $headers   = "Content-type: text/html; charset=utf-8 \r\n";
+                        $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
+                        $headers   .= "Reply-To: info@superbody.pro\r\n";
+
+                        mail($email_to, $subject, $message_text, $headers); //  '-fsupport@theoutlines.ru'
+
+                        // Изменения сохранены
+                        $this->session->set_tempdata('message', 54, 60);
+                    }
+                    // Отправка уведомления о новом сообщении
+                    elseif($result === true)
+                    {
                         $email_to = "<$identification>";
                         $subject  = "Обратная связь SuperBody";
 
-                        $message_text  =
-                            '<div style="margin-bottom: 10px;">' .
-                            '<div style="margin-left: 10px; padding-top: 2px; color: #b7b7b7;">' . $message_date . ' ' . $message_time . '</div>' .
-                            '<div style="margin: 10px 0 0 20px;">' . nl2br($text) . '</div>' .
-                            '</div>';
+                        $message_text = '<div style="margin-bottom: 10px;"><div style="margin: 10px 0 0 20px;">'
+                            . 'Пришел ответ от администрации сайта на Ваше сообщение в разделе "Обратная связь"'
+                            . '</div></div>';
 
                         $headers   = "Content-type: text/html; charset=utf-8 \r\n";
                         $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";

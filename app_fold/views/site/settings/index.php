@@ -11,7 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <div class="anketa_form_line parent">
                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Текст</div></div>
-                <input type="text" class="anketa_form_in anketa_form_in_long" name="i_text" value="<?php if (!empty($index_text)) { echo $index_text; }?>" maxlength="300"/>
+                <textarea name="i_text" class="journal_form_textarea admin_form_txt_middle" maxlength="300"><?php if (!empty($index_text)) { echo $index_text; }?></textarea>
             </div>
 
             <div class="anketa_form_buts_wrap parent">

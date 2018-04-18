@@ -64,7 +64,9 @@ class Welcome_model extends CI_Model
             SELECT `si_id`, `si_logo`, `si_index_title`, `si_index_text`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinteres`, 
               `si_soc_google_plus`, `si_soc_tumblr`, `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, 
               `si_phone`, `si_email`, `si_rights`, `si_agreement`, `si_policy`, `si_personal_data`, `si_footer`, 
-              `si_about`, `si_contacts_text1`, `si_contacts_text2`
+              `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_auth_title1`, `si_auth_title2`, `si_auth_subtitle1`, 
+              `si_auth_subtitle2`, `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, `si_auth_url_name1`, 
+              `si_auth_url_name2`
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -95,6 +97,16 @@ class Welcome_model extends CI_Model
             $result['contacts_text1'] = $row->si_contacts_text1;
             $result['contacts_text2'] = $row->si_contacts_text2;
             $result['banners']        = array();
+            $result['auth_title1']    = $row->si_auth_title1;
+            $result['auth_title2']    = $row->si_auth_title2;
+            $result['auth_subtitle1'] = $row->si_auth_subtitle1;
+            $result['auth_subtitle2'] = $row->si_auth_subtitle2;
+            $result['auth_text1']     = $row->si_auth_text1;
+            $result['auth_text2']     = $row->si_auth_text2;
+            $result['auth_url1']      = $row->si_auth_url1;
+            $result['auth_url2']      = $row->si_auth_url2;
+            $result['auth_url_name1'] = $row->si_auth_url_name1;
+            $result['auth_url_name2'] = $row->si_auth_url_name2;
 
             $sel_banners = $this->db->query('
                 SELECT `sb_image`, `sb_url` FROM `site_banners` WHERE `sb_blocked`=0');
@@ -298,5 +310,35 @@ class Welcome_model extends CI_Model
 
         // 09.04.2018
         //$this->db->query('ALTER TABLE `users` ADD `user_phone` VARCHAR(50) NOT NULL AFTER `user_image`');
+
+        // 11.04.2018
+        /*$this->db->query('ALTER TABLE `site_info` ADD `si_auth_title1` VARCHAR(30) NOT NULL AFTER `si_contacts_text2`,
+            ADD `si_auth_title2` VARCHAR(30) NOT NULL AFTER `si_auth_title1`, 
+            ADD `si_auth_subtitle1` VARCHAR(30) NOT NULL AFTER `si_auth_title2`, 
+            ADD `si_auth_subtitle2` VARCHAR(30) NOT NULL AFTER `si_auth_subtitle1`, 
+            ADD `si_auth_text1` VARCHAR(150) NOT NULL AFTER `si_auth_subtitle2`, 
+            ADD `si_auth_text2` VARCHAR(150) NOT NULL AFTER `si_auth_text1`, 
+            ADD `si_auth_url1` VARCHAR(255) NOT NULL AFTER `si_auth_text2`, 
+            ADD `si_auth_url2` VARCHAR(255) NOT NULL AFTER `si_auth_url1`, 
+            ADD `si_auth_url_name1` VARCHAR(30) NOT NULL AFTER `si_auth_url2`, 
+            ADD `si_auth_url_name2` VARCHAR(15) NOT NULL AFTER `si_auth_url_name1`');*/
+
+        // 12.04.2018
+        /*$this->db->query('UPDATE `categories` SET `cat_id` = "4" WHERE `categories`.`cat_id` = 3');
+        $this->db->query('UPDATE `categories` SET `cat_id` = "3" WHERE `categories`.`cat_id` = 2');
+        $this->db->query('UPDATE `categories` SET `cat_id` = "2" WHERE `categories`.`cat_id` = 1');
+        $this->db->query('INSERT INTO `categories` (`cat_name`, `cat_description`, `cat_date_add`, `cat_date_update`, `cat_admin_id`) 
+            VALUES (?, ?, ?, ?, ?)',
+                array('Курсы', 'Вы знаете, что тренироваться нужно регулярно, но сбалансировать свое расписание бывает трудно.', '2018-04-12 10:58:02', '2018-04-12 10:58:02', 4));
+        $this->db->query('UPDATE `categories` SET `cat_id` = "1" WHERE `categories`.`cat_id` = 5');*/
+
+        /*$this->db->query('UPDATE `products_categories` SET `pc_cat_id`=4 WHERE `pc_cat_id`=3');
+        $this->db->query('UPDATE `products_categories` SET `pc_cat_id`=3 WHERE `pc_cat_id`=2');
+        $this->db->query('UPDATE `products_categories` SET `pc_cat_id`=2 WHERE `pc_cat_id`=1');
+        $this->db->query('UPDATE `products_categories` SET `pc_cat_id`=1 WHERE `pc_cat_id`=0');*/
+
+        // 16.04.2018
+        //$this->db->query('ALTER TABLE `users` ADD `user_country_code` VARCHAR(5) NOT NULL AFTER `user_image`');
+        //$this->db->query('ALTER TABLE `orders` ADD `o_user_country_code` VARCHAR(5) NOT NULL AFTER `o_user_email`');
     }
 }

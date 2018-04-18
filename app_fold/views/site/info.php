@@ -30,6 +30,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 include_once('./app_fold/views/site/settings/about.php');
                             elseif ($page_submenu == 'a_contacts') :
                                 include_once('./app_fold/views/site/settings/contacts.php');
+                            elseif ($page_submenu == 'a_auth') :
+                                include_once('./app_fold/views/site/settings/auth.php');
                             else:?>
                                 <h3>Информация не найдена</h3>
                             <?php endif;?>

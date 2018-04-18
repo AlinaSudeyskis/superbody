@@ -27,4 +27,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'a_contacts'): ?> class="anketa_active" <?php endif;?>>Контакты</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/site/auth">
+            <span <?php if ($page_submenu == 'a_auth'): ?> class="anketa_active" <?php endif;?>>Авторизация</span>
+        </a>
+    </li>
 </ul>

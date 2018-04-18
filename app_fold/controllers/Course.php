@@ -632,6 +632,9 @@ class Course extends CI_Controller
                 ? './video/' . $this->input->post('poster_path', true) : '';
             $video_path  = is_file('./video/' . $this->input->post('video_path', true))
                 ? './video/' . $this->input->post('video_path', true) : '';
+
+            // Id тренировки курса
+            $workout_num = (is_numeric($this->input->post('hi_ctw', true))) ? $this->input->post('hi_ctw', true) : null;
             
             if (!empty($video_path) or !empty($remove_url))
             {
@@ -641,10 +644,18 @@ class Course extends CI_Controller
 
                 if (is_numeric($result) and $result !== false)
                 {
+                    $video_id = $result;
+
+                    // Прикрепление видео к тренировке
+                    if(!empty($workout_num) and !empty($course_id))
+                    {
+                        $this->Course_model->attachVideoToWorkout($course_id, $workout_num, $video_id, $this->date);
+                    }
+
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
 
-                    header('Location: /administration/video/'.$result);
+                    header('Location: /administration/video/' . $video_id);
                 }
                 else
                 {
@@ -702,11 +713,13 @@ class Course extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $video_id = (is_numeric($video_id)) ? $video_id : '';
+
         $video   = $this->Course_model->getVideo($video_id);
         $courses = $this->Course_model->getCourses();
         $result  = array_merge($video, $courses);
 
-        if ($this->input->post('bt_save_video', true))
+        if ($this->input->post('bt_save_video', true) and !empty($video_id))
         {
             // Введенные данные
             $type        = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
@@ -735,6 +748,15 @@ class Course extends CI_Controller
                 ? $video_path
                 : '.' . $result['video']['video'];
 
+            // Id тренировки курса
+            $workout_num = (is_numeric($this->input->post('hi_ctw', true))) ? $this->input->post('hi_ctw', true) : null;
+
+            // Прикрепление видео к тренировке
+            if(!empty($workout_num) and !empty($course_id))
+            {
+                $this->Course_model->attachVideoToWorkout($course_id, $workout_num, $video_id, $this->date);
+            }
+
             $update = $this->Course_model->setVideoSettings($video_id, $type, $course_id, $video, $name, $poster, $remove_url, $this->user_id,
                 $this->date);
 
@@ -756,7 +778,7 @@ class Course extends CI_Controller
 
             header('Location: /administration/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_block_video', true) and is_numeric($video_id)) {
+        elseif ($this->input->post('bt_block_video', true) and !empty($video_id)) {
             $blocked = $this->Course_model->blockVideo($video_id, $this->date);
 
             if ($blocked === true) {
@@ -768,7 +790,7 @@ class Course extends CI_Controller
             }
             header('Location: /administration/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_unblock_video', true) and is_numeric($video_id)) {
+        elseif ($this->input->post('bt_unblock_video', true) and !empty($video_id)) {
             $unblocked = $this->Course_model->unblockVideo($video_id, $this->date);
 
             if ($unblocked === true) {
@@ -780,7 +802,7 @@ class Course extends CI_Controller
             }
             header('Location: /administration/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_delete_video', true) and is_numeric($video_id)) {
+        elseif ($this->input->post('bt_delete_video', true) and !empty($video_id)) {
             $deleted = $this->Course_model->deleteVideo($video_id);
 
             if ($deleted === true) {
@@ -820,12 +842,16 @@ class Course extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $video   = $this->Course_model->getCourseVideoData($course_id, $video_id);
-        $courses = $this->Course_model->getCourses();
-        $course  = $this->Course_model->getShortCourse($course_id);
-        $result  = array_merge($video, $courses, $course);
+        $course_id = (is_numeric($course_id)) ? $course_id : '';
+        $video_id  = (is_numeric($video_id)) ? $video_id : '';
 
-        if ($this->input->post('bt_save_video', true))
+        $video    = $this->Course_model->getCourseVideoData($course_id, $video_id);
+        $courses  = $this->Course_model->getCourses();
+        $course   = $this->Course_model->getShortCourse($course_id);
+        $schedule = $this->Course_model->getCourseSchedules($course_id);
+        $result   = array_merge($video, $courses, $course, $schedule);
+
+        if ($this->input->post('bt_save_video', true) and !empty($course_id) and !empty($video_id))
         {
             // Введенные данные
             $type        = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
@@ -836,11 +862,9 @@ class Course extends CI_Controller
             $video_path  = (!empty($this->input->post('video_path', true)) and is_file('./video/' . $this->input->post('video_path', true)))
                 ? './video/' . $this->input->post('video_path', true)
                 : null;
-
             $name = !empty($this->input->post('file_name', true))
                 ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255)
                 : '';
-
             $remove_url = !empty($this->input->post('remove_url', true))
                 ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255)
                 : '';
@@ -853,29 +877,44 @@ class Course extends CI_Controller
             $video  = (!empty($video_path) and $video_path != $result['video']['video'])
                 ? $video_path
                 : '.' . $result['video']['video'];
+            //$video_id = $result;
+
+            // Id тренировки курса
+            $workout_num = (is_numeric($this->input->post('hi_ctw', true))) ? $this->input->post('hi_ctw', true) : null;
+
+            // Прикрепление видео к тренировке
+            if(!empty($workout_num) and !empty($course_id))
+            {
+                $this->Course_model->attachVideoToWorkout($course_id, $workout_num, $video_id, $this->date);
+            }
 
             $update = $this->Course_model->setVideoSettings($video_id, $type, $course_id, $video, $name, $poster, $remove_url, $this->user_id,
                 $this->date);
 
-            if ($update === true) {
-                if ($video != $result['video']['video'] and is_file($result['video']['video']) and is_file($video)) {
+            if ($update === true)
+            {
+                if ($video != $result['video']['video'] and is_file($result['video']['video']) and is_file($video))
+                {
                     unlink($result['video']['video']);
                 }
 
-                if ($poster != $result['video']['poster'] and is_file($result['video']['poster']) and is_file($poster)) {
+                if ($poster != $result['video']['poster'] and is_file($result['video']['poster']) and is_file($poster))
+                {
                     unlink($result['video']['poster']);
                 }
 
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
-            } else {
+            }
+            else
+            {
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 41, 60);
             }
 
             header('Location: /administration/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_block_video', true) and is_numeric($video_id)) {
+        elseif ($this->input->post('bt_block_video', true) and !empty($video_id)) {
             $blocked = $this->Course_model->blockVideo($video_id, $this->date);
 
             if ($blocked === true) {
@@ -887,7 +926,7 @@ class Course extends CI_Controller
             }
             header('Location: /administration/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_unblock_video', true) and is_numeric($video_id)) {
+        elseif ($this->input->post('bt_unblock_video', true) and !empty($video_id)) {
             $unblocked = $this->Course_model->unblockVideo($video_id, $this->date);
 
             if ($unblocked === true) {
@@ -899,7 +938,7 @@ class Course extends CI_Controller
             }
             header('Location: /administration/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_delete_video', true) and is_numeric($video_id)) {
+        elseif ($this->input->post('bt_delete_video', true) and !empty($video_id)) {
             $deleted = $this->Course_model->deleteVideo($video_id);
 
             if ($deleted === true) {
@@ -3086,11 +3125,12 @@ class Course extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Course_model->getShortCourse($course_id);
+        $course_id = (is_numeric($course_id)) ? $course_id : '';
+        $result    = $this->Course_model->getShortCourse($course_id);
 
         if ($this->input->post('bt_save_video', true))
         {
-            $type        = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
+            $type        = (is_numeric($this->input->post('s_type', true))) ? $this->input->post('s_type', true) : 0;
             $name        = !empty($this->input->post('file_name', true))
                 ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255) : '';
             $remove_url  = !empty($this->input->post('remove_url', true))
@@ -3099,6 +3139,7 @@ class Course extends CI_Controller
                 ? './video/' . $this->input->post('poster_path', true) : '';
             $video_path  = is_file('./video/' . $this->input->post('video_path', true))
                 ? './video/' . $this->input->post('video_path', true) : '';
+            $workout_num = (is_numeric($this->input->post('hi_ctw', true))) ? $this->input->post('hi_ctw', true) : null;
 
             if (!empty($video_path) or !empty($remove_url))
             {
@@ -3108,10 +3149,18 @@ class Course extends CI_Controller
 
                 if (is_numeric($result) and $result !== false)
                 {
+                    $video_id = $result;
+
+                    // Прикрепление видео к тренировке
+                    if(!empty($workout_num) and !empty($course_id))
+                    {
+                        $this->Course_model->attachVideoToWorkout($course_id, $workout_num, $video_id, $this->date);
+                    }
+
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
 
-                    header('Location: /administration/course/' . $course_id . '/video/'.$result);
+                    header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
                 }
                 else
                 {
@@ -4236,6 +4285,10 @@ class Course extends CI_Controller
                 $user_id = $this->user_id;
                 $email   = $this->session->user['email'];
             }
+            else
+            {
+                $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : null;
+            }
 
             // Если пользователь не авторизован, проверяем введенный им email (нет в БД - регистрация)
             if (empty($user_id) and !empty($email))
@@ -4265,6 +4318,7 @@ class Course extends CI_Controller
                 $prev_address = '';
                 $name = '';
                 $surname = '';
+                $code = '';
                 $phone = '';
                 $country = '';
                 $city = '';
@@ -4274,7 +4328,7 @@ class Course extends CI_Controller
                 $postcode = '';
                 $delivery = '';
 
-                $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $phone,
+                $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $code, $phone,
                     $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
 
                 if ($res_order !== false and is_numeric($res_order['order_id']))
@@ -4326,6 +4380,78 @@ class Course extends CI_Controller
             $this->session->set_tempdata('message', 109, 60);
             header('Location: /profile/course/'.$course_id);*/
 
+        }
+        elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
+        {
+            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
+            $return = $this->input->post('hi_return', true);
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, "https://superbody.pro/facebook_login");
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+                'bt_facebook_login' => $this->input->post('bt_facebook_login', true),
+                'email' => $email,
+                'hi_return' => $return));
+
+            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_exec ($ch);
+            curl_close ($ch);
+        }
+        elseif($this->input->post('bt_ok_login', true) and $this->input->post('cb_politics', true))
+        {
+            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
+            $return = $this->input->post('hi_return', true);
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, "https://superbody.pro/ok_login");
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+                'bt_ok_login' => $this->input->post('bt_ok_login', true),
+                'email' => $email,
+                'hi_return' => $return));
+
+            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_exec ($ch);
+            curl_close ($ch);
+        }
+        elseif($this->input->post('bt_vk_login', true) and $this->input->post('cb_politics', true))
+        {
+            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
+            $return = $this->input->post('hi_return', true);
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, "https://superbody.pro/vk_login");
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+                'bt_vk_login' => $this->input->post('bt_vk_login', true),
+                'email' => $email,
+                'hi_return' => $return));
+
+            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_exec ($ch);
+            curl_close ($ch);
+        }
+        elseif($this->input->post('bt_insta_login', true) and $this->input->post('cb_politics', true))
+        {
+            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
+            $return = $this->input->post('hi_return', true);
+
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, "https://superbody.pro/instagram_login");
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
+                'bt_insta_login' => $this->input->post('bt_insta_login', true),
+                'email' => $email,
+                'hi_return' => $return));
+
+            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_exec ($ch);
+            curl_close ($ch);
         }
 
         // Объединенные данные страница
@@ -4744,5 +4870,40 @@ class Course extends CI_Controller
             $result['error'] = 'Not found today workout';
             echo json_encode($result, JSON_NUMERIC_CHECK);
         }
+    }
+
+    /**
+     * AJAX Выборка таблицы тренировок курса
+     */
+    public function showCourseWeeks()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result['crs_sch'] = false;
+        $course_id         = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+
+        if(!empty($course_id))
+        {
+            $schedules = $this->Course_model->getCourseSchedules($course_id);
+
+            if(!empty($schedules))
+            {
+                $course = $schedules['course_length'];
+                $course['workouts'] = $schedules['workouts'];
+
+                ob_start();
+                    include_once('./app_fold/views/course/settings/course_length_item.php');
+                    $weeks = ob_get_contents();
+                ob_end_clean();
+
+                $result['crs_sch'] = $weeks;
+            }
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 }

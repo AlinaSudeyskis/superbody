@@ -18,6 +18,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <div class="admin_list">
+                        <div class="admin_item parent">
+                            <div class="admin_ava"></div>
+                            <div class="admin_cont">
+                                <div class="admin_name">
+                                    <a href="/administration/category/courses" class="admin_name">Курсы</a>
+                                </div>
+                            </div>
+                        </div>
                         <?php if (!empty($categories)) :
                             foreach ($categories as $category) :?>
                                 <div class="admin_item parent">

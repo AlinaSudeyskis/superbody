@@ -27,9 +27,7 @@ class Store_model extends CI_Model
     {
         $result = array();
 
-        $sel_cats = $this->db->query('
-            SELECT `cat_id`, `cat_name`
-            FROM `categories`');
+        $sel_cats = $this->db->query('SELECT `cat_id`, `cat_name` FROM `categories` ORDER BY `cat_id` ASC');
 
         if ($sel_cats !== false and 0 < $sel_cats->num_rows())
         {
@@ -52,7 +50,7 @@ class Store_model extends CI_Model
     }
 
     /**
-     * Выборка данных категории и список её подкатегорий
+     * Выборка данных категории и список её подкатегорий (закомментировано)
      *
      * @param $category_id
      * @return array
@@ -62,7 +60,7 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_cat = $this->db->query('
-            SELECT `cat_id`, `cat_name`, `cat_blocked`, `cat_date_add`, `cat_date_update`
+            SELECT `cat_id`, `cat_name`, `cat_description`, `cat_blocked`, `cat_date_add`, `cat_date_update`
             FROM `categories`
             WHERE `cat_id`=? LIMIT 1', $category_id);
 
@@ -70,8 +68,9 @@ class Store_model extends CI_Model
         {
             $row = $sel_cat->row();
 
-            $result['category']['id'] = $row->cat_id;
-            $result['category']['name'] = $row->cat_name;
+            $result['category']['id']      = $row->cat_id;
+            $result['category']['name']    = $row->cat_name;
+            $result['category']['desc']    = $row->cat_description;
             $result['category']['blocked'] = $row->cat_blocked;
 
             setlocale(LC_ALL, 'ru_RU.UTF-8');
@@ -91,7 +90,7 @@ class Store_model extends CI_Model
             $sel_cat->free_result();
 
             // Выборка подкатегорий
-            $sel_subcats = $this->db->query('
+            /*$sel_subcats = $this->db->query('
                 SELECT `subcat_id`, `subcat_name`
                 FROM `subcategories`
                 WHERE `subcat_cat_id`=?', $category_id);
@@ -105,7 +104,7 @@ class Store_model extends CI_Model
                     $i++;
                 }
                 unset($row);
-            }
+            }*/
         }
         elseif ($sel_cat === false)
         {
@@ -119,15 +118,16 @@ class Store_model extends CI_Model
      * Сохранение новой категории
      *
      * @param $name
+     * @param $description
      * @param $date
      * @param $admin_id
      * @return bool
      */
-    public function setNewCategory($name, $date, $admin_id)
+    public function setNewCategory($name, $description, $date, $admin_id)
     {
         $up_data = $this->db->query('
-            INSERT INTO `categories` (`cat_name`, `cat_date_add`, `cat_date_update`, `cat_admin_id`)
-            VALUES (?, ?, ?, ?)', array($name, $date, $date, $admin_id));
+            INSERT INTO `categories` (`cat_name`, `cat_description`, `cat_date_add`, `cat_date_update`, `cat_admin_id`)
+            VALUES (?, ?, ?, ?, ?)', array($name, $description, $date, $date, $admin_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -149,13 +149,15 @@ class Store_model extends CI_Model
      *
      * @param $category_id
      * @param $name
+     * @param $description
      * @param $date
      * @return bool
      */
-    public function updateCategorySettings($category_id, $name, $date)
+    public function updateCategorySettings($category_id, $name, $description, $date)
     {
         $up_data = $this->db->query('
-            UPDATE `categories` SET `cat_name`=?, `cat_date_update`=? WHERE `cat_id`=? LIMIT 1', array($name, $date, $category_id));
+            UPDATE `categories` SET `cat_name`=?, `cat_description`=?, `cat_date_update`=? 
+            WHERE `cat_id`=? LIMIT 1', array($name, $description, $date, $category_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -233,7 +235,7 @@ class Store_model extends CI_Model
      * @param $subcategory_id
      * @return array
      */
-    public function getESubcategory($subcategory_id)
+    /*public function getESubcategory($subcategory_id)
     {
         $result = array();
 
@@ -268,7 +270,7 @@ class Store_model extends CI_Model
         }
 
         return $result;
-    }
+    }*/
 
     /**
      * Сохранение новой подкатегории
@@ -279,7 +281,7 @@ class Store_model extends CI_Model
      * @param $admin_id
      * @return bool
      */
-    public function setNewSubcategory($category_id, $name, $date, $admin_id)
+    /*public function setNewSubcategory($category_id, $name, $date, $admin_id)
     {
         $this->db->query('
             INSERT INTO `subcategories` (`subcat_cat_id`, `subcat_name`, `subcat_date_add`, `subcat_date_update`, `subcat_admin_id`)
@@ -290,7 +292,7 @@ class Store_model extends CI_Model
         } else {
             return false;
         }
-    }
+    }*/
 
     /**
      * Сохранение изменений данных подкатегории
@@ -301,7 +303,7 @@ class Store_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function updateSubcategorySettings($subcategory_id, $category_id, $name, $date)
+    /*public function updateSubcategorySettings($subcategory_id, $category_id, $name, $date)
     {
         $this->db->query('
             UPDATE `subcategories` SET `subcat_cat_id`=?, `subcat_name`=?, `subcat_date_update`=? 
@@ -312,7 +314,7 @@ class Store_model extends CI_Model
         } else {
             return false;
         }
-    }
+    }*/
 
     /**
      * Блокировка подкатегории
@@ -321,7 +323,7 @@ class Store_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function blockSubcategory($subcategory_id, $date)
+    /*public function blockSubcategory($subcategory_id, $date)
     {
         $this->db->query('
             UPDATE `subcategories` SET `subcat_blocked`=1, `subcat_date_update`=? WHERE `subcat_id`=? LIMIT 1', array($date, $subcategory_id));
@@ -331,7 +333,7 @@ class Store_model extends CI_Model
         } else {
             return false;
         }
-    }
+    }*/
 
     /**
      * Разблокировка подкатегории
@@ -340,7 +342,7 @@ class Store_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function unblockSubcategory($subcategory_id, $date)
+    /*public function unblockSubcategory($subcategory_id, $date)
     {
         $this->db->query('
             UPDATE `subcategories` SET `subcat_blocked`=0, `subcat_date_update`=? WHERE `subcat_id`=? LIMIT 1', array($date, $subcategory_id));
@@ -350,7 +352,7 @@ class Store_model extends CI_Model
         } else {
             return false;
         }
-    }
+    }*/
 
 
     /**
@@ -362,10 +364,8 @@ class Store_model extends CI_Model
     {
         $result = array();
 
-        $sel_cats = $this->db->query('
-            SELECT `cat_id`, `cat_name`, `cat_description`
-            FROM `categories`
-            WHERE `cat_blocked`=0');
+        $sel_cats = $this->db->query('SELECT `cat_id`, `cat_name`, `cat_description` FROM `categories`
+            WHERE `cat_blocked`=0 ORDER BY `cat_id` ASC');
 
         if ($sel_cats !== false and 0 < $sel_cats->num_rows())
         {
@@ -1139,25 +1139,25 @@ class Store_model extends CI_Model
                                      $last_id = null, $last_price = null, $last_discount = null)
     {
         //echo $category_id.' '.$subcategory_id.' '.$sort.' '.$search.' '.$limit.'<br/>';
-        $result    = array();
-        $where_search = '';
+        $result         = array();
+        $where_search   = '';
         $where_category = '';
-        $order_by  = '`p_id` DESC';
-        $order_by_course  = '`p_id` DESC';
-        $union_all = '';
-        $next_page = false;
-        $prev_page = false;
-        $cols      = '`p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_price`, `p_fitcoin_price`, `p_quantity`, 
-                     `p_discount`, `p_discount_type`, `p_images`, `p_date_add`, `p_blocked`, `pc_cat_id`,
-                     `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`, `crs_blocked`';
+        $order_by       = '`p_id` DESC';
+        $union_all      = '';
+        $next_page      = false;
+        $prev_page      = false;
 
-        $sort = (int) $sort;
-        $first_id = (int) $first_id;
-        $first_price = (float) $first_price;
+        $cols = '`p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_price`, `p_fitcoin_price`, `p_quantity`, 
+                `p_discount`, `p_discount_type`, `p_images`, `p_date_add`, `p_blocked`, `pc_cat_id`,
+                `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`, `crs_blocked`';
+
+        $sort           = (int) $sort;
+        $first_id       = (int) $first_id;
+        $first_price    = (float) $first_price;
         $first_discount = (float) $first_discount;
-        $last_id = (int) $last_id;
-        $last_price = (float) $last_price;
-        $last_discount = (float) $last_discount;
+        $last_id        = (int) $last_id;
+        $last_price     = (float) $last_price;
+        $last_discount  = (float) $last_discount;
 
         $result['first_id']       = '';
         $result['first_price']    = '';
@@ -1172,18 +1172,16 @@ class Store_model extends CI_Model
         // Если строка поиска не пустая, добавляем в условие поиска
         if (!empty($search))
         {
-            $search = $search.'*';
+            $search = '+' . $search . '*';
             $where_search = ' and MATCH (`p_name`, `p_short_description`, `p_full_description`) AGAINST (? IN BOOLEAN MODE)';
         }
+
         // Если задан ID категории, добавляем в условие поиска
-        if (!empty($category_id) and is_numeric($category_id))
+        if (is_numeric($category_id))
         {
             $where_category = ' and `products_categories`.`pc_cat_id`=' . $category_id;
         }
-        elseif (!empty($category_id) and $category_id == 'courses')
-        {
-            $where_category = ' and `p_course_id` > 0';
-        }
+
         // Если задан ID подкатегории, добавляем в условие поиска
         /*if (!empty($subcategory_id) and is_numeric($subcategory_id) and $category_id != 'courses') {
             $and_where .= ' and `pc_subcat_id`=' . $subcategory_id;
@@ -1339,20 +1337,13 @@ class Store_model extends CI_Model
 
         $table = !empty($union_all) ? '('.$union_all.') as `temp_products`' : '`products`';
 
-        $sql = 'SELECT ' . $cols . '
-        FROM ' . $table
+        $sql_query = 'SELECT ' . $cols . '
+            FROM ' . $table
             . ' LEFT JOIN `products_categories` ON `p_id`=`pc_p_id`'
             . ' LEFT JOIN `courses` ON `p_course_id`=`crs_id`'
-            . ' WHERE `p_blocked`=0 ' . $where_search . $where_category;
-
-        if (!empty($category_id) and $category_id == 'courses')
-        {
-            $sql_query = $sql . ' ORDER BY ' . $order_by_course . ' LIMIT ' . $limit;
-        }
-        else
-        {
-            $sql_query = $sql . ' ORDER BY ' . $order_by . ' LIMIT ' . $limit;
-        }
+            . ' WHERE `p_blocked`=0 ' . $where_category . $where_search
+            . ' ORDER BY ' . $order_by
+            . ' LIMIT ' . $limit;
 
         if (!empty($search))
         {
@@ -1467,7 +1458,6 @@ class Store_model extends CI_Model
         $result    = array('products' => array());
         $and_where = '';
         $order_by  = '`p_id` DESC';
-        $order_by_course  = '`p_id` DESC';
         $cols      = '`p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_price`, `p_fitcoin_price`, `p_quantity`, 
                      `p_discount`, `p_discount_type`, `p_images`, `p_date_add`, `p_blocked`, `pc_cat_id`,
                      `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`, `crs_blocked`';
@@ -1486,7 +1476,7 @@ class Store_model extends CI_Model
         // Если строка поиска не пустая, добавляем в условие поиска
         if (!empty($search))
         {
-            $search = $search.'*';
+            $search = '+' . $search . '*';
             $and_where .= ' and MATCH (`p_name`, `p_short_description`, `p_full_description`) AGAINST (? IN BOOLEAN MODE)';
         }
         // Если задана сортировка, добавляем в условие сортировки
@@ -1519,12 +1509,14 @@ class Store_model extends CI_Model
 
         $table = '`products`';
 
-        $sql = 'SELECT ' . $cols . ' 
+        $sql_query = 'SELECT ' . $cols . ' 
             FROM ' . $table . '
             LEFT JOIN `products_categories` ON `p_id`=`pc_p_id`
             LEFT JOIN `courses` ON `p_course_id`=`crs_id`
             WHERE `p_blocked`=0 and `pc_cat_id`=? ' . $and_where
-            . ' GROUP BY `p_id`';
+            . ' GROUP BY `p_id`'
+            . ' ORDER BY ' . $order_by
+            . ' LIMIT ?';
 
         $sel_categories = $this->db->query('SELECT `pc_cat_id` FROM `products_categories` GROUP BY `pc_cat_id`');
 
@@ -1532,17 +1524,7 @@ class Store_model extends CI_Model
         {
             foreach($sel_categories->result() as $category)
             {
-                /*log_message('debug', print_r($category, true));*/
                 $cat_id = $category->pc_cat_id;
-
-                if ($cat_id == 0)
-                {
-                    $sql_query = $sql . 'ORDER BY ' . $order_by_course . ' LIMIT ?';
-                }
-                else
-                {
-                    $sql_query = $sql . 'ORDER BY ' . $order_by . ' LIMIT ?';
-                }
 
                 if (!empty($search))
                 {
@@ -2532,6 +2514,7 @@ class Store_model extends CI_Model
      * @param string $name
      * @param string $surname
      * @param string $email
+     * @param string $code
      * @param string $phone
      * @param string $country
      * @param string $city
@@ -2544,7 +2527,7 @@ class Store_model extends CI_Model
      * @param string $date
      * @return bool
      */
-    public function setOrder($user_id, $prev_address = '', $name, $surname, $email, $phone, $country = '', $city = '',
+    public function setOrder($user_id, $prev_address = '', $name, $surname, $email, $code, $phone, $country = '', $city = '',
                              $street = '', $building = '', $house = '', $postcode = '', $delivery, $products, $date)
     {
         $result     = false;
@@ -2572,10 +2555,10 @@ class Store_model extends CI_Model
 
         // Создание заказа
         $in_data = $this->db->query('
-            INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_phone`, 
+            INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`, 
               `o_oud_id`, `o_delivery`, `o_date_add`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                array($user_id, $name, $surname, $email, $phone, $address_id, $delivery, $date));
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($user_id, $name, $surname, $email, $code, $phone, $address_id, $delivery, $date));
 
         if ($in_data !== false and 1 == $this->db->affected_rows())
         {
@@ -2694,7 +2677,7 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_orders = $this->db->query('
-            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_phone`,            
+            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
                 `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
                 `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
             FROM `orders`
@@ -2732,7 +2715,7 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_order = $this->db->query('
-            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_phone`,            
+            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
                 `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
                 `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
             FROM `orders`
@@ -2803,7 +2786,7 @@ class Store_model extends CI_Model
         $result['order']['id'] = '';
 
         $sel_order = $this->db->query('
-            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_phone`,            
+            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
                 `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
                 `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
             FROM `orders`
@@ -2876,7 +2859,7 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_orders = $this->db->query('
-            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_phone`,            
+            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
                 `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
                 `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
             FROM `orders`
@@ -3499,12 +3482,13 @@ class Store_model extends CI_Model
      */
     protected function parseOrderData($row)
     {
-        $result['id']           = $row->o_id;
-        $result['user_id']      = $row->o_u_id;
-        $result['user_name']    = $row->o_user_name;
-        $result['user_surname'] = $row->o_user_surname;
-        $result['user_email']   = $row->o_user_email;
-        $result['user_phone']   = $row->o_user_phone;
+        $result['id']                = $row->o_id;
+        $result['user_id']           = $row->o_u_id;
+        $result['user_name']         = $row->o_user_name;
+        $result['user_surname']      = $row->o_user_surname;
+        $result['user_email']        = $row->o_user_email;
+        $result['user_country_code'] = $row->o_user_country_code;
+        $result['user_phone']        = $row->o_user_phone;
 
         $delivery = 'Курьер';
         $delivery = $row->o_delivery == 2 ? 'Почта' : $row->o_delivery == 3 ? 'Самовывоз' : $delivery;

@@ -48,10 +48,10 @@ class Payment extends CI_Controller
         $order_id       = is_numeric($this->input->get('oid', true)) ? $this->input->get('oid', true) : null;
         $total_amount   = is_numeric($this->input->get('amount', true)) ? $this->input->get('amount', true) : null;
         $payment_option = (in_array($this->input->get('option', true), $options))
-            ? $this->input->post('option', true)
+            ? $this->input->get('option', true)
             : 'full_payment';
         $payment_type   = (in_array($this->input->get('type', true), $methods) and $payment_option == 'full_payment')
-            ? $this->input->post('type', true)
+            ? $this->input->get('type', true)
             : 'bank_card';
 
         // Данные для способа оплаты
@@ -60,7 +60,7 @@ class Payment extends CI_Controller
         $login        = strip_tags($this->input->post('login', true));
         $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
 
-        log_message('debug', __METHOD__ . __LINE__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
+        log_message('debug', __METHOD__ . ' ' . __LINE__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
             . $payment_type . ' ' . $payment_option . ' ' . $method_phone . ' ' . $method_login);
 
         if (!empty($order_id) and !empty($total_amount) and !empty($payment_option))

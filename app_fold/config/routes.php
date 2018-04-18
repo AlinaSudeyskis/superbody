@@ -94,6 +94,7 @@ $route['ordering/(:num)']        = 'Store/ordering/$1';
 $route['viewed/video']           = 'Course/viewedVideo';
 $route['show/video']             = 'Course/showVideo';
 $route['show/workout']           = 'Course/showWorkout';
+$route['show/weeks']             = 'Course/showCourseWeeks';
 $route['searchUsers']            = 'User/searchUsers';
 //$route['buy/course']             = 'Course/buyCourse';
 // Записи блога тренера
@@ -181,8 +182,8 @@ $route['administration/feedback/(:any)']     = 'Message/feedbackUserMessages/$1'
 $route['administration/sublist'] = 'Administrator/sublist';
 // Информация о сайте
 $route['administration/site'] = 'Administrator/siteInfo';
-$route['administration/site/(header|banner|about|contacts)'] = 'Administrator/siteInfo/$1';
-$route['administration/site/banner/new'] = 'Administrator/newBanner';
+$route['administration/site/(header|banner|about|contacts|auth)'] = 'Administrator/siteInfo/$1';
+$route['administration/site/banner/new']    = 'Administrator/newBanner';
 $route['administration/site/banner/(:num)'] = 'Administrator/siteBanner/$1';
 // Журнал
 //$route['administration/journal']     = 'Journal/journalList';
@@ -256,7 +257,6 @@ $route['payment/verification']  = 'Payment/verificationSubsequentPayments';
 
 // Интернет-магазин
 $route['store']                       = 'Store/store';
-$route['store/courses']               = 'Store/store/courses';
 $route['store/(:num)']                = 'Store/store/$1';
 $route['store/product/(:num)']        = 'Store/storeProduct/$1';
 $route['store/(:num)/product/(:num)'] = 'Store/storeProduct/$2/$1';

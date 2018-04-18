@@ -23,13 +23,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"><input type="submit" name="bt_send_message" value="отправить сообщение" class="contact_but"></div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 contact_but_desk">убедитесь в правильности введенных данных
-                            <!--<div class="sing-in_h tren_form_block_check_wrap">
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 contact_but_desk">
+                            <div class="sing-in_h tren_form_block_check_wrap">
                                 <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics" required="required" checked="checked"/>
                                 <label for="cb-politics">согласие на
                                     <a href="#" class="reg_in_link policy">обработку персональных данных</a>
                                 </label>
-                            </div>-->
+                            </div>
                         </div>
                     </div>
                 </form>

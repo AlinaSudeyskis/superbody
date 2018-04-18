@@ -1269,6 +1269,81 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Выборка длительности курса
+     *
+     * @param $course_id
+     * @return bool|array
+     */
+    public function getCourseLength($course_id)
+    {
+        $result = false;
+
+        if(is_numeric($course_id))
+        {
+            $sel_data = $this->db->query('SELECT `crs_count_weeks`, `crs_count_days` FROM `courses` WHERE `crs_id`=? LIMIT 1', $course_id);
+
+            if($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
+
+                $result['count_weeks'] = $row->crs_count_weeks;
+                $result['count_days']  = $row->crs_count_days;
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка тренировок курсов
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getCourseSchedules($course_id)
+    {
+        $result = array();
+
+        $sel_schedule = $this->db->query('
+            SELECT `ctw_course_id`, `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`
+            FROM `courses_training_weeks`
+            WHERE `ctw_course_id`=?', $course_id);
+
+        if ($sel_schedule !== false and 0 < $sel_schedule->num_rows())
+        {
+            // Длительность курса
+            $result['course_length'] = self::getCourseLength($course_id);
+
+            // Тренировки курса
+            foreach ($sel_schedule->result() as $row)
+            {
+                $num_workout = $row->ctw_num_workout;
+
+                $result['workouts'][$num_workout]['num_workout']    = $row->ctw_num_workout;
+                $result['workouts'][$num_workout]['repeat_workout'] = $row->ctw_repeat_workout;
+                $result['workouts'][$num_workout]['description']    = $row->ctw_description;
+
+                $video_id = ($row->ctw_repeat_workout > 0)
+                    ? $result['workouts'][$row->ctw_repeat_workout]['video_id']
+                    : $row->ctw_video_id;
+
+                $result['workouts'][$num_workout]['video_id'] = $video_id;
+            }
+            unset($row);
+        }
+        elseif ($sel_schedule === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Изменение и/или добавление расписания курса
      *
      * @param int $course_id Курс ID
@@ -1334,6 +1409,37 @@ class Course_model extends CI_Model
         }
 
         return $result;
+    }
+
+    /**
+     * Изменение id видео тренировки курса
+     *
+     * @param $course_id
+     * @param $workout_num
+     * @param $video_id
+     * @param $date
+     * @return bool
+     */
+    public function attachVideoToWorkout($course_id, $workout_num, $video_id, $date)
+    {
+        $up_data = $this->db->query('
+            UPDATE `courses_training_weeks` SET `ctw_video_id`=?, `ctw_date_update`=? 
+            WHERE `ctw_course_id`=? and `ctw_num_workout`=? LIMIT 1',
+                array($video_id, $date, $course_id, $workout_num));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ ТРЕНИРОВОК КУРСА */

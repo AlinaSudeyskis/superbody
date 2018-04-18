@@ -4,7 +4,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="shop_cat_wrap parent">
     <div class="shop_cat_kont parent">
         <ul class="shop_cat parent">
-            <li><a href="/store/courses" <?php if (!empty($category_id) and $category_id == 'courses') { echo 'class="active"'; } ?>>курсы</a></li>
             <?php if (!empty($categories['categories'])) :
                 foreach ($categories['categories'] as $category) :
                     $bg = (!empty($category_id) and $category['id'] == $category_id) ? 'class="active"' : '';?>

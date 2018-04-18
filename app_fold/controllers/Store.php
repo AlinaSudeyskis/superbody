@@ -55,24 +55,33 @@ class Store extends CI_Controller
     public function newCategory()
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
             parent::pageNotFound($this->page_url);
         }
 
-        if ($this->input->post('bt_save_new_category', true)) {
-            $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
-            
-            if (!empty($name)) {
-                $result = $this->Store_model->setNewCategory($name, $this->date, $this->user_id);
+        if ($this->input->post('bt_save_new_category', true))
+        {
+            $name        = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+            $description = mb_substr(strip_tags($this->input->post('ta_description', true)), 0, 255);
+
+            if (!empty($name))
+            {
+                $result = $this->Store_model->setNewCategory($name, $description, $this->date, $this->user_id);
                 
-                if ($result === true) {
+                if ($result === true)
+                {
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
-                } else {
+                }
+                else
+                {
                     // Не сохранено
                     $this->session->set_tempdata('message', 63, 60);
                 }
-            } else {
+            }
+            else
+            {
                 // Не все поля заполнены
                 $this->session->set_tempdata('message', 62, 60);
             }
@@ -99,49 +108,66 @@ class Store extends CI_Controller
     public function category($category_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
             parent::pageNotFound($this->page_url);
         }
 
-        if ($this->input->post('bt_save_category', true)) {
-            $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+        if ($this->input->post('bt_save_category', true))
+        {
+            $name        = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+            $description = mb_substr(strip_tags($this->input->post('ta_description', true)), 0, 255);
 
-            if (!empty($name)) {
-                $result = $this->Store_model->updateCategorySettings($category_id, $name, $this->date);
+            if (!empty($name))
+            {
+                $result = $this->Store_model->updateCategorySettings($category_id, $name, $description, $this->date);
 
-                if ($result === true) {
+                if ($result === true)
+                {
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
-                } else {
+                }
+                else
+                {
                     // Не сохранено
                     $this->session->set_tempdata('message', 63, 60);
                 }
-            } else {
+            }
+            else
+            {
                 // Не все поля заполнены
                 $this->session->set_tempdata('message', 62, 60);
             }
 
             header('Location: /administration/category/'.$category_id);
         }
-        elseif ($this->input->post('bt_block_category', true)) {
+        elseif ($this->input->post('bt_block_category', true))
+        {
             $result = $this->Store_model->blockCategory($category_id, $this->date);
 
-            if ($result === true) {
+            if ($result === true)
+            {
                 // Сохранено
                 $this->session->set_tempdata('message', 10, 60);
-            } else {
+            }
+            else
+            {
                 // Не сохранено
                 $this->session->set_tempdata('message', 64, 60);
             }
             header('Location: /administration/category/'.$category_id);
         }
-        elseif ($this->input->post('bt_unblock_category', true)) {
+        elseif ($this->input->post('bt_unblock_category', true))
+        {
             $result = $this->Store_model->unblockCategory($category_id, $this->date);
 
-            if ($result === true) {
+            if ($result === true)
+            {
                 // Сохранено
                 $this->session->set_tempdata('message', 10, 60);
-            } else {
+            }
+            else
+            {
                 // Не сохранено
                 $this->session->set_tempdata('message', 65, 60);
             }
@@ -851,11 +877,11 @@ class Store extends CI_Controller
     {
         $this->load->model('Course_model');
 
-        $category = (!empty($category_id) and $category_id == 'courses') ? 'courses' : $category_id;
+        $category_id = (is_numeric($category_id)) ? $category_id : null;
 
         // Поиск по наименованию
-        $search = !empty($this->input->post('search', true))
-            ? strip_tags($this->input->post('search', true))
+        $search = (!empty($this->input->post('search', true)))
+            ? mb_substr(strip_tags($this->input->post('search', true)), 0, 255)
             : null;
 
         // Сортировка
@@ -864,7 +890,7 @@ class Store extends CI_Controller
             : 1; // Цена по возрастанию
 
         // Лимит вывода кол-ва товаров на странице
-        $limit = !empty($category) ? 9 : 5;
+        $limit = !empty($category_id) ? 9 : 5;
 
         $user_cart    = !empty($this->user_id)
             ? $this->Store_model->getCartProductsId($this->user_id)
@@ -873,26 +899,24 @@ class Store extends CI_Controller
         $categories   = $this->Store_model->getCategories();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Интернет-магазин';
-        $this->page_data['page_menu'] = 'store';
-        $this->page_data['sort_checked'] = $sort;
-        $this->page_data['search'] = $search;
-        $this->page_data['categories'] = $categories;
-        $this->page_data['category_id'] = $category;
+        $this->page_data['title']          = 'Интернет-магазин';
+        $this->page_data['page_menu']      = 'store';
+        $this->page_data['sort_checked']   = $sort;
+        $this->page_data['search']         = $search;
+        $this->page_data['categories']     = $categories;
+        $this->page_data['category_id']    = $category_id;
         $this->page_data['subcategory_id'] = $subcategory_id;
 
-        if (empty($category))
+        if (empty($category_id))
         {
             $products = $this->Store_model->getLastStoreProducts($sort, $search, $limit);
         }
         else
         {
-            $products = $this->Store_model->getStoreProducts($category, $subcategory_id, $sort, $search, $limit);
+            $products = $this->Store_model->getStoreProducts($category_id, $subcategory_id, $sort, $search, $limit);
         }
 
         $result = array_merge($user_cart, $user_courses, $products, $categories);
-        //log_message('debug', __METHOD__ . ' ' . __LINE__ . ' Товары: ' . print_r($products['products'], true));
-        //print_r($products['products']);
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/store');
@@ -1134,7 +1158,11 @@ class Store extends CI_Controller
             $name    = !empty($this->input->post('i_o_name', true)) ? mb_substr(strip_tags($this->input->post('i_o_name', true)), 0, 255) : '';
             $surname = !empty($this->input->post('i_o_surname', true)) ? mb_substr(strip_tags($this->input->post('i_o_surname', true)), 0, 255) : '';
             $email   = filter_var($this->input->post('i_o_email', true), FILTER_VALIDATE_EMAIL) ? $this->input->post('i_o_email', true) : '';
-            $phone   = !empty($this->input->post('i_o_phone', true)) ? mb_substr(strip_tags($this->input->post('i_o_phone', true)), 0, 255) : '';
+
+            // Телефон
+            $code  = mb_substr(strip_tags($this->input->post('country', true)), 0, 2);
+            $code  = (array_key_exists($code, $this->countries_codes)) ? $this->countries_codes[$code] : '';
+            $phone = is_numeric($this->input->post('i_o_phone', true)) ? $this->input->post('i_o_phone', true) : '';
 
             // Адрес доставки
             $country  = (empty($prev_address) and !empty($this->input->post('i_o_country', true)))
@@ -1181,7 +1209,7 @@ class Store extends CI_Controller
 
                 if (!empty($user_id))
                 {
-                    $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $phone,
+                    $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $code, $phone,
                         $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
 
                     if ($res_order !== false and is_numeric($res_order['order_id']))

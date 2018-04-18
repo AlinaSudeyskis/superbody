@@ -506,8 +506,13 @@ span.mess_block_full_time {
     flex: 1;
 }
 .practice_block_table .practice_weeks:first-child .practice_days .practice_day {border-top: 1px solid #ccc;}
-.practice_block_table .practice_days .practice_day:hover {background-color: #ccf2fc;}
-.practice_block_table .practice_days .practice_day.active {background-color: #ccf2fc;}
+.practice_block_table .practice_days .practice_day:hover {background-color: #88d5f3;}
+.practice_block_table .practice_days .practice_day.active {background-color: #88d5f3;}
+.practice_block_table .practice_days .practice_day.filled {background-color: #e8faff;}
+.practice_block_table .practice_days .practice_day.filled:hover {background-color: #88d5f3;}
+.practice_block_table .practice_days .practice_day.active.filled {background-color: #88d5f3;}
+
+.course_length{display: none;}
 
 .sing-in_h.tren_form_block_check_wrap label{
     color: #FFFFFF;
