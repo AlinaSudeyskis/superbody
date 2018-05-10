@@ -4798,8 +4798,8 @@ class Course_model extends CI_Model
 
             if($row->uc_date_end > $today and $row->uc_date_end < $next_week)
             {
-                $tmp_date4 = new DateTime($row->uc_date_end);
-                $date_countdown = $tmp_date4->format('M j, Y H:i:s');
+                $tmp_date4      = new DateTime($row->uc_date_end);
+                $date_countdown = $tmp_date4->format('U')*1000;
 
                 $result['notifications'][$row->uc_course_id][143]['date_countdown'] = $date_countdown;
                 $result['notifications'][$row->uc_course_id][143]['course_name'] = $row->crs_name;
@@ -5022,11 +5022,11 @@ class Course_model extends CI_Model
                     $result['course']['residual_value'] = 0;
                 }
                 // Прошло 4 недели, курс "удаляется" (не отображается)
-                elseif($row->uc_blocked == 1 and $next_three_weeks < $today)
+                /*elseif($row->uc_blocked == 1 and $next_three_weeks < $today)
                 {
                     unset($result);
                     $result = array();
-                }
+                }*/
             }
 
             $sel_course->free_result();
