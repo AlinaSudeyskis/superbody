@@ -22,7 +22,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="admin_item parent">
                                     <div class="admin_cont">
                                         <div class="admin_name">
-                                            <b><?php echo $u['email']; ?></b> [<?php echo $u['name'];?>]
+                                            <b><?php echo $u['email']; ?></b>
+                                            <?php if(!empty($u['name'])):?>
+                                                [<?php echo $u['name'];?>]
+                                            <?php endif;?>
+                                            <?php if(!empty($u['unsubscribe'] == 1)):?>
+                                                <div class="unsubscribe">Отписался</div>
+                                            <?php endif;?>
                                         </div>
                                     </div>
                                 </div>

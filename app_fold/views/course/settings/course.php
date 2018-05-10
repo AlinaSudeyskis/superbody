@@ -10,7 +10,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="content_block new_content_block ovv">
                 <div class="content_block_h parent">
                     <h3><?php echo $course['name']?></h3>
-                    <a href="/administration/course/<?php echo $course_id; ?>/video/new" class="add_tab_but">Добавить видео</a>
+                    <a href="/administration/course/<?php echo $course_id; ?>/video/new" class="add_tab_but">Доб. видео</a>
+                    <a href="/administration/course/<?php echo $course_id; ?>/promocode/new" class="add_tab_but">Доб. промокод</a>
+                    <a href="/administration/course/<?php echo $course_id; ?>/extend/new" class="add_tab_but">Прикрепить курс</a>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
@@ -56,8 +58,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php endif;?>
                                 </div>
                             </form>
-                        <?php else: ?>
-                            <h3>Информация не найдена</h3>
+                        <?php elseif ($page_submenu == 'promocodes' and !empty($promocodes)) :
+                            include_once('./app_fold/views/promocodes/promocodes.php');
+                        elseif ($page_submenu == 'promocodes' and !empty($promocode)) :
+                            include_once('./app_fold/views/promocodes/promocode_settings.php');
+                        elseif ($page_submenu == 'promocodes' and $promocode_new === true) :
+                            include_once('./app_fold/views/promocodes/new_promocode.php');
+                        elseif ($page_submenu == 'extends' and !empty($extends)) :
+                            include_once('./app_fold/views/course/extends/extends.php');
+                        elseif ($page_submenu == 'extends' and !empty($extend)) :
+                            include_once('./app_fold/views/course/extends/extend_settings.php');
+                        elseif ($page_submenu == 'extends' and $extend_new === true and !empty($potentially_extends)) :
+                            include_once('./app_fold/views/course/extends/new_extend.php');
+                        else: ?>
+                            <h3 class="info">Информация не найдена</h3>
                         <?php endif;?>
                     </div>
                 </div>

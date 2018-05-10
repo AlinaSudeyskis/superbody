@@ -7,7 +7,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/user/user_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <?php include_once('./app_fold/views/user/quick_menu.php');
+            <?php
+            // Уведомления
+            include_once('./app_fold/views/notification/user_profile_notifications.php');
+            // Быстрое сеню профиля
+            include_once('./app_fold/views/user/quick_menu.php');
             $user_data = !empty($user_session) ? $user_session : null;
             $profile_title = 'Профиль';
             include_once('./app_fold/views/user/profile/profile_info.php');

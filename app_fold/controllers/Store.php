@@ -113,9 +113,19 @@ class Store extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $result = $this->Store_model->getECategory($category_id);
+
         if ($this->input->post('bt_save_category', true))
         {
-            $name        = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+            if($category_id == 1 or $category_id == 2)
+            {
+                $name = $result['category']['name'];
+            }
+            else
+            {
+                $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+            }
+
             $description = mb_substr(strip_tags($this->input->post('ta_description', true)), 0, 255);
 
             if (!empty($name))
@@ -173,8 +183,6 @@ class Store extends CI_Controller
             }
             header('Location: /administration/category/'.$category_id);
         }
-
-        $result = $this->Store_model->getECategory($category_id);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Категория';
@@ -831,8 +839,10 @@ class Store extends CI_Controller
                         $this->load->model('Course_model');
                         $this->load->model('Message_model');
 
+                        $reason = 'payment_refunded';
+
                         // Блокировка курсов пользователя
-                        $this->Course_model->blockUserOrderCourses($order_courses['user_id'], $order_courses['courses']);
+                        $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
                         $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
                     }
                 }

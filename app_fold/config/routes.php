@@ -53,9 +53,9 @@ $route['default_controller']   = 'Welcome';
 $route['404_override']         = 'Errors/error_404';
 $route['translate_uri_dashes'] = FALSE;
 
-// Статические страницы
-$route['about']    = 'Welcome/about';
-$route['contacts'] = 'Welcome/contacts';
+$route['about']       = 'Welcome/about';
+$route['contacts']    = 'Welcome/contacts';
+$route['unsubscribe'] = 'Welcome/unsubscribe';
 
 //$route['database/create/table'] = 'Database/createTables';
 
@@ -96,6 +96,7 @@ $route['show/video']             = 'Course/showVideo';
 $route['show/workout']           = 'Course/showWorkout';
 $route['show/weeks']             = 'Course/showCourseWeeks';
 $route['searchUsers']            = 'User/searchUsers';
+$route['searchPromo']            = 'Course/searchCoursePromocode';
 //$route['buy/course']             = 'Course/buyCourse';
 // Записи блога тренера
 $route['posts']       = 'Blog/getCouchPosts';
@@ -112,7 +113,7 @@ $route['messages/feedback'] = 'Message/userConversation/feedback';
 // Админ. панель
 $route['administration'] = 'Administrator/index';
 // Администраторы
-$route['administration/admin']           = 'Administrator/admins';
+$route['administration/admins']           = 'Administrator/admins';
 $route['administration/admin/new']       = 'Administrator/newAdmin';
 $route['administration/admin/new/users'] = 'Administrator/newAdminOfTheUsers';
 $route['administration/admin/(:num)']    = 'Administrator/adminSettings/$1';
@@ -151,23 +152,39 @@ $route['administration/ingestion/type/(:num)'] = 'Course/ingestionType/$1';
 $route['administration/ingestion']        = 'Course/ingestions';
 $route['administration/ingestion/new']    = 'Course/newIngestion';
 $route['administration/ingestion/(:num)'] = 'Course/ingestion/$1';
+
 // Курс
-$route['administration/courses']                     = 'Course/courses';
-$route['administration/course/new']                  = 'Course/newCourse';
-$route['administration/course/(:num)']               = 'Course/course/$1';
-$route['administration/course/(:num)/settings']      = 'Course/course/$1/settings';
-$route['administration/course/(:num)/landing']       = 'Course/course/$1/landing';
-$route['administration/course/(:num)/statistics']    = 'Course/course/$1/statistics';
+$route['administration/courses']    = 'Course/courses';
+$route['administration/course/new'] = 'Course/newCourse';
+// Настройки
+$route['administration/course/(:num)']          = 'Course/course/$1';
+$route['administration/course/(:num)/settings'] = 'Course/course/$1/settings';
+// Landing настройки
+$route['administration/course/(:num)/landing'] = 'Course/course/$1/landing';
+// Статистика
+$route['administration/course/(:num)/statistics'] = 'Course/course/$1/statistics';
+// Отзывы
 $route['administration/course/(:num)/reviews']       = 'Course/course/$1/reviews';
 $route['administration/course/(:num)/review/(:num)'] = 'Course/course/$1/review/$2';
-$route['administration/course/(:num)/video']         = 'Course/course/$1/video_promo';
-$route['administration/course/(:num)/video/promo']   = 'Course/course/$1/video_promo';
+// Настройки видео курса
+$route['administration/course/(:num)/video']              = 'Course/course/$1/video_promo';
+$route['administration/course/(:num)/video/promo']        = 'Course/course/$1/video_promo';
 $route['administration/course/(:num)/video/workouts']     = 'Course/course/$1/video_workouts';
 $route['administration/course/(:num)/video/instructions'] = 'Course/course/$1/video_instructions';
-$route['administration/course/(:num)/video/new']     = 'Course/course/$1/video_new';
-$route['administration/course/(:num)/video/(:num)']  = 'Course/courseVideoSettings/$1/$2';
+$route['administration/course/(:num)/video/new']          = 'Course/course/$1/video_new';
+$route['administration/course/(:num)/video/(:num)']       = 'Course/courseVideoSettings/$1/$2';
+// Промокоды курса
+$route['administration/course/(:num)/promocodes']       = 'Course/course/$1/promocodes';
+$route['administration/course/(:num)/promocode/new']    = 'Course/course/$1/promocode_new';
+$route['administration/course/(:num)/promocode/(:num)'] = 'Course/course/$1/promocode/$2';
+// Прикрепленные курсы
+$route['administration/course/(:num)/extends']       = 'Course/course/$1/extends';
+$route['administration/course/(:num)/extend/new']    = 'Course/course/$1/extend_new';
+$route['administration/course/(:num)/extend/(:num)'] = 'Course/course/$1/extend/$2';
+// Активность клиентов
 $route['administration/course/(:num)/clients']       = 'Course/courseUsersActivity/$1';
 $route['administration/course/(:num)/client/(:num)'] = 'Course/courseUserActivity/$1/$2';
+
 // Записи блога
 $route['administration/blog/posts']          = 'Blog/blogPosts';
 $route['administration/blog/post/(:num)']    = 'Blog/blogPost/$1';
@@ -185,6 +202,15 @@ $route['administration/site'] = 'Administrator/siteInfo';
 $route['administration/site/(header|banner|about|contacts|auth)'] = 'Administrator/siteInfo/$1';
 $route['administration/site/banner/new']    = 'Administrator/newBanner';
 $route['administration/site/banner/(:num)'] = 'Administrator/siteBanner/$1';
+// Уведомления и письма
+$route['administration/notifications']        = 'Notification/notifications';
+$route['administration/notification/(:num)']  = 'Notification/notification/$1';
+$route['administration/emails']               = 'Notification/emails';
+$route['administration/emails/addresses']     = 'Notification/emailsAddresses';
+$route['administration/emails/addresses/new'] = 'Notification/newEmailAddress';
+$route['administration/email/address/(:num)'] = 'Notification/emailAddress/$1';
+$route['administration/email/(:num)']         = 'Notification/email/$1';
+$route['administration/email_sample(/(:num))?'] = 'Notification/emailSample/$2';
 // Журнал
 //$route['administration/journal']     = 'Journal/journalList';
 //$route['administration/journal/new']    = 'Journal/journalNew';

@@ -93,20 +93,12 @@ class Administrator extends CI_Controller
                 if (is_numeric($result))
                 {
                     // Отправление письма с данными администратора
-                    $email_to  = "<$email>";
+                    $system_message  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
+                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                    $system_message  .= 'Подтвердить';
+                    $system_message  .= '</a></b>';
 
-                    $subject   = "Подтвеждение регистрации на сайте SuperBody";
-
-                    $message   = '<p>Для подтверждения регистрации на сайте перейдите по ссылке</p> </br>';
-                    $message  .= '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash . '">';
-                    $message  .= 'https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash;
-                    $message  .= '</a></b>';
-
-                    $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                    $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
-                    $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                    mail($email_to, $subject, $message, $headers);
+                    parent::sendEmail(1, $email, $system_message);
 
                     $admin_id    = $result;
                     $path_avatar = '';
@@ -229,19 +221,10 @@ class Administrator extends CI_Controller
                         $result = $this->User_model->getUser($user_id);
                         $user_data = $result['user_data'];
 
-                        $email = $user_data['email'];
-                        // Отправление письма с данными администратора
-                        $email_to  = "<$email>";
+                        // Отправка уведомления по email
+                        $system_message = '';
 
-                        $subject   = "Изменение данных пользователя. SuperBody";
-
-                        $message   = "<p>Ваш тип пользователя на сайте SuperBody изменен на Администратор.</p>";
-
-                        $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                        $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                        $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                        mail($email_to, $subject, $message, $headers);
+                        parent::sendEmail(2, $user_data['email'], $system_message);
 
                         // Сохранено
                         $this->session->set_tempdata('message', 82, 60);
@@ -379,19 +362,10 @@ class Administrator extends CI_Controller
                 $result = $this->User_model->getUser($user_id);
                 $user_data = $result['user_data'];
 
-                $email = $user_data['email'];
-                // Отправление письма с данными администратора
-                $email_to  = "<$email>";
+                // Отправка уведомления по email
+                $system_message = '';
 
-                $subject   = "Изменение данных пользователя. SuperBody";
-
-                $message   = "<p>Ваш тип пользователя на сайте SuperBody изменен на Пользователь.</p>";
-
-                $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                mail($email_to, $subject, $message, $headers);
+                parent::sendEmail(3, $user_data['email'], $system_message);
 
                 // Сохранено. Тип Администратора изменен на тип Пользователя
                 $this->session->set_tempdata('message', 84, 60);

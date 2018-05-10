@@ -4,11 +4,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="shop_cat_wrap parent">
     <div class="shop_cat_kont parent">
         <ul class="shop_cat parent">
+            <li class="submenu_li">
+                <?php $bg = (!empty($category_id) and ($category_id == 1 or $category_id == 2)) ? 'class="active"' : ''; ?>
+                <a href="#" <?php echo $bg;?>>Курсы</a>
+                <ul class="submenu" style="display: none;">
+                    <li><a href="/store/1">Курсы тренировок</a></li>
+                    <li><a href="/store/2">Курсы питания</a></li>
+                </ul>
+            </li>
             <?php if (!empty($categories['categories'])) :
                 foreach ($categories['categories'] as $category) :
-                    $bg = (!empty($category_id) and $category['id'] == $category_id) ? 'class="active"' : '';?>
-                    <li><a href="/store/<?php echo $category['id'];?>" <?php echo $bg;?>><?php echo $category['name'];?></a></li>
-                <?php endforeach;
+                    if($category['id'] > 2):
+                        $bg = (!empty($category_id) and $category['id'] == $category_id) ? 'class="active"' : '';?>
+                        <li><a href="/store/<?php echo $category['id'];?>" <?php echo $bg;?>><?php echo $category['name'];?></a></li>
+                    <?php endif;
+                endforeach;
                 unset($category);
             endif;?>
         </ul>

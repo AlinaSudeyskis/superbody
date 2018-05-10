@@ -1261,10 +1261,10 @@ class Course extends CI_Controller
      *
      * @param $course_id
      * @param string $page_type (settings, landing, statistics, reviews, review)
-     * @param int|null $review_id
+     * @param int|null $page_id
      * @return void
      */
-    public function course($course_id, $page_type = 'settings', $review_id = null)
+    public function course($course_id, $page_type = 'settings', $page_id = null)
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
@@ -1287,9 +1287,9 @@ class Course extends CI_Controller
         {
             self::courseReviews($course_id);
         }
-        elseif ($page_type == 'review' and is_numeric($review_id))
+        elseif ($page_type == 'review' and is_numeric($page_id))
         {
-            self::courseReview($course_id, $review_id);
+            self::courseReview($course_id, $page_id);
         }
         elseif($page_type == 'video_promo')
         {
@@ -1306,6 +1306,30 @@ class Course extends CI_Controller
         elseif($page_type == 'video_new')
         {
             self::newCourseVideo($course_id);
+        }
+        elseif($page_type == 'promocodes')
+        {
+            self::coursePromocodes($course_id);
+        }
+        elseif($page_type == 'promocode_new')
+        {
+            self::newCoursePromocode($course_id);
+        }
+        elseif($page_type == 'promocode' and is_numeric($page_id))
+        {
+            self::coursePromocode($course_id, $page_id);
+        }
+        elseif($page_type == 'extends')
+        {
+            self::courseExtends($course_id);
+        }
+        elseif($page_type == 'extend_new')
+        {
+            self::newCourseExtend($course_id);
+        }
+        elseif($page_type == 'extend' and is_numeric($page_id))
+        {
+            self::courseExtend($course_id, $page_id);
         }
     }
 
@@ -1362,11 +1386,11 @@ class Course extends CI_Controller
             $description = mb_substr(strip_tags($this->input->post('description', true)), 0, 1000);
 
             // Стоиомсть курса
-            $price = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
+            $price    = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
             $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
 
             // Рекуррентная стоимость
-            $recur_price      = is_numeric($this->input->post('i_recurrent_price', true)) ? $this->input->post('i_recurrent_price', true) : '';
+            $recur_price      = $price;
             $recur_months     = is_numeric($this->input->post('s_recurrent_months', true)) ? $this->input->post('s_recurrent_months', true) : '';
             $recur_first      = is_numeric($this->input->post('i_recurrent_first', true)) ? $this->input->post('i_recurrent_first', true) : '';
             $recur_subsequent = '';
@@ -1510,8 +1534,8 @@ class Course extends CI_Controller
             }
 
             // Сохранение данных рекуррентной цены
-            if ($recur_price != $course['recur_price'] or $recur_months != $course['recur_months']
-                or $recur_first != $course['recur_first'] or $recur_subsequent != $course['recur_subsequent'])
+            if ($recur_months != $course['recur_months'] or $recur_first != $course['recur_first']
+                or $recur_subsequent != $course['recur_subsequent'])
             {
                 $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->date);
             }
@@ -2912,6 +2936,8 @@ class Course extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /* БЛОК ФУНКЦИЙ ОТЗЫВОВ КУРСА */
+
     /**
      * Вывод отзывов курса
      *
@@ -3036,6 +3062,8 @@ class Course extends CI_Controller
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
+
+    /* БЛОК ФУНКЦИЙ ВИДЕО КУРСА */
 
     /**
      * Вывод списка видео категории "Промо"
@@ -3207,6 +3235,375 @@ class Course extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /* БЛОК ФУНКЦИЙ ПРОМОКОДОВ */
+
+    /**
+     * Вывод списка промокодов курса
+     *
+     * @param $course_id
+     */
+    protected function coursePromocodes($course_id)
+    {
+        $promocodes = $this->Course_model->getCoursePromocodes($course_id, $this->date);
+        $course     = $this->Course_model->getShortCourse($course_id);
+
+        $result = array_merge($promocodes, $course);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Промокоды курса';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'promocodes';
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма добавления промокода курса
+     *
+     * @param $course_id
+     */
+    protected function newCoursePromocode($course_id)
+    {
+        $course = $this->Course_model->getShortCourse($course_id);
+
+        if($this->input->post('bt_save_new_promocode', true))
+        {
+            $category = ($this->input->post('s_category', true) == 'extend') ? 'extend' : 'course';
+            $name     = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
+            $desc     = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
+            $discount = (is_numeric($this->input->post('i_code_discount', true))) ? $this->input->post('i_code_discount', true) : null;
+
+            $validity_type = ($this->input->post('s_pv_type', true) == 'unlimited') ? 'unlimited' : 'date_range';
+            $tmp_ds        = new DateTime($this->input->post('i_validity_date_start', true));
+            $tmp_de        = new DateTime($this->input->post('i_validity_date_end', true));
+            $pv_date_start = ($tmp_ds !== false and $validity_type == 'date_range') ? $tmp_ds->format('Y-m-d') : '';
+            $pv_date_end   = ($tmp_de !== false and $validity_type == 'date_range') ? $tmp_de->format('Y-m-d') : '';
+
+            $use_type  = ($this->input->post('s_ua_type', true) == 'unlimited') ? 'unlimited' : 'number';
+            $ua_number = (is_numeric($this->input->post('i_ua_number', true)) and $use_type == 'number')
+                ? $this->input->post('i_ua_number', true) : '';
+
+            $promocode = strtoupper(mb_substr(strip_tags($this->input->post('i_promocode', true)), 0, 25));
+
+            if(!empty($discount) and !empty($promocode))
+            {
+                $res_ins = $this->Course_model->setNewPromocode($course_id, $category, $name, $desc, $discount, $validity_type,
+                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $promocode, $this->user_id, $this->date);
+
+                if (is_numeric($res_ins))
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                    header('Location: /administration/course/' . $course_id . '/promocode/' . $res_ins);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 145, 60);
+                    header('Location: /administration/course/' . $course_id . '/promocode/new');
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 146, 60);
+                header('Location: /administration/course/' . $course_id . '/promocode/new');
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']         = 'АП - Добавление промокода';
+        $this->page_data['page_menu']     = 'a_courses';
+        $this->page_data['page_submenu']  = 'promocodes';
+        $this->page_data['promocode_new'] = true;
+        $this->page_data['course_id']     = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $course);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма редактирования промокода курса
+     *
+     * @param $course_id
+     * @param $promocode_id
+     */
+    protected function coursePromocode($course_id, $promocode_id)
+    {
+        $promocode   = $this->Course_model->getCoursePromocode($course_id, $promocode_id, $this->date);
+        $used_amount = $this->Course_model->getPromocodeUsedAmount($promocode_id);
+        $course      = $this->Course_model->getShortCourse($course_id);
+
+        if($this->input->post('bt_save_promocode', true))
+        {
+            $db_data = $promocode['promocode'];
+
+            $category = ($this->input->post('s_category', true) == 'extend') ? 'extend' : 'course';
+            $name     = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
+            $desc     = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
+            $discount = (is_numeric($this->input->post('i_code_discount', true))) ? $this->input->post('i_code_discount', true) : null;
+
+            $validity_type = ($this->input->post('s_pv_type', true) == 'unlimited') ? 'unlimited' : 'date_range';
+            $tmp_ds        = new DateTime($this->input->post('i_validity_date_start', true));
+            $tmp_de        = new DateTime($this->input->post('i_validity_date_end', true));
+            $pv_date_start = ($tmp_ds !== false and $validity_type == 'date_range') ? $tmp_ds->format('Y-m-d') : '';
+            $pv_date_end   = ($tmp_de !== false and $validity_type == 'date_range') ? $tmp_de->format('Y-m-d') : '';
+
+            $use_type  = ($this->input->post('s_ua_type', true) == 'unlimited') ? 'unlimited' : 'number';
+            $ua_number = (is_numeric($this->input->post('i_ua_number', true)) and $use_type == 'number')
+                ? $this->input->post('i_ua_number', true) : '';
+
+            $generated_code = strtoupper(mb_substr(strip_tags($this->input->post('i_promocode', true)), 0, 25));
+
+            if($category != $db_data['category'] or (!empty($discount) and $discount != $db_data['discount'])
+                or (!empty($generated_code) and $generated_code != $db_data['code']) or $name != $db_data['name']
+                or $desc != $db_data['description'] or $validity_type != $db_data['validity_type']
+                or $pv_date_start != $db_data['pv_date_start'] or $pv_date_end != $db_data['pv_date_end']
+                or $use_type != $db_data['use_type'] or $ua_number != $db_data['ua_number'])
+            {
+                $res_up = $this->Course_model->updatePromocode($promocode_id, $course_id, $category, $name, $desc, $discount,
+                    $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $generated_code, $this->user_id, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 145, 60);
+                }
+            }
+            header('Location: /administration/course/' . $course_id . '/promocode/' . $promocode_id);
+        }
+        elseif($this->input->post('bt_block_promocode', true))
+        {
+            $up_data = $this->Course_model->blockPromocode($promocode_id, $course_id, 1, $this->user_id, $this->date);
+
+            if ($up_data === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 147, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 145, 60);
+            }
+            header('Location: /administration/course/' . $course_id . '/promocode/' . $promocode_id);
+        }
+        elseif($this->input->post('bt_unblock_promocode', true))
+        {
+            $up_data = $this->Course_model->blockPromocode($promocode_id, $course_id, 0, $this->user_id, $this->date);
+
+            if ($up_data === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 148, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 145, 60);
+            }
+            header('Location: /administration/course/' . $course_id . '/promocode/' . $promocode_id);
+        }
+
+        $result = array_merge($promocode, $course, $used_amount);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Редактирование промокода';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'promocodes';
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /* БЛОК ФУНКЦИЙ ПРОМОКОДОВ */
+
+    /**
+     * Вывод списка промокодов курса
+     *
+     * @param $course_id
+     */
+    protected function courseExtends($course_id)
+    {
+        $extends = $this->Course_model->getCourseExtends($course_id, $this->date);
+        $course  = $this->Course_model->getShortCourse($course_id);
+        $result = array_merge($extends, $course);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Продление курса';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'extends';
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма добавления промокода курса
+     *
+     * @param $course_id
+     */
+    protected function newCourseExtend($course_id)
+    {
+        $course         = $this->Course_model->getShortCourse($course_id);
+        $courses_list   = $this->Course_model->getPotentiallyExtendCourses($course_id);
+        $promocode_list = $this->Course_model->getCourseExtendPromocodes($course_id, $this->date);
+
+        if($this->input->post('bt_save_new_extend', true))
+        {
+            $extend_crs_id = is_numeric($this->input->post('s_extend_course', true)) ? $this->input->post('s_extend_course', true) : null;
+            $promocode_id  = is_numeric($this->input->post('s_promocode', true)) ? $this->input->post('s_promocode', true) : null;
+            $weeks_after   = is_numeric($this->input->post('i_weeks_after', true)) ? $this->input->post('i_weeks_after', true) : null;
+
+            if(is_numeric($course_id) and !empty($extend_crs_id) and !empty($promocode_id) and !empty($weeks_after))
+            {
+                $res_ins = $this->Course_model->setNewExtendCourse($course_id, $extend_crs_id, $promocode_id, $weeks_after,
+                    $this->user_id, $this->date);
+
+                if ($res_ins === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                    header('Location: /administration/course/' . $course_id . '/extend/' . $extend_crs_id);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 149, 60);
+                    header('Location: /administration/course/' . $course_id . '/extend/new');
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 150, 60);
+                header('Location: /administration/course/' . $course_id . '/extend/new');
+            }
+        }
+
+        $result = array_merge($course, $courses_list, $promocode_list);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Прикрепление курса продления';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'extends';
+        $this->page_data['extend_new']   = true;
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма редактирования промокода курса
+     *
+     * @param $course_id
+     * @param $extend_id
+     */
+    protected function courseExtend($course_id, $extend_id)
+    {
+        $extend         = $this->Course_model->getCourseExtend($course_id, $extend_id, $this->date);
+        $course         = $this->Course_model->getShortCourse($course_id);
+        $courses_list   = $this->Course_model->getPotentiallyExtendCourses($course_id);
+        $promocode_list = $this->Course_model->getCoursePromocodes($course_id, $this->date);
+
+        if($this->input->post('bt_save_extend', true))
+        {
+            $db_data = $extend['extend'];
+
+            $promocode_id  = is_numeric($this->input->post('s_promocode', true)) ? $this->input->post('s_promocode', true) : $db_data['promocode_id'];
+            $weeks_after   = is_numeric($this->input->post('i_weeks_after', true)) ? $this->input->post('i_weeks_after', true) : $db_data['weeks_after'];
+
+            if(is_numeric($course_id) and is_numeric($extend_id) and ((!empty($promocode_id) and $promocode_id != $db_data['promocode_id'])
+                    or (!empty($weeks_after) and $weeks_after != $db_data['weeks_after'])))
+            {
+                $res_up = $this->Course_model->updateExtendCourse($course_id, $extend_id, $promocode_id, $weeks_after,
+                    $this->user_id, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 149, 60);
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 150, 60);
+            }
+            header('Location: /administration/course/' . $course_id . '/extend/' . $extend_id);
+        }
+        elseif($this->input->post('bt_block_extend', true))
+        {
+            $up_data = $this->Course_model->blockExtend($course_id, $extend_id, 1, $this->user_id, $this->date);
+
+            if ($up_data === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 151, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 149, 60);
+            }
+            header('Location: /administration/course/' . $course_id . '/extend/' . $extend_id);
+        }
+        elseif($this->input->post('bt_unblock_extend', true))
+        {
+            $up_data = $this->Course_model->blockExtend($course_id, $extend_id, 0, $this->user_id, $this->date);
+
+            if ($up_data === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 152, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 149, 60);
+            }
+            header('Location: /administration/course/' . $course_id . '/extend/' . $extend_id);
+        }
+
+        $result = array_merge($extend, $course, $courses_list, $promocode_list);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Редактирование прикрепленного курса продления';
+        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_submenu'] = 'extends';
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
     /* БЛОК ФУНКЦИЙ ПУБЛИЧНЫХ КУРСОВ */
 
     /**
@@ -3357,8 +3754,28 @@ class Course extends CI_Controller
         $calendar_max_date = $max_date->format('Y-m-d');
         $string_max_date   = $max_date->format('d.m.Y');
 
-        $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id);
-        if (empty($course_data)) {
+        // Данные курса пользователя
+        $course_data   = $this->Course_model->getUserCourseSettings($course_id, $this->user_id, $this->date);
+
+        // Остаточная стоимость курса
+        if($course_data['course']['blocked_buy'] === true)
+        {
+            $this->load->model('Payment_model');
+            $this->load->model('Store_model');
+            // Стоимость покупки курса
+            $bought_price = $this->Store_model->getOrderCoursePrice($course_data['course']['order_id'], $course_id, $this->user_id);
+
+            // Остаточная стоимость курса
+            $value = $this->Payment_model->getCourseResidualValue($course_data['course']['order_id'], $course_id, $this->user_id, $bought_price, $this->date);
+
+            $course_data['course']['residual_value'] = $value;
+        }
+        //$course_data = '';
+        // Выборка уведомлений курса пользователя
+        $course_notifs = $this->Course_model->getUserCourseNotifications($course_id, $this->user_id, $this->date);
+
+        if (empty($course_data))
+        {
             parent::pageNotFound($this->page_url);
         }
         $db_course = $course_data['course'];
@@ -3897,15 +4314,169 @@ class Course extends CI_Controller
 
             header('Location: /profile/course/'.$course_id);
         }
+        elseif ($this->input->post('bt_buy_residual_course', true) and $course_data['course']['blocked_buy'] === true
+            and $course_data['course']['residual_value'] > 0)
+        {
+            // Вариант оплаты (полный)
+            $payment_option = 'full_payment';
+
+            // Способ оплаты
+            $methods      = array('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank');
+            $payment_type = (in_array($this->input->post('s_payment_method', true), $methods) and $payment_option == 'full_payment')
+                ? $this->input->post('s_payment_method', true)
+                : 'bank_card';
+
+            $phone_methods = array('qiwi', 'sberbank');
+            $login_methods = array('alfabank');
+            // Данные для способа оплаты
+            $phone        = is_numeric($this->input->post('i_phone', true)) ? $this->input->post('i_phone', true) : null;
+            $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : null;
+            $login        = strip_tags($this->input->post('i_login', true));
+            $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
+
+            // Остаточная стоимость курса
+            $course_price = $course_data['course']['residual_value'];
+
+            if (is_numeric($course_data['course']['order_id']))
+            {
+                $payment_data = array(
+                    'oid' => $course_data['course']['order_id'],
+                    'amount' => $course_price,
+                    'type' => $payment_type,
+                    'option' => $payment_option,
+                    'phone' => $method_phone,
+                    'login' => $method_login,
+                );
+
+                header('Location: /payment?' .http_build_query($payment_data));
+
+                /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
+
+                if (is_numeric($res_buy))
+                {
+                    $uc_id = $res_buy;
+
+                    if (!empty($training_days)) {
+                        $this->Course_model->setUserTrainingWeeks($uc_id, $start_date, $training_days, $count_workouts, $course['count_days'], $this->date);
+                    }
+                }
+
+                // Сохранено
+                $this->session->set_tempdata('message', 10, 60);*/
+            }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 101, 60);
+                header('Location: /course/' . $course_id . '?ref=1');
+            }
+
+            /*// Курс куплен (добавлен)
+            $this->session->set_tempdata('message', 109, 60);
+            header('Location: /profile/course/'.$course_id);*/
+
+        }
+
+        // Уведомления курсов
+        if(!empty($course_notifs['notifications']))
+        {
+            foreach($course_notifs['notifications'] as $user_course_id => $course_notif)
+            {
+                foreach($course_notifs['notifications'][$user_course_id] as $code => $notif)
+                {
+                    $this->page_data['course_notification'][$user_course_id]['course_name'] = $notif['course_name'];
+                    $this->page_data['course_notification'][$user_course_id]['course_id']   = $notif['course_id'];
+
+                    // Оплата курса
+                    if(is_numeric($code) and ($code == 142 or $code == 144))
+                    {
+                        $this->load->model('Notification_model');
+                        $notification = $this->Notification_model->getNotification($code);
+                        $pattern = '/\[date_attempts\]/';
+                        $replacement = $notif['date_attempts'];
+
+                        $this->page_data['course_notification'][$user_course_id]['course_blocked']['text'] = preg_replace($pattern, $replacement, $notification['notification']['text']);
+                    }
+
+                    // Завершение курса
+                    if(is_numeric($code) and $code == 143)
+                    {
+                        $this->load->model('Notification_model');
+                        $notification = $this->Notification_model->getNotification($code);
+
+                        $this->page_data['course_notification'][$user_course_id]['course_ends']['text']           = $notification['notification']['text'];
+                        $this->page_data['course_notification'][$user_course_id]['course_ends']['date_countdown'] = $notif['date_countdown'];
+                        $this->page_data['course_notification'][$user_course_id]['course_ends']['extends']        = $notif['extends'];
+
+                        if($notif['send_email'] === true)
+                        {
+                            $system_message = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
+                                . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
+                            $system_message .= '<a href="https://superbody.pro/profile/course/' . $notif['course_id'] . '" '
+                                . 'style="text-transform: uppercase; font-weight: 300; font-size: 24px; line-height: 28px; '
+                                . 'padding: 20px 0 20px 30px; margin:0; color: #72d0f4; text-decoration: none;">'
+                                . $notif['course_name'] . '</a>';
+                            $system_message .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
+                            $system_message .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
+                                . 'font-weight: 300; border: none; white-space: normal; font-size: 18px; line-height: 22px;">'
+                                . $notification['notification']['text'] . '</p>';
+                            $system_message .= '</td></tr>';
+                            // Курсы продления
+                            if(!empty($notif['extends']))
+                            {
+                                $system_message .= '<tr><td style="width:100%; padding:0; margin:0;">ПРОДЛИТЕ КУРС ИЛИ КУПИТЕ НОВЫЙ:</td></tr>';
+                                $system_message .= '<tr>';
+                                foreach($notif['extends'] as $extend)
+                                {
+                                    $system_message .= '<td style="padding:0; margin:0;"><table>';
+                                    $system_message .= '<tr><td style="width:100%; padding:0; margin:0;"><a href="https://superbody.pro/course/' . $extend['course_id'] . '" '
+                                        . 'style="text-transform: uppercase; font-weight: 600; font-size: 16px; line-height: 28px; '
+                                        . 'padding: 0; margin:0; color: #72d0f4; text-decoration: none;">'
+                                        . $extend['course_name'] . '</a></td></tr>';
+                                    $system_message .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">' . $extend['promocode'] . '</td></tr>';
+                                    $system_message .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">';
+                                    if(!empty($extend['new_price']))
+                                    {
+                                        $system_message .= '<s>' . $extend['price'] . ' руб.</s> ' . $extend['new_price'] . ' руб.';
+                                    }
+                                    else
+                                    {
+                                        $system_message .= $extend['price'] . ' руб.';
+                                    }
+                                    $system_message .= '</td></tr></table>';
+                                    $system_message .= '</table></td>';
+                                }
+                                unset($extend);
+                                $system_message .= '</tr>';
+                            }
+
+                            $system_message .= '</table>';
+
+                            parent::sendEmail(11, $this->session->user['email'], $system_message);
+                        }
+                    }
+                    // Курс завершен
+                    elseif(is_numeric($code) and $code == 154)
+                    {
+                        $this->load->model('Notification_model');
+                        $notification = $this->Notification_model->getNotification($code);
+
+                        $this->page_data['course_notification'][$user_course_id]['course_finished']['text']    = $notification['notification']['text'];
+                        $this->page_data['course_notification'][$user_course_id]['course_finished']['extends'] = $notif['extends'];
+                    }
+                }
+            }
+            unset($course_notif);
+        }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Курс';
-        $this->page_data['page_menu'] = 'u_courses';
-        $this->page_data['page_submenu'] = 'settings';
+        $this->page_data['title']             = 'Курс';
+        $this->page_data['page_menu']         = 'u_courses';
+        $this->page_data['page_submenu']      = 'settings';
         $this->page_data['calendar_min_date'] = $calendar_min_date;
         $this->page_data['calendar_max_date'] = $calendar_max_date;
-        $this->page_data['string_min_date'] = $string_min_date;
-        $this->page_data['string_max_date'] = $string_max_date;
+        $this->page_data['string_min_date']   = $string_min_date;
+        $this->page_data['string_max_date']   = $string_max_date;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -4164,7 +4735,7 @@ class Course extends CI_Controller
     public function publicCourse($course_id)
     {
         // Выборка данных курса
-        $course         = $this->Course_model->getAvailableCourse($course_id);
+        $course         = $this->Course_model->getAvailableCourse($course_id, $this->date);
         $course_couches = $this->Course_model->getCourseCouchesId($course_id);
         $user_courses   = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
         $landing        = array();
@@ -4303,6 +4874,22 @@ class Course extends CI_Controller
 
             if(!empty($user_id))
             {
+                // Введенный промокод
+                $i_promocode  = mb_substr(strip_tags($this->input->post('promocode', true)), 0, 25);
+                $promocode_id = '';
+                // Проверка промокода
+                if(!empty($i_promocode) and $payment_option == 'full_payment')
+                {
+                    $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $user_id, $this->date);
+
+                    // Вычислеие цены со скидкой
+                    if($promocode['discount'] !== false and !empty($promocode['id']))
+                    {
+                        $course_price = $course['price'] - ($course['price']*$promocode['discount']/100);
+                        $promocode_id = $promocode['id'];
+                    }
+                }
+
                 // Добавление товара в заказы пользователя
                 $this->load->model('Store_model');
 
@@ -4312,7 +4899,9 @@ class Course extends CI_Controller
                     'price' => $course_price,
                     'fc_price' => '',
                     'discount_price' => '',
-                    'discount_fc_price' => '')
+                    'discount_fc_price' => '',
+                    'promo_id' => $promocode_id,
+                    'promo_code' => $i_promocode)
                 );
 
                 $prev_address = '';
@@ -4902,6 +5491,24 @@ class Course extends CI_Controller
 
                 $result['crs_sch'] = $weeks;
             }
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * AJAX Поиск промокода курса
+     */
+    public function searchCoursePromocode()
+    {
+        $result['discount'] = false;
+
+        $promocode = mb_substr(strip_tags($this->input->post('input_search', true)), 0, 25);
+        $course_id = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
+
+        if(!empty($course_id) and !empty($promocode) and strlen($promocode) >=6 and is_numeric($this->user_id))
+        {
+            $result = $this->Course_model->getAvailableCoursePromocode($course_id, $promocode, $this->user_id, $this->date);
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);

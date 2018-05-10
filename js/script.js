@@ -56,6 +56,7 @@ $(document).ready(function() {
             }, false);
         }
     }
+
     if($(".practice_block .add_tov_val_item").length > 0){
         $(".practice_block .add_tov_val_item").each(function() {
             var video_id = $(this).find("video").attr("id"),
@@ -74,7 +75,115 @@ $(document).ready(function() {
         }
     }
     setVideoList();*/
+      
+    // Обратный отсчет
+    var x = setInterval(function () {
+        $('.countdown').each(function (i, obj) {
+            var countDownDateBlock = $(this).parent().find('.date_countdown'),
+                countDownDate = countDownDateBlock.val();
 
+            if (countDownDateBlock.val() != "") {
+                // Get todays date and time
+                var now = new Date().getTime();
+
+                // Find the distance between now an the count down date
+                var distance = countDownDate - now;
+
+                // Time calculations for days, hours, minutes and seconds
+                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                var hours = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
+                var minutes = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
+                var seconds = String(Math.floor((distance % (1000 * 60)) / 1000));
+
+                if (hours.length == 1) {
+                    hours = "0" + hours;
+                }
+                if (minutes.length == 1) {
+                    minutes = "0" + minutes;
+                }
+                if (seconds.length == 1) {
+                    seconds = "0" + seconds;
+                }
+
+                // Display the result in the element with id="countdown"
+                $(this).html(days + "<span>дн.</span> " + hours + "<span>ч.</span> "
+                    + minutes + "<span>мин.</span> " + seconds + "<span>сек.</span>");
+
+                // If the count down is finished, write some text
+                if (distance < 0) {
+                    clearInterval(x);
+                    $(this).html('');
+                    countDownDateBlock.val("");
+                }
+            }
+            else
+            {
+                clearInterval(x);
+                $(this).html('');
+            }
+        });
+    }, 1000);
+
+    $(".promo_line").on('click', function(){
+        $(this).hide();
+        $(this).parent('.promo_block').find('.kurs_block_h').html('Промокод:');
+        if($('#i-promocode').length == 1)
+        {
+            $('#i-promocode').show();
+        }
+        else
+        {
+            $(this).parent('.promo_block').find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
+        }
+    });
+
+    $('.purchase_form').on('keyup', ' #i-promocode', function(){
+        var input_search     = $(this).val(),
+            crs_id           = $('.purchase_form').children('#crs-id').val(),
+            price_block      = $('#course-price'),
+            new_price_block  = $('#course-new-price'),
+            course_price     = price_block.html();
+
+        if(input_search.length >= 6 && input_search.length <= 25)
+        {
+            $.ajax({
+                url: '/searchPromo',
+                type: 'post',
+                dataType: 'json',
+                data: {input_search: input_search, crs_id: crs_id},
+                complete: function (result) {
+                    var data = result.responseJSON;
+
+                    if (data.discount !== false)
+                    {
+                        var new_price = course_price - (course_price*data.discount/100);
+
+                        price_block.addClass('strikeout');
+                        if(price_block.next('#course-new-price').length == 0)
+                        {
+                            price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
+                            new_price_block = $('#course-new-price');
+                        }
+                        else
+                        {
+                            new_price_block.html(new_price);
+                            new_price_block.show();
+                        }
+                    }
+                    else
+                    {
+                        price_block.removeClass('strikeout');
+                        new_price_block.hide();
+                    }
+                }
+            });
+        }
+        else
+        {
+            price_block.removeClass('strikeout');
+            new_price_block.hide();
+        }
+    });
 
 	/* Добавление фото */
 
@@ -82,16 +191,18 @@ $(document).ready(function() {
         var num = $(this).parents(".add_foto_block_wrap").find(".video_down_line").length + 1;
         if (num <= 7) {
             $(this).parents(".add_foto_block_wrap").find(".add_foto_block")
-                .append('<div class="video_down_line parent">' +
-                    '<div class="video_down_line_h">Изображение №'+num+':</div>' +
-                    '<div class="video_down_line_but_wrap">' +
-                    '<label for="video_down_line_but'+num+'s" class="video_down_line_but">' +
-                    '<input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but'+num+'s">' +
-                    '<span>Выберите файл</span></label>' +
-                    '</div>' +
-                    '<div class="video_down_line_name">Файл не выбран</div>' +
-                    '<div class="progressbar_wrap"><progress class="progressbar" id="progressbar'+num+'s" value="50" max="100"></progress></div>' +
-                    '</div>');
+                .append('<div class="parent kurs_cur_wrap">' +
+                    '<div class="kurs_block_h">Изображение № ' + num + ':</div>' +
+                    '<div class="video_down_line parent">' +
+                        '<div class="video_down_line_but_wrap">' +
+                            '<label for="video_down_line_but1s" class="video_down_line_but">' +
+                                '<input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" />' +
+                                '<span>Выберите файл</span>' +
+                            '</label>' +
+                        '</div>' +
+                        '<div class="video_down_line_name">Файл не выбран</div>' +
+                        '<div class="progressbar_wrap"><progress class="progressbar" id="progressbar1" value="50" max="100"></progress></div>' +
+                    '</div></div>');
         }
         if (num == 7) {
             $(this).hide();
@@ -112,21 +223,18 @@ $(document).ready(function() {
 
         if(val != ''){
             $(this).parents(".lend_form_options_wrap").find(".lend_form_options")
-                .append('<div class="add_foto_block_wrap">' +
-                    '<div class="add_foto_block">' +
-                        '<div class="video_down_line parent">' +
-                            '<div class="video_down_line_h">Изображение:</div>' +
-                                '<div class="video_down_line_but_wrap">' +
-                                    '<label for="video_down_line_but'+num+'p" class="video_down_line_but">' +
-                                        '<input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but'+num+'p">' +
-                                        '<span>Выберите файл</span>' +
-                                    '</label>' +
-                                '</div>' +
-                                '<div class="video_down_line_name">Файл не выбран</div>' +
-                                '<div class="progressbar_wrap"><progress class="progressbar" id="progressbar'+num+'p" value="50" max="100"></progress></div>' +
-                            '</div>' +
+                .append('<div class="parent kurs_cur_wrap">' +
+                    '<div class="kurs_block_h">Изображение:</div>' +
+                    '<div class="video_down_line parent">' +
+                        '<div class="video_down_line_but_wrap">' +
+                            '<label for="video_down_line_but'+num+'p" class="video_down_line_but">' +
+                                '<input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but'+num+'p">' +
+                                '<span>Выберите файл</span>' +
+                            '</label>' +
                         '</div>' +
-                    '</div>' +
+                        '<div class="video_down_line_name">Файл не выбран</div>' +
+                        '<div class="progressbar_wrap"><progress class="progressbar" id="progressbar'+num+'p" value="50" max="100"></progress></div>' +
+                    '</div></div>' +
                     '<div class="parent kurs_cur_wrap">' +
                         '<div class="kurs_block_h">Текст плана:</div>' +
                         '<input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" />' +

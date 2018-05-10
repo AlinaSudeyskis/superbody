@@ -32,7 +32,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="submit" value="" class="chat_search_but">
                         </form>
                         <div class="chat_contacts_wrap">
-                            <?php if (!empty($user_conversations)):
+                            <?php if (!empty($user_new_conversation)):
+                                $new_conv = $user_new_conversation;?>
+                                <div class="chat_contact parent <?php if ($user_with == $new_conv['user_with']['id']) { echo 'chat_contact_active';}?>"
+                                     onclick="location.href='/messages/<?php echo $new_conv['user_with']['id'];?>';">
+                                    <div class="chat_contact_img_wrap">
+                                        <div class="chat_contact_img"><img src="<?php echo $new_conv['user_with']['image'];?>" alt=""></div>
+                                    </div>
+                                    <div class="chat_contact_cont">
+                                        <div class="chat_contact_cont_top parent">
+                                            <div class="chat_contact_time"></div>
+                                            <div class="chat_contact_name"><?php echo $new_conv['user_with']['name'];?></div>
+                                        </div>
+                                        <div class="chat_contact_short_mess"></div>
+                                    </div>
+                                </div>
+                            <?php endif;
+                            if (!empty($user_conversations)):
                                 foreach ($user_conversations as $conv) :
                                     // Удаление из массива прикрепленных тренеров или пользователей соответствующего пользователя,
                                     // если он присутствует в списке диалогов
@@ -89,7 +105,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="chat_mess_block_h parent">
                             <div class="chat_mess_block_name parent">
                                 <?php if (!empty($conv_with)): ?>
-                                    <h3 style="cursor:pointer;" onclick="location.href='/profile/'<?php echo $user_with; ?>"><?php echo $conv_with['name']; ?></h3>
+                                    <h3 style="cursor:pointer;" onclick="location.href='/profile/<?php echo $user_with; ?>'"><?php echo $conv_with['name']; ?></h3>
                                 <?php elseif ($user_with == 'feedback'): ?>
                                     <h3>Обратная связь</h3>
                                 <?php endif;?>
@@ -107,9 +123,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </div>
                         <div class="mess_block_val">
+                            <?php if(!empty($user_notification['blocked'])): ?>
+                                <div class="mess_info"><?php echo $user_notification['blocked']['text']; ?></div>
+                            <?php endif;?>
                             <div class="mess_block_line_wrap">
                                 <?php if (!empty($user_with)) :
-                                    if (!empty($user_messages)) :
+                                    if (!empty($conv_with['name']) and !empty($user_messages)) :
                                         foreach ($user_messages as $mess) :
                                             $class = $mess['user_from']['id'] == $user_session['id'] ? 'mess_block_line_g' : ''; ?>
                                             <div class="mess_block_line <?php echo $class; ?> parent">
@@ -130,7 +149,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                         <?php endforeach;
                                         unset($mess);
-                                    elseif (!empty($fb_user_messages)):
+                                    elseif ($user_with == 'feedback' and !empty($fb_user_messages)):
                                         foreach ($fb_user_messages as $fb_mess) :
                                             $fb_class = $fb_mess['admin_id'] == 0 ? 'mess_block_line_g' : ''; ?>
                                             <div class="mess_block_line <?php echo $fb_class; ?> parent no_ava">
@@ -164,7 +183,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="no_mess_block">Выберите диалог из списка</div>
                                 <?php endif;?>
                             </div>
-                            <?php if ((!empty($user_with) and $user_session['blocked'] == 0) or $user_with == 'feedback') :?>
+                            <?php
+                            if ((!empty($conv_with['name']) and is_numeric($user_with) and $user_session['blocked'] == 0 and $user_with_blocked == 0) or $user_with == 'feedback') :?>
                                 <div class="mess_form">
                                     <form action="" class="mess_block_form" method="post">
                                         <textarea name="ta_message_text" class="mess_block_in" placeholder="Написать сообщение" autofocus="autofocus"></textarea>

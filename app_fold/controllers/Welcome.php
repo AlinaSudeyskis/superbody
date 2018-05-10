@@ -150,18 +150,9 @@ class Welcome extends CI_Controller
                 if ($res_send === true)
                 {
                     // Отправление письма с копией сообщения обратной связи
-                    $email_to = "<$email>";
-                    $subject  = "Обратная связь SuperBody";
+                    $system_message  = '';
 
-                    $message_text = '<div style="margin-bottom: 10px;"><div style="margin: 10px 0 0 20px;">'
-                        . 'Сообщение отправлено. Ожидайте ответа от администрации сайта.'
-                        . '</div></div>';
-
-                    $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                    $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                    $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                    mail($email_to, $subject, $message_text, $headers); //  '-fsupport@theoutlines.ru'
+                    parent::sendEmail(10, $email, $system_message);
 
                     // Сохранено
                     $this->session->set_tempdata('message', 135, 60);
@@ -195,6 +186,44 @@ class Welcome extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/contacts');
         $this->load->view('site/contacts', $result);
+        $this->load->view('footer/footer');
+    }
+
+    public function unsubscribe()
+    {
+        $email = filter_var($this->input->get('email', true), FILTER_VALIDATE_EMAIL) ? $this->input->get('email') : null;
+
+        if(!empty($email))
+        {
+            $res_up = $this->Welcome_model->unsubscribeEmail($email);
+
+            if($res_up === true)
+            {
+                // Сохранено
+                $info_code = 141;
+            }
+            else
+            {
+                // Не сохранено
+                $info_code = 140;
+            }
+        }
+        else
+        {
+            // Не коректный email
+            $info_code = 6;
+        }
+
+        $this->load->model('Notification_model');
+        $notification = (!empty($info_code) and is_numeric($info_code)) ? $this->Notification_model->getNotification($info_code) : '';
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'Подписка';
+        $this->page_data['page_menu'] = '';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/secondary');
+        $this->load->view('authorization/unsubscribe', $notification);
         $this->load->view('footer/footer');
     }
 }

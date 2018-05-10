@@ -39,7 +39,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo $course['date_end']; ?></div></div>
                             </div>
                         <?php endif;
-                        $days_disabled = !empty($course['days']) ? 'disabled' : '';?>
+                        $days_disabled = (!empty($course['days']) or $course['blocked'] == 1) ? 'disabled' : '';?>
                         <div class="anketa_form_line parent">
                             <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренировочные дни:</div></div>
                             <div class="anketa_form_radio_all parent <?php echo $days_disabled; ?>" id="week_days">
@@ -90,7 +90,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php if (!empty($course['couches'])) :?>
                             <div class="anketa_form_line parent">
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренеры:</div></div>
-                                <div class="anketa_form_radio_all parent">
+                                <div class="anketa_form_radio_all parent <?php echo $days_disabled; ?>">
                                     <!--<input type="hidden" name="user_couch" value="<?php /*echo $course['couch_id']*/?>" id="user-couch-id"/>-->
                                     <?php foreach($course['couches'] as $key => $couch) :?>
                                         <div class="anketa_form_radio_wrap">
@@ -104,7 +104,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         <?php endif;
                         if (!empty($course['days'])):
-                            if ($course['paused'] == 0) :?>
+                            if ($course['paused'] == 0 and $course['blocked'] == 0 and $course['finished'] === false) :?>
                                 <div class="anketa_form_line parent">
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell">Заморозить курс до:</div></div>
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell">
@@ -137,12 +137,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     endif; ?>
                                 </div></div>
                             </div>
-                        <?php endif;?>
+                        <?php endif;
+                        if($course['blocked'] == 1 and $course['blocked_buy'] === true and $course['residual_value'] > 0): ?>
+                            <div class="anketa_form_line parent">
+                                <div class="anketa_form_h"><div class="anketa_form_h_cell">Остаточная стоимость:</div></div>
+                                <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php if (!empty($course['residual_value'])) { echo $course['residual_value']; }?></div></div>
+                                <div class="anketa_form_desk"> руб.</div>
+                            </div>
+                            <div class="anketa_form_line parent">
+                                <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
+                                <div class="anketa_form_h"><div class="anketa_form_h_cell">
+                                        <input type="submit" name="bt_buy_residual_course" value="Оплатить" class="anketa_form_but" />
+                                </div></div>
+                            </div>
+                        <?php endif; ?>
                         <div class="anketa_form_buts_wrap parent">
-                            <?php if ($course['paused'] == 1):?>
+                            <?php if ($course['paused'] == 1 and $course['blocked'] == 0 and $course['finished'] === false):?>
                                 <input type="submit" name="bt_unblock_course" class="anketa_form_reset" value="Разморозить"/>
+                            <?php endif;
+                            if ($course['blocked'] == 0 and $course['finished'] === false):?>
+                                <input type="submit" name="bt_save_course" value="Сохранить" class="anketa_form_but" />
                             <?php endif;?>
-                            <input type="submit" name="bt_save_course" value="Сохранить" class="anketa_form_but" />
                         </div>
                     </form>
                 </div>

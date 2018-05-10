@@ -16,15 +16,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <span class="tren_surname"><?php if (!empty($couch['surname'])) { echo $couch['surname']; }?></span>
             </a>
             <div class="tren_desk"><?php if (!empty($couch['special'])) { echo $couch['special']; }?></div>
-            <div class="tren_buts parent disabled">
-                <div class="tren_buts_l">
+            <div class="tren_buts parent">
+                <!--<div class="tren_buts_l">
                     <button class="love_but"></button>
                     <button class="like_but"></button>
                 </div>
                 <div class="tren_buts_r">
                     <a href="" class="f_but"></a>
                     <a href="" class="tw_but"></a>
-                </div>
+                </div>-->
+                <a href="/messages/<?php echo $couch['id']; ?>" class="tren_mess_link" title="Написать тренеру">
+                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                </a>
             </div>
         </div>
         <div class="trainers_cont">

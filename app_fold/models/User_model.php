@@ -22,7 +22,7 @@ class User_model extends CI_Model
         $result = array('user_data' => array());
         
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`
+            SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`, `user_blocked`
             FROM `users`
             WHERE `user_id`=? LIMIT 1', $user_id);
         
@@ -37,8 +37,10 @@ class User_model extends CI_Model
             $result['user_data']['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Пользователь';
             $result['user_data']['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
 
-            $result['user_data']['email'] = $row->user_email; 
+            $result['user_data']['email'] = $row->user_email;
             $result['user_data']['type']  = $row->user_type;
+
+            $result['user_data']['user_blocked'] = $row->user_blocked;
 
             $user_image = '';
             if (!empty($row->user_image)) {
@@ -729,12 +731,13 @@ class User_model extends CI_Model
      * Получение антропометрических данных
      *
      * @param $user_id
+     * @param $today
      * @return array
      */
-    public function getAnthropometricData($user_id)
+    public function getAnthropometricData($user_id, $today)
     {
         // Массив возвращаемых значений
-        $result = array ();
+        $result = array('anthropometric' => array(), 'min' => null, 'max' => null, 'anthrop_notif' => false);
 
         $sel_anth_data = $this->db->query('
             SELECT `user_weight`, `user_circumference_chest`, `user_circumference_waist`, `user_circumference_buttocks`, `user_date_add`
@@ -747,7 +750,8 @@ class User_model extends CI_Model
             $min = 0;
             $max = 0;
             $max_days = 0;
-            foreach ($sel_anth_data->result() as $row) {
+            foreach ($sel_anth_data->result() as $row)
+            {
                 //$today = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
                 //$date = DateTime::createFromFormat('Y-m-d H:i:s', $row->user_date_add);
 
@@ -814,6 +818,14 @@ class User_model extends CI_Model
 
             $result['min'] = $min_date->format('Y-m-d H:i:s');
             $result['max'] = $max_date->format('Y-m-d H:i:s');
+
+            // Уведомление пользователю если последний ввод данных был более 2х недель назад
+            $tmp_date = new DateTime($today);
+            $tmp_date->sub(new DateInterval('P14D'));
+            if($result['max'] < $tmp_date->format('Y-m-d H:i:s'))
+            {
+                $result['anthrop_notif'] = true;
+            }
         }
         elseif ($sel_anth_data === false)
         {

@@ -91,12 +91,126 @@ class User extends CI_Controller
         }*/
 
         $u_training_time = $this->User_model->getUserTrainingTime($user_id); // Тренировочное время пользователя
-        $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, $u_training_time); // Выборка курсов пользователя
-        $anthrop_data    = $this->User_model->getAnthropometricData($user_id); // Антропометрические данные пользователя
+        //$user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, $u_training_time); // Выборка курсов пользователя
+        $course_notifs   = $this->Course_model->getUserCoursesNotifications($user_id, $this->date); // Выборка уведомлений курсов пользователя
+        $anthrop_data    = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
         $user_social     = $this->User_model->getUserSocial($user_id);
         $u_data          = $this->User_model->getUser($user_id);
 
+        $user_courses = array();
+
         $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data);
+
+        // Уведомления курсов
+        if(!empty($course_notifs['notifications']))
+        {
+            foreach($course_notifs['notifications'] as $user_course_id => $course_notif)
+            {
+                foreach($course_notifs['notifications'][$user_course_id] as $code => $notif)
+                {
+                    $this->page_data['course_notification'][$user_course_id]['course_name'] = $notif['course_name'];
+                    $this->page_data['course_notification'][$user_course_id]['course_id']   = $notif['course_id'];
+
+                    // Оплата курса
+                    if(is_numeric($code) and ($code == 142 or $code == 144))
+                    {
+                        $this->load->model('Notification_model');
+                        $notification = $this->Notification_model->getNotification($code);
+                        $pattern = '/\[date_attempts\]/';
+                        $replacement = $notif['date_attempts'];
+
+                        $this->page_data['course_notification'][$user_course_id]['course_blocked']['text'] = preg_replace($pattern, $replacement, $notification['notification']['text']);
+                    }
+
+                    // Завершение курса
+                    if(is_numeric($code) and $code == 143)
+                    {
+                        $this->load->model('Notification_model');
+                        $notification = $this->Notification_model->getNotification($code);
+
+                        $this->page_data['course_notification'][$user_course_id]['course_ends']['text']           = $notification['notification']['text'];
+                        $this->page_data['course_notification'][$user_course_id]['course_ends']['date_countdown'] = $notif['date_countdown'];
+                        $this->page_data['course_notification'][$user_course_id]['course_ends']['extends']        = $notif['extends'];
+
+                        if($notif['send_email'] === true)
+                        {
+                            $system_message = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
+                                . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
+                            $system_message .= '<a href="https://superbody.pro/profile/course/' . $notif['course_id'] . '" '
+                                . 'style="text-transform: uppercase; font-weight: 300; font-size: 24px; line-height: 28px; '
+                                . 'padding: 20px 0 20px 30px; margin:0; color: #72d0f4; text-decoration: none;">'
+                                . $notif['course_name'] . '</a>';
+                            $system_message .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
+                            $system_message .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
+                                . 'font-weight: 300; border: none; white-space: normal; font-size: 18px; line-height: 22px;">'
+                                . $notification['notification']['text'] . '</p>';
+                            $system_message .= '</td></tr>';
+                            // Курсы продления
+                            if(!empty($notif['extends']))
+                            {
+                                $system_message .= '<tr><td style="width:100%; padding:0; margin:0;">ПРОДЛИТЕ КУРС ИЛИ КУПИТЕ НОВЫЙ:</td></tr>';
+                                $system_message .= '<tr>';
+                                    foreach($notif['extends'] as $extend)
+                                    {
+                                        $system_message .= '<td style="padding:0; margin:0;"><table>';
+                                        $system_message .= '<tr><td style="width:100%; padding:0; margin:0;"><a href="https://superbody.pro/course/' . $extend['course_id'] . '" '
+                                            . 'style="text-transform: uppercase; font-weight: 600; font-size: 16px; line-height: 28px; '
+                                            . 'padding: 0; margin:0; color: #72d0f4; text-decoration: none;">'
+                                            . $extend['course_name'] . '</a></td></tr>';
+                                        $system_message .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">' . $extend['promocode'] . '</td></tr>';
+                                        $system_message .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">';
+                                            if(!empty($extend['new_price']))
+                                            {
+                                                $system_message .= '<s>' . $extend['price'] . ' руб.</s> ' . $extend['new_price'] . ' руб.';
+                                            }
+                                            else
+                                            {
+                                                $system_message .= $extend['price'] . ' руб.';
+                                            }
+                                        $system_message .= '</td></tr></table>';
+                                        $system_message .= '</table></td>';
+                                    }
+                                    unset($extend);
+                                $system_message .= '</tr>';
+                            }
+
+                            $system_message .= '</table>';
+
+                            parent::sendEmail(11, $this->session->user['email'], $system_message);
+                        }
+                    }
+                    // Курс завершен
+                    elseif(is_numeric($code) and $code == 154)
+                    {
+                        $this->load->model('Notification_model');
+                        $notification = $this->Notification_model->getNotification($code);
+
+                        $this->page_data['course_notification'][$user_course_id]['course_finished']['text']    = $notification['notification']['text'];
+                        $this->page_data['course_notification'][$user_course_id]['course_finished']['extends'] = $notif['extends'];
+                    }
+                }
+            }
+            unset($course_notif);
+        }
+        // Уведомления пользователя
+        // Пользователь заблокирован
+        if($u_data['user_data']['user_blocked'] == 1)
+        {
+            $this->load->model('Notification_model');
+            $notification = $this->Notification_model->getNotification(16);
+
+            $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
+
+        }
+        // Пользователь вводил антропометрические данные более 2х недель назад
+        if($anthrop_data['anthrop_notif'] === true)
+        {
+            $this->load->model('Notification_model');
+            $notification = $this->Notification_model->getNotification(153);
+
+            $this->page_data['user_notification']['anthrop']['text'] = $notification['notification']['text'];
+
+        }
 
         // Объединенные данные страница
         $this->page_data['title'] = $title;
@@ -144,6 +258,15 @@ class User extends CI_Controller
         $user_social = $this->User_model->getUserSocial($this->user_id);
 
         $result = array_merge($portfolio, $posts, $clients, $c_data, $user_social);
+
+        // Уведомления пользователя
+        if($c_data['user_data']['user_blocked'] == 1)
+        {
+            $this->load->model('Notification_model');
+            $notification = $this->Notification_model->getNotification(16);
+
+            $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
+        }
 
         $title = !empty($this->session->user['name'])
             ? $this->session->user['name'] . ' - тренер'
@@ -211,10 +334,20 @@ class User extends CI_Controller
         // Данные пользователя
         $result = $this->User_model->getUser($user_id);
 
+        // Уведомления пользователя
+        if($result['user_data']['user_blocked'] == 1)
+        {
+            $this->load->model('Notification_model');
+            $notification = $this->Notification_model->getNotification(16);
+
+            $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
+        }
+
         $title = !empty($result['user_data']['name']) ? $result['user_data']['name'] . ' - пользователь' : 'Страница пользователя' ;
         // Объединенные данные страница
-        $this->page_data['title'] = $title;
+        $this->page_data['title']     = $title;
         $this->page_data['page_menu'] = 'user_page';
+        $this->page_data['outsider']  = true;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -255,11 +388,20 @@ class User extends CI_Controller
         $user      = $this->Couch_model->getCouch($couch_id, $this->date);
         $result    = array_merge($portfolio, $posts, $user);
 
+        // Уведомления пользователя
+        if($user['user_data']['user_blocked'] == 1)
+        {
+            $this->load->model('Notification_model');
+            $notification = $this->Notification_model->getNotification(16);
+
+            $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
+        }
+
         $title = !empty($result['user_data']['user_name']) ? $result['user_data']['user_name'] . ' - тренер' : 'Страница тренера' ;
         // Объединенные данные страница
-        $this->page_data['title'] = $title;
+        $this->page_data['title']     = $title;
         $this->page_data['page_menu'] = 'user_page';
-        $this->page_data['outsider'] = true;
+        $this->page_data['outsider']  = true;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -278,10 +420,20 @@ class User extends CI_Controller
         // Данные пользователя
         $result = $this->User_model->getUser($admin_id);
 
+        // Уведомления пользователя
+        if($result['user_data']['user_blocked'] == 1)
+        {
+            $this->load->model('Notification_model');
+            $notification = $this->Notification_model->getNotification(16);
+
+            $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
+        }
+
         $title = !empty($result['user_data']['name']) ? $result['user_data']['name'] . ' - администратор' : 'Страница администратора' ;
         // Объединенные данные страница
-        $this->page_data['title'] = $title;
+        $this->page_data['title']     = $title;
         $this->page_data['page_menu'] = 'user_page';
+        $this->page_data['outsider']  = true;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -388,9 +540,9 @@ class User extends CI_Controller
             }
 
             // Сохранение данных в БД
-            if ($email != $user_data['user_email'] or $name != $user_data['user_name'] or $phone != $user_data['user_phone']
+            if (!empty($email) and ($email != $user_data['user_email'] or $name != $user_data['user_name'] or $phone != $user_data['user_phone']
                 or $code != $user_data['user_country_code'] or $password_hash != $user_data['user_password_hash']
-                or $avatar != $user_data['user_image'])
+                or $avatar != $user_data['user_image']))
             {
                 $result = $this->User_model->setUserSettingsData($this->user_id, $email, $name, $password_hash, $code, $phone, $path_avatar, $this->date);
 
@@ -415,6 +567,11 @@ class User extends CI_Controller
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
                 }
+            }
+            elseif(empty($email))
+            {
+                // Не корректный email
+                $this->session->set_tempdata('message', 6, 60);
             }
 
             header('Location: /settings');
@@ -560,7 +717,7 @@ class User extends CI_Controller
         else
         {
             // Пользователь не найден
-            $this->session->set_tempdata('message', 0, 60);
+            $this->session->set_tempdata('message', 136, 60);
         }
 
         $this->load->view('footer/footer');
@@ -595,7 +752,7 @@ class User extends CI_Controller
         else
         {
             // Пользователь не найден
-            $this->session->set_tempdata('message', 0, 60);
+            $this->session->set_tempdata('message', 136, 60);
         }
 
         $this->load->view('footer/footer');
@@ -609,7 +766,7 @@ class User extends CI_Controller
         if (!is_numeric($this->user_id)) {
             parent::pageNotFound($this->page_url);
         }
-        $result = $this->User_model->getAnthropometricData($this->user_id); // Антропометрические данные пользователя
+        $result = $this->User_model->getAnthropometricData($this->user_id, $this->date); // Антропометрические данные пользователя
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Прогресс';
@@ -685,30 +842,19 @@ class User extends CI_Controller
                 $email = $this->session->user['email'];
                 $email_hash = password_hash($email, PASSWORD_DEFAULT);
                 // Отправление уведомления об измениях в данных
-                $email_to  = "<" . $email . ">";
 
-                $subject   = "Изменение данных на сайте SuperBody";
+                $system_message  = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
+                $system_message .= '<p>Вес: ' . $weight . 'см</p> </br>';
+                $system_message .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
+                $system_message .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
+                $system_message .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
+                $system_message .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
+                $system_message .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
+                $system_message .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
+                $system_message .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
+                $system_message .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
 
-                $message   = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
-                $message  .= '<p>Вес: ' . $weight . 'см</p> </br>';
-                $message  .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
-                $message  .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
-                $message  .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
-                $message  .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
-                $message  .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
-                $message  .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
-                $message  .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
-                $message  .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
-                $message  .= 'В случае, если Вы не изменяли данные, перейдите по ссылке ниже для блокировки аккаунта.';
-                $message  .= '<a href="http://www.sb.theoutlines.ru/block?e=' . $email . '&ac=' . $email_hash . '">';
-                $message  .= 'http://www.sb.theoutlines.ru/block?e=' . $email . '&ac=' . $email_hash;
-                $message  .= '</a>';
-
-                $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                mail($email_to, $subject, $message, $headers);
+                parent::sendEmail(9, $email, $system_message);
 
                 // Сохрано
                 $this->session->set_tempdata('message', 10, 60);
@@ -748,25 +894,13 @@ class User extends CI_Controller
                 $email = $this->session->user['email'];
                 $email_hash = password_hash($email, PASSWORD_DEFAULT);
                 // Отправление уведомления об измениях в данных
-                $email_to  = "<" . $email . ">";
+                $system_message  = '<p>В Вашем аккаунте были изменены данные физических параметров:</p> </br></br>';
+                $system_message .= '<p>Пол: ' . $gender . '</p> </br>';
+                $system_message .= '<p>Дата рождения: ' . $birthday . '</p> </br>';
+                $system_message .= '<p>Рост: ' . $height . 'см</p> </br>';
+                $system_message .= '<p>Вес: ' . $weight . 'кг</p> </br>';
 
-                $subject   = "Изменение данных на сайте SuperBody";
-
-                $message   = '<p>В Вашем аккаунте были изменены данные физических параметров:</p> </br></br>';
-                $message  .= '<p>Пол: ' . $gender . '</p> </br>';
-                $message  .= '<p>Дата рождения: ' . $birthday . '</p> </br>';
-                $message  .= '<p>Рост: ' . $height . 'см</p> </br>';
-                $message  .= '<p>Вес: ' . $weight . 'кг</p> </br>';
-                $message  .= 'В случае, если Вы не изменяли данные, перейдите по ссылке ниже для блокировки аккаунта.';
-                $message  .= '<a href="http://www.sb.theoutlines.ru/block?e=' . $email . '&ac=' . $email_hash . '">';
-                $message  .= 'http://www.sb.theoutlines.ru/block?e=' . $email . '&ac=' . $email_hash;
-                $message  .= '</a>';
-
-                $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                mail($email_to, $subject, $message, $headers);
+                parent::sendEmail(9, $email, $system_message);
 
                 // Расчет и сохранение ИМТ и БСО
                 parent::calcBmiBmr($this->user_id, $weight);
@@ -882,7 +1016,7 @@ class User extends CI_Controller
             $this->load->view('user/questionnaire/questionnaire', $user_quest_data);
         } else {
             // Пользователь не найден
-            $this->session->set_tempdata('message', 0, 60);
+            $this->session->set_tempdata('message', 136, 60);
         }
 
         $this->load->view('footer/footer');
@@ -949,30 +1083,18 @@ class User extends CI_Controller
                 $email = $this->session->user['email'];
                 $email_hash = password_hash($email, PASSWORD_DEFAULT);
                 // Отправление уведомления об измениях в данных
-                $email_to  = "<" . $email . ">";
+                $system_message   = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
+                $system_message  .= '<p>Вес: ' . $weight . 'см</p> </br>';
+                $system_message  .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
+                $system_message  .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
+                $system_message  .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
+                $system_message  .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
+                $system_message  .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
+                $system_message  .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
+                $system_message  .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
+                $system_message  .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
 
-                $subject   = "Изменение данных на сайте SuperBody";
-
-                $message   = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
-                $message  .= '<p>Вес: ' . $weight . 'см</p> </br>';
-                $message  .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
-                $message  .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
-                $message  .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
-                $message  .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
-                $message  .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
-                $message  .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
-                $message  .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
-                $message  .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
-                $message  .= 'В случае, если Вы не изменяли данные, перейдите по ссылке ниже для блокировки аккаунта.';
-                $message  .= '<a href="http://www.sb.theoutlines.ru/block?e=' . $email . '&ac=' . $email_hash . '">';
-                $message  .= 'http://www.sb.theoutlines.ru/block?e=' . $email . '&ac=' . $email_hash;
-                $message  .= '</a>';
-
-                $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                mail($email_to, $subject, $message, $headers);
+                parent::sendEmail(9, $email, $system_message);
 
                 // Сохрано
                 $this->session->set_tempdata('message', 10, 60);
@@ -1233,7 +1355,7 @@ class User extends CI_Controller
             $this->load->view('user/questionnaire/registration_questionnaire');
         } else {
             // Пользователь не найден
-            $this->session->set_tempdata('message', 0, 60);
+            $this->session->set_tempdata('message', 136, 60);
         }
 
         $this->load->view('footer/footer');
@@ -1244,7 +1366,7 @@ class User extends CI_Controller
      */
     public function getAnthropometricData()
     {
-        $result = $this->User_model->getAnthropometricData($this->user_id);
+        $result = $this->User_model->getAnthropometricData($this->user_id, $this->date);
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }

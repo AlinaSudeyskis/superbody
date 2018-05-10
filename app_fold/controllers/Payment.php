@@ -60,8 +60,8 @@ class Payment extends CI_Controller
         $login        = strip_tags($this->input->post('login', true));
         $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
 
-        log_message('debug', __METHOD__ . ' ' . __LINE__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
-            . $payment_type . ' ' . $payment_option . ' ' . $method_phone . ' ' . $method_login);
+        /*log_message('debug', __METHOD__ . ' ' . __LINE__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
+            . $payment_type . ' ' . $payment_option . ' ' . $method_phone . ' ' . $method_login);*/
 
         if (!empty($order_id) and !empty($total_amount) and !empty($payment_option))
         {
@@ -165,7 +165,7 @@ class Payment extends CI_Controller
                 {
                     // Выборка рекуррентных данных
                     $recurrent_data = $this->Course_model->getCourseRecurrentData($courses);
-                    log_message('debug', __METHOD__ . __LINE__ . ' Course_model->getCourseRecurrentData: ' . print_r($recurrent_data, true));
+                    //log_message('debug', __METHOD__ . __LINE__ . ' Course_model->getCourseRecurrentData: ' . print_r($recurrent_data, true));
 
                     // Сохранение последующих платежей
                     $this->Payment_model->setSubsequentPayments($payment['order_id'], self::PAYMENT_METHOD, $payment_method_id, $recurrent_data['courses'], $this->date);
@@ -179,7 +179,7 @@ class Payment extends CI_Controller
 
                 foreach($courses['courses'] as $course)
                 {
-                    $this->Course_model->setNewUserCourse($course['id'], $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
+                    $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
                 }
 
                 // Изменение статуса заказа как "Выполненный"
@@ -287,12 +287,22 @@ class Payment extends CI_Controller
      */
     public function verificationSubsequentPayments()
     {
-        $subsequent = $this->Payment_model->getSubsequentPayments($this->date);
+        $tmp_date = new DateTime($this->date);
+        // Текущая дата
+        $today = $tmp_date->format('Y-m-d');
+        // Дата неделю назад
+        $tmp_date->sub(new DateInterval('P8D'));
+        $week_ago = $tmp_date->format('Y-m-d');
 
+        // Список платежей на выполнение
+        $subsequent = $this->Payment_model->getSubsequentPayments($today, $week_ago);
+
+        // Выполнение платежей
         if (!empty($subsequent['payments']))
         {
             foreach($subsequent['payments'] as $payment)
             {
+                // Создание запроса платежа и его выпонение
                 $response = self::createPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['type'],
                     '', $payment['method_id']);
 
@@ -305,6 +315,33 @@ class Payment extends CI_Controller
                     // Сохранение данных оплаты в БД
                     $this->Payment_model->updateSubsequentPayment($payment['id'], $payment['order_id'], $response->_id,
                         $response->_status, $payment_method->_type, $paid, $created_at);
+
+                    // Заморозить курс
+                    if($response->_status === 'canceled')
+                    {
+                        $this->load->model('Course_model');
+                        $this->load->model('Store_model');
+
+                        $reason = 'payment_canceled';
+
+                        // Курсы заказа
+                        $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
+                        // Блокировка курсов
+                        $this->Course_model->blockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                    }
+                    // Разморозить курс
+                    elseif($payment['status'] === 'canceled' and $response->_status === 'succeeded')
+                    {
+                        $this->load->model('Course_model');
+                        $this->load->model('Store_model');
+
+                        $reason = 'payment_succeeded';
+
+                        // Курсы заказа
+                        $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
+                        // Блокировка курсов
+                        $this->Course_model->unblockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                    }
                 }
                 else{
                     log_message('debug', __METHOD__ . __LINE__ . ' empty $response->_id: ' . print_r($response, true));
@@ -312,6 +349,9 @@ class Payment extends CI_Controller
             }
             unset($payment);
         }
+
+        // Выборка и удаление платежей, не прошедшие успешную оплату в течении последней недели
+        $this->Payment_model->deleteCanceledPayments($week_ago);
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */

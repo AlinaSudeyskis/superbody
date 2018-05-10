@@ -13,7 +13,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             endif;?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <?php $profile_title = $title;
+            <?php
+            // Уведомления
+            include_once('./app_fold/views/notification/user_profile_notifications.php');
+            $profile_title = $title;
             include_once('./app_fold/views/user/profile/profile_info.php');?>
         </div><!-- content_col -->
     </div>

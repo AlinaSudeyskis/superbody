@@ -83,7 +83,7 @@ class Message extends CI_Controller
         $this->load->model('Couch_model');
 
         // Список сообщений диалога
-        $conversations = $this->Message_model->getUserConversations($this->user_id);
+        $conversations = $this->Message_model->getUserConversations($this->user_id, $user_with);
         $messages      = $this->Message_model->getUserMessages($this->user_id, $user_with, $this->date);
         $feedback_mess = $this->Message_model->getUserFeedbackMessages($this->user_id, $this->session->user['email'], null, $this->date);
 
@@ -111,12 +111,24 @@ class Message extends CI_Controller
             }
         }
 
-        if ($this->session->user['type'] == 2) {
+        if ($this->session->user['type'] == 2)
+        {
             // Список пользователей
             $result['attached_users'] = $this->Couch_model->getAttachedUsers($this->user_id);
-        } else {
+        }
+        else
+        {
             // Список тренеров
             $result['attached_couches'] = $this->Couch_model->getAttachedCouches($this->user_id);
+        }
+
+        // Уведомления пользователя
+        if($messages['user_with_blocked'] == 1)
+        {
+            $this->load->model('Notification_model');
+            $notification = $this->Notification_model->getNotification(16);
+
+            $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
         }
 
         // Объединенные данные страница
@@ -349,24 +361,18 @@ class Message extends CI_Controller
                     // Отправление письма с копией сообщений обратной связи
                     if (is_array($result))
                     {
-                        $email_to     = "<$identification>";
-                        $subject      = "Обратная связь SuperBody";
-                        $message_text = '';
+                        $system_message = '';
 
                         foreach ($result['fb_user_messages'] as $fb_message)
                         {
-                            $message_text  .=
+                            $system_message  .=
                                 '<div style="margin-bottom: 10px;">' .
                                 '<div style="margin-left: 10px; padding-top: 2px; color: #b7b7b7;">' . $fb_message['date'] . ' ' . $fb_message['time'] . '</div>' .
                                 '<div style="margin: 10px 0 0 20px;">' . nl2br($fb_message['text']) . '</div>' .
                                 '</div>';
                         }
 
-                        $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                        $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                        $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                        mail($email_to, $subject, $message_text, $headers); //  '-fsupport@theoutlines.ru'
+                        parent::sendEmail(7, $identification, $system_message);
 
                         // Изменения сохранены
                         $this->session->set_tempdata('message', 54, 60);
@@ -374,18 +380,9 @@ class Message extends CI_Controller
                     // Отправка уведомления о новом сообщении
                     elseif($result === true)
                     {
-                        $email_to = "<$identification>";
-                        $subject  = "Обратная связь SuperBody";
+                        $system_message  = '';
 
-                        $message_text = '<div style="margin-bottom: 10px;"><div style="margin: 10px 0 0 20px;">'
-                            . 'Пришел ответ от администрации сайта на Ваше сообщение в разделе "Обратная связь"'
-                            . '</div></div>';
-
-                        $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                        $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                        $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                        mail($email_to, $subject, $message_text, $headers); //  '-fsupport@theoutlines.ru'
+                        parent::sendEmail(8, $identification, $system_message);
 
                         // Изменения сохранены
                         $this->session->set_tempdata('message', 54, 60);

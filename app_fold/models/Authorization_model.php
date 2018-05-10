@@ -350,23 +350,6 @@ class Authorization_model extends CI_Model
                     VALUES (?, ?, ?)', array($user_soc_email, $user_soc_name, $date));
             }
 
-            // Отправляем письмо с уведомлением об регистрации
-            if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
-            {
-                $email_to  = "<$user_soc_email>";
-
-                $subject   = "Регистрация на сайте SuperBody";
-
-                $message   = '<p>Вы зарегистрированны на сайте SuperBody.pro</p> </br>';
-                $message  .= '<b><a href="https://superbody.pro/">Перейти на сайт</a></b>';
-
-                $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
-                $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                mail($email_to, $subject, $message, $headers);
-            }
-
             // Авторизуем пользователя
             $result = self::userSocialAuthorization($user_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id, $date);
         }

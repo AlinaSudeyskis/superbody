@@ -1455,23 +1455,13 @@ class Store_model extends CI_Model
     public function getLastStoreProducts($sort = null, $search = null, $limit = 5)
     {
 
-        $result    = array('products' => array());
+        $result    = array('products' => array(), 'first_id' => '', 'first_price' => '', 'first_fc_price' => '',
+            'first_discount' => '', 'last_id' => '', 'last_price' => '', 'last_fc_price' => '', 'last_discount' => '');
         $and_where = '';
         $order_by  = '`p_id` DESC';
         $cols      = '`p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_price`, `p_fitcoin_price`, `p_quantity`, 
                      `p_discount`, `p_discount_type`, `p_images`, `p_date_add`, `p_blocked`, `pc_cat_id`,
                      `crs_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_image`, `crs_blocked`';
-
-        // Данные для пагинации
-        $result['first_id']       = '';
-        $result['first_price']    = '';
-        $result['first_fc_price'] = '';
-        $result['first_discount'] = '';
-
-        $result['last_id']       = '';
-        $result['last_price']    = '';
-        $result['last_fc_price'] = '';
-        $result['last_discount'] = '';
 
         // Если строка поиска не пустая, добавляем в условие поиска
         if (!empty($search))
@@ -1513,7 +1503,7 @@ class Store_model extends CI_Model
             FROM ' . $table . '
             LEFT JOIN `products_categories` ON `p_id`=`pc_p_id`
             LEFT JOIN `courses` ON `p_course_id`=`crs_id`
-            WHERE `p_blocked`=0 and `pc_cat_id`=? ' . $and_where
+            WHERE `p_blocked`=0 and `crs_blocked`=0 and `pc_cat_id`=? ' . $and_where
             . ' GROUP BY `p_id`'
             . ' ORDER BY ' . $order_by
             . ' LIMIT ?';
@@ -2573,13 +2563,30 @@ class Store_model extends CI_Model
                 {
                     $price    = !empty($product['discount_price']) ? $product['discount_price'] : $product['price'];
                     $fc_price = !empty($product['discount_fc_price']) ? $product['discount_fc_price'] : $product['fc_price'];
+                    $pcu_id   = '';
+
+                    // Добавление промокода как использованный
+                    if(!empty($product['promo_id']) and !empty($product['promo_code']))
+                    {
+                        $ins_data = $this->db->query('
+                            INSERT INTO `promocodes_used` (`pcu_pc_id`, `pcu_code`, `pcu_date`)
+                            VALUES (?, ?, ?)', array($product['promo_id'], $product['promo_code'], $date));
+                        if($ins_data !== false and 1 == $this->db->affected_rows())
+                        {
+                            $pcu_id = $this->db->insert_id();
+                        }
+                        elseif ($ins_data === false)
+                        {
+                            parent::logDbMessages(__METHOD__);
+                        }
+                    }
 
                     // Сохранение товара в таблице Заказов
                     $in_data = $this->db->query('
                         INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, 
-                            `ouc_p_price`, `ouc_p_fitcoin_price`) 
-                        VALUES (?, ?, ?, ?, ?, ?)',
-                            array($order_id, $user_id, $product['id'], $product['cart_quantity'], $price, $fc_price));
+                            `ouc_p_price`, `ouc_p_fitcoin_price`, `ouc_promocode_id`) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?)',
+                            array($order_id, $user_id, $product['id'], $product['cart_quantity'], $price, $fc_price, $pcu_id));
 
                     if ($in_data !== false and 1 == $this->db->affected_rows())
                     {
@@ -3007,6 +3014,42 @@ class Store_model extends CI_Model
                 unset($row);
             }
             elseif($sel_courses === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка стоимости курса заказа пользователя
+     *
+     * @param int $order_id
+     * @param int $course_id
+     * @param int $user_id
+     * @return int
+     */
+    public function getOrderCoursePrice($order_id, $course_id, $user_id)
+    {
+        $result = null;
+
+        if (is_numeric($order_id) and is_numeric($course_id) and is_numeric($user_id))
+        {
+            // Выборка курса заказа
+            $sel_course = $this->db->query('
+                SELECT `orders_users_cart`.`ouc_p_id`, `orders_users_cart`.`ouc_p_price`, `products`.`p_course_id` 
+                FROM `orders_users_cart` 
+                LEFT JOIN `products` ON `p_id`=`ouc_p_id`
+                WHERE `ouc_o_id`=? and `ouc_u_id`=? and `products`.`p_course_id`=? LIMIT 1', array($order_id, $user_id, $course_id));
+
+            if($sel_course !== false and 1 == $sel_course->num_rows())
+            {
+                $row = $sel_course->row();
+
+                $result = $row->ouc_p_price;
+            }
+            elseif($sel_course === false)
             {
                 parent::logDbMessages(__METHOD__);
             }

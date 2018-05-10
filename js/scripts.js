@@ -80,21 +80,52 @@ $(document).ready(function() {
             }
 
             // Валидация email
-            var email_error = $('.email_error');
-            $('input[name=email]').blur(function() {
+            var email_error = $('.email_error'),
+                timer;
+            $('.valid_email').on('keyup', function() {
+                var email_block = $(this),
+                    e_p = email_block.offset();
+                clearTimeout(timer);
+                if(email_error.length == 0)
+                {
+                    $(this).after('<div class="email_error"></div>');
+                    email_error = $('.email_error');
+                    email_error.offset({top:-20, left:(e_p.left-(email_block.width()/2)-25)});
+                }
+
                 if($(this).val() != '')
                 {
                     var pattern = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
 
                     if(!pattern.test($(this).val()))
                     {
-                        email_error.text('Некорректный Email');
+                        timer = setTimeout(function() {
+                            email_error.text('Некорректный Email');
+                            email_error.show();
+                        }, 500);
                     }
+                    else{email_error.hide();}
                 }
                 else
                 {
-                    email_error.text('Поле Email не должно быть пустым');
+                    timer = setTimeout(function() {
+                        email_error.text('Поле Email не должно быть пустым');
+                        email_error.show();
+                    }, 500);
                 }
+            });
+
+            // Генерация промокода
+            $("#generate-code").on('click', function(){
+                var result       = '',
+                    words        = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM',
+                    max_position = words.length - 1,
+                    position     = 0;
+                for( var i = 0; i < 6; ++i ) {
+                    position = Math.floor ( Math.random() * max_position );
+                    result = result + words.substring(position, position + 1);
+                }
+                $("#generated-code").val(result);
             });
 
             // Блок информации
@@ -1116,7 +1147,7 @@ $(document).ready(function() {
                 }
             });
 
-            $("#recurrent-price, #recurrent-months, #recurrent-first").on('keyup change', function(){
+            $("#course-price, #recurrent-months, #recurrent-first").on('keyup change', function(){
                 calc_recurrent();
             });
 
@@ -1131,6 +1162,16 @@ $(document).ready(function() {
                     }
                     $("#payment-methods option[value!='bank_card']").attr('disabled', true );
                     $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
+
+                    if($('.promo_block').length == 1)
+                    {
+                        $('.promo_info').show();
+                        $('.promo_line').hide();
+                        if($('#i-promocode').length == 1)
+                        {
+                            $('#i-promocode').hide();
+                        }
+                    }
                 }
                 else
                 {
@@ -1142,6 +1183,20 @@ $(document).ready(function() {
                     }
                     $("#payment-methods option[value!='bank_card']").attr('disabled', false );
                     $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
+
+                    if($('.promo_block').length == 1)
+                    {
+                        $('.promo_info').hide();
+                        if($('#i-promocode').length == 1 && $('#i-promocode').val() != '')
+                        {
+                            $('#i-promocode').show();
+                        }
+                        else
+                        {
+                            $('.promo_line').show();
+                            $('.promo_block').find('.kurs_block_h').html('');
+                        }
+                    }
                 }
             });
 
@@ -1169,7 +1224,7 @@ $(document).ready(function() {
      */
     function calc_recurrent()
     {
-        var price = $("#recurrent-price").val(),
+        var price = $("#course-price").val(),
             num_month = $("#recurrent-months").val(),
             first = $("#recurrent-first").val(),
             subsequent = $("#recurrent-subsequent"),
@@ -1188,7 +1243,7 @@ $(document).ready(function() {
      *
      * @param {String}  type  Тип корректировки.
      * @param {Number}  value Число.
-     * @param {Integer} exp   Показатель степени (десятичный логарифм основания корректировки).
+     * @param {Number}  exp   Показатель степени (десятичный логарифм основания корректировки).
      * @returns {Number} Скорректированное значение.
      */
     function decimalAdjust(type, value, exp) {

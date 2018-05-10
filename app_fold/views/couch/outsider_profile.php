@@ -14,6 +14,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <?php
+            // Уведомления
+            include_once('./app_fold/views/notification/user_profile_notifications.php');
             // Краткая информация
             include_once('./app_fold/views/couch/profile/short_info.php');
             // Информация профиля

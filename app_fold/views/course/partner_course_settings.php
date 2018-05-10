@@ -45,6 +45,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php if (!empty($course['couch_percent'])) { echo $course['couch_percent']; }?></div></div>
                                             <div class="anketa_form_desk">%</div>
                                         </div>
+                                        <?php /*
                                         <div class="anketa_form_line parent">
                                             <div class="anketa_form_h"><div class="anketa_form_h_cell">Скидка тренера на курс:</div></div>
                                             <div class="anketa_form_h"><div class="anketa_form_h_cell">
@@ -54,7 +55,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         </div>
                                         <div class="anketa_form_buts_wrap parent">
                                             <input type="submit" name="bt_save_course" value="Сохранить" class="anketa_form_but" />
-                                        </div>
+                                        </div> */ ?>
                                     </form>
                                 </div>
                             </div>

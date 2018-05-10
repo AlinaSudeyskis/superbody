@@ -4,22 +4,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <ul class="profile_menu">
     <li>
         <a href="/administration/site" <?php if ($page_menu == 'site_info') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico14.png" alt=""></span><span>Сайт</span>
+            <span><img src="/img/menu_ico14.png" alt=""></span><span>Контент сайта</span>
         </a>
     </li>
     <li>
         <a href="/administration/users" <?php if ($page_menu == 'users') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico1.png" alt=""></span><span>Пользователь</span>
+            <span><img src="/img/menu_ico1.png" alt=""></span><span>Пользователи</span>
         </a>
     </li>
     <li>
         <a href="/administration/couches" <?php if ($page_menu == 'a_couches') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico17.png" alt=""></span><span>Тренер</span>
+            <span><img src="/img/menu_ico17.png" alt=""></span><span>Тренеры</span>
         </a>
     </li>
     <li>
-        <a href="/administration/admin" <?php if ($page_menu == 'admins') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico18.png" alt=""></span><span>Администратор</span>
+        <a href="/administration/admins" <?php if ($page_menu == 'admins') { echo 'class="active"'; } ?>>
+            <span><img src="/img/menu_ico18.png" alt=""></span><span>Администраторы</span>
         </a>
     </li>
     <li>
@@ -29,19 +29,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>
     <li>
         <a href="/administration/courses" <?php if ($page_menu == 'a_courses') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico3.png" alt=""></span><span>Курс</span>
+            <span><img src="/img/menu_ico21.png" alt=""></span><span>Курсы тренировок</span>
         </a>
     </li>
     <li>
-        <a href="/administration/ingestion/type" <?php if ($page_menu == 'ingestion_type') { echo 'class="active"'; } ?>>
+        <a href="#">
+            <span><img src="/img/menu_ico8.png" alt=""></span><span>Курсы питания</span>
+        </a>
+    </li>
+    <!--<li>
+        <a href="/administration/ingestion/type" <?php /*if ($page_menu == 'ingestion_type') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico8.png" alt=""></span><span>Тип приема пищи</span>
         </a>
     </li>
     <li>
-        <a href="/administration/ingestion" <?php if ($page_menu == 'ingestion') { echo 'class="active"'; } ?>>
+        <a href="/administration/ingestion" <?php /*if ($page_menu == 'ingestion') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico8.png" alt=""></span><span>Прием пищи</span>
         </a>
-    </li>
+    </li>-->
     <li>
         <a href="/administration/categories" <?php if ($page_menu == 'categories') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico9.png" alt=""></span><span>Категория товара</span>
@@ -87,6 +92,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <li>
         <a href="/administration/sublist" <?php if ($page_menu == 'sublist') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico1.png" alt=""></span><span>Подписчики</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/notifications" <?php if ($page_menu == 'notifications') { echo 'class="active"'; } ?>>
+            <span><img src="/img/menu_ico22.png" alt=""></span><span>Уведомления</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/emails" <?php if ($page_menu == 'emails') { echo 'class="active"'; } ?>>
+            <span><img src="/img/menu_ico23.png" alt=""></span><span>Эл. письма</span>
         </a>
     </li>
 </ul>

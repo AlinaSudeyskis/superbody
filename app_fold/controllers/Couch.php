@@ -103,20 +103,12 @@ class Couch extends CI_Controller
                 if (is_numeric($result))
                 {
                     // Отправление письма о подтвержении регистрации пользователю
-                    $email_to  = "<$email>";
+                    $system_message  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
+                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                    $system_message  .= 'Подтвердить';
+                    $system_message  .= '</a></b>';
 
-                    $subject   = "Подтвеждение регистрации на сайте SuperBody";
-
-                    $message   = '<p>Для подтверждения регистрации на сайте перейдите по ссылке</p> </br>';
-                    $message  .= '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash . '">';
-                    $message  .= 'https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash;
-                    $message  .= '</a></b>';
-
-                    $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                    $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
-                    $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                    mail($email_to, $subject, $message, $headers);
+                    parent::sendEmail(1, $email, $system_message);
 
                     $couch_id = $result;
                     $path_avatar = '';
@@ -246,17 +238,9 @@ class Couch extends CI_Controller
 
                         $email = $user_data['email'];
                         // Отправление письма с данными администратора
-                        $email_to  = "<$email>";
+                        $system_message  = '';
 
-                        $subject   = "Изменение данных пользователя. SuperBody";
-
-                        $message   = "<p>Ваш тип пользователя на сайте SuperBody изменен на Тренер.</p>";
-
-                        $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                        $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                        $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                        mail($email_to, $subject, $message, $headers);
+                        parent::sendEmail(6, $email, $system_message);
 
                         // Сохранено
                         $this->session->set_tempdata('message', 83, 60);
@@ -400,18 +384,10 @@ class Couch extends CI_Controller
                 $user_data = $result['user_data'];
 
                 $email = $user_data['email'];
-                // Отправление письма с данными администратора
-                $email_to  = "<$email>";
+                // Отправление письма
+                $system_message  = '';
 
-                $subject   = "Изменение данных пользователя. SuperBody";
-
-                $message   = "<p>Ваш тип пользователя на сайте SuperBody изменен на Пользователь.</p>";
-
-                $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                mail($email_to, $subject, $message, $headers);
+                parent::sendEmail(3, $email, $system_message);
 
                 // Сохранено. Тип Тренер изменен на тип Пользователя
                 $this->session->set_tempdata('message', 85, 60);

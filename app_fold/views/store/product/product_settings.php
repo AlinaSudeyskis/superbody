@@ -17,8 +17,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <form action="" class="video_admin_form" method="post" enctype="multipart/form-data">
+                        <div class="admin_form_h">Изображение</div>
                         <div class="video_down_line parent">
-                            <div class="admin_form_h">Изображение</div>
                             <?php if ($product['count_images'] < 6) : ?>
                                 <div class="parent kurs_cur_wrap">
                                     <div class="video_down_line_but_wrap">

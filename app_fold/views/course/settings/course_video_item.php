@@ -24,7 +24,7 @@ include_once('./app_fold/views/course/settings/course_video_menu.php');
             </div>
             <?php include_once('./app_fold/views/pagination.php');
         else:?>
-            <h3>Информация не найдена</h3>
+            <h3 class="info">Информация не найдена</h3>
         <?php endif;
         include_once('./app_fold/views/pagination.php'); ?>
     </div>

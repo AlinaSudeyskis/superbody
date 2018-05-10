@@ -236,13 +236,14 @@ class Administrator_model extends CI_Model
     {
         $result = array();
         
-        $sel_users = $this->db->query('SELECT `s_email`, `s_name` FROM `subscription`');
+        $sel_users = $this->db->query('SELECT `s_email`, `s_name`, `s_unsubscribe` FROM `subscription`');
 
         if (0 < $sel_users->num_rows()) {
             $i = 0;
             foreach ($sel_users->result() as $row) {
-                $result['users'][$i]['email'] = $row->s_email;
-                $result['users'][$i]['name']  = $row->s_name;
+                $result['users'][$i]['email']       = $row->s_email;
+                $result['users'][$i]['name']        = $row->s_name;
+                $result['users'][$i]['unsubscribe'] = $row->s_unsubscribe;
 
                 $i++;
             }

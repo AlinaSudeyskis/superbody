@@ -109,7 +109,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Стоимость курса:</div>
-            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" />
+            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" id="course-price"/>
             <div class="kurs_cur">Руб.</div>
         </div>
         <div class="content_block new_content_block ovv content_block_internal">
@@ -121,13 +121,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <div class="kurs_block_val">
                 <div class="anketa_block_cont">
-                    <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Стоимость курса:</div>
-                        <input type="text" name="i_recurrent_price" class="admin_form_txt kurs_form_txt_short"
-                               placeholder="Стоимость курса по рекуррентной схеме" id="recurrent-price"
-                               value="<?php if (!empty($course['recur_price'])) : echo $course['recur_price']; endif;?>" />
-                        <div class="kurs_cur">Руб.</div>
-                    </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Количество месяцев:</div>
                         <select name="s_recurrent_months" class="journal_form_select" id="recurrent-months">
@@ -179,7 +172,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 endif;?>
             </div>
         </div>
-        <!-- TODO !! Поля для поиска видео, тренера, а также тренировки выводить рядом с описанием полей -->
         <div class="parent instruction_block">
             <div class="practice_block_h">Инструктаж курса:</div>
             <div class="add_tov_in_total">

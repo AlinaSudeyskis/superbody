@@ -40,6 +40,68 @@ $(document).ready(function(){
 
     $('.anketa_form_select, .journal_form_select').styler();
 
+    $(".promo_line").on('click', function(){
+        $(this).hide();
+        $(this).parent('.promo_block').find('.kurs_block_h').html('Промокод:');
+        if($('#i-promocode').length == 1)
+        {
+            $('#i-promocode').show();
+        }
+        else
+        {
+            $(this).parent('.promo_block').find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
+        }
+    });
+
+
+    $('.purchase_form').on('keyup', ' #i-promocode', function(){
+        var input_search     = $(this).val(),
+            crs_id           = $('.purchase_form').children('#crs-id').val(),
+            price_block      = $('#course-price'),
+            new_price_block  = $('#course-new-price'),
+            course_price     = price_block.html();
+
+        if(input_search.length >= 6 && input_search.length <= 25)
+        {
+            $.ajax({
+                url: '/searchPromo',
+                type: 'post',
+                dataType: 'json',
+                data: {input_search: input_search, crs_id: crs_id},
+                complete: function (result) {
+                    var data = result.responseJSON;
+
+                    if (data.discount !== false)
+                    {
+                        var new_price = course_price - (course_price*data.discount/100);
+
+                        price_block.addClass('strikeout');
+                        if(price_block.next('#course-new-price').length == 0)
+                        {
+                            price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
+                            new_price_block = $('#course-new-price');
+                        }
+                        else
+                        {
+                            new_price_block.html(new_price);
+                            new_price_block.show();
+                        }
+                    }
+                    else
+                    {
+                        price_block.removeClass('strikeout');
+                        new_price_block.hide();
+                    }
+                }
+            });
+        }
+        else
+        {
+            price_block.removeClass('strikeout');
+            new_price_block.hide();
+        }
+    });
+
     if($("#policy_pop-up").length > 0){
         $(".policy").on('click', function(){
             event.preventDefault();
@@ -65,8 +127,6 @@ $(document).ready(function(){
         });
     }
 
-
-
     $("#payment-options").on('change', function(){
         if ($(this).val() == 'installments')
         {
@@ -78,6 +138,16 @@ $(document).ready(function(){
             }
             $("#payment-methods option[value!='bank_card']").attr('disabled', true );
             $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
+
+            if($('.promo_block').length == 1)
+            {
+                $('.promo_info').show();
+                $('.promo_line').hide();
+                if($('#i-promocode').length == 1)
+                {
+                    $('#i-promocode').hide();
+                }
+            }
         }
         else
         {
@@ -89,6 +159,20 @@ $(document).ready(function(){
             }
             $("#payment-methods option[value!='bank_card']").attr('disabled', false );
             $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
+
+            if($('.promo_block').length == 1)
+            {
+                $('.promo_info').hide();
+                if($('#i-promocode').length == 1 && $('#i-promocode').val() != '')
+                {
+                    $('#i-promocode').show();
+                }
+                else
+                {
+                    $('.promo_line').show();
+                    $('.promo_block').find('.kurs_block_h').html('');
+                }
+            }
         }
     });
 

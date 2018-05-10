@@ -52,17 +52,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                     <div class="add_foto_block_wrap">
                         <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Изображение №1:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but1s" class="video_down_line_but">
-                                        <input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar1" value="50" max="100"></progress>
+                            <div class="parent kurs_cur_wrap">
+                                <div class="kurs_block_h">Изображение №1:</div>
+                                <div class="video_down_line parent">
+                                    <div class="video_down_line_but_wrap">
+                                        <label for="video_down_line_but1s" class="video_down_line_but">
+                                            <input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" />
+                                            <span>Выберите файл</span>
+                                        </label>
+                                    </div>
+                                    <div class="video_down_line_name">Файл не выбран</div>
+                                    <div class="progressbar_wrap">
+                                        <progress class="progressbar" id="progressbar1" value="50" max="100"></progress>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -102,20 +104,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="colorpickerholder2"></div>
                         </div>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Файл фона:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but2fbg" class="video_down_line_but">
-                                        <input type="file" name="bg_file_block2" class="admin_form_videofile" id="video_down_line_but2fbg" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar2" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but2fbg" class="video_down_line_but">
+                                    <input type="file" name="bg_file_block2" class="admin_form_videofile" id="video_down_line_but2fbg" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar2" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -146,20 +146,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check1bi" />
                         <label for="tren_form_block_check1bi">Изображение тренера (слева) по-умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Изображение тренера (слева):</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but1fbi" class="video_down_line_but">
-                                        <input type="file" name="couch_file_block2" class="admin_form_videofile" id="video_down_line_but1fbi" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar3" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Изображение тренера:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but1fbi" class="video_down_line_but">
+                                    <input type="file" name="couch_file_block2" class="admin_form_videofile" id="video_down_line_but1fbi" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar3" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -190,20 +188,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="colorpickerholder2"></div>
                         </div>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Файл фона:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but3fbg" class="video_down_line_but">
-                                        <input type="file" name="bg_file_block3" class="admin_form_videofile" id="video_down_line_but3fbg" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar4" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but3fbg" class="video_down_line_but">
+                                    <input type="file" name="bg_file_block3" class="admin_form_videofile" id="video_down_line_but3fbg" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar4" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -226,20 +222,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check2bi" />
                         <label for="tren_form_block_check2bi">Фото №1 по-умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Фото №1:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but2fbi" class="video_down_line_but">
-                                        <input type="file" name="result_file1_block3" class="admin_form_videofile" id="video_down_line_but2fbi" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar5" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Фото №1:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but2fbi" class="video_down_line_but">
+                                    <input type="file" name="result_file1_block3" class="admin_form_videofile" id="video_down_line_but2fbi" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar5" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -252,20 +246,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check3bi" />
                         <label for="tren_form_block_check3bi">Фото №2 по-умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Фото №2:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but3fbi" class="video_down_line_but">
-                                        <input type="file" name="result_file2_block3" class="admin_form_videofile" id="video_down_line_but3fbi" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar6" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Фото №2:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but3fbi" class="video_down_line_but">
+                                    <input type="file" name="result_file2_block3" class="admin_form_videofile" id="video_down_line_but3fbi" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar6" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -308,20 +300,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="colorpickerholder2"></div>
                         </div>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Файл фона:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but4fbg" class="video_down_line_but">
-                                        <input type="file" name="bg_file_block4" class="admin_form_videofile" id="video_down_line_but4fbg" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar7" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but4fbg" class="video_down_line_but">
+                                    <input type="file" name="bg_file_block4" class="admin_form_videofile" id="video_down_line_but4fbg" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar7" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -343,20 +333,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check4bi" />
                         <label for="tren_form_block_check4bi">Фото по-умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Фото:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but4fbi" class="video_down_line_but">
-                                        <input type="file" name="result_file_block4" class="admin_form_videofile" id="video_down_line_but4fbi" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar8" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Фото:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but4fbi" class="video_down_line_but">
+                                    <input type="file" name="result_file_block4" class="admin_form_videofile" id="video_down_line_but4fbi" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar8" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -401,20 +389,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="colorpickerholder2"></div>
                         </div>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Файл фона:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but5fbg" class="video_down_line_but">
-                                        <input type="file" name="bg_file_block5" class="admin_form_videofile" id="video_down_line_but5fbg" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar15" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but5fbg" class="video_down_line_but">
+                                    <input type="file" name="bg_file_block5" class="admin_form_videofile" id="video_down_line_but5fbg" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar15" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -441,20 +427,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check5bi" />
                         <label for="tren_form_block_check5bi">Боковое фото №1 по-умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Боковое фото №1:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but5fbi" class="video_down_line_but">
-                                        <input type="file" name="couch_file1_block5" class="admin_form_videofile" id="video_down_line_but5fbi" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar9" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Боковое фото №1:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but5fbi" class="video_down_line_but">
+                                    <input type="file" name="couch_file1_block5" class="admin_form_videofile" id="video_down_line_but5fbi" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar9" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -467,20 +451,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check6bi" />
                         <label for="tren_form_block_check6bi">Боковое фото №2 по-умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Боковое фото №2:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but6fbi" class="video_down_line_but">
-                                        <input type="file" name="couch_file2_block5" class="admin_form_videofile" id="video_down_line_but6fbi" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar10" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Боковое фото №2:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but6fbi" class="video_down_line_but">
+                                    <input type="file" name="couch_file2_block5" class="admin_form_videofile" id="video_down_line_but6fbi" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar10" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -493,20 +475,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check7bi" />
                         <label for="tren_form_block_check7bi">Аватар по-умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Аватар:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but7fbi" class="video_down_line_but">
-                                        <input type="file" name="couch_avatar_block5" class="admin_form_videofile" id="video_down_line_but7fbi" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar11" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Аватар:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but7fbi" class="video_down_line_but">
+                                    <input type="file" name="couch_avatar_block5" class="admin_form_videofile" id="video_down_line_but7fbi" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar11" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -556,20 +536,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="colorpickerholder2"></div>
                         </div>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Файл фона:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but6fbg" class="video_down_line_but">
-                                        <input type="file" name="bg_file_block6" class="admin_form_videofile" id="video_down_line_but6fbg" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar12" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but6fbg" class="video_down_line_but">
+                                    <input type="file" name="bg_file_block6" class="admin_form_videofile" id="video_down_line_but6fbg" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar12" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -595,20 +573,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check8bi" />
                         <label for="tren_form_block_check8bi">Боковое фото по-умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Боковое фото:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but8fbi" class="video_down_line_but">
-                                        <input type="file" name="file_block6" class="admin_form_videofile" id="video_down_line_but8fbi" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar13" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Боковое фото:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but8fbi" class="video_down_line_but">
+                                    <input type="file" name="file_block6" class="admin_form_videofile" id="video_down_line_but8fbi" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar13" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -665,20 +641,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="colorpickerholder2"></div>
                         </div>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Файл фона:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but7fbg" class="video_down_line_but">
-                                        <input type="file" name="bg_file_block7" class="admin_form_videofile" id="video_down_line_but7fbg" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar17" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but7fbg" class="video_down_line_but">
+                                    <input type="file" name="bg_file_block7" class="admin_form_videofile" id="video_down_line_but7fbg" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar17" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -700,24 +674,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_options">
                             <?php if (!empty($landing['block7']['texts'])):
                                 foreach ($landing['block7']['texts'] as $key => $b7_text) :?>
-                                    <div class="add_foto_block_wrap">
-                                        <div class="add_foto_block">
-                                            <div class="video_down_line parent">
-                                                <div class="video_down_line_h">Изображение:</div>
-                                                <div class="video_down_line_but_wrap">
-                                                    <label for="video_down_line_but<?php echo $key+1;?>p" class="video_down_line_but">
-                                                        <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but<?php echo $key+1;?>p" accept="image/jpeg,image/png" />
-                                                        <span>Выберите файл</span>
-                                                    </label>
-                                                </div>
-                                                <div class="video_down_line_name">Файл не выбран</div>
-                                                <div class="progressbar_wrap">
-                                                    <progress class="progressbar" id="progressbar20p" value="50" max="100"></progress>
-                                                </div>
-                                                <?php if (($landing['block7']['images_default'] === false or $key > 3) and is_file($landing['block7']['images_orig'][$key])) :?>
-                                                    <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
-                                                <?php endif;?>
+                                    <div class="parent kurs_cur_wrap">
+                                        <div class="kurs_block_h">Изображение:</div>
+                                        <div class="video_down_line parent">
+                                            <div class="video_down_line_but_wrap">
+                                                <label for="video_down_line_but<?php echo $key+1;?>p" class="video_down_line_but">
+                                                    <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but<?php echo $key+1;?>p" accept="image/jpeg,image/png" />
+                                                    <span>Выберите файл</span>
+                                                </label>
                                             </div>
+                                            <div class="video_down_line_name">Файл не выбран</div>
+                                            <div class="progressbar_wrap">
+                                                <progress class="progressbar" id="progressbar20p" value="50" max="100"></progress>
+                                            </div>
+                                            <?php if (($landing['block7']['images_default'] === false or $key > 3) and is_file($landing['block7']['images_orig'][$key])) :?>
+                                                <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
+                                            <?php endif;?>
                                         </div>
                                     </div>
                                     <div class="parent kurs_cur_wrap">
@@ -727,20 +699,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php endforeach;
                                 unset($b7_text);
                             else: ?>
-                                <div class="add_foto_block_wrap">
-                                    <div class="add_foto_block">
-                                        <div class="video_down_line parent">
-                                            <div class="video_down_line_h">Изображение:</div>
-                                            <div class="video_down_line_but_wrap">
-                                                <label for="video_down_line_but1p" class="video_down_line_but">
-                                                    <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but1p" accept="image/jpeg,image/png" />
-                                                    <span>Выберите файл</span>
-                                                </label>
-                                            </div>
-                                            <div class="video_down_line_name">Файл не выбран</div>
-                                            <div class="progressbar_wrap">
-                                                <progress class="progressbar" id="progressbar20p" value="50" max="100"></progress>
-                                            </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Изображение:</div>
+                                    <div class="video_down_line parent">
+                                        <div class="video_down_line_but_wrap">
+                                            <label for="video_down_line_but1p" class="video_down_line_but">
+                                                <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but1p" accept="image/jpeg,image/png" />
+                                                <span>Выберите файл</span>
+                                            </label>
+                                        </div>
+                                        <div class="video_down_line_name">Файл не выбран</div>
+                                        <div class="progressbar_wrap">
+                                            <progress class="progressbar" id="progressbar20p" value="50" max="100"></progress>
                                         </div>
                                     </div>
                                 </div>
@@ -782,20 +752,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="colorpickerholder2"></div>
                         </div>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_h">Файл фона:</div>
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but8fbg" class="video_down_line_but">
-                                        <input type="file" name="bg_file_block8" class="admin_form_videofile" id="video_down_line_but8fbg" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
-                                </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar14" value="50" max="100"></progress>
-                                </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="video_down_line parent">
+                            <div class="video_down_line_but_wrap">
+                                <label for="video_down_line_but8fbg" class="video_down_line_but">
+                                    <input type="file" name="bg_file_block8" class="admin_form_videofile" id="video_down_line_but8fbg" accept="image/jpeg,image/png" />
+                                    <span>Выберите файл</span>
+                                </label>
+                            </div>
+                            <div class="video_down_line_name">Файл не выбран</div>
+                            <div class="progressbar_wrap">
+                                <progress class="progressbar" id="progressbar14" value="50" max="100"></progress>
                             </div>
                         </div>
                     </div>
@@ -827,7 +795,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Новая цена:</div>
-                        <input type="text" name="i_new_price_block8" class="admin_form_txt admin_form_txt_short" maxlength="8" value="<?php echo $landing['block8']['new_price']; ?>" />
+                        <input type="text" name="i_new_price_block8" class="admin_form_txt admin_form_txt_short" maxlength="8" value="<?php echo $course['price']; ?>" disabled="disabled"/>
                         <div class="kurs_cur">Руб.</div>
                     </div>
                     <div class="lend_form_h">Кнопка</div>

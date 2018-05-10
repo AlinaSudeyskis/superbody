@@ -110,11 +110,15 @@ class Message_model extends CI_Model
      * Выборка списка последних диалогов пользователя
      *
      * @param $user_id
+     * @param $user_width
      * @return array
      */
-    public function getUserConversations($user_id)
+    public function getUserConversations($user_id, $user_with)
     {
-        $result = array();
+        $result = array('user_conversations' => array(), 'user_new_conversation' => array());
+
+        // Флаг обозначения, что пользователь с кем идет переписка не найден в списке диалогов
+        $fl_user_with = false;
 
         $sel_mess = $this->db->query('
             SELECT `um_conv_id`, `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `user_name`, `user_email`, `user_image` 
@@ -143,6 +147,12 @@ class Message_model extends CI_Model
                 {
                     $result['user_conversations'][$i]['user_with']['id'] = $row->um_from;
                 }
+
+                if($result['user_conversations'][$i]['user_with']['id'] == $user_with)
+                {
+                    $fl_user_with = true;
+                }
+
                 $result['user_conversations'][$i]['user_with']['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
                 $result['user_conversations'][$i]['user_with']['image'] = mb_substr($row->user_image, 1);
 
@@ -177,6 +187,28 @@ class Message_model extends CI_Model
             parent::logDbMessages(__METHOD__);
         }
 
+        // Данные нового пользователя
+        if($fl_user_with === false)
+        {
+            $sel_user = $this->db->query('
+                SELECT `user_name`, `user_email`, `user_image` 
+                FROM `users`
+                WHERE `user_id`=? and `user_type`=2 LIMIT 1', $user_with);
+
+            if($sel_user !== false and 1 == $sel_user->num_rows())
+            {
+                $row = $sel_user->row();
+
+                $result['user_new_conversation']['user_with']['id']    = $user_with;
+                $result['user_new_conversation']['user_with']['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
+                $result['user_new_conversation']['user_with']['image'] = mb_substr($row->user_image, 1);
+            }
+            elseif($sel_user === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+        }
+
         return $result;
     }
 
@@ -190,7 +222,7 @@ class Message_model extends CI_Model
      */
     public function getUserMessages($user_id, $user_with, $date)
     {
-        $result = array('user_messages' => array());
+        $result = array('user_messages' => array(), 'user_with_blocked' => 0);
 
         if (is_numeric($user_id) and is_numeric($user_with))
         {
@@ -199,7 +231,7 @@ class Message_model extends CI_Model
 
             // Данные пользователя с кем ведется диалог
             $result['conv_with']['name'] = '';
-            $sel_user_with = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image` FROM `users` WHERE `user_id`=? LIMIT 1', $user_with);
+            $sel_user_with = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image` FROM `users` WHERE `user_id`=? and `user_type`=2 LIMIT 1', $user_with);
 
             if ($sel_user_with !== false and 1 == $sel_user_with->num_rows())
             {
@@ -217,7 +249,7 @@ class Message_model extends CI_Model
             $sel_user_with->free_result();
 
             $sel_mess = $this->db->query('
-                SELECT `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `user_name`, `user_email`, `user_image` 
+                SELECT `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `user_id`, `user_name`, `user_email`, `user_image`, `user_blocked` 
                 FROM `users_messages` 
                 LEFT JOIN `users` ON `um_from`=`user_id`
                 WHERE `um_conv_id`=? and `um_blocked`=0', $result['conv_id']);
@@ -228,6 +260,11 @@ class Message_model extends CI_Model
                 foreach ($sel_mess->result() as $row)
                 {
                     $result['user_messages'][$i] = self::parseMessageData($row, $date);
+
+                    if($row->user_id == $user_with and $row->user_blocked == 1)
+                    {
+                        $result['user_with_blocked'] = 1;
+                    }
 
                     $i++;
                 }

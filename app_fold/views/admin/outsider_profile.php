@@ -11,6 +11,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             endif;?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
+            <?php
+            // Уведомления
+            include_once('./app_fold/views/notification/user_profile_notifications.php');?>
             <div class="content_block new_content_block">
                 <div class="content_block_h parent">
                     <h3><?php echo $title; ?></h3>

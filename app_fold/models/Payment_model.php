@@ -180,22 +180,25 @@ class Payment_model extends CI_Model
     }
 
     /**
-     * Выборка платежей, которые нужно провести
+     * Выборка платежей, которые нужно провести.
+     * Выборка платежей на текующаю дату и выборка отмененных платежей предыдущей недели.
      *
-     * @param $today
+     * @param string $today Текущая дата
+     * @param string $week_ago Дата неделю назад
      * @return array
      */
-    public function getSubsequentPayments($today)
+    public function getSubsequentPayments($today, $week_ago)
     {
-        $result = array();
+        $result = array('payments' => array(), 'rejected_payments' => array());
+        $i = 0;
 
+        // Выборка текущих платежей для оплаты
         $sel_data = $this->db->query('
-            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id` 
+            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_status` 
             FROM `orders_payment`
             WHERE `op_following_date`=? and `op_payment_method_id`<>""', $today);
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
-            $i = 0;
             foreach($sel_data->result() as $row)
             {
                 $result['payments'][$i]['id']        = $row->op_id;
@@ -204,12 +207,40 @@ class Payment_model extends CI_Model
                 $result['payments'][$i]['amount']    = $row->op_amount;
                 $result['payments'][$i]['currency']  = $row->op_currency;
                 $result['payments'][$i]['method_id'] = $row->op_payment_method_id;
+                $result['payments'][$i]['status']    = $row->op_status;
 
                 $i++;
             }
             unset($row);
         }
         elseif ($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        // Выборка не выполненных платежей
+        $sel_data2 = $this->db->query('
+            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_status` 
+            FROM `orders_payment`
+            WHERE `op_following_date`<? and `op_following_date`>? and `op_payment_method_id`<>"" and `op_status`="canceled"',
+                array($today, $week_ago));
+        if($sel_data2 !== false and 0 < $sel_data2->num_rows())
+        {
+            foreach($sel_data2->result() as $row)
+            {
+                $result['payments'][$i]['id']        = $row->op_id;
+                $result['payments'][$i]['order_id']  = $row->op_o_id;
+                $result['payments'][$i]['type']      = $row->op_payment_type;
+                $result['payments'][$i]['amount']    = $row->op_amount;
+                $result['payments'][$i]['currency']  = $row->op_currency;
+                $result['payments'][$i]['method_id'] = $row->op_payment_method_id;
+                $result['payments'][$i]['status']    = $row->op_status;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_data2 === false)
         {
             parent::logDbMessages(__METHOD__);
         }
@@ -238,6 +269,7 @@ class Payment_model extends CI_Model
                 SET `op_payment_type`=?, `op_payment_id`=?, `op_status`=?, `op_paid`=?, `op_created_at`=?
                 WHERE `op_id`=? and `op_o_id`=? LIMIT 1',
                     array($payment_method, $payment_id, $payment_status, $paid, $created_at, $subsequent_id, $order_id));
+
             if($up_data !== false and 1 == $up_data->num_rows())
             {
                 return true;
@@ -256,5 +288,99 @@ class Payment_model extends CI_Model
         {
             return false;
         }
+    }
+
+    /**
+     * Удаление последующих платежей, если последний платеж не прошел более недели назад
+     *
+     * @param $week_ago
+     * @return bool
+     */
+    public function deleteCanceledPayments($week_ago)
+    {
+        $result = true;
+
+        // Выборка платежей, не прошедших оплату неделю назад и более
+        $sel_data = $this->db->query('
+            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_status` 
+            FROM `orders_payment`
+            WHERE `op_following_date`<? and `op_payment_method_id`<>"" and `op_status`="canceled"', $week_ago);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $rows = $sel_data->result();
+            $sel_data->free_result();
+
+            // Удаление платежей
+            foreach($rows as $row)
+            {
+                $order_id = $row->op_o_id;
+
+                $del_data = $this->db->query('
+                    DELETE FROM `orders_payment`
+                    WHERE `op_o_id`=? and (`op_status`="canceled" or `op_status`="") and `op_payment_method_id`<>"" and `op_following_date`>=?',
+                        array($order_id, $week_ago));
+
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__);
+                    $result = false;
+                }
+            }
+            unset($row);
+        }
+        elseif ($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка суммы оплаченных платежей
+     *
+     * @param $order_id
+     * @param $course_id
+     * @param $user_id
+     * @param $bought_price
+     * @param $date
+     * @return float
+     */
+    public function getCourseResidualValue($order_id, $course_id, $user_id, $bought_price, $date)
+    {
+        $result = 0;
+
+        if(is_numeric($order_id) and is_numeric($course_id) and is_numeric($user_id))
+        {
+            $paid_value = 0;
+
+            $sel_payments = $this->db->query('
+                SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_type`, `op_payment_id`, `op_status`, `op_paid`, 
+                  `op_created_at`, `op_captured_at`, `op_expires_at`, `op_amount`, `op_currency`, `op_payment_options`, 
+                  `op_payment_method_saved`, `op_payment_method_id`, `op_following_date` 
+                FROM `orders_payment`
+                WHERE `op_o_id`=?', $order_id);
+
+            if($sel_payments !== false and 0 < $sel_payments->num_rows())
+            {
+                foreach ($sel_payments->result() as $row)
+                {
+                    if($row->op_paid == 1)
+                    {
+                        $paid_value += $row->op_amount;
+                    }
+                }
+                unset($row);
+            }
+            elseif($sel_payments === false)
+            {
+                parent::logDbMessages(__METHOD__);
+            }
+
+            $result = $bought_price - $paid_value;
+        }
+
+        return $result;
     }
 }

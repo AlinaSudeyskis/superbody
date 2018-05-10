@@ -7,11 +7,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
+            <div class="content_block new_content_block">
                 <div class="content_block_h new_content_block_h parent">
                     <h3>Администратор</h3>
                     <a href="/administration/admin/new" class="add_tab_but">Добавить</a>
-                    <a href="/administration/admin/new/users" class="tab_but">Выбрать</a>
+                    <a href="/administration/admin/new/users" class="add_tab_but">Выбрать</a>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>

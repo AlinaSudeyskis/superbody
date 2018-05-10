@@ -306,7 +306,7 @@ audio, canvas, progress, video{
     border: 1px solid #fff;
     padding: 14px 19px;
 }
-.menu>li>a:hover, .menu .submenu_li:hover>a{
+.shop_cat>li>a:hover, .shop_cat .submenu_li:hover>a, .menu>li>a:hover, .menu .submenu_li:hover>a{
     background: #fff;
     color: #72d0f4;
 }
@@ -352,18 +352,22 @@ audio, canvas, progress, video{
 .submenu li:last-child{
     margin-bottom: 5px;
 }
-.menu .submenu a{
+.shop_cat .submenu a, .menu .submenu a{
     color: #72d0f4;
     white-space: nowrap;
     padding: 5px 15px 5px 30px;
     border-radius: 3px;
     position: relative;
 }
-.menu .submenu a:hover{
+.shop_cat .submenu a{
+    display: block;
+    text-decoration: none;
+}
+.shop_cat .submenu a:hover, .menu .submenu a:hover{
     background: #72d0f4;
     color: #fff;
 }
-.menu .submenu a:before{
+.shop_cat .submenu a:before, .menu .submenu a:before{
     content: ''; 
     position: absolute;
     left: 17px; 
@@ -372,7 +376,7 @@ audio, canvas, progress, video{
     border-left: 5px solid #72d0f4;
     margin-top: -4px;
 }
-.menu .submenu a:after{
+.shop_cat .submenu a:after, .menu .submenu a:after{
     content: ''; 
     position: absolute;
     left: 15px; 
@@ -381,13 +385,13 @@ audio, canvas, progress, video{
     border-left: 5px solid #fff;
     margin-top: -4px;
 }
-.menu .submenu a:hover:before{
+.shop_cat .submenu a:hover:before, .menu .submenu a:hover:before{
     border-left: 5px solid #fff;
 }
-.menu .submenu a:hover:after{
+.shop_cat .submenu a:hover:after, .menu .submenu a:hover:after{
     border-left: 5px solid #72d0f4;
 }
-.menu .submenu_li>a{
+.shop_cat .submenu_li>a, .menu .submenu_li>a{
     position: relative;
     padding-left: 40px !important;
 }
@@ -693,7 +697,7 @@ audio, canvas, progress, video{
     padding-top: 20px;
 }
 .cat_item_wrap{
-    width: 20%;
+    width: 25%; /* 20% */
     padding: 0 15px 20px;
     float: left;
 }
@@ -749,7 +753,7 @@ audio, canvas, progress, video{
     color: #000;
     margin: 0;
     padding: 10px 250px 10px 15px;
-    border-bottom: 3px solid #cdcdcd;
+    /*border-bottom: 3px solid #cdcdcd;*/
     font-weight: normal;
     white-space: nowrap;
     overflow: hidden;
@@ -759,7 +763,120 @@ audio, canvas, progress, video{
     margin-top: 20px;
 }
 .new_content_block h3{
-    border-bottom: 1px solid #cdcdcd;
+    border-bottom: none; /*1px solid #cdcdcd*/
+    padding: 10px 15px;
+    float: left;
+    flex: 3;
+}
+.content_block.notification_block{
+    margin-bottom: 20px;
+}
+h3.info{
+    text-align: center;
+    padding: 20px 15px;
+    color: #606060;
+    font-weight: 300;
+    border: none;
+    white-space: normal;
+    float: none;
+}
+.notification_block h3.info{
+    float: none;
+}
+.notification_block_h{
+    float: left;
+    text-transform: uppercase;
+    font-weight: 300;
+    font-size: 24px;
+    line-height: 28px;
+    padding: 20px 0 20px 30px;
+}
+.notification_block_h a{
+    color: #72d0f4;
+    text-decoration: none;
+}
+.notification_block_ext_wrap_h{
+    width: 100%;
+    clear: both;
+    padding: 0 30px 20px;
+    color: #606060;
+    font-weight: 300;
+    font-size: 17px;
+    text-transform: uppercase;
+}
+.notification_block_ext_wrap{
+    display: flex;
+    width: 100%;
+    padding: 0 30px 20px;
+}
+.notification_block_ext{
+    flex: 1 1 0;
+    text-align: center;
+}
+.notification_block_ext_h{
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 28px;
+}
+.notification_block_ext_h a{
+    color: #72d0f4;
+    text-decoration: none;
+}
+.notification_block_ext_title{
+    height: 25px;
+}
+div.info{
+    font-size: 13px;
+    color: #606060;
+    margin: 5px 0 20px;
+    float: left;
+    width: calc(100% - 190px);
+}
+.mess_info{
+    color: #606060;
+    text-align: center;
+    border-bottom: 1px solid #dadada;
+    line-height: 39px;
+    height: 40px;
+}
+.countdown_wrap{}
+.countdown {
+    text-align: center;
+    padding-bottom: 15px;
+    font-size: 30px;
+    color: #00bff0;
+    font-weight: 100;
+}
+.countdown span {
+    color: #606060;
+    font-size: 18px;
+}
+.notification_block_ext_countdown .countdown{
+    font-size: 20px;
+    padding: 0;
+}
+.notification_block_ext_countdown .countdown span{
+    font-size: 15px;
+}
+.promo_line{
+    font-size: 13px;
+    text-decoration: underline;
+    cursor: pointer;
+    display: inline-block;
+    line-height: 35px;
+}
+.promo_info{
+    display: none;
+    font-size: 13px;
+    text-decoration: underline;
+    line-height: 35px;
+}
+.promo_line:hover{
+    font-weight: 600;
+}
+#i-promocode{
+    text-transform: uppercase;
 }
 .content_block_h_buts{
     border-left: 1px solid #cccccc;
@@ -772,7 +889,14 @@ audio, canvas, progress, video{
 }
 .content_block_h{
     position: relative;
+    border-bottom: 3px solid #cdcdcd;
+    display: flex;
+    padding-right: 70px;
+    flex-flow: row nowrap;
 }
+/*.new_content_block .content_block_h{
+    border-bottom: 1px solid #cdcdcd;
+}*/
 .content_block_h_slide{
     cursor: pointer;
     display: inline-block;
@@ -2314,13 +2438,21 @@ tr:first-child > td > .fc-day-grid-event{
 .trainers_txt:last-child{
     margin-bottom: 0;
 }
+.tren_mess_link {
+    text-decoration: none;
+    color: #72d0f4;
+}
 .trainers_row:nth-of-type(2n+1)>div:nth-of-type(2n) .trainers_block,
 .trainers_row:nth-of-type(2n)>div:nth-of-type(2n+1) .trainers_block{
     background: #00bff0;
 }
 .trainers_row:nth-of-type(2n+1)>div:nth-of-type(2n) .trainers_block *,
 .trainers_row:nth-of-type(2n)>div:nth-of-type(2n+1) .trainers_block *{
-    color: #fff !important;
+    color: #ffffff !important;
+}
+.trainers_row:nth-of-type(2n+1)>div:nth-of-type(2n) .tren_mess_link *,
+.trainers_row:nth-of-type(2n)>div:nth-of-type(2n+1) .tren_mess_link *{
+    color: #ffffff !important;
 }
 .trainers_row:nth-of-type(2n+1)>div:nth-of-type(2n) .trainers_block .love_but,
 .trainers_row:nth-of-type(2n)>div:nth-of-type(2n+1) .trainers_block .love_but{
@@ -3734,6 +3866,9 @@ tr:first-child > td > .fc-day-grid-event{
 	border-bottom: 1px solid #c1c1c1;
 	margin-top: 20px;
 }
+.journal_block_item:last-child, .subscription_block_item:last-child{
+	border-bottom: none;
+}
 .subscription_block_link a{
     font-size: 14px;
     line-height: 16px;
@@ -3986,8 +4121,9 @@ textarea.journal_post_comm_in{
     padding: 7px 0 7px 110px;
     list-style: none;
     float: left;
+    position: relative;
 }
-.shop_cat li{
+.shop_cat > li{
     float: left;
     font-size: 13px;
     line-height: 16px;
@@ -3995,10 +4131,10 @@ textarea.journal_post_comm_in{
     font-weight: 600;
     margin-right: 30px;
 }
-.shop_cat li:last-child{
+.shop_cat > li:last-child{
     margin-right: 0;
 }
-.shop_cat a{
+.shop_cat > li > a{
     color: #fff;
     text-decoration: none;
     padding: 10px 15px;
@@ -5543,6 +5679,7 @@ textarea.journal_post_comm_in{
 .mess_block_line_wrap{
     padding: 20px 16px;
     max-height: 550px;
+    min-height: 200px;
     overflow: auto;
 }
 .mess_block_line_txt:before{
@@ -5745,9 +5882,9 @@ textarea.journal_post_comm_in{
 }
 .add_tab_but{
 	display: block;
-	position: absolute;
+	/*position: absolute;
 	top: 6px;
-	right: 96px;
+	right: 96px;*/
 	min-width: 100px;
     padding: 0 15px;
 	height: 30px;
@@ -5758,6 +5895,8 @@ textarea.journal_post_comm_in{
 	background: #2acaf2;
 	text-decoration: none;
 	text-align: center;
+
+    margin: 6px 10px 6px 0;
 }
 .new_content_block_h h3{
 	padding-right: 220px;
@@ -6254,10 +6393,10 @@ textarea.journal_post_comm_in{
 	resize: none;
 }
 .full_photo_comm_reset, .full_photo_comm_but{
-	width: 115px;
+	min-width: 115px;
 	height: 35px;
 	border: none;
-	padding: 0;
+	padding: 0 15px;
 	border-radius: 5px;
 	background: #f3f3f3;
 	font-size: 13px;
@@ -6265,6 +6404,15 @@ textarea.journal_post_comm_in{
 	float: right;
 	margin-left: 10px;
 	cursor: pointer;
+    text-decoration: none;
+    line-height: 35px;
+}
+.unsubscribe{
+    float: right;
+    font-size: 13px;
+    color: #606060;
+    font-weight: 300;
+    margin-left: 20px;
 }
 .full_photo_comm_but{
 	color: #fff;
@@ -6783,14 +6931,31 @@ textarea.anketa_form_in{
 }
 
 .email_error{
-    float: left;
-    line-height: 35px;
-    max-width: calc(100% - 510px);
-    width: 100%;
-    padding-left: 15px;
-    font-size: 13px;
-    font-style: italic;
-    color: #b2b2b2;
+    display: none;
+    position: absolute;
+    width: fit-content;
+    padding: 5px 20px;
+    content: '';
+    line-height: 13px;
+    font-size: 12px;
+    color: #72d0f4;
+    text-align: center;
+    background: #fff;
+    border-radius: 2px;
+    font-weight: 300;
+    z-index: 10;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.email_error:after{
+    content: '';
+    position: absolute;
+    left: 6px;
+    bottom: -9px;
+    border: 4px solid transparent;
+    border-top: 5px solid #fff;
+    z-index: 10;
 }
 
 
@@ -8421,6 +8586,9 @@ textarea.anketa_form_in{
     float: left;
     margin-right: 30px;
 }
+.kurs_cur_wrap input#generated-code{
+    text-transform: uppercase;
+}
 .admin_form_txt_dop{
     float: left;
     font-size: 13px;
@@ -8593,6 +8761,9 @@ textarea.anketa_form_in{
     margin: 0 20px 18px 0;
     float: left;
     width: 160px;
+}
+.kurs_block_h.bg_color{
+    width: 122px;
 }
 .practice_block .del_tov,
 .landing_admin_form .del_tov,
@@ -8803,6 +8974,18 @@ input.tren_form_block_check{
     float: right;
     width: 115px;
     overflow: hidden;
+}
+.emails .admin_feedback_time_wrap{
+    width: 300px;
+}
+.emails .admin_feedback_time{
+    width: inherit;
+}
+.emails .admin_feedback_info{
+    width: 200px;
+}
+.emails .admin_feedback_txt{
+    margin-left: 200px;
 }
 .admin_feedback_cont{
     margin-right: 115px;
@@ -9250,7 +9433,7 @@ input.tren_form_block_check{
     .menu > li > a{
         padding: 7px 10px;
     }
-    .menu .submenu_li > a{
+    .shop_cat .submenu_li > a, .menu .submenu_li > a{
         padding-left: 25px;
     }
     .submenu_li > a::before{
@@ -9984,11 +10167,11 @@ input.tren_form_block_check{
     .submenu li:last-child{
         border: none;
     }
-    .menu > li > a:hover, .menu .submenu_li:hover > a{
+    .shop_cat > li > a:hover, .shop_cat .submenu_li:hover > a, .menu > li > a:hover, .menu .submenu_li:hover > a{
         background: #4dd2f5;
         color: #fff;
     }
-    .menu .submenu_li > a{
+    .shop_cat .submenu_li > a, .menu .submenu_li > a{
         padding-left: 35px;
         background: #4dd2f5;
     }
@@ -10073,7 +10256,7 @@ input.tren_form_block_check{
         display: block;
     }
     .cat_item_wrap{
-        width: 33.3333%;
+        width: 50%; /* 33.3333% */
     }
     #legend{
         position: relative;
@@ -10831,6 +11014,9 @@ input.tren_form_block_check{
     }
 
     .my_kurs_name{
+        float: none;
+    }
+    .notification_block_h{
         float: none;
     }
     .my_kurs_but{
@@ -11843,6 +12029,10 @@ input.tren_form_block_check{
         width: 100%;
         float: none;
         margin: 0;
+    }
+    div.info{
+        float: none;
+        width: 100%;
     }
     .kurs_form_txt_short{
         width: calc(100% - 90px) !important;

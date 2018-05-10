@@ -17,42 +17,81 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <div class="my_kurs_block">
-                        <?php if (!empty($courses)) :
-                            foreach ($courses as $course) :?>
-                                <div class="my_kurs_item parent">
-                                    <div class="my_kurs_img">
-                                        <a href="">
-                                            <?php if (!empty($course['image'])) :?>
-                                                <img src="<?php echo $course['image'];?>" alt=""/>
-                                            <?php endif;?>
-                                        </a>
-                                    </div>
-                                    <div class="my_kurs_cont">
-                                        <div class="my_kurs_top parent">
-                                            <div class="my_kurs_name"><a href="/profile/course/<?php echo $course['course_id']?>"><?php echo $course['name'];?></a></div>
-                                            <div class="my_kurs_but parent">
-                                                <a href="/course/<?php echo $course['course_id']?>" class="my_kurs_link">Узнать больше</a>
-                                                <a href="#" class="my_kurs_link disabled">Расписание</a>
+                        <?php if(!empty($courses) or !empty($blocked_courses)):
+                            if (!empty($courses)) :
+                                foreach ($courses as $course) :?>
+                                    <div class="my_kurs_item parent">
+                                        <div class="my_kurs_img">
+                                            <a href="">
+                                                <?php if (!empty($course['image'])) :?>
+                                                    <img src="<?php echo $course['image'];?>" alt=""/>
+                                                <?php endif;?>
+                                            </a>
+                                        </div>
+                                        <div class="my_kurs_cont">
+                                            <div class="my_kurs_top parent">
+                                                <div class="my_kurs_name"><a href="/profile/course/<?php echo $course['id']?>"><?php echo $course['name'];?></a><?php echo $course['finished'] ;?></div>
+                                                <div class="my_kurs_but parent">
+                                                    <a href="/course/<?php echo $course['course_id']?>" class="my_kurs_link">Узнать больше</a>
+                                                    <a href="#" class="my_kurs_link disabled">Расписание</a>
+                                                </div>
+                                            </div>
+                                            <div class="my_kurs_mid"><?php echo $course['description']; ?></div>
+                                            <div class="my_kurs_bot parent">
+                                                <?php if ($course['couches']) :?>
+                                                    <div class="my_kurs_tren_h">Тренер</div>
+                                                    <div class="my_kurs_tren_names">
+                                                        <?php $last_couch = count($course['couches']);
+                                                        foreach ($course['couches'] as $key => $couch) :?>
+                                                            <a href="/profile/<?php echo $couch['id'];?>"><?php echo $couch['name'];?></a>
+                                                            <?php if ($last_couch != ($key + 1)): echo ','; endif;?>
+                                                        <?php endforeach;
+                                                        unset($couch);?>
+                                                    </div>
+                                                <?php endif;?>
                                             </div>
                                         </div>
-                                        <div class="my_kurs_mid"><?php echo $course['description']; ?></div>
-                                        <div class="my_kurs_bot parent">
-                                            <?php if ($course['couches']) :?>
-                                                <div class="my_kurs_tren_h">Тренер</div>
-                                                <div class="my_kurs_tren_names">
-                                                    <?php $last_couch = count($course['couches']);
-                                                    foreach ($course['couches'] as $key => $couch) :?>
-                                                        <a href="/profile/<?php echo $couch['id'];?>"><?php echo $couch['name'];?></a>
-                                                        <?php if ($last_couch != ($key + 1)): echo ','; endif;?>
-                                                    <?php endforeach;
-                                                    unset($couch);?>
+                                    </div>
+                                <?php endforeach;
+                                unset($course);
+                            endif;
+                            if (!empty($blocked_courses)) :
+                                foreach ($blocked_courses as $course) :?>
+                                    <div class="my_kurs_item parent">
+                                        <div class="my_kurs_img">
+                                            <a href="">
+                                                <?php if (!empty($course['image'])) :?>
+                                                    <img src="<?php echo $course['image'];?>" alt=""/>
+                                                <?php endif;?>
+                                            </a>
+                                        </div>
+                                        <div class="my_kurs_cont">
+                                            <div class="my_kurs_top parent">
+                                                <div class="my_kurs_name"><a href="/profile/course/<?php echo $course['id']?>"><?php echo $course['name'];?></a> (Заблокирован)</div>
+                                                <div class="my_kurs_but parent">
+                                                    <a href="/course/<?php echo $course['course_id']?>" class="my_kurs_link">Узнать больше</a>
+                                                    <a href="#" class="my_kurs_link disabled">Расписание</a>
                                                 </div>
-                                            <?php endif;?>
+                                            </div>
+                                            <div class="my_kurs_mid"><?php echo $course['description']; ?></div>
+                                            <div class="my_kurs_bot parent">
+                                                <?php if ($course['couches']) :?>
+                                                    <div class="my_kurs_tren_h">Тренер</div>
+                                                    <div class="my_kurs_tren_names">
+                                                        <?php $last_couch = count($course['couches']);
+                                                        foreach ($course['couches'] as $key => $couch) :?>
+                                                            <a href="/profile/<?php echo $couch['id'];?>"><?php echo $couch['name'];?></a>
+                                                            <?php if ($last_couch != ($key + 1)): echo ','; endif;?>
+                                                        <?php endforeach;
+                                                        unset($couch);?>
+                                                    </div>
+                                                <?php endif;?>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            <?php endforeach;
-                            unset($course);
+                                <?php endforeach;
+                                unset($course);
+                            endif;
                         else:?>
                             <div>У Вас нет добавленных курсов</div>
                         <?php endif;?>

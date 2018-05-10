@@ -27,4 +27,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'video'): ?> class="anketa_active" <?php endif;?>>Видео</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/course/<?php echo $course_id; ?>/promocodes">
+            <span <?php if ($page_submenu == 'promocodes'): ?> class="anketa_active" <?php endif;?>>Промокоды</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/course/<?php echo $course_id; ?>/extends">
+            <span <?php if ($page_submenu == 'extends'): ?> class="anketa_active" <?php endif;?>>Продление</span>
+        </a>
+    </li>
 </ul>

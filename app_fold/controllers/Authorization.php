@@ -66,7 +66,12 @@ class Authorization extends CI_Controller
                         $reg_user_id = $result_registration;
 
                         // Отправление письма о подтвержении регистрации пользователю
-                        self::sendRegistrationEmail($email, $email_hash);
+                        $system_message  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
+                            . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                        $system_message  .= 'Подтвердить';
+                        $system_message  .= '</a></b>';
+
+                        parent::sendEmail(1, $email, $system_message);
 
                         // Обновление данных сессии
                         $user_type = 1;
@@ -360,7 +365,7 @@ class Authorization extends CI_Controller
             else
             {
                 // Пользователь не найден
-                $this->session->set_tempdata('message', 0, 60);
+                $this->session->set_tempdata('message', 136, 60);
 
                 $url_data = array(
                     'e' => $this->input->get('e'),
@@ -471,21 +476,13 @@ class Authorization extends CI_Controller
                 if ($result_restore === true)
                 {
                     // Отправление письма с указаниями по восстановлению пароля
-                    $email_to  = "<$email>";
+                    $system_message  = '<p>Обновить пароль Вы можете до ' . $date_in_an_hour . '</p> </br>';
+                    $system_message  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent
+                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                    $system_message  .= 'Восстановить пароль';
+                    $system_message  .= '</a></b>';
 
-                    $subject   = "Восставновление пароля на сайте SuperBody";
-
-                    $message   = '<p>Для ввода нового пароля перейдите по ссылке.</p> </br>';
-                    $message  .= '<p>Ссылка работает до ' . $date_in_an_hour . '</p> </br>';
-                    $message  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent . '">';
-                    $message  .= 'https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent;
-                    $message  .= '</a></b>';
-
-                    $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-                    $headers   .= "From: Support SuperBody.pro <info@superbody.pro>\r\n";
-                    $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-                    mail($email_to, $subject, $message, $headers);
+                    parent::sendEmail(4, $email, $system_message);
                     
                     // Письмо отправлено
                     $this->session->set_tempdata('message', 46, 60);
@@ -618,39 +615,13 @@ class Authorization extends CI_Controller
                 }
             } else {
                 // Пользователь не найден
-                $this->session->set_tempdata('message', 0, 60);
+                $this->session->set_tempdata('message', 136, 60);
             }
         } else {
             // Не корректный E-mail
             $this->session->set_tempdata('message', 6, 60);
         }*/
     }
-
-    /**
-     * Отправка email пользователю с ссылкой для подтверждения регистрации
-     *
-     * @param $user_email
-     * @param $email_hash
-     */
-    protected function sendRegistrationEmail ($user_email, $email_hash)
-    {
-        // Отправление письма о подтвержении регистрации пользователю
-        $email_to  = "<$user_email>";
-
-        $subject   = "Подтвеждение регистрации на сайте SuperBody";
-
-        $message   = '<p>Для подтверждения регистрации на сайте перейдите по ссылке</p> </br>';
-        $message  .= '<b><a href="https://superbody.pro/activate?e=' . $user_email . '&ac=' . $email_hash . '">';
-        $message  .= 'https://superbody.pro/activate?e=' . $user_email . '&ac=' . $email_hash;
-        $message  .= '</a></b>';
-
-        $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-        $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
-        $headers   .= "Reply-To: info@superbody.pro\r\n";
-
-        mail($email_to, $subject, $message, $headers);
-    }
-
 
     /**
      * Авторизация при помощи Instargram
@@ -756,6 +727,16 @@ class Authorization extends CI_Controller
                         $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 
                         parent::deleteSessionReturnUrl();
+
+                        // Отправляем письмо с уведомлением об регистрации
+                        if (!empty($user_email) and filter_var($user_email, FILTER_VALIDATE_EMAIL))
+                        {
+                            $system_message  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                            $system_message  .= 'Перейти на сайт';
+                            $system_message  .= '</a></b>';
+
+                            parent::sendEmail(5, $user_email, $system_message);
+                        }
 
                         header('Location: ' . $return);
                     }
@@ -946,6 +927,16 @@ class Authorization extends CI_Controller
 
                             parent::deleteSessionReturnUrl();
 
+                            // Отправляем письмо с уведомлением об регистрации
+                            if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
+                            {
+                                $system_message  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                                $system_message  .= 'Перейти на сайт';
+                                $system_message  .= '</a></b>';
+
+                                parent::sendEmail(5, $user_soc_email, $system_message);
+                            }
+
                             header('Location: ' . $return);
                         }
                         else
@@ -1125,6 +1116,16 @@ class Authorization extends CI_Controller
                             $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 
                             parent::deleteSessionReturnUrl();
+
+                            // Отправляем письмо с уведомлением об регистрации
+                            if (!empty($fb_u_data['user_email']) and filter_var($fb_u_data['user_email'], FILTER_VALIDATE_EMAIL))
+                            {
+                                $system_message  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                                $system_message  .= 'Перейти на сайт';
+                                $system_message  .= '</a></b>';
+
+                                parent::sendEmail(5, $fb_u_data['user_email'], $system_message);
+                            }
 
                             header('Location: ' . $return);
                         }
@@ -1416,6 +1417,16 @@ class Authorization extends CI_Controller
                             $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 
                             parent::deleteSessionReturnUrl();
+
+                            // Отправляем письмо с уведомлением об регистрации
+                            if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
+                            {
+                                $system_message  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                                $system_message  .= 'Перейти на сайт';
+                                $system_message  .= '</a></b>';
+
+                                parent::sendEmail(5, $user_soc_email, $system_message);
+                            }
 
                             header('Location: ' . $return);
                         }

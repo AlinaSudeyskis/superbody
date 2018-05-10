@@ -7,7 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
+            <div class="content_block new_content_block">
                 <div class="content_block_h new_content_block_h parent">
                     <h3>Категория товара</h3>
                     <a href="/administration/category/new" class="add_tab_but">Добавить</a>
@@ -18,14 +18,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <div class="admin_list">
-                        <div class="admin_item parent">
-                            <div class="admin_ava"></div>
-                            <div class="admin_cont">
-                                <div class="admin_name">
-                                    <a href="/administration/category/courses" class="admin_name">Курсы</a>
-                                </div>
-                            </div>
-                        </div>
                         <?php if (!empty($categories)) :
                             foreach ($categories as $category) :?>
                                 <div class="admin_item parent">
