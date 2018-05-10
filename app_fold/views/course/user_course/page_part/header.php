@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="content_block new_content_block">
         <div class="content_block_h parent">
             <h3>Курс - <?php echo $course['name'];
-                if($course['finished'] === true): echo '(Завершен)'; endif;?></h3>
+                if($course['finished'] === true): echo ' (Завершен)'; endif;?></h3>
             <div class="content_block_h_buts">
                 <div class="content_block_h_slide kurs_slide"></div>
                 <div class="content_block_h_close"></div>

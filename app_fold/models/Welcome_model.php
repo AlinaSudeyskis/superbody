@@ -637,5 +637,8 @@ class Welcome_model extends CI_Model
         $this->db->query("INSERT INTO `emails` (`e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES ('Изменение персональных данных', '1', 'Изменение персональных данных на сайте SuperBody', '', '', '4', '2018-04-25 11:41:46')");
         $this->db->query("INSERT INTO `emails` (`e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES ('Уведомление 2 от обратной связи', '1', 'Сообщение отправлено. Ожидайте ответа от администрации сайта.', '', '', '4', '2018-04-25 11:41:46')");
         $this->db->query("INSERT INTO `emails` (`e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES ('Курс заканчивается', '1', 'Курс заканчивается меньше, чем через неделю', '', '', '4', '2018-04-25 11:41:46')");*/
+
+        // 10.05.2018
+        /*$this->db->query('ALTER TABLE `promocodes_used` CHANGE `pcu_id` `pcu_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT');*/
     }
 }
