@@ -53,7 +53,7 @@ class User_model extends CI_Model
         }
         elseif ($sel_user === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -93,7 +93,7 @@ class User_model extends CI_Model
             }
         }
         elseif ($sel_data === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -188,7 +188,7 @@ class User_model extends CI_Model
         }
         elseif ($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -225,7 +225,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -256,7 +256,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -298,7 +298,7 @@ class User_model extends CI_Model
             }
             elseif ($sel_social === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -338,7 +338,7 @@ class User_model extends CI_Model
         }
         elseif($sel_facebook === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         $sel_vk = $this->db->query('
@@ -360,7 +360,7 @@ class User_model extends CI_Model
         }
         elseif($sel_vk === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         $sel_ok = $this->db->query('
@@ -382,7 +382,7 @@ class User_model extends CI_Model
         }
         elseif($sel_ok === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         $sel_instagram = $this->db->query('
@@ -405,7 +405,7 @@ class User_model extends CI_Model
         }
         elseif($sel_instagram === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -431,7 +431,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -460,7 +460,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -498,7 +498,7 @@ class User_model extends CI_Model
                 }
                 elseif ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                     return false;
                 }
                 else
@@ -510,7 +510,7 @@ class User_model extends CI_Model
         }
         elseif ($sel_avatar === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -633,12 +633,12 @@ class User_model extends CI_Model
             }
             elseif ($sel_anth_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif ($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -669,7 +669,7 @@ class User_model extends CI_Model
         }
         elseif ($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -721,7 +721,7 @@ class User_model extends CI_Model
         }
         elseif ($sel_anth_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -829,7 +829,7 @@ class User_model extends CI_Model
         }
         elseif ($sel_anth_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -888,7 +888,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -926,7 +926,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -968,7 +968,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -996,7 +996,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1039,7 +1039,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1114,12 +1114,12 @@ class User_model extends CI_Model
             }
             elseif ($sel_weight === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif ($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -1145,7 +1145,7 @@ class User_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1195,7 +1195,7 @@ class User_model extends CI_Model
         }
         elseif ($sel_users === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;

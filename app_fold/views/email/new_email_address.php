@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Email:</div>
-                            <input type="text" name="email" value="" maxlength="255" class="anketa_form_in anketa_form_in_long"/>
+                            <input type="text" name="email" value="" maxlength="255" class="anketa_form_in anketa_form_in_long valid_email"/>
                         </div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h"></div>

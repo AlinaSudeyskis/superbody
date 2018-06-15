@@ -45,7 +45,7 @@ class Administrator_model extends CI_Model
         }
         elseif($sel_user === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         else
         {
@@ -75,7 +75,7 @@ class Administrator_model extends CI_Model
             }
             elseif ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -299,7 +299,7 @@ class Administrator_model extends CI_Model
             $result['contacts_text2'] = $row->si_contacts_text2;
         }
         elseif ($sel_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -326,7 +326,7 @@ class Administrator_model extends CI_Model
             $result['index_text']  = $row->si_index_text;
         }
         elseif ($sel_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -368,7 +368,7 @@ class Administrator_model extends CI_Model
             $result['footer']         = $row->si_footer;
         }
         elseif ($sel_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -394,7 +394,7 @@ class Administrator_model extends CI_Model
             $result['about'] = parent::showBBcodes($row->si_about);
         }
         elseif ($sel_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -425,7 +425,7 @@ class Administrator_model extends CI_Model
         }
         elseif ($sel_info === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -463,7 +463,7 @@ class Administrator_model extends CI_Model
         }
         elseif ($sel_info === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -497,7 +497,7 @@ class Administrator_model extends CI_Model
             unset($row);
         }
         elseif ($sel_banners === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -542,7 +542,7 @@ class Administrator_model extends CI_Model
             return true;
         }
         elseif ($up_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else {
@@ -571,7 +571,7 @@ class Administrator_model extends CI_Model
             return true;
         }
         elseif ($up_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else {
@@ -599,7 +599,7 @@ class Administrator_model extends CI_Model
             return true;
         }
         elseif ($up_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else {
@@ -630,7 +630,7 @@ class Administrator_model extends CI_Model
             return true;
         }
         elseif ($up_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else {
@@ -670,7 +670,7 @@ class Administrator_model extends CI_Model
             return true;
         }
         elseif ($up_info === false) {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else {
@@ -699,7 +699,7 @@ class Administrator_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -730,7 +730,7 @@ class Administrator_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -766,7 +766,7 @@ class Administrator_model extends CI_Model
         }
         elseif ($sel_banner === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             $result = false;
         }
         else
@@ -795,7 +795,7 @@ class Administrator_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -822,7 +822,7 @@ class Administrator_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -847,7 +847,7 @@ class Administrator_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else

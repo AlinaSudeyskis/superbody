@@ -172,13 +172,26 @@ class Payment extends CI_Controller
                 }
 
                 // Прикрепление курса(ов) к пользователю
-                $start_date = '';
-                $end_date = '';
-                $training_days = '';
-                $user_couch = '';
-
                 foreach($courses['courses'] as $course)
                 {
+                    $start_date = '';
+                    $end_date = '';
+                    $training_days = '';
+                    $user_couch = '';
+
+                    // Даты начала и окончания курса
+                    if($course['category'] == 'nutrition')
+                    {
+                        // Количество тренировок за курс
+                        $count_workouts = $course['count_weeks'] * $course['count_days'];
+
+                        $start_date = $this->date;
+
+                        $tmp_date = new DateTime($this->date);
+                        $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
+                        $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                    }
+
                     $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
                 }
 

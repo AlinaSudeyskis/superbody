@@ -43,7 +43,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_cats === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -108,7 +108,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_cat === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -135,7 +135,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -165,7 +165,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -192,7 +192,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -219,7 +219,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -400,7 +400,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_cats === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -434,7 +434,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_subcats === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -464,7 +464,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_cats === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -495,7 +495,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_subcats === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -646,7 +646,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_products === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -706,12 +706,12 @@ class Store_model extends CI_Model
             }
             elseif ($sel_attached_products === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif ($sel_product === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -752,7 +752,7 @@ class Store_model extends CI_Model
                 VALUES (?, ?, ?, ?)', array($product_id, $category_id, $date, $admin_id));
             if ($in_data2 === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             // Прикрепленные товары
@@ -766,7 +766,7 @@ class Store_model extends CI_Model
                         VALUES (?, ?, ?, ?, ?)', array($product_id, $a_id, $p_discount, $admin_id, $date));
                     if ($in_data3 === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
                 unset($p_discount);
@@ -777,7 +777,7 @@ class Store_model extends CI_Model
         }
         elseif ($in_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -807,7 +807,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -856,7 +856,7 @@ class Store_model extends CI_Model
                         VALUES (?, ?, ?, ?, ?)', array($product_id, $a_id, $p_discount, $user_id, $date));
                     if ($in_data === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
                 unset($p_discount);
@@ -872,7 +872,7 @@ class Store_model extends CI_Model
                             array($p_discount, $date, $product_id, $a_id));
                     if ($in_data === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
                 unset($p_discount);
@@ -887,7 +887,7 @@ class Store_model extends CI_Model
                             array($product_id, $a_id));
                     if ($in_data === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
                 unset($a_id);
@@ -922,14 +922,14 @@ class Store_model extends CI_Model
                 WHERE `pc_p_id`=? LIMIT 1', array($category_id, $date, $product_id));
             if ($up_data2 === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             return true;
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -967,7 +967,7 @@ class Store_model extends CI_Model
                 }
                 elseif ($in_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                     return false;
                 }
             }
@@ -1004,7 +1004,7 @@ class Store_model extends CI_Model
                 }
                 elseif ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
         }
@@ -1038,7 +1038,7 @@ class Store_model extends CI_Model
                 }
                 elseif ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
         } 
@@ -1052,7 +1052,7 @@ class Store_model extends CI_Model
             }
             elseif ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
         }
@@ -1078,7 +1078,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1105,7 +1105,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1438,7 +1438,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_products === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
         return $result;
@@ -1552,14 +1552,14 @@ class Store_model extends CI_Model
                 }
                 elseif ($sel_products === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
             unset($category);
         }
         elseif ($sel_categories === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1593,7 +1593,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_product === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1630,7 +1630,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_attached_products === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1768,7 +1768,7 @@ class Store_model extends CI_Model
             }
             elseif ($sel_products === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -1808,7 +1808,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_attached_products === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1840,7 +1840,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_products === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1911,12 +1911,12 @@ class Store_model extends CI_Model
                                         array($quantity, $date, $c_id, $row2->c_p_id));
                                     if ($up_data === false)
                                     {
-                                        parent::logDbMessages(__METHOD__);
+                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                                     }
                                 }
                                 elseif ($sel_attached_cart === false)
                                 {
-                                    parent::logDbMessages(__METHOD__);
+                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                                 }
                                 // Добавляем в корзину
                                 else {
@@ -1929,7 +1929,7 @@ class Store_model extends CI_Model
                                     }
                                     elseif ($in_data === false)
                                     {
-                                        parent::logDbMessages(__METHOD__);
+                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                                     }
                                 }
                             }
@@ -1937,7 +1937,7 @@ class Store_model extends CI_Model
                         }
                         elseif ($sel_attached_products === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
                     }
 
@@ -1945,13 +1945,13 @@ class Store_model extends CI_Model
                 }
                 elseif ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
         }
         elseif ($sel_product === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         // Добавление новых данных
         else {
@@ -1986,14 +1986,14 @@ class Store_model extends CI_Model
                         }
                         elseif ($in_data2 === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
                     }
                     unset($row);
                 }
                 elseif ($sel_attached_products === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
                 $sel_attached_products->free_result();
             }
@@ -2050,7 +2050,7 @@ class Store_model extends CI_Model
                     }
                     elseif ($up_data === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                         return false;
                     }
                     else
@@ -2060,7 +2060,7 @@ class Store_model extends CI_Model
                 }
                 elseif ($sel_base_product === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                     return false;
                 }
                 else
@@ -2082,7 +2082,7 @@ class Store_model extends CI_Model
                 }
                 elseif ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                     return false;
                 }
                 else
@@ -2097,7 +2097,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_product === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2126,7 +2126,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_attached === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         $up_data = $this->db->query('
@@ -2138,7 +2138,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2164,7 +2164,7 @@ class Store_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2193,7 +2193,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_products === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -2350,7 +2350,7 @@ class Store_model extends CI_Model
 
                                     if($ins_attached === false)
                                     {
-                                        parent::logDbMessages(__METHOD__);
+                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                                     }
 
                                 }
@@ -2362,7 +2362,7 @@ class Store_model extends CI_Model
                     }
                     elseif($ins_data === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
             }
@@ -2489,7 +2489,7 @@ class Store_model extends CI_Model
             }
             elseif ($sel_addresses === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -2539,7 +2539,7 @@ class Store_model extends CI_Model
             }
             elseif ($in_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -2569,15 +2569,16 @@ class Store_model extends CI_Model
                     if(!empty($product['promo_id']) and !empty($product['promo_code']))
                     {
                         $ins_data = $this->db->query('
-                            INSERT INTO `promocodes_used` (`pcu_pc_id`, `pcu_code`, `pcu_date`)
-                            VALUES (?, ?, ?)', array($product['promo_id'], $product['promo_code'], $date));
+                            INSERT INTO `promocodes_used` (`pcu_pc_id`, `pcu_code`, `pcu_o_id`, `pcu_p_id`, `pcu_u_id`, `pcu_date`)
+                            VALUES (?, ?, ?, ?, ?, ?)',
+                                array($product['promo_id'], $product['promo_code'], $order_id, $product['id'], $user_id, $date));
                         if($ins_data !== false and 1 == $this->db->affected_rows())
                         {
                             $pcu_id = $this->db->insert_id();
                         }
                         elseif ($ins_data === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
                     }
 
@@ -2599,7 +2600,7 @@ class Store_model extends CI_Model
                                 array($quantity, $product['id']));
                         if ($up_data === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
 
                         // Удаление товаров из корзины пользователя
@@ -2608,7 +2609,7 @@ class Store_model extends CI_Model
                             $up_data = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $product['c_id']);
                             if ($up_data === false)
                             {
-                                parent::logDbMessages(__METHOD__);
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
                             }
                         }
 
@@ -2639,19 +2640,19 @@ class Store_model extends CI_Model
                                             array($quantity, $attached['id']));
                                     if ($up_data2 === false)
                                     {
-                                        parent::logDbMessages(__METHOD__);
+                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                                     }
 
                                     // Удаление товаров из корзины пользователя
                                     $up_data2 = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $attached['c_id']);
                                     if ($up_data2 === false)
                                     {
-                                        parent::logDbMessages(__METHOD__);
+                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                                     }
                                 }
                                 elseif ($in_data2 === false)
                                 {
-                                    parent::logDbMessages(__METHOD__);
+                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                                 }
 
                             }
@@ -2660,7 +2661,7 @@ class Store_model extends CI_Model
                     }
                     elseif ($in_data === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
                 unset($product);
@@ -2668,7 +2669,7 @@ class Store_model extends CI_Model
         }
         elseif ($in_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -2705,7 +2706,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_orders === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -2770,12 +2771,12 @@ class Store_model extends CI_Model
             }
             elseif ($sel_products === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif ($sel_order === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -2844,12 +2845,12 @@ class Store_model extends CI_Model
             }
             elseif ($sel_products === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif ($sel_order === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -2888,7 +2889,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_orders === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -2916,7 +2917,7 @@ class Store_model extends CI_Model
             }
             elseif($sel_order_id === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -2930,7 +2931,7 @@ class Store_model extends CI_Model
             }
             elseif($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -2972,7 +2973,7 @@ class Store_model extends CI_Model
             }
             elseif($sel_order === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif (!empty($order_id))
@@ -2987,7 +2988,7 @@ class Store_model extends CI_Model
             }
             elseif($sel_order === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -2997,9 +2998,11 @@ class Store_model extends CI_Model
 
             // Выборка курсов заказа
             $sel_courses = $this->db->query('
-                SELECT `orders_users_cart`.`ouc_p_id`, `products`.`p_course_id` 
+                SELECT `orders_users_cart`.`ouc_p_id`, `products`.`p_course_id`, `crs_category`, `crs_count_weeks`, 
+                  `crs_count_days` 
                 FROM `orders_users_cart` 
                 LEFT JOIN `products` ON `p_id`=`ouc_p_id`
+                LEFT JOIN `courses` ON `p_course_id`=`crs_id`
                 WHERE `ouc_o_id`=? and `ouc_u_id`=? and `p_course_id`>0', array($order_id, $user_id));
 
             if($sel_courses !== false and 0 < $sel_courses->num_rows())
@@ -3007,7 +3010,10 @@ class Store_model extends CI_Model
                 $i = 0;
                 foreach($sel_courses->result() as $row)
                 {
-                    $result['courses'][$i]['id'] = $row->p_course_id;
+                    $result['courses'][$i]['id']          = $row->p_course_id;
+                    $result['courses'][$i]['category']    = $row->crs_category;
+                    $result['courses'][$i]['count_weeks'] = $row->crs_count_weeks;
+                    $result['courses'][$i]['count_days']  = $row->crs_days;
 
                     $i++;
                 }
@@ -3015,7 +3021,7 @@ class Store_model extends CI_Model
             }
             elseif($sel_courses === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -3051,7 +3057,7 @@ class Store_model extends CI_Model
             }
             elseif($sel_course === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -3125,7 +3131,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_payments === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3244,7 +3250,7 @@ class Store_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -3297,7 +3303,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_refunds === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3344,7 +3350,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_products === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3420,7 +3426,7 @@ class Store_model extends CI_Model
         }
         elseif ($sel_attached_ad === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         $sel_attached_ad->free_result();*/
 

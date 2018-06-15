@@ -63,32 +63,7 @@ class User extends CI_Controller
         $this->load->model('Blog_model');
         $this->load->model('Course_model');
 
-        /**
-         * @var array $result Объединенные данные страницы
-         * @var array $events Данные календаря
-         * @var string $title Заголовок страницы
-         */
-        $result       = array();
-        $events       = array();
-        $title        = !empty($this->session->user['name'])
-            ? $this->session->user['name'] . ' - пользователь'
-            : 'Страница пользователя' ;
-
-        // Отправка сообщений или комментариев
-        /*if ($this->input->post('bt_send_message', true)) {
-            $blog_message = mb_substr(strip_tags($this->input->post('message_text', true)), 0, 500);
-
-            if (!empty($blog_message)) {
-                $this->Blog_model->setBlogMessage($this->user_id, $blog_message, $this->date);
-            }
-        }
-        elseif ($this->input->post('bt_send_comment', true)) {
-            $comment_message = mb_substr(strip_tags($this->input->post('message_text', true)), 0, 500);
-
-            if (!empty($comment_message) and is_numeric($this->input->post('blog_id', true))) {
-                $this->Blog_model->setCommentMessage($this->user_id, $comment_message, $this->input->post('blog_id', true), $this->date);
-            }
-        }*/
+        $title = !empty($this->session->user['name']) ? $this->session->user['name'] . ' - пользователь' : 'Страница пользователя' ;
 
         $u_training_time = $this->User_model->getUserTrainingTime($user_id); // Тренировочное время пользователя
         $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, $u_training_time); // Выборка курсов пользователя
@@ -211,7 +186,7 @@ class User extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = $title;
+        $this->page_data['title']     = $title;
         $this->page_data['page_menu'] = 'profile';
 
         $this->load->view('header/header', $this->page_data);

@@ -40,7 +40,7 @@ class Message_model extends CI_Model
         }
         elseif($ins_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -76,7 +76,7 @@ class Message_model extends CI_Model
         }
         elseif($sel_mess === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -100,7 +100,7 @@ class Message_model extends CI_Model
         }
         elseif($sel_last_conv === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -110,17 +110,19 @@ class Message_model extends CI_Model
      * Выборка списка последних диалогов пользователя
      *
      * @param $user_id
-     * @param $user_width
+     * @param $user_with
      * @return array
      */
     public function getUserConversations($user_id, $user_with)
     {
         $result = array('user_conversations' => array(), 'user_new_conversation' => array());
 
-        // Флаг обозначения, что пользователь с кем идет переписка не найден в списке диалогов
-        $fl_user_with = false;
+        if(is_numeric($user_id) and is_numeric($user_with))
+        {
+            // Флаг обозначения, что пользователь с кем идет переписка не найден в списке диалогов
+            $fl_user_with = false;
 
-        $sel_mess = $this->db->query('
+            $sel_mess = $this->db->query('
             SELECT `um_conv_id`, `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `user_name`, `user_email`, `user_image` 
             FROM `users_messages` 
             LEFT JOIN `users`
@@ -134,78 +136,79 @@ class Message_model extends CI_Model
                 (SELECT max(`um_date`) FROM `users_messages` GROUP BY `um_conv_id`)
             ORDER BY `um_date` DESC', array($user_id, $user_id, $user_id));
 
-        if ($sel_mess !== false and 0 < $sel_mess->num_rows())
-        {
-            $i = 0;
-            foreach ($sel_mess->result() as $row)
+            if ($sel_mess !== false and 0 < $sel_mess->num_rows())
             {
-                if ($user_id == $row->um_from)
+                $i = 0;
+                foreach ($sel_mess->result() as $row)
                 {
-                    $result['user_conversations'][$i]['user_with']['id'] = $row->um_whom;
+                    if ($user_id == $row->um_from)
+                    {
+                        $result['user_conversations'][$i]['user_with']['id'] = $row->um_whom;
+                    }
+                    else
+                    {
+                        $result['user_conversations'][$i]['user_with']['id'] = $row->um_from;
+                    }
+
+                    if($result['user_conversations'][$i]['user_with']['id'] == $user_with)
+                    {
+                        $fl_user_with = true;
+                    }
+
+                    $result['user_conversations'][$i]['user_with']['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
+                    $result['user_conversations'][$i]['user_with']['image'] = mb_substr($row->user_image, 1);
+
+                    $result['user_conversations'][$i]['from'] = $row->um_from;
+                    $result['user_conversations'][$i]['text'] = $row->um_text;
+
+                    setlocale(LC_ALL, 'ru_RU.UTF-8');
+                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->um_date);
+                    $message_date = ($row->um_date != '0000-00-00 00:00:00' or $date !== false)
+                        ? $date->format('d.m.Y')
+                        : '';
+
+                    $result['user_conversations'][$i]['date'] = $message_date;
+                    $result['user_conversations'][$i]['new']  = ($row->um_whom == $user_id) ? $row->um_new : 0;
+
+                    if (empty($result['user_conversations'][$i]['total_new']))
+                    {
+                        $result['user_conversations'][$i]['total_new'] = ($row->um_whom == $user_id) ? $row->um_new : 0;
+                    }
+                    else
+                    {
+                        $result['user_conversations'][$i]['total_new'] += ($row->um_whom == $user_id) ? $row->um_new : 0;
+                    }
+
+                    $i++;
                 }
-                else
-                {
-                    $result['user_conversations'][$i]['user_with']['id'] = $row->um_from;
-                }
-
-                if($result['user_conversations'][$i]['user_with']['id'] == $user_with)
-                {
-                    $fl_user_with = true;
-                }
-
-                $result['user_conversations'][$i]['user_with']['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                $result['user_conversations'][$i]['user_with']['image'] = mb_substr($row->user_image, 1);
-
-                $result['user_conversations'][$i]['from'] = $row->um_from;
-                $result['user_conversations'][$i]['text'] = $row->um_text;
-
-                setlocale(LC_ALL, 'ru_RU.UTF-8');
-                $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->um_date);
-                $message_date = ($row->um_date != '0000-00-00 00:00:00' or $date !== false)
-                    ? $date->format('d.m.Y')
-                    : '';
-
-                $result['user_conversations'][$i]['date'] = $message_date;
-                $result['user_conversations'][$i]['new']  = ($row->um_whom == $user_id) ? $row->um_new : 0;
-
-                if (empty($result['user_conversations'][$i]['total_new']))
-                {
-                    $result['user_conversations'][$i]['total_new'] = ($row->um_whom == $user_id) ? $row->um_new : 0;
-                }
-                else
-                {
-                    $result['user_conversations'][$i]['total_new'] += ($row->um_whom == $user_id) ? $row->um_new : 0;
-                }
-
-                $i++;
+                unset($row);
+                $sel_mess->free_result();
             }
-            unset($row);
-            $sel_mess->free_result();
-        }
-        elseif($sel_mess === false)
-        {
-            parent::logDbMessages(__METHOD__);
-        }
+            elseif($sel_mess === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
 
-        // Данные нового пользователя
-        if($fl_user_with === false)
-        {
-            $sel_user = $this->db->query('
+            // Данные нового пользователя
+            if($fl_user_with === false)
+            {
+                $sel_user = $this->db->query('
                 SELECT `user_name`, `user_email`, `user_image` 
                 FROM `users`
                 WHERE `user_id`=? and `user_type`=2 LIMIT 1', $user_with);
 
-            if($sel_user !== false and 1 == $sel_user->num_rows())
-            {
-                $row = $sel_user->row();
+                if($sel_user !== false and 1 == $sel_user->num_rows())
+                {
+                    $row = $sel_user->row();
 
-                $result['user_new_conversation']['user_with']['id']    = $user_with;
-                $result['user_new_conversation']['user_with']['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                $result['user_new_conversation']['user_with']['image'] = mb_substr($row->user_image, 1);
-            }
-            elseif($sel_user === false)
-            {
-                parent::logDbMessages(__METHOD__);
+                    $result['user_new_conversation']['user_with']['id']    = $user_with;
+                    $result['user_new_conversation']['user_with']['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
+                    $result['user_new_conversation']['user_with']['image'] = mb_substr($row->user_image, 1);
+                }
+                elseif($sel_user === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
         }
 
@@ -243,7 +246,7 @@ class Message_model extends CI_Model
             }
             elseif($sel_user_with === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
             unset($row);
             $sel_user_with->free_result();
@@ -272,7 +275,7 @@ class Message_model extends CI_Model
             }
             elseif($sel_mess === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -322,7 +325,7 @@ class Message_model extends CI_Model
         }
         elseif($sel_messages === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -368,7 +371,7 @@ class Message_model extends CI_Model
         }
         elseif($sel_message === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -391,7 +394,7 @@ class Message_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -416,7 +419,7 @@ class Message_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -447,7 +450,7 @@ class Message_model extends CI_Model
             }
             elseif ($sel_num_new === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -474,7 +477,7 @@ class Message_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -513,7 +516,7 @@ class Message_model extends CI_Model
         }
         elseif($ins_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -545,7 +548,7 @@ class Message_model extends CI_Model
             }
             elseif($sel_conv === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif (is_numeric($user_id))
@@ -559,7 +562,7 @@ class Message_model extends CI_Model
             }
             elseif($sel_conv === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -575,7 +578,7 @@ class Message_model extends CI_Model
             }
             elseif($sel_last_conv === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -617,7 +620,7 @@ class Message_model extends CI_Model
         }
         elseif ($sel_messages === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -687,7 +690,7 @@ class Message_model extends CI_Model
             }
             elseif($sel_messages === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
         }
@@ -759,7 +762,7 @@ class Message_model extends CI_Model
             }
             elseif($sel_messages === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
         }
@@ -834,7 +837,7 @@ class Message_model extends CI_Model
             }
             elseif($sel_messages === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
         }
@@ -868,7 +871,7 @@ class Message_model extends CI_Model
         }
         elseif($sel_conv_id === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -918,7 +921,7 @@ class Message_model extends CI_Model
         }
         elseif($sel_fb_user === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         if (!empty($conv_id) and is_numeric($conv_id))
@@ -947,7 +950,7 @@ class Message_model extends CI_Model
             }
             elseif($ins_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -1011,7 +1014,7 @@ class Message_model extends CI_Model
         }
         elseif($sel_messages === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1048,7 +1051,7 @@ class Message_model extends CI_Model
         }
         elseif($sel_num_new === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1082,7 +1085,7 @@ class Message_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1123,7 +1126,7 @@ class Message_model extends CI_Model
                 }
                 elseif($send_message === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                     return false;
                 }
                 else
@@ -1138,7 +1141,7 @@ class Message_model extends CI_Model
         }
         elseif ($sel_u_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else

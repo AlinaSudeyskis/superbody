@@ -7,58 +7,39 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
-                <div class="content_block_h parent">
-                    <h3>Редактировать тип курса</h3>
+            <div class="content_block new_content_block">
+                <div class="content_block_h new_content_block_h parent">
+                    <h3>Курсы питания</h3>
+                    <?php include_once('./app_fold/views/course/nutritions/courses_buts.php'); ?>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" class="video_admin_form" method="post">
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Наименование:</div>
-                            <input type="text" name="name" class="admin_form_txt admin_form_txt_middle" value="<?php echo $ing_name;?>" maxlength="255" required="required" />
+                    <?php include_once('./app_fold/views/course/nutritions/menu.php');?>
+                    <div class="anketa_block_cont">
+                        <div class="anketa_block_item">
+                            <?php if(!empty($ingestion)):?>
+                                <div class="anketa_block_item_h">Новое блюдо</div>
+                                <div class="anketa_block_item_cont">
+                                    <form action="" class="anketa_form" method="post">
+                                        <?php include_once('./app_fold/views/ingestion/settings_item.php'); ?>
+                                        <div class="anketa_form_buts_wrap parent">
+                                            <input type="submit" name="bt_save_ingestion_settings" value="Сохранить" class="video_admin_form_send" />
+                                            <?php if ($ingestion['blocked'] == 0) :?>
+                                                <input type="submit" name="bt_block_ingestion" value="Блокировать" class="video_admin_form_block"/>
+                                            <?php elseif ($ingestion['blocked'] == 1) :?>
+                                                <input type="submit" name="bt_unblock_ingestion" value="Разблокировать" class="video_admin_form_block"/>
+                                            <?php endif;?>
+                                        </div>
+                                    </form>
+                                </div>
+                            <?php else: ?>
+                                <h3 class="info">Информация не найдена</h3>
+                            <?php endif; ?>
                         </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Тип приема пищи:</div>
-                            <select name="s_ing_type" class="journal_form_select">
-                                <?php if (!empty($types)) :
-                                    foreach ($types as $type) :?>
-                                        <option value="<?php echo $type['id']; ?>"
-                                            <?php if (!empty($ing_type_id) and $ing_type_id == $type['id']) : ?> selected="selected"<?php endif;?>
-                                        ><?php echo $type['name']; ?></option>
-                                    <?php endforeach;
-                                    unset($type);
-                                endif;?>
-                            </select>
-                        </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Время приема:</div>
-                            <select name="s_time_additives" class="journal_form_select">
-                                <option value=""
-                                    <?php if (empty($before_after)) : ?> selected="selected"<?php endif;?>
-                                >На протяжении дня</option>
-                                <option value="before"
-                                    <?php if (!empty($before_after) and $before_after == 'before') : ?> selected="selected"<?php endif;?>
-                                >До тренировки</option>
-                                <option value="after"
-                                    <?php if (!empty($before_after) and $before_after == 'after') : ?> selected="selected"<?php endif;?>
-                                >После тренировки тренировки</option>
-                            </select>
-                        </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">
-                                Часы приема:
-                                <div class="h_subtitle">(Прим.: за 3 часа до тренировки)</div>
-                            </div>
-                            <input type="text" name="time_additives" value="<?php if (!empty($time_additives)) { echo $time_additives; } ?>" id="time_additives" class="admin_form_txt admin_form_txt_short"/>
-                        </div>
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_ingestion_settings" value="Сохранить" class="video_admin_form_send" />
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div><!-- content_col -->

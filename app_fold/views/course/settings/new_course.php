@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block ovv">
                 <div class="content_block_h parent">
-                    <h3>Новый курс</h3>
+                    <h3>Новый курс тренировок</h3>
                     <a href="/administration/course/new" class="add_tab_but">Добавить курс</a>
                     <a href="/administration/courses/type/new" class="tab_but">Добавить категорию</a>
                     <div class="content_block_h_buts">

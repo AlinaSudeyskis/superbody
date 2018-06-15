@@ -79,6 +79,7 @@ $route['profile/courses']                      = 'Course/usersCourses';
 $route['profile/course/(:num)']                = 'Course/usersCourse/$1';
 $route['profile/course/(:num)/reviews']        = 'Course/userCourseReviews/$1';
 $route['profile/course/(:num)/review/(:num)']  = 'Course/userCourseReview/$1/$2';
+$route['profile/course/(:num)/menu']           = 'Course/userNutritionMenu/$1';
 $route['profile/(:num)']                       = 'User/profile/$1';
 
 $route['settings']               = 'User/settings';
@@ -93,6 +94,8 @@ $route['ordering']               = 'Store/ordering';
 $route['ordering/(:num)']        = 'Store/ordering/$1';
 $route['viewed/video']           = 'Course/viewedVideo';
 $route['show/video']             = 'Course/showVideo';
+$route['showMeal']               = 'Course/showMeal';
+$route['selectMeal']             = 'Course/selectMeal';
 $route['show/workout']           = 'Course/showWorkout';
 $route['show/weeks']             = 'Course/showCourseWeeks';
 $route['searchUsers']            = 'User/searchUsers';
@@ -140,21 +143,13 @@ $route['upload/poster'] = 'Course/uploadPoster';
 $route['delete/poster'] = 'Course/deletePoster';
 $route['delete/video']  = 'Course/deleteVideo';
 $route['searchVideo']   = 'Course/searchVideo';
+
 // Тип курса
 $route['administration/courses/type']        = 'Course/courseTypes';
 $route['administration/courses/type/new']    = 'Course/newCourseTypes';
 $route['administration/courses/type/(:num)'] = 'Course/courseType/$1';
-// Тип приемов пищи
-$route['administration/ingestion/type']        = 'Course/ingestionTypes';
-$route['administration/ingestion/type/new']    = 'Course/newIngestionTypes';
-$route['administration/ingestion/type/(:num)'] = 'Course/ingestionType/$1';
-// Прием пищи
-$route['administration/ingestion']        = 'Course/ingestions';
-$route['administration/ingestion/new']    = 'Course/newIngestion';
-$route['administration/ingestion/(:num)'] = 'Course/ingestion/$1';
-
-// Курс
-$route['administration/courses']    = 'Course/courses';
+// Курс тренировок
+$route['administration/courses']    = 'Course/courses/workout';
 $route['administration/course/new'] = 'Course/newCourse';
 // Настройки
 $route['administration/course/(:num)']          = 'Course/course/$1';
@@ -177,13 +172,52 @@ $route['administration/course/(:num)/video/(:num)']       = 'Course/courseVideoS
 $route['administration/course/(:num)/promocodes']       = 'Course/course/$1/promocodes';
 $route['administration/course/(:num)/promocode/new']    = 'Course/course/$1/promocode_new';
 $route['administration/course/(:num)/promocode/(:num)'] = 'Course/course/$1/promocode/$2';
-// Прикрепленные курсы
+// Курсы продления
 $route['administration/course/(:num)/extends']       = 'Course/course/$1/extends';
 $route['administration/course/(:num)/extend/new']    = 'Course/course/$1/extend_new';
 $route['administration/course/(:num)/extend/(:num)'] = 'Course/course/$1/extend/$2';
+// Прикрепленные курсы
+$route['administration/course/(:num)/attached']   = 'Course/course/$1/attached';
+$route['administration/course/(:num)/attach/new'] = 'Course/course/$1/attach_new';
 // Активность клиентов
 $route['administration/course/(:num)/clients']       = 'Course/courseUsersActivity/$1';
 $route['administration/course/(:num)/client/(:num)'] = 'Course/courseUserActivity/$1/$2';
+
+// Курс питания
+$route['administration/nutritions']                = 'Course/courses/nutrition';
+$route['administration/nutrition/new']             = 'Course/newNutrition';
+// Настройки
+$route['administration/nutrition/(:num)']          = 'Course/nutrition/$1/settings';
+$route['administration/nutrition/(:num)/settings'] = 'Course/nutrition/$1/settings';
+// Landing настройки
+$route['administration/nutrition/(:num)/landing'] = 'Course/nutrition/$1/landing';
+// Статистика
+$route['administration/nutrition/(:num)/statistics'] = 'Course/nutrition/$1/statistics';
+// Отзывы
+$route['administration/nutrition/(:num)/reviews']       = 'Course/nutrition/$1/reviews';
+$route['administration/nutrition/(:num)/review/(:num)'] = 'Course/nutrition/$1/review/$2';
+// Промокоды курса
+$route['administration/nutrition/(:num)/promocodes']       = 'Course/nutrition/$1/promocodes';
+$route['administration/nutrition/(:num)/promocode/new']    = 'Course/nutrition/$1/promocode_new';
+$route['administration/nutrition/(:num)/promocode/(:num)'] = 'Course/nutrition/$1/promocode/$2';
+// Тип приемов пищи
+/*$route['administration/ingestion/type']        = 'Course/ingestionTypes';
+$route['administration/ingestion/type/new']    = 'Course/newIngestionTypes';
+$route['administration/ingestion/type/(:num)'] = 'Course/ingestionType/$1';*/
+// Блюда
+$route['administration/meals']       = 'Course/meals';
+$route['administration/meal/new']    = 'Course/newMeal';
+$route['administration/meal/(:num)'] = 'Course/meal/$1';
+
+$route['searchMeals'] = 'Course/searchMeals';
+// Тип блюда
+$route['administration/meals/types']       = 'Course/mealsTypes';
+$route['administration/meals/type/new']    = 'Course/newMealsType';
+$route['administration/meals/type/(:num)'] = 'Course/mealsType/$1';
+// Прием пищи
+$route['administration/ingestions']       = 'Course/ingestions';
+$route['administration/ingestion/new']    = 'Course/newIngestion';
+$route['administration/ingestion/(:num)'] = 'Course/ingestion/$1';
 
 // Записи блога
 $route['administration/blog/posts']          = 'Blog/blogPosts';

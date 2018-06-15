@@ -30,7 +30,7 @@ include_once('./app_fold/views/store/category/categories_menu.php');?>
                             <?php if(empty($user_session)): ?>
                                 <input type="text" class="ordering_in" name="i_o_name" placeholder="Ваше имя" value="<?php if(!empty($user_session)) : echo $user_session['s_name']; endif; ?>" />
                                 <input type="text" class="ordering_in" name="i_o_surname" placeholder="Ваша фамилия" value="<?php if(!empty($user_session)) : echo $user_session['s_surname']; endif; ?>" maxlength="255"/>
-                                <input type="text" class="ordering_in" name="i_o_email" placeholder="E-mail<?php if(empty($user_session)): ?> (обязателен для заполнения)<?php endif; ?>"
+                                <input type="text" class="ordering_in valid_email" name="i_o_email" placeholder="E-mail<?php if(empty($user_session)): ?> (обязателен для заполнения)<?php endif; ?>"
                                        value="<?php if(!empty($user_session)) : echo $user_session['email']; endif; ?>" maxlength="255" <?php if(empty($user_session)): ?>required="required"<?php endif; ?>/>
                             <?php endif;?>
                             <div class="ordering_check_wrap">

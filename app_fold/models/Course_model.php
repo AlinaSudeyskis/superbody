@@ -32,7 +32,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else {
@@ -59,7 +59,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -89,7 +89,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_course_type === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -123,7 +123,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_types === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -158,7 +158,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_types === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -188,7 +188,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -216,7 +216,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -246,7 +246,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_course_type === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -278,7 +278,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_types === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -293,16 +293,17 @@ class Course_model extends CI_Model
      * Сохранение нового приема пищи
      *
      * @param string $name Наименование
-     * @param int $type_id Тип приема пищи
-     * @param string $time_additives Время приема добавок
+     * @param string $time_from
+     * @param string $time_to
+     * @param int $admin_id
      * @param datetime $date Текущее время
-     * @return bool
+     * @return bool|int
      */
-    public function setNewIngestion($name, $type_id, $time_additives, $date)
+    public function setNewIngestion($name, $time_from, $time_to, $admin_id, $date)
     {
         $up_data = $this->db->query('
-            INSERT INTO `ingestions` (`ing_name`, `ing_type_id`, `time_additives`, `ing_date_add`, `ing_date_update`) 
-            VALUES (?, ?, ?, ?, ?)', array($name, $type_id, $time_additives, $date, $date));
+            INSERT INTO `ingestions`(`ing_name`, `ing_time_from`, `ing_time_to`, `ing_admin_id`, `ing_date_add`, `ing_date_update`) 
+            VALUES (?, ?, ?, ?, ?, ?)', array($name, $time_from, $time_to, $admin_id, $date, $date));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -310,7 +311,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -323,18 +324,18 @@ class Course_model extends CI_Model
      * Сохранение данных приема пищи
      *
      * @param int $ing_id ID приема пищи
-     * @param string $name Наименование
-     * @param int $type_id Тип приема пищи
-     * @param string $time_additives Время приема добавок
+     * @param string $time_from
+     * @param string $time_to
+     * @param int $admin_id
      * @param datetime $date Текущее время
      * @return bool
      */
-    public function setIngestionSettings($ing_id, $name, $type_id, $time_additives, $date)
+    public function setIngestionSettings($ing_id, $name, $time_from, $time_to, $admin_id, $date)
     {
         $up_data = $this->db->query('
             UPDATE `ingestions` 
-            SET `ing_name`=?, `ing_type_id`=?, `time_additives`=?, `ing_date_update`=? 
-            WHERE `ing_id`=? LIMIT 1', array($name, $type_id, $time_additives, $date, $ing_id));
+            SET `ing_name`=?, `ing_time_from`=?, `ing_time_to`=?, `ing_admin_id`=?, `ing_date_update`=? 
+            WHERE `ing_id`=? LIMIT 1', array($name, $time_from, $time_to, $admin_id, $date, $ing_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -342,7 +343,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -359,11 +360,10 @@ class Course_model extends CI_Model
      */
     public function getIngestion($ing_id)
     {
-        // Результат
         $result = array();
 
         $sel_course_type = $this->db->query('
-            SELECT `ing_name`, `ing_type_id`, `time_additives` 
+            SELECT `ing_name`, `ing_time_from`, `ing_time_to`, `ing_blocked` 
             FROM `ingestions` 
             WHERE `ing_id`=? LIMIT 1', $ing_id);
 
@@ -371,20 +371,14 @@ class Course_model extends CI_Model
         {
             $row = $sel_course_type->row();
 
-            $result['ing_name']       = $row->ing_name;
-            $result['ing_type_id']    = $row->ing_type_id;
-            $result['before_after']   = 'after';
-            $result['time_additives'] = $row->time_additives;
-
-            if ('-' == mb_substr($row->time_additives, 0, 1))
-            {
-                $result['before_after'] = 'before';
-                $result['time_additives'] = mb_substr($row->time_additives, 1);
-            }
+            $result['ingestion']['name']      = $row->ing_name;
+            $result['ingestion']['time_from'] = $row->ing_time_from;
+            $result['ingestion']['time_to']   = $row->ing_time_to;
+            $result['ingestion']['blocked']   = $row->ing_blocked;
         }
         elseif ($sel_course_type === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -398,17 +392,23 @@ class Course_model extends CI_Model
     public function getIngestions()
     {
         // Результат
-        $result = array();
+        $result = array('ingestions' => array());
 
-        $sel_types = $this->db->query('SELECT `ing_id`, `ing_name` FROM `ingestions` ORDER BY `ing_date_update` DESC');
+        $sel_types = $this->db->query('SELECT `ing_id`, `ing_name`, `ing_time_from`, `ing_time_to` FROM `ingestions`');
 
         if ($sel_types !== false and 0 < $sel_types->num_rows())
         {
             $i = 0;
             foreach ($sel_types->result() as $row)
             {
-                $result['ingestions'][$i]['id'] = $row->ing_id;
-                $result['ingestions'][$i]['name'] = $row->ing_name;
+                $result['ingestions'][$i]['id']        = $row->ing_id;
+                $result['ingestions'][$i]['name']      = $row->ing_name;
+                $result['ingestions'][$i]['time_from'] = $row->ing_time_from;
+                $result['ingestions'][$i]['time_to']   = $row->ing_time_to;
+
+                $result['ingestions_id'][$i]             = $row->ing_id;
+                $result['ingestions_from'][$row->ing_id] = $row->ing_time_from;
+                $result['ingestions_to'][$row->ing_id]   = $row->ing_time_to;
 
                 $i++;
             }
@@ -416,30 +416,1014 @@ class Course_model extends CI_Model
         }
         elseif ($sel_types === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
     }
 
+    /**
+     * Блокировка/разблокировка приема пищи
+     *
+     * @param $ing_id
+     * @param $block
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function blockIngestion($ing_id, $block, $admin_id, $date)
+    {
+        $up_data = $this->db->query('
+            UPDATE `ingestions` SET `ing_blocked`=?, `ing_admin_id`=?, `ing_date_update`=?
+            WHERE `ing_id`=? LIMIT 1', array($block, $admin_id, $date, $ing_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ ПРИЕМА ПИЩИ */
+
+
+    /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ БЛЮДА */
+
+    /**
+     * Выборка списка блюд
+     *
+     * @return array
+     */
+    public function getMeals()
+    {
+        $result = array('meals' => array());
+
+        $sel_data = $this->db->query('SELECT `ml_id`, `ml_name` FROM `meals`');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['meals'][$i] = self::parseMealData($row);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /** Сохранение нового блюда
+     *
+     * @param $name
+     * @param $description
+     * @param $type
+     * @param $videos
+     * @param $ingredients
+     * @param $ingredients_text
+     * @param $total_weight
+     * @param $total_proteins
+     * @param $total_fats
+     * @param $total_carbohydrates
+     * @param $total_calories
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setNewMeal($name, $description, $type, $videos, $ingredients, $ingredients_text, $total_weight,
+                               $total_proteins, $total_fats, $total_carbohydrates, $total_calories, $admin_id, $date)
+    {
+        $ins_data = $this->db->query('
+            INSERT INTO `meals` (`ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_weight`, `ml_proteins`, 
+              `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_admin_id`, `ml_update`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($type, $name, $description, $ingredients_text, $total_weight, $total_proteins, $total_fats,
+                    $total_carbohydrates, $total_calories, $admin_id, $date));
+
+        if ($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $meal_id = $this->db->insert_id();
+            $images_path = './meals_files/' . $meal_id;
+
+            // Сохранение пути к изображениям
+            $up_data = $this->db->query('UPDATE `meals` SET `ml_images`=? WHERE `ml_id`=? LIMIT 1', array($images_path, $meal_id));
+
+            if ($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            // Сохранение ингредиентов блюда
+            if(!empty($ingredients))
+            {
+                self::setMealIngredients($meal_id, $ingredients, $admin_id, $date);
+            }
+
+            // Сохранение видео блюда
+            if(!empty($videos))
+            {
+                self::setMealVideos($meal_id, $videos, $admin_id, $date);
+            }
+
+            return $meal_id;
+        }
+        elseif ($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Сохранение массива блюд с проверкой типа блюда
+     *
+     * @param $meals
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setNewMeals($meals, $admin_id, $date)
+    {
+        $result = true;
+
+        if(!empty($meals['meals']) and is_numeric($admin_id) and !empty($date))
+        {
+
+            $values = '';
+            foreach($meals['meals'] as $meal)
+            {
+                $type_id = self::checkMealType($meal['type'], $admin_id, $date);
+
+                $values .= (!empty($values)) ? ', ' : '';
+
+                $values .= '('.$type_id.', "'.$meal['name'].'", "'.$meal['description'].'", "'.$meal['ingredients'].'", '
+                    .$meal['weight'].', '.$meal['proteins'].', '.$meal['fats'].', '.$meal['carbohydrates'].', '
+                    .$meal['calories'].', '.$admin_id.', "'.$date.'")';
+            }
+            unset($meal);
+
+            if(!empty($values))
+            {
+                $ins_data = $this->db->query('
+                    INSERT INTO `meals` (`ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_weight`, `ml_proteins`, 
+                      `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_admin_id`, `ml_update`) 
+                    VALUES ' . $values);
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных блюда
+     *
+     * @param $meal_id
+     * @return array
+     */
+    public function getMeal($meal_id)
+    {
+        $result = array('meal' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `ml_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_images`, `ml_weight`, `ml_proteins`, 
+              `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_blocked` 
+            FROM `meals` WHERE `ml_id`=? LIMIT 1', $meal_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['meal'] = self::parseMealData($row);
+
+            // Игредиенты блюда
+            $ingredients = self::getMealIngredients($meal_id);
+
+            // Видео блюда
+            $videos = self::getMealVideos($meal_id);
+
+            $result['meal'] = array_merge($result['meal'], $ingredients, $videos);
+
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение изменений данных блюда
+     *
+     * @param $meal_id
+     * @param $name
+     * @param $description
+     * @param $type
+     * @param $insert_videos
+     * @param $insert_ingredients
+     * @param $update_ingredients
+     * @param $delete_ingredients
+     * @param $ingredients_text
+     * @param $total_weight
+     * @param $total_proteins
+     * @param $total_fats
+     * @param $total_carbohydrates
+     * @param $total_calories
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function updateMealSettings($meal_id, $name, $description, $type, $insert_videos, $insert_ingredients,
+                                       $update_ingredients, $delete_ingredients, $ingredients_text, $total_weight,
+                                       $total_proteins, $total_fats, $total_carbohydrates, $total_calories, $admin_id, $date)
+    {
+        $result = false;
+
+        if(is_numeric($meal_id))
+        {
+            $up_data = $this->db->query('
+                UPDATE `meals` SET `ml_mt_id`=?, `ml_name`=?, `ml_description`=?, `ml_ingredients`=?, `ml_weight`=?, 
+                  `ml_proteins`=?, `ml_fats`=?, `ml_carbohydrates`=?, `ml_calories`=?, `ml_admin_id`=?, `ml_update`=? 
+                WHERE `ml_id`=? LIMIT 1',
+                    array($type, $name, $description, $ingredients_text, $total_weight, $total_proteins, $total_fats,
+                        $total_carbohydrates, $total_calories, $admin_id, $date, $meal_id));
+
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                if(!empty($insert_ingredients))
+                {
+                    self::setMealIngredients($meal_id, $insert_ingredients, $admin_id, $date);
+                }
+                if(!empty($update_ingredients))
+                {
+                    self::updateMealIngredients($meal_id, $update_ingredients, $admin_id, $date);
+                }
+                if(!empty($delete_ingredients))
+                {
+                    self::deleteMealIngredients($meal_id, $delete_ingredients);
+                }
+                if(!empty($insert_videos))
+                {
+                    self::setMealVideos($meal_id, $insert_videos, $admin_id, $date);
+                }
+
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Блокировка/разблокировка блюда
+     *
+     * @param $meal_id
+     * @param $block
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function blockMeal($meal_id, $block, $admin_id, $date)
+    {
+        $up_data = $this->db->query('UPDATE `meals` SET `ml_blocked`=?, `ml_admin_id`=?, `ml_update`=? WHERE `ml_id`=? LIMIT 1',
+            array($block, $admin_id, $date, $meal_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Добавление видео блюда
+     *
+     * @param $meal_id
+     * @param $videos
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setMealVideos($meal_id, $videos, $admin_id, $date)
+    {
+        $result = true;
+
+        if(!empty($videos) and is_array($videos))
+        {
+            $values = '';
+            foreach($videos as $video)
+            {
+                $values .= (!empty($values)) ? ', ' : '';
+
+                $values .= '('.$meal_id.', "'.$video.'", '.$admin_id.', "'.$date.'")';
+            }
+            unset($video);
+
+            if(!empty($values))
+            {
+                $ins_data = $this->db->query('INSERT INTO `meals_videos` (`mv_ml_id`, `mv_video`, `mv_admin_id`, `mv_update`)
+                    VALUES ' . $values);
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка видео блюда
+     *
+     * @param $meal_id
+     * @return array
+     */
+    public function getMealVideos($meal_id)
+    {
+        $result = array('meal_videos' => array());
+
+        $sel_data = $this->db->query('SELECT `mv_id`, `mv_video` FROM `meals_videos` WHERE `mv_ml_id`=?', $meal_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['meal_videos'][$row->mv_id] = htmlspecialchars_decode($row->mv_video, ENT_QUOTES);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Удаление видео из списка видео блюда
+     *
+     * @param $meal_id
+     * @param $video_id
+     * @return bool
+     */
+    public function deleteMealVideo($meal_id, $video_id)
+    {
+        $result = true;
+
+        $del_data = $this->db->query('DELETE FROM `meals_videos` WHERE `mv_id`=? and `mv_ml_id`=? LIMIT 1', array($video_id, $meal_id));
+
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка первого блюда приема пищи курса питания
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getNutritionIngestionsFirstMeal($course_id)
+    {
+        $result = array('meal' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `cds_day`, `cds_ci_id`, `cds_ml_id`,
+             `ml_name`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories`
+            FROM `courses_days_schedule`
+             LEFT JOIN `meals` ON `ml_id`=`cds_ml_id`             
+            WHERE `cds_crs_id`=?', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach($sel_data->result() as $row)
+            {
+                if(empty($result['meal'][$row->cds_day][$row->cds_ci_id]))
+                {
+                    $result['meal'][$row->cds_day][$row->cds_ci_id]['id']   = $row->cds_ml_id;
+                    $result['meal'][$row->cds_day][$row->cds_ci_id]['name'] = $row->ml_name . ' [БЖУК - ' . $row->ml_proteins . ' '
+                        . $row->ml_fats .  ' ' . $row->ml_carbohydrates . ' ' . $row->ml_caloreis . ']';
+                }
+
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка блюда курса питания
+     *
+     * @param $user_id
+     * @param $un_id
+     * @param $day
+     * @param $ingestion
+     * @param $meal_id
+     * @return array
+     */
+    public function getUserNutritionMeal($user_id, $day, $ingestion, $un_id, $meal_id)
+    {
+        $result = array('meal' => array());
+
+        if(is_numeric($user_id) and is_numeric($day) and is_numeric($ingestion) and is_numeric($un_id) and is_numeric($meal_id))
+        {
+
+            $sel_uc = $this->db->query('
+                SELECT `un_id`, `un_date`, `uc_course_id`, `uc_user_id`
+                FROM `users_nutritions`
+                LEFT JOIN `users_courses` ON `uc_id`=`un_uc_id`
+                WHERE `un_id`=? and `uc_user_id`=? LIMIT 1', array($un_id, $user_id));
+
+            if($sel_uc !== false and 1 == $sel_uc->num_rows())
+            {
+                $row       = $sel_uc->row();
+                $course_id = $row->uc_course_id;
+
+                $fill_nutrition = self::getFillNutritionSchedule($course_id);
+
+                // Выборка блюда по ID
+                if(empty($meal_id))
+                {
+                    // Выборка блюда из меню курса
+                    $meal_id = $fill_nutrition['fill_course_schedule'][$day][$ingestion];
+                }
+
+                // Блюдо
+                $meal = self::getMeal($meal_id);
+                // Игредиенты блюда
+                $ingredients = self::getMealIngredients($meal_id);
+
+                $result['meal'] = array_merge($meal['meal'], $ingredients);
+
+                $result['duplicate_day'] = $fill_nutrition['duplicate_course_schedule'][$day][$ingestion]['day'];
+                $result['duplicate_ing'] = $fill_nutrition['duplicate_course_schedule'][$day][$ingestion]['ing'];
+                $result['un_date']       = $row->un_date;
+            }
+            elseif($sel_uc === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка блюд приема пищи определенного дня курса питания пользователя
+     *
+     * @param $user_id
+     * @param $un_id
+     * @param $day
+     * @param $ingestion
+     * @return array
+     */
+    public function getUserIngestionMeals($user_id, $un_id, $day, $ingestion)
+    {
+        $result = array('meals' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `un_uc_id`, `uc_course_id`, `uc_user_id` 
+            FROM `users_nutritions` 
+            LEFT JOIN `users_courses` ON `uc_id`=`un_uc_id`
+            WHERE `un_id`=? and `uc_user_id`=? LIMIT 1', array($un_id, $user_id));
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+            $course_id = $row->uc_course_id;
+            unset($row);
+
+            $schedule = self::getFillNutritionSchedule($course_id);
+            $result['meals'] = $schedule['course_schedule'][$day][$ingestion];
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение номера блюда курса питания пользователя
+     *
+     * @param $user_id
+     * @param $day
+     * @param $ingestion
+     * @param $un_id
+     * @param $meal_id
+     * @param $date
+     * @return bool
+     */
+    public function updateUserNutritionMeal($user_id, $day, $ingestion, $un_id, $meal_id, $date)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('
+            SELECT `un_uc_id`, `uc_user_id` 
+            FROM `users_nutritions`
+             LEFT JOIN `users_courses` ON `uc_id`=`un_uc_id`
+            WHERE `un_id`=? and `uc_user_id`=? LIMIT 1', array($un_id, $user_id));
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $up_data = $this->db->query('
+                UPDATE `users_nutritions` SET `un_ml_id`=?, `un_update`=? 
+                WHERE `un_id`=? and `un_cds_day`=? and `un_cds_ci_id`=? LIMIT 1',
+                    array($meal_id, $date, $un_id, $day, $ingestion));
+
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Ингредиенты блюда
+     *
+     * @param $meal_id
+     * @return array
+     */
+    public function getMealIngredients($meal_id)
+    {
+        $result = array('ingredients' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `ingr_id`, `ingr_name`, `ingr_weight`, `ingr_proteins`, `ingr_fats`, `ingr_carbohydrates`, `ingr_calories` 
+            FROM `ingredients`
+            WHERE `ingr_ml_id`=?', $meal_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['ingredients'][$row->ingr_id]['id']            = $row->ingr_id;
+                $result['ingredients'][$row->ingr_id]['name']          = $row->ingr_name;
+                $result['ingredients'][$row->ingr_id]['weight']        = $row->ingr_weight;
+                $result['ingredients'][$row->ingr_id]['proteins']      = $row->ingr_proteins;
+                $result['ingredients'][$row->ingr_id]['fats']          = $row->ingr_fats;
+                $result['ingredients'][$row->ingr_id]['carbohydrates'] = $row->ingr_carbohydrates;
+                $result['ingredients'][$row->ingr_id]['calories']      = $row->ingr_calories;
+
+                $result['ingredients_id'][$i] = $row->ingr_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Добавление ингредиентов блюда
+     *
+     * @param $meal_id
+     * @param array $ingredients
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setMealIngredients($meal_id, $ingredients, $admin_id, $date)
+    {
+        $result = false;
+
+        if(is_array($ingredients))
+        {
+            $values = '';
+            $i = 0;
+            foreach($ingredients as $ingr)
+            {
+                if($i > 0)
+                {
+                    $values .= ', ';
+                }
+
+                $values .= '('. $meal_id .', "'. $ingr['name'] .'", '. $ingr['weight'] .', '. $ingr['proteins']
+                    .', '. $ingr['fats'] .', '. $ingr['carbohydrates'] .', '. $ingr['calories']
+                    .', '. $admin_id .', "'. $date .'")';
+
+                $i++;
+            }
+            unset($ingr);
+
+            $ins_ingr = $this->db->query('
+                INSERT INTO `ingredients` (`ingr_ml_id`, `ingr_name`, `ingr_weight`, `ingr_proteins`, `ingr_fats`, 
+                  `ingr_carbohydrates`, `ingr_calories`, `ingr_admin_id`, `ingr_update`) 
+                VALUES ' . $values);
+
+            if($ins_ingr !== false)
+            {
+                $result = true;
+            }
+            elseif($ins_ingr === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление данных ингредиентов
+     *
+     * @param $meal_id
+     * @param array $ingredients
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function updateMealIngredients($meal_id, $ingredients, $admin_id, $date)
+    {
+        $result = true;
+
+        if(is_array($ingredients))
+        {
+            foreach($ingredients as $ingr_id => $ingredient)
+            {
+                $up_data = $this->db->query('
+                    UPDATE `ingredients` SET `ingr_ml_id`=?, `ingr_name`=?, `ingr_weight`=?, `ingr_proteins`=?, 
+                      `ingr_fats`=?, `ingr_carbohydrates`=?, `ingr_calories`=?, `ingr_admin_id`=?, `ingr_update`=?
+                    WHERE `ingr_id`=? LIMIT 1',
+                        array($meal_id, $ingredient['name'], $ingredient['weight'], $ingredient['proteins'], $ingredient['fats'],
+                            $ingredient['carbohydrates'], $ingredient['calories'], $admin_id, $date, $ingr_id));
+
+                if($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+            unset($ingredient);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Удаление ингредиентов блюда
+     *
+     * @param $meal_id
+     * @param array $ingredients
+     * @return bool
+     */
+    public function deleteMealIngredients($meal_id, $ingredients)
+    {
+        $result = true;
+
+        if(is_array($ingredients))
+        {
+            foreach($ingredients as $ingr_id => $ingredient)
+            {
+                $up_data = $this->db->query('DELETE FROM `ingredients` WHERE `ingr_id`=? and `ingr_ml_id`=? LIMIT 1',
+                    array($ingr_id, $meal_id));
+
+                if($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+            unset($ingredient);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Список типов блюд
+     *
+     * @return array
+     */
+    public function getMealsTypes()
+    {
+        $result = array('meals_types' => array());
+
+        $sel_data = $this->db->query('SELECT `mt_id`, `mt_name` FROM `meals_types`');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['meals_types'][$i]['id']   = $row->mt_id;
+                $result['meals_types'][$i]['name'] = $row->mt_name;
+
+                $result['meals_types_id'][$i] = $row->mt_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Данные типа блюда
+     *
+     * @param $type_id
+     * @return array
+     */
+    public function getMealsType($type_id)
+    {
+        $result = array('meals_type' => array());
+
+        $sel_data = $this->db->query('SELECT `mt_id`, `mt_name`, `mt_blocked` FROM `meals_types` WHERE `mt_id`=? LIMIT 1', $type_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['meals_type']['id']      = $row->mt_id;
+            $result['meals_type']['name']    = $row->mt_name;
+            $result['meals_type']['blocked'] = $row->mt_blocked;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение нового типа блюда
+     *
+     * @param $name
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setNewMealsType($name, $admin_id, $date)
+    {
+        $ins_data = $this->db->query('
+            INSERT INTO `meals_types` (`mt_name`, `mt_admin_id`, `mt_update`) 
+            VALUES (?, ?, ?)', array($name, $admin_id, $date));
+
+        if ($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            return $this->db->insert_id();
+        }
+        elseif ($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Сохранение изменений данных типа блюда
+     *
+     * @param $type_id
+     * @param $name
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function updateMealsType($type_id, $name, $admin_id, $date)
+    {
+        $up_data = $this->db->query('
+            UPDATE `meals_types` 
+            SET `mt_name`=?, `mt_admin_id`=?, `mt_update`=? 
+            WHERE `mt_id`=? LIMIT 1', array($name, $admin_id, $date, $type_id));
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Блокировка\разблокировка типа блюда
+     *
+     * @param $type_id
+     * @param $block
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function blockMealsType($type_id, $block, $admin_id, $date)
+    {
+        $up_data = $this->db->query('
+            UPDATE `meals_types` SET `mt_blocked`=?, `mt_admin_id`=?, `mt_update`=?
+            WHERE `mt_id`=? LIMIT 1', array($block, $admin_id, $date, $type_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
+     * Поиск типа блюда по имени. Добавление нового типа блюда, в случае отсутствия
+     *
+     * @param $type_name
+     * @param $admin_id
+     * @param $date
+     * @return bool|null
+     */
+    public function checkMealType($type_name, $admin_id, $date)
+    {
+        $result = null;
+
+        $sel_data = $this->db->query('SELECT `mt_id` FROM `meals_types` WHERE `mt_name`=? LIMIT 1', $type_name);
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+            $result = $row->mt_id;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        else
+        {
+            // Добавление нового типа блюда
+            $result = self::setNewMealsType($type_name, $admin_id, $date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * AJAX. Поиск блюд
+     *
+     * @param $search_text
+     * @param $crs_day
+     * @param $crs_ingestion
+     * @return bool|string
+     */
+    public function searchMeals($search_text, $crs_day, $crs_ingestion)
+    {
+        $result = false;
+
+        $search_text = $search_text.'*';
+        $search_text = preg_replace_callback('/([^"]+)/',
+            function ($matches) {
+                return str_replace(' ', ' +', $matches[1]);
+            }, $search_text);
+
+        $sel_meals = $this->db->query('
+            SELECT `ml_id`, `ml_name`, `ml_description`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories`
+            FROM `meals` 
+            WHERE MATCH (`ml_name`) AGAINST (? IN BOOLEAN MODE) and `ml_blocked`=0', $search_text);
+
+        if ($sel_meals !== false and 0 < $sel_meals->num_rows())
+        {
+            foreach ($sel_meals->result() as $row)
+            {
+                $result .= '
+                    <div class="add_tren_item meal parent" data-day="' . $crs_day . '" data-meal-id="' . $row->ml_id . '" 
+                        data-ingestion="' . $crs_ingestion . '" data-meal-name="' . $row->ml_name . '" 
+                        data-proteins="' . $row->ml_proteins . '" data-fats="' . $row->ml_fats . '" 
+                        data-carbohydrates="' . $row->ml_carbohydrates . '" data-calories="' . $row->ml_calories . '">
+                        <a href="/administration/meal/' . $row->ml_id . '" class="add_tov_cont add_tren_name">
+                            <div class="add_tov_h">' . $row->ml_name . '</div>
+                        </a>
+                    </div>';
+                /*$result .= '
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h"></div>
+                        <div id="meal-'. $crs_day .'-'. $crs_ingestion .'-'. $row->ml_id .'" class="add_tov_val_item parent">
+                            <div class="add_kurs_val_video_wrap parent">
+                                <a href="/administration/meal/'. $row->ml_id .'" class="add_tov_val_cont parent">
+                                    <span class="add_tov_val_h">'. $row->ml_name .'</span>
+                                    <span class="add_tov_val_sh">БЖУК - '. $row->ml_proteins .' '. $row->ml_fats .' '.
+                                        $row->ml_carbohydrates .' '. $row->ml_calories .'</span>
+                                </a>
+                                <div class="del_tov"></div>
+                            </div>
+                            <input type="hidden" name="id_meal['. $crs_day .']['. $crs_ingestion .']['. $row->ml_id .']" value="" id="id-meal-'. $crs_day .'-'. $crs_ingestion .'-'. $row->ml_id .'"/>
+                        </div>
+                    </div>';*/
+            }
+            unset($row);
+        }
+        elseif ($sel_meals === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        else
+        {
+            $result = '<div class="not_found">Блюдо не найдено</div>';
+        }
+
+        return $result;
+    }
+
+    /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ БЛЮДА */
 
 
     /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА */
 
     /**
-     * Выборка всех курсов
+     * Выборка всех курсов тренировок
      *
      * @return array
      */
-    public function getCourses()
+    public function getWorkoutCourses()
     {
         $result['courses'] = array();
         
         $sel_courses = $this->db->query('
             SELECT `crs_id`, `crs_image`, `crs_name`, `clp_id`, `clp_activated` 
             FROM `courses`
-            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`');
+            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+            WHERE `crs_category`="workout"');
         
         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
         {
@@ -454,9 +1438,43 @@ class Course_model extends CI_Model
         }
         elseif ($sel_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
+        return $result;
+    }
+
+    /**
+     * Выборка всех курсов питания
+     *
+     * @return array
+     */
+    public function getNutritionCourses()
+    {
+        $result['courses'] = array();
+
+        $sel_courses = $this->db->query('
+            SELECT `crs_id`, `crs_image`, `crs_name`, `clp_id`, `clp_activated` 
+            FROM `courses`
+            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+            WHERE `crs_category`="nutrition"');
+
+        if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_courses->result() as $row)
+            {
+                $result['courses'][$i] = self::parseCourseData($row);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_courses === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
         return $result;
     }
 
@@ -492,7 +1510,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -510,7 +1528,7 @@ class Course_model extends CI_Model
         $result['course'] = NULL;
 
         $sel_course = $this->db->query('
-            SELECT `crs_id`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, `crs_count_days`, 
+            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, `crs_count_days`, 
               `crs_price`, `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
               `crs_fitcoin_price`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`, `p_id`
             FROM `courses`
@@ -529,83 +1547,89 @@ class Course_model extends CI_Model
 
             $sel_course->free_result();
 
-            // Расписание курса (недели, дни, видео)
-            $sel_schedule = $this->db->query('
-                SELECT `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, 
-                  `video_name`, `video_path`, `video_poster`, `video_remove_url`
-                FROM `courses_training_weeks`
-                LEFT JOIN `video` ON `video_id`=`ctw_video_id`
-                WHERE `ctw_course_id`=?
-                ORDER BY `ctw_num_workout`', $course_id);
-            if ($sel_schedule !== false and 0 < $sel_schedule->num_rows())
+            if($row->crs_category == 'workout')
             {
-                foreach ($sel_schedule->result() as $row)
+                // Расписание курса (недели, дни, видео)
+                $sel_schedule = $this->db->query('
+                    SELECT `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, 
+                      `video_name`, `video_path`, `video_poster`, `video_remove_url`
+                    FROM `courses_training_weeks`
+                    LEFT JOIN `video` ON `video_id`=`ctw_video_id`
+                    WHERE `ctw_course_id`=?
+                    ORDER BY `ctw_num_workout`', $course_id);
+
+                if ($sel_schedule !== false and 0 < $sel_schedule->num_rows())
                 {
-                    $num_workout = $row->ctw_num_workout;
-
-                    $result['course']['workouts'][$num_workout]['repeat_workout'] = $row->ctw_repeat_workout;
-                    $result['course']['workouts'][$num_workout]['description']    = $row->ctw_description;
-
-                    if ($row->ctw_repeat_workout > 0)
+                    foreach ($sel_schedule->result() as $row)
                     {
-                        $video_id       = $result['course']['workouts'][$row->ctw_repeat_workout]['video_id'];
-                        $video_name     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_name'];
-                        $video_poster   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_poster'];
-                        $video_path     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_path'];
-                        $video_remove   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_remove'];
-                    }
-                    else
-                    {
-                        $video_id       = $row->ctw_video_id;
-                        $video_name     = $row->video_name;
-                        $video_poster   = mb_substr($row->video_poster, 1);
-                        $video_path     = mb_substr($row->video_path, 1);
-                        $video_remove   = $row->video_remove_url;
-                    }
+                        $num_workout = $row->ctw_num_workout;
 
-                    $result['course']['workouts'][$num_workout]['video_id']       = $video_id;
-                    $result['course']['workouts'][$num_workout]['video_name']     = $video_name;
-                    $result['course']['workouts'][$num_workout]['video_poster']   = $video_poster;
-                    $result['course']['workouts'][$num_workout]['video_path']     = $video_path;
-                    $result['course']['workouts'][$num_workout]['video_remove']   = $video_remove;
+                        $result['course']['workouts'][$num_workout]['repeat_workout'] = $row->ctw_repeat_workout;
+                        $result['course']['workouts'][$num_workout]['description']    = $row->ctw_description;
 
+                        if ($row->ctw_repeat_workout > 0)
+                        {
+                            $video_id       = $result['course']['workouts'][$row->ctw_repeat_workout]['video_id'];
+                            $video_name     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_name'];
+                            $video_poster   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_poster'];
+                            $video_path     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_path'];
+                            $video_remove   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_remove'];
+                        }
+                        else
+                        {
+                            $video_id       = $row->ctw_video_id;
+                            $video_name     = $row->video_name;
+                            $video_poster   = mb_substr($row->video_poster, 1);
+                            $video_path     = mb_substr($row->video_path, 1);
+                            $video_remove   = $row->video_remove_url;
+                        }
+
+                        $result['course']['workouts'][$num_workout]['video_id']       = $video_id;
+                        $result['course']['workouts'][$num_workout]['video_name']     = $video_name;
+                        $result['course']['workouts'][$num_workout]['video_poster']   = $video_poster;
+                        $result['course']['workouts'][$num_workout]['video_path']     = $video_path;
+                        $result['course']['workouts'][$num_workout]['video_remove']   = $video_remove;
+
+                    }
+                    unset($row);
                 }
-                unset($row);
-            }
-            elseif ($sel_schedule === false)
-            {
-                parent::logDbMessages(__METHOD__);
-            }
-            $sel_schedule->free_result();
-
-            // Тренеры курса
-            $sel_couches = $this->db->query('
-                SELECT `cc_couch_id`, `cc_percent`, `cc_discount`, `user_name`, `user_email`
-                FROM `courses_couches`
-                LEFT JOIN `users` ON `cc_couch_id`=`users`.`user_id`
-                WHERE `cc_course_id`=?', $course_id);
-            if ($sel_couches !== false and 0 < $sel_couches->num_rows())
-            {
-                $i = 0;
-                foreach ($sel_couches->result() as $row)
+                elseif ($sel_schedule === false)
                 {
-
-                    $result['course']['couches'][$i]['id']       = $row->cc_couch_id;
-                    $result['course']['couches'][$i]['name']     = !empty(($row->user_name)) ? $row->user_name : $row->user_email;
-                    $result['course']['couches'][$i]['percent']  = $row->cc_percent;
-                    $result['course']['couches'][$i]['discount'] = $row->cc_discount;
-
-                    $discount += $row->cc_discount;
-
-                    $i++;
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
-                unset($row);
+                $sel_schedule->free_result();
+
+                // Тренеры курса
+                $sel_couches = $this->db->query('
+                    SELECT `cc_couch_id`, `cc_percent`, `cc_discount`, `user_name`, `user_email`
+                    FROM `courses_couches`
+                    LEFT JOIN `users` ON `cc_couch_id`=`users`.`user_id`
+                    WHERE `cc_course_id`=?', $course_id);
+
+                if ($sel_couches !== false and 0 < $sel_couches->num_rows())
+                {
+                    $i = 0;
+                    foreach ($sel_couches->result() as $row)
+                    {
+
+                        $result['course']['couches'][$i]['id']       = $row->cc_couch_id;
+                        $result['course']['couches'][$i]['name']     = !empty(($row->user_name)) ? $row->user_name : $row->user_email;
+                        $result['course']['couches'][$i]['percent']  = $row->cc_percent;
+                        $result['course']['couches'][$i]['discount'] = $row->cc_discount;
+
+                        $discount += $row->cc_discount;
+
+                        $i++;
+                    }
+                    unset($row);
+                }
+                elseif ($sel_couches === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                $sel_couches->free_result();
+
             }
-            elseif ($sel_couches === false)
-            {
-                parent::logDbMessages(__METHOD__);
-            }
-            $sel_couches->free_result();
 
             // Вычисление новой цены на курс
             /*if ($discount > 0) {
@@ -634,7 +1658,7 @@ class Course_model extends CI_Model
             }
             elseif ($sel_users === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
             $sel_users->free_result();
             $result['course']['bought'] = $bought;
@@ -676,7 +1700,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_course === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -693,7 +1717,7 @@ class Course_model extends CI_Model
         $result['course'] = array();
 
         $sel_course = $this->db->query('
-            SELECT `crs_id`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, `crs_count_days`, 
+            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, `crs_count_days`, 
               `crs_price`, `crs_fitcoin_price`, `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, 
               `crs_recurrent_subsequent`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`
             FROM `courses`
@@ -712,64 +1736,71 @@ class Course_model extends CI_Model
             $sel_course->free_result();
 
             // Расписание курса (недели, дни, видео)
-            $sel_schedule = $this->db->query('
-                SELECT `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, 
-                  `video_name`, `video_path`, `video_poster`, `video_remove_url`
-                FROM `courses_training_weeks`
-                LEFT JOIN `video` ON `video_id`=`ctw_video_id`
-                WHERE `ctw_course_id`=?
-                ORDER BY `ctw_num_workout`
-                LIMIT 336', $course_id);
-            if ($sel_schedule !== false and 0 < $sel_schedule->num_rows())
+            if($row->crs_category == 'workout')
             {
-                foreach ($sel_schedule->result() as $row)
+                $sel_schedule = $this->db->query('
+                    SELECT `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, 
+                      `video_name`, `video_path`, `video_poster`, `video_remove_url`
+                    FROM `courses_training_weeks`
+                    LEFT JOIN `video` ON `video_id`=`ctw_video_id`
+                    WHERE `ctw_course_id`=?
+                    ORDER BY `ctw_num_workout`
+                    LIMIT 336', $course_id);
+                if ($sel_schedule !== false and 0 < $sel_schedule->num_rows())
                 {
-                    $num_workout = $row->ctw_num_workout;
-
-                    if ($num_workout == 0)
+                    foreach ($sel_schedule->result() as $row)
                     {
-                        $result['course']['instruction']['video_id']     = $row->ctw_video_id;
-                        $result['course']['instruction']['video_name']   = $row->video_name;
-                        $result['course']['instruction']['video_poster'] = is_file($row->video_poster) ? mb_substr($row->video_poster, 1) : '';
-                        $result['course']['instruction']['video_path']   = is_file($row->video_path) ? mb_substr($row->video_path, 1) : '';
-                        $result['course']['instruction']['video_remove'] = $row->video_remove_url;
-                    }
-                    else
-                    {
-                        $result['course']['workouts'][$num_workout]['repeat_workout'] = $row->ctw_repeat_workout;
-                        $result['course']['workouts'][$num_workout]['description']    = $row->ctw_description;
+                        $num_workout = $row->ctw_num_workout;
 
-                        if ($row->ctw_repeat_workout > 0)
+                        if ($num_workout == 0)
                         {
-                            $video_id       = $result['course']['workouts'][$row->ctw_repeat_workout]['video_id'];
-                            $video_name     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_name'];
-                            $video_poster   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_poster'];
-                            $video_path     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_path'];
-                            $video_remove   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_remove'];
+                            $result['course']['instruction']['video_id']     = $row->ctw_video_id;
+                            $result['course']['instruction']['video_name']   = $row->video_name;
+                            $result['course']['instruction']['video_poster'] = is_file($row->video_poster) ? mb_substr($row->video_poster, 1) : '';
+                            $result['course']['instruction']['video_path']   = is_file($row->video_path) ? mb_substr($row->video_path, 1) : '';
+                            $result['course']['instruction']['video_remove'] = $row->video_remove_url;
                         }
                         else
                         {
-                            $video_id       = $row->ctw_video_id;
-                            $video_name     = $row->video_name;
-                            $video_poster   = is_file($row->video_poster) ? mb_substr($row->video_poster, 1) : '';
-                            $video_path     = is_file($row->video_path) ? mb_substr($row->video_path, 1) : '';
-                            $video_remove   = $row->video_remove_url;
-                        }
+                            $result['course']['workouts'][$num_workout]['repeat_workout'] = $row->ctw_repeat_workout;
+                            $result['course']['workouts'][$num_workout]['description']    = $row->ctw_description;
 
-                        $result['course']['workouts'][$num_workout]['video_id']       = $video_id;
-                        $result['course']['workouts'][$num_workout]['video_name']     = $video_name;
-                        $result['course']['workouts'][$num_workout]['video_poster']   = $video_poster;
-                        $result['course']['workouts'][$num_workout]['video_path']     = $video_path;
-                        $result['course']['workouts'][$num_workout]['video_remove']   = $video_remove;
+                            if ($row->ctw_repeat_workout > 0)
+                            {
+                                $video_id       = $result['course']['workouts'][$row->ctw_repeat_workout]['video_id'];
+                                $video_name     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_name'];
+                                $video_poster   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_poster'];
+                                $video_path     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_path'];
+                                $video_remove   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_remove'];
+                            }
+                            else
+                            {
+                                $video_id       = $row->ctw_video_id;
+                                $video_name     = $row->video_name;
+                                $video_poster   = is_file($row->video_poster) ? mb_substr($row->video_poster, 1) : '';
+                                $video_path     = is_file($row->video_path) ? mb_substr($row->video_path, 1) : '';
+                                $video_remove   = $row->video_remove_url;
+                            }
+
+                            $result['course']['workouts'][$num_workout]['video_id']       = $video_id;
+                            $result['course']['workouts'][$num_workout]['video_name']     = $video_name;
+                            $result['course']['workouts'][$num_workout]['video_poster']   = $video_poster;
+                            $result['course']['workouts'][$num_workout]['video_path']     = $video_path;
+                            $result['course']['workouts'][$num_workout]['video_remove']   = $video_remove;
+                        }
                     }
+                    unset($row);
                 }
-                unset($row);
+                elseif ($sel_schedule === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                $sel_schedule->free_result();
             }
-            elseif ($sel_schedule === false)
+            elseif($row->crs_category == 'nutrition')
             {
-                parent::logDbMessages(__METHOD__);
+
             }
-            $sel_schedule->free_result();
 
             // Тренеры курса
             $sel_couches = $this->db->query('
@@ -796,7 +1827,7 @@ class Course_model extends CI_Model
             }
             elseif ($sel_couches === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
             $sel_couches->free_result();
 
@@ -827,14 +1858,14 @@ class Course_model extends CI_Model
             }
             elseif ($sel_users === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
             $sel_users->free_result();
             $result['course']['bought'] = $bought;
         }
         elseif ($sel_course === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -886,7 +1917,7 @@ class Course_model extends CI_Model
             }
             elseif ($sel_couches === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
             $sel_couches->free_result();
 
@@ -904,7 +1935,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_course === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -954,13 +1985,13 @@ class Course_model extends CI_Model
             }
             elseif($sel_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
         }
         elseif ($sel_pid === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -969,6 +2000,7 @@ class Course_model extends CI_Model
     /**
      * Сохранение нового курса
      *
+     * @param string $course_category Категория курса (тренировки, питание)
      * @param string $name Наименование курса
      * @param string $description Описание курса
      * @param float $price Стоимость курса
@@ -981,14 +2013,16 @@ class Course_model extends CI_Model
      * @param string $date
      * @return bool
      */
-    public function setNewCourse($name, $description, $price, $fc_price, $course_type, $count_weeks, $count_days, $count_rest,
-                                 $user_id, $date)
+    public function setNewCourse($course_category, $name, $description, $price, $fc_price, $course_type, $count_weeks,
+                                 $count_days, $count_rest, $user_id, $date)
     {
         $up_data = $this->db->query('
-            INSERT INTO `courses` (`crs_type_id`, `crs_name`, `crs_description`, `crs_price`, `crs_fitcoin_price`, `crs_count_weeks`, 
-              `crs_count_days`, `crs_count_rest`, `crs_admin_add`, `crs_date_add`, `crs_date_update`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            array($course_type, $name, $description, $price, $fc_price, $count_weeks, $count_days, $count_rest, $user_id, $date, $date));
+            INSERT INTO `courses` (`crs_category`, `crs_type_id`, `crs_name`, `crs_description`, `crs_price`, 
+              `crs_fitcoin_price`, `crs_count_weeks`, `crs_count_days`, `crs_count_rest`, `crs_admin_add`, 
+              `crs_date_add`, `crs_date_update`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($course_category, $course_type, $name, $description, $price, $fc_price, $count_weeks, $count_days,
+                    $count_rest, $user_id, $date, $date));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -1002,19 +2036,20 @@ class Course_model extends CI_Model
             if ($up_data2 !== false and 1 == $this->db->affected_rows())
             {
                 $p_id = $this->db->insert_id();
+                $category_id = ($course_category == 'workout') ? 1 : 2;
 
                 // Категория товара
                 $in_data2 = $this->db->query('
                     INSERT INTO `products_categories` (`pc_p_id`, `pc_cat_id`, `pc_date_update`, `pc_admin_id`)
-                    VALUES (?, ?, ?, ?)', array($p_id, 0, $date, $user_id));
+                    VALUES (?, ?, ?, ?)', array($p_id, $category_id, $date, $user_id));
                 if ($in_data2 === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
             if ($up_data2 === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             // Создание Landing page курса
@@ -1022,23 +2057,21 @@ class Course_model extends CI_Model
               (`clp_course_id`, `clp_lp_id`, `clp_slider_images`, `clp_block2_background`, `clp_block2_image`,  
               `clp_block3_background`, `clp_block3_images`, `clp_block4_background`, `clp_block4_image`,  
               `clp_block5_background`, `clp_block5_images`, `clp_block6_background`, `clp_block6_image`, 
-              `clp_block7_background`, `clp_block8_background`, `clp_block8_title`, 
-              `clp_admin_id`, `clp_date_add`, `clp_date_update`) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+              `clp_block7_background`, `clp_block8_background`, `clp_admin_id`, `clp_date_add`, `clp_date_update`) 
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 array($course_id, 1, 'default', 'default', 'default', 'default', 'default;default;', 'default', 'default',
-                    'default', 'default;default;default;', 'default', 'default', 'default', 'default;default;',
-                    'default', $user_id, $date, $date));
+                    'default', 'default;default;default;', 'default', 'default', 'default', 'default', $user_id, $date, $date));
 
             if ($up_data3 === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             return $course_id;
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1064,7 +2097,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1105,14 +2138,14 @@ class Course_model extends CI_Model
                 WHERE `p_course_id`=? LIMIT 1', array($name, $description, $price, $fc_price, $date, $course_id));
             if ($up_data2 === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             return true;
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1139,7 +2172,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1166,7 +2199,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1183,10 +2216,11 @@ class Course_model extends CI_Model
      * @param int $recur_months
      * @param float $recur_first
      * @param float $recur_subsequent
+     * @param int $admin_id
      * @param string $date
      * @return bool
      */
-    public function setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $date)
+    public function setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $admin_id, $date)
     {
         $up_data = $this->db->query('UPDATE `courses` 
             SET `crs_recurrent_price`=?, `crs_recurrent_months`=?, `crs_recurrent_first`=?, `crs_recurrent_subsequent`=?, `crs_date_update`=?
@@ -1199,7 +2233,7 @@ class Course_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1250,11 +2284,37 @@ class Course_model extends CI_Model
                     }
                     elseif($sel_data)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
             }
             unset($course);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Категория курса (workout, nutrition)
+     *
+     * @param $course_id
+     * @return null|string
+     */
+    public function getCourseCategory($course_id)
+    {
+        $result = null;
+
+        $sel_course = $this->db->query('SELECT `crs_category` FROM `courses` WHERE `crs_id`=? LIMIT 1', $course_id);
+
+        if($sel_course !== false and 1 == $sel_course->num_rows())
+        {
+            $row = $sel_course->row();
+
+            $result = $row->crs_category;
+        }
+        elseif($sel_course === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1298,7 +2358,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_schedule === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1327,7 +2387,7 @@ class Course_model extends CI_Model
             }
             elseif($sel_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -1373,7 +2433,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_schedule === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1413,7 +2473,7 @@ class Course_model extends CI_Model
                 VALUES ' . $values);
             if ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -1427,7 +2487,7 @@ class Course_model extends CI_Model
                         array($workout['video_id'], $workout['repeat_workout'], $workout['description'], $date, $course_id, $num_workout));
                 if ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
             unset($workout);
@@ -1440,7 +2500,7 @@ class Course_model extends CI_Model
                 DELETE FROM `courses_training_weeks` WHERE `ctw_course_id`=? and `ctw_num_workout` IN (' . $workouts . ')', $course_id);
             if ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -1469,7 +2529,7 @@ class Course_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1479,6 +2539,380 @@ class Course_model extends CI_Model
     }
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ ТРЕНИРОВОК КУРСА */
+
+
+    /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ РАСПИСАНИЯ КУРСА ПИТАНИЯ */
+
+    /**
+     * Добавление/обновление/удаление данных расписания курса питания
+     *
+     * @param $course_id
+     * @param $schedule
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setNutritionSchedule($course_id, $schedule, $admin_id, $date)
+    {
+        $result = true;
+
+        // Добавление новых данных
+        if (!empty($schedule['insert']))
+        {
+            $values = '';
+            // Цикл дней
+            foreach ($schedule['insert'] as $num_day => $day)
+            {
+                // Цикл приемов пищи
+                foreach($day as $num_ing => $ingestion)
+                {
+                    // Цикл блюд
+                    foreach($ingestion as $meal)
+                    {
+                        if (!empty($values))
+                        {
+                            $values .= ', ';
+                        }
+
+                        $values .= '(' . $course_id .', ' . $num_day . ', ' . $num_ing . ', ' . $meal . ', '
+                            . $admin_id . ', "' . $date . '")';
+                    }
+                    unset($meal);
+                }
+                unset($ingestion);
+            }
+            unset($day);
+
+            $ins_data = $this->db->query('
+                INSERT INTO `courses_days_schedule`(`cds_crs_id`, `cds_day`, `cds_ci_id`, `cds_ml_id`, `cds_admin_id`, `cds_update`) 
+                VALUES ' . $values);
+
+            if ($ins_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        // Удаление данных
+        if (!empty($schedule['delete']))
+        {
+            // Цикл дней
+            foreach ($schedule['delete'] as $num_day => $day)
+            {
+                // Цикл приемов пищи
+                foreach($day as $num_ing => $ingestion)
+                {
+                    // Цикл блюд
+                    foreach ($ingestion as $meal)
+                    {
+                        $up_data = $this->db->query('
+                            DELETE FROM `courses_days_schedule` 
+                            WHERE `cds_crs_id`=? AND `cds_day`=? AND `cds_ci_id`=? and `cds_ml_id`=? LIMIT 1',
+                                array($course_id, $num_day, $num_ing, $meal));
+
+                        if ($up_data === false) {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+                    unset($meal);
+                }
+                unset($ingestion);
+            }
+            unset($day);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка расписания курса питания
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getNutritionSchedule($course_id)
+    {
+        $result = array('course_schedule' => array(), 'schedule_days' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `cds_id`, `cds_day`, `cds_ci_id`, `cds_ml_id` 
+            FROM `courses_days_schedule`
+            WHERE `cds_crs_id`=? ORDER BY `cds_day` ASC', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $sel_meal = (is_numeric($row->cds_ml_id) and $row->cds_ml_id > 0) ? self::getMeal($row->cds_ml_id) : array('meal' => array());
+                $meal     = $sel_meal['meal'];
+
+                $result['course_schedule'][$row->cds_day][$row->cds_ci_id][$i] = $meal;
+                $result['schedule_days'][$row->cds_day][$row->cds_ci_id][$i]   = $row->cds_ml_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Добавление данных приемов пищи курса питания
+     *
+     * @param $course_id
+     * @param $ingestions
+     * @param $time_from
+     * @param $time_to
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setNutritionIngestions($course_id, $ingestions, $time_from, $time_to, $admin_id, $date)
+    {
+        $result = true;
+
+        if(is_array($ingestions) and is_numeric($course_id))
+        {
+            foreach($ingestions as $key => $ingestion)
+            {
+                $ins_data = $this->db->query('
+                    INSERT INTO `courses_ingestions` (`ci_crs_id`, `ci_ing_id`, `ci_ing_time_from`, `ci_ing_time_to`, `ci_admin_id`, `ci_update`) 
+                    VALUES (?, ?, ?, ?, ?, ?)', array($course_id, $ingestion, $time_from[$key], $time_to[$key], $admin_id, $date));
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+            unset($ingestion);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка приемов пищи курса питания
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getNutritionIngestions($course_id)
+    {
+        $result = array('course_ingestions' => array(), 'course_ingestions_id' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `ci_ing_id`, `ci_ing_time_from`, `ci_ing_time_to` 
+            FROM `courses_ingestions` 
+            WHERE `ci_crs_id`=?', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['course_ingestions'][$i]['id']        = $row->ci_ing_id;
+                $result['course_ingestions'][$i]['time_from'] = $row->ci_ing_time_from;
+                $result['course_ingestions'][$i]['time_to']   = $row->ci_ing_time_to;
+
+                $result['course_ingestions_id'][$i] = $row->ci_ing_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Добавление данных приемов пищи курса питания
+     *
+     * @param $course_id
+     * @param $update_ingestions
+     * @param $ingestions
+     * @param $time_from
+     * @param $time_to
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function updateNutritionIngestions($course_id, $update_ingestions, $ingestions, $time_from, $time_to, $admin_id, $date)
+    {
+        $result = true;
+
+        if(!empty($update_ingestions['insert']))
+        {
+            foreach($update_ingestions['insert'] as $key => $ingestion)
+            {
+                $ins_data = $this->db->query('
+                    INSERT INTO `courses_ingestions` (`ci_crs_id`, `ci_ing_id`, `ci_ing_time_from`, `ci_ing_time_to`, `ci_admin_id`, `ci_update`) 
+                    VALUES (?, ?, ?, ?, ?, ?)',
+                        array($course_id, $ingestion, $time_from[$key], $time_to[$key], $admin_id, $date));
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+            unset($ingestion);
+        }
+
+        if(!empty($update_ingestions['update']))
+        {
+            foreach($update_ingestions['update'] as $key => $ingestion)
+            {
+                $up_data = $this->db->query('
+                    UPDATE `courses_ingestions` SET `ci_ing_time_from`=?, `ci_ing_time_to`=?, `ci_admin_id`=?, `ci_update`=? 
+                    WHERE `ci_crs_id`=? and `ci_ing_id`=? LIMIT 1',
+                        array($time_from[$key], $time_to[$key], $admin_id, $date, $course_id, $ingestion));
+                if($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+            unset($ingestion);
+        }
+
+        if(!empty($update_ingestions['delete']))
+        {
+            foreach($update_ingestions['delete'] as $key => $ingestion)
+            {
+                $this->db->query('DELETE FROM `courses_ingestions` WHERE `ci_crs_id`=? and `ci_ing_id`=? LIMIT 1',
+                    array($course_id, $ingestion));
+            }
+            unset($ingestion);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка заполненного расписания курса питания
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getFillNutritionSchedule($course_id)
+    {
+        $result = array('fill_course_schedule' => array(), 'course_schedule' => array(), 'schedule_days' => array());
+
+        $course_data       = self::getCourse($course_id);
+        $course_ingestions = self::getNutritionIngestions($course_id);
+
+        $total_days = $course_data['course']['count_weeks'] * $course_data['course']['count_days'];
+
+        $sel_data = $this->db->query('
+            SELECT `cds_id`, `cds_day`, `cds_ci_id`, `cds_ml_id` 
+            FROM `courses_days_schedule`
+            WHERE `cds_crs_id`=? ORDER BY `cds_day` ASC', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            $meal = array();
+
+            foreach($sel_data->result() as $row)
+            {
+                if(is_numeric($row->cds_ml_id) and $row->cds_ml_id > 0)
+                {
+                    $sel_meal = self::getMeal($row->cds_ml_id);
+                    $meal     = $sel_meal['meal'];
+                }
+
+                $schedule[$row->cds_day][$row->cds_ci_id][$i] = $meal;
+                $result['schedule_days'][$row->cds_day][$row->cds_ci_id][$i] = $row->cds_ml_id;
+
+                $i++;
+            }
+            unset($row);
+
+            if(!empty($schedule))
+            {
+                $week_meals    = array();
+                $day_meals     = array();
+                $duplicate_day = false;
+                $duplicate_ing = false;
+                $rand_list     = array();
+                $week          = 1;
+
+                // Цикл по всем дня курса питания
+                for($day = 1; $day <= $total_days; $day++)
+                {
+                    $orig_day = ($week > 1) ? ($day - (7 * ($week - 1))) : $day;
+
+                    // Цикл по приемам пищи дня курса питания
+                    foreach($course_ingestions['course_ingestions'] as $ci)
+                    {
+                        // Заполнение пустых приемов пищи предыдущими введенными значениями
+                        if(empty($day_meals))
+                        {
+                            $day_meals = $schedule[$day];
+                        }
+                        elseif(!empty($schedule[$day][$ci['id']]))
+                        {
+                            $day_meals[$ci['id']] = $schedule[$day][$ci['id']];
+                        }
+
+                        // Заполнение массива расписания на неделю. Её и дублировать в случае отсутствия данных
+                        if(empty($week_meals) or (empty($week_meals[$day][$ci['id']]) and $day <= 7))
+                        {
+                            $week_meals[$day][$ci['id']] = (!empty($schedule[$day][$ci['id']])) ? $schedule[$day][$ci['id']] : $day_meals[$ci['id']];
+
+                            $duplicate_day[$ci['id']] = $orig_day;
+                            $duplicate_ing[$ci['id']] = $ci['id'];
+                        }
+                        elseif(!empty($schedule[$day][$ci['id']]))
+                        {
+                            $week_meals[$orig_day][$ci['id']] = $schedule[$day][$ci['id']];
+
+                            $duplicate_day[$ci['id']] = $orig_day;
+                            $duplicate_ing[$ci['id']] = $ci['id'];
+                        }
+
+                        // Массив блюд для случайного выбора
+                        if(empty($rand_list[$orig_day][$ci['id']]))
+                        {
+                            $rand_list[$orig_day][$ci['id']] = $week_meals[$orig_day][$ci['id']];
+                        }
+                        // Выбор случайного ключа
+                        $rand_key = array_rand($rand_list[$orig_day][$ci['id']]);
+                        // Удаляем сгенированный ключ
+                        unset($rand_list[$orig_day][$ci['id']][$rand_key]);
+
+                        $result['fill_course_schedule'][$day][$ci['id']]             = $week_meals[$orig_day][$ci['id']][$rand_key];
+                        $result['course_schedule'][$day][$ci['id']]                  = $week_meals[$orig_day][$ci['id']];
+                        $result['duplicate_course_schedule'][$day][$ci['id']]['day'] = $duplicate_day[$ci['id']];
+                        $result['duplicate_course_schedule'][$day][$ci['id']]['ing'] = $duplicate_ing[$ci['id']];
+                    }
+                    unset($ci);
+
+                    if($day % 7 == 0)
+                    {
+                        $week++;
+                    }
+                }
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ РАСПИСАНИЕ КУРСА ПИТАНИЯ */
 
 
     /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ ТРЕНЕРОВ КУРСА */
@@ -1515,7 +2949,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_couches === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         else
         {
@@ -1554,7 +2988,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_couches === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -1590,7 +3024,7 @@ class Course_model extends CI_Model
                 VALUES ' . $values);
             if ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -1604,7 +3038,7 @@ class Course_model extends CI_Model
                     array($percent, $date, $course_id, $couch_id));
                 if ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
             unset($couch);
@@ -1617,7 +3051,7 @@ class Course_model extends CI_Model
                 DELETE FROM `courses_couches` WHERE `cc_course_id`=? and `cc_couch_id` IN (' . $couches . ')', $course_id);
             if ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -1679,7 +3113,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_landing === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1786,7 +3220,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1819,7 +3253,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1859,7 +3293,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1900,7 +3334,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1941,7 +3375,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1985,7 +3419,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2026,7 +3460,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2111,7 +3545,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2154,7 +3588,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2563,7 +3997,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_landing === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -2647,7 +4081,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_landings === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -2672,7 +4106,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2700,7 +4134,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2734,7 +4168,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_course === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
 
@@ -2759,7 +4193,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2785,7 +4219,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2810,7 +4244,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2835,7 +4269,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2947,7 +4381,7 @@ class Course_model extends CI_Model
             }
             elseif ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -2957,7 +4391,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_landing === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -2998,7 +4432,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -3035,7 +4469,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -3072,7 +4506,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3107,7 +4541,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3142,7 +4576,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3177,7 +4611,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3212,7 +4646,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3242,7 +4676,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             $result = false;
         }
         else
@@ -3281,7 +4715,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3315,7 +4749,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3352,7 +4786,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3383,7 +4817,7 @@ class Course_model extends CI_Model
             }
             elseif ($sel_video === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 $result = false;
             }
             else
@@ -3437,7 +4871,7 @@ class Course_model extends CI_Model
                 }
                 elseif ($sel_today_workout === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
                 $i++;
@@ -3476,7 +4910,7 @@ class Course_model extends CI_Model
                         }
                         elseif ($sel_repeat_workout === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
                     }
                     else
@@ -3491,7 +4925,7 @@ class Course_model extends CI_Model
                 }
                 elseif ($sel_course_workout === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
                 // Данные инструктажа тренировки
@@ -3510,14 +4944,14 @@ class Course_model extends CI_Model
                 }
                 elseif ($sel_instruction === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
             unset($cw);
         }
         elseif ($sel_user_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -3603,7 +5037,7 @@ class Course_model extends CI_Model
                         }
                         elseif ($sel_repeat_workout === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
                     }
                     unset($row);
@@ -3624,22 +5058,22 @@ class Course_model extends CI_Model
                     }
                     elseif ($sel_instruction === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
                 elseif ($sel_ctw === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
             elseif ($sel_uc === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif ($sel_utw === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         if (!empty($db_video_id) and $video_id == $db_video_id)
@@ -3684,7 +5118,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -3713,7 +5147,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -3742,7 +5176,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -3780,7 +5214,7 @@ class Course_model extends CI_Model
             }
             elseif ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 $result = false;
             }
             else
@@ -3817,7 +5251,7 @@ class Course_model extends CI_Model
         $sel_courses = $this->db->query('
             SELECT `uc_id`, `uc_course_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked`, 
                 `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `crs_image`, `crs_name`, `crs_description`, 
-                `crs_count_weeks`, `crs_count_days` 
+                `crs_count_weeks`, `crs_count_days`, `crs_category` 
             FROM `users_courses` 
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
             WHERE `uc_user_id`=? and `uc_blocked`=0
@@ -3836,6 +5270,7 @@ class Course_model extends CI_Model
             {
                 $result['courses'][$i]['id']             = $row->uc_id;
                 $result['courses'][$i]['course_id']      = $row->uc_course_id;
+                $result['courses'][$i]['category']       = $row->crs_category;
                 $result['courses'][$i]['image']          = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : '';
                 $result['courses'][$i]['name']           = $row->crs_name;
                 $result['courses'][$i]['description']    = $row->crs_description;
@@ -3851,19 +5286,20 @@ class Course_model extends CI_Model
                 $result['courses'][$i]['blocked_date']   = $row->uc_blocked_date;
                 $result['courses'][$i]['paused']         = $row->uc_paused;
                 $result['courses'][$i]['pause_days']     = $row->uc_pause_days;
-                $result['courses'][$i]['finished']       = ($row->uc_date_end < $date) ? '(Завершен)' : '';
+                $result['courses'][$i]['finished']       = ($row->uc_date_end !== "0000-00-00" and $row->uc_date_end < $today) ? ' (Завершен)' : '';
 
-
+                /*
                 $tmp_date2 = new DateTime($row->uc_blocked_date);
                 $tmp_date2->add(new DateInterval('P28D'));
                 // Дата через 4 недели от даты блокировки
                 $next_three_weeks = $tmp_date2->format('Y-m-d');
 
                 // Не отображать курсы, которые заблокированы и 4 недели после блокировки прошли
-                /*if($row->uc_blocked == 1 and $next_three_weeks < $today and $row->uc_blocked_reason == 'payment_canceled')
+                if($row->uc_blocked == 1 and $next_three_weeks < $today and $row->uc_blocked_reason == 'payment_canceled')
                 {
                     unset($result['courses'][$i]);
-                }*/
+                }
+                */
 
                 $i++;
             }
@@ -3883,40 +5319,43 @@ class Course_model extends CI_Model
             $color = array(42, 202, 242);
             foreach ($result['courses'] as $key => $course)
             {
-                $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
-                $today    = $tmp_date->format('Y-m-d');
-                $workouts = null;
-                $pauses   = null;
-                $events   = null;
+                $tmp_date   = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+                $today      = $tmp_date->format('Y-m-d');
+                $workouts   = null;
+                $nutritions = null;
+                $pauses     = null;
+                $events     = null;
+
+                // Паузы тренировок
+                $sel_course_pauses = $this->db->query('
+                    SELECT `ucp_pause_start`, `ucp_pause_end` 
+                    FROM `users_courses_pauses`
+                    WHERE `ucp_uc_id`=?', $course['id']);
+                if ($sel_course_pauses !== false and 0 < $sel_course_pauses->num_rows())
+                {
+                    $i = 0;
+                    foreach ($sel_course_pauses->result() as $row)
+                    {
+                        $pauses[$i]['start'] = $row->ucp_pause_start;
+                        $pauses[$i]['end']   = $row->ucp_pause_end;
+
+                        $i++;
+                    }
+                    unset($row);
+                    unset($i);
+                }
+                elseif ($sel_course_pauses === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
 
                 // !!! Если выбраны тренировочные дни, проверить тренировки, паузы
-                if (is_array($course['days']))
+                if (is_array($course['days']) and $course['category'] == 'workout')
                 {
                     // Массив дней недели тренировок, выбранные пользователем
                     $array_training_days = $course['days'];
                     // Флаг начала отсчета дат после заморозки
                     $set_start_date = true;
-
-                    // Паузы тренировок
-                    $sel_course_pauses = $this->db->query('
-                        SELECT `ucp_pause_start`, `ucp_pause_end` 
-                        FROM `users_courses_pauses`
-                        WHERE `ucp_uc_id`=?', $course['id']);
-                    if ($sel_course_pauses !== false and 0 < $sel_course_pauses->num_rows()) {
-                        $i = 0;
-                        foreach ($sel_course_pauses->result() as $row) {
-                            $pauses[$i]['start'] = $row->ucp_pause_start;
-                            $pauses[$i]['end']   = $row->ucp_pause_end;
-
-                            $i++;
-                        }
-                        unset($row);
-                        unset($i);
-                    }
-                    elseif ($sel_course_pauses === false)
-                    {
-                        parent::logDbMessages(__METHOD__);
-                    }
 
                     if($course['blocked'] == 0)
                     {
@@ -4026,7 +5465,7 @@ class Course_model extends CI_Model
                                         VALUES ' . $value);
                                     if ($up_data === false)
                                     {
-                                        parent::logDbMessages(__METHOD__);
+                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                                     }
                                 }
                             }
@@ -4035,7 +5474,7 @@ class Course_model extends CI_Model
                         }
                         elseif ($sel_f_workout === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
 
                         // Обработка тренировок, проверка на пропущенные занятия
@@ -4115,7 +5554,7 @@ class Course_model extends CI_Model
                                                 WHERE `utw_id`=? LIMIT 1', array($new_training_date, $date, $row->utw_id));
                                             if ($up_data === false)
                                             {
-                                                parent::logDbMessages(__METHOD__);
+                                                parent::logDbMessages(__METHOD__.':'.__LINE__);
                                             }
 
                                         }
@@ -4149,7 +5588,7 @@ class Course_model extends CI_Model
                         }
                         elseif ($sel_workouts === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
                         $sel_workouts->free_result();
 
@@ -4170,14 +5609,14 @@ class Course_model extends CI_Model
                             WHERE `uc_id`=? and `uc_date_end`<? LIMIT 1', array($last_w_date, $course['id'], $last_w_date));
                             if ($up_data === false)
                             {
-                                parent::logDbMessages(__METHOD__);
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
                             }
 
                             unset($row);
                         }
                         elseif ($sel_last_w_date === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
 
                     }
@@ -4206,14 +5645,45 @@ class Course_model extends CI_Model
                     }
                     elseif ($sel_workouts === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+                // Выборка расписания питания
+                elseif($course['category'] == 'nutrition')
+                {
+                    $sel_nutritions = $this->db->query('
+                        SELECT `un_id`, `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, 
+                          `ml_name`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories` 
+                        FROM `users_nutritions`
+                        LEFT JOIN `meals` ON `ml_id`=`un_ml_id`
+                        WHERE `un_uc_id`=?
+                        ORDER BY `un_date` ASC', $course['id']);
+                    if ($sel_nutritions !== false and 0 < $sel_nutritions->num_rows())
+                    {
+                        $i = 0;
+                        foreach ($sel_nutritions->result() as $row)
+                        {
+                            $nutritions[$i]['id']        = $row->un_id;
+                            $nutritions[$i]['day']       = $row->un_cds_day;
+                            $nutritions[$i]['ingestion'] = $row->un_cds_ci_id;
+                            $nutritions[$i]['meal_id']   = !empty($row->un_ml_id) ? $row->un_ml_id : null;
+                            $nutritions[$i]['meal_name'] = $row->ml_name . ' [БЖУК - ' . $row->ml_proteins . ' '
+                                . $row->ml_fats .  ' ' . $row->ml_carbohydrates . ' ' . $row->ml_caloreis . ']';
+                            $nutritions[$i]['date']      = $row->un_date;
+                            $nutritions[$i]['done']      = ($row->un_date < $today) ? 1 : 0;
+
+                            $i++;
+                        }
+                        unset($row);
+                        unset($i);
+                    }
+                    elseif ($sel_nutritions === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
 
                 // СОБЫТИЯ КАЛЕНДАРЯ
-                $course_data  = self::getCourse($course['course_id']);
-                // Флаг доступного тренировочного дня
-                $available_training = false;
 
                 // Паузы в курсе
                 if (!empty($pauses) and !empty($course['days'])) {
@@ -4225,20 +5695,29 @@ class Course_model extends CI_Model
                         $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['end']);
                         $pause_end = $temp_date->format('Y-m-d');
 
-                        if (empty($events) or $pause_start != $events[$ei - 1]['start']) {
-                            $events[$ei]['start'] = $pause_start;
-                            $events[$ei]['end']   = $pause_end;
-                            $events[$ei]['pause'] = true;
-                            $events[$ei]['done']  = null;
+                        if (empty($events) or $pause_start != $events[$ei - 1]['start'])
+                        {
+                            $events[$ei]['constraint'] = 'pause';
+                            $events[$ei]['start']      = $pause_start;
+                            $events[$ei]['end']        = $pause_end;
+                            $events[$ei]['pause']      = true;
+                            $events[$ei]['done']       = null;
 
                             $ei++;
                         }
                     }
                     unset($pause);
                 }
+
                 // Тренировки
                 if (!empty($workouts) and !empty($course['days']))
                 {
+                    // Флаг доступного тренировочного дня
+                    $available_training = false;
+
+                    // Данные курса тренировок
+                    $course_data  = self::getCourse($course['course_id']);
+
                     $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
                     $rgb = self::different_shade($color, $type_shade);
                     $color = $rgb;
@@ -4251,6 +5730,8 @@ class Course_model extends CI_Model
                         $w_duplicate = $workout['duplicate'];
                         $w_num       = $workout['workout'];
 
+                        $events[$ei]['constraint'] = 'workout';
+                        $events[$ei]['blocked']    = ($course['blocked'] == 1) ? 'true' : 'false';
                         $events[$ei]['workout_id'] = $workout['id'];
                         $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
                         $events[$ei]['done']       = 'not_done';
@@ -4295,8 +5776,69 @@ class Course_model extends CI_Model
                     unset($workout);
                 }
 
-                $result['courses'][$key]['pauses']   = !empty($pauses) ? $pauses : array();
-                $result['courses'][$key]['workouts'] = !empty($workouts) ? $workouts : array();
+                // Питание
+                if(!empty($nutritions))
+                {
+                    $ingestions        = self::getIngestions();
+                    $course_ingestions = self::getNutritionIngestions($course['course_id']);
+                    $course_first_meal = self::getNutritionIngestionsFirstMeal($course['course_id']);
+
+                    $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
+                    $rgb = self::different_shade($color, $type_shade);
+                    $color = $rgb;
+
+                    foreach ($nutritions as $nutrition)
+                    {
+                        // Выполнено ли занятие
+                        $w_done      = $nutrition['done'];
+                        $w_date      = $nutrition['date'];
+                        $w_day       = $nutrition['day'];
+                        $w_ingestion = $nutrition['ingestion'];
+
+                        $events[$ei]['constraint'] = 'nutrition';
+                        $events[$ei]['blocked']    = ($course['blocked'] == 1) ? 'true' : 'false';
+                        $events[$ei]['id']         = $nutrition['id'];
+                        $events[$ei]['day']        = $w_day;
+                        $events[$ei]['ingestion']  = $w_ingestion;
+                        $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
+                        $events[$ei]['done']       = 'not_done';
+                        $events[$ei]['missed']     = 'not_missed';
+
+                        if(!empty($nutrition['meal_id']))
+                        {
+                            $events[$ei]['ml_id'] = $nutrition['meal_id'];
+                        }
+                        else
+                        {
+                            $events[$ei]['ml_id'] = $course_first_meal['meal'][$w_day][$w_ingestion]['id'];
+                        }
+
+                        $ing_id  = (!empty($ingestions)) ? array_search($w_ingestion, $ingestions['ingestions_id']) : false;
+                        $events[$ei]['title'] = ($ing_id !== false) ? $ingestions['ingestions'][$ing_id]['name'] : '';
+
+                        // Дата и время события
+                        $crs_ing_id  = (!empty($course_ingestions)) ? array_search($w_ingestion, $course_ingestions['course_ingestions_id']) : false;
+
+                        $events[$ei]['start'] = ($crs_ing_id !== false)
+                            ? $w_date . 'T' . $course_ingestions['course_ingestions'][$crs_ing_id]['time_from'] : $w_date;
+                        $events[$ei]['end']   = ($crs_ing_id !== false)
+                            ? $w_date . 'T' . $course_ingestions['course_ingestions'][$crs_ing_id]['time_to'] : $w_date;
+
+                        if ($w_done == 1)
+                        {
+                            $events[$ei]['done']  = 'done';
+                            $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
+                        }
+
+
+                        $ei++;
+                    }
+                    unset($nutrition);
+                }
+
+                $result['courses'][$key]['pauses']     = !empty($pauses) ? $pauses : array();
+                $result['courses'][$key]['workouts']   = !empty($workouts) ? $workouts : array();
+                $result['courses'][$key]['nutritions'] = !empty($nutritions) ? $nutritions : array();
 
                 $result['events'] = !empty($events) ? array_merge($result['events'], $events) : $result['events'];
             }
@@ -4305,7 +5847,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         // Заблокированные курсы
@@ -4396,7 +5938,7 @@ class Course_model extends CI_Model
                     }
                     elseif ($sel_course_pauses === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
 
                     // Выборка расписания тренировок
@@ -4427,7 +5969,7 @@ class Course_model extends CI_Model
                     }
                     elseif ($sel_workouts === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
 
@@ -4473,6 +6015,7 @@ class Course_model extends CI_Model
                         $w_num       = $workout['workout'];
 
                         $events[$ei]['workout_id'] = $workout['id'];
+                        $events[$ei]['blocked']    = ($bl_course['blocked'] == 1) ? 'true' : 'false';
                         $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
                         $events[$ei]['done']       = 'not_done';
                         $events[$ei]['missed']     = 'not_missed';
@@ -4515,6 +6058,7 @@ class Course_model extends CI_Model
                     }
                     unset($workout);
                 }
+                // TODO Добавить вывод заблокированных курсов питания
 
                 $result['blocked_courses'][$key]['pauses']   = !empty($pauses) ? $pauses : array();
                 $result['blocked_courses'][$key]['workouts'] = !empty($workouts) ? $workouts : array();
@@ -4526,7 +6070,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_bl_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -4600,7 +6144,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         // Курсы, которые заканчиваются через неделю или меньше + курсы продления
@@ -4613,15 +6157,25 @@ class Course_model extends CI_Model
             SELECT `uc_id`, `uc_course_id`, `uc_date_end`, `uc_ends_email`, `crs_name`
             FROM `users_courses` 
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
-            WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`>? and `uc_date_end`<?',
+            WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`>=? and `uc_date_end`<?',
                 array($user_id, $today, $next_week));
 
         if ($sel_courses2 !== false and 0 < $sel_courses2->num_rows())
         {
             foreach ($sel_courses2->result() as $row)
             {
-                $tmp_date2      = new DateTime($row->uc_date_end);
-                $date_countdown = $tmp_date2->format('U')*1000;
+                $tmp_date2 = new DateTime($row->uc_date_end);
+
+                if($row->uc_date_end == $today)
+                {
+                    $tmp_date4      = new DateTime($row->uc_date_end);
+                    $tmp_date4->add(new DateInterval("PT23H59M59S"));
+                    $date_countdown = $tmp_date4->format('U')*1000;
+                }
+                else
+                {
+                    $date_countdown = $tmp_date2->format('U')*1000;
+                }
 
                 $result['notifications'][$row->uc_id][143]['date_countdown'] = $date_countdown;
                 $result['notifications'][$row->uc_id][143]['course_name']    = $row->crs_name;
@@ -4638,7 +6192,17 @@ class Course_model extends CI_Model
                         $tmp_date3   = new DateTime($row->uc_date_end);
                         $tmp_date3->add(new DateInterval('P' . ($extend['weeks_after']*7) . 'D'));
                         $edcd        = $tmp_date3->format('Y-m-d');
-                        $ext_date_cd = ($edcd > $today) ? ($tmp_date3->format('U')*1000) : null;
+
+                        if($edcd == $today)
+                        {
+                            $tmp_date4      = new DateTime($edcd);
+                            $tmp_date4->add(new DateInterval("PT23H59M59S"));
+                            $ext_date_cd = $tmp_date4->format('U')*1000;
+                        }
+                        else
+                        {
+                            $ext_date_cd = $tmp_date3->format('U')*1000;
+                        }
 
                         // Отображаем курс продления, если окончательная дата продления не наступила
                         if(!empty($ext_date_cd))
@@ -4669,7 +6233,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_courses2 === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
 
@@ -4678,7 +6242,7 @@ class Course_model extends CI_Model
             SELECT `uc_id`, `uc_course_id`, `uc_user_id`, `uc_date_end`, `crs_name`
             FROM `users_courses`
             LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
-            WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`<?', array($user_id, $today));
+            WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`<? and `uc_date_end`<>"0000-00-00"', array($user_id, $today));
 
         if($sel_courses3 !== false and 0 < $sel_courses3->num_rows())
         {
@@ -4700,7 +6264,17 @@ class Course_model extends CI_Model
                         $tmp_date3   = new DateTime($row->uc_date_end);
                         $tmp_date3->add(new DateInterval('P' . ($extend['weeks_after']*7) . 'D'));
                         $edcd        = $tmp_date3->format('Y-m-d');
-                        $ext_date_cd = ($edcd > $today) ? ($tmp_date3->format('U')*1000) : null;
+
+                        if($edcd == $today)
+                        {
+                            $tmp_date4      = new DateTime($edcd);
+                            $tmp_date4->add(new DateInterval("PT23H59M59S"));
+                            $ext_date_cd = $tmp_date4->format('U')*1000;
+                        }
+                        else
+                        {
+                            $ext_date_cd = $tmp_date3->format('U')*1000;
+                        }
 
                         // Отображаем курс продления, если окончательная дата продления не наступила
                         if(!empty($ext_date_cd))
@@ -4724,7 +6298,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_courses3 === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -4796,17 +6370,26 @@ class Course_model extends CI_Model
             $tmp_date3->add(new DateInterval('P8D'));
             $next_week = $tmp_date3->format('Y-m-d');
 
-            if($row->uc_date_end > $today and $row->uc_date_end < $next_week)
+            if($row->uc_date_end != '0000-00-00' and $row->uc_date_end >= $today and $row->uc_date_end < $next_week)
             {
-                $tmp_date4      = new DateTime($row->uc_date_end);
-                $date_countdown = $tmp_date4->format('U')*1000;
+                if($row->uc_date_end == $today)
+                {
+                    $tmp_date4      = new DateTime($row->uc_date_end);
+                    $tmp_date4->add(new DateInterval("PT23H59M59S"));
+                    $date_countdown = $tmp_date4->format('U')*1000;
+                }
+                else
+                {
+                    $tmp_date4      = new DateTime($row->uc_date_end);
+                    $date_countdown = $tmp_date4->format('U')*1000;
+                }
 
                 $result['notifications'][$row->uc_course_id][143]['date_countdown'] = $date_countdown;
-                $result['notifications'][$row->uc_course_id][143]['course_name'] = $row->crs_name;
+                $result['notifications'][$row->uc_course_id][143]['course_name']    = $row->crs_name;
             }
 
             // Курс закончился
-            if($row->uc_date_end < $today)
+            if($row->uc_date_end != '0000-00-00' and $row->uc_date_end < $today)
             {
                 // Данные курса
                 $result['notifications'][$row->uc_id][154]['course_name'] = $row->crs_name;
@@ -4823,7 +6406,17 @@ class Course_model extends CI_Model
                         $tmp_date3   = new DateTime($row->uc_date_end);
                         $tmp_date3->add(new DateInterval('P' . ($extend['weeks_after']*7) . 'D'));
                         $edcd        = $tmp_date3->format('Y-m-d');
-                        $ext_date_cd = ($edcd > $today) ? ($tmp_date3->format('U')*1000) : null;
+
+                        if($edcd == $today)
+                        {
+                            $tmp_date4      = new DateTime($edcd);
+                            $tmp_date4->add(new DateInterval("PT23H59M59S"));
+                            $ext_date_cd = $tmp_date4->format('U')*1000;
+                        }
+                        else
+                        {
+                            $ext_date_cd = $tmp_date3->format('U')*1000;
+                        }
 
                         // Отображаем курс продления, если окончательная дата продления не наступила
                         if(!empty($ext_date_cd))
@@ -4846,7 +6439,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_course === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -4902,7 +6495,7 @@ class Course_model extends CI_Model
                 WHERE `utw_id`=? LIMIT 1', array($new_training_date, $date, $utw_id));
             if ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
         }
@@ -4957,7 +6550,7 @@ class Course_model extends CI_Model
         $sel_course = $this->db->query('
             SELECT `uc_id`, `uc_o_id`, `uc_course_id`, `uc_couch_id`, `uc_date_start`, `uc_date_end`, `uc_days`, `uc_blocked`, 
               `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `crs_name`, `crs_description`, 
-              `crs_count_weeks`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, `crs_count_rest` 
+              `crs_count_weeks`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, `crs_count_rest`, `crs_category` 
             FROM `users_courses`
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
             WHERE `uc_id`=? and `uc_user_id`=? LIMIT 1', array($user_course_id, $user_id));
@@ -4965,6 +6558,9 @@ class Course_model extends CI_Model
         if ($sel_course !== false and 1 == $sel_course->num_rows())
         {
             $row = $sel_course->row();
+
+            $tmp_d = new DateTime($date);
+            $today = $tmp_d->format('Y-m-d');
 
             // Даты начала и окончания курса
             $t_date     = DateTime::createFromFormat('Y-m-d', $row->uc_date_start);
@@ -4988,6 +6584,7 @@ class Course_model extends CI_Model
             $result['course']['pause_days']       = $row->uc_pause_days;
             $result['course']['pause_start']      = '';
             $result['course']['pause_end']        = '';
+            $result['course']['category']         = $row->crs_category;
             $result['course']['name']             = $row->crs_name;
             $result['course']['description']      = $row->crs_description;
             $result['course']['count_weeks']      = $row->crs_count_weeks;
@@ -5000,13 +6597,12 @@ class Course_model extends CI_Model
             $result['course']['workouts_missed']  = 0;
             $result['course']['workouts_passed']  = 0;
             $result['course']['pauses']           = array();
-            $result['course']['finished']         = ($row->uc_date_end < $date) ? true : false;
+            $result['course']['finished']         = ($row->uc_date_end != '0000-00-00' and $row->uc_date_end < $today) ? true : false;
+            $result['course']['attached_courses'] = array();
 
             // Блокировка курса и его покупка
             if(!empty($date))
             {
-                $tmp_d = new DateTime($date);
-                $today = $tmp_d->format('Y-m-d');
                 $tmp_d->sub(new DateInterval('P7D'));
                 // Дата неделю назад от текущей даты
                 $week_ago = $tmp_d->format('Y-m-d');
@@ -5052,7 +6648,7 @@ class Course_model extends CI_Model
                 }
                 elseif ($sel_couches === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
                 // Текущие тренировочные дни
@@ -5061,7 +6657,6 @@ class Course_model extends CI_Model
                     FROM `users_training_weeks`
                     WHERE `utw_uc_id`=?
                     ORDER BY `utw_date`', $result['course']['id']);
-
                 if ($sel_training_days !== false and 0 < $sel_training_days->num_rows())
                 {
                     $today           = date('Y-m-d');
@@ -5098,7 +6693,7 @@ class Course_model extends CI_Model
                 }
                 elseif ($sel_training_days === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
                 $sel_training_days->free_result();
 
@@ -5125,14 +6720,47 @@ class Course_model extends CI_Model
                 }
                 elseif ($sel_pauses === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
                 $sel_pauses->free_result();
+
+                // Прикрепленный курсы питания, если их больше одного и если еще не выбран курс пользователем
+                $check_attached = $this->db->query('SELECT `uc_id` FROM `users_courses` WHERE `uc_attached_uc_id`=? LIMIT 1', $result['course']['id']);
+                if($check_attached !== false and 0 == $check_attached->num_rows())
+                {
+                    $sel_at = $this->db->query('
+                        SELECT `ca_attached_crs_id`, `crs_name` 
+                        FROM `courses_attached`
+                        LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
+                        WHERE `ca_crs_id`=? and `ca_blocked`=0', $result['course']['course_id']);
+                    if($sel_at !== false and 1 < $sel_at->num_rows())
+                    {
+                        $i = 0;
+                        foreach($sel_at->result() as $row)
+                        {
+                            $result['course']['attached_courses'][$i]['course_id'] = $row->ca_attached_crs_id;
+                            $result['course']['attached_courses'][$i]['name']      = $row->crs_name;
+
+                            $i++;
+                        }
+                        unset($row);
+                    }
+                    elseif($sel_at === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                    $sel_at->free_result();
+                }
+                elseif($check_attached === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                $check_attached->free_result();
             }
         }
         elseif ($sel_course === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -5196,7 +6824,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -5220,11 +6848,13 @@ class Course_model extends CI_Model
      */
     public function setNewUserCourse($order_id, $course_id, $user_id, $start_date, $end_date, $training_days, $user_couch, $date)
     {
-        $sel_course = $this->db->query('
+        $course_category = self::getCourseCategory($course_id);
+
+        $sel_user_course = $this->db->query('
             SELECT `uc_id` FROM `users_courses` 
             WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1', array($order_id, $user_id, $course_id));
 
-        if($sel_course !== false and 0 == $sel_course->num_rows())
+        if($sel_user_course !== false and 0 == $sel_user_course->num_rows())
         {
             // Добавление нового курса
             $up_data = $this->db->query('
@@ -5242,16 +6872,75 @@ class Course_model extends CI_Model
                 // ID курса в таблице курсов пользователей
                 $uc_id = $this->db->insert_id();
 
-                // Добавляем дни недели тренировок
-                if (!empty($training_days))
+                if($course_category == 'workout')
                 {
-                    $up_data = $this->db->query('
-                        INSERT INTO `users_training_days` (`utd_uc_id`, `utd_days`, `utd_date_update`) 
-                        VALUES (?, ?, ?)', array($uc_id, $training_days, $date));
-                    if ($up_data === false)
+                    // Добавляем дни недели тренировок
+                    if (!empty($training_days))
                     {
-                        parent::logDbMessages(__METHOD__);
+                        $up_data = $this->db->query('
+                            INSERT INTO `users_training_days` (`utd_uc_id`, `utd_days`, `utd_date_update`) 
+                            VALUES (?, ?, ?)', array($uc_id, $training_days, $date));
+                        if ($up_data === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
                     }
+
+                    // Проверка на существование прикрепленных курсов
+                    $sel_attached = $this->db->query('
+                        SELECT `ca_attached_crs_id`, `crs_count_weeks`, `crs_count_days` 
+                        FROM `courses_attached`
+                         LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
+                        WHERE `ca_crs_id`=? and `ca_blocked`=0', $course_id);
+                    if($sel_attached !== false and 0 < $sel_attached->num_rows())
+                    {
+                        // Если курс один, прикрепляем.
+                        if($sel_attached->num_rows() == 1)
+                        {
+                            $row = $sel_attached->row();
+
+                            // Добавляем прикрепленный курс
+                            self::setAttachedCourseOfUserCourse($order_id, $user_id,  $row->ca_attached_crs_id, $uc_id, $user_couch, $training_days, $start_date, $end_date, $date);
+                        }
+
+                        /*$start_date = (empty($start_date)) ? $date : $start_date;
+
+                        foreach($sel_attached->result() as $row)
+                        {
+                            $count_nutritions = $row->crs_count_weeks * $row->crs_count_days;
+                            $tmp_date = new DateTime($start_date);
+                            $tmp_date->add(new DateInterval("P" . $count_nutritions . "D"));
+                            $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                            // Добавляем прикрепленные курсы
+                            $ins_data = $this->db->query('
+                                INSERT INTO `users_courses` 
+                                  (`uc_o_id`, `uc_user_id`, `uc_course_id`, `uc_attached_uc_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_date_update`) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                    array($order_id, $user_id, $row->ca_attached_crs_id, $uc_id, $user_couch, $training_days, $start_date, $end_date, $date));
+                            if($ins_data !== false and 1 == $this->db->affected_rows())
+                            {
+                                $nuc_id = $this->db->insert_id();
+
+                                // Сохранение расписания курса питания
+                                self::setUserNutritionSchedule($row->ca_attached_crs_id, $nuc_id, $start_date, $date);
+                            }
+                            elseif ($ins_data === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+                        }
+                        unset($row);*/
+                    }
+                    elseif($sel_attached === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+                elseif($course_category == 'nutrition' and !empty($start_date))
+                {
+                    // Сохранение расписания курса питания
+                    self::setUserNutritionSchedule($course_id, $uc_id, $start_date, $date);
                 }
 
                 return $uc_id;
@@ -5261,9 +6950,9 @@ class Course_model extends CI_Model
                 return false;
             }
         }
-        elseif ($sel_course === false)
+        elseif ($sel_user_course === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -5271,6 +6960,115 @@ class Course_model extends CI_Model
             // Разблокировка курса
             self::unblockCourse($course_id, $date);
             return true;
+        }
+    }
+
+    /**
+     * Добавление прикрепленного курса в каледарь пользователя
+     *
+     * @param $order_id
+     * @param $user_id
+     * @param $attached_course_id
+     * @param $user_course_id
+     * @param $couch
+     * @param $training_days
+     * @param $start_date
+     * @param $end_date
+     * @param $date
+     * @return bool
+     */
+    public function setAttachedCourseOfUserCourse($order_id, $user_id, $attached_course_id, $user_course_id, $couch,
+                                                  $training_days, $start_date, $end_date, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('
+            INSERT INTO `users_courses` 
+              (`uc_o_id`, `uc_user_id`, `uc_course_id`, `uc_attached_uc_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_date_update`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($order_id, $user_id, $attached_course_id, $user_course_id, $couch, $training_days, $start_date, $end_date, $date));
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $nuc_id = $this->db->insert_id();
+
+            if(!empty($start_date))
+            {
+                // Сохранение расписания курса питания
+                self::setUserNutritionSchedule($attached_course_id, $nuc_id, $start_date, $date);
+            }
+
+            $result = true;
+        }
+        elseif ($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение расписания курса питания
+     *
+     * @param int $course_id ID курса
+     * @param int $uc_id ID курса пользователя
+     * @param string $start_date Дата начала курса
+     * @param string $date Текущая дата
+     */
+    public function setUserNutritionSchedule($course_id, $uc_id, $start_date, $date)
+    {
+        // Данные курса
+        $course_data = self::getCourse($course_id);
+        // Расписание питания
+        $schedules = self::getFillNutritionSchedule($course_id);
+
+        if(!empty($schedules))
+        {
+            $count_weeks = $course_data['course']['count_weeks'];
+            $count_days  = $course_data['course']['count_days'];
+            $total_days  = $count_weeks * $count_days;
+            $values      = '';
+            $event_date  = $start_date;
+
+            // Цикл дней расписания питания (weeks * days)
+            for($day_id = 1; $day_id <= $total_days; $day_id++)
+            {
+                if($day_id > 1)
+                {
+                    $tmp_date = new DateTime($event_date);
+                    $tmp_date->add(new DateInterval("P1D"));
+                    $event_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : $start_date;
+                }
+
+                if(!empty($schedules['fill_course_schedule'][$day_id]))
+                {
+                    foreach($schedules['fill_course_schedule'][$day_id] as $ing_id => $ingestion)
+                    {
+                        $meal_id = $ingestion['id'];
+
+                        if(!empty($values))
+                        {
+                            $values .= ', ';
+                        }
+
+                        $values .= '(' . $uc_id . ', ' . $day_id . ', ' . $ing_id . ', ' . $meal_id . ', "' . $event_date . '", "' . $date . '")';
+
+                    }
+                    unset($ingestion);
+                }
+            }
+
+            if(!empty($values))
+            {
+                $ins_data = $this->db->query('
+                    INSERT INTO `users_nutritions`(`un_uc_id`, `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, `un_update`) 
+                    VALUES ' . $values);
+
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
         }
     }
 
@@ -5298,14 +7096,48 @@ class Course_model extends CI_Model
                     array($course_start, $course_end, $training_days, $date, $user_course_id));
             if ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            // Проверка наличия прикрепленных курсов
+            $sel_data = $this->db->query('SELECT `uc_id`, `uc_course_id` FROM `users_courses` WHERE `uc_attached_uc_id`=? LIMIT 1', $user_course_id);
+            if($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
+                $attached_course = self::getCourse($row->uc_course_id);
+
+                // Сохранение старта курса. Вычисление окончания курса
+                $count_weeks = $attached_course['course']['count_weeks'];
+                $count_days  = $attached_course['course']['count_days'];
+                $total_days  = $count_weeks * $count_days;
+                $tmp_date = new DateTime($course_start);
+                $tmp_date->add(new DateInterval("P".$total_days."D"));
+                $attached_course_end = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                $up_a_data = $this->db->query('
+                    UPDATE `users_courses` SET `uc_date_start`=?, `uc_date_end`=?, `uc_date_update`=?
+                    WHERE `uc_id`=? LIMIT 1', array($course_start, $attached_course_end, $date, $row->uc_id));
+                if($up_a_data !== false and 1 == $this->db->affected_rows())
+                {
+                    // Сохранение расписания курса питания пользователя
+                    self::setUserNutritionSchedule($row->uc_course_id, $row->uc_id, $course_start, $date);
+                }
+                elseif ($up_a_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             return true;
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -5340,7 +7172,7 @@ class Course_model extends CI_Model
                 }
                 elseif ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                     $result = false;
                 }
             }
@@ -5378,7 +7210,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -5410,14 +7242,14 @@ class Course_model extends CI_Model
                     array($pause_days, $date, $course_end, $user_course_id));
             if ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             return true;
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -5495,7 +7327,7 @@ class Course_model extends CI_Model
             }
             elseif ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else {
@@ -5532,7 +7364,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_users === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -5569,7 +7401,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_users === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -5603,7 +7435,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -5626,12 +7458,12 @@ class Course_model extends CI_Model
             {
                 $up_data = $this->db->query('
                     UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_date`=?, `uc_blocked_reason`=? 
-                    WHERE `uc_o_id`=? and `uc_course_id`=? and `uc_user_id`=? LIMIT 1',
-                        array($date, $reason, $order_id, $course['id'], $user_id));
+                    WHERE `uc_o_id`=? and `uc_user_id`=? LIMIT 1',
+                        array($date, $reason, $order_id, $user_id));
 
                 if ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
             unset($course);
@@ -5660,7 +7492,7 @@ class Course_model extends CI_Model
 
                 if ($up_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
             unset($course);
@@ -5701,8 +7533,140 @@ class Course_model extends CI_Model
             }
             elseif($sel_courses === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка меню питания на неделю
+     *
+     * @param $user_course_id
+     * @param $user_id
+     * @param $date
+     * @return array
+     */
+    public function getUserNutritionMenu($user_course_id, $user_id, $date)
+    {
+        $result = array('course_menu' => array());
+
+        $tmp_date    = new DateTime($date);
+        $cur_num_day = ((int) $tmp_date->format('N')) + 1;
+        $monday      = $tmp_date->sub(new DateInterval("P". $cur_num_day ."D"));
+        $monday_date = $monday->format('Y-m-d');
+        $sunday      = $tmp_date->add(new DateInterval("P9D"));
+        $sunday_date = $sunday->format('Y-m-d');
+
+        if(is_numeric($user_course_id) and is_numeric($user_id))
+        {
+            $sel_data = $this->db->query('
+                SELECT `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, `uc_course_id` 
+                FROM `users_nutritions`
+                LEFT JOIN `users_courses` ON `uc_id`=`un_uc_id` 
+                WHERE `un_uc_id`=? and `un_date`>? and `un_date`<? ORDER BY `un_date`, `un_cds_ci_id`',
+                    array($user_course_id, $monday_date, $sunday_date));
+
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                $ingestions  = self::getIngestions();
+                $f_row       = $sel_data->row();
+                $fill_course = self::getFillNutritionSchedule($f_row->uc_course_id);
+
+                foreach($sel_data->result() as $row)
+                {
+                    $ing_id = array_search($row->un_cds_ci_id, $ingestions['ingestions_id']);
+
+                    if($ing_id !== false)
+                    {
+
+                        $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['name'] = $ingestions['ingestions'][$ing_id]['name'];
+                        $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal'] = array();
+
+                        if($row->un_ml_id > 0)
+                        {
+                            $meal_data = self::getMeal($row->un_ml_id);
+                            $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal'] = $meal_data['meal'];
+                        }
+                        else
+                        {
+                            $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal'] = $fill_course['fill_course_schedule'][$row->un_cds_day][$row->un_cds_ci_id];
+                        }
+                    }
+                }
+                unset($row);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение выбранного прикрепленного курса пользователем
+     *
+     * @param $user_course_id
+     * @param $id_choosen_course
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function attachUserCourse($user_course_id, $id_choosen_course, $user_id, $date)
+    {
+        $result = true;
+
+        // Данные курса пользователя
+        $sel_course = $this->db->query('SELECT `uc_course_id`, `uc_o_id`, `uc_date_start` FROM `users_courses` WHERE `uc_id`=? and `uc_user_id`=? LIMIT 1',
+            array($user_course_id, $user_id));
+        if($sel_course !== false and 1 == $sel_course->num_rows())
+        {
+            $row            = $sel_course->row();
+            $course_id      = $row->uc_course_id;
+            $order_id       = $row->uc_o_id;
+            $uc_date_start  = ($row->uc_date_start != '0000-00-00') ? $row->uc_date_start : null;
+            unset($row);
+
+            // Проверка прикрепленного курса (сохранить, если курс доступен)
+            $check_course = $this->db->query('
+                SELECT `ca_attached_crs_id`, `crs_count_weeks`, `crs_count_days` 
+                FROM `courses_attached` 
+                LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
+                WHERE `ca_crs_id`=? and `ca_attached_crs_id`=? and `ca_blocked`=0 LIMIT 1',
+                    array($course_id, $id_choosen_course));
+            if($check_course !== false and 1 == $check_course->num_rows())
+            {
+                $start_date = '';
+                $end_date   = '';
+
+                // Высилить старт и окончание курса от текущей даты, если дата курса пользователя,
+                // к которому прикреплен курс, уже вычислена
+                if(!empty($uc_date_start))
+                {
+                    $row = $check_course->row();
+                    $course_duration = $row->crs_count_weeks * $row->crs_count_days;
+                    unset($row);
+
+                    $tmp_date = new DateTime($date);
+                    $start_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                    $tmp_date->add(new DateInterval("P".$course_duration."D"));
+                    $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                }
+
+                // Сохранение прикрепленного курса в календарь пользователя
+                self::setAttachedCourseOfUserCourse($order_id, $user_id,  $id_choosen_course, $user_course_id, '', '', $start_date, $end_date, $date);
+            }
+            elseif($check_course === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+        elseif($sel_course === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -5725,9 +7689,10 @@ class Course_model extends CI_Model
         $result = array();
 
         $sel_reviews = $this->db->query('
-            SELECT `cr_id`, `cr_review`, `cr_approval`, `cr_date_add` 
-            FROM `courses_reviews` 
-            WHERE `cr_crs_id`=? and `cr_u_id`=?', array($course_id, $user_id));
+            SELECT `cr_id`, `cr_review`, `cr_approval`, `cr_date_add`, `uc_id` 
+            FROM `courses_reviews`
+             LEFT JOIN `users_courses` ON `uc_course_id`=`cr_crs_id`
+            WHERE `uc_id`=? and `cr_u_id`=?', array($course_id, $user_id));
 
         if ($sel_reviews !== false and 0 < $sel_reviews->num_rows())
         {
@@ -5742,7 +7707,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_reviews === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -5761,9 +7726,10 @@ class Course_model extends CI_Model
         $result = array();
 
         $sel_review = $this->db->query('
-            SELECT `cr_id`, `cr_review`, `cr_approval`, `cr_date_add` 
+            SELECT `cr_id`, `cr_review`, `cr_approval`, `cr_date_add`, `uc_id` 
             FROM `courses_reviews` 
-            WHERE `cr_id`=? and `cr_crs_id`=? and `cr_u_id`=? LIMIT 1', array($review_id, $course_id, $user_id));
+             LEFT JOIN `users_courses` ON `uc_course_id`=`cr_crs_id`
+            WHERE `cr_id`=? and `uc_id`=? and `cr_u_id`=? LIMIT 1', array($review_id, $course_id, $user_id));
 
         if ($sel_review !== false and 1 == $sel_review->num_rows())
         {
@@ -5773,7 +7739,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_review === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -5782,30 +7748,32 @@ class Course_model extends CI_Model
     /**
      * Сохранение отзыва пользователя о курсе
      *
-     * @param $course_id
+     * @param $user_course_id
      * @param $user_id
      * @param $review_text
      * @param $date
      * @return bool
      */
-    public function setUserCourseReview($course_id, $user_id, $review_text, $date)
+    public function setUserCourseReview($user_course_id, $user_id, $review_text, $date)
     {
-        $up_data = $this->db->query('
+        $result = false;
+
+        if(is_numeric($user_course_id))
+        {
+            $up_data = $this->db->query('
             INSERT INTO `courses_reviews` (`cr_crs_id`, `cr_u_id`, `cr_review`, `cr_date_add`, `cr_update`) VALUES (?, ?, ?, ?, ?)',
-                array($course_id, $user_id, $review_text, $date, $date));
-        if ($up_data !== false and 1 == $this->db->affected_rows())
-        {
-            return true;
+                array($user_course_id, $user_id, $review_text, $date, $date));
+            if ($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif ($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
-        elseif ($up_data === false)
-        {
-            parent::logDbMessages(__METHOD__);
-            return false;
-        }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -5830,7 +7798,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -5858,7 +7826,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -5897,7 +7865,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_reviews === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -5930,7 +7898,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_review === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -5957,7 +7925,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -5986,7 +7954,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -6015,7 +7983,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -6042,7 +8010,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -6083,7 +8051,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_reviews === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6126,7 +8094,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6164,7 +8132,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6202,7 +8170,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6235,7 +8203,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6278,7 +8246,7 @@ class Course_model extends CI_Model
         }
         elseif($ins_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6320,7 +8288,7 @@ class Course_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -6351,7 +8319,7 @@ class Course_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -6380,7 +8348,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6454,7 +8422,7 @@ class Course_model extends CI_Model
                             }
                             elseif($sel_extend === false)
                             {
-                                parent::logDbMessages(__METHOD__);
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
                             }
                         }
                     }
@@ -6464,7 +8432,7 @@ class Course_model extends CI_Model
             }
             elseif($sel_promo_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -6507,7 +8475,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6540,7 +8508,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6580,7 +8548,7 @@ class Course_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6611,7 +8579,7 @@ class Course_model extends CI_Model
         }
         elseif($ins_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6642,7 +8610,7 @@ class Course_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6670,7 +8638,7 @@ class Course_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -6726,13 +8694,202 @@ class Course_model extends CI_Model
         }
         elseif($sel_extends === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
     }
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА ПРОДЛЕНИЯ */
+
+
+    /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ ПРИКРЕПЛЕННЫХ КУРСОВ */
+
+    /**
+     * Выборка прикрепленных курсов курса
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getCourseAttachedCourses($course_id)
+    {
+        $result = array('attached_courses' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `ca_id`, `ca_attached_crs_id`, `ca_blocked`, `crs_name` 
+            FROM `courses_attached` 
+            LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
+            WHERE `ca_crs_id`=?', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['attached_courses'][$i] = self::parseAttachedCourseData($row);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка доступных(не заблокированных) прикрепленных курсов курса
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getUserCourseAttachedCourses($course_id)
+    {
+        $result = array('attached_courses' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `ca_id`, `ca_attached_crs_id`, `crs_name` 
+            FROM `courses_attached` 
+            LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
+            WHERE `ca_crs_id`=? and `ca_blocked`=0', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['attached_courses'][$i] = self::parseAttachedCourseData($row);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Потенциальные курсы питания для прикрепления к курсу тренировок
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getPotentiallyAttachedCourses($course_id)
+    {
+        $result = array('attach_courses' => array());
+        $attached_courses = null;
+
+        $sel_ca = $this->db->query('SELECT `ca_id`, `ca_attached_crs_id` FROM `courses_attached` WHERE `ca_crs_id`=?', $course_id);
+
+        if($sel_ca !== false and 0 < $sel_ca->num_rows())
+        {
+            $i = 0;
+            foreach($sel_ca->result() as $row)
+            {
+                $attached_courses[$i] = $row->ca_attached_crs_id;
+
+                $i++;
+            }
+            unset($row);
+            unset($i);
+        }
+        elseif($sel_ca === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        $sel_data = $this->db->query('SELECT `crs_id`, `crs_name` FROM `courses` WHERE `crs_category`="nutrition"');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                if(!is_array($attached_courses) or (is_array($attached_courses) and !in_array($row->crs_id, $attached_courses)))
+                {
+                    $result['attach_courses'][$i]['id']   = $row->crs_id;
+                    $result['attach_courses'][$i]['name'] = $row->crs_name;
+                }
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Прикрепление курса к курсу
+     *
+     * @param $course_id
+     * @param $attach_crs_id
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function attachNewCourse($course_id, $attach_crs_id, $admin_id, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('
+            INSERT INTO `courses_attached`(`ca_crs_id`, `ca_attached_crs_id`, `ca_admin_id`, `ca_date`) 
+            VALUES (?, ?, ?, ?)', array($course_id, $attach_crs_id, $admin_id, $date));
+
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Блокировка/разблокировка прикрепленного курса
+     *
+     * @param $course_id
+     * @param $attached_id
+     * @param $block
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function blockAttachedCourse($course_id, $attached_id, $block, $admin_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('
+            UPDATE `courses_attached` SET `ca_blocked`=?, `ca_admin_id`=?, `ca_date`=? 
+            WHERE `ca_crs_id`=? and `ca_attached_crs_id`=? LIMIT 1', array($block, $admin_id, $date, $course_id, $attached_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ ПРИКРЕПЛЕННЫХ КУРСОВ */
 
 
     /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА ТРЕНЕРА */
@@ -6780,7 +8937,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6816,7 +8973,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_courses === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6856,7 +9013,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_course === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -6884,7 +9041,7 @@ class Course_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -6942,7 +9099,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_video === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         else
         {
@@ -6988,7 +9145,7 @@ class Course_model extends CI_Model
                     }
                     elseif ($up_data === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                         return false;
                     }
                     else
@@ -6998,7 +9155,7 @@ class Course_model extends CI_Model
                 }
                 elseif ($sel_course === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                     return false;
                 }
                 else
@@ -7014,7 +9171,7 @@ class Course_model extends CI_Model
         }
         elseif ($sel_workout === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -7050,6 +9207,7 @@ class Course_model extends CI_Model
         $result = array();
 
         $result['id']               = $row->crs_id;
+        $result['category']         = !empty($row->crs_category) ? $row->crs_category : null;
         $result['image']            = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : null;
         $result['name']             = !empty($row->crs_name) ? $row->crs_name : null;
         $result['description']      = !empty($row->crs_description) ? $row->crs_description : null;
@@ -7566,7 +9724,7 @@ class Course_model extends CI_Model
         $result['block8']['desc1']     = $row->clp_block8_description1;
         $result['block8']['subtitle']  = $row->clp_block8_subtitle;
         $result['block8']['desc2']     = $row->clp_block8_description2;
-        $result['block8']['old_price'] = money_format('%!.2n', $row->clp_block8_old_price);
+        $result['block8']['old_price'] = ($row->clp_block8_old_price > 0) ? money_format('%!.2n', $row->clp_block8_old_price) : null;
         $result['block8']['new_price'] = $row->clp_block8_new_price;
         $result['block8']['button']    = strip_tags($row->clp_block8_button);
 
@@ -7732,6 +9890,48 @@ class Course_model extends CI_Model
         $result['admin_id']     = $row->ce_admin_id;
         $result['date_add']     = $row->ce_date_add;
         $result['update']       = $row->ce_update;
+
+        return $result;
+    }
+
+    /**
+     * Обработка данных блюда
+     *
+     * @param $row
+     * @return mixed
+     */
+    protected function parseMealData($row)
+    {
+        $result['id']               = (!empty($row->ml_id)) ? $row->ml_id : null;
+        $result['type_id']          = (!empty($row->ml_mt_id)) ? $row->ml_mt_id : null;
+        $result['name']             = (!empty($row->ml_name)) ? $row->ml_name : null;
+        $result['description']      = (!empty($row->ml_description)) ? $row->ml_description : null;
+        $result['ingredients_text'] = (!empty($row->ml_ingredients)) ? $row->ml_ingredients : null;
+        $result['images']           = (!empty($row->ml_images)) ? array_diff(scandir($row->ml_images), array('..', '.')) : null;
+        $result['weight']           = (!empty($row->ml_weight)) ? $row->ml_weight : null;
+        $result['proteins']         = (!empty($row->ml_proteins)) ? $row->ml_proteins : null;
+        $result['fats']             = (!empty($row->ml_fats)) ? $row->ml_fats : null;
+        $result['carbohydrates']    = (!empty($row->ml_carbohydrates)) ? $row->ml_carbohydrates : null;
+        $result['calories']         = (!empty($row->ml_calories)) ? $row->ml_calories : null;
+        $result['blocked']          = (!empty($row->ml_blocked)) ? $row->ml_blocked : null;
+        $result['ingredients']      = array();
+        $result['meal_videos']      = array();
+
+        return $result;
+    }
+
+    /**
+     * Обработка данных прикрепленного курса
+     *
+     * @param $row
+     * @return mixed
+     */
+    protected function parseAttachedCourseData($row)
+    {
+        $result['id']          = (!empty($row->ca_id)) ? $row->ca_id : null;
+        $result['attached_id'] = (!empty($row->ca_attached_crs_id)) ? $row->ca_attached_crs_id : null;
+        $result['name']        = (!empty($row->crs_name)) ? $row->crs_name : null;
+        $result['blocked']     = (!empty($row->ca_blocked)) ? $row->ca_blocked : null;
 
         return $result;
     }

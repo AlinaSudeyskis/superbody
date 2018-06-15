@@ -21,6 +21,7 @@ class Course extends CI_Controller
         $this->load->model('Course_model');
     }
 
+
     /* БЛОК ФУНКЦИЙ КАТЕГОРИИ КУРСА */
 
     /**
@@ -40,7 +41,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Категории курсов';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'courses_types';
 
         $this->load->view('header/header', $this->page_data);
@@ -88,7 +89,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Добавление новой категории курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'courses_types';
 
         $this->load->view('header/header', $this->page_data);
@@ -139,7 +140,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Изменение данных категории курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'courses_types';
 
         $this->load->view('header/header', $this->page_data);
@@ -149,6 +150,7 @@ class Course extends CI_Controller
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ КАТЕГОРИИ КУРСА */
+
 
     /**
      * Вывод последних сохраненных типов приемов пищи
@@ -192,14 +194,18 @@ class Course extends CI_Controller
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
 
-            if (!empty($name)) {
+            if (!empty($name))
+            {
                 $result = $this->Course_model->setNewIngestionType($name, $this->date);
 
-                if (is_numeric($result)) {
+                if (is_numeric($result))
+                {
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
                     header('Location: /administration/ingestion/type/'.$result);
-                } else {
+                }
+                else
+                {
                     // Изменения не сохранены
                     $this->session->set_tempdata('message', 27, 60);
                     header('Location: /administration/ingestion/type/new');
@@ -265,183 +271,6 @@ class Course extends CI_Controller
         $this->load->view('footer/footer');
     }
 
-    /**
-     * Вывод последних сохраненных приемов пищи
-     *
-     * @return void
-     */
-    public function ingestions()
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
-            parent::pageNotFound($this->page_url);
-        }
-
-        // Получение данных о типах курсов
-        $result = $this->Course_model->getIngestions();
-
-        // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Приемы пищи';
-        $this->page_data['page_menu'] = 'ingestion';
-
-        $this->load->view('header/header', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('ingestion/ingestions', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод формы и валидация введенных данных нового приема пищи
-     *
-     * @return void
-     */
-    public function newIngestion()
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
-            parent::pageNotFound($this->page_url);
-        }
-
-        // Сохранение нового типа приемов пищи
-        if ($this->input->post('bt_save_new_ingestion', true)) {
-            // Имя пользователя
-            $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
-
-            // Тип приема пищи
-            $type_id = is_numeric($this->input->post('s_ing_type')) ? $this->input->post('s_ing_type') : '' ;
-
-            // Время приема добавки
-            $d = DateTime::createFromFormat('H:i', $this->input->post('time_additives', true));
-            $time = ($d !== false) ? $this->input->post('time_additives', true) : '';
-
-            if ('' == $this->input->post('s_time_additives', true)) {
-                $time_additives = '';
-            }
-            else {
-                if ('before' == $this->input->post('s_time_additives', true)) {
-                    if (!empty($time) and '00:00' != $time) {
-                        $time_additives = '-' . $time;
-                    } else {
-                        $time_additives = '-00:00:01';
-                    }
-                }
-                elseif ('after' == $this->input->post('s_time_additives', true)) {
-                    if (!empty($time) and '00:00' != $time) {
-                        $time_additives = $time;
-                    } else {
-                        $time_additives = '00:00:01';
-                    }
-                } else {
-                    $time_additives = '';
-                }
-            }
-
-            if (!empty($name)) {
-                $result = $this->Course_model->setNewIngestion($name, $type_id, $time_additives, $this->date);
-
-                if (is_numeric($result)) {
-                    // Изменения сохранены
-                    $this->session->set_tempdata('message', 10, 60);
-                    header('Location: /administration/ingestion/'.$result);
-                } else {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 26, 60);
-                    header('Location: /administration/ingestion/new');
-                }
-            }
-        }
-
-
-        // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Добавление нового приема пищи';
-        $this->page_data['page_menu'] = 'ingestion';
-
-        $result = $this->Course_model->getIngestionTypes();
-
-        $this->load->view('header/header', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('ingestion/new_ingestion', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод формы и валидация изменных данных типа приемов пищи
-     *
-     * @param $ing_id
-     * @return void
-     */
-    public function ingestion($ing_id)
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
-            parent::pageNotFound($this->page_url);
-        }
-
-        // Сохранение изменений типа курса
-        if ($this->input->post('bt_save_ingestion_settings', true) and is_numeric($ing_id)) {
-            // Имя пользователя
-            $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
-
-            // Тип приема пищи
-            $type_id = is_numeric($this->input->post('s_ing_type')) ? $this->input->post('s_ing_type') : '' ;
-
-            // Время приема добавки
-            $d = DateTime::createFromFormat('H:i', $this->input->post('time_additives', true));
-            $time = ($d !== false) ? $this->input->post('time_additives', true) : '';
-
-            if ('' == $this->input->post('s_time_additives', true)) {
-                $time_additives = '';
-            }
-            else {
-                if ('before' == $this->input->post('s_time_additives', true)) {
-                    if (!empty($time) and '00:00' != $time) {
-                        $time_additives = '-' . $time;
-                    } else {
-                        $time_additives = '-00:00:01';
-                    }
-                }
-                elseif ('after' == $this->input->post('s_time_additives', true)) {
-                    if (!empty($time) and '00:00' != $time) {
-                        $time_additives = $time;
-                    } else {
-                        $time_additives = '00:00:01';
-                    }
-                } else {
-                    $time_additives = '';
-                }
-            }
-
-            if (!empty($name)) {
-                $result = $this->Course_model->setIngestionSettings($ing_id, $name, $type_id, $time_additives, $this->date);
-
-                if ($result === true) {
-                    // Изменения сохранены
-                    $this->session->set_tempdata('message', 10, 60);
-                } else {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 26, 60);
-                }
-            }
-            header('Location: /administration/ingestion/'.$ing_id);
-        }
-
-        // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Изменение данных приема пищи';
-        $this->page_data['page_menu'] = 'ingestion';
-
-        $this->load->view('header/header', $this->page_data);
-        $this->load->view('header/admin');
-
-        if (is_numeric($ing_id)) {
-            $ingestion = $this->Course_model->getIngestion($ing_id);
-            $ing_type = $this->Course_model->getIngestionTypes();
-            $result = array_merge($ingestion, $ing_type);
-
-            $this->load->view('ingestion/ingestion_settings', $result);
-        }
-
-        $this->load->view('footer/footer');
-    }
 
     /* БЛОК ФУНКЦИЙ ВЫВОДА И ВАЛИДАЦИИ ДАННЫХ ВИДЕО */
 
@@ -956,7 +785,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Редактирование данных видео курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'video';
         $this->page_data['video_menu']   = 'video_settings';
         $this->page_data['course_id']    = $course_id;
@@ -969,22 +798,28 @@ class Course extends CI_Controller
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ДЛЯ РАБОТЫ С ВИДЕО */
 
-    /* БЛОК ФУНКЦИЙ КУРСОВ */
+    /* БЛОК ФУНКЦИЙ КУРСОВ ТРЕНИРОВОК */
 
     /**
      * Вывод списка курсов в админ. панели
+     *
+     * @param $courses_category
      */
-    public function courses()
+    public function courses($courses_category = 'workout')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        if ($this->input->post('bt_deactivate_landing', true)) {
+        $courses_page = ($courses_category == 'nutrition') ? 'nutritions' : 'courses';
+
+        if ($this->input->post('bt_deactivate_landing', true))
+        {
             $course_id = is_numeric($this->input->post('i_course_id', true)) ? $this->input->post('i_course_id', true) : null;
 
-            if (!empty($course_id)) {
+            if (!empty($course_id))
+            {
                 $result = $this->Course_model->deactivateCourseLandingPage($course_id, $this->date);
 
                 if ($result === true) {
@@ -994,41 +829,71 @@ class Course extends CI_Controller
                     // Не удалось деактивировать
                     $this->session->set_tempdata('message', 100, 60);
                 }
-            } else {
+            }
+            else
+            {
                 // Не удалось деактивировать
                 $this->session->set_tempdata('message', 100, 60);
             }
 
-            header('Location: /administration/courses');
+            header('Location: /administration/' . $courses_page);
         }
-        elseif ($this->input->post('bt_activate_landing', true)) {
+        elseif ($this->input->post('bt_activate_landing', true))
+        {
             $course_id = is_numeric($this->input->post('i_course_id', true)) ? $this->input->post('i_course_id', true) : null;
 
-            if (!empty($course_id)) {
+            if (!empty($course_id))
+            {
                 $result = $this->Course_model->activateCourseLandingPage($course_id, $this->date);
 
-                if ($result === true) {
+                if ($result === true)
+                {
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
-                } else {
+                }
+                else
+                {
                     // Не удалось активировать
                     $this->session->set_tempdata('message', 99, 60);
                 }
-            } else {
+            }
+            else
+            {
                 // Не удалось активировать
                 $this->session->set_tempdata('message', 99, 60);
             }
 
-            header('Location: /administration/courses');
+            header('Location: /administration/' . $courses_page);
         }
 
+        // Курсы тренировок
+        if($courses_category == 'workout')
+        {
+            self::workoutCourses();
+        }
+        // Курсы питания
+        elseif($courses_category == 'nutrition')
+        {
+            self::nutritionCourses();
+        }
+        else
+        {
+            parent::pageNotFound($this->page_url);
+        }
+    }
+
+    /**
+     * Список курсов тренировок
+     */
+    protected function workoutCourses()
+    {
         // Получение списка добавленных курсов
-        $result = $this->Course_model->getCourses();
+        $result = $this->Course_model->getWorkoutCourses();
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Курсы';
-        $this->page_data['page_menu']    = 'a_courses';
-        $this->page_data['page_submenu'] = 'a_courses';
+        $this->page_data['title']        = 'АП - Курсы тренировок';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'a_courses_w';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
@@ -1037,7 +902,7 @@ class Course extends CI_Controller
     }
 
     /**
-     * Форма добавления и обработка данных нового курса
+     * Форма добавления и обработка данных нового курса тренировок
      */
     public function newCourse()
     {
@@ -1067,9 +932,21 @@ class Course extends CI_Controller
             $price = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
             $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
 
+            // Рекуррентная стоимость
+            $recur_price      = $price;
+            $recur_months     = is_numeric($this->input->post('s_recurrent_months', true)) ? $this->input->post('s_recurrent_months', true) : '';
+            $recur_first      = is_numeric($this->input->post('i_recurrent_first', true)) ? $this->input->post('i_recurrent_first', true) : '';
+            $recur_subsequent = '';
+            if (!empty($recur_price) and !empty($recur_months) and !empty($recur_first))
+            {
+                $num_month = $recur_months - 1;
+                $month_price = ($recur_price - $recur_first) / $num_month;
+                $recur_subsequent = number_format($month_price, 2, '.', '');
+            }
+
             // Тип курса
             $type = $this->input->post('s_course_type', true);
-            $course_type = is_numeric($type) and in_array($type, $course_types['types_id']) ? $type : '';
+            $course_type = is_numeric($type) and in_array($type, $course_types['types_id']) ? $type : 1;
 
             // Длительность курса
             $count_weeks = (is_numeric($this->input->post('count_weeks', true)) and 52 >= $this->input->post('count_weeks', true))
@@ -1137,7 +1014,8 @@ class Course extends CI_Controller
             $s_repeat_workout  = $this->input->post('s_repeat_workout');
             $ta_workout_desc   = $this->input->post('ta_workout_desc');
 
-            for ($w = 0; $w < $count_workouts; $w++) {
+            for ($w = 0; $w < $count_workouts; $w++)
+            {
                 $repeat_workout = (!empty($cb_repeat_workout[$workout]) and is_numeric($s_repeat_workout[$workout]))
                     ? $s_repeat_workout[$workout] : 0;
 
@@ -1180,12 +1058,16 @@ class Course extends CI_Controller
             // Удаление тренировок
             $schedule['delete'] = !empty($course_schedule['num_workout']) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
 
-            if (!empty($name) and !empty($description) and !empty($price) and !empty($course_type)) {
-                $course_id = $this->Course_model->setNewCourse($name, $description, $price, $fc_price, $course_type, $count_weeks,
-                    $count_days, $count_rest, $this->user_id, $this->date);
+            if (!empty($name) and !empty($description) and !empty($price))
+            {
+                $course_category = 'workout';
+
+                $course_id = $this->Course_model->setNewCourse($course_category, $name, $description, $price, $fc_price,
+                    $course_type, $count_weeks, $count_days, $count_rest, $this->user_id, $this->date);
             }
 
-            if (!empty($course_id) and is_numeric($course_id)) {
+            if (!empty($course_id) and is_numeric($course_id))
+            {
                 // Сохранение изображения курса
                 $img_path = './course_files/' . $course_id . '/';
 
@@ -1217,6 +1099,8 @@ class Course extends CI_Controller
                 $result_schedule = $this->Course_model->setCourseSchedule($course_id, $schedule, $this->user_id, $this->date);
                 // Добавление, изменение и/или удаление тренеров курса
                 $result_couches  = $this->Course_model->setCourseCouches($course_id, $couches, $this->date);
+                // Сохранение даынных о рекуррентном платеже
+                $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->user_id, $this->date);
 
                 // Курс сохранен
                 $this->session->set_tempdata('message', 10, 60);
@@ -1247,7 +1131,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Добавление нового курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'a_courses';
         
         $this->load->view('header/header', $this->page_data);
@@ -1330,6 +1214,14 @@ class Course extends CI_Controller
         elseif($page_type == 'extend' and is_numeric($page_id))
         {
             self::courseExtend($course_id, $page_id);
+        }
+        elseif($page_type == 'attached' and empty($page_id))
+        {
+            self::courseAttachedCourses($course_id);
+        }
+        elseif($page_type == 'attach_new')
+        {
+            self::newCourseAttach($course_id);
         }
     }
 
@@ -1468,10 +1360,10 @@ class Course extends CI_Controller
             // Заполнение занятий
             $workout = 1;
             $count_workouts    = $count_weeks * $count_days;
-            $id_video          = $this->input->post('id_video');
-            $cb_repeat_workout = $this->input->post('cb_repeat_workout');
-            $s_repeat_workout  = $this->input->post('s_repeat_workout');
-            $ta_workout_desc   = $this->input->post('ta_workout_desc');
+            $id_video          = $this->input->post('id_video', true);
+            $cb_repeat_workout = $this->input->post('cb_repeat_workout', true);
+            $s_repeat_workout  = $this->input->post('s_repeat_workout', true);
+            $ta_workout_desc   = $this->input->post('ta_workout_desc', true);
 
             for ($w = 0; $w < $count_workouts; $w++)
             {
@@ -1537,7 +1429,7 @@ class Course extends CI_Controller
             if ($recur_months != $course['recur_months'] or $recur_first != $course['recur_first']
                 or $recur_subsequent != $course['recur_subsequent'])
             {
-                $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->date);
+                $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->user_id, $this->date);
             }
 
             // Добавление, изменени и/или удаление тренировок курса
@@ -1626,7 +1518,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Редактирование данных курса';
-        $this->page_data['page_menu'] = 'a_courses';
+        $this->page_data['page_menu'] = 'a_courses_w';
         $this->page_data['page_submenu'] = 'settings';
         $this->page_data['course_id'] = $course_id;
 
@@ -2891,7 +2783,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Редактирование данных Landing page курса';
-        $this->page_data['page_menu']     = 'a_courses';
+        $this->page_data['page_menu']     = 'a_courses_w';
         $this->page_data['page_submenu']  = 'landing';
         $this->page_data['course_id']     = $course_id;
 
@@ -2916,25 +2808,36 @@ class Course extends CI_Controller
      * Вывод статистики курса
      *
      * @param $course_id
+     * @param $course_type
      */
-    protected function courseStatistics($course_id)
+    protected function courseStatistics($course_id, $course_type = 'workout')
     {
         $statis = $this->Course_model->getStatistics($course_id);
         $course = $this->Course_model->getShortCourse($course_id);
 
         $result = array_merge($statis, $course);
 
+        $page_menu = ($course_type == 'workout') ? 'a_courses_w' : 'a_courses_n';
+
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Статистика курса';
-        $this->page_data['page_menu'] = 'a_courses';
+        $this->page_data['title']        = 'АП - Статистика курса';
+        $this->page_data['page_menu']    = $page_menu;
         $this->page_data['page_submenu'] = 'statistics';
-        $this->page_data['course_id'] = $course_id;
+        $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
+        if($course_type == 'workout')
+        {
+            $this->load->view('course/settings/course', $result);
+        }
+        elseif($course_type == 'nutrition')
+        {
+            $this->load->view('course/nutritions/settings/course', $result);
+        }
         $this->load->view('footer/footer');
     }
+
 
     /* БЛОК ФУНКЦИЙ ОТЗЫВОВ КУРСА */
 
@@ -2942,23 +2845,33 @@ class Course extends CI_Controller
      * Вывод отзывов курса
      *
      * @param $course_id
+     * @param $course_type
      */
-    protected function courseReviews($course_id)
+    protected function courseReviews($course_id, $course_type = 'workout')
     {
         $reviews = $this->Course_model->getCourseReviews($course_id);
         $course  = $this->Course_model->getShortCourse($course_id);
 
         $result = array_merge($reviews, $course);
 
+        $page_menu = ($course_type == 'workout') ? 'a_courses_w' : 'a_courses_n';
+
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Отзывы курса';
-        $this->page_data['page_menu'] = 'a_courses';
+        $this->page_data['title']        = 'АП - Отзывы курса';
+        $this->page_data['page_menu']    = $page_menu;
         $this->page_data['page_submenu'] = 'reviews';
-        $this->page_data['course_id'] = $course_id;
+        $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
+        if($course_type == 'workout')
+        {
+            $this->load->view('course/settings/course', $result);
+        }
+        elseif($course_type == 'nutrition')
+        {
+            $this->load->view('course/nutritions/settings/course', $result);
+        }
         $this->load->view('footer/footer');
     }
 
@@ -2967,8 +2880,9 @@ class Course extends CI_Controller
      *
      * @param $course_id
      * @param $review_id
+     * @param $course_type
      */
-    protected function courseReview($course_id, $review_id)
+    protected function courseReview($course_id, $review_id, $course_type = 'workout')
     {
         $review = $this->Course_model->getCourseReview($course_id, $review_id);
         $course = $this->Course_model->getShortCourse($course_id);
@@ -3051,17 +2965,27 @@ class Course extends CI_Controller
             }
         }
 
+        $page_menu = ($course_type == 'workout') ? 'a_courses_w' : 'a_courses_n';
+
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Отзыв курса';
-        $this->page_data['page_menu'] = 'a_courses';
+        $this->page_data['title']        = 'АП - Отзыв курса';
+        $this->page_data['page_menu']    = $page_menu;
         $this->page_data['page_submenu'] = 'reviews';
-        $this->page_data['course_id'] = $course_id;
+        $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
+        if($course_type == 'workout')
+        {
+            $this->load->view('course/settings/course', $result);
+        }
+        elseif($course_type == 'nutrition')
+        {
+            $this->load->view('course/nutritions/settings/course', $result);
+        }
         $this->load->view('footer/footer');
     }
+
 
     /* БЛОК ФУНКЦИЙ ВИДЕО КУРСА */
 
@@ -3079,7 +3003,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Промо-видео курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'video';
         $this->page_data['video_menu']   = 'promo';
         $this->page_data['course_id']    = $course_id;
@@ -3104,7 +3028,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Видео тренировок курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'video';
         $this->page_data['video_menu']   = 'workouts';
         $this->page_data['course_id']    = $course_id;
@@ -3129,7 +3053,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Видео инструктажей курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'video';
         $this->page_data['video_menu']   = 'instructions';
         $this->page_data['course_id']    = $course_id;
@@ -3225,7 +3149,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Добавление видео курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'video';
         $this->page_data['course_id']    = $course_id;
 
@@ -3235,29 +3159,2769 @@ class Course extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+
+    /* БЛОК ФУНКЦИЙ КУРСОВ ПИТАНИЯ */
+
+    /**
+     * Список курсов питания
+     */
+    protected function nutritionCourses()
+    {
+        // Получение списка добавленных курсов
+        $result = $this->Course_model->getNutritionCourses();
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Курсы питания';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'a_courses';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/nutritions/courses', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма добавления и обработка данных нового курса питания
+     */
+    public function newNutrition()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $ingestions = $this->Course_model->getIngestions();
+
+        $result = array_merge($ingestions);
+
+        // Валидация и сохранение данных
+        if($this->input->post('bt_save_new_course', true))
+        {
+            $schedule['insert'] = array();
+            $schedule_days      = array();
+
+            // Наименование
+            $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+
+            // Описание
+            $description = mb_substr(strip_tags($this->input->post('description', true)), 0, 1000);
+
+            // Стоимость курса
+            $price = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
+            $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
+
+            // Рекуррентная стоимость
+            $recur_price      = $price;
+            $recur_months     = is_numeric($this->input->post('s_recurrent_months', true)) ? $this->input->post('s_recurrent_months', true) : '';
+            $recur_first      = is_numeric($this->input->post('i_recurrent_first', true)) ? $this->input->post('i_recurrent_first', true) : '';
+            $recur_subsequent = '';
+            if (!empty($recur_price) and !empty($recur_months) and !empty($recur_first))
+            {
+                $num_month = $recur_months - 1;
+                $month_price = ($recur_price - $recur_first) / $num_month;
+                $recur_subsequent = number_format($month_price, 2, '.', '');
+            }
+
+            // Длительность курса
+            $count_weeks = (is_numeric($this->input->post('count_weeks', true)) and 52 >= $this->input->post('count_weeks', true))
+                ? $this->input->post('count_weeks', true) : 1;
+
+            // Приемы пищи
+            $cb_ingestions     = $this->input->post('cb_ingestions', true);
+            $s_ings_time_from  = $this->input->post('s_ing_time_from', true);
+            $s_ings_time_to    = $this->input->post('s_ing_time_to', true);
+
+            if(!empty($cb_ingestions) and is_array($cb_ingestions))
+            {
+                $tmp_ingestions = array();
+                $tmp_time_from  = array();
+                $tmp_time_to    = array();
+
+                foreach($cb_ingestions as $key => $ingestion)
+                {
+                    if(is_numeric($ingestion) and is_numeric($key))
+                    {
+                        // Диапазон времени
+                        // Проверка данных. Если не корректные, присвоить данные по умолчанию
+                        $tmp_from  = DateTime::createFromFormat('H:i', $s_ings_time_from[$key]);
+                        $time_from = ($tmp_from !== false) ? $s_ings_time_from[$key] : $ingestions['ingestions_from'][$key];
+                        $tmp_to    = DateTime::createFromFormat('H:i', $s_ings_time_to[$key]);
+                        $time_to   = ($tmp_to !== false) ? $s_ings_time_to[$key] : $ingestions['ingestions_to'][$key];
+
+                        $tmp_ingestions[$key] = $ingestion;
+                        $tmp_time_from[$key]  = $time_from;
+                        $tmp_time_to[$key]    = $time_to;
+                    }
+                }
+                unset($ingestion);
+
+                $cb_ingestions     = $tmp_ingestions;
+                $s_ings_time_from  = $tmp_time_from;
+                $s_ings_time_to    = $tmp_time_to;
+            }
+
+            // Расписание курса
+            $schedule_day   = 1;
+            $count_days     = $count_weeks * 7;
+            $id_meal        = $this->input->post('id_meal', true);
+
+            // Цикл дней курса
+            for($sd = 0; $sd < $count_days; $sd++)
+            {
+                // Цикл приемов пищи
+                foreach($cb_ingestions as $ingestion)
+                {
+                    // Цикл блюд
+                    $i = 0;
+                    if(!empty($id_meal[$schedule_day][$ingestion]))
+                    {
+                        foreach($id_meal[$schedule_day][$ingestion] as $meal)
+                        {
+                            $schedule_days[$schedule_day][$ingestion][$i] = $meal;
+
+                            $i++;
+                        }
+                        unset($i);
+                        unset($meal);
+                    }
+                }
+                unset($ingestion);
+
+                $schedule_day++;
+            }
+            unset($sd);
+            $schedule['insert'] = $schedule_days;
+
+            if (!empty($name) and !empty($description) and !empty($price))
+            {
+                $course_category = 'nutrition';
+
+                $course_id = $this->Course_model->setNewCourse($course_category, $name, $description, $price, $fc_price,
+                    0, $count_weeks, 7, 0, $this->user_id, $this->date);
+            }
+
+            if (!empty($course_id) and is_numeric($course_id))
+            {
+                // Сохранение изображения курса
+                $img_path = './course_files/' . $course_id . '/';
+
+                if (!file_exists($img_path)) {
+                    chdir('course_files');
+                    if (!is_dir($course_id)) {
+                        mkdir($course_id);
+                    }
+                    chmod($course_id, 0777);
+                    chdir($course_id);
+                    chdir('../../');
+                }
+
+                $course_image = '';
+                if (is_uploaded_file($_FILES['course_image']['tmp_name'])) {
+                    $image = parent::uploadImage('course_image', $_FILES['course_image']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $course_image = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+                $this->Course_model->setCourseImage($course_id, $course_image);
+
+                // Добавление, изменени и/или удаление расписания курса
+                $result_schedule  = $this->Course_model->setNutritionSchedule($course_id, $schedule, $this->user_id, $this->date);
+                // Сохранение даынных о рекуррентном платеже
+                $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->user_id, $this->date);
+                $result_crs_inges = $this->Course_model->setNutritionIngestions($course_id, $cb_ingestions, $s_ings_time_from, $s_ings_time_to, $this->user_id, $this->date);
+
+                // Курс сохранен
+                $this->session->set_tempdata('message', 10, 60);
+
+                header('Location: /administration/nutrition/'.$course_id);
+            }
+            else {
+                // Курс не сохранен
+                $this->session->set_tempdata('message', 30, 60);
+                header('Location: /administration/nutrition/new');
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Добавление нового курса питания';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'a_courses';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/nutritions/settings/new_course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод данных и сохраненение изменений курса питания
+     *
+     * @param $course_id
+     * @param string $page_type (settings, landing, statistics, reviews, review)
+     * @param int|null $page_id
+     * @return void
+     */
+    public function nutrition($course_id, $page_type = 'settings', $page_id = null)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if ($page_type == 'settings')
+        {
+            self::nutritionSettings($course_id);
+        }
+        elseif ($page_type == 'landing')
+        {
+            self::nutritionLanding($course_id);
+        }
+        elseif ($page_type == 'statistics')
+        {
+            self::courseStatistics($course_id, 'nutrition');
+        }
+        elseif ($page_type == 'reviews')
+        {
+            self::courseReviews($course_id, 'nutrition');
+        }
+        elseif ($page_type == 'review' and is_numeric($page_id))
+        {
+            self::courseReview($course_id, $page_id, 'nutrition');
+        }
+        elseif($page_type == 'promocodes')
+        {
+            self::coursePromocodes($course_id, 'nutrition');
+        }
+        elseif($page_type == 'promocode_new')
+        {
+            self::newCoursePromocode($course_id, 'nutrition');
+        }
+        elseif($page_type == 'promocode' and is_numeric($page_id))
+        {
+            self::coursePromocode($course_id, $page_id, 'nutrition');
+        }
+    }
+
+    /**
+     * Редактирование и сохранение настроек курса
+     *
+     * @param $course_id
+     */
+    protected function nutritionSettings($course_id)
+    {
+        $ingestions = $this->Course_model->getIngestions();
+        $course     = $this->Course_model->getCourse($course_id);
+
+        $course_ingestions = $this->Course_model->getNutritionIngestions($course_id);
+        $course_schedule   = $this->Course_model->getNutritionSchedule($course_id);
+
+        // Валидация и сохранение данных
+        if ($this->input->post('bt_save_course', true))
+        {
+            $schedule      = array('insert' => array(), 'delete' => array());
+            $delete        = array();
+            $schedule_days = array();
+
+            $course = $course['course'];
+            $img_path = './course_files/' . $course_id . '/';
+
+            if (!file_exists($img_path)) {
+                chdir('course_files');
+                if (!is_dir($course_id)) {
+                    mkdir($course_id);
+                }
+                chmod($course_id, 0777);
+                chdir($course_id);
+                chdir('../../');
+            }
+
+            $course_image = '.' . $course['image'];
+            if (is_uploaded_file($_FILES['course_image']['tmp_name'])) {
+                $image = parent::uploadImage('course_image', $_FILES['course_image']['type'], $img_path);
+                $full_path_img = $img_path . $image;
+                if (file_exists($full_path_img)) {
+                    if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                        $course_image = $full_path_img;
+                    } else {
+                        unlink($full_path_img);
+                    }
+                }
+            }
+
+            // Наименование
+            $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+
+            // Описание
+            $description = mb_substr(strip_tags($this->input->post('description', true)), 0, 1000);
+
+            // Стоиомсть курса
+            $price    = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
+            $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
+
+            // Рекуррентная стоимость
+            $recur_price      = $price;
+            $recur_months     = is_numeric($this->input->post('s_recurrent_months', true)) ? $this->input->post('s_recurrent_months', true) : '';
+            $recur_first      = is_numeric($this->input->post('i_recurrent_first', true)) ? $this->input->post('i_recurrent_first', true) : '';
+            $recur_subsequent = '';
+            if (!empty($recur_price) and !empty($recur_months) and !empty($recur_first))
+            {
+                $num_month = $recur_months - 1;
+                $month_price = ($recur_price - $recur_first) / $num_month;
+                $recur_subsequent = number_format($month_price, 2, '.', '');
+            }
+
+            // Длительность курса
+            $count_weeks = (is_numeric($this->input->post('count_weeks', true)) and 52 >= $this->input->post('count_weeks', true))
+                ? $this->input->post('count_weeks', true) : '';
+
+            // Приемы пищи
+            $cb_ingestions     = $this->input->post('cb_ingestions', true);
+            $s_ings_time_from  = $this->input->post('s_ing_time_from', true);
+            $s_ings_time_to    = $this->input->post('s_ing_time_to', true);
+            $update_ingestions = array('insert' => array(), 'update' => array(), 'delete' => array());
+
+            if(!empty($cb_ingestions) and is_array($cb_ingestions))
+            {
+                $tmp_ingestions = array();
+                $tmp_time_from  = array();
+                $tmp_time_to    = array();
+
+                foreach($cb_ingestions as $key => $ingestion)
+                {
+                    if(is_numeric($ingestion) and is_numeric($key))
+                    {
+                        // Диапазон времени
+                        // Проверка данных. Если не корректные, присвоить данные по умолчанию
+                        $tmp_from  = DateTime::createFromFormat('H:i', $s_ings_time_from[$key]);
+                        $time_from = ($tmp_from !== false) ? $s_ings_time_from[$key] : $ingestions['ingestions_from'][$key];
+                        $tmp_to    = DateTime::createFromFormat('H:i', $s_ings_time_to[$key]);
+                        $time_to   = ($tmp_to !== false) ? $s_ings_time_to[$key] : $ingestions['ingestions_to'][$key];
+
+                        $tmp_ingestions[$key] = $ingestion;
+                        $tmp_time_from[$key]  = $time_from;
+                        $tmp_time_to[$key]    = $time_to;
+
+                        if($time_from != $course_ingestions['course_ingestion'][$key]['time_from']
+                            or $time_to != $course_ingestions['course_ingestion'][$key]['time_to'])
+                        {
+                            $update_ingestions['update'][$key] = $ingestion;
+                        }
+                    }
+
+                    if(!in_array($ingestion, $course_ingestions['course_ingestions_id']))
+                    {
+                        $update_ingestions['insert'][$key] = $ingestion;
+                    }
+                }
+                unset($ingestion);
+
+                $cb_ingestions     = $tmp_ingestions;
+                $s_ings_time_from  = $tmp_time_from;
+                $s_ings_time_to    = $tmp_time_to;
+
+                if(is_array($cb_ingestions))
+                {
+                    $diff = array_diff($course_ingestions['course_ingestions_id'], $cb_ingestions);
+
+                    if(!empty($diff))
+                    {
+                        $update_ingestions['delete'] = array_merge($update_ingestions['delete'], $diff);
+                    }
+                }
+            }
+
+            // Расписание курса
+            $schedule_day   = 1;
+            $count_days     = $count_weeks * 7;
+            $id_meal        = $this->input->post('id_meal', true);
+            $i = 0;
+
+            // Цикл дней курса
+            for($sd = 1; $sd <= $count_days; $sd++)
+            {
+                // Цикл приемов пищи
+                foreach($cb_ingestions as $ingestion)
+                {
+                    if(!empty($id_meal[$schedule_day][$ingestion]))
+                    {
+                        // Цикл блюд
+                        foreach($id_meal[$schedule_day][$ingestion] as $meal)
+                        {
+                            $schedule_days[$schedule_day][$ingestion][$i] = $meal;
+
+                            if(!empty($course_schedule['course_schedule']) and !in_array($meal, $course_schedule['schedule_days'][$schedule_day][$ingestion]))
+                            {
+                                $schedule['insert'][$schedule_day][$ingestion][$i] = $meal;
+                            }
+
+                            $i++;
+                        }
+                        unset($meal);
+                    }
+                }
+                unset($ingestion);
+
+                $schedule_day++;
+            }
+            // Удаление данных
+            foreach($course_schedule['schedule_days'] as $day => $days)
+            {
+                foreach($days as $ing_id => $ingestion)
+                {
+                    if(!empty($schedule_days[$day]) and !empty($schedule_days[$day][$ing_id]))
+                    {
+                        $diff = (is_array($ingestion)) ? array_diff($ingestion, $schedule_days[$day][$ing_id]) : null;
+
+                        if(!empty($diff))
+                        {
+                            $delete[$day][$ing_id] = array();
+                            $delete[$day][$ing_id] = array_merge($delete[$day][$ing_id], $diff);
+                        }
+                    }
+                    elseif(empty($schedule_days[$day][$ing_id]))
+                    {
+                        $delete[$day][$ing_id] = array();
+                        $delete[$day][$ing_id] = array_merge($delete[$day][$ing_id], $course_schedule['schedule_days'][$day][$ing_id]);
+                    }
+                }
+            }
+            $schedule['delete'] = $delete;
+
+            /* СОХРАНЕНИЕ ИЗМНЕНИЙ */
+            $result_settings  = null;
+            $result_recurrent = null;
+            $result_schedule  = null;
+            $result_couches   = null;
+
+            // Сохранение основных данных курса
+            if ($name != $course['name'] or $description != $course['description'] or $price != $course['price']
+                or $count_weeks != $course['count_weeks'] or $course_image != ('.' . $course['image'])) {
+
+                $result_settings = $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description, $price, $fc_price,
+                    0, $count_weeks, $count_days, 0, $this->date);
+            }
+
+            // Сохранение данных рекуррентной цены
+            if ($recur_months != $course['recur_months'] or $recur_first != $course['recur_first']
+                or $recur_subsequent != $course['recur_subsequent'])
+            {
+                $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->user_id, $this->date);
+            }
+
+            // Добавление и/или удаление расписание курса
+            if (!empty($schedule['insert']) or !empty($schedule['delete']))
+            {
+                $result_schedule = $this->Course_model->setNutritionSchedule($course_id, $schedule, $this->user_id, $this->date);
+            }
+
+            // Изменение кол-ва приемов пищи
+            $result_ingestions = $this->Course_model->updateNutritionIngestions($course_id, $update_ingestions, $cb_ingestions, $s_ings_time_from, $s_ings_time_to, $this->user_id, $this->date);
+
+            /* ВЫВОД ИНФОРМАЦИИ О СОХРАНЕНИИ ИЗМЕНЕНИЙ */
+            if ($result_settings === true and $result_schedule === true and $result_recurrent === true
+                and $result_couches === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            elseif($result_settings === false and $result_schedule === false and $result_recurrent === false
+                and $result_couches === false)
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 73, 60);
+            }
+            elseif($result_settings === false or $result_schedule === false or $result_recurrent === false
+                or $result_couches === false)
+            {
+                // Основные данные не сохранены
+                $this->session->set_tempdata('message', 130, 60);
+                log_message('debug', 'Не все данные курса сохранены. POST data: ' . print_r($this->input->post(), true));
+            }
+
+            header('Location: /administration/nutrition/'.$course_id);
+        }
+        elseif ($this->input->post('bt_block_course', true)) {
+            $result = $this->Course_model->blockCourse($course_id, $this->date);
+
+            if ($result === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 33, 60);
+            }
+            header('Location: /administration/nutrition/' . $course_id);
+        }
+        elseif ($this->input->post('bt_unblock_course', true)) {
+            $result = $this->Course_model->unblockCourse($course_id, $this->date);
+
+            if ($result === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 34, 60);
+            }
+            header('Location: /administration/nutrition/' . $course_id);
+        }
+        elseif ($this->input->post('bt_delete_course', true)) {
+            if ($course['course']['bought'] === false) {
+                // Удалить курс
+                $del_course = $this->Course_model->deleteCourse($course_id);
+
+                if ($del_course === true) {
+                    // Курс удален
+                    $this->session->set_tempdata('message', 108, 60);
+                    header('Location: /administration/nutritions/');
+                }
+                else {
+                    // Не удалось удалить курс
+                    $this->session->set_tempdata('message', 107, 60);
+                    header('Location: /administration/nutrition/' . $course_id);
+                }
+            }
+            else {
+                // Не возможно удалить курс (куплен пользователем)
+                $this->session->set_tempdata('message', 106, 60);
+                header('Location: /administration/nutrition/' . $course_id);
+            }
+        }
+
+        $result = array_merge($ingestions, $course, $course_ingestions, $course_schedule);
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Редактирование данных курса';
+        $this->page_data['page_menu'] = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'settings';
+        $this->page_data['course_id'] = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/nutritions/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Редактирование и сохранение Landing page курса
+     *
+     * @param $course_id
+     */
+    protected function nutritionLanding($course_id)
+    {
+        $course_landing  = $this->Course_model->getCourseLandingPage($course_id);
+        $landing_list    = $this->Course_model->getLandingPagesList();
+        $course          = $this->Course_model->getShortCourse($course_id);
+
+        $landing = $course_landing['landing'];
+
+        // Регулярное выражения для проверки корректности значения hex цвета
+        $regexp_color = '/^\#([a-f0-9]){3}(([a-f0-9]){3})?$/i';
+        $img_path     = './landing/' . $course_id . '/';
+        if (!file_exists($img_path)) {
+            chdir('landing');
+            if (!is_dir($course_id)) {
+                mkdir($course_id);
+            }
+            chmod($course_id, 0777);
+            chdir($course_id);
+            chdir('../../');
+        }
+
+        if ($this->input->post('bt_save_landing', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            // Слайдер (max 7 images)
+            $slider_images = '';
+            if ($this->input->post('cb_slider_block1', true)) {
+                $slider_images = 'default';
+            }
+            else {
+                $input_files = $_FILES;
+                $i = 0;
+                foreach ($input_files['slider_files']['name'] as $name) {
+
+                    $_FILES['slider_files'] = array(
+                        'name' => $input_files['slider_files']['name'][$i],
+                        'type' => $input_files['slider_files']['type'][$i],
+                        'tmp_name' => $input_files['slider_files']['tmp_name'][$i],
+                        'error' => $input_files['slider_files']['error'][$i],
+                        'size' => $input_files['slider_files']['size'][$i]);
+
+                    if (!empty($_FILES['slider_files']) and is_uploaded_file($_FILES['slider_files']['tmp_name'])) {
+                        $image = parent::uploadImage('slider_files', $_FILES['slider_files']['type'], $img_path);
+                        $full_path_img = $img_path . $image;
+                        if (file_exists($full_path_img)) {
+                            if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                                $slider_image = $full_path_img . ';';
+                            } else {
+                                unlink($full_path_img);
+                            }
+                        }
+                    }
+
+                    $slider_images .= !empty($slider_image) ? $slider_image : '';
+
+                    $i++;
+
+                    if ($i == 7) {
+                        break;
+                    }
+                }
+            }
+            if (empty($slider_images)) {
+                $slider_images = (!empty($landing['slider_images']) and $landing['slider_images'] != 'default')
+                    ? implode(";", array_walk($landing['slider_images'], 'add_dot'))
+                    : 'default';
+            }
+
+            // Заголовк страницы
+            $main_title_bbcode = mb_substr(strip_tags($this->input->post('ta_main_title'), '<span><br/><b><i>'), 0, 255);
+
+            // БЛОК 2
+            // Фон
+            $b2_bg = (!empty($landing['block2']['bg_orig']) and $landing['block2']['bg_default'] != 'default')
+                ? $landing['block2']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block2', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block2', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b2_bg = $color;
+                }
+                elseif (is_uploaded_file($_FILES['bg_file_block2']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block2', $_FILES['bg_file_block2']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b2_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b2_bg = 'default'; }
+
+            // Изображение тренера
+            $b2_image = (!empty($landing['block2']['image']) and $landing['block2']['image'] != 'default')
+                ? '.' . $landing['block2']['image']
+                : 'default';
+            if (empty($this->input->post('cb_couch_image_block2', true))) {
+                if (is_uploaded_file($_FILES['couch_file_block2']['tmp_name'])) {
+                    $image = parent::uploadImage('couch_file_block2', $_FILES['couch_file_block2']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b2_image = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b2_image = 'default'; }
+
+            // Информация
+            $b2_title    = mb_substr(strip_tags($this->input->post('i_title_block2', true)), 0, 60);
+            $b2_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block2', true)), 0, 70);
+            $b2_text     = mb_substr(strip_tags($this->input->post('i_text_block2', true)), 0, 60);
+            $b2_button   = mb_substr(strip_tags($this->input->post('i_button_block2', true)), 0, 40);
+
+            // БЛОК 3
+            // Фон
+            $b3_bg = (!empty($landing['block3']['bg_orig']) and $landing['block3']['bg_default'] != 'default')
+                ? $landing['block3']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block3', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block3', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b3_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block3']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block3', $_FILES['bg_file_block3']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b3_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b3_bg = 'default'; }
+
+            $b3_images = (!empty($landing['block3']['images'][0]) and $landing['block3']['images'][0] != 'default')
+                ? '.' . $landing['block3']['images'][0] . ';'
+                : 'default;';
+            // Изображение 1
+            if (empty($this->input->post('cb_photo1_block3', true))){
+                if (is_uploaded_file($_FILES['result_file1_block3']['tmp_name'])) {
+                    $image = parent::uploadImage('result_file1_block3', $_FILES['result_file1_block3']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b3_images = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b3_images = 'default;'; }
+
+            // Изображение 2
+            if (empty($this->input->post('cb_photo2_block3', true))) {
+                $img1 = (!empty($landing['block3']['images'][1]) and $landing['block3']['images'][1] != 'default')
+                    ? '.' . $landing['block3']['images'][1] . ';'
+                    : 'default;';
+                if (is_uploaded_file($_FILES['result_file2_block3']['tmp_name'])) {
+                    $image = parent::uploadImage('result_file2_block3', $_FILES['result_file2_block3']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $full_path_img = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                            $full_path_img = $img1;
+                        }
+                    } else {
+                        $full_path_img = $img1;
+                    }
+                } else {
+                    $full_path_img = $img1;
+                }
+                $b3_images .= $full_path_img;
+            }
+            else { $b3_images .= 'default;'; }
+
+            // Информация
+            $b3_title    = mb_substr(strip_tags($this->input->post('i_title_block3', true)), 0, 60);
+            $b3_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block3', true)), 0, 60);
+
+            // Результаты
+            $b3_r_title    = mb_substr(strip_tags($this->input->post('i_result_title_block3', true)), 0, 60);
+            $b3_r_subtitle = mb_substr(strip_tags($this->input->post('i_result_subtitle_block3', true)), 0, 60);
+            $b3_r_reviews  = mb_substr(strip_tags($this->input->post('i_result_reviews_block3', true)), 0, 80);
+
+            // БЛОК 4
+            // Фон
+            $b4_bg = (!empty($landing['block4']['bg_orig']) and $landing['block4']['bg_default'] != 'default')
+                ? $landing['block4']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block4', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block4', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b4_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block4']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block4', $_FILES['bg_file_block4']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b4_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b4_bg = 'default'; }
+
+            // Изображение
+            $b4_image = (!empty($landing['block4']['image']) and $landing['block4']['image'] != 'default')
+                ? '.' . $landing['block4']['image']
+                : 'default';
+            if (empty($this->input->post('cb_photo_block4', true))) {
+                if (is_uploaded_file($_FILES['result_file_block4']['tmp_name'])) {
+                    $image = parent::uploadImage('result_file_block4', $_FILES['result_file_block4']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b4_image = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b4_image = 'default'; }
+
+            // Информация
+            $b4_title    = mb_substr(strip_tags($this->input->post('i_title_block4', true)), 0, 60);
+            $b4_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block4', true)), 0, 80);
+            $b4_button   = mb_substr(strip_tags($this->input->post('i_button_block4', true)), 0, 40);
+
+            // Результат
+            $b4_r_title = mb_substr(strip_tags($this->input->post('i_result_title_block4', true)), 0, 60);
+            $b4_r_desc  = mb_substr(strip_tags($this->input->post('i_result_desc_block4', true)), 0, 60);
+
+            // БЛОК 5
+            // Фон
+            $b5_bg = (!empty($landing['block5']['bg_orig']) and $landing['block5']['bg_default'] != 'default')
+                ? $landing['block5']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block5', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block5', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b5_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block5']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block5', $_FILES['bg_file_block5']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b5_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b5_bg = 'default'; }
+
+            $b5_images = (!empty($landing['block5']['images'][0]) and $landing['block5']['images'][0] != 'default')
+                ? '.' . $landing['block5']['images'][0] . ';'
+                : 'default;';
+            // Боковое фото 1
+            if (empty($this->input->post('cb_photo1_block5', true))) {
+                if (is_uploaded_file($_FILES['couch_file1_block5']['tmp_name'])) {
+                    $image = parent::uploadImage('couch_file1_block5', $_FILES['couch_file1_block5']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b5_images = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b5_images = 'default;'; }
+
+            // Боковое фото 2
+            if (empty($this->input->post('cb_photo2_block5', true))) {
+                $img1 = !empty($landing['block5']['images'][1]) and $landing['block5']['images'][1] != 'default'
+                    ? '.' . $landing['block5']['images'][1] . ';'
+                    : 'default;';
+                if (is_uploaded_file($_FILES['couch_file2_block5']['tmp_name'])) {
+                    $image = parent::uploadImage('couch_file2_block5', $_FILES['couch_file2_block5']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $full_path_img = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                            $full_path_img = $img1;
+                        }
+                    } else {
+                        $full_path_img = $img1;
+                    }
+                } else {
+                    $full_path_img = $img1;
+                }
+                $b5_images .= $full_path_img;
+            }
+            else { $b5_images .= 'default;'; }
+
+            // Аватар
+            if (empty($this->input->post('cb_photo3_block5', true))) {
+                $img2 = !empty($landing['block5']['images'][2]) and $landing['block5']['images'][2] != 'default'
+                    ? '.' . $landing['block5']['images'][2] . ';'
+                    : 'default;';
+                if (is_uploaded_file($_FILES['couch_avatar_block5']['tmp_name'])) {
+                    $image = parent::uploadImage('couch_avatar_block5', $_FILES['couch_avatar_block5']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $full_path_img = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                            $full_path_img = $img2;
+                        }
+                    } else {
+                        $full_path_img = $img2;
+                    }
+                } else {
+                    $full_path_img = $img2;
+                }
+                $b5_images .= $full_path_img;
+            }
+            else { $b5_images .= 'default;'; }
+
+            // Информация
+            $b5_title    = mb_substr(strip_tags($this->input->post('i_title_block5', true)), 0, 60);
+            $b5_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block5', true)), 0, 60);
+            $b5_text     = mb_substr(strip_tags($this->input->post('i_text_block5', true)), 0, 255);
+            $b5_button   = mb_substr(strip_tags($this->input->post('i_button_block5', true)), 0, 40);
+
+            // Слова тренера о программе
+            $b5_r_title    = mb_substr(strip_tags($this->input->post('i_couch_title_block5', true)), 0, 50);
+            $b5_r_subtitle = mb_substr(strip_tags($this->input->post('i_couch_subtitle_block5', true)), 0, 50);
+            $b5_r_text     = mb_substr(strip_tags($this->input->post('i_couch_text_block5', true)), 0, 120);
+
+            // БЛОК 6
+            // Фон
+            $b6_bg = (!empty($landing['block6']['bg_orig']) and $landing['block6']['bg_default'] != 'default')
+                ? $landing['block6']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block6', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block6', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b6_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block6']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block6', $_FILES['bg_file_block6']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b6_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b6_bg = 'default'; }
+
+            // Боковое фото
+            $b6_image = (!empty($landing['block6']['image']) and $landing['block6']['image'] != 'default')
+                ? '.' . $landing['block6']['image']
+                : 'default';
+            if (empty($this->input->post('cb_photo_block6', true))) {
+                if (is_uploaded_file($_FILES['file_block6']['tmp_name'])) {
+                    $image = parent::uploadImage('file_block6', $_FILES['file_block6']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b6_image = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b6_image = 'default'; }
+
+            // Информация
+            $b6_title    = mb_substr(strip_tags($this->input->post('i_title_block6', true)), 0, 60);
+            $b6_desc     = mb_substr(strip_tags($this->input->post('ta_desc_block6', true)), 0, 130);
+            $b6_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block6', true)), 0, 60);
+            $b6_button   = mb_substr(strip_tags($this->input->post('i_button_block6', true)), 0, 40);
+
+            // Преимущества
+            $b6_advantages = '';
+            foreach ($this->input->post('i_advantages_block6', true) as $advantage)
+            {
+                $b6_advantages .= strip_tags($advantage) . ';';
+            }
+            unset($advantage);
+
+            // БЛОК 7
+            // Фон
+            $b7_bg = (!empty($landing['block7']['bg_orig']) and $landing['block7']['bg_default'] != 'default')
+                ? $landing['block7']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block7', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block7', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b7_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block7']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block7', $_FILES['bg_file_block7']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b7_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b7_bg = 'default'; }
+
+            // Информация
+            $b7_title  = mb_substr(strip_tags($this->input->post('i_title_block7', true)), 0, 50);
+            $b7_button = mb_substr(strip_tags($this->input->post('i_button_block7', true)), 0, 40);
+
+            // Изображения и текст блока
+            $b7_images = '';
+            $b7_texts = '';
+
+            $input_files = $_FILES;
+            $input_titles = $this->input->post('i_text_block7', TRUE);
+
+            $b7_images_default = false;
+            if ($this->input->post('cb_images_block7', TRUE))
+            {
+                $b7_images_default = true;
+            }
+            $i = 0;
+            foreach ($input_titles as $text)
+            {
+                $text = mb_substr(strip_tags($text), 0, 160);
+
+                if ($b7_images_default and $i <= 3)
+                {
+                    $b7_images .= 'default;';
+                    $b7_texts  .= $text . ';';
+                }
+                else
+                {
+                    $img = !empty($landing['block7']['images'][$i]) and $landing['block7']['images'][$i] != 'default'
+                        ? '.' . $landing['block7']['images'][$i] . ';'
+                        : 'default;';
+
+                    $_FILES['files_block7'] = array(
+                        'name' => $input_files['files_block7']['name'][$i],
+                        'type' => $input_files['files_block7']['type'][$i],
+                        'tmp_name' => $input_files['files_block7']['tmp_name'][$i],
+                        'error' => $input_files['files_block7']['error'][$i],
+                        'size' => $input_files['files_block7']['size'][$i]);
+
+                    if (!empty($_FILES['files_block7']) and is_uploaded_file($_FILES['files_block7']['tmp_name']))
+                    {
+                        $image = parent::uploadImage('files_block7', $_FILES['files_block7']['type'], $img_path);
+                        $full_path_img = $img_path . $image;
+                        if (file_exists($full_path_img)) {
+                            if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                                $b7_image = $full_path_img . ';';
+                            } else {
+                                unlink($full_path_img);
+                                $b7_image = $img;
+                            }
+                        } else {
+                            $b7_image = $img;
+                        }
+                    }
+                    else
+                    {
+                        $b7_image = $img;
+                    }
+
+                    $b7_images .= $b7_image;
+                    $b7_texts  .= $text . ';';
+                }
+
+                $i++;
+            }
+            unset($text);
+
+
+            // БЛОК 8
+            // Фон
+            $b8_bg = (!empty($landing['block8']['bg_orig']) and $landing['block8']['bg_default'] != 'default')
+                ? $landing['block8']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block8', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block8', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b8_bg = $color;
+                }
+                elseif (is_uploaded_file($_FILES['bg_file_block8']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block8', $_FILES['bg_file_block8']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if(file_exists($full_path_img)){
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b8_bg = $full_path_img;
+                        } else{
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b8_bg = 'default'; }
+
+            // Информация
+            $b8_title    = mb_substr(strip_tags($this->input->post('i_title_block8', true)), 0, 60);
+            $b8_desc1    = mb_substr(strip_tags($this->input->post('i_desc1_block8', true)), 0, 160);
+            $b8_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block8', true)), 0, 60);
+            $b8_desc2    = mb_substr(strip_tags($this->input->post('i_desc2_block8', true)), 0, 100);
+            $b8_button   = mb_substr(strip_tags($this->input->post('i_button_block8', true)), 0, 40);
+
+            // Информация
+            $b8_old_price = is_numeric($this->input->post('i_old_price_block8', true)) ? $this->input->post('i_old_price_block8', true) : '';
+            $b8_new_price = is_numeric($this->input->post('i_new_price_block8', true)) ? $this->input->post('i_new_price_block8', true) : '';
+
+            //print_r(get_defined_vars());
+            $up_res = $this->Course_model->setCourseLandingPage($course_id, $landing_style, $slider_images, $main_title_bbcode,
+                $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button,
+                $b3_bg, $b3_images, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews,
+                $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button,
+                $b5_bg, $b5_images, $b5_title, $b5_subtitle, $b5_text, $b5_r_title, $b5_r_subtitle, $b5_r_text, $b5_button,
+                $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button,
+                $b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button,
+                $b8_bg, $b8_title, $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price, $b8_button, $this->date);
+
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+        elseif ($this->input->post('bt_save_block_1', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            // Слайдер (max 7 images)
+            $slider_images = '';
+            if ($this->input->post('cb_slider_block1', true)) {
+                $slider_images = 'default';
+            }
+            else {
+                $input_files = $_FILES;
+                $i = 0;
+                foreach ($input_files['slider_files']['name'] as $name) {
+
+                    $_FILES['slider_files'] = array(
+                        'name' => $input_files['slider_files']['name'][$i],
+                        'type' => $input_files['slider_files']['type'][$i],
+                        'tmp_name' => $input_files['slider_files']['tmp_name'][$i],
+                        'error' => $input_files['slider_files']['error'][$i],
+                        'size' => $input_files['slider_files']['size'][$i]);
+
+                    if (!empty($_FILES['slider_files']) and is_uploaded_file($_FILES['slider_files']['tmp_name'])) {
+                        $image = parent::uploadImage('slider_files', $_FILES['slider_files']['type'], $img_path);
+                        $full_path_img = $img_path . $image;
+                        if (file_exists($full_path_img)) {
+                            if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                                $slider_image = $full_path_img . ';';
+                            } else {
+                                unlink($full_path_img);
+                            }
+                        }
+                    }
+
+                    $slider_images .= !empty($slider_image) ? $slider_image : '';
+
+                    $i++;
+
+                    if ($i == 7) {
+                        break;
+                    }
+                }
+            }
+            if (empty($slider_images)) {
+                $slider_images = (!empty($landing['slider_images']) and $landing['slider_images'] != 'default')
+                    ? implode(";", array_walk($landing['slider_images'], 'add_dot'))
+                    : 'default';
+            }
+
+            // Заголовк страницы
+            $main_title_bbcode = mb_substr(strip_tags($this->input->post('ta_main_title'), '<span><br/><b><i><p>'), 0, 255);
+
+            $up_res = $this->Course_model->setCourseLandingBlock1($course_id, $landing_style, $slider_images, $main_title_bbcode, $this->date);
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+        elseif ($this->input->post('bt_save_block_2', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            //log_message('debug', print_r($_FILES, true));
+            // БЛОК 2
+            // Фон
+            $b2_bg = (!empty($landing['block2']['bg_orig']) and $landing['block2']['bg_default'] != 'default')
+                ? $landing['block2']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block2', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block2', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b2_bg = $color;
+                }
+                elseif (is_uploaded_file($_FILES['bg_file_block2']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block2', $_FILES['bg_file_block2']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b2_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b2_bg = 'default'; }
+
+            // Изображение тренера
+            $b2_image = (!empty($landing['block2']['image']) and $landing['block2']['image'] != 'default')
+                ? '.' . $landing['block2']['image']
+                : 'default';
+            if (empty($this->input->post('cb_couch_image_block2', true)))
+            {
+                if (is_uploaded_file($_FILES['couch_file_block2']['tmp_name']))
+                {
+                    $image = parent::uploadImage('couch_file_block2', $_FILES['couch_file_block2']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img))
+                    {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                        {
+                            $b2_image = $full_path_img;
+                        }
+                        else
+                        {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b2_image = 'default'; }
+
+            // Информация
+            $b2_title    = mb_substr(strip_tags($this->input->post('i_title_block2', true)), 0, 60);
+            $b2_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block2', true)), 0, 70);
+            $b2_text     = mb_substr(strip_tags($this->input->post('i_text_block2', true)), 0, 60);
+            $b2_button   = mb_substr(strip_tags($this->input->post('i_button_block2', true)), 0, 40);
+
+            $up_res = $this->Course_model->setCourseLandingBlock2($course_id, $landing_style,
+                $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button, $this->date);
+
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+        elseif ($this->input->post('bt_save_block_3', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            // БЛОК 3
+            // Фон
+            $b3_bg = (!empty($landing['block3']['bg_orig']) and $landing['block3']['bg_default'] != 'default')
+                ? $landing['block3']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block3', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block3', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b3_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block3']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block3', $_FILES['bg_file_block3']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b3_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b3_bg = 'default'; }
+
+            $b3_images = (!empty($landing['block3']['images'][0]) and $landing['block3']['images'][0] != 'default')
+                ? '.' . $landing['block3']['images'][0] . ';'
+                : 'default;';
+            // Изображение 1
+            if (empty($this->input->post('cb_photo1_block3', true))){
+                if (is_uploaded_file($_FILES['result_file1_block3']['tmp_name'])) {
+                    $image = parent::uploadImage('result_file1_block3', $_FILES['result_file1_block3']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b3_images = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b3_images = 'default;'; }
+
+            // Изображение 2
+            if (empty($this->input->post('cb_photo2_block3', true))) {
+                $img1 = (!empty($landing['block3']['images'][1]) and $landing['block3']['images'][1] != 'default')
+                    ? '.' . $landing['block3']['images'][1] . ';'
+                    : 'default;';
+                if (is_uploaded_file($_FILES['result_file2_block3']['tmp_name'])) {
+                    $image = parent::uploadImage('result_file2_block3', $_FILES['result_file2_block3']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $full_path_img = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                            $full_path_img = $img1;
+                        }
+                    } else {
+                        $full_path_img = $img1;
+                    }
+                } else {
+                    $full_path_img = $img1;
+                }
+                $b3_images .= $full_path_img;
+            }
+            else { $b3_images .= 'default;'; }
+
+            // Информация
+            $b3_title    = mb_substr(strip_tags($this->input->post('i_title_block3', true)), 0, 60);
+            $b3_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block3', true)), 0, 60);
+
+            // Результаты
+            $b3_r_title    = mb_substr(strip_tags($this->input->post('i_result_title_block3', true)), 0, 60);
+            $b3_r_subtitle = mb_substr(strip_tags($this->input->post('i_result_subtitle_block3', true)), 0, 60);
+            $b3_r_reviews  = mb_substr(strip_tags($this->input->post('i_result_reviews_block3', true)), 0, 80);
+
+            $up_res = $this->Course_model->setCourseLandingBlock3($course_id, $landing_style,
+                $b3_bg, $b3_images, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews, $this->date);
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+        elseif ($this->input->post('bt_save_block_4', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            // БЛОК 4
+            // Фон
+            $b4_bg = (!empty($landing['block4']['bg_orig']) and $landing['block4']['bg_default'] != 'default')
+                ? $landing['block4']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block4', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block4', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b4_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block4']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block4', $_FILES['bg_file_block4']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b4_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b4_bg = 'default'; }
+
+            // Изображение
+            $b4_image = (!empty($landing['block4']['image']) and $landing['block4']['image'] != 'default')
+                ? '.' . $landing['block4']['image']
+                : 'default';
+            if (empty($this->input->post('cb_photo_block4', true))) {
+                if (is_uploaded_file($_FILES['result_file_block4']['tmp_name'])) {
+                    $image = parent::uploadImage('result_file_block4', $_FILES['result_file_block4']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b4_image = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b4_image = 'default'; }
+
+            // Информация
+            $b4_title    = mb_substr(strip_tags($this->input->post('i_title_block4', true)), 0, 60);
+            $b4_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block4', true)), 0, 80);
+            $b4_button   = mb_substr(strip_tags($this->input->post('i_button_block4', true)), 0, 40);
+
+            // Результат
+            $b4_r_title = mb_substr(strip_tags($this->input->post('i_result_title_block4', true)), 0, 60);
+            $b4_r_desc  = mb_substr(strip_tags($this->input->post('i_result_desc_block4', true)), 0, 60);
+
+            $up_res = $this->Course_model->setCourseLandingBlock4($course_id, $landing_style,
+                $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button, $this->date);
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+        elseif ($this->input->post('bt_save_block_5', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            // БЛОК 5
+            // Фон
+            $b5_bg = (!empty($landing['block5']['bg_orig']) and $landing['block5']['bg_default'] === false)
+                ? $landing['block5']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block5', true)))
+            {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block5', true);
+                if (!empty($color) and preg_match($regexp_color, $color))
+                {
+                    $b5_bg = $color;
+                }
+                elseif (is_uploaded_file($_FILES['bg_file_block5']['tmp_name']))
+                {
+                    $image = parent::uploadImage('bg_file_block5', $_FILES['bg_file_block5']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img))
+                    {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                        {
+                            $b5_bg = $full_path_img;
+                        }
+                        else
+                        {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b5_bg = 'default'; }
+
+            $b5_images = (!empty($landing['block5']['images'][0]) and $landing['block5']['images_0_default'] != 'default')
+                ? '.' . $landing['block5']['images'][0] . ';'
+                : 'default;';
+            // Боковое фото 1
+            if (empty($this->input->post('cb_photo1_block5', true))) {
+                if (is_uploaded_file($_FILES['couch_file1_block5']['tmp_name'])) {
+                    $image = parent::uploadImage('couch_file1_block5', $_FILES['couch_file1_block5']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b5_images = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b5_images = 'default;'; }
+
+            // Боковое фото 2
+            if (empty($this->input->post('cb_photo2_block5', true))) {
+                $img1 = !empty($landing['block5']['images'][1]) and $landing['block5']['images'][1] != 'default'
+                    ? '.' . $landing['block5']['images'][1] . ';'
+                    : 'default;';
+                if (is_uploaded_file($_FILES['couch_file2_block5']['tmp_name'])) {
+                    $image = parent::uploadImage('couch_file2_block5', $_FILES['couch_file2_block5']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $full_path_img = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                            $full_path_img = $img1;
+                        }
+                    } else {
+                        $full_path_img = $img1;
+                    }
+                } else {
+                    $full_path_img = $img1;
+                }
+                $b5_images .= $full_path_img;
+            }
+            else { $b5_images .= 'default;'; }
+
+            // Аватар
+            if (empty($this->input->post('cb_photo3_block5', true))) {
+                $img2 = !empty($landing['block5']['images'][2]) and $landing['block5']['images'][2] != 'default'
+                    ? '.' . $landing['block5']['images'][2] . ';'
+                    : 'default;';
+                if (is_uploaded_file($_FILES['couch_avatar_block5']['tmp_name'])) {
+                    $image = parent::uploadImage('couch_avatar_block5', $_FILES['couch_avatar_block5']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $full_path_img = $full_path_img . ';';
+                        } else {
+                            unlink($full_path_img);
+                            $full_path_img = $img2;
+                        }
+                    } else {
+                        $full_path_img = $img2;
+                    }
+                } else {
+                    $full_path_img = $img2;
+                }
+                $b5_images .= $full_path_img;
+            }
+            else { $b5_images .= 'default;'; }
+
+            // Информация
+            $b5_title    = mb_substr(strip_tags($this->input->post('i_title_block5', true)), 0, 60);
+            $b5_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block5', true)), 0, 60);
+            $b5_text     = mb_substr(strip_tags($this->input->post('i_text_block5', true)), 0, 255);
+            $b5_button   = mb_substr(strip_tags($this->input->post('i_button_block5', true)), 0, 40);
+
+            // Слова тренера о программе
+            $b5_r_title    = mb_substr(strip_tags($this->input->post('i_couch_title_block5', true)), 0, 50);
+            $b5_r_subtitle = mb_substr(strip_tags($this->input->post('i_couch_subtitle_block5', true)), 0, 50);
+            $b5_r_text     = mb_substr(strip_tags($this->input->post('i_couch_text_block5', true)), 0, 120);
+
+            $up_res = $this->Course_model->setCourseLandingBlock5($course_id, $landing_style,
+                $b5_bg, $b5_images, $b5_title, $b5_subtitle, $b5_text, $b5_r_title, $b5_r_subtitle, $b5_r_text, $b5_button,
+                $this->date);
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+        elseif ($this->input->post('bt_save_block_6', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            // БЛОК 6
+            // Фон
+            $b6_bg = (!empty($landing['block6']['bg_orig']) and $landing['block6']['bg_default'] != 'default')
+                ? $landing['block6']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block6', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block6', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b6_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block6']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block6', $_FILES['bg_file_block6']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b6_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b6_bg = 'default'; }
+
+            // Боковое фото
+            $b6_image = (!empty($landing['block6']['image']) and $landing['block6']['image'] != 'default')
+                ? '.' . $landing['block6']['image']
+                : 'default';
+            if (empty($this->input->post('cb_photo_block6', true))) {
+                if (is_uploaded_file($_FILES['file_block6']['tmp_name'])) {
+                    $image = parent::uploadImage('file_block6', $_FILES['file_block6']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b6_image = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b6_image = 'default'; }
+
+            // Информация
+            $b6_title    = mb_substr(strip_tags($this->input->post('i_title_block6', true)), 0, 60);
+            $b6_desc     = mb_substr(strip_tags($this->input->post('ta_desc_block6', true)), 0, 130);
+            $b6_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block6', true)), 0, 60);
+            $b6_button   = mb_substr(strip_tags($this->input->post('i_button_block6', true)), 0, 40);
+
+            // Преимущества
+            $b6_advantages = '';
+            foreach ($this->input->post('i_advantages_block6', true) as $advantage)
+            {
+                $b6_advantages .= strip_tags($advantage) . ';';
+            }
+            unset($advantage);
+
+            $up_res = $this->Course_model->setCourseLandingBlock6($course_id, $landing_style,
+                $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button, $this->date);
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+        elseif ($this->input->post('bt_save_block_7', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            // БЛОК 7
+            // Фон
+            $b7_bg = (!empty($landing['block7']['bg_orig']) and $landing['block7']['bg_default'] != 'default')
+                ? $landing['block7']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block7', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block7', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b7_bg = $color;
+                } elseif (is_uploaded_file($_FILES['bg_file_block7']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block7', $_FILES['bg_file_block7']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if (file_exists($full_path_img)) {
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b7_bg = $full_path_img;
+                        } else {
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b7_bg = 'default'; }
+
+            // Информация
+            $b7_title  = mb_substr(strip_tags($this->input->post('i_title_block7', true)), 0, 50);
+            $b7_button = mb_substr(strip_tags($this->input->post('i_button_block7', true)), 0, 40);
+
+            // Изображения и текст блока
+            $b7_images = '';
+            $b7_texts = '';
+
+            $input_files = $_FILES;
+            $input_titles = $this->input->post('i_text_block7', TRUE);
+
+            $b7_images_default = false;
+            if ($this->input->post('cb_images_block7', TRUE))
+            {
+                $b7_images_default = true;
+            }
+            $i = 0;
+            foreach ($input_titles as $text)
+            {
+                $text = mb_substr(strip_tags($text), 0, 160);
+
+                if ($b7_images_default and $i <= 3)
+                {
+                    $b7_images .= 'default;';
+                    $b7_texts  .= $text . ';';
+                }
+                else
+                {
+                    $img = !empty($landing['block7']['images'][$i]) and $landing['block7']['images'][$i] != 'default'
+                        ? '.' . $landing['block7']['images'][$i] . ';'
+                        : 'default;';
+
+                    $_FILES['files_block7'] = array(
+                        'name' => $input_files['files_block7']['name'][$i],
+                        'type' => $input_files['files_block7']['type'][$i],
+                        'tmp_name' => $input_files['files_block7']['tmp_name'][$i],
+                        'error' => $input_files['files_block7']['error'][$i],
+                        'size' => $input_files['files_block7']['size'][$i]);
+
+                    if (!empty($_FILES['files_block7']) and is_uploaded_file($_FILES['files_block7']['tmp_name']))
+                    {
+                        $image = parent::uploadImage('files_block7', $_FILES['files_block7']['type'], $img_path);
+                        $full_path_img = $img_path . $image;
+                        if (file_exists($full_path_img)) {
+                            if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                                $b7_image = $full_path_img . ';';
+                            } else {
+                                unlink($full_path_img);
+                                $b7_image = $img;
+                            }
+                        } else {
+                            $b7_image = $img;
+                        }
+                    }
+                    else
+                    {
+                        $b7_image = $img;
+                    }
+
+                    $b7_images .= $b7_image;
+                    $b7_texts  .= $text . ';';
+                }
+
+                $i++;
+            }
+            unset($text);
+
+            $up_res = $this->Course_model->setCourseLandingBlock7($course_id, $landing_style,
+                $b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button, $this->date);
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+        elseif ($this->input->post('bt_save_block_8', true))
+        {
+            // Стиль
+            $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
+                ? $this->input->post('s_land_type', true) : 1;
+
+            // БЛОК 8
+            // Фон
+            $b8_bg = (!empty($landing['block8']['bg_orig']) and $landing['block8']['bg_default'] != 'default')
+                ? $landing['block8']['bg_orig']
+                : 'default'; // Фон по-умолчанию
+            if (empty($this->input->post('cb_default_bg_block8', true))) {
+                // Фон либо цвет, либо файл изображения
+                $color = $this->input->post('i_bg_color_block8', true);
+                if (!empty($color) and preg_match($regexp_color, $color)) {
+                    $b8_bg = $color;
+                }
+                elseif (is_uploaded_file($_FILES['bg_file_block8']['tmp_name'])) {
+                    $image = parent::uploadImage('bg_file_block8', $_FILES['bg_file_block8']['type'], $img_path);
+                    $full_path_img = $img_path . $image;
+                    if(file_exists($full_path_img)){
+                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                            $b8_bg = $full_path_img;
+                        } else{
+                            unlink($full_path_img);
+                        }
+                    }
+                }
+            }
+            else { $b8_bg = 'default'; }
+
+            // Информация
+            $b8_title    = mb_substr(strip_tags($this->input->post('i_title_block8', true)), 0, 60);
+            $b8_desc1    = mb_substr(strip_tags($this->input->post('i_desc1_block8', true)), 0, 160);
+            $b8_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block8', true)), 0, 60);
+            $b8_desc2    = mb_substr(strip_tags($this->input->post('i_desc2_block8', true)), 0, 100);
+            $b8_button   = mb_substr(strip_tags($this->input->post('i_button_block8', true)), 0, 40);
+
+            // Информация
+            $b8_old_price = is_numeric($this->input->post('i_old_price_block8', true)) ? $this->input->post('i_old_price_block8', true) : '';
+            $b8_new_price = is_numeric($this->input->post('i_new_price_block8', true)) ? $this->input->post('i_new_price_block8', true) : '';
+
+            $up_res = $this->Course_model->setCourseLandingBlock8($course_id, $landing_style,
+                $b8_bg, $b8_title, $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price, $b8_button, $this->date);
+
+            if ($up_res === true) {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 112, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing');
+        }
+
+        $result = array_merge($course_landing, $landing_list, $course);
+
+        // Объединенные данные страница
+        $this->page_data['title']         = 'АП - Редактирование данных Landing page курса';
+        $this->page_data['page_menu']     = 'a_courses_n';
+        $this->page_data['page_submenu']  = 'landing';
+        $this->page_data['course_id']     = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/nutritions/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+
+    /* БЛОК ФУНКЦИЙ БЛЮДА */
+
+    /**
+     * Список блюд
+     */
+    public function meals()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result = $this->Course_model->getMeals();
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Блюда';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'meals';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('meals/meals', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Добавление нового блюда
+     */
+    public function newMeal()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if($this->input->post('bt_save_new_meal', true))
+        {
+            $type             = is_numeric($this->input->post('s_meal_type', true)) ? $this->input->post('s_meal_type', true) : 1;
+            $name             = mb_substr(strip_tags($this->input->post('i_name')), 0, 255);
+            $description      = mb_substr(strip_tags($this->input->post('ta_desc')), 0, 2000);
+            $ingredients_text = mb_substr(strip_tags($this->input->post('ta_ingredients')), 0, 2000);
+
+            // Ингредиенты
+            $ingredients         = array();
+            $total_weight        = 0;
+            $total_proteins      = 0;
+            $total_fats          = 0;
+            $total_carbohydrates = 0;
+            $total_calories      = 0;
+
+            $ingr_names         = $this->input->post('i_ingredient_name', true);
+            $ingr_weights       = $this->input->post('i_ingredient_weight', true);
+            $ingr_proteins      = $this->input->post('i_ingredient_proteins', true);
+            $ingr_fats          = $this->input->post('i_ingredient_fats', true);
+            $ingr_carbohydrates = $this->input->post('i_ingredient_carbohydrates', true);
+            $ingr_calories      = $this->input->post('i_ingredient_calories', true);
+
+            if(is_array($ingr_names))
+            {
+                $i = 0;
+                foreach($ingr_names as $ingr_id => $ingr_name)
+                {
+                    $ingr_name = mb_substr(strip_tags($ingr_name), 0, 255);
+
+                    if(!empty($ingr_name))
+                    {
+                        $ingredients[$i]['name']          = $ingr_name;
+                        $ingredients[$i]['weight']        = is_numeric($ingr_weights[$ingr_id]) ? $ingr_weights[$ingr_id] : 0;
+                        $ingredients[$i]['proteins']      = is_numeric($ingr_proteins[$ingr_id]) ? $ingr_proteins[$ingr_id] : 0;
+                        $ingredients[$i]['fats']          = is_numeric($ingr_fats[$ingr_id]) ? $ingr_fats[$ingr_id] : 0;
+                        $ingredients[$i]['carbohydrates'] = is_numeric($ingr_carbohydrates[$ingr_id]) ? $ingr_carbohydrates[$ingr_id] : 0;
+                        $ingredients[$i]['calories']      = is_numeric($ingr_calories[$ingr_id]) ? $ingr_calories[$ingr_id] : 0;
+
+                        $total_weight        += $ingredients[$i]['weight'];
+                        $total_proteins      += $ingredients[$i]['proteins'];
+                        $total_fats          += $ingredients[$i]['fats'];
+                        $total_carbohydrates += $ingredients[$i]['carbohydrates'];
+                        $total_calories      += $ingredients[$i]['calories'];
+
+                        $i++;
+                    }
+                }
+                unset($ingr_name);
+            }
+
+            $i_total_weights       = is_numeric($this->input->post('i_meal_weight', true)) ? $this->input->post('i_meal_weight', true) : null;
+            $i_total_proteins      = is_numeric($this->input->post('i_meal_proteins', true)) ? $this->input->post('i_meal_proteins', true) : null;
+            $i_total_fats          = is_numeric($this->input->post('i_meal_fats', true)) ? $this->input->post('i_meal_fats', true) : null;
+            $i_total_carbohydrates = is_numeric($this->input->post('i_meal_carbohydrates', true)) ? $this->input->post('i_meal_carbohydrates', true) : null;
+            $i_total_calories      = is_numeric($this->input->post('i_meal_calories', true)) ? $this->input->post('i_meal_calories', true) : null;
+
+            $total_weight        = ($i_total_weights > $total_weight) ? $i_total_weights : $total_weight;
+            $total_proteins      = ($i_total_proteins > $total_proteins) ? $i_total_proteins : $total_proteins;
+            $total_fats          = ($i_total_fats > $total_fats) ? $i_total_fats : $total_fats;
+            $total_carbohydrates = ($i_total_carbohydrates > $total_carbohydrates) ? $i_total_carbohydrates : $total_carbohydrates;
+            $total_calories      = ($i_total_calories > $total_calories) ? $i_total_calories : $total_calories;
+
+            // Видео блюда
+            $ta_videos = $this->input->post('ta_videos_block', true);
+            $insert_videos = array();
+            if(is_array($ta_videos))
+            {
+                $i = 0;
+                foreach($ta_videos as $video)
+                {
+                    $insert_videos[$i] = htmlspecialchars($video, ENT_QUOTES);
+
+                    $i++;
+                }
+                unset($ingr_name);
+            }
+
+            $res_ins = $this->Course_model->setNewMeal($name, $description, $type, $insert_videos, $ingredients,
+                $ingredients_text, $total_weight, $total_proteins, $total_fats, $total_carbohydrates, $total_calories,
+                $this->user_id, $this->date);
+
+            if (is_numeric($res_ins))
+            {
+                $meal_id = $res_ins;
+                $img_path = './meals_files/' . $meal_id . '/';
+
+                if (!file_exists($img_path))
+                {
+                    chdir('meals_files');
+                    if (!is_dir($meal_id)) {
+                        mkdir($meal_id);
+                        chmod($meal_id, 0777);
+                    }
+                    chdir('../');
+                }
+
+                // Загрузка изображений на сервер
+                if(!empty($_FILES['meals_images']))
+                {
+                    $input_files = $_FILES;
+                    $i = 0;
+                    foreach ($input_files['meals_images']['name'] as $name)
+                    {
+                        $_FILES['meals_images'] = array(
+                            'name' => $input_files['meals_images']['name'][$i],
+                            'type' => $input_files['meals_images']['type'][$i],
+                            'tmp_name' => $input_files['meals_images']['tmp_name'][$i],
+                            'error' => $input_files['meals_images']['error'][$i],
+                            'size' => $input_files['meals_images']['size'][$i]);
+
+                        if (!empty($_FILES['meals_images']) and is_uploaded_file($_FILES['meals_images']['tmp_name']))
+                        {
+                            $image = parent::uploadImage('meals_images', $_FILES['meals_images']['type'], $img_path);
+                            $full_path_img = $img_path . $image;
+                            if (file_exists($full_path_img))
+                            {
+                                if ($this->security->xss_clean($full_path_img, TRUE) === FALSE)
+                                {
+                                    unlink($full_path_img);
+                                }
+                            }
+                        }
+
+                        $i++;
+                    }
+                }
+
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+                header('Location: /administration/meal/' . $res_ins);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 158, 60);
+                header('Location: /administration/meal/new');
+            }
+        }
+        elseif($this->input->post('bt_load_excel', true))
+        {
+            // Загрузка файла на сервер
+            $path = './xls/';
+
+            if (!empty($_FILES['xls']) and is_uploaded_file($_FILES['xls']['tmp_name']))
+            {
+                $file = parent::uploadFile('xls', $_FILES['xls']['type'], $path);
+                $full_path_file = $path . $file;
+                if (file_exists($full_path_file))
+                {
+                    if ($this->security->xss_clean($full_path_file, TRUE) === FALSE)
+                    {
+                        unlink($full_path_file);
+                    }
+                    else
+                    {
+                        $result = self::saveMealsFromXLS($path, $file);
+                        if(!empty($result['meals']))
+                        {
+                            $ins_meals = $this->Course_model->setNewMeals($result, $this->user_id, $this->date);
+                        }
+                    }
+                }
+            }
+
+            header('Location: /administration/meal/new');
+        }
+
+        $meals_types = $this->Course_model->getMealsTypes();
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Новое блюдо';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'meals';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('meals/new_meal', $meals_types);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма редактирования данных блюда
+     *
+     * @param $meal_id
+     */
+    public function meal($meal_id)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $meal  = $this->Course_model->getMeal($meal_id);
+        $types = $this->Course_model->getMealsTypes();
+
+        if($this->input->post('bt_save_meal', true))
+        {
+            $db_data = $meal['meal'];
+
+            $type             = in_array($this->input->post('s_meal_type', true), $types['meals_types_id']) ? $this->input->post('s_meal_type', true) : 1;
+            $name             = mb_substr(strip_tags($this->input->post('i_name')), 0, 255);
+            $description      = mb_substr(strip_tags($this->input->post('ta_desc')), 0, 2000);
+            $ingredients_text = mb_substr(strip_tags($this->input->post('ta_ingredients')), 0, 2000);
+
+            // Ингредиенты, их БЖУК и общее БЖУК
+            $ingredients         = array();
+            $insert_ingredients  = array();
+            $update_ingredients  = array();
+            $delete_ingredients  = array();
+            $total_weight        = 0;
+            $total_proteins      = 0;
+            $total_fats          = 0;
+            $total_carbohydrates = 0;
+            $total_calories      = 0;
+
+            $ingr_names         = $this->input->post('i_ingredient_name', true);
+            $ingr_weights       = $this->input->post('i_ingredient_weight', true);
+            $ingr_proteins      = $this->input->post('i_ingredient_proteins', true);
+            $ingr_fats          = $this->input->post('i_ingredient_fats', true);
+            $ingr_carbohydrates = $this->input->post('i_ingredient_carbohydrates', true);
+            $ingr_calories      = $this->input->post('i_ingredient_calories', true);
+
+            if(is_array($ingr_names))
+            {
+                $i = 0;
+                foreach($ingr_names as $ingr_id => $ingr_name)
+                {
+                    $ingr_name = mb_substr(strip_tags($ingr_name), 0, 255);
+
+                    if(!empty($ingr_name))
+                    {
+                        $ingredients[$ingr_id]['name']          = $ingr_name;
+                        $ingredients[$ingr_id]['weight']        = is_numeric($ingr_weights[$ingr_id]) ? $ingr_weights[$ingr_id] : 0;
+                        $ingredients[$ingr_id]['proteins']      = is_numeric($ingr_proteins[$ingr_id]) ? $ingr_proteins[$ingr_id] : 0;
+                        $ingredients[$ingr_id]['fats']          = is_numeric($ingr_fats[$ingr_id]) ? $ingr_fats[$ingr_id] : 0;
+                        $ingredients[$ingr_id]['carbohydrates'] = is_numeric($ingr_carbohydrates[$ingr_id]) ? $ingr_carbohydrates[$ingr_id] : 0;
+                        $ingredients[$ingr_id]['calories']      = is_numeric($ingr_calories[$ingr_id]) ? $ingr_calories[$ingr_id] : 0;
+
+                        $total_weight        += $ingredients[$ingr_id]['weight'];
+                        $total_proteins      += $ingredients[$ingr_id]['proteins'];
+                        $total_fats          += $ingredients[$ingr_id]['fats'];
+                        $total_carbohydrates += $ingredients[$ingr_id]['carbohydrates'];
+                        $total_calories      += $ingredients[$ingr_id]['calories'];
+
+                        // Обновление данных ингредиента
+                        if(in_array($ingr_id, $db_data['ingredients_id']))
+                        {
+                            if($ingredients[$ingr_id]['name'] != $db_data['ingredients'][$ingr_id]['name'] or
+                                $ingredients[$ingr_id]['weight'] != $db_data['ingredients'][$ingr_id]['weight'] or
+                                $ingredients[$ingr_id]['proteins'] != $db_data['ingredients'][$ingr_id]['proteins'] or
+                                $ingredients[$ingr_id]['fats'] != $db_data['ingredients'][$ingr_id]['fats'] or
+                                $ingredients[$ingr_id]['carbohydrates'] != $db_data['ingredients'][$ingr_id]['carbohydrates'] or
+                                $ingredients[$ingr_id]['calories'] != $db_data['ingredients'][$ingr_id]['calories'])
+                            {
+                                $update_ingredients[$ingr_id] = $ingredients[$ingr_id];
+                            }
+                        }
+                        // Добавление ингредиента
+                        else
+                        {
+                            $insert_ingredients[$i] = $ingredients[$ingr_id];
+                        }
+
+                        $i++;
+                    }
+                    else
+                    {
+                        // Удаление ингредиента
+                        if(in_array($ingr_id, $db_data['ingredients_id']))
+                        {
+                            $delete_ingredients[$ingr_id]['id'] = $ingr_id;
+                        }
+                    }
+                }
+                unset($ingr_name);
+            }
+            else
+            {
+                // Удаление всех ингредиентов
+                if(!empty($db_data['ingredients']))
+                {
+                    $delete_ingredients = $db_data['ingredients'];
+                }
+            }
+
+            $i_total_weights       = is_numeric($this->input->post('i_meal_weight', true)) ? $this->input->post('i_meal_weight', true) : null;
+            $i_total_proteins      = is_numeric($this->input->post('i_meal_proteins', true)) ? $this->input->post('i_meal_proteins', true) : null;
+            $i_total_fats          = is_numeric($this->input->post('i_meal_fats', true)) ? $this->input->post('i_meal_fats', true) : null;
+            $i_total_carbohydrates = is_numeric($this->input->post('i_meal_carbohydrates', true)) ? $this->input->post('i_meal_carbohydrates', true) : null;
+            $i_total_calories      = is_numeric($this->input->post('i_meal_calories', true)) ? $this->input->post('i_meal_calories', true) : null;
+
+            $total_weight        = ($i_total_weights > $total_weight) ? $i_total_weights : $total_weight;
+            $total_proteins      = ($i_total_proteins > $total_proteins) ? $i_total_proteins : $total_proteins;
+            $total_fats          = ($i_total_fats > $total_fats) ? $i_total_fats : $total_fats;
+            $total_carbohydrates = ($i_total_carbohydrates > $total_carbohydrates) ? $i_total_carbohydrates : $total_carbohydrates;
+            $total_calories      = ($i_total_calories > $total_calories) ? $i_total_calories : $total_calories;
+
+            // Загрузка изображений на сервер
+            $img_path = './meals_files/' . $meal_id . '/';
+            if(!empty($_FILES['meals_images']))
+            {
+                $input_files = $_FILES;
+                $i = 0;
+                foreach ($input_files['meals_images']['name'] as $img_name)
+                {
+                    $_FILES['meals_images'] = array(
+                        'name' => $input_files['meals_images']['name'][$i],
+                        'type' => $input_files['meals_images']['type'][$i],
+                        'tmp_name' => $input_files['meals_images']['tmp_name'][$i],
+                        'error' => $input_files['meals_images']['error'][$i],
+                        'size' => $input_files['meals_images']['size'][$i]);
+
+                    if (!empty($_FILES['meals_images']) and is_uploaded_file($_FILES['meals_images']['tmp_name']))
+                    {
+                        $image = parent::uploadImage('meals_images', $_FILES['meals_images']['type'], $img_path);
+                        $full_path_img = $img_path . $image;
+                        if (file_exists($full_path_img))
+                        {
+                            if ($this->security->xss_clean($full_path_img, TRUE) === FALSE)
+                            {
+                                unlink($full_path_img);
+                            }
+                        }
+                    }
+
+                    $i++;
+                }
+            }
+
+            // Видео блюда
+            $ta_videos     = $this->input->post('ta_videos_block', true);
+            $insert_videos = array();
+            if(is_array($ta_videos))
+            {
+                $i = 0;
+                foreach($ta_videos as $video)
+                {
+                    $cl_video = htmlspecialchars($video, ENT_QUOTES);
+                    if(!empty($cl_video) and !in_array($cl_video, $db_data['meal_videos']))
+                    {
+                        $insert_videos[$i] = $cl_video;
+                    }
+
+                    $i++;
+                }
+                unset($ingr_name);
+            }
+
+            // Сохранить данные в БД
+            if((!empty($name) and $name != $db_data['name']) or $description != $db_data['description'] or
+                $type != $db_data['type_id'] or $ingredients_text != $db_data['ingredients_text'] or
+                $total_weight != $db_data['weight'] or $total_proteins != $db_data['proteins'] or
+                $total_fats != $db_data['fats'] or $total_carbohydrates != $db_data['carbohydrates'] or
+                $total_calories != $db_data['calories'] or !empty($insert_ingredients) or !empty($update_ingredients) or
+                !empty($delete_ingredients) or !empty($insert_videos))
+            {
+                $res_up = $this->Course_model->updateMealSettings($meal_id, $name, $description, $type, $insert_videos, $insert_ingredients,
+                    $update_ingredients, $delete_ingredients, $ingredients_text, $total_weight, $total_proteins, $total_fats,
+                    $total_carbohydrates, $total_calories, $this->user_id, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 158, 60);
+                }
+            }
+
+            header('Location: /administration/meal/' . $meal_id);
+        }
+        elseif($this->input->post('bt_block_meal', true))
+        {
+            $res_up = $this->Course_model->blockMeal($meal_id, 1, $this->user_id, $this->date);
+
+            if ($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 158, 60);
+            }
+
+            header('Location: /administration/meal/' . $meal_id);
+        }
+        elseif($this->input->post('bt_unblock_meal', true))
+        {
+            $res_up = $this->Course_model->blockMeal($meal_id, 0, $this->user_id, $this->date);
+
+            if ($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 158, 60);
+            }
+
+            header('Location: /administration/meal/' . $meal_id);
+        }
+        elseif($this->input->post('bt_delete_img', true))
+        {
+            $img_id     = key($this->input->post('bt_delete_img', true));
+            $path_image = '.' . $this->input->post('img_path_'.$img_id, true);
+            $path       = './meals_files/' . $meal_id;
+
+            if(file_exists($path_image) and dirname($path_image) == $path)
+            {
+                unlink($path_image);
+            }
+
+            header('Location: /administration/meal/' . $meal_id);
+        }
+        elseif($this->input->post('bt_delete_ml_video', true))
+        {
+            $video_id = key($this->input->post('bt_delete_ml_video', true));
+
+            $res_up = $this->Course_model->deleteMealVideo($meal_id, $video_id);
+
+            if ($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 158, 60);
+            }
+
+            header('Location: /administration/meal/' . $meal_id);
+        }
+
+        $result = array_merge($meal, $types);
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Редактирование данных блюда';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'meals';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('meals/meal_settings', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Список типов блюд
+     */
+    public function mealsTypes()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result = $this->Course_model->getMealsTypes();
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Типы блюд';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'meals_types';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('meals/meals_types', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Добавление нового типа блюда
+     */
+    public function newMealsType()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if($this->input->post('bt_save_new_meal_type', true))
+        {
+            $name = mb_substr(strip_tags($this->input->post('i_name', true)), 0, 255);
+
+            if(!empty($name))
+            {
+                $res_ins = $this->Course_model->setNewMealsType($name, $this->user_id, $this->date);
+
+                if (is_numeric($res_ins))
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+
+                    header('Location: /administration/meals/type/' . $res_ins);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 157, 60);
+
+                    header('Location: /administration/meals/type/new');
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 157, 60);
+
+                header('Location: /administration/meals/type/new');
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Новый тип блюда';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'meals_types';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('meals/new_meals_type');
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма редактирования данных типа блюда
+     *
+     * @param $type_id
+     */
+    public function mealsType($type_id)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if($this->input->post('bt_save_meals_type', true) and is_numeric($type_id))
+        {
+            $name = mb_substr(strip_tags($this->input->post('i_name', true)), 0, 255);
+
+            if(!empty($name))
+            {
+                $res_up = $this->Course_model->updateMealsType($type_id, $name, $this->user_id, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 157, 60);
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 157, 60);
+            }
+
+            header('Location: /administration/meals/type/' . $type_id);
+        }
+        elseif($this->input->post('bt_block_meals_type', true) and is_numeric($type_id))
+        {
+            $res_up = $this->Course_model->blockMealsType($type_id, 1, $this->user_id, $this->date);
+
+            if ($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 157, 60);
+            }
+
+            header('Location: /administration/meals/type/' . $type_id);
+        }
+        elseif($this->input->post('bt_unblock_meals_type', true) and is_numeric($type_id))
+        {
+            $res_up = $this->Course_model->blockMealsType($type_id, 0, $this->user_id, $this->date);
+
+            if ($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 157, 60);
+            }
+
+            header('Location: /administration/meals/type/' . $type_id);
+        }
+
+        $result = $this->Course_model->getMealsType($type_id);
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Настройки типа блюда';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'meals_types';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('meals/meals_type_settings', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Обработка данные из файла Excel
+     *
+     * @param $path
+     * @param $file
+     * @return mixed
+     */
+    protected function saveMealsFromXLS($path, $file)
+    {
+        $xlsData = self::getXLS($path.$file); // Извлекаем данные из XLS
+        $count_rows = count($xlsData);
+
+        if($count_rows > 100){
+            $count_rows = 100;
+        }
+
+        $result['count_rows'] = $count_rows;
+        //print_r($xlsData); echo '<br/>';
+        for($i = 1; $i <= $count_rows-1; $i++)
+        {
+            //echo '<tr><td>'.$xlsData[$i][0].'</td><td>'.$xlsData[$i][1].'</td><td>'.$xlsData[$i][2].'</td><td>'.$xlsData[$i][3].'</td><td>'.$xlsData[$i][4].'</td></tr>';
+            $name =  mb_substr(stripslashes(strip_tags($xlsData[$i][2])), 0, 255);
+            if(!empty($name))
+            {
+                // Тип
+                $result['meals'][$i]['type'] = mb_substr(stripslashes(strip_tags($xlsData[$i][1])), 0, 255);
+                // Наименование
+                $result['meals'][$i]['name'] = $name;
+                // Описание
+                $result['meals'][$i]['description'] = mb_substr(stripslashes(strip_tags($xlsData[$i][4])), 0, 2000);
+                // Игредиенты
+                $result['meals'][$i]['ingredients'] = mb_substr(stripslashes(strip_tags($xlsData[$i][5])), 0, 2000);
+                // Вес
+                $result['meals'][$i]['weight'] = is_numeric($xlsData[$i][6]) ? $xlsData[$i][6] : 0;
+                // Калорийность
+                $result['meals'][$i]['calories'] = is_numeric($xlsData[$i][7]) ? $xlsData[$i][7] : 0;
+                // Белки
+                $result['meals'][$i]['proteins'] = is_numeric($xlsData[$i][8]) ? $xlsData[$i][8] : 0;
+                // Жиры
+                $result['meals'][$i]['fats'] = is_numeric($xlsData[$i][9]) ? $xlsData[$i][9] : 0;
+                // Углеводы
+                $result['meals'][$i]['carbohydrates'] = is_numeric($xlsData[$i][10]) ? $xlsData[$i][10] : 0;
+            }
+        }
+        //print_r($result); echo '<br/>';
+        return $result;
+    }
+
+    /**
+     * Загрузка данные из файла Excel
+     *
+     * @param $xls
+     * @return array
+     */
+    protected function getXLS($xls)
+    {
+        $this->load->library("excel");
+        $this->excel->load($xls);
+
+        $this->excel->setActiveSheetIndex(0);
+        $aSheet = $this->excel->getActiveSheet();
+
+        //этот массив будет содержать массивы содержащие в себе значения ячеек каждой строки
+        $array = array();
+        //получим итератор строки и пройдемся по нему циклом
+        foreach($aSheet->getRowIterator() as $row){
+            //получим итератор ячеек текущей строки
+            $cellIterator = $row->getCellIterator();
+            //пройдемся циклом по ячейкам строки
+            //этот массив будет содержать значения каждой отдельной строки
+            $item = array();
+            foreach($cellIterator as $cell){
+                //заносим значения ячеек одной строки в отдельный массив
+                //array_push($item, iconv('cp1251', 'utf-8', $cell->getCalculatedValue()));
+                array_push($item, $cell->getCalculatedValue());
+            }
+            //заносим массив со значениями ячеек отдельной строки в "общий массв строк"
+            array_push($array, $item);
+        }
+        return $array;
+    }
+
+
+    /* БЛОК ФУНКЦИЙ ПРИЕМ ПИЩИ */
+
+    /**
+     * Вывод последних сохраненных приемов пищи
+     *
+     * @return void
+     */
+    public function ingestions()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        // Получение данных о типах курсов
+        $result = $this->Course_model->getIngestions();
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Приемы пищи';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'ingestions';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('ingestion/ingestions', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы и валидация введенных данных нового приема пищи
+     *
+     * @return void
+     */
+    public function newIngestion()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        // Сохранение нового типа приемов пищи
+        if ($this->input->post('bt_save_new_ingestion', true))
+        {
+            $name = mb_substr(strip_tags($this->input->post('i_name', true)), 0, 255);
+
+            // Диапазон времени
+            $tmp_from  = DateTime::createFromFormat('H:i', $this->input->post('s_ing_time_from', true));
+            $time_from = ($tmp_from !== false) ? $this->input->post('s_ing_time_from', true) : '';
+            $tmp_to    = DateTime::createFromFormat('H:i', $this->input->post('s_ing_time_to', true));
+            $time_to   = ($tmp_to !== false) ? $this->input->post('s_ing_time_to', true) : '';
+
+            if (!empty($name))
+            {
+                $res_ins = $this->Course_model->setNewIngestion($name, $time_from, $time_to, $this->user_id, $this->date);
+
+                if (is_numeric($res_ins))
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                    header('Location: /administration/ingestion/'.$res_ins);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 26, 60);
+                    header('Location: /administration/ingestion/new');
+                }
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Добавление нового приема пищи';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'ingestions';
+
+        $result = $this->Course_model->getIngestionTypes();
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('ingestion/new_ingestion', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы и валидация изменных данных типа приемов пищи
+     *
+     * @param $ing_id
+     * @return void
+     */
+    public function ingestion($ing_id)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        // Сохранение изменений типа курса
+        if ($this->input->post('bt_save_ingestion_settings', true) and is_numeric($ing_id))
+        {
+            $name = mb_substr(strip_tags($this->input->post('i_name', true)), 0, 255);
+
+            // Диапазон времени
+            $tmp_from  = DateTime::createFromFormat('H:i', $this->input->post('s_ing_time_from', true));
+            $time_from = ($tmp_from !== false) ? $this->input->post('s_ing_time_from', true) : '';
+            $tmp_to    = DateTime::createFromFormat('H:i', $this->input->post('s_ing_time_to', true));
+            $time_to   = ($tmp_to !== false) ? $this->input->post('s_ing_time_to', true) : '';
+
+            if (!empty($name))
+            {
+                $res_up = $this->Course_model->setIngestionSettings($ing_id, $name, $time_from, $time_to, $this->user_id, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 26, 60);
+                }
+            }
+
+            header('Location: /administration/ingestion/' . $ing_id);
+        }
+        elseif($this->input->post('bt_block_ingestion', true) and is_numeric($ing_id))
+        {
+            $res_up = $this->Course_model->blockIngestion($ing_id, 1, $this->user_id, $this->date);
+
+            if ($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 155, 60);
+            }
+
+            header('Location: /administration/ingestion/' . $ing_id);
+        }
+        elseif($this->input->post('bt_unblock_ingestion', true) and is_numeric($ing_id))
+        {
+            $res_up = $this->Course_model->blockIngestion($ing_id, 0, $this->user_id, $this->date);
+
+            if ($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 156, 60);
+            }
+
+            header('Location: /administration/ingestion/' . $ing_id);
+        }
+
+        $ingestion = $this->Course_model->getIngestion($ing_id);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Изменение данных приема пищи';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'ingestions';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('ingestion/ingestion_settings', $ingestion);
+        $this->load->view('footer/footer');
+    }
+
+
     /* БЛОК ФУНКЦИЙ ПРОМОКОДОВ */
 
     /**
      * Вывод списка промокодов курса
      *
      * @param $course_id
+     * @param $course_type
      */
-    protected function coursePromocodes($course_id)
+    protected function coursePromocodes($course_id, $course_type = 'workout')
     {
         $promocodes = $this->Course_model->getCoursePromocodes($course_id, $this->date);
         $course     = $this->Course_model->getShortCourse($course_id);
 
         $result = array_merge($promocodes, $course);
 
+        $page_menu = ($course_type == 'workout') ? 'a_courses_w' : 'a_courses_n';
+
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Промокоды курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = $page_menu;
         $this->page_data['page_submenu'] = 'promocodes';
         $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
+        if($course_type == 'workout')
+        {
+            $this->load->view('course/settings/course', $result);
+        }
+        elseif($course_type == 'nutrition')
+        {
+            $this->load->view('course/nutritions/settings/course', $result);
+        }
         $this->load->view('footer/footer');
     }
 
@@ -3265,13 +5929,16 @@ class Course extends CI_Controller
      * Форма добавления промокода курса
      *
      * @param $course_id
+     * @param $course_type
      */
-    protected function newCoursePromocode($course_id)
+    protected function newCoursePromocode($course_id, $course_type = 'workout')
     {
         $course = $this->Course_model->getShortCourse($course_id);
 
         if($this->input->post('bt_save_new_promocode', true))
         {
+            $path = ($course_type == 'workout') ? 'course' : 'nutrition';
+
             $category = ($this->input->post('s_category', true) == 'extend') ? 'extend' : 'course';
             $name     = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
             $desc     = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
@@ -3298,33 +5965,42 @@ class Course extends CI_Controller
                 {
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
-                    header('Location: /administration/course/' . $course_id . '/promocode/' . $res_ins);
+                    header('Location: /administration/' . $path . '/' . $course_id . '/promocode/' . $res_ins);
                 }
                 else
                 {
                     // Изменения не сохранены
                     $this->session->set_tempdata('message', 145, 60);
-                    header('Location: /administration/course/' . $course_id . '/promocode/new');
+                    header('Location: /administration/' . $path . '/' . $course_id . '/promocode/new');
                 }
             }
             else
             {
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 146, 60);
-                header('Location: /administration/course/' . $course_id . '/promocode/new');
+                header('Location: /administration/' . $path . '/' . $course_id . '/promocode/new');
             }
         }
 
+        $page_menu = ($course_type == 'workout') ? 'a_courses_w' : 'a_courses_n';
+
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Добавление промокода';
-        $this->page_data['page_menu']     = 'a_courses';
+        $this->page_data['page_menu']     = $page_menu;
         $this->page_data['page_submenu']  = 'promocodes';
         $this->page_data['promocode_new'] = true;
         $this->page_data['course_id']     = $course_id;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $course);
+        if($course_type == 'workout')
+        {
+            $this->load->view('course/settings/course', $course);
+        }
+        elseif($course_type == 'nutrition')
+        {
+            $this->load->view('course/nutritions/settings/course', $course);
+        }
         $this->load->view('footer/footer');
     }
 
@@ -3333,13 +6009,15 @@ class Course extends CI_Controller
      *
      * @param $course_id
      * @param $promocode_id
+     * @param $course_type
      */
-    protected function coursePromocode($course_id, $promocode_id)
+    protected function coursePromocode($course_id, $promocode_id, $course_type = 'workout')
     {
         $promocode   = $this->Course_model->getCoursePromocode($course_id, $promocode_id, $this->date);
         $used_amount = $this->Course_model->getPromocodeUsedAmount($promocode_id);
         $course      = $this->Course_model->getShortCourse($course_id);
 
+        $path    = ($course_type == 'workout') ? 'course' : 'nutrition';
         if($this->input->post('bt_save_promocode', true))
         {
             $db_data = $promocode['promocode'];
@@ -3381,7 +6059,7 @@ class Course extends CI_Controller
                     $this->session->set_tempdata('message', 145, 60);
                 }
             }
-            header('Location: /administration/course/' . $course_id . '/promocode/' . $promocode_id);
+            header('Location: /administration/' . $path . '/' . $course_id . '/promocode/' . $promocode_id);
         }
         elseif($this->input->post('bt_block_promocode', true))
         {
@@ -3397,7 +6075,7 @@ class Course extends CI_Controller
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 145, 60);
             }
-            header('Location: /administration/course/' . $course_id . '/promocode/' . $promocode_id);
+            header('Location: /administration/' . $path . '/' . $course_id . '/promocode/' . $promocode_id);
         }
         elseif($this->input->post('bt_unblock_promocode', true))
         {
@@ -3413,24 +6091,34 @@ class Course extends CI_Controller
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 145, 60);
             }
-            header('Location: /administration/course/' . $course_id . '/promocode/' . $promocode_id);
+            header('Location: /administration/' . $path . '/' . $course_id . '/promocode/' . $promocode_id);
         }
 
         $result = array_merge($promocode, $course, $used_amount);
 
+        $page_menu = ($course_type == 'workout') ? 'a_courses_w' : 'a_courses_n';
+
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Редактирование промокода';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = $page_menu;
         $this->page_data['page_submenu'] = 'promocodes';
         $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
+        if($course_type == 'workout')
+        {
+            $this->load->view('course/settings/course', $result);
+        }
+        elseif($course_type == 'nutrition')
+        {
+            $this->load->view('course/nutritions/settings/course', $result);
+        }
         $this->load->view('footer/footer');
     }
 
-    /* БЛОК ФУНКЦИЙ ПРОМОКОДОВ */
+
+    /* БЛОК ФУНКЦИЙ КУРСОВ ПРОДЛЕНИЯ */
 
     /**
      * Вывод списка промокодов курса
@@ -3445,7 +6133,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Продление курса';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'extends';
         $this->page_data['course_id']    = $course_id;
 
@@ -3502,7 +6190,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Прикрепление курса продления';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'extends';
         $this->page_data['extend_new']   = true;
         $this->page_data['course_id']    = $course_id;
@@ -3594,7 +6282,7 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Редактирование прикрепленного курса продления';
-        $this->page_data['page_menu']    = 'a_courses';
+        $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'extends';
         $this->page_data['course_id']    = $course_id;
 
@@ -3603,6 +6291,128 @@ class Course extends CI_Controller
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
+
+
+    /* БЛОК ФУНКЦИЙ ПРИКРЕПЛЕННЫХ КУРСОВ ПИТАНИЯ */
+
+    /**
+     * Вывод списка промокодов курса
+     *
+     * @param $course_id
+     */
+    protected function courseAttachedCourses($course_id)
+    {
+        $extends = $this->Course_model->getCourseAttachedCourses($course_id, $this->date);
+        $course  = $this->Course_model->getShortCourse($course_id);
+        $result = array_merge($extends, $course);
+
+        if($this->input->post('bt_block_attached', true))
+        {
+            $attached_id = is_numeric($this->input->post('i_course_id', true)) ? $this->input->post('i_course_id', true) : null;
+
+            if(is_numeric($course_id) and !empty($attached_id))
+            {
+                $res_up = $this->Course_model->blockAttachedCourse($course_id, $attached_id, 1, $this->user_id, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 161, 60);
+                }
+            }
+            header('Location: /administration/course/' . $course_id . '/attached');
+        }
+        elseif($this->input->post('bt_unblock_attached', true))
+        {
+            $attached_id = is_numeric($this->input->post('i_course_id', true)) ? $this->input->post('i_course_id', true) : null;
+
+            if(is_numeric($course_id) and !empty($attached_id))
+            {
+                $res_up = $this->Course_model->blockAttachedCourse($course_id, $attached_id, 0, $this->user_id, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 162, 60);
+                }
+            }
+            header('Location: /administration/course/' . $course_id . '/attached');
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Прикрепленные курсы';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'attached';
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма добавления промокода курса
+     *
+     * @param $course_id
+     */
+    protected function newCourseAttach($course_id)
+    {
+        $course         = $this->Course_model->getShortCourse($course_id);
+        $courses_list   = $this->Course_model->getPotentiallyAttachedCourses($course_id);
+
+        if($this->input->post('bt_attach_new_course', true))
+        {
+            $attach_crs_id = is_numeric($this->input->post('s_attach_course', true)) ? $this->input->post('s_attach_course', true) : null;
+
+            if(is_numeric($course_id) and !empty($attach_crs_id))
+            {
+                $res_ins = $this->Course_model->attachNewCourse($course_id, $attach_crs_id, $this->user_id, $this->date);
+
+                if ($res_ins === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 160, 60);
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 159, 60);
+            }
+            header('Location: /administration/course/' . $course_id . '/attach/new');
+        }
+
+        $result = array_merge($course, $courses_list);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Прикрепление курса';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'attached';
+        $this->page_data['attach_new']   = true;
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
 
     /* БЛОК ФУНКЦИЙ ПУБЛИЧНЫХ КУРСОВ */
 
@@ -3665,12 +6475,21 @@ class Course extends CI_Controller
      */
     protected function userCourses()
     {
-        /**
-         * @var array Данные курса
-         */
-        $course_data = array();
-
         $course_data = $this->Course_model->getUserCourses($this->user_id, $this->date);
+
+        //$this->Course_model->setNewUserCourse(24, 6, 4, '', '', '', '', $this->date);
+
+        // Даты начала и окончания курса
+        // Количество тренировок за курс
+        /*$count_workouts = 2 * 7;
+
+        $start_date = $this->date;
+
+        $tmp_date = new DateTime($this->date);
+        $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
+        $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+        $this->Course_model->setNewUserCourse(24, 14, 4, $start_date, $end_date, '', '', $this->date);*/
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Мои курсы';
@@ -3773,7 +6592,6 @@ class Course extends CI_Controller
         //$course_data = '';
         // Выборка уведомлений курса пользователя
         $course_notifs = $this->Course_model->getUserCourseNotifications($course_id, $this->user_id, $this->date);
-
         if (empty($course_data))
         {
             parent::pageNotFound($this->page_url);
@@ -4168,7 +6986,7 @@ class Course extends CI_Controller
 
             /* СОХРАНЕНИЕ ИЗМЕНЕНИЙ */
             // Сохранение изменения дней тренировок
-            if (!empty($array_training_days) and empty($db_training_days))
+            if (!empty($array_training_days) and empty($db_training_days) and !empty($new_course_start) and !empty($new_course_end))
             {
                 // Сохранение дней тренировок пользователя
                 $result_td = $this->Course_model->setUserTrainingDays($uc_id, $training_days, $new_course_start, $new_course_end, $this->date);
@@ -4184,10 +7002,13 @@ class Course extends CI_Controller
                 $result_sp = $this->Course_model->setUserCoursePause($uc_id, $date_pause_to, $course_end, $this->date);
             }
 
-            if ($result_td === true and $result_sp === true) {
+            if ($result_td === true and $result_sp === true)
+            {
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
-            } else {
+            }
+            else
+            {
                 $error_code = 30;
                 if ($result_td === false and $result_sp === true) {
                     $error_code = 79;
@@ -4376,6 +7197,25 @@ class Course extends CI_Controller
             header('Location: /profile/course/'.$course_id);*/
 
         }
+        elseif($this->input->post('bt_choose_attach'))
+        {
+            $id_choosen_course = key($this->input->post('bt_choose_attach'));
+
+            $res_attach = $this->Course_model->attachUserCourse($course_id, $id_choosen_course, $this->user_id, $this->date);
+
+            if($res_attach === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 56, 60);
+            }
+
+            header('Location: /profile/course/' . $course_id);
+        }
 
         // Уведомления курсов
         if(!empty($course_notifs['notifications']))
@@ -4530,14 +7370,18 @@ class Course extends CI_Controller
     /**
      * Отзывы пользователя о курсе
      *
-     * @param $course_id
+     * @param $user_course_id
      */
-    public function userCourseReviews($course_id)
+    public function userCourseReviews($user_course_id)
     {
         if (!is_numeric($this->user_id))
         {
             parent::pageNotFound($this->page_url);
         }
+
+        // Данные курса
+        $course_data = $this->Course_model->getUserCourseSettings($user_course_id, $this->user_id);
+        $reviews     = $this->Course_model->getUserCourseReviews($user_course_id, $this->user_id);
 
         // Сохранение отзыва
         if ($this->input->post('bt_save_review', true))
@@ -4546,7 +7390,7 @@ class Course extends CI_Controller
 
             if (!empty($review_text))
             {
-                $res_review = $this->Course_model->setUserCourseReview($course_id, $this->user_id, $review_text, $this->date);
+                $res_review = $this->Course_model->setUserCourseReview($course_data['course']['course_id'], $this->user_id, $review_text, $this->date);
 
                 if ($res_review === true)
                 {
@@ -4565,16 +7409,14 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 122, 60);
             }
 
-            header('Location: /profile/course/' . $course_id . '/reviews');
+            header('Location: /profile/course/' . $user_course_id . '/reviews');
         }
 
-        $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id);
-        $reviews     = $this->Course_model->getUserCourseReviews($course_id, $this->user_id);
         $result      = array_merge($course_data, $reviews);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Мои курсы';
-        $this->page_data['page_menu'] = 'u_courses';
+        $this->page_data['title']        = 'Мои курсы';
+        $this->page_data['page_menu']    = 'u_courses';
         $this->page_data['page_submenu'] = 'reviews';
 
         $this->load->view('header/header', $this->page_data);
@@ -4653,6 +7495,33 @@ class Course extends CI_Controller
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
         $this->load->view('course/user_course/review', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Страница меню курса питания на неделю
+     *
+     * @param $course_id
+     */
+    public function userNutritionMenu($course_id)
+    {
+        if (!is_numeric($this->user_id)) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id);
+        $menu        = $this->Course_model->getUserNutritionMenu($course_id, $this->user_id, $this->date);
+        $result      = array_merge($course_data, $menu);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'Меню курса';
+        $this->page_data['page_menu']    = 'u_courses';
+        $this->page_data['page_submenu'] = 'menu';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/profile');
+        $this->load->view('user/profile_line');
+        $this->load->view('course/user_course/user_week_menu', $result);
         $this->load->view('footer/footer');
     }
 
@@ -4749,11 +7618,13 @@ class Course extends CI_Controller
         if ($this->input->post('bt_buy_course', true))
         {
             // Данные курса
-            $course = $course['course'];
+            $db_data = $course['course'];
+
             // Количество тренировок за курс
-            $count_workouts = $course['count_weeks'] * $course['count_days'];
+            $count_workouts = $db_data['count_weeks'] * $db_data['count_days'];
+
             // Выбранный тренер
-            $id_couch = $this->input->post('user_couch', true);
+            $id_couch   = $this->input->post('user_couch', true);
             $user_couch = (is_numeric($id_couch) and in_array($id_couch, $course_couches['id'])) ? $id_couch : '';
 
             // Тренировочные дни
@@ -4762,7 +7633,7 @@ class Course extends CI_Controller
                 $days = $this->input->post('cb_day');
                 $i = 1;
                 foreach ($days as $day) {
-                    if ($i <= $course['count_days']) {
+                    if ($i <= $db_data['count_days']) {
                         $training_days .= $day;
                     }
 
@@ -4771,9 +7642,17 @@ class Course extends CI_Controller
                 unset($day);
             }*/
 
-            // Дата начала курса
+            // Даты начала и окончания курса
             $start_date = '';
             $end_date   = '';
+            if($db_data['category'] == 'nutrition')
+            {
+                $start_date = $this->date;
+
+                $tmp_date = new DateTime($this->date);
+                $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
+                $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+            }
             /*$array_training_days = str_split($training_days);
             $tem_date            = new DateTime($this->date);
             $start_date          = $tem_date->format('Y-m-d');
@@ -4830,22 +7709,22 @@ class Course extends CI_Controller
                 ? $this->input->post('s_payment_method', true)
                 : 'bank_card';
 
+            // Данные для способа оплаты
             $phone_methods = array('qiwi', 'sberbank');
             $login_methods = array('alfabank');
-            // Данные для способа оплаты
             $phone        = is_numeric($this->input->post('i_phone', true)) ? $this->input->post('i_phone', true) : null;
             $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : null;
             $login        = strip_tags($this->input->post('i_login', true));
             $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
 
             // Стоимость курса в зависимости от варианта оплаты и доступности такой оплаты в настройка курса
-            if($payment_option == 'installments' and $course['recurrent'] === true)
+            if($payment_option == 'installments' and $db_data['recurrent'] === true)
             {
-                $course_price = $course['recur_first'];
+                $course_price = $db_data['recur_first'];
             }
             else
             {
-                $course_price = $course['price'];
+                $course_price = $db_data['price'];
             }
 
             // Проверка данных пользователя
@@ -4885,7 +7764,7 @@ class Course extends CI_Controller
                     // Вычислеие цены со скидкой
                     if($promocode['discount'] !== false and !empty($promocode['id']))
                     {
-                        $course_price = $course['price'] - ($course['price']*$promocode['discount']/100);
+                        $course_price = $db_data['price'] - ($db_data['price']*$promocode['discount']/100);
                         $promocode_id = $promocode['id'];
                     }
                 }
@@ -4894,7 +7773,7 @@ class Course extends CI_Controller
                 $this->load->model('Store_model');
 
                 $products['products'] = array( 0 => array(
-                    'id' => $course['p_id'],
+                    'id' => $db_data['p_id'],
                     'cart_quantity' => 1,
                     'price' => $course_price,
                     'fc_price' => '',
@@ -5512,5 +8391,164 @@ class Course extends CI_Controller
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    public function searchMeals()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result['meals'] = false;
+
+        $search_text   = mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255);
+        $crs_day       = is_numeric($this->input->post('crs_day', true)) ? $this->input->post('crs_day', true) : null;
+        $crs_ingestion = is_numeric($this->input->post('crs_ingestion', true)) ? $this->input->post('crs_ingestion', true) : null;
+
+        if (!empty($search_text) and !empty($crs_day) and !empty($crs_ingestion))
+        {
+            $result['meals'] = $this->Course_model->searchMeals($search_text, $crs_day, $crs_ingestion);
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * AJAX. Вывод блюда
+     *
+     * @param string $day
+     * @param string $ingestion
+     * @param string $un_id
+     * @param string $meal_id
+     */
+    public function showMeal($day = '', $ingestion = '', $un_id = '', $meal_id = '')
+    {
+        $un_id     = (empty($un_id) and is_numeric($this->input->post('start_param', true))) ? $this->input->post('start_param', true) : $un_id;
+        $meal_id   = (empty($meal_id) and is_numeric($this->input->post('ml_id', true))) ? $this->input->post('ml_id', true) : $meal_id;
+        $day       = (empty($day) and is_numeric($this->input->post('day', true))) ? $this->input->post('day', true) : $day;
+        $ingestion = (empty($ingestion) and is_numeric($this->input->post('ingestion', true))) ? $this->input->post('ingestion', true) : $ingestion;
+
+        if (!empty($un_id) and !empty($day) and !empty($ingestion))
+        {
+            // Данные блюда
+            $meal_data = $this->Course_model->getUserNutritionMeal($this->user_id, $day, $ingestion, $un_id, $meal_id);
+
+            if (!empty($meal_data['meal']))
+            {
+                // Данные приема пищи
+                $ingestion_data = $this->Course_model->getUserIngestionMeals($this->user_id, $un_id, $meal_data['duplicate_day'], $meal_data['duplicate_ing']);
+
+                $display_result['meal'] = '';
+
+                $display_result['meal'] .= '<div class="selected_meal">';
+                $display_result['meal'] .= '<div style="text-align:center;">' . $meal_data['meal']['name'] . '</div>';
+                $display_result['meal'] .= '<div style="text-align:center;">[ Вес: ' . $meal_data['meal']['weight'] . ']</div>';
+                $display_result['meal'] .= '<div style="text-align:center;">[ БЖУК: ' . $meal_data['meal']['proteins'] . ' '
+                    . $meal_data['meal']['fats'] . ' '
+                    . $meal_data['meal']['carbohydrates'] . ' '
+                    . $meal_data['meal']['calories'] . ' '
+                    . ']</div>';
+                $display_result['meal'] .= '<div>' . $meal_data['meal']['description'] . '</div>';
+                $display_result['meal'] .= '</div>';
+
+                // Игредиенты блюда
+                if(!empty($meal_data['meal']['ingredients']))
+                {
+                    $display_result['meal'] .= '<div>Ингредиенты:</div>';
+                    foreach($meal_data['meal']['ingredients'] as $ingredient)
+                    {
+                        $display_result['meal'] .= '<div>' . $ingredient['name'] . ' [ Вес: ' . $ingredient['weight']
+                            . '; БЖУК: ' . $ingredient['proteins'] . ' '
+                            . $ingredient['fats'] . ' '
+                            . $ingredient['carbohydrates'] . ' '
+                            . $ingredient['calories'] . ' ]</div>';
+                    }
+                    unset($ingredient);
+                }
+
+                // Выбор другого блюда
+                $tmp_date = new DateTime($this->date);
+                $today    = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                $tmp_date->add(new DateInterval("P30D"));
+                $in_a_month = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                if(!empty($ingestion_data['meals']) and $meal_data['un_date'] >= $today and $meal_data['un_date'] < $in_a_month)
+                {
+                    $other_meals_result = '';
+                    foreach($ingestion_data['meals'] as $meal)
+                    {
+                        if($meal['id'] != $meal_data['meal']['id'])
+                        {
+                            $other_meals_result .= '<div class="meal_other_link" data-mlid="' . $meal['id'] . '"
+                            data-did="'.$day.'" data-iid="'.$ingestion.'" data-unid="'.$un_id.'">' . $meal['name'] . '
+                            [ Вес: ' . $meal['weight'] . '; БЖУК: ' . $meal['proteins'] . ' '
+                                . $meal['fats'] . ' '
+                                . $meal['carbohydrates'] . ' '
+                                . $meal['calories'] . ' '
+                                . ']</div>';
+                        }
+                    }
+                    unset($meal);
+
+
+                    if(!empty($other_meals_result))
+                    {
+                        $display_result['meal'] .= '<div class="meal_other_block">';
+
+                        $display_result['meal'] .= '<div class="meal_other_block_h" id="change-meal" 
+                        data-day="'.$day.'" data-ingestion="'.$ingestion.'">Выбрать другое блюдо</div>';
+
+                        $display_result['meal'] .= '<div class="meal_other_wrap">';
+
+                        $display_result['meal'] .= $other_meals_result;
+
+                        $display_result['meal'] .= '</div></div>';
+                    }
+                }
+            }
+            else
+            {
+                $display_result['error'] = 'Meal data error';
+            }
+        }
+        else
+        {
+            $display_result['error'] = 'startParam, day or ingestion empty';
+        }
+
+        echo json_encode($display_result, JSON_NUMERIC_CHECK);
+    }
+
+    public function selectMeal()
+    {
+        $un_id     = is_numeric($this->input->post('unid', true)) ? $this->input->post('unid', true) : null;
+        $meal_id   = is_numeric($this->input->post('mlid', true)) ? $this->input->post('mlid', true) : null;
+        $day       = is_numeric($this->input->post('did', true)) ? $this->input->post('did', true) : null;
+        $ingestion = is_numeric($this->input->post('iid', true)) ? $this->input->post('iid', true) : null;
+
+        if (!empty($meal_id) and !empty($un_id) and !empty($day) and !empty($ingestion))
+        {
+            // Данные блюда
+            $res_up = $this->Course_model->updateUserNutritionMeal($this->user_id, $day, $ingestion, $un_id, $meal_id, $this->date);
+
+            if($res_up === true)
+            {
+                self::showMeal($day, $ingestion, $un_id, $meal_id);
+            }
+            else
+            {
+                $display_result['error'] = 'Select error';
+
+                echo json_encode($display_result, JSON_NUMERIC_CHECK);
+            }
+        }
+        else
+        {
+            $display_result['error'] = 'mlId, startParam, day or ingestion empty';
+
+            echo json_encode($display_result, JSON_NUMERIC_CHECK);
+        }
     }
 }

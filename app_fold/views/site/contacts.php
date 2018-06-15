@@ -11,8 +11,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="col-lg-6 col-md-7 col-sm-7 col-xs-12">
                 <form action="" method="post" class="contact_form">
                     <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"><input type="text" name="email" placeholder="Укажите Email" class="contact_in"></div>
-                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"><input type="text" name="name" placeholder="Ваше имя" class="contact_in"></div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"><input type="text" name="email" placeholder="Укажите Email" class="contact_in valid_email" maxlength="255" /></div>
+                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"><input type="text" name="name" placeholder="Ваше имя" class="contact_in" maxlength="255" /></div>
                     </div>
                     <div class="row">
                         <div class="col-lg-12">

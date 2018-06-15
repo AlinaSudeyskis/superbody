@@ -7,7 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <form action="" method="post" class="anketa_form site_info">
             <div class="anketa_form_line parent">
                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Email</div></div>
-                <input type="text" class="anketa_form_in anketa_form_in_long" name="email" value="<?php if (!empty($email)) { echo $email; }?>" maxlength="255"/>
+                <input type="text" class="anketa_form_in anketa_form_in_long valid_email" name="email" value="<?php if (!empty($email)) { echo $email; }?>" maxlength="255"/>
             </div>
             <div class="anketa_form_line parent">
                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Телефон</div></div>

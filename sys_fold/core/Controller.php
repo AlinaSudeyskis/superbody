@@ -559,6 +559,35 @@ class CI_Controller {
     }
 
     /**
+     * Сохранение файла на сервер
+     *
+     * @param string $file_tmp Имя поля input[type=file]
+     * @param string $file_type Тип файла
+     * @param string $path Путь к файлу
+     * @return string Полный путь файла
+     */
+    public function uploadFile($file_tmp, $file_type, $path)
+	{
+        $md5_time = md5(time());
+        $md5_name = substr($md5_time, 0, 10); // Новое имя для файла
+
+        $config['upload_path'] = $path;
+        $config['allowed_types'] = 'xls';
+        $config['max_size']	= '2048';
+        $config['file_name'] = $md5_name;
+
+        $this->load->library('upload', $config);
+
+        if ( ! $this->upload->do_upload($file_tmp)){
+            return $this->upload->display_errors(); // Возвращаем возникшую ошибку
+        }  else{
+            $data = $this->upload->data();
+
+            return $data['file_name']; // Возвращаем полный путь файла
+        }
+    }
+
+    /**
      * Сохранение видео на сервер
      *
      * @param string $file_tmp Имя поля input[type=file]

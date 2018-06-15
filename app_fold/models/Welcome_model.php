@@ -33,7 +33,7 @@ class Welcome_model extends CI_Model
             }
             elseif ($ins_email === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -43,7 +43,7 @@ class Welcome_model extends CI_Model
         }
         elseif ($sel_email === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else {
@@ -67,7 +67,7 @@ class Welcome_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -152,12 +152,12 @@ class Welcome_model extends CI_Model
             }
             elseif ($sel_banners === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif ($sel_info === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -640,5 +640,145 @@ class Welcome_model extends CI_Model
 
         // 10.05.2018
         /*$this->db->query('ALTER TABLE `promocodes_used` CHANGE `pcu_id` `pcu_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT');*/
+
+        // ------------------------------------------------------------------------------------------------------------
+
+        // 14.05.2018
+        /*$this->db->query("ALTER TABLE `promocodes_used` ADD `pcu_o_id` INT UNSIGNED NOT NULL AFTER `pcu_code`,
+            ADD `pcu_p_id` INT UNSIGNED NOT NULL AFTER `pcu_o_id`,
+            ADD `pcu_u_id` INT UNSIGNED NOT NULL AFTER `pcu_p_id`");*/
+
+        // 15.05.2018
+        /*$this->db->query("ALTER TABLE `courses` ADD `crs_category` ENUM('workout','nutrition') NOT NULL AFTER `crs_id`, ADD INDEX `ix_crs_category` (`crs_category`)");
+        $this->db->query("UPDATE `courses` SET `crs_category`='workout'");
+        $this->db->query("ALTER TABLE `ingestions` DROP `ing_type_id`");
+        $this->db->query("ALTER TABLE `ingestions` CHANGE `time_additives` `ing_time_to` TIME NOT NULL");
+        $this->db->query("ALTER TABLE `ingestions` CHANGE `ing_approval` `ing_blocked` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0'");
+        $this->db->query("ALTER TABLE `ingestions` ADD `ing_admin_id` INT UNSIGNED NOT NULL AFTER `ing_blocked`");
+        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Прием пищи не заблокирован. Пожалуйста, повторите попытку.', 'Ошибка! Прием пищи не заблокирован. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Прием пищи не разблокирован. Пожалуйста, повторите попытку.', 'Ошибка! Прием пищи не разблокирован. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Данные типа блюда не сохранены. Пожалуйста, повторите попытку.', 'Ошибка! Данные типа блюда не сохранены. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Данные блюда не сохранены. Пожалуйста, повторите попытку.', 'Ошибка! Данные блюда не сохранены. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+
+        $this->db->query("CREATE TABLE `meals` (
+            `ml_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `ml_mt_id` TINYINT UNSIGNED NOT NULL ,
+            `ml_name` VARCHAR(255) NOT NULL,
+            `ml_images` VARCHAR(255) NOT NULL ,
+            `ml_weight` SMALLINT UNSIGNED NOT NULL,
+            `ml_proteins` SMALLINT UNSIGNED NOT NULL ,
+            `ml_fats` SMALLINT UNSIGNED NOT NULL ,
+            `ml_carbohydrates` SMALLINT UNSIGNED NOT NULL ,
+            `ml_calories` SMALLINT UNSIGNED NOT NULL ,
+            `ml_blocked` TINYINT(1) UNSIGNED NOT NULL ,
+            `ml_admin_id` INT UNSIGNED NOT NULL ,
+            `ml_update` DATETIME NOT NULL ,
+            PRIMARY KEY (`ml_id`)) ENGINE = MyISAM");
+
+        $this->db->query("CREATE TABLE `meals_types` (
+            `mt_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `mt_name` VARCHAR(255) NOT NULL ,
+            `mt_blocked` TINYINT(1) UNSIGNED NOT NULL ,
+            `mt_admin_id` INT UNSIGNED NOT NULL ,
+            `mt_update` DATETIME NOT NULL ,
+            PRIMARY KEY (`mt_id`)) ENGINE = MyISAM");
+        */
+
+        // 16.05.2018
+        /*$this->db->query("CREATE TABLE `ingredients` (
+            `ingr_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `ingr_ml_id` INT UNSIGNED NOT NULL ,
+            `ingr_name` VARCHAR(255) NOT NULL ,
+            `ingr_weight` SMALLINT UNSIGNED NOT NULL ,
+            `ingr_proteins` SMALLINT UNSIGNED NOT NULL ,
+            `ingr_fats` SMALLINT UNSIGNED NOT NULL ,
+            `ingr_carbohydrates` SMALLINT UNSIGNED NOT NULL ,
+            `ingr_calories` SMALLINT UNSIGNED NOT NULL ,
+            `ingr_admin_id` INT UNSIGNED NOT NULL ,
+            `ingr_update` DATETIME NOT NULL ,
+            PRIMARY KEY (`ingr_id`), INDEX `ix_ingr_ml_id` (`ingr_ml_id`)) ENGINE = MyISAM");*/
+
+        // 18.05.2018
+        /*$this->db->query("ALTER TABLE `meals` ADD FULLTEXT `fix_ml_name` (`ml_name`)");
+        $this->db->query("ALTER TABLE `meals` CHANGE `ml_name` `ml_name` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+        $this->db->query("CREATE TABLE `courses_ingestions` (
+            `ci_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , 
+            `ci_crs_id` INT UNSIGNED NOT NULL , 
+            `ci_ing_id` SMALLINT UNSIGNED NOT NULL , 
+            `ci_ing_time_from` TIME NOT NULL , 
+            `ci_ing_time_to` TIME NOT NULL , 
+            `ci_admin_id` INT UNSIGNED NOT NULL , 
+            `ci_update` DATETIME NOT NULL , 
+            PRIMARY KEY (`ci_id`), INDEX `ic_ci_crs_id` (`ci_crs_id`)) ENGINE = MyISAM");
+
+        $this->db->query("CREATE TABLE `courses_days_schedule` (
+            `cds_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `cds_crs_id` INT UNSIGNED NOT NULL ,
+            `cds_day` SMALLINT UNSIGNED NOT NULL ,
+            `cds_ci_id` INT UNSIGNED NOT NULL ,
+            `cds_ml_id` INT UNSIGNED NOT NULL ,
+            `cds_admin_id` INT UNSIGNED NOT NULL ,
+            `cds_update` DATETIME NOT NULL ,
+            PRIMARY KEY (`cds_id`), INDEX `ix_cds_crs_id` (`cds_crs_id`)) ENGINE = MyISAM");*/
+
+        // 21.05.2018
+        /*$this->db->query("CREATE TABLE `users_nutritions` (
+            `un_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `un_u_id` INT UNSIGNED NOT NULL ,
+            `un_uc_id` INT UNSIGNED NOT NULL ,
+            `un_cds_day` INT UNSIGNED NOT NULL ,
+            `un_cds_ci_id` INT UNSIGNED NOT NULL ,
+            `un_ml_id` INT UNSIGNED NOT NULL ,
+            `un_date` DATE NOT NULL ,
+            `un_update` DATETIME NOT NULL ,
+            PRIMARY KEY (`un_id`), INDEX `ix_un_ucid_uid` (`un_uc_id`, `un_u_id`)) ENGINE = MyISAM");
+
+        $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_blocked_reason` `uc_blocked_reason` ENUM('','payment_refunded','payment_succeeded','payment_canceled') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+        */
+
+        // 30.05.2018
+        /*$this->db->query('CREATE TABLE `courses_attached` (
+            `ca_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , 
+            `ca_crs_id` INT UNSIGNED NOT NULL , 
+            `ca_attached_crs_id` INT UNSIGNED NOT NULL ,
+            `ca_blocked` TINYINT(0) UNSIGNED NOT NULL ,
+            `ca_admin_id` INT UNSIGNED NOT NULL ,
+            `ca_date` DATETIME NOT NULL ,
+            PRIMARY KEY (`ca_id`), INDEX `ix_ca_crs_id` (`ca_crs_id`)) ENGINE = MyISAM');
+
+        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Некорректные данные курса питания или тренировки. Пожалуйста, повторите попытку.', 'Ошибка! Некорректные данные курса питания или тренировки. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Не удалось прикрепить курс. Пожалуйста, повторите попытку.', 'Ошибка! Не удалось прикрепить курс. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Прикрепленный курс не заблокирован. Пожалуйста, повторите попытку.', 'Ошибка! Прикрепленный курс не заблокирован. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Прикрепленный курс не разблокирован. Пожалуйста, повторите попытку.', 'Ошибка! Прикрепленный курс не разблокирован. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+
+        $this->db->query('ALTER TABLE `users_courses` ADD `uc_attached_uc_id` INT UNSIGNED NOT NULL AFTER `uc_course_id`');
+        */
+
+        // 01.06.2018
+        /*$this->db->query("ALTER TABLE `meals` ADD `ml_description` VARCHAR(2000) NOT NULL AFTER `ml_name`, ADD `ml_videos` TEXT NOT NULL AFTER `ml_description`");*/
+
+        // 05.06.2018
+        /*$this->db->query("CREATE TABLE `meals_videos` (
+            `mv_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `mv_ml_id` INT UNSIGNED NOT NULL ,
+            `mv_video` VARCHAR(2000) NOT NULL ,
+            `mv_admin_id` INT UNSIGNED NOT NULL ,
+            `mv_update` DATETIME NOT NULL ,
+            PRIMARY KEY (`mv_id`), INDEX `ix_mv_ml_id` (`mv_ml_id`)) ENGINE = MyISAM");
+
+        $this->db->query("ALTER TABLE `meals` DROP `ml_videos`");
+        $this->db->query("ALTER TABLE `meals` ADD `ml_ingredients` VARCHAR(2000) NOT NULL AFTER `ml_description`");
+        */
+
+        // 12.06.2018
+        //$this->db->query("UPDATE `notifications` SET `n_name` = 'Ошибка! Категория курса не сохранена. Пожалуйста, повторите попытку.', `n_text` = 'Ошибка! Категория курса не сохранена. Пожалуйста, повторите попытку.' WHERE `notifications`.`n_id` = 25");
+
+        // 13.06.2018
+        /*$this->db->query("ALTER TABLE `meals` CHANGE `ml_weight` `ml_weight` DECIMAL(6,2) UNSIGNED NOT NULL,
+            CHANGE `ml_proteins` `ml_proteins` DECIMAL(6,2) UNSIGNED NOT NULL,
+            CHANGE `ml_fats` `ml_fats` DECIMAL(6,2) UNSIGNED NOT NULL,
+            CHANGE `ml_carbohydrates` `ml_carbohydrates` DECIMAL(6,2) UNSIGNED NOT NULL,
+            CHANGE `ml_calories` `ml_calories` DECIMAL(6,2) UNSIGNED NOT NULL");*/
     }
 }

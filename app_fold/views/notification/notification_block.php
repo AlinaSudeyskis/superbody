@@ -31,7 +31,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         endif;
 
         // Отсчет времени окончания курса
-        if($course_ends === true and $count_down === true and !empty($course_ends_countdown)): ?>
+        if($course_ends === true and $count_ends_down === true and !empty($course_ends_countdown)):?>
             <div class="countdown_wrap">
                 <input type="hidden" value="<?php echo $course_ends_countdown; ?>" class="date_countdown"/>
                 <div class="countdown"></div>

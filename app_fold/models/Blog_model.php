@@ -34,7 +34,7 @@ class Blog_model extends CI_Model
         }
         elseif ($ins_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -73,7 +73,7 @@ class Blog_model extends CI_Model
         }
         elseif ($sel_blog === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -125,7 +125,7 @@ class Blog_model extends CI_Model
         }
         elseif($sel_post === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -156,7 +156,7 @@ class Blog_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -198,7 +198,7 @@ class Blog_model extends CI_Model
         }
         elseif ($sel_blog === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -253,12 +253,12 @@ class Blog_model extends CI_Model
             }
             elseif ($sel_comments === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif ($sel_post === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -285,7 +285,7 @@ class Blog_model extends CI_Model
         }
         elseif ($ins_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -329,7 +329,7 @@ class Blog_model extends CI_Model
         }
         elseif($sel_blog_mess === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -395,12 +395,12 @@ class Blog_model extends CI_Model
             }
             elseif ($sel_comments === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
         elseif($sel_message === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -429,7 +429,7 @@ class Blog_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -454,7 +454,7 @@ class Blog_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -481,7 +481,7 @@ class Blog_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -507,7 +507,7 @@ class Blog_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -560,7 +560,7 @@ class Blog_model extends CI_Model
         }
         elseif($sel_blog_comments === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -606,7 +606,7 @@ class Blog_model extends CI_Model
         }
         elseif($sel_message === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -629,7 +629,7 @@ class Blog_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -655,7 +655,7 @@ class Blog_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else

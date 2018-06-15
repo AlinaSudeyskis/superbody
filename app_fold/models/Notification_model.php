@@ -35,7 +35,7 @@ class Notification_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -64,7 +64,7 @@ class Notification_model extends CI_Model
             }
             elseif($sel_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -93,7 +93,7 @@ class Notification_model extends CI_Model
             }
             elseif($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -139,7 +139,7 @@ class Notification_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -169,7 +169,7 @@ class Notification_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
 
@@ -204,7 +204,7 @@ class Notification_model extends CI_Model
             }
             elseif($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -245,7 +245,7 @@ class Notification_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -279,7 +279,7 @@ class Notification_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -311,7 +311,7 @@ class Notification_model extends CI_Model
 
                 if($up_data2 === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
 
@@ -319,7 +319,7 @@ class Notification_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -355,7 +355,7 @@ class Notification_model extends CI_Model
 
                     if($up_data === false)
                     {
-                        parent::logDbMessages(__METHOD__);
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
 
@@ -363,7 +363,7 @@ class Notification_model extends CI_Model
             }
             elseif($ins_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 

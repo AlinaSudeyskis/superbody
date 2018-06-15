@@ -1,0 +1,30 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+?>
+<ul class="anketa_block_nav parent">
+    <li>
+        <a href="/administration/nutrition/<?php echo $course_id; ?>">
+            <span <?php if ($page_submenu == 'settings'): ?> class="anketa_active" <?php endif;?>>Настройки курса</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/nutrition/<?php echo $course_id; ?>/landing">
+            <span <?php if ($page_submenu == 'landing'): ?> class="anketa_active" <?php endif;?>>Landing page</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/nutrition/<?php echo $course_id; ?>/statistics">
+            <span <?php if ($page_submenu == 'statistics'): ?> class="anketa_active" <?php endif;?>>Статистика</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/nutrition/<?php echo $course_id; ?>/reviews">
+            <span <?php if ($page_submenu == 'reviews'): ?> class="anketa_active" <?php endif;?>>Отзывы</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/nutrition/<?php echo $course_id; ?>/promocodes">
+            <span <?php if ($page_submenu == 'promocodes'): ?> class="anketa_active" <?php endif;?>>Промокоды</span>
+        </a>
+    </li>
+</ul>

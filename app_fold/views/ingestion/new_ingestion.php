@@ -7,50 +7,32 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
-                <div class="content_block_h parent">
-                    <h3>Добавить тип приема пищи</h3>
+            <div class="content_block new_content_block">
+                <div class="content_block_h new_content_block_h parent">
+                    <h3>Курсы питания</h3>
+                    <?php include_once('./app_fold/views/course/nutritions/courses_buts.php'); ?>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" class="video_admin_form" method="post">
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Наименование:</div>
-                            <input type="text" name="name" class="admin_form_txt admin_form_txt_middle" value="" maxlength="255" required="required" />
-                        </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Тип приема пищи:</div>
-                            <select name="s_ing_type" class="journal_form_select">
-                                <?php if (!empty($types)) :
-                                    foreach ($types as $type) :?>
-                                        <option value="<?php echo $type['id']; ?>"><?php echo $type['name']; ?></option>
-                                    <?php endforeach;
-                                    unset($type);
-                                endif;?>
-                            </select>
-                        </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Время приема:</div>
-                            <select name="s_time_additives" class="journal_form_select">
-                                <option value="" selected="selected">На протяжении дня</option>
-                                <option value="before">До тренировки</option>
-                                <option value="after">После тренировки</option>
-                            </select>
-                        </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">
-                                Часы приема:
-                                <div class="h_subtitle">(Прим.: за 3 часа до тренировки)</div>
+                    <?php include_once('./app_fold/views/course/nutritions/menu.php'); ?>
+                    <div class="anketa_block_cont">
+                        <div class="anketa_block_item">
+                            <div class="anketa_block_item_h">Новый прием пищи</div>
+                            <div class="anketa_block_item_cont">
+                                <form action="" class="anketa_form" method="post">
+
+                                    <?php include_once('./app_fold/views/ingestion/settings_item.php'); ?>
+
+                                    <div class="video_admin_form_buts parent">
+                                        <input type="submit" name="bt_save_new_ingestion" value="Сохранить" class="video_admin_form_send" />
+                                    </div>
+                                </form>
                             </div>
-                            <input type="text" name="time_additives" value="" id="time_additives" class="admin_form_txt admin_form_txt_short"/>
                         </div>
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_new_ingestion" value="Сохранить" class="video_admin_form_send" />
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div><!-- content_col -->

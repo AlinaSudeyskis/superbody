@@ -677,3 +677,24 @@ span.mess_block_full_time {
     color: #606060;
     padding: 15px 0;
 }
+
+.meal_other_block{
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 15px;
+    width:calc(100% - 30px);
+}
+.meal_other_block_h{
+    margin-bottom: 15px;
+    text-align: center;
+    cursor: pointer;
+}
+.meal_other_wrap{
+    display: none;
+}
+.meal_other_link{
+    cursor: pointer;
+}
+.meal_other_block_h:hover, .meal_other_link:hover{
+    text-decoration: underline;
+}

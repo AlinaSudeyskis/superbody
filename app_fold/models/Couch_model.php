@@ -46,7 +46,7 @@ class Couch_model extends CI_Model
         }
         elseif($sel_user === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return 'e2'; // Не удалось зарегестрировать E-mail
         }
         else
@@ -77,7 +77,7 @@ class Couch_model extends CI_Model
             }
             elseif ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -688,7 +688,7 @@ class Couch_model extends CI_Model
             }
             elseif ($sel_couches === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -816,7 +816,7 @@ class Couch_model extends CI_Model
         }
         elseif($sel_images === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;

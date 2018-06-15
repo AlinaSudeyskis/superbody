@@ -17,10 +17,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <form action="" class="video_admin_form" method="post" enctype="multipart/form-data">
-                        <div class="admin_form_h">Изображение</div>
-                        <div class="video_down_line parent">
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Изображения:</div>
                             <?php if ($product['count_images'] < 6) : ?>
-                                <div class="parent kurs_cur_wrap">
+                                <div class="video_down_line parent">
                                     <div class="video_down_line_but_wrap">
                                         <label for="video_down_line_but1cs" class="video_down_line_but">
                                             <input type="file" name="images[]" multiple="multiple" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />

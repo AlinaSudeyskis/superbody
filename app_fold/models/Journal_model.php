@@ -32,7 +32,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_count_articles === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -59,7 +59,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_count_articles === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -93,7 +93,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_articles === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
         return $result;
@@ -127,7 +127,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else 
@@ -160,7 +160,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_article === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -196,7 +196,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else 
@@ -234,7 +234,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_posts === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -276,7 +276,7 @@ class Journal_model extends CI_Model
                 $up_data = $this->db->query('UPDATE `journal` SET `j_image_path`=? WHERE `j_id`=? LIMIT 1', array($new_images, $post_id));
                 if ($up_data === false) 
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
                 $result = true;
             }
@@ -288,7 +288,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_post === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             $result = 'SQL error';
         }
         else 
@@ -323,7 +323,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_article === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -356,7 +356,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else 
@@ -392,7 +392,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else 
@@ -422,7 +422,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else 
@@ -452,7 +452,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -489,7 +489,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_articles === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -519,7 +519,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_article === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -546,7 +546,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_count_interviews === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -573,7 +573,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_count_interviews === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -607,7 +607,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_interviews === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -637,7 +637,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_article === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -670,7 +670,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -706,7 +706,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -736,7 +736,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -766,7 +766,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -803,7 +803,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_interviews === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -833,7 +833,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_article === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -861,7 +861,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_count_news === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -888,7 +888,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_count_news === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -921,7 +921,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_news === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -950,7 +950,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_article === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -983,7 +983,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1019,7 +1019,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1049,7 +1049,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1079,7 +1079,7 @@ class Journal_model extends CI_Model
         }
         elseif ($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -1116,7 +1116,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_news === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1146,7 +1146,7 @@ class Journal_model extends CI_Model
         }
         elseif ($sel_article === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;

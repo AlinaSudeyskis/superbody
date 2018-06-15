@@ -1,13 +1,15 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div class="parent kurs_cur_wrap">
-    <div class="kurs_block_h">Категория:</div>
-    <select name="s_category" class="journal_form_select">
-        <option value="course" <?php if(!empty($promocode['category']) and $promocode['category'] == 'course'):?>selected="selected"<?php endif; ?>>Курс</option>
-        <option value="extend" <?php if(!empty($promocode['category']) and $promocode['category'] == 'extend'):?>selected="selected"<?php endif; ?>>Курс продления</option>
-    </select>
-</div>
+<?php if($page_menu == 'a_courses_w'): ?>
+    <div class="parent kurs_cur_wrap">
+        <div class="kurs_block_h">Категория:</div>
+        <select name="s_category" class="journal_form_select">
+            <option value="course" <?php if(!empty($promocode['category']) and $promocode['category'] == 'course'):?>selected="selected"<?php endif; ?>>Курс</option>
+            <option value="extend" <?php if(!empty($promocode['category']) and $promocode['category'] == 'extend'):?>selected="selected"<?php endif; ?>>Курс продления</option>
+        </select>
+    </div>
+<?php endif; ?>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Наименование:</div>
     <input type="text" name="i_code_name" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['name'])): echo $promocode['name']; endif; ?>" maxlength="255"/>

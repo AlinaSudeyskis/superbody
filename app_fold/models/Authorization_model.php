@@ -48,7 +48,7 @@ class Authorization_model extends CI_Model
         }
         elseif($sel_user === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return 'e2'; // Не удалось зарегестрировать E-mail
         }
         else
@@ -130,7 +130,7 @@ class Authorization_model extends CI_Model
             }
             elseif ($sel_account === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -409,7 +409,7 @@ class Authorization_model extends CI_Model
         }
         elseif($sel_user === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -459,7 +459,7 @@ class Authorization_model extends CI_Model
         }
         elseif($sel_user === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -510,7 +510,7 @@ class Authorization_model extends CI_Model
         }
         elseif($up_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -553,7 +553,7 @@ class Authorization_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -586,7 +586,7 @@ class Authorization_model extends CI_Model
             }
             elseif($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -702,7 +702,7 @@ class Authorization_model extends CI_Model
             }
             elseif ($ins_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -712,7 +712,7 @@ class Authorization_model extends CI_Model
         }
         elseif($sel_social === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -749,7 +749,7 @@ class Authorization_model extends CI_Model
         }
         elseif($sel_email === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         // Если email не найден в БД, регистрируем
         else

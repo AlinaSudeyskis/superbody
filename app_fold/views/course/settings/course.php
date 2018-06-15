@@ -12,7 +12,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <h3><?php echo $course['name']?></h3>
                     <a href="/administration/course/<?php echo $course_id; ?>/video/new" class="add_tab_but">Доб. видео</a>
                     <a href="/administration/course/<?php echo $course_id; ?>/promocode/new" class="add_tab_but">Доб. промокод</a>
-                    <a href="/administration/course/<?php echo $course_id; ?>/extend/new" class="add_tab_but">Прикрепить курс</a>
+                    <a href="/administration/course/<?php echo $course_id; ?>/extend/new" class="add_tab_but">Продлить курс</a>
+                    <a href="/administration/course/<?php echo $course_id; ?>/attach/new" class="add_tab_but">Прикрепить курс</a>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
@@ -70,6 +71,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             include_once('./app_fold/views/course/extends/extend_settings.php');
                         elseif ($page_submenu == 'extends' and $extend_new === true and !empty($potentially_extends)) :
                             include_once('./app_fold/views/course/extends/new_extend.php');
+                        elseif ($page_submenu == 'attached' and !empty($attached_courses)) :
+                            include_once('./app_fold/views/course/attach/attached_courses.php');
+                        elseif ($page_submenu == 'attached' and $attach_new === true and !empty($attach_courses)) :
+                            include_once('./app_fold/views/course/attach/new_attach.php');
                         else: ?>
                             <h3 class="info">Информация не найдена</h3>
                         <?php endif;?>

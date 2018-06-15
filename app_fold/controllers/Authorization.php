@@ -1021,9 +1021,9 @@ class Authorization extends CI_Controller
     public function facebookLogin($email = '', $return = '')
     {
         // Instagram
-        $url_authorize   = 'https://www.facebook.com/v2.12/dialog/oauth';
-        $url_token       = 'https://graph.facebook.com/v2.12/oauth/access_token';
-        $url_debug_token = 'https://graph.facebook.com/v2.12/debug_token?';
+        $url_authorize   = 'https://www.facebook.com/v3.0/dialog/oauth';
+        $url_token       = 'https://graph.facebook.com/v3.0/oauth/access_token';
+        $url_debug_token = 'https://graph.facebook.com/v3.0/debug_token?';
         $client_id       = '817159398426245';
         $client_secret   = 'e9a5d05ef3fee31e53cedba7ff910d59';
         $redirect_uri    = 'https://superbody.pro/facebook_login';

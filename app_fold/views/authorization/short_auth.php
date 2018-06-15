@@ -11,7 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="parent kurs_cur_wrap">
         <div class="kurs_block_h">Email:</div>
-        <input type="text" name="email" required="required" value="" class="admin_form_txt admin_form_txt_short" autocomplete="off"/>
+        <input type="text" name="email" required="required" value="" class="admin_form_txt admin_form_txt_short valid_email" autocomplete="off"/>
     </div>
     <div class="parent kurs_cur_wrap separator"></div>
     <input type="hidden" name="hi_return" value="/course/<?php echo $course_id; ?>" />

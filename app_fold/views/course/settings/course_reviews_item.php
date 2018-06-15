@@ -5,9 +5,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="anketa_block_item_cont">
         <div class="admin_list">
             <?php if (!empty($reviews)) :
+                $path = ($page_menu == 'a_courses_w') ? 'course' : 'nutrition';
                 foreach ($reviews as $review) : ?>
                     <div class="admin_item">
-                        <a class="admin_feedback_link parent" href="/administration/course/<?php echo $course_id;?>/review/<?php echo $review['id'];?>">
+                        <a class="admin_feedback_link parent" href="/administration/<?php echo $path;?>/<?php echo $course_id;?>/review/<?php echo $review['id'];?>">
                             <span class="admin_feedback_time_wrap parent">
                                 <span class="admin_feedback_time"><?php echo $review['time']; ?></span>
                                 <span class="admin_feedback_date"><?php echo $review['date']; ?></span>

@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="home_pop-up_desk">Будь в курсе всех новостей, новинок и акций!</div>
             <form action="" class="home_pop-up_form" id="up-subscribe_form" method="post">
                 <input type="text" class="home_pop-up_in" placeholder="Имя" name="subscribe_name" required="required" maxlength="255" />
-                <input type="text" class="home_pop-up_in" placeholder="E-mail" name="subscribe_email" required="required" maxlength="255" />
+                <input type="text" class="home_pop-up_in valid_email" placeholder="E-mail" name="subscribe_email" required="required" maxlength="255" />
                 <input type="submit" value="Подписаться" class="home_pop-up_but" name="bt_subscribe"/>
             </form>
         </div>
@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="sing-in_h">через социальную сеть:</div>
                     <?php include_once('./app_fold/views/authorization/auth_soc_item.php'); ?>
                     <div class="sing-in_h">или авторизуйтесь:</div>
-                    <input type="text" class="sing-in_in" placeholder="e-mail" name="email" value="" maxlength="255"/>
+                    <input type="text" class="sing-in_in valid_email" placeholder="e-mail" name="email" value="" maxlength="255"/>
                     <input type="password" class="sing-in_in" placeholder="пароль" name="password" value="" maxlength="255" minlength="8"/>
                     <div class="sing-in_h tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics" required="required" />

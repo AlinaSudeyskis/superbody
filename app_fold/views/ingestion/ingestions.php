@@ -7,16 +7,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
+            <div class="content_block new_content_block">
                 <div class="content_block_h new_content_block_h parent">
-                    <h3>Прием пищи</h3>
-                    <a href="/administration/ingestion/new" class="add_tab_but">Добавить</a>
+                    <h3>Курсы питания</h3>
+                    <?php include_once('./app_fold/views/course/nutritions/courses_buts.php'); ?>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <?php include_once('./app_fold/views/course/nutritions/menu.php'); ?>
                     <div class="admin_list">
                         <?php if (!empty($ingestions)) :
                             foreach ($ingestions as $ingestion) :?>
@@ -30,7 +31,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             <?php endforeach;
                             unset($ingestion);
-                        endif;?>
+                        else: ?>
+                            <h3 class="info">Информация не найдена</h3>
+                        <?php endif; ?>
                     </div>
                     <?php include_once('./app_fold/views/pagination.php'); ?>
                 </div>

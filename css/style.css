@@ -826,6 +826,10 @@ h3.info{
 .notification_block_ext_title{
     height: 25px;
 }
+.notification_block_ext_title input{
+    float: none;
+    margin: 0 auto;
+}
 div.info{
     font-size: 13px;
     color: #606060;
@@ -5896,7 +5900,7 @@ textarea.journal_post_comm_in{
 	text-decoration: none;
 	text-align: center;
 
-    margin: 6px 10px 6px 0;
+    margin: 9px 10px 9px 0;
 }
 .new_content_block_h h3{
 	padding-right: 220px;
@@ -6656,12 +6660,16 @@ textarea.journal_post_comm_in{
 .anketa_block_item:nth-of-type(4){
 	display: none;
 }
-.anketa_block_item_h{
+.anketa_block_item_h, .block_item_h{
 	font-size: 13px;
 	line-height: 15px;
 	text-transform: uppercase;
 	color: #595959;
 	padding: 17px 0;
+}
+.block_item_h{
+    margin:0 25px;
+    padding: 30px 0 0;
 }
 .anketa_form_h{
 	font-size: 13px;
@@ -6701,6 +6709,11 @@ textarea.journal_post_comm_in{
 	padding: 0 15px;
 	border: none;
 	background: #f3f3f3;
+}
+.in_tiny
+{
+    margin-left: 10px;
+    width: 80px;
 }
 .anketa_form_desk{
 	float: left;
@@ -6788,10 +6801,11 @@ textarea.journal_post_comm_in{
 	padding-left: 10px;
 	width: 33.3333%;
 }
-.anketa_form_three_wrap .anketa_form_select{
+.anketa_form_three_wrap .anketa_form_select, .anketa_form_two_wrap .anketa_form_select{
 	width: 100%;
 }
-.anketa_form_three_wrap .anketa_form_select .jq-selectbox__select{
+.anketa_form_three_wrap .anketa_form_select .jq-selectbox__select,
+.anketa_form_two_wrap .anketa_form_select .jq-selectbox__select{
 	width: 100%;
 	height: 35px;
 	background: #f3f3f3;
@@ -6799,20 +6813,23 @@ textarea.journal_post_comm_in{
 	border: none;
 	box-shadow: none;
 }
-.anketa_form_three_wrap .anketa_form_select .jq-selectbox__trigger{
+.anketa_form_three_wrap .anketa_form_select .jq-selectbox__trigger,
+.anketa_form_two_wrap .anketa_form_select .jq-selectbox__trigger{
 	height: calc(100% - 8px);
 	top: 4px;
 	border-color: #e6e6e6;
 	width: 31px;
 }
-.anketa_form_three_wrap .anketa_form_select .jq-selectbox__trigger-arrow{
+.anketa_form_three_wrap .anketa_form_select .jq-selectbox__trigger-arrow,
+.anketa_form_two_wrap .anketa_form_select .jq-selectbox__trigger-arrow{
 	border-left: 6px solid transparent;
     border-right: 6px solid transparent;
     border-top: 9px solid #00bff0;
     right: 10px;
     top: 10px;
 }
-.anketa_form_three_wrap .anketa_form_select .jq-selectbox__select{
+.anketa_form_three_wrap .anketa_form_select .jq-selectbox__select,
+.anketa_form_two_wrap .anketa_form_select .jq-selectbox__select{
 	font-size: 13px;
 	font-weight: 300;
 	font-style: italic;
@@ -6820,16 +6837,19 @@ textarea.journal_post_comm_in{
 	padding: 0 46px 0 15px;
 	text-shadow: none;
 }
-.anketa_form_three_wrap .anketa_form_select .jq-selectbox__select-text{
+.anketa_form_three_wrap .anketa_form_select .jq-selectbox__select-text,
+.anketa_form_two_wrap .anketa_form_select .jq-selectbox__select-text{
 	width: auto !important;
 }
-.anketa_form_three_wrap .anketa_form_select .jq-selectbox__dropdown{
+.anketa_form_three_wrap .anketa_form_select .jq-selectbox__dropdown,
+.anketa_form_two_wrap .anketa_form_select .jq-selectbox__dropdown{
 	top: 100%;
 	border-radius: 0;
 	border-color: #e6e6e6;
 	box-shadow: none;
 }
-.anketa_form_three_wrap .anketa_form_select .jq-selectbox__dropdown{
+.anketa_form_three_wrap .anketa_form_select .jq-selectbox__dropdown,
+.anketa_form_two_wrap .anketa_form_select .jq-selectbox__dropdown{
 	font: 13px/15px 'Open Sans', sans-serif;
 	font-weight: 300;
 	font-style: italic;
@@ -6925,7 +6945,7 @@ textarea.anketa_form_in{
 	float: left;
 }
 .anketa_form_two_all{
-	margin-left: -15px;
+	/* 17.05.2018 - margin-left: -15px;*/
 	width: 280px;
 	float: left;
 }
@@ -6956,6 +6976,23 @@ textarea.anketa_form_in{
     border: 4px solid transparent;
     border-top: 5px solid #fff;
     z-index: 10;
+}
+.calendar_info{
+    display: none;
+    position: absolute;
+    width: fit-content;
+    padding: 5px 20px;
+    content: '';
+    line-height: 13px;
+    font-size: 12px;
+    color: #72d0f4;
+    text-align: center;
+    background: #fff;
+    border-radius: 2px;
+    font-weight: 300;
+    z-index: 10;
+    text-transform: uppercase;
+    white-space: nowrap;
 }
 
 
@@ -8556,12 +8593,15 @@ textarea.anketa_form_in{
     margin-top: -3px;
 }
 .tov_form_img{
-    margin-left: -30px;
+    /* 17.05.2018 - margin-left: -30px;*/
 }
 .tov_form_img>div{
     float: left;
     margin-left: 30px;
     margin-bottom: 20px;
+}
+.tov_form_img>div:first-child{
+    margin-left: 0;
 }
 .tov_form_img_wrap{
     overflow: hidden;
@@ -8599,6 +8639,10 @@ textarea.anketa_form_in{
     position: relative;
     /*max-width: 330px; Для настроек курса*/
 }
+.add_tov_in.meal{
+    float: left;
+    width: calc(100% - 180px);
+}
 .add_tov_list{
     position: absolute;
     left: 0;
@@ -8612,6 +8656,9 @@ textarea.anketa_form_in{
     margin-top: 5px;
     z-index: 101;
     display: none;
+}
+.meal .add_tov_list{
+    top: 35px;
 }
 .add_tov_item{
     border-bottom: 1px solid #e6e6e6;
@@ -8650,6 +8697,9 @@ textarea.anketa_form_in{
     text-decoration: none;
     padding: 1px 0;
 }
+.meal .add_tov_cont{
+    margin-left: 0;
+}
 .add_tov_h{
     font-size: 14px;
     line-height: 16px;
@@ -8664,7 +8714,7 @@ textarea.anketa_form_in{
     color: #000;
 }
 .add_tov_val_cont{
-    display: block;
+    display: flex;
     text-decoration: none;
     border: 1px solid #e6e6e6;
     width: 100%;
@@ -8681,6 +8731,11 @@ textarea.anketa_form_in{
     text-decoration: underline;
     color: #72d0f4;
     width: 170px;
+}
+.add_tov_val_sh {
+    width: 100%;
+    font-weight: 300;
+    color: #595959;
 }
 .add_tov_val_price{
     display: block;
@@ -8747,6 +8802,9 @@ textarea.anketa_form_in{
 .instruction_block .add_tov_val_item{
     padding-top: 0;
 }
+.meal ~ .add_tov_val .add_tov_val_item{
+    margin-left: 180px;
+}
 .practice_block_h{
     font-size: 13px;
     line-height: 15px;
@@ -8809,6 +8867,9 @@ textarea.anketa_form_in{
     margin-bottom: 15px;
     position: relative;
 }
+.tren_form_block_check_wrap.ingestion{
+    display: flex;
+}
 input.tren_form_block_check{
     /*display: none;*/
     opacity: 0;
@@ -8825,6 +8886,10 @@ input.tren_form_block_check{
     padding-left: 35px;
     background: url(/img/check.png) 0 0 no-repeat;
     cursor: pointer;
+}
+.tren_form_block_check_wrap.ingestion label{
+    width: 140px;
+    margin-top: 6px;
 }
 .tren_form_block_check_wrap input:checked + label{
     background-position: 0 -20px;
@@ -8896,8 +8961,7 @@ input.tren_form_block_check{
 .landing_admin_form .add_tov_val_item:last-child{
     margin-bottom: 18px;
 }
-.add_new_foto_but,
-.add_new_options_but{
+.add_new_foto_but, .add_new_options_but, .add_new_ingredient, .add_new_ml_videos_block{
     display: inline-block;
     cursor: pointer;
     text-decoration: underline;
@@ -10590,7 +10654,7 @@ input.tren_form_block_check{
 	.anketa_form_info_cont{
 		float: none;
 	}
-	.anketa_block_item_h{
+	.anketa_block_item_h, .block_item_h{
 		padding-top: 22px;
 	}
 	.anketa_form_buts_wrap{
@@ -12996,7 +13060,8 @@ input.tren_form_block_check{
 	.anketa_form_three_all{
 		width: calc(100% + 10px);
 	}
-	.anketa_form_three_wrap .anketa_form_select .jq-selectbox__select{
+	.anketa_form_three_wrap .anketa_form_select .jq-selectbox__select,
+    .anketa_form_two_wrap .anketa_form_select .jq-selectbox__select{
 		padding: 0 41px 0 10px;
 	}
     .anketa_form_info_txt{

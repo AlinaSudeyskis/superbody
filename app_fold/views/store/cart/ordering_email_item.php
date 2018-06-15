@@ -12,8 +12,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span class="info_ordering_email"></span>
             <div class="email_errors"></div>
             <div class="info_edit_email">
-                <div class="edit_email"><input type="text" name="e_email" value="" placeholder="Введите Email" class="ordering_in" maxlength="255" /></div>
-                <div class="edit_email_confirm"><input type="text" name="e_email_confirm" value="" placeholder="Подтвердите Email" class="ordering_in" maxlength="255" /></div>
+                <div class="edit_email valid_email"><input type="text" name="e_email" value="" placeholder="Введите Email" class="ordering_in" maxlength="255" /></div>
+                <div class="edit_email_confirm valid_email"><input type="text" name="e_email_confirm" value="" placeholder="Подтвердите Email" class="ordering_in" maxlength="255" /></div>
                 <div class="edit_email_save"><input type="button" name="e_email_save" value="Сохранить" class="shop_tov_more" /></div>
             </div>
         </div>

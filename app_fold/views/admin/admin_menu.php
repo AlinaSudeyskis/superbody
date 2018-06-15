@@ -28,25 +28,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </a>
     </li>
     <li>
-        <a href="/administration/courses" <?php if ($page_menu == 'a_courses') { echo 'class="active"'; } ?>>
+        <a href="/administration/courses" <?php if ($page_menu == 'a_courses_w') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico21.png" alt=""></span><span>Курсы тренировок</span>
         </a>
     </li>
     <li>
-        <a href="#">
+        <a href="/administration/nutritions" <?php if ($page_menu == 'a_courses_n') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico8.png" alt=""></span><span>Курсы питания</span>
         </a>
     </li>
-    <!--<li>
-        <a href="/administration/ingestion/type" <?php /*if ($page_menu == 'ingestion_type') { echo 'class="active"'; } */?>>
-            <span><img src="/img/menu_ico8.png" alt=""></span><span>Тип приема пищи</span>
-        </a>
-    </li>
-    <li>
-        <a href="/administration/ingestion" <?php /*if ($page_menu == 'ingestion') { echo 'class="active"'; } */?>>
-            <span><img src="/img/menu_ico8.png" alt=""></span><span>Прием пищи</span>
-        </a>
-    </li>-->
     <li>
         <a href="/administration/categories" <?php if ($page_menu == 'categories') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico9.png" alt=""></span><span>Категория товара</span>

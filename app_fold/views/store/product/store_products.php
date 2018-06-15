@@ -6,7 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php if (!empty($products) and !empty($categories)) :
         foreach ($categories as $category) :
             if (!empty($products[$category['id']])) :
-                $path = ($category['id'] == 1) ? '/course/' : '/store/'.$category['id'].'/product/';
+                $path = ($category['id'] == 1 or $category['id'] == 2) ? '/course/' : '/store/'.$category['id'].'/product/';
             ?>
                 <div class="shop_block">
                     <div class="shop_block_h"><?php echo $category['name'];?></div>

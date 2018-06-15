@@ -37,4 +37,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'extends'): ?> class="anketa_active" <?php endif;?>>Продление</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/course/<?php echo $course_id; ?>/attached">
+            <span <?php if ($page_submenu == 'attached'): ?> class="anketa_active" <?php endif;?>>Питание</span>
+        </a>
+    </li>
 </ul>

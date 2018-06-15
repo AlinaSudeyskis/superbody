@@ -35,7 +35,7 @@ class Payment_model extends CI_Model
         }
         elseif ($ins_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
             return false;
         }
         else
@@ -92,7 +92,7 @@ class Payment_model extends CI_Model
             }
             elseif ($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -102,7 +102,7 @@ class Payment_model extends CI_Model
         }
         elseif($sel_payment === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
 
             return false;
         }
@@ -132,7 +132,7 @@ class Payment_model extends CI_Model
         }
         elseif($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -171,7 +171,7 @@ class Payment_model extends CI_Model
                                 array($order_id, $i, $payment_method, $course['recur_subsequent'], 'RUB', $payment_method_id, $following_date));
                         if($ins_data === false)
                         {
-                            parent::logDbMessages(__METHOD__);
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
                     }
                 }
@@ -215,7 +215,7 @@ class Payment_model extends CI_Model
         }
         elseif ($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         // Выборка не выполненных платежей
@@ -242,7 +242,7 @@ class Payment_model extends CI_Model
         }
         elseif ($sel_data2 === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -276,7 +276,7 @@ class Payment_model extends CI_Model
             }
             elseif($up_data === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
                 return false;
             }
             else
@@ -323,7 +323,7 @@ class Payment_model extends CI_Model
 
                 if($del_data === false)
                 {
-                    parent::logDbMessages(__METHOD__);
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                     $result = false;
                 }
             }
@@ -331,7 +331,7 @@ class Payment_model extends CI_Model
         }
         elseif ($sel_data === false)
         {
-            parent::logDbMessages(__METHOD__);
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -375,7 +375,7 @@ class Payment_model extends CI_Model
             }
             elseif($sel_payments === false)
             {
-                parent::logDbMessages(__METHOD__);
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             $result = $bought_price - $paid_value;

@@ -8,9 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="sing-in_h">через социальную сеть:</div>
             <?php include_once('./app_fold/views/authorization/auth_soc_item.php'); ?>
             <div class="sing-in_h">или авторизуйтесь:</div>
-            <div style="position: relative;">
-                <input type="text" class="sing-in_in valid_email" placeholder="e-mail" name="email" value="" maxlength="255"/>
-            </div>
+            <input type="text" class="sing-in_in valid_email" placeholder="e-mail" name="email" value="" maxlength="255"/>
             <input type="password" class="sing-in_in" placeholder="пароль" name="password" value="" maxlength="255" minlength="8"/>
             <div class="sing-in_h tren_form_block_check_wrap">
                 <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics" required="required" />

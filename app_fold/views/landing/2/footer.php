@@ -12,8 +12,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <form action="/" id="subscribe_dark_form" class="parent" method="post">
             <div class="subscribe_dark_form_in_wrap parent">
-                <input type="text" name="subscribe_email" class="subscribe_dark_form_in" placeholder="Укажите email"/>
-                <input type="text" name="subscribe_name" class="subscribe_dark_form_in" placeholder="Ваше имя"/>
+                <input type="text" name="subscribe_email" class="subscribe_dark_form_in valid_email" placeholder="Укажите email" maxlength="255"/>
+                <input type="text" name="subscribe_name" class="subscribe_dark_form_in" placeholder="Ваше имя" maxlength="255"/>
                 <div class="sing-in_h tren_form_block_check_wrap">
                     <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-2" required="required" />
                     <label for="cb-politics-2">согласие на

@@ -82,15 +82,18 @@ $(document).ready(function() {
             // Валидация email
             var email_error = $('.email_error'),
                 timer;
-            $('.valid_email').on('keyup', function() {
+            $('.valid_email').keyup(function() {
                 var email_block = $(this),
-                    e_p = email_block.offset();
+                    e_p = email_block.position(),
+                    email_error = email_block.next('.email_error');
+
                 clearTimeout(timer);
+
                 if(email_error.length == 0)
                 {
                     $(this).after('<div class="email_error"></div>');
-                    email_error = $('.email_error');
-                    email_error.offset({top:-20, left:(e_p.left-(email_block.width()/2)-25)});
+                    email_error = email_block.next('.email_error');
+                    email_error.offset({top:e_p.top-20, left:(e_p.left+email_block.outerWidth(true)-30-parseInt(email_block.css('margin-right')))});
                 }
 
                 if($(this).val() != '')
@@ -1056,47 +1059,8 @@ $(document).ready(function() {
             });
 
             // Формирование тренировок
-            /*$(".kurs_time_in, .kurs_length_in").on('keyup change', function() {
-                var kurs_time_in = $(this).parents("form").find("input.kurs_time_in").val(),
-                    kurs_length_in = $(this).parents("form").find("select.kurs_length_in").val(),
-                    active_practice_block = $('.practice_day.active').attr('id'),
-                    index, rez, html = '', option, num,
-                    i = 1, tr_week = 1, tr_day = 1,
-                    block_id, active_class = "";
-
-                if($(this).parents("form").hasClass("edit_kurs_form")){
-                    index = "e";
-                } else if($(this).parents("form").hasClass("add_kurs_form")){
-                    index = "a";
-                } else{
-                    index = "o";
-                }
-                if(kurs_time_in != 0 && kurs_length_in != 0)
-                {
-                    rez = kurs_time_in * kurs_length_in;
-                    while (tr_week <= kurs_time_in) {
-                        html = html + '<div class="practice_weeks"><div class="practice_week"><span>Неделя</span> '+tr_week+'</div>' +
-                            '<div class="practice_days">';
-                        tr_day = 1;
-                            while(tr_day <= kurs_length_in){
-                                block_id = 'practice' + i;
-                                active_class = "";
-                                if (active_practice_block == block_id)
-                                {
-                                    active_class = "active";
-                                }
-                                html = html + '<div class="practice_day '+active_class+'" id="practice'+i+'">Т '+tr_day+'</div>';
-                                option = option + '<option>Тренировка №'+i+'</option>';
-                                tr_day++;
-                                i++;
-                            }
-                        html = html + '</div></div>';
-                        tr_week++;
-                    }
-                    $(this).parents("form").find(".practice_block_table").html(html);
-                }
-            });*/
             $(".practice_block_table").on('click', '.practice_day', function(){
+                event.preventDefault();
                 var pr_bl_w  = $('.practice_block_wrap'),
                     pr_bl    = $('.practice_block'),
                     pr_d     = $('.practice_day'),
@@ -1217,6 +1181,15 @@ $(document).ready(function() {
                     $("#method-login").hide();
                 }
             });
+
+            $("#pop-up_video").on('click', '#change-meal', function(){
+                if($('.meal_other_wrap').is(':hidden'))
+                {
+                    $("#pop-up_video").height($("#pop-up_video").height() + $('.meal_other_wrap').height());
+                    $('.meal_other_wrap').show();
+                }
+            });
+
     });
 
     /**

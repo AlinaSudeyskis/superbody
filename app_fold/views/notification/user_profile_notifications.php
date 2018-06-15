@@ -5,7 +5,7 @@ $h3_info         = '';
 $course_blocked  = false;
 $course_ends     = false;
 $course_finished = false;
-$count_down      = false;
+$count_ends_down = false;
 $extends         = array();
 
 // Аккаунт пользователя заблокирован
@@ -38,10 +38,10 @@ if(!empty($course_notification)):
             // Курс заканчивается (обратный отсчет) + курсы продления
             if(!empty($notif['course_ends'])):
                 $course_ends           = true;
+                $count_ends_down       = true;
                 $course_ends_info      = $notif['course_ends']['text'];
                 $course_ends_extends   = $notif['course_ends']['extends'];
                 $course_ends_countdown = $notif['course_ends']['date_countdown'];
-                $count_down            = true;
             endif;
 
             // Курс закончился + курсы продления
@@ -49,7 +49,6 @@ if(!empty($course_notification)):
                 $course_finished         = true;
                 $course_finished_info    = $notif['course_finished']['text'];
                 $course_finished_extends = $notif['course_finished']['extends'];
-                $count_down              = false;
             endif;
             include('notification_block.php');
         endif;

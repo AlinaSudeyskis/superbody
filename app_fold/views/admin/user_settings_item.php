@@ -11,7 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Email</div></div>
-        <input type="text" class="anketa_form_in anketa_form_in_long" placeholder="Email" name="email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255"/>
+        <input type="text" class="anketa_form_in anketa_form_in_long valid_email" placeholder="Email" name="email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255"/>
     </div>
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото</div></div>
