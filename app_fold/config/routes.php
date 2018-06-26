@@ -75,7 +75,8 @@ $route['restore']                = 'Authorization/restorePassword';
 $route['block']                  = 'Authorization/blockAccount';
 
 // Страницы пользователя
-$route['profile/courses']                      = 'Course/usersCourses';
+$route['profile/courses']                      = 'Course/usersCourses/active';
+$route['profile/courses/finished']             = 'Course/usersCourses/finished';
 $route['profile/course/(:num)']                = 'Course/usersCourse/$1';
 $route['profile/course/(:num)/reviews']        = 'Course/userCourseReviews/$1';
 $route['profile/course/(:num)/review/(:num)']  = 'Course/userCourseReview/$1/$2';
@@ -98,6 +99,8 @@ $route['showMeal']               = 'Course/showMeal';
 $route['selectMeal']             = 'Course/selectMeal';
 $route['show/workout']           = 'Course/showWorkout';
 $route['show/weeks']             = 'Course/showCourseWeeks';
+$route['displayCourse']          = 'Course/displayUserCourse';
+$route['displayNutrition']       = 'Course/displayUserNutrition';
 $route['searchUsers']            = 'User/searchUsers';
 $route['searchPromo']            = 'Course/searchCoursePromocode';
 //$route['buy/course']             = 'Course/buyCourse';

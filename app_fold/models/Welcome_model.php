@@ -681,8 +681,8 @@ class Welcome_model extends CI_Model
             `mt_blocked` TINYINT(1) UNSIGNED NOT NULL ,
             `mt_admin_id` INT UNSIGNED NOT NULL ,
             `mt_update` DATETIME NOT NULL ,
-            PRIMARY KEY (`mt_id`)) ENGINE = MyISAM");
-        */
+            PRIMARY KEY (`mt_id`)) ENGINE = MyISAM");*/
+
 
         // 16.05.2018
         /*$this->db->query("CREATE TABLE `ingredients` (
@@ -780,5 +780,13 @@ class Welcome_model extends CI_Model
             CHANGE `ml_fats` `ml_fats` DECIMAL(6,2) UNSIGNED NOT NULL,
             CHANGE `ml_carbohydrates` `ml_carbohydrates` DECIMAL(6,2) UNSIGNED NOT NULL,
             CHANGE `ml_calories` `ml_calories` DECIMAL(6,2) UNSIGNED NOT NULL");*/
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        // 25.06.2018
+        //$this->db->query("ALTER TABLE `meals` ADD `ml_image` VARCHAR(255) NOT NULL AFTER `ml_images`");
+
+        // 26.06.2018
+        //$this->db->query("ALTER TABLE `users_courses` ADD `uc_display` TINYINT(1) UNSIGNED NOT NULL AFTER `uc_blocked_reason`");
     }
 }

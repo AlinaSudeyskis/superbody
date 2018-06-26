@@ -566,32 +566,33 @@ class Course_model extends CI_Model
 
         if(!empty($meals['meals']) and is_numeric($admin_id) and !empty($date))
         {
-
-            $values = '';
             foreach($meals['meals'] as $meal)
             {
-                $type_id = self::checkMealType($meal['type'], $admin_id, $date);
+                $sel_data = $this->db->query('SELECT `ml_id` FROM `meals` WHERE `ml_name`=? LIMIT 1', $meal['name']);
+                if($sel_data !== false and 0 == $sel_data->num_rows())
+                {
 
-                $values .= (!empty($values)) ? ', ' : '';
+                    $type_id = self::checkMealType($meal['type'], $admin_id, $date);
 
-                $values .= '('.$type_id.', "'.$meal['name'].'", "'.$meal['description'].'", "'.$meal['ingredients'].'", '
-                    .$meal['weight'].', '.$meal['proteins'].', '.$meal['fats'].', '.$meal['carbohydrates'].', '
-                    .$meal['calories'].', '.$admin_id.', "'.$date.'")';
-            }
-            unset($meal);
-
-            if(!empty($values))
-            {
-                $ins_data = $this->db->query('
-                    INSERT INTO `meals` (`ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_weight`, `ml_proteins`, 
-                      `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_admin_id`, `ml_update`) 
-                    VALUES ' . $values);
-                if($ins_data === false)
+                    $ins_data = $this->db->query('
+                        INSERT INTO `meals` (`ml_mt_id`, `ml_name`, `ml_description`, `ml_image`, `ml_ingredients`, 
+                          `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_admin_id`, `ml_update`) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            array($type_id, $meal['name'], $meal['description'], $meal['image'], $meal['ingredients'],
+                                $meal['weight'], $meal['proteins'], $meal['fats'], $meal['carbohydrates'],
+                                $meal['calories'], $admin_id, $date));
+                    if($ins_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        $result = false;
+                    }
+                }
+                elseif($sel_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    $result = false;
                 }
             }
+            unset($meal);
         }
 
         return $result;
@@ -608,8 +609,8 @@ class Course_model extends CI_Model
         $result = array('meal' => array());
 
         $sel_data = $this->db->query('
-            SELECT `ml_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_images`, `ml_weight`, `ml_proteins`, 
-              `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_blocked` 
+            SELECT `ml_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_images`, `ml_image`, 
+              `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_blocked` 
             FROM `meals` WHERE `ml_id`=? LIMIT 1', $meal_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
@@ -5240,24 +5241,16 @@ class Course_model extends CI_Model
      *
      * @param int $user_id
      * @param string $date
+     * @param string $courses_type
      * @param array|null $user_training_time
      * @return array
      */
-    public function getUserCourses($user_id, $date, $user_training_time = null)
+    public function getUserCourses($user_id, $date, $courses_type, $user_training_time = null)
     {
         $result = array('courses' => array(), 'events' => array(), 'notifications' => array(), 'blocked_courses' => array());
 
         // Активные курсы
-        $sel_courses = $this->db->query('
-            SELECT `uc_id`, `uc_course_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked`, 
-                `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `crs_image`, `crs_name`, `crs_description`, 
-                `crs_count_weeks`, `crs_count_days`, `crs_category` 
-            FROM `users_courses` 
-            LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
-            WHERE `uc_user_id`=? and `uc_blocked`=0
-            ORDER BY `uc_date_end` DESC', $user_id);
-
-        if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+        if($courses_type == 'active')
         {
             $tmp_date = new DateTime($date);
             $today    = $tmp_date->format('Y-m-d');
@@ -5265,669 +5258,90 @@ class Course_model extends CI_Model
             // Дата неделю назад от текущей даты
             $week_ago = $tmp_date->format('Y-m-d');
 
-            $i = 0;
-            foreach ($sel_courses->result() as $row)
+            // Активные курсы
+            $sel_courses = $this->db->query('
+                SELECT `uc_id`, `uc_course_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked`, 
+                    `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `uc_display`, 
+                    `crs_image`, `crs_name`, `crs_description`, `crs_count_weeks`, `crs_count_days`, `crs_category` 
+                FROM `users_courses` 
+                LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
+                WHERE `uc_user_id`=? and `uc_blocked`=0 and (`uc_date_end`>=? or `uc_date_end`="0000-00-00") 
+                ORDER BY `uc_date_end` DESC', array($user_id, $today));
+
+            if ($sel_courses !== false and 0 < $sel_courses->num_rows())
             {
-                $result['courses'][$i]['id']             = $row->uc_id;
-                $result['courses'][$i]['course_id']      = $row->uc_course_id;
-                $result['courses'][$i]['category']       = $row->crs_category;
-                $result['courses'][$i]['image']          = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : '';
-                $result['courses'][$i]['name']           = $row->crs_name;
-                $result['courses'][$i]['description']    = $row->crs_description;
-                $result['courses'][$i]['course_days']    = $row->crs_count_days;
-                $result['courses'][$i]['count_weeks']    = $row->crs_count_weeks;
-                $result['courses'][$i]['count_days']     = $row->crs_count_days;
-                $result['courses'][$i]['user_couch']     = $row->uc_couch_id;
-                $result['courses'][$i]['days']           = $row->uc_days != 0 ? str_split($row->uc_days) : null;
-                $result['courses'][$i]['date_start']     = $row->uc_date_start;
-                $result['courses'][$i]['date_end']       = $row->uc_date_end;
-                $result['courses'][$i]['blocked']        = $row->uc_blocked;
-                $result['courses'][$i]['blocked_reason'] = $row->uc_blocked_reason;
-                $result['courses'][$i]['blocked_date']   = $row->uc_blocked_date;
-                $result['courses'][$i]['paused']         = $row->uc_paused;
-                $result['courses'][$i]['pause_days']     = $row->uc_pause_days;
-                $result['courses'][$i]['finished']       = ($row->uc_date_end !== "0000-00-00" and $row->uc_date_end < $today) ? ' (Завершен)' : '';
-
-                /*
-                $tmp_date2 = new DateTime($row->uc_blocked_date);
-                $tmp_date2->add(new DateInterval('P28D'));
-                // Дата через 4 недели от даты блокировки
-                $next_three_weeks = $tmp_date2->format('Y-m-d');
-
-                // Не отображать курсы, которые заблокированы и 4 недели после блокировки прошли
-                if($row->uc_blocked == 1 and $next_three_weeks < $today and $row->uc_blocked_reason == 'payment_canceled')
+                $i = 0;
+                foreach ($sel_courses->result() as $row)
                 {
-                    unset($result['courses'][$i]);
+                    $result['courses'][$i]['id']             = $row->uc_id;
+                    $result['courses'][$i]['course_id']      = $row->uc_course_id;
+                    $result['courses'][$i]['category']       = $row->crs_category;
+                    $result['courses'][$i]['image']          = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : '';
+                    $result['courses'][$i]['name']           = $row->crs_name;
+                    $result['courses'][$i]['description']    = $row->crs_description;
+                    $result['courses'][$i]['course_days']    = $row->crs_count_days;
+                    $result['courses'][$i]['count_weeks']    = $row->crs_count_weeks;
+                    $result['courses'][$i]['count_days']     = $row->crs_count_days;
+                    $result['courses'][$i]['user_couch']     = $row->uc_couch_id;
+                    $result['courses'][$i]['days']           = $row->uc_days != 0 ? str_split($row->uc_days) : null;
+                    $result['courses'][$i]['date_start']     = $row->uc_date_start;
+                    $result['courses'][$i]['date_end']       = $row->uc_date_end;
+                    $result['courses'][$i]['blocked']        = $row->uc_blocked;
+                    $result['courses'][$i]['blocked_reason'] = $row->uc_blocked_reason;
+                    $result['courses'][$i]['blocked_date']   = $row->uc_blocked_date;
+                    $result['courses'][$i]['paused']         = $row->uc_paused;
+                    $result['courses'][$i]['pause_days']     = $row->uc_pause_days;
+                    $result['courses'][$i]['display']        = $row->uc_display;
+                    $result['courses'][$i]['finished']       = ($row->uc_date_end !== "0000-00-00" and $row->uc_date_end < $today) ? ' (Завершен)' : '';
+
+                    /*
+                    $tmp_date2 = new DateTime($row->uc_blocked_date);
+                    $tmp_date2->add(new DateInterval('P28D'));
+                    // Дата через 4 недели от даты блокировки
+                    $next_three_weeks = $tmp_date2->format('Y-m-d');
+
+                    // Не отображать курсы, которые заблокированы и 4 недели после блокировки прошли
+                    if($row->uc_blocked == 1 and $next_three_weeks < $today and $row->uc_blocked_reason == 'payment_canceled')
+                    {
+                        unset($result['courses'][$i]);
+                    }
+                    */
+
+                    $i++;
                 }
-                */
+                unset($row);
+                unset($i);
+                $sel_courses->free_result();
 
-                $i++;
-            }
-            unset($row);
-            unset($i);
-            $sel_courses->free_result();
-
-            // Тренеры курса
-            foreach ($result['courses'] as $key => $course)
-            {
-                $result['courses'][$key] = array_merge($result['courses'][$key], self::getCourseCouches($course['course_id']));
-            }
-            unset($course);
-
-            // Паузы в тренировках и тренировки пользователя
-            $ei = 0;
-            $color = array(42, 202, 242);
-            foreach ($result['courses'] as $key => $course)
-            {
-                $tmp_date   = DateTime::createFromFormat('Y-m-d H:i:s', $date);
-                $today      = $tmp_date->format('Y-m-d');
-                $workouts   = null;
-                $nutritions = null;
-                $pauses     = null;
-                $events     = null;
-
-                // Паузы тренировок
-                $sel_course_pauses = $this->db->query('
-                    SELECT `ucp_pause_start`, `ucp_pause_end` 
-                    FROM `users_courses_pauses`
-                    WHERE `ucp_uc_id`=?', $course['id']);
-                if ($sel_course_pauses !== false and 0 < $sel_course_pauses->num_rows())
+                // Тренеры курса
+                foreach ($result['courses'] as $key => $course)
                 {
-                    $i = 0;
-                    foreach ($sel_course_pauses->result() as $row)
-                    {
-                        $pauses[$i]['start'] = $row->ucp_pause_start;
-                        $pauses[$i]['end']   = $row->ucp_pause_end;
-
-                        $i++;
-                    }
-                    unset($row);
-                    unset($i);
+                    $result['courses'][$key] = array_merge($result['courses'][$key], self::getCourseCouches($course['course_id']));
                 }
-                elseif ($sel_course_pauses === false)
+                unset($course);
+
+                // Паузы в тренировках и тренировки пользователя
+                $ei = 0;
+                $color = array(42, 202, 242);
+                foreach ($result['courses'] as $key => $course)
                 {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // !!! Если выбраны тренировочные дни, проверить тренировки, паузы
-                if (is_array($course['days']) and $course['category'] == 'workout')
-                {
-                    // Массив дней недели тренировок, выбранные пользователем
-                    $array_training_days = $course['days'];
-                    // Флаг начала отсчета дат после заморозки
-                    $set_start_date = true;
-
-                    if($course['blocked'] == 0)
-                    {
-                        // Определение даты первой тренировки, которая уже будет считаться пропущенной
-                        // Добавление пропущенный тренировок в БД
-                        $sel_f_workout = $this->db->query('
-                            SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
-                            FROM `users_training_weeks`
-                            WHERE `utw_uc_id`=? and `utw_date`<? and `utw_done`=0 and `utw_duplicate`=0
-                            ORDER BY `utw_date` ASC
-                            LIMIT 1', array($course['id'], $today));
-                        if ($sel_f_workout !== false and 1 == $sel_f_workout->num_rows())
-                        {
-                            $row = $sel_f_workout->row();
-
-                            $start_missed_date = $row->utw_date;
-                            $missed_dates = array(); // Массив дат пропущенных дней тренировок
-
-                            // Разница между датами
-                            $datetime1   = new DateTime($today);
-                            $datetime2   = new DateTime($start_missed_date);
-                            $interval    = $datetime1->diff($datetime2);
-                            $days_missed = $interval->format('%a');
-
-                            $training_date = $start_missed_date;
-                            for ($i = 0; $i <= $days_missed; $i++)
-                            {
-                                // Если дата пропущенной тренировки меньше текущей, иначе прерываем цикл
-                                if ($training_date < $today)
-                                {
-                                    // Сравнения номера дня недели с днями недели тренировок. Номер дня недели текущей тренировки
-                                    $current_num_day = date("N", strtotime($training_date));
-                                    // Новая дата пропущенной тренировки
-                                    $new_training_date = $training_date;
-
-                                    // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
-                                    // то вычисляем дату следующего дня недели тренировки.
-                                    if (!in_array($current_num_day, $array_training_days))
-                                    {
-                                        // Поиск большего номера дня недели
-                                        foreach ($array_training_days as $training_day)
-                                        {
-                                            if ($training_day > $current_num_day)
-                                            {
-                                                $diff_days = $training_day - $current_num_day;
-
-                                                $tmp_date = DateTime::createFromFormat('Y-m-d', $training_date);
-                                                $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
-                                                $new_training_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : $training_date;
-                                                break;
-                                            }
-                                        }
-                                        unset($training_day);
-
-                                        // Если дата тренировки осталась не измененной, выбираем первый день недели тренировки
-                                        // пользователя и вычисляем её дату
-                                        if ($new_training_date >= $training_date)
-                                        {
-                                            // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                            $diff_days = 7 - $current_num_day + $array_training_days[0];
-
-                                            // Временная дата предыдущей тренивроки
-                                            $tem_date = new DateTime($training_date);
-
-                                            // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
-                                            $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
-
-                                            $new_training_date = $tem_date->format('Y-m-d');
-                                        }
-                                    }
-
-                                    // Следующая дата
-                                    $tmp_date = new DateTime($new_training_date);
-                                    $tmp_date->add(new DateInterval('P1D'));
-                                    $training_date = $tmp_date->format('Y-m-d');
-
-                                    if ($new_training_date < $today)
-                                    {
-                                        $missed_dates[$i] = $new_training_date;
-                                    }
-                                    else
-                                    {
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-
-                            // Добавляем пропущенные тренировки курса
-                            /*print_r($missed_dates); echo '<br/>';*/
-                            if (!empty($missed_dates)) {
-                                $value = '';
-                                foreach ($missed_dates as $missed_date) {
-                                    if (!empty($value)) {
-                                        $value .= ', ';
-                                    }
-                                    $value .= '(' . $course['id'] .', 1, 1, "' . $missed_date . '", "' . $date . '")';
-                                }
-
-                                if (!empty($value)) {
-                                    $up_data = $this->db->query('
-                                        INSERT INTO `users_training_weeks`
-                                            (`utw_uc_id`, `utw_workout`, `utw_duplicate`, `utw_date`, `utw_date_update`)
-                                        VALUES ' . $value);
-                                    if ($up_data === false)
-                                    {
-                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                                    }
-                                }
-                            }
-
-                            unset($row);
-                        }
-                        elseif ($sel_f_workout === false)
-                        {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
-                        }
-
-                        // Обработка тренировок, проверка на пропущенные занятия
-                        // Изменение дат будущих тренировок (смещение курса)
-                        $sel_workouts = $this->db->query('
-                            SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
-                            FROM `users_training_weeks`
-                            WHERE `utw_uc_id`=? and `utw_duplicate`=0
-                            ORDER BY `utw_date` ASC', $course['id']);
-                        if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
-                        {
-                            $i = 0;
-
-                            $training_date = $today;
-                            $next_workout  = false; // Флаг продолжения вычисления новых дат тренировок
-                            $update_date   = false; // Флаг обновления даты тренировки
-
-                            foreach ($sel_workouts->result() as $row)
-                            {
-                                $new_training_date = null; // Новая дата тренировки
-
-                                // Обновление дат тренировок
-                                if ($today > $row->utw_date and $row->utw_done == 0)
-                                {
-                                    // Сравнения номера дня недели с днями недели тренировок
-                                    $current_num_day = date("N", strtotime($training_date));
-
-                                    // Изменение даты первой пропущенной тренировки.
-                                    if ($next_workout === false)
-                                    {
-                                        // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
-                                        // то вычисляем дату следующего дня недели тренировки.
-                                        if (!in_array($current_num_day, $array_training_days))
-                                        {
-                                            // Поиск большего номера дня недели и вычисление его новой даты
-                                            foreach ($array_training_days as $key => $training_day)
-                                            {
-                                                if ($training_day > $current_num_day)
-                                                {
-                                                    $diff_days = $training_day - $current_num_day;
-
-                                                    $tmp_date = DateTime::createFromFormat('Y-m-d', $training_date);
-                                                    $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
-                                                    $new_training_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
-                                                    break;
-                                                }
-                                            }
-                                            unset($training_day);
-
-                                            // Если новая дата тренировки не вычислена, выбираем первый день недели тренировки
-                                            // пользователя и вычисляем её дату
-                                            if (empty($new_training_date))
-                                            {
-                                                // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                                $diff_days = 7 - $current_num_day + $array_training_days[0];
-                                                // Временная дата предыдущей тренивроки
-                                                $tem_date = new DateTime($training_date);
-                                                // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
-                                                $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
-
-                                                $new_training_date = ($tem_date !== false) ? $tem_date->format('Y-m-d') : null;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            $new_training_date = $training_date;
-                                        }
-
-                                        // Если новая дата тренировки вычислена, обновляем дату в БД
-                                        if (!empty($new_training_date))
-                                        {
-                                            $next_workout = true;
-                                            $training_date = $new_training_date;
-
-                                            $up_data = $this->db->query('
-                                                UPDATE `users_training_weeks` SET `utw_date`=?, `utw_date_update`=?
-                                                WHERE `utw_id`=? LIMIT 1', array($new_training_date, $date, $row->utw_id));
-                                            if ($up_data === false)
-                                            {
-                                                parent::logDbMessages(__METHOD__.':'.__LINE__);
-                                            }
-
-                                        }
-                                    }
-                                    // Изменение дат остальных тренировок
-                                    elseif ($next_workout === true)
-                                    {
-                                        $new_training_date = self::setNewDateOfPrev($training_date, $array_training_days, $date, $row->utw_id);
-
-                                        if (!empty($new_training_date))
-                                        {
-                                            $training_date = $new_training_date;
-                                        }
-                                    }
-                                }
-                                // Изменение дат остальных тренировок
-                                elseif ($next_workout === true)
-                                {
-                                    $new_training_date = self::setNewDateOfPrev($training_date, $array_training_days, $date, $row->utw_id);
-
-                                    if (!empty($new_training_date))
-                                    {
-                                        $training_date = $new_training_date;
-                                    }
-                                }
-
-                                $i++;
-                            }
-                            unset($row);
-                            unset($i);
-                        }
-                        elseif ($sel_workouts === false)
-                        {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
-                        }
-                        $sel_workouts->free_result();
-
-                        // Изменение окончания даты тренировок курса
-                        // Дата последней тренировки курса
-                        $sel_last_w_date = $this->db->query('
-                            SELECT `utw_uc_id`, `utw_date` 
-                            FROM `users_training_weeks`
-                            WHERE `utw_duplicate`=0 and `utw_uc_id`=?
-                            ORDER BY `utw_date` DESC LIMIT 1', $course['id']);
-                        if ($sel_last_w_date !== false and 1 == $sel_last_w_date->num_rows())
-                        {
-                            $row = $sel_last_w_date->row();
-                            $last_w_date = $row->utw_date;
-
-                            $up_data = $this->db->query('
-                            UPDATE `users_courses` SET `uc_date_end`=? 
-                            WHERE `uc_id`=? and `uc_date_end`<? LIMIT 1', array($last_w_date, $course['id'], $last_w_date));
-                            if ($up_data === false)
-                            {
-                                parent::logDbMessages(__METHOD__.':'.__LINE__);
-                            }
-
-                            unset($row);
-                        }
-                        elseif ($sel_last_w_date === false)
-                        {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
-                        }
-
-                    }
-
-                    // Выборка расписания тренировок
-                    $sel_workouts = $this->db->query('
-                        SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_duplicate`, `utw_date`
-                        FROM `users_training_weeks`
-                        WHERE `utw_uc_id`=?
-                        ORDER BY `utw_date` ASC', $course['id']);
-                    if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
-                    {
-                        $i = 0;
-                        foreach ($sel_workouts->result() as $row)
-                        {
-                            $workouts[$i]['id']        = $row->utw_id;
-                            $workouts[$i]['workout']   = $row->utw_workout;
-                            $workouts[$i]['done']      = $row->utw_done;
-                            $workouts[$i]['duplicate'] = $row->utw_duplicate;
-                            $workouts[$i]['date']      = $row->utw_date;
-
-                            $i++;
-                        }
-                        unset($row);
-                        unset($i);
-                    }
-                    elseif ($sel_workouts === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
-                }
-                // Выборка расписания питания
-                elseif($course['category'] == 'nutrition')
-                {
-                    $sel_nutritions = $this->db->query('
-                        SELECT `un_id`, `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, 
-                          `ml_name`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories` 
-                        FROM `users_nutritions`
-                        LEFT JOIN `meals` ON `ml_id`=`un_ml_id`
-                        WHERE `un_uc_id`=?
-                        ORDER BY `un_date` ASC', $course['id']);
-                    if ($sel_nutritions !== false and 0 < $sel_nutritions->num_rows())
-                    {
-                        $i = 0;
-                        foreach ($sel_nutritions->result() as $row)
-                        {
-                            $nutritions[$i]['id']        = $row->un_id;
-                            $nutritions[$i]['day']       = $row->un_cds_day;
-                            $nutritions[$i]['ingestion'] = $row->un_cds_ci_id;
-                            $nutritions[$i]['meal_id']   = !empty($row->un_ml_id) ? $row->un_ml_id : null;
-                            $nutritions[$i]['meal_name'] = $row->ml_name . ' [БЖУК - ' . $row->ml_proteins . ' '
-                                . $row->ml_fats .  ' ' . $row->ml_carbohydrates . ' ' . $row->ml_caloreis . ']';
-                            $nutritions[$i]['date']      = $row->un_date;
-                            $nutritions[$i]['done']      = ($row->un_date < $today) ? 1 : 0;
-
-                            $i++;
-                        }
-                        unset($row);
-                        unset($i);
-                    }
-                    elseif ($sel_nutritions === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
-                }
-
-                // СОБЫТИЯ КАЛЕНДАРЯ
-
-                // Паузы в курсе
-                if (!empty($pauses) and !empty($course['days'])) {
-                    foreach ($pauses as $pause) {
-                        // Начало заморозки
-                        $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['start']);
-                        $pause_start = $temp_date->format('Y-m-d');
-                        // Окончание заморозки
-                        $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['end']);
-                        $pause_end = $temp_date->format('Y-m-d');
-
-                        if (empty($events) or $pause_start != $events[$ei - 1]['start'])
-                        {
-                            $events[$ei]['constraint'] = 'pause';
-                            $events[$ei]['start']      = $pause_start;
-                            $events[$ei]['end']        = $pause_end;
-                            $events[$ei]['pause']      = true;
-                            $events[$ei]['done']       = null;
-
-                            $ei++;
-                        }
-                    }
-                    unset($pause);
-                }
-
-                // Тренировки
-                if (!empty($workouts) and !empty($course['days']))
-                {
-                    // Флаг доступного тренировочного дня
-                    $available_training = false;
-
-                    // Данные курса тренировок
-                    $course_data  = self::getCourse($course['course_id']);
-
-                    $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
-                    $rgb = self::different_shade($color, $type_shade);
-                    $color = $rgb;
-
-                    foreach ($workouts as $workout)
-                    {
-                        // Выполнено ли занятие
-                        $w_done      = $workout['done'];
-                        $w_date      = $workout['date'];
-                        $w_duplicate = $workout['duplicate'];
-                        $w_num       = $workout['workout'];
-
-                        $events[$ei]['constraint'] = 'workout';
-                        $events[$ei]['blocked']    = ($course['blocked'] == 1) ? 'true' : 'false';
-                        $events[$ei]['workout_id'] = $workout['id'];
-                        $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
-                        $events[$ei]['done']       = 'not_done';
-                        $events[$ei]['missed']     = 'not_missed';
-
-                        // Только одно видео доступно
-                        if ($w_date < $today or $available_training === true)
-                        {
-                            $events[$ei]['id'] = '';
-                        }
-                        elseif ($w_date == $today and $available_training === false)
-                        {
-                            $events[$ei]['id'] = $course_data['course']['workouts'][$w_num]['video_id'];
-                            $available_training = true;
-                        }
-
-                        $events[$ei]['title'] = ($w_duplicate == 1)
-                            ? 'Пропущенное занятие'
-                            : $course_data['course']['workouts'][$w_num]['video_name'];
-                        $events[$ei]['start'] = !empty($user_training_time)
-                            ? $w_date . 'T' . $user_training_time['from']
-                            : $w_date;
-                        $events[$ei]['end']   = !empty($user_training_time)
-                            ? $w_date . 'T' . $user_training_time['to']
-                            : $w_date;
-
-                        if ($w_done == 1)
-                        {
-                            $events[$ei]['done']  = 'done';
-                            $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
-                        }
-
-                        if ($w_duplicate == 1)
-                        {
-                            $events[$ei]['missed'] = 'missed';
-                            $events[$ei]['color'] = 'rgba(255, 159, 137, 0.5)';
-                        }
-
-
-                        $ei++;
-                    }
-                    unset($workout);
-                }
-
-                // Питание
-                if(!empty($nutritions))
-                {
-                    $ingestions        = self::getIngestions();
-                    $course_ingestions = self::getNutritionIngestions($course['course_id']);
-                    $course_first_meal = self::getNutritionIngestionsFirstMeal($course['course_id']);
-
-                    $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
-                    $rgb = self::different_shade($color, $type_shade);
-                    $color = $rgb;
-
-                    foreach ($nutritions as $nutrition)
-                    {
-                        // Выполнено ли занятие
-                        $w_done      = $nutrition['done'];
-                        $w_date      = $nutrition['date'];
-                        $w_day       = $nutrition['day'];
-                        $w_ingestion = $nutrition['ingestion'];
-
-                        $events[$ei]['constraint'] = 'nutrition';
-                        $events[$ei]['blocked']    = ($course['blocked'] == 1) ? 'true' : 'false';
-                        $events[$ei]['id']         = $nutrition['id'];
-                        $events[$ei]['day']        = $w_day;
-                        $events[$ei]['ingestion']  = $w_ingestion;
-                        $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
-                        $events[$ei]['done']       = 'not_done';
-                        $events[$ei]['missed']     = 'not_missed';
-
-                        if(!empty($nutrition['meal_id']))
-                        {
-                            $events[$ei]['ml_id'] = $nutrition['meal_id'];
-                        }
-                        else
-                        {
-                            $events[$ei]['ml_id'] = $course_first_meal['meal'][$w_day][$w_ingestion]['id'];
-                        }
-
-                        $ing_id  = (!empty($ingestions)) ? array_search($w_ingestion, $ingestions['ingestions_id']) : false;
-                        $events[$ei]['title'] = ($ing_id !== false) ? $ingestions['ingestions'][$ing_id]['name'] : '';
-
-                        // Дата и время события
-                        $crs_ing_id  = (!empty($course_ingestions)) ? array_search($w_ingestion, $course_ingestions['course_ingestions_id']) : false;
-
-                        $events[$ei]['start'] = ($crs_ing_id !== false)
-                            ? $w_date . 'T' . $course_ingestions['course_ingestions'][$crs_ing_id]['time_from'] : $w_date;
-                        $events[$ei]['end']   = ($crs_ing_id !== false)
-                            ? $w_date . 'T' . $course_ingestions['course_ingestions'][$crs_ing_id]['time_to'] : $w_date;
-
-                        if ($w_done == 1)
-                        {
-                            $events[$ei]['done']  = 'done';
-                            $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
-                        }
-
-
-                        $ei++;
-                    }
-                    unset($nutrition);
-                }
-
-                $result['courses'][$key]['pauses']     = !empty($pauses) ? $pauses : array();
-                $result['courses'][$key]['workouts']   = !empty($workouts) ? $workouts : array();
-                $result['courses'][$key]['nutritions'] = !empty($nutritions) ? $nutritions : array();
-
-                $result['events'] = !empty($events) ? array_merge($result['events'], $events) : $result['events'];
-            }
-            unset($ei);
-            unset($course);
-        }
-        elseif ($sel_courses === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
-
-        // Заблокированные курсы
-        $sel_bl_courses = $this->db->query('
-            SELECT `uc_id`, `uc_course_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked`, 
-                `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `crs_image`, `crs_name`, `crs_description`, 
-                `crs_count_weeks`, `crs_count_days` 
-            FROM `users_courses` 
-            LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
-            WHERE `uc_user_id`=? and `uc_blocked`=1', $user_id);
-
-        if ($sel_bl_courses !== false and 0 < $sel_bl_courses->num_rows())
-        {
-            $tmp_date = new DateTime($date);
-            $today    = $tmp_date->format('Y-m-d');
-            $tmp_date->sub(new DateInterval('P7D'));
-            // Дата неделю назад от текущей даты
-            $week_ago = $tmp_date->format('Y-m-d');
-
-            $i = 0;
-            foreach ($sel_bl_courses->result() as $row)
-            {
-                $result['blocked_courses'][$i]['id']             = $row->uc_id;
-                $result['blocked_courses'][$i]['course_id']      = $row->uc_course_id;
-                $result['blocked_courses'][$i]['image']          = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : '';
-                $result['blocked_courses'][$i]['name']           = $row->crs_name;
-                $result['blocked_courses'][$i]['description']    = $row->crs_description;
-                $result['blocked_courses'][$i]['course_days']    = $row->crs_count_days;
-                $result['blocked_courses'][$i]['count_weeks']    = $row->crs_count_weeks;
-                $result['blocked_courses'][$i]['count_days']     = $row->crs_count_days;
-                $result['blocked_courses'][$i]['user_couch']     = $row->uc_couch_id;
-                $result['blocked_courses'][$i]['days']           = $row->uc_days != 0 ? str_split($row->uc_days) : null;
-                $result['blocked_courses'][$i]['date_start']     = $row->uc_date_start;
-                $result['blocked_courses'][$i]['date_end']       = $row->uc_date_end;
-                $result['blocked_courses'][$i]['blocked']        = $row->uc_blocked;
-                $result['blocked_courses'][$i]['blocked_reason'] = $row->uc_blocked_reason;
-                $result['blocked_courses'][$i]['blocked_date']   = $row->uc_blocked_date;
-                $result['blocked_courses'][$i]['paused']         = $row->uc_paused;
-                $result['blocked_courses'][$i]['pause_days']     = $row->uc_pause_days;
-
-                $i++;
-            }
-            unset($row);
-            unset($i);
-            $sel_courses->free_result();
-
-            // Тренеры курса
-            foreach ($result['blocked_courses'] as $key => $bl_course)
-            {
-                $result['blocked_courses'][$key] = array_merge($result['blocked_courses'][$key], self::getCourseCouches($bl_course['course_id']));
-            }
-            unset($bl_course);
-
-            // Паузы в тренировках и тренировки пользователя
-            $ei = 0;
-            $color = array(42, 202, 242);
-            foreach ($result['blocked_courses'] as $key => $bl_course)
-            {
-                $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
-                $today    = $tmp_date->format('Y-m-d');
-                $workouts = null;
-                $pauses   = null;
-                $events   = null;
-
-                // !!! Если выбраны тренировочные дни, проверить тренировки, паузы
-                if (is_array($bl_course['days']))
-                {
-                    // Массив дней недели тренировок, выбранные пользователем
-                    $array_training_days = $bl_course['days'];
-                    // Флаг начала отсчета дат после заморозки
-                    $set_start_date = true;
+                    $tmp_date   = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+                    $today      = $tmp_date->format('Y-m-d');
+                    $workouts   = null;
+                    $nutritions = null;
+                    $pauses     = null;
+                    $events     = null;
 
                     // Паузы тренировок
                     $sel_course_pauses = $this->db->query('
-                        SELECT `ucp_pause_start`, `ucp_pause_end` 
-                        FROM `users_courses_pauses`
-                        WHERE `ucp_uc_id`=?', $bl_course['id']);
-                    if ($sel_course_pauses !== false and 0 < $sel_course_pauses->num_rows()) {
+                    SELECT `ucp_pause_start`, `ucp_pause_end` 
+                    FROM `users_courses_pauses`
+                    WHERE `ucp_uc_id`=?', $course['id']);
+                    if ($sel_course_pauses !== false and 0 < $sel_course_pauses->num_rows())
+                    {
                         $i = 0;
-                        foreach ($sel_course_pauses->result() as $row) {
+                        foreach ($sel_course_pauses->result() as $row)
+                        {
                             $pauses[$i]['start'] = $row->ucp_pause_start;
                             $pauses[$i]['end']   = $row->ucp_pause_end;
 
@@ -5941,19 +5355,288 @@ class Course_model extends CI_Model
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
 
-                    // Выборка расписания тренировок
-                    $sel_workouts = $this->db->query('
-                        SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_duplicate`, `utw_date`, `uc_blocked`
-                        FROM `users_training_weeks`
-                        LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
-                        WHERE `utw_uc_id`=?
-                        ORDER BY `utw_date` ASC', $bl_course['id']);
-                    if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
+                    // !!! Если выбраны тренировочные дни, проверить тренировки, паузы
+                    if (is_array($course['days']) and $course['category'] == 'workout')
                     {
-                        $i = 0;
-                        foreach ($sel_workouts->result() as $row)
+                        // Массив дней недели тренировок, выбранные пользователем
+                        $array_training_days = $course['days'];
+                        // Флаг начала отсчета дат после заморозки
+                        $set_start_date = true;
+
+                        if($course['blocked'] == 0)
                         {
-                            if($row->uc_blocked == 0 or ($row->uc_blocked == 1 and $row->utw_date < $date))
+                            // Определение даты первой тренировки, которая уже будет считаться пропущенной
+                            // Добавление пропущенный тренировок в БД
+                            $sel_f_workout = $this->db->query('
+                            SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
+                            FROM `users_training_weeks`
+                            WHERE `utw_uc_id`=? and `utw_date`<? and `utw_done`=0 and `utw_duplicate`=0
+                            ORDER BY `utw_date` ASC
+                            LIMIT 1', array($course['id'], $today));
+                            if ($sel_f_workout !== false and 1 == $sel_f_workout->num_rows())
+                            {
+                                $row = $sel_f_workout->row();
+
+                                $start_missed_date = $row->utw_date;
+                                $missed_dates = array(); // Массив дат пропущенных дней тренировок
+
+                                // Разница между датами
+                                $datetime1   = new DateTime($today);
+                                $datetime2   = new DateTime($start_missed_date);
+                                $interval    = $datetime1->diff($datetime2);
+                                $days_missed = $interval->format('%a');
+
+                                $training_date = $start_missed_date;
+                                for ($i = 0; $i <= $days_missed; $i++)
+                                {
+                                    // Если дата пропущенной тренировки меньше текущей, иначе прерываем цикл
+                                    if ($training_date < $today)
+                                    {
+                                        // Сравнения номера дня недели с днями недели тренировок. Номер дня недели текущей тренировки
+                                        $current_num_day = date("N", strtotime($training_date));
+                                        // Новая дата пропущенной тренировки
+                                        $new_training_date = $training_date;
+
+                                        // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
+                                        // то вычисляем дату следующего дня недели тренировки.
+                                        if (!in_array($current_num_day, $array_training_days))
+                                        {
+                                            // Поиск большего номера дня недели
+                                            foreach ($array_training_days as $training_day)
+                                            {
+                                                if ($training_day > $current_num_day)
+                                                {
+                                                    $diff_days = $training_day - $current_num_day;
+
+                                                    $tmp_date = DateTime::createFromFormat('Y-m-d', $training_date);
+                                                    $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
+                                                    $new_training_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : $training_date;
+                                                    break;
+                                                }
+                                            }
+                                            unset($training_day);
+
+                                            // Если дата тренировки осталась не измененной, выбираем первый день недели тренировки
+                                            // пользователя и вычисляем её дату
+                                            if ($new_training_date >= $training_date)
+                                            {
+                                                // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
+                                                $diff_days = 7 - $current_num_day + $array_training_days[0];
+
+                                                // Временная дата предыдущей тренивроки
+                                                $tem_date = new DateTime($training_date);
+
+                                                // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
+                                                $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                                                $new_training_date = $tem_date->format('Y-m-d');
+                                            }
+                                        }
+
+                                        // Следующая дата
+                                        $tmp_date = new DateTime($new_training_date);
+                                        $tmp_date->add(new DateInterval('P1D'));
+                                        $training_date = $tmp_date->format('Y-m-d');
+
+                                        if ($new_training_date < $today)
+                                        {
+                                            $missed_dates[$i] = $new_training_date;
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+
+                                // Добавляем пропущенные тренировки курса
+                                /*print_r($missed_dates); echo '<br/>';*/
+                                if (!empty($missed_dates)) {
+                                    $value = '';
+                                    foreach ($missed_dates as $missed_date) {
+                                        if (!empty($value)) {
+                                            $value .= ', ';
+                                        }
+                                        $value .= '(' . $course['id'] .', 1, 1, "' . $missed_date . '", "' . $date . '")';
+                                    }
+
+                                    if (!empty($value)) {
+                                        $up_data = $this->db->query('
+                                        INSERT INTO `users_training_weeks`
+                                            (`utw_uc_id`, `utw_workout`, `utw_duplicate`, `utw_date`, `utw_date_update`)
+                                        VALUES ' . $value);
+                                        if ($up_data === false)
+                                        {
+                                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                        }
+                                    }
+                                }
+
+                                unset($row);
+                            }
+                            elseif ($sel_f_workout === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+
+                            // Обработка тренировок, проверка на пропущенные занятия
+                            // Изменение дат будущих тренировок (смещение курса)
+                            $sel_workouts = $this->db->query('
+                            SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
+                            FROM `users_training_weeks`
+                            WHERE `utw_uc_id`=? and `utw_duplicate`=0
+                            ORDER BY `utw_date` ASC', $course['id']);
+                            if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
+                            {
+                                $i = 0;
+
+                                $training_date = $today;
+                                $next_workout  = false; // Флаг продолжения вычисления новых дат тренировок
+                                $update_date   = false; // Флаг обновления даты тренировки
+
+                                foreach ($sel_workouts->result() as $row)
+                                {
+                                    $new_training_date = null; // Новая дата тренировки
+
+                                    // Обновление дат тренировок
+                                    if ($today > $row->utw_date and $row->utw_done == 0)
+                                    {
+                                        // Сравнения номера дня недели с днями недели тренировок
+                                        $current_num_day = date("N", strtotime($training_date));
+
+                                        // Изменение даты первой пропущенной тренировки.
+                                        if ($next_workout === false)
+                                        {
+                                            // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
+                                            // то вычисляем дату следующего дня недели тренировки.
+                                            if (!in_array($current_num_day, $array_training_days))
+                                            {
+                                                // Поиск большего номера дня недели и вычисление его новой даты
+                                                foreach ($array_training_days as $key => $training_day)
+                                                {
+                                                    if ($training_day > $current_num_day)
+                                                    {
+                                                        $diff_days = $training_day - $current_num_day;
+
+                                                        $tmp_date = DateTime::createFromFormat('Y-m-d', $training_date);
+                                                        $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
+                                                        $new_training_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
+                                                        break;
+                                                    }
+                                                }
+                                                unset($training_day);
+
+                                                // Если новая дата тренировки не вычислена, выбираем первый день недели тренировки
+                                                // пользователя и вычисляем её дату
+                                                if (empty($new_training_date))
+                                                {
+                                                    // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
+                                                    $diff_days = 7 - $current_num_day + $array_training_days[0];
+                                                    // Временная дата предыдущей тренивроки
+                                                    $tem_date = new DateTime($training_date);
+                                                    // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
+                                                    $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                                                    $new_training_date = ($tem_date !== false) ? $tem_date->format('Y-m-d') : null;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                $new_training_date = $training_date;
+                                            }
+
+                                            // Если новая дата тренировки вычислена, обновляем дату в БД
+                                            if (!empty($new_training_date))
+                                            {
+                                                $next_workout = true;
+                                                $training_date = $new_training_date;
+
+                                                $up_data = $this->db->query('
+                                                UPDATE `users_training_weeks` SET `utw_date`=?, `utw_date_update`=?
+                                                WHERE `utw_id`=? LIMIT 1', array($new_training_date, $date, $row->utw_id));
+                                                if ($up_data === false)
+                                                {
+                                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                                }
+
+                                            }
+                                        }
+                                        // Изменение дат остальных тренировок
+                                        elseif ($next_workout === true)
+                                        {
+                                            $new_training_date = self::setNewDateOfPrev($training_date, $array_training_days, $date, $row->utw_id);
+
+                                            if (!empty($new_training_date))
+                                            {
+                                                $training_date = $new_training_date;
+                                            }
+                                        }
+                                    }
+                                    // Изменение дат остальных тренировок
+                                    elseif ($next_workout === true)
+                                    {
+                                        $new_training_date = self::setNewDateOfPrev($training_date, $array_training_days, $date, $row->utw_id);
+
+                                        if (!empty($new_training_date))
+                                        {
+                                            $training_date = $new_training_date;
+                                        }
+                                    }
+
+                                    $i++;
+                                }
+                                unset($row);
+                                unset($i);
+                            }
+                            elseif ($sel_workouts === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+                            $sel_workouts->free_result();
+
+                            // Изменение окончания даты тренировок курса
+                            // Дата последней тренировки курса
+                            $sel_last_w_date = $this->db->query('
+                            SELECT `utw_uc_id`, `utw_date` 
+                            FROM `users_training_weeks`
+                            WHERE `utw_duplicate`=0 and `utw_uc_id`=?
+                            ORDER BY `utw_date` DESC LIMIT 1', $course['id']);
+                            if ($sel_last_w_date !== false and 1 == $sel_last_w_date->num_rows())
+                            {
+                                $row = $sel_last_w_date->row();
+                                $last_w_date = $row->utw_date;
+
+                                $up_data = $this->db->query('
+                            UPDATE `users_courses` SET `uc_date_end`=? 
+                            WHERE `uc_id`=? and `uc_date_end`<? LIMIT 1', array($last_w_date, $course['id'], $last_w_date));
+                                if ($up_data === false)
+                                {
+                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                }
+
+                                unset($row);
+                            }
+                            elseif ($sel_last_w_date === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+
+                        }
+
+                        // Выборка расписания тренировок
+                        $sel_workouts = $this->db->query('
+                        SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_duplicate`, `utw_date`
+                        FROM `users_training_weeks`
+                        WHERE `utw_uc_id`=?
+                        ORDER BY `utw_date` ASC', $course['id']);
+                        if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
+                        {
+                            $i = 0;
+                            foreach ($sel_workouts->result() as $row)
                             {
                                 $workouts[$i]['id']        = $row->utw_id;
                                 $workouts[$i]['workout']   = $row->utw_workout;
@@ -5963,114 +5646,558 @@ class Course_model extends CI_Model
 
                                 $i++;
                             }
+                            unset($row);
+                            unset($i);
                         }
-                        unset($row);
-                        unset($i);
+                        elseif ($sel_workouts === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
                     }
-                    elseif ($sel_workouts === false)
+                    // Выборка расписания питания
+                    elseif($course['category'] == 'nutrition')
                     {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
-                }
+                        $sel_nutritions = $this->db->query('
+                        SELECT `un_id`, `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, 
+                          `ml_name`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories` 
+                        FROM `users_nutritions`
+                        LEFT JOIN `meals` ON `ml_id`=`un_ml_id`
+                        WHERE `un_uc_id`=?
+                        ORDER BY `un_date` ASC', $course['id']);
+                        if ($sel_nutritions !== false and 0 < $sel_nutritions->num_rows())
+                        {
+                            $i = 0;
+                            foreach ($sel_nutritions->result() as $row)
+                            {
+                                $nutritions[$i]['id']        = $row->un_id;
+                                $nutritions[$i]['day']       = $row->un_cds_day;
+                                $nutritions[$i]['ingestion'] = $row->un_cds_ci_id;
+                                $nutritions[$i]['meal_id']   = !empty($row->un_ml_id) ? $row->un_ml_id : null;
+                                $nutritions[$i]['meal_name'] = $row->ml_name . ' [БЖУК - ' . $row->ml_proteins . ' '
+                                    . $row->ml_fats .  ' ' . $row->ml_carbohydrates . ' ' . $row->ml_caloreis . ']';
+                                $nutritions[$i]['date']      = $row->un_date;
+                                $nutritions[$i]['done']      = ($row->un_date < $today) ? 1 : 0;
 
-                // СОБЫТИЯ КАЛЕНДАРЯ
-                $course_data  = self::getCourse($bl_course['course_id']);
-                // Флаг доступного тренировочного дня
-                $available_training = false;
-
-                // Паузы в курсе
-                if (!empty($pauses) and !empty($bl_course['days'])) {
-                    foreach ($pauses as $pause) {
-                        // Начало заморозки
-                        $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['start']);
-                        $pause_start = $temp_date->format('Y-m-d');
-                        // Окончание заморозки
-                        $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['end']);
-                        $pause_end = $temp_date->format('Y-m-d');
-
-                        if (empty($events) or $pause_start != $events[$ei - 1]['start']) {
-                            $events[$ei]['start'] = $pause_start;
-                            $events[$ei]['end']   = $pause_end;
-                            $events[$ei]['pause'] = true;
-                            $events[$ei]['done']  = null;
-
-                            $ei++;
+                                $i++;
+                            }
+                            unset($row);
+                            unset($i);
+                        }
+                        elseif ($sel_nutritions === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
                         }
                     }
-                    unset($pause);
-                }
-                // Тренировки
-                if (!empty($workouts) and !empty($bl_course['days']))
-                {
-                    $type_shade = $bl_course['id'] % 2 == 0 ? 'lighter' : '';
-                    $rgb = self::different_shade($color, $type_shade);
-                    $color = $rgb;
 
-                    foreach ($workouts as $workout)
+                    // СОБЫТИЯ КАЛЕНДАРЯ
+                    if($course['display'] == 1)
                     {
-                        // Выполнено ли занятие
-                        $w_done      = $workout['done'];
-                        $w_date      = $workout['date'];
-                        $w_duplicate = $workout['duplicate'];
-                        $w_num       = $workout['workout'];
+                        // Паузы в курсе
+                        if (!empty($pauses) and !empty($course['days'])) {
+                            foreach ($pauses as $pause) {
+                                // Начало заморозки
+                                $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['start']);
+                                $pause_start = $temp_date->format('Y-m-d');
+                                // Окончание заморозки
+                                $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['end']);
+                                $pause_end = $temp_date->format('Y-m-d');
 
-                        $events[$ei]['workout_id'] = $workout['id'];
-                        $events[$ei]['blocked']    = ($bl_course['blocked'] == 1) ? 'true' : 'false';
-                        $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
-                        $events[$ei]['done']       = 'not_done';
-                        $events[$ei]['missed']     = 'not_missed';
+                                if (empty($events) or $pause_start != $events[$ei - 1]['start'])
+                                {
+                                    $events[$ei]['constraint'] = 'pause';
+                                    $events[$ei]['start']      = $pause_start;
+                                    $events[$ei]['end']        = $pause_end;
+                                    $events[$ei]['pause']      = true;
+                                    $events[$ei]['done']       = null;
 
-                        // Только одно видео доступно
-                        if ($w_date < $today or $available_training === true)
-                        {
-                            $events[$ei]['id'] = '';
-                        }
-                        elseif ($w_date == $today and $available_training === false)
-                        {
-                            $events[$ei]['id'] = $course_data['course']['workouts'][$w_num]['video_id'];
-                            $available_training = true;
-                        }
-
-                        $events[$ei]['title'] = ($w_duplicate == 1)
-                            ? 'Пропущенное занятие'
-                            : $course_data['course']['workouts'][$w_num]['video_name'];
-                        $events[$ei]['start'] = !empty($user_training_time)
-                            ? $w_date . 'T' . $user_training_time['from']
-                            : $w_date;
-                        $events[$ei]['end']   = !empty($user_training_time)
-                            ? $w_date . 'T' . $user_training_time['to']
-                            : $w_date;
-
-                        if ($w_done == 1)
-                        {
-                            $events[$ei]['done']  = 'done';
-                            $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
+                                    $ei++;
+                                }
+                            }
+                            unset($pause);
                         }
 
-                        if ($w_duplicate == 1)
+                        // Тренировки
+                        if (!empty($workouts) and !empty($course['days']))
                         {
-                            $events[$ei]['missed'] = 'missed';
-                            $events[$ei]['color'] = 'rgba(255, 159, 137, 0.5)';
+                            // Флаг доступного тренировочного дня
+                            $available_training = false;
+
+                            // Данные курса тренировок
+                            $course_data  = self::getCourse($course['course_id']);
+
+                            $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
+                            $rgb = self::different_shade($color, $type_shade);
+                            $color = $rgb;
+
+                            foreach ($workouts as $workout)
+                            {
+                                // Выполнено ли занятие
+                                $w_done      = $workout['done'];
+                                $w_date      = $workout['date'];
+                                $w_duplicate = $workout['duplicate'];
+                                $w_num       = $workout['workout'];
+
+                                $events[$ei]['constraint'] = 'workout';
+                                $events[$ei]['blocked']    = ($course['blocked'] == 1) ? 'true' : 'false';
+                                $events[$ei]['workout_id'] = $workout['id'];
+                                $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
+                                $events[$ei]['done']       = 'not_done';
+                                $events[$ei]['missed']     = 'not_missed';
+
+                                // Только одно видео доступно
+                                if ($w_date < $today or $available_training === true)
+                                {
+                                    $events[$ei]['id'] = '';
+                                }
+                                elseif ($w_date == $today and $available_training === false)
+                                {
+                                    $events[$ei]['id'] = $course_data['course']['workouts'][$w_num]['video_id'];
+                                    $available_training = true;
+                                }
+
+                                $events[$ei]['title'] = ($w_duplicate == 1)
+                                    ? 'Пропущенное занятие'
+                                    : $course_data['course']['workouts'][$w_num]['video_name'];
+                                $events[$ei]['start'] = !empty($user_training_time)
+                                    ? $w_date . 'T' . $user_training_time['from']
+                                    : $w_date;
+                                $events[$ei]['end']   = !empty($user_training_time)
+                                    ? $w_date . 'T' . $user_training_time['to']
+                                    : $w_date;
+
+                                if ($w_done == 1)
+                                {
+                                    $events[$ei]['done']  = 'done';
+                                    $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
+                                }
+
+                                if ($w_duplicate == 1)
+                                {
+                                    $events[$ei]['missed'] = 'missed';
+                                    $events[$ei]['color'] = 'rgba(255, 159, 137, 0.5)';
+                                }
+
+
+                                $ei++;
+                            }
+                            unset($workout);
                         }
 
+                        // Питание
+                        if(!empty($nutritions))
+                        {
+                            $ingestions        = self::getIngestions();
+                            $course_ingestions = self::getNutritionIngestions($course['course_id']);
+                            $course_first_meal = self::getNutritionIngestionsFirstMeal($course['course_id']);
 
-                        $ei++;
+                            $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
+                            $rgb = self::different_shade($color, $type_shade);
+                            $color = $rgb;
+
+                            foreach ($nutritions as $nutrition)
+                            {
+                                // Выполнено ли занятие
+                                $w_done      = $nutrition['done'];
+                                $w_date      = $nutrition['date'];
+                                $w_day       = $nutrition['day'];
+                                $w_ingestion = $nutrition['ingestion'];
+
+                                $events[$ei]['constraint'] = 'nutrition';
+                                $events[$ei]['blocked']    = ($course['blocked'] == 1) ? 'true' : 'false';
+                                $events[$ei]['id']         = $nutrition['id'];
+                                $events[$ei]['day']        = $w_day;
+                                $events[$ei]['ingestion']  = $w_ingestion;
+                                $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
+                                $events[$ei]['done']       = 'not_done';
+                                $events[$ei]['missed']     = 'not_missed';
+
+                                if(!empty($nutrition['meal_id']))
+                                {
+                                    $events[$ei]['ml_id'] = $nutrition['meal_id'];
+                                }
+                                else
+                                {
+                                    $events[$ei]['ml_id'] = $course_first_meal['meal'][$w_day][$w_ingestion]['id'];
+                                }
+
+                                $ing_id  = (!empty($ingestions)) ? array_search($w_ingestion, $ingestions['ingestions_id']) : false;
+                                $events[$ei]['title'] = ($ing_id !== false) ? $ingestions['ingestions'][$ing_id]['name'] : '';
+
+                                // Дата и время события
+                                $crs_ing_id  = (!empty($course_ingestions)) ? array_search($w_ingestion, $course_ingestions['course_ingestions_id']) : false;
+
+                                $events[$ei]['start'] = ($crs_ing_id !== false)
+                                    ? $w_date . 'T' . $course_ingestions['course_ingestions'][$crs_ing_id]['time_from'] : $w_date;
+                                $events[$ei]['end']   = ($crs_ing_id !== false)
+                                    ? $w_date . 'T' . $course_ingestions['course_ingestions'][$crs_ing_id]['time_to'] : $w_date;
+
+                                if ($w_done == 1)
+                                {
+                                    $events[$ei]['done']  = 'done';
+                                    $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
+                                }
+
+
+                                $ei++;
+                            }
+                            unset($nutrition);
+                        }
                     }
-                    unset($workout);
+
+                    $result['courses'][$key]['pauses']     = !empty($pauses) ? $pauses : array();
+                    $result['courses'][$key]['workouts']   = !empty($workouts) ? $workouts : array();
+                    $result['courses'][$key]['nutritions'] = !empty($nutritions) ? $nutritions : array();
+
+                    $result['events'] = !empty($events) ? array_merge($result['events'], $events) : $result['events'];
                 }
-                // TODO Добавить вывод заблокированных курсов питания
-
-                $result['blocked_courses'][$key]['pauses']   = !empty($pauses) ? $pauses : array();
-                $result['blocked_courses'][$key]['workouts'] = !empty($workouts) ? $workouts : array();
-
-                $result['events'] = !empty($events) ? array_merge($result['events'], $events) : $result['events'];
+                unset($ei);
+                unset($course);
             }
-            unset($ei);
-            unset($course);
+            elseif ($sel_courses === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            // Заблокированные курсы
+            $sel_bl_courses = $this->db->query('
+                SELECT `uc_id`, `uc_course_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked`, 
+                    `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `uc_display`, 
+                    `crs_image`, `crs_name`, `crs_description`, `crs_count_weeks`, `crs_count_days` 
+                FROM `users_courses` 
+                LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
+                WHERE `uc_user_id`=? and `uc_blocked`=1', $user_id);
+
+            if ($sel_bl_courses !== false and 0 < $sel_bl_courses->num_rows())
+            {
+                $tmp_date = new DateTime($date);
+                $today    = $tmp_date->format('Y-m-d');
+                $tmp_date->sub(new DateInterval('P7D'));
+                // Дата неделю назад от текущей даты
+                $week_ago = $tmp_date->format('Y-m-d');
+
+                $i = 0;
+                foreach ($sel_bl_courses->result() as $row)
+                {
+                    $result['blocked_courses'][$i]['id']             = $row->uc_id;
+                    $result['blocked_courses'][$i]['course_id']      = $row->uc_course_id;
+                    $result['blocked_courses'][$i]['image']          = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : '';
+                    $result['blocked_courses'][$i]['name']           = $row->crs_name;
+                    $result['blocked_courses'][$i]['description']    = $row->crs_description;
+                    $result['blocked_courses'][$i]['course_days']    = $row->crs_count_days;
+                    $result['blocked_courses'][$i]['count_weeks']    = $row->crs_count_weeks;
+                    $result['blocked_courses'][$i]['count_days']     = $row->crs_count_days;
+                    $result['blocked_courses'][$i]['user_couch']     = $row->uc_couch_id;
+                    $result['blocked_courses'][$i]['days']           = $row->uc_days != 0 ? str_split($row->uc_days) : null;
+                    $result['blocked_courses'][$i]['date_start']     = $row->uc_date_start;
+                    $result['blocked_courses'][$i]['date_end']       = $row->uc_date_end;
+                    $result['blocked_courses'][$i]['blocked']        = $row->uc_blocked;
+                    $result['blocked_courses'][$i]['blocked_reason'] = $row->uc_blocked_reason;
+                    $result['blocked_courses'][$i]['blocked_date']   = $row->uc_blocked_date;
+                    $result['blocked_courses'][$i]['paused']         = $row->uc_paused;
+                    $result['blocked_courses'][$i]['pause_days']     = $row->uc_pause_days;
+                    $result['blocked_courses'][$i]['display']        = $row->uc_display;
+
+                    $i++;
+                }
+                unset($row);
+                unset($i);
+                $sel_bl_courses->free_result();
+
+                // Тренеры курса
+                foreach ($result['blocked_courses'] as $key => $bl_course)
+                {
+                    $result['blocked_courses'][$key] = array_merge($result['blocked_courses'][$key], self::getCourseCouches($bl_course['course_id']));
+                }
+                unset($bl_course);
+
+                // Паузы в тренировках и тренировки пользователя
+                $ei = 0;
+                $color = array(42, 202, 242);
+                foreach ($result['blocked_courses'] as $key => $bl_course)
+                {
+                    $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+                    $today    = $tmp_date->format('Y-m-d');
+                    $workouts = null;
+                    $pauses   = null;
+                    $events   = null;
+
+                    // !!! Если выбраны тренировочные дни, проверить тренировки, паузы
+                    if (is_array($bl_course['days']))
+                    {
+                        // Массив дней недели тренировок, выбранные пользователем
+                        $array_training_days = $bl_course['days'];
+                        // Флаг начала отсчета дат после заморозки
+                        $set_start_date = true;
+
+                        // Паузы тренировок
+                        $sel_course_pauses = $this->db->query('
+                        SELECT `ucp_pause_start`, `ucp_pause_end` 
+                        FROM `users_courses_pauses`
+                        WHERE `ucp_uc_id`=?', $bl_course['id']);
+                        if ($sel_course_pauses !== false and 0 < $sel_course_pauses->num_rows()) {
+                            $i = 0;
+                            foreach ($sel_course_pauses->result() as $row) {
+                                $pauses[$i]['start'] = $row->ucp_pause_start;
+                                $pauses[$i]['end']   = $row->ucp_pause_end;
+
+                                $i++;
+                            }
+                            unset($row);
+                            unset($i);
+                        }
+                        elseif ($sel_course_pauses === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+
+                        // Выборка расписания тренировок
+                        $sel_workouts = $this->db->query('
+                        SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_duplicate`, `utw_date`, `uc_blocked`
+                        FROM `users_training_weeks`
+                        LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+                        WHERE `utw_uc_id`=?
+                        ORDER BY `utw_date` ASC', $bl_course['id']);
+                        if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
+                        {
+                            $i = 0;
+                            foreach ($sel_workouts->result() as $row)
+                            {
+                                if($row->uc_blocked == 0 or ($row->uc_blocked == 1 and $row->utw_date < $date))
+                                {
+                                    $workouts[$i]['id']        = $row->utw_id;
+                                    $workouts[$i]['workout']   = $row->utw_workout;
+                                    $workouts[$i]['done']      = $row->utw_done;
+                                    $workouts[$i]['duplicate'] = $row->utw_duplicate;
+                                    $workouts[$i]['date']      = $row->utw_date;
+
+                                    $i++;
+                                }
+                            }
+                            unset($row);
+                            unset($i);
+                        }
+                        elseif ($sel_workouts === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+
+                    // СОБЫТИЯ КАЛЕНДАРЯ
+                    if($bl_course['display'] == 1)
+                    {
+                        $course_data  = self::getCourse($bl_course['course_id']);
+                        // Флаг доступного тренировочного дня
+                        $available_training = false;
+
+                        // Паузы в курсе
+                        if (!empty($pauses) and !empty($bl_course['days'])) {
+                            foreach ($pauses as $pause) {
+                                // Начало заморозки
+                                $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['start']);
+                                $pause_start = $temp_date->format('Y-m-d');
+                                // Окончание заморозки
+                                $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['end']);
+                                $pause_end = $temp_date->format('Y-m-d');
+
+                                if (empty($events) or $pause_start != $events[$ei - 1]['start']) {
+                                    $events[$ei]['start'] = $pause_start;
+                                    $events[$ei]['end']   = $pause_end;
+                                    $events[$ei]['pause'] = true;
+                                    $events[$ei]['done']  = null;
+
+                                    $ei++;
+                                }
+                            }
+                            unset($pause);
+                        }
+                        // Тренировки
+                        if (!empty($workouts) and !empty($bl_course['days']))
+                        {
+                            $type_shade = $bl_course['id'] % 2 == 0 ? 'lighter' : '';
+                            $rgb = self::different_shade($color, $type_shade);
+                            $color = $rgb;
+
+                            foreach ($workouts as $workout)
+                            {
+                                // Выполнено ли занятие
+                                $w_done      = $workout['done'];
+                                $w_date      = $workout['date'];
+                                $w_duplicate = $workout['duplicate'];
+                                $w_num       = $workout['workout'];
+
+                                $events[$ei]['workout_id'] = $workout['id'];
+                                $events[$ei]['blocked']    = ($bl_course['blocked'] == 1) ? 'true' : 'false';
+                                $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
+                                $events[$ei]['done']       = 'not_done';
+                                $events[$ei]['missed']     = 'not_missed';
+
+                                // Только одно видео доступно
+                                if ($w_date < $today or $available_training === true)
+                                {
+                                    $events[$ei]['id'] = '';
+                                }
+                                elseif ($w_date == $today and $available_training === false)
+                                {
+                                    $events[$ei]['id'] = $course_data['course']['workouts'][$w_num]['video_id'];
+                                    $available_training = true;
+                                }
+
+                                $events[$ei]['title'] = ($w_duplicate == 1)
+                                    ? 'Пропущенное занятие'
+                                    : $course_data['course']['workouts'][$w_num]['video_name'];
+                                $events[$ei]['start'] = !empty($user_training_time)
+                                    ? $w_date . 'T' . $user_training_time['from']
+                                    : $w_date;
+                                $events[$ei]['end']   = !empty($user_training_time)
+                                    ? $w_date . 'T' . $user_training_time['to']
+                                    : $w_date;
+
+                                if ($w_done == 1)
+                                {
+                                    $events[$ei]['done']  = 'done';
+                                    $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
+                                }
+
+                                if ($w_duplicate == 1)
+                                {
+                                    $events[$ei]['missed'] = 'missed';
+                                    $events[$ei]['color'] = 'rgba(255, 159, 137, 0.5)';
+                                }
+
+
+                                $ei++;
+                            }
+                            unset($workout);
+                        }
+                        // Питание
+                        if(!empty($nutritions))
+                        {
+                            $ingestions        = self::getIngestions();
+                            $course_ingestions = self::getNutritionIngestions($course['course_id']);
+                            $course_first_meal = self::getNutritionIngestionsFirstMeal($course['course_id']);
+
+                            $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
+                            $rgb = self::different_shade($color, $type_shade);
+                            $color = $rgb;
+
+                            foreach ($nutritions as $nutrition)
+                            {
+                                // Выполнено ли занятие
+                                $w_done      = $nutrition['done'];
+                                $w_date      = $nutrition['date'];
+                                $w_day       = $nutrition['day'];
+                                $w_ingestion = $nutrition['ingestion'];
+
+                                $events[$ei]['constraint'] = 'nutrition';
+                                $events[$ei]['blocked']    = ($course['blocked'] == 1) ? 'true' : 'false';
+                                $events[$ei]['id']         = $nutrition['id'];
+                                $events[$ei]['day']        = $w_day;
+                                $events[$ei]['ingestion']  = $w_ingestion;
+                                $events[$ei]['color']      = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
+                                $events[$ei]['done']       = 'not_done';
+                                $events[$ei]['missed']     = 'not_missed';
+
+                                if(!empty($nutrition['meal_id']))
+                                {
+                                    $events[$ei]['ml_id'] = $nutrition['meal_id'];
+                                }
+                                else
+                                {
+                                    $events[$ei]['ml_id'] = $course_first_meal['meal'][$w_day][$w_ingestion]['id'];
+                                }
+
+                                $ing_id  = (!empty($ingestions)) ? array_search($w_ingestion, $ingestions['ingestions_id']) : false;
+                                $events[$ei]['title'] = ($ing_id !== false) ? $ingestions['ingestions'][$ing_id]['name'] : '';
+
+                                // Дата и время события
+                                $crs_ing_id  = (!empty($course_ingestions)) ? array_search($w_ingestion, $course_ingestions['course_ingestions_id']) : false;
+
+                                $events[$ei]['start'] = ($crs_ing_id !== false)
+                                    ? $w_date . 'T' . $course_ingestions['course_ingestions'][$crs_ing_id]['time_from'] : $w_date;
+                                $events[$ei]['end']   = ($crs_ing_id !== false)
+                                    ? $w_date . 'T' . $course_ingestions['course_ingestions'][$crs_ing_id]['time_to'] : $w_date;
+
+                                if ($w_done == 1)
+                                {
+                                    $events[$ei]['done']  = 'done';
+                                    $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
+                                }
+
+
+                                $ei++;
+                            }
+                            unset($nutrition);
+                        }
+
+                    }
+
+                    $result['blocked_courses'][$key]['pauses']   = !empty($pauses) ? $pauses : array();
+                    $result['blocked_courses'][$key]['workouts'] = !empty($workouts) ? $workouts : array();
+                    $result['blocked_courses'][$key]['nutritions'] = !empty($nutritions) ? $nutritions : array();
+
+                    $result['events'] = !empty($events) ? array_merge($result['events'], $events) : $result['events'];
+                }
+                unset($ei);
+                unset($course);
+            }
+            elseif ($sel_bl_courses === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
-        elseif ($sel_bl_courses === false)
+        // Завершенные курсы
+        elseif($courses_type == 'finished')
         {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $tmp_date = new DateTime($date);
+            $today    = $tmp_date->format('Y-m-d');
+
+            $sel_courses = $this->db->query('
+                SELECT `uc_id`, `uc_course_id`, `uc_couch_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked`, 
+                    `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `uc_display`, 
+                    `crs_image`, `crs_name`, `crs_description`, `crs_count_weeks`, `crs_count_days`, `crs_category` 
+                FROM `users_courses` 
+                LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
+                WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`<? and `uc_date_end`<>"0000-00-00"
+                ORDER BY `uc_date_end` DESC', array($user_id, $today));
+
+            if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+            {
+                $i = 0;
+                foreach ($sel_courses->result() as $row)
+                {
+                    $result['courses'][$i]['id']             = $row->uc_id;
+                    $result['courses'][$i]['course_id']      = $row->uc_course_id;
+                    $result['courses'][$i]['category']       = $row->crs_category;
+                    $result['courses'][$i]['image']          = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : '';
+                    $result['courses'][$i]['name']           = $row->crs_name;
+                    $result['courses'][$i]['description']    = $row->crs_description;
+                    $result['courses'][$i]['course_days']    = $row->crs_count_days;
+                    $result['courses'][$i]['count_weeks']    = $row->crs_count_weeks;
+                    $result['courses'][$i]['count_days']     = $row->crs_count_days;
+                    $result['courses'][$i]['user_couch']     = $row->uc_couch_id;
+                    $result['courses'][$i]['days']           = $row->uc_days != 0 ? str_split($row->uc_days) : null;
+                    $result['courses'][$i]['date_start']     = $row->uc_date_start;
+                    $result['courses'][$i]['date_end']       = $row->uc_date_end;
+                    $result['courses'][$i]['blocked']        = $row->uc_blocked;
+                    $result['courses'][$i]['blocked_reason'] = $row->uc_blocked_reason;
+                    $result['courses'][$i]['blocked_date']   = $row->uc_blocked_date;
+                    $result['courses'][$i]['paused']         = $row->uc_paused;
+                    $result['courses'][$i]['pause_days']     = $row->uc_pause_days;
+                    $result['courses'][$i]['display']        = $row->uc_display;
+                    $result['courses'][$i]['finished']       = ($row->uc_date_end !== "0000-00-00" and $row->uc_date_end < $today) ? ' (Завершен)' : '';
+
+                    $i++;
+                }
+                unset($row);
+                unset($i);
+                $sel_courses->free_result();
+
+                // Тренеры курса
+                foreach ($result['courses'] as $key => $course) {
+                    $result['courses'][$key] = array_merge($result['courses'][$key], self::getCourseCouches($course['course_id']));
+                }
+                unset($course);
+            }
         }
 
         return $result;
@@ -7667,6 +7794,99 @@ class Course_model extends CI_Model
         elseif($sel_course === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выбор курса тренировок для отображения в календарь
+     *
+     * @param $user_course_id
+     * @param $display
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function displayUserCourse($user_course_id, $display, $user_id, $date)
+    {
+        $result = false;
+
+        if(is_numeric($user_course_id) and is_numeric($user_id))
+        {
+            $up_data = $this->db->query('
+                UPDATE `users_courses` SET `uc_display`=?, `uc_date_update`=? 
+                WHERE `uc_id`=? and `uc_user_id`=? LIMIT 1', array($display, $date, $user_course_id, $user_id));
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выбор курса питания для отображения в календарь
+     *
+     * @param $user_course_id
+     * @param $display
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function displayUserNutrition($user_course_id, $display, $user_id, $date)
+    {
+        $result = false;
+
+        if(is_numeric($user_course_id) and is_numeric($user_id))
+        {
+            $sel_data = $this->db->query('
+                SELECT `uc_id`, `crs_category` FROM `users_courses`
+                LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
+                WHERE `uc_user_id`=? and `crs_category`="nutrition"', $user_id);
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                $i = 0;
+                foreach($sel_data->result() as $row)
+                {
+                    $nutritions[$i] = $row->uc_id;
+
+                    $i++;
+                }
+                unset($row);
+
+                if(!empty($nutritions))
+                {
+                    $courses = implode(",", $nutritions);
+
+                    // Скрыть все курсы питания из календаря
+                    $up_data = $this->db->query('
+                        UPDATE `users_courses` SET `uc_display`=0, `uc_date_update`=? 
+                        WHERE `uc_user_id`=? and `uc_id` IN (' . $courses . ')', array($date, $user_id));
+                    if($up_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
+                    // Отобразить выбранный курс питания в календаре
+                    $up_data = $this->db->query('
+                        UPDATE `users_courses` SET `uc_display`=1, `uc_date_update`=? 
+                        WHERE `uc_id`=? and `uc_user_id`=? LIMIT 1', array($date, $user_course_id, $user_id));
+                    if($up_data !== false and 1 == $this->db->affected_rows())
+                    {
+                        $result = true;
+                    }
+                    elseif($up_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+            }
         }
 
         return $result;
@@ -9908,6 +10128,7 @@ class Course_model extends CI_Model
         $result['description']      = (!empty($row->ml_description)) ? $row->ml_description : null;
         $result['ingredients_text'] = (!empty($row->ml_ingredients)) ? $row->ml_ingredients : null;
         $result['images']           = (!empty($row->ml_images)) ? array_diff(scandir($row->ml_images), array('..', '.')) : null;
+        $result['image']            = null;
         $result['weight']           = (!empty($row->ml_weight)) ? $row->ml_weight : null;
         $result['proteins']         = (!empty($row->ml_proteins)) ? $row->ml_proteins : null;
         $result['fats']             = (!empty($row->ml_fats)) ? $row->ml_fats : null;
@@ -9916,6 +10137,25 @@ class Course_model extends CI_Model
         $result['blocked']          = (!empty($row->ml_blocked)) ? $row->ml_blocked : null;
         $result['ingredients']      = array();
         $result['meal_videos']      = array();
+
+        // Поиск изображения в папке meals_img
+        if(!empty($row->ml_image))
+        {
+            $meals_img = array_diff(scandir('./meals_img'), array('..', '.'));
+            if(!empty($meals_img))
+            {
+                foreach($meals_img as $img)
+                {
+                    $path_parts = pathinfo($img);
+                    if($path_parts['filename'] == $row->ml_image)
+                    {
+                        $result['image'] = '/meals_img/'.$img;
+                        break;
+                    }
+                }
+                unset($img);
+            }
+        }
 
         return $result;
     }

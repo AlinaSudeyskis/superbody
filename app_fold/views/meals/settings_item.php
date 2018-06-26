@@ -38,28 +38,41 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="video_down_line_name">Файл не выбран</div>
     </div>
 </div>
-<?php if(!empty($meal['images'])): ?>
+<?php if(!empty($meal['images']) or !empty($meal['image'])): ?>
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
         <div class="tov_form_img parent">
-            <?php foreach($meal['images'] as $key => $m_i): ?>
+            <?php if(!empty($meal['images'])):
+                foreach($meal['images'] as $key => $m_i): ?>
+                    <div class="admin_form_foto_wrap">
+                        <div class="admin_form_foto">
+                            <img src="/meals_files/<?php echo $meal['id'] . '/' . $m_i; ?>" alt="" />
+                        </div>
+                        <div class="admin_form_buts parent">
+                            <input type="hidden" name="img_path_<?php echo $key; ?>" value="/meals_files/<?php echo $meal['id'] . '/' . $m_i; ?>">
+                            <input type="submit" name="bt_delete_img[<?php echo $key; ?>]" class="admin_form_del" value="Удалить">
+                        </div>
+                    </div>
+                <?php endforeach;
+                unset($m_i);
+            endif;
+            if(!empty($meal['image'])):?>
                 <div class="admin_form_foto_wrap">
                     <div class="admin_form_foto">
-                        <img src="/meals_files/<?php echo $meal['id'] . '/' . $m_i; ?>" alt="" />
+                        <img src="<?php echo $meal['image']; ?>" alt="" />
                     </div>
                     <div class="admin_form_buts parent">
-                        <input type="hidden" name="img_path_<?php echo $key; ?>" value="/meals_files/<?php echo $meal['id'] . '/' . $m_i; ?>">
-                        <input type="submit" name="bt_delete_img[<?php echo $key; ?>]" class="admin_form_del" value="Удалить">
+                        <input type="hidden" name="img_path" value="<?php echo $meal['image']; ?>">
+                        <input type="submit" name="bt_del_img" class="admin_form_del" value="Удалить">
                     </div>
                 </div>
-            <?php endforeach;
-            unset($m_i); ?>
+            <?php endif;?>
         </div>
     </div>
 <?php endif;?>
 <div class="anketa_form_line parent ml_videos_block">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell">Видео: </div></div>
-    <textarea name="ta_videos_block[]" class="journal_form_textarea admin_form_txt_middle" placeholder="Блок видео"></textarea>
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">URL видео: </div></div>
+    <input name="ta_videos_block[]" class="anketa_form_in anketa_form_in_long" placeholder="URL видео" />
 </div>
 <div class="anketa_form_line parent">
     <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
@@ -72,7 +85,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php foreach($meal['meal_videos'] as $key => $v_data):?>
                 <div class="admin_form_foto_wrap">
                     <div class="admin_form_foto">
-                        <?php echo '<div>' . $v_data . '</div>'; ?>
+                        <iframe width="180" height="108" src="<?php echo $v_data; ?>" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
                     </div>
                     <div class="admin_form_buts parent">
                         <input type="submit" name="bt_delete_ml_video[<?php echo $key; ?>]" class="admin_form_del" value="Удалить">

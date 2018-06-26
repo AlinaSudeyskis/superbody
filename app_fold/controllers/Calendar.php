@@ -38,7 +38,7 @@ class Calendar extends CI_Controller
         $events = array();
 
         $training_time = $this->User_model->getUserTrainingTime($this->user_id); // Тренировочное время пользователя
-        $result        = $this->Course_model->getUserCourses($this->user_id, $this->date, $training_time); // Выборка курсов пользователя
+        $result        = $this->Course_model->getUserCourses($this->user_id, $this->date, 'active', $training_time); // Выборка курсов пользователя
 
 
         // Объединенные данные страница

@@ -230,7 +230,7 @@ $(document).ready(function() {
         var this_block = $(this).parents(".anketa_form_line");
         this_block.before('<div class="anketa_form_line parent ml_videos_block">' +
             '<div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>' +
-                '<textarea name="ta_videos_block[]" class="journal_form_textarea admin_form_txt_middle" placeholder="Блок видео"></textarea>' +
+                '<input name="ta_videos_block[]" class="anketa_form_in anketa_form_in_long" placeholder="URL видео" />' +
             '</div>');
     });
 
@@ -613,6 +613,60 @@ $(document).ready(function() {
                     }
                     else {
                         crs_block.hide();
+                    }
+                }
+            });
+        }
+    });
+
+    /* Выбор курсов тренировок для отображения в календаре */
+    $("input:checkbox.anketa_form_radio").on('click', function(){
+        if ($.isNumeric($(this).val()))
+        {
+            var crs_id = $(this).val(),
+                display = 0;
+
+            if($(this).is(':checked')) display = 1;
+
+            $.ajax({
+                url: '/displayCourse',
+                type: 'post',
+                dataType: 'json',
+                data: {crs_id: crs_id, display: display},
+                complete: function (result) {
+                    var data = result.responseJSON;
+                    if (data.crs_sch !== false) {
+
+                    }
+                    else {
+
+                    }
+                }
+            });
+        }
+    });
+
+    /* Выбор курсов питания для отображения в календаре */
+    $("input[name=r_calendar_nutrition]:radio").on('click', function(){
+        if ($.isNumeric($(this).val()))
+        {
+            var crs_id = $(this).val(),
+                display = 0;
+
+            if($(this).is(':checked')) display = 1;
+
+            $.ajax({
+                url: '/displayNutrition',
+                type: 'post',
+                dataType: 'json',
+                data: {crs_id: crs_id, display: display},
+                complete: function (result) {
+                    var data = result.responseJSON;
+                    if (data.crs_sch !== false) {
+
+                    }
+                    else {
+
                     }
                 }
             });

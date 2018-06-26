@@ -3477,15 +3477,22 @@ tr:first-child > td > .fc-day-grid-event{
     text-transform: uppercase;
     font-weight: 300;
     font-size: 24px;
-    line-height: 28px;
+    line-height: 35px; /*28px*/
+    width: calc(100% - 190px);
 }
 .my_kurs_name a{
     color: #72d0f4;
     text-decoration: none;
+
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 .my_kurs_but{
     float: right;
     text-align: right;
+    line-height: 35px;
 }
 .my_kurs_but a{
     display: inline-block;
@@ -3530,6 +3537,12 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .my_kurs_bot{
     margin-top: 20px;
+}
+.my_kurs_radio_wrap{
+    float: right;
+    padding: 3px 0;
+    margin-left: 10px;
+    margin-top: 3px;
 }
 
 

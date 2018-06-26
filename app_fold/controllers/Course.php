@@ -5348,13 +5348,13 @@ class Course extends CI_Controller
                 $i = 0;
                 foreach($ta_videos as $video)
                 {
-                    $cl_video = htmlspecialchars($video, ENT_QUOTES);
-                    if(!empty($cl_video) and !in_array($cl_video, $db_data['meal_videos']))
+                    $cl_video = filter_var($video, FILTER_VALIDATE_URL, FILTER_FLAG_PATH_REQUIRED);
+                    if($cl_video and !in_array($cl_video, $db_data['meal_videos']))
                     {
                         $insert_videos[$i] = $cl_video;
-                    }
 
-                    $i++;
+                        $i++;
+                    }
                 }
                 unset($ingr_name);
             }
@@ -5426,6 +5426,17 @@ class Course extends CI_Controller
             $path       = './meals_files/' . $meal_id;
 
             if(file_exists($path_image) and dirname($path_image) == $path)
+            {
+                unlink($path_image);
+            }
+
+            header('Location: /administration/meal/' . $meal_id);
+        }
+        elseif($this->input->post('bt_del_img', true))
+        {
+            $path_image = '.' . $this->input->post('img_path', true);
+
+            if(file_exists($path_image))
             {
                 unlink($path_image);
             }
@@ -5655,6 +5666,8 @@ class Course extends CI_Controller
             $name =  mb_substr(stripslashes(strip_tags($xlsData[$i][2])), 0, 255);
             if(!empty($name))
             {
+                // Номер изображения
+                $result['meals'][$i]['image'] = is_numeric($xlsData[$i][0]) ? $xlsData[$i][0] : '';
                 // Тип
                 $result['meals'][$i]['type'] = mb_substr(stripslashes(strip_tags($xlsData[$i][1])), 0, 255);
                 // Наименование
@@ -6444,9 +6457,10 @@ class Course extends CI_Controller
      * Курсы пользователей.
      * Переход на определенную категорию пользователей
      *
+     * @param string $courses_type Активные или завершенные курсы (active|finished)
      * @return void
      */
-    public function usersCourses()
+    public function usersCourses($courses_type = 'active')
     {
         if (!is_numeric($this->user_id)) {
             parent::pageNotFound($this->page_url);
@@ -6455,7 +6469,7 @@ class Course extends CI_Controller
         // Страница пользователя или администратора
         if ($this->session->user['type'] != 2 and $this->session->user['blocked'] == 0)
         {
-            self::userCourses();
+            self::userCourses($courses_type);
         }
         // Страница тренера
         elseif ($this->session->user['type'] == 2 and $this->session->user['blocked'] == 0)
@@ -6471,11 +6485,13 @@ class Course extends CI_Controller
     /**
      * Курсы пользователя
      *
+     * @param string $courses_type Активные или завершенные курсы (active|finished)
      * @return void
      */
-    protected function userCourses()
+    protected function userCourses($courses_type)
     {
-        $course_data = $this->Course_model->getUserCourses($this->user_id, $this->date);
+        $courses_type = ($courses_type == 'finished') ? 'finished' : 'active';
+        $course_data = $this->Course_model->getUserCourses($this->user_id, $this->date, $courses_type);
 
         //$this->Course_model->setNewUserCourse(24, 6, 4, '', '', '', '', $this->date);
 
@@ -6492,8 +6508,9 @@ class Course extends CI_Controller
         $this->Course_model->setNewUserCourse(24, 14, 4, $start_date, $end_date, '', '', $this->date);*/
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Мои курсы';
-        $this->page_data['page_menu'] = 'u_courses';
+        $this->page_data['title']        = 'Мои курсы';
+        $this->page_data['page_menu']    = 'u_courses';
+        $this->page_data['page_submenu'] = $courses_type;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -8521,6 +8538,9 @@ class Course extends CI_Controller
         echo json_encode($display_result, JSON_NUMERIC_CHECK);
     }
 
+    /**
+     * AJAX. Выбор блюда
+     */
     public function selectMeal()
     {
         $un_id     = is_numeric($this->input->post('unid', true)) ? $this->input->post('unid', true) : null;
@@ -8550,5 +8570,41 @@ class Course extends CI_Controller
 
             echo json_encode($display_result, JSON_NUMERIC_CHECK);
         }
+    }
+
+    /**
+     * AJAX. Выбор курса тренировок для отображения в календарь
+     */
+    public function displayUserCourse()
+    {
+        $result = false;
+
+        $user_course_id = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
+        $display        = ($this->input->post('display', true) == 1) ? 1 : 0;
+
+        if(!empty($user_course_id))
+        {
+            $result = $this->Course_model->displayUserCourse($user_course_id, $display, $this->user_id, $this->date);
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * AJAX. Выбор курса тренировок для отображения в календарь
+     */
+    public function displayUserNutrition()
+    {
+        $result = false;
+
+        $user_course_id = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
+        $display        = ($this->input->post('display', true) == 1) ? 1 : 0;
+
+        if(!empty($user_course_id))
+        {
+            $result = $this->Course_model->displayUserNutrition($user_course_id, $display, $this->user_id, $this->date);
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 }
