@@ -447,7 +447,7 @@ class Course extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $courses = $this->Course_model->getCourses();
+        $courses = $this->Course_model->getWorkoutCourses();
 
         if ($this->input->post('bt_save_video', true))
         {
@@ -545,7 +545,7 @@ class Course extends CI_Controller
         $video_id = (is_numeric($video_id)) ? $video_id : '';
 
         $video   = $this->Course_model->getVideo($video_id);
-        $courses = $this->Course_model->getCourses();
+        $courses = $this->Course_model->getWorkoutCourses();
         $result  = array_merge($video, $courses);
 
         if ($this->input->post('bt_save_video', true) and !empty($video_id))
@@ -675,7 +675,7 @@ class Course extends CI_Controller
         $video_id  = (is_numeric($video_id)) ? $video_id : '';
 
         $video    = $this->Course_model->getCourseVideoData($course_id, $video_id);
-        $courses  = $this->Course_model->getCourses();
+        $courses  = $this->Course_model->getWorkoutCourses();
         $course   = $this->Course_model->getShortCourse($course_id);
         $schedule = $this->Course_model->getCourseSchedules($course_id);
         $result   = array_merge($video, $courses, $course, $schedule);

@@ -303,6 +303,23 @@ $(document).ready(function() {
             $('#weight').keyup(function () {
                 calcBmiBmr();
             });
+            $('select[name=b_day], select[name=b_mon], select[name=b_year]').change(function () {
+                var b_day = $('select[name=b_day]').val(),
+                    b_mon = $('select[name=b_mon]').val(),
+                    b_year = $('select[name=b_year]').val();
+                if(b_day != '' && b_mon != '' && b_year != '')
+                {
+                    $('#birthday').val(b_day + '.' + b_mon + '.' + b_year);
+                    calcBmiBmr();
+                }
+            });
+            $('input[name=gender]').click(function () {
+                if($(this).val() == 1) $('#gender_male').attr('checked', false);
+                else $('#gender_female').attr('checked', false);
+
+                $(this).attr('checked', 'checked');
+                calcBmiBmr();
+            });
 
             // Загрузка видео и поста к нему
             $(function () {
@@ -1556,7 +1573,7 @@ $(document).ready(function() {
                 var bmr,
                     age = birthDateToAge(birthday);
 
-                if ($('input[id=gender_female]:checked')) {
+                if ($('input[id=gender_female]').is(':checked')) {
                     if (round_bmi < 30) {
                         bmr = 655 + 9.6 * weight + 1.8 * height - 4.7 * age;
                     } else {

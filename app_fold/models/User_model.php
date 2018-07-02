@@ -528,8 +528,8 @@ class User_model extends CI_Model
     public function getQuestionnaireData($user_id)
     {
         // Массив возвращаемых значений
-        $result = array (
-            'user_gender' => '',
+        $result = array ('user_data' => array(
+            'user_gender_eng' => '',
             'user_birthday' => '',
             'user_height' => '',
             'user_bmi' => '',
@@ -548,7 +548,7 @@ class User_model extends CI_Model
             'user_water_consumed' => '',
             'user_fluid_intake' => '',
             'user_bad_habits' => '',
-            'user_weight' => ''
+            'user_weight' => '')
         );
 
         $sel_data = $this->db->query('
@@ -571,30 +571,30 @@ class User_model extends CI_Model
                 $b_mon  = $date->format('m');
                 $b_year = $date->format('Y');
 
-                $result['user_b_day']  = $b_day;
-                $result['user_b_mon']  = $b_mon;
-                $result['user_b_year'] = $b_year;
+                $result['user_data']['user_b_day']  = $b_day;
+                $result['user_data']['user_b_mon']  = $b_mon;
+                $result['user_data']['user_b_year'] = $b_year;
             }
 
-            $result['user_gender']             = $row->user_gender;
-            $result['user_birthday']           = ($birthday != '0000-00-00') ? $birthday : '';
-            $result['user_height']             = ($row->user_height != 0) ? $row->user_height : '';
-            $result['user_bmi']                = $row->user_bmi;
-            $result['user_bmr']                = $row->user_bmr;
-            $result['user_physical_condition'] = $row->user_physical_condition;
-            $result['user_pulse']              = ($row->user_pulse != 0) ? $row->user_pulse : '';
-            $result['user_sports_history']     = $row->user_sports_history;
-            $result['user_injuries_diseases']  = $row->user_injuries_diseases;
-            $result['user_training_goal']      = $row->user_training_goal;
-            $result['user_waking_from']        = ($row->user_waking_from != '00:00:00') ? mb_substr($row->user_waking_from, 0, 5) : '';
-            $result['user_waking_to']          = ($row->user_waking_to != '00:00:00') ? mb_substr($row->user_waking_to, 0, 5) : '';
-            $result['user_training_time_from'] = ($row->user_training_time_from != '00:00:00') ? mb_substr($row->user_training_time_from, 0, 5) : '';
-            $result['user_training_time_to']   = ($row->user_training_time_to != '00:00:00') ? mb_substr($row->user_training_time_to, 0, 5) : '';
-            $result['user_num_main_meals']     = ($row->user_num_main_meals != 0) ? $row->user_num_main_meals : '';
-            $result['user_num_snacks']         = ($row->user_num_snacks != 0) ? $row->user_num_snacks : '';
-            $result['user_water_consumed']     = ($row->user_amount_water_consumed != 0) ? $row->user_amount_water_consumed : '';
-            $result['user_fluid_intake']       = ($row->user_fluid_intake != 0) ? $row->user_fluid_intake : '';
-            $result['user_bad_habits']         = $row->user_bad_habits;
+            $result['user_data']['user_gender_eng']         = $row->user_gender;
+            $result['user_data']['user_birthday']           = ($birthday != '0000-00-00') ? $birthday : '';
+            $result['user_data']['user_height']             = ($row->user_height != 0) ? $row->user_height : '';
+            $result['user_data']['user_bmi']                = $row->user_bmi;
+            $result['user_data']['user_bmr']                = $row->user_bmr;
+            $result['user_data']['user_physical_condition'] = $row->user_physical_condition;
+            $result['user_data']['user_pulse']              = ($row->user_pulse != 0) ? $row->user_pulse : '';
+            $result['user_data']['user_sports_history']     = $row->user_sports_history;
+            $result['user_data']['user_injuries_diseases']  = $row->user_injuries_diseases;
+            $result['user_data']['user_training_goal']      = $row->user_training_goal;
+            $result['user_data']['user_waking_from']        = ($row->user_waking_from != '00:00:00') ? mb_substr($row->user_waking_from, 0, 5) : '';
+            $result['user_data']['user_waking_to']          = ($row->user_waking_to != '00:00:00') ? mb_substr($row->user_waking_to, 0, 5) : '';
+            $result['user_data']['user_training_time_from'] = ($row->user_training_time_from != '00:00:00') ? mb_substr($row->user_training_time_from, 0, 5) : '';
+            $result['user_data']['user_training_time_to']   = ($row->user_training_time_to != '00:00:00') ? mb_substr($row->user_training_time_to, 0, 5) : '';
+            $result['user_data']['user_num_main_meals']     = ($row->user_num_main_meals != 0) ? $row->user_num_main_meals : '';
+            $result['user_data']['user_num_snacks']         = ($row->user_num_snacks != 0) ? $row->user_num_snacks : '';
+            $result['user_data']['user_water_consumed']     = ($row->user_amount_water_consumed != 0) ? $row->user_amount_water_consumed : '';
+            $result['user_data']['user_fluid_intake']       = ($row->user_fluid_intake != 0) ? $row->user_fluid_intake : '';
+            $result['user_data']['user_bad_habits']         = $row->user_bad_habits;
 
             $bmi_txt = '';
             if ($row->user_bmi <= 18.8) {
@@ -616,7 +616,7 @@ class User_model extends CI_Model
                 $bmi_txt = '(ожирение высокой степени)';
             }
 
-            $result['user_bmi_txt'] = $bmi_txt;
+            $result['user_data']['user_bmi_txt'] = $bmi_txt;
 
             $sel_anth_data = $this->db->query('
                 SELECT `user_weight` 
@@ -629,7 +629,7 @@ class User_model extends CI_Model
             {
                 $row = $sel_anth_data->row();
 
-                $result['user_weight'] = $row->user_weight;
+                $result['user_data']['user_weight'] = $row->user_weight;
             }
             elseif ($sel_anth_data === false)
             {
@@ -684,7 +684,7 @@ class User_model extends CI_Model
     public function getLastAnthropometricData($user_id)
     {
         // Массив возвращаемых значений
-        $result = array (
+        $result = array ('user_data' => array(
             'user_weight' => '',
             'user_chest' => '',
             'user_waist' => '',
@@ -693,7 +693,7 @@ class User_model extends CI_Model
             'user_right_hip' => '',
             'user_left_hip' => '',
             'user_right_biceps' => '',
-            'user_left_biceps' => ''
+            'user_left_biceps' => '')
         );
 
         $sel_anth_data = $this->db->query('
@@ -709,15 +709,15 @@ class User_model extends CI_Model
         {
             $row = $sel_anth_data->row();
 
-            $result['user_weight']       = $row->user_weight;
-            $result['user_chest']        = $row->user_circumference_chest;
-            $result['user_waist']        = $row->user_circumference_waist;
-            $result['user_buttocks']     = $row->user_circumference_buttocks;
-            $result['user_waist_sides']  = $row->user_circumference_waist_sides;
-            $result['user_right_hip']    = $row->user_circumference_right_hip;
-            $result['user_left_hip']     = $row->user_circumference_left_hip;
-            $result['user_right_biceps'] = $row->user_circumference_right_biceps;
-            $result['user_left_biceps']  = $row->user_circumference_left_biceps;
+            $result['user_data']['user_weight']       = $row->user_weight;
+            $result['user_data']['user_chest']        = $row->user_circumference_chest;
+            $result['user_data']['user_waist']        = $row->user_circumference_waist;
+            $result['user_data']['user_buttocks']     = $row->user_circumference_buttocks;
+            $result['user_data']['user_waist_sides']  = $row->user_circumference_waist_sides;
+            $result['user_data']['user_right_hip']    = $row->user_circumference_right_hip;
+            $result['user_data']['user_left_hip']     = $row->user_circumference_left_hip;
+            $result['user_data']['user_right_biceps'] = $row->user_circumference_right_biceps;
+            $result['user_data']['user_left_biceps']  = $row->user_circumference_left_biceps;
         }
         elseif ($sel_anth_data === false)
         {
@@ -1079,6 +1079,8 @@ class User_model extends CI_Model
             $result['birthday'] = $row->user_birthday;
             $result['bmi']      = $row->user_bmi;
             $result['bmr']      = $row->user_bmr;
+
+            $bmi_txt = '';
 
             if ($row->user_bmi <= 18.8) {
                 $bmi_txt = '(дефицит массы тела)';

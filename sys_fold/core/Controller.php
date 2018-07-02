@@ -868,14 +868,14 @@ class CI_Controller {
         $bmr = '';
 
         // Индекс массы тела
-        if (!empty($db_height) and !empty($db_weight) and !empty($weight) and $db_weight != $weight)
+        if (!empty($db_height) and !empty($db_weight))
         {
-            $bmi = $weight / pow(($db_height/100), 2);
+            $bmi = $db_weight / pow(($db_height/100), 2);
             $bmi = number_format($bmi, 2, '.', '');
         }
 
         // Базальная скорость обмена
-        if (!empty($db_height) and !empty($db_weight) and !empty($weight) and !empty($db_birthday) and $db_weight != $weight)
+        if (!empty($db_height) and !empty($db_weight) and !empty($db_birthday))
         {
             $datetime = new DateTime($db_birthday);
             $interval = $datetime->diff(new DateTime(date("d-m-Y")));
@@ -885,29 +885,29 @@ class CI_Controller {
             {
                 if (30 > $bmi)
                 {
-                    $bmr = 655 + 9.6*$weight + 1.8*$db_height - 4.7*$age;
+                    $bmr = 655 + 9.6*$db_weight + 1.8*$db_height - 4.7*$age;
                 }
                 else
                 {
-                    $bmr = 2.4*$weight + 9*$db_height - 4.7*$age - 65;
+                    $bmr = 2.4*$db_weight + 9*$db_height - 4.7*$age - 65;
                 }
             }
             else
             {
                 if (30 > $bmi)
                 {
-                    $bmr = 66.5 + 13.7*$weight + 5*$db_height - 6.8*$age;
+                    $bmr = 66.5 + 13.7*$db_weight + 5*$db_height - 6.8*$age;
                 }
                 else
                 {
-                    $bmr = 3.4*$weight + 15.3*$db_height - 6.8*$age - 691;
+                    $bmr = 3.4*$db_weight + 15.3*$db_height - 6.8*$age - 691;
                 }
             }
             $bmr = round($bmr);
         }
 
         // Сохранение данных В БД
-        if (!empty($bmi) and !empty($bmr) and $db_bmi != $bmi and $db_bmr != $bmr)
+        if ($db_bmi != $bmi or $db_bmr != $bmr)
         {
             $this->User_model->setBmiBmr($user_id, $bmi, $bmr, $this->date);
         }

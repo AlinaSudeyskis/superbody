@@ -736,7 +736,8 @@ class User extends CI_Controller
      */
     public function progress()
     {
-        if (!is_numeric($this->user_id)) {
+        if (!is_numeric($this->user_id))
+        {
             parent::pageNotFound($this->page_url);
         }
         $result = $this->User_model->getAnthropometricData($this->user_id, $this->date); // Антропометрические данные пользователя
@@ -761,17 +762,14 @@ class User extends CI_Controller
     public function userQuestionnaire()
     {
         // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id)) {
-            header('Location: /login');
+        if (empty($this->user_id))
+        {
+            parent::pageNotFound($this->page_url);
         }
 
-        /**
-         * @var array Данные анкеты пользователя
-         */
-        $user_quest_data = array();
-
         // Валидация и сохранение данных анкеты в БД
-        if ($this->input->post('bt_save_anthrop', true)) {
+        if ($this->input->post('bt_save_anthrop', true))
+        {
             // Антропометрические данные
             // Вес
             $weight = is_numeric($this->input->post('weight', true)) ? $this->input->post('weight', true) : '';
@@ -835,17 +833,18 @@ class User extends CI_Controller
 
             header('Location: /questionnaire');
         }
-        if ($this->input->post('bt_save_physical_param', true)) {
+        if ($this->input->post('bt_save_physical_param', true))
+        {
             // Пол
             $gender = (0 == $this->input->post('gender', true)) ? 'male' : 'female';
 
             // Дата рождения
-            $b_day  = is_numeric($this->input->post('b_day', true)) ? $this->input->post('b_day', true) : '';
-            $b_mon  = is_numeric($this->input->post('b_mon', true)) ? $this->input->post('b_mon', true) : '';
-            $b_year = is_numeric($this->input->post('b_year', true)) ? $this->input->post('b_year', true) : '';
-            $birthday = $b_day . '.' . $b_mon . '.' . $b_year;
-            $date = DateTime::createFromFormat('d.m.Y', $birthday);
-            $birthday = ($date !== false) ? $birthday : '';
+            $b_day       = is_numeric($this->input->post('b_day', true)) ? $this->input->post('b_day', true) : '';
+            $b_mon       = is_numeric($this->input->post('b_mon', true)) ? $this->input->post('b_mon', true) : '';
+            $b_year      = is_numeric($this->input->post('b_year', true)) ? $this->input->post('b_year', true) : '';
+            $birthday    = $b_day . '.' . $b_mon . '.' . $b_year;
+            $date        = DateTime::createFromFormat('d.m.Y', $birthday);
+            $birthday    = ($date !== false) ? $birthday : '';
             $db_birthday = ($date !== false) ? $date->format('Y-m-d') : '';
 
             // Рост
@@ -969,29 +968,20 @@ class User extends CI_Controller
         }
 
         // Получение данных анкеты из БД
-        if (!empty($this->user_id)) {
-            $user_quest_data = $this->User_model->getQuestionnaireData($this->user_id);
-            $user_anthrop_data = $this->User_model->getLastAnthropometricData($this->user_id);
-            $user_quest_data = array_merge($user_quest_data, $user_anthrop_data);
-            $user_quest_data['user_name'] = $this->session->user['name'];
-        }
+        $user_quest_data     = $this->User_model->getQuestionnaireData($this->user_id);
+        $user_anthrop_data   = $this->User_model->getLastAnthropometricData($this->user_id);
+        $result['user_data'] = array_merge($user_quest_data['user_data'], $user_anthrop_data['user_data']);
+        $result['user_name'] = $this->session->user['name'];
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Анкета';
+        $this->page_data['title']     = 'Анкета';
         $this->page_data['page_menu'] = 'questionnaire';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-
-        if (!empty($this->user_id)) {
-            // Вывод страницы настроек пользователя
-            $this->load->view('user/questionnaire/questionnaire', $user_quest_data);
-        } else {
-            // Пользователь не найден
-            $this->session->set_tempdata('message', 136, 60);
-        }
-
+        // Вывод страницы настроек пользователя
+        $this->load->view('user/questionnaire/questionnaire', $result);
         $this->load->view('footer/footer');
     }
 
