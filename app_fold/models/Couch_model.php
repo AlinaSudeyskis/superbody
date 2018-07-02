@@ -125,7 +125,7 @@ class Couch_model extends CI_Model
             LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
             WHERE `users`.`user_id`=? and `user_type`=2 LIMIT 1', $user_id);
 
-        if (1 == $sel_admin->num_rows())
+        if ($sel_admin !== false and 1 == $sel_admin->num_rows())
         {
             $row = $sel_admin->row();
 
@@ -180,6 +180,10 @@ class Couch_model extends CI_Model
             $result['user_data']['user_titles_awards'] = $row->cd_titles_awards;
             $result['user_data']['user_about']         = !empty($row->cd_about) ? parent::showBBcodes($row->cd_about) : '';
         }
+        elseif($sel_admin === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
 
         return $result;
     }
@@ -196,15 +200,23 @@ class Couch_model extends CI_Model
      */
     public function setCouchSettings($user_id, $user_email, $user_name, $path_image, $date)
     {
-        $this->db->query('
+        $up_data = $this->db->query('
             UPDATE `users` 
             SET `user_email`=?, `user_name`=?, `user_image`=?, `user_date_update`=?
             WHERE `user_id`=? and `user_type`=2 LIMIT 1', array($user_email, $user_name, $path_image, $date, $user_id));
 
-        if (1 == $this->db->affected_rows()) {
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
             $this->db->query('');
             return true;
-        } else {
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
             return false;
         }
     }
@@ -220,14 +232,22 @@ class Couch_model extends CI_Model
      */
     public function setCouchGenderBd($user_id, $gender, $birthday, $date)
     {
-        $this->db->query('
+        $up_data = $this->db->query('
             UPDATE `questionnaire` 
             SET `user_gender`=?, `user_birthday`=?, `user_date_update`=?
             WHERE `user_id`=? LIMIT 1', array($gender, $birthday, $date, $user_id));
 
-        if (1 == $this->db->affected_rows()) {
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
             return true;
-        } else {
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
             return false;
         }
     }
@@ -237,7 +257,7 @@ class Couch_model extends CI_Model
      *
      * @param int $user_id ID тренера
      * @param string $special Специализация
-     * @param int experience Стаж работы
+     * @param int $experience Стаж работы
      * @param string $title_awards Титулы и награды
      * @param string $about О себе
      * @param string $date Текущая дата
@@ -245,14 +265,22 @@ class Couch_model extends CI_Model
      */
     public function setCouchData($user_id, $special, $experience, $title_awards, $about, $date)
     {
-        $this->db->query('
+        $up_data = $this->db->query('
             UPDATE `couch_data` 
             SET `cd_specialization`=?, `cd_experience`=?, `cd_titles_awards`=?, `cd_about`=?, `cd_date_update`=?
             WHERE `cd_u_id`=? LIMIT 1', array($special, $experience, $title_awards, $about, $date, $user_id));
 
-        if (1 == $this->db->affected_rows()) {
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
             return true;
-        } else {
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
             return false;
         }
     }
@@ -293,6 +321,10 @@ class Couch_model extends CI_Model
                 $i++;
             }
         }
+        elseif($sel_couches === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
 
         return $result;
     }
@@ -306,14 +338,22 @@ class Couch_model extends CI_Model
      */
     public function blockCouch($user_id, $date)
     {
-        $this->db->query('
+        $up_data = $this->db->query('
             UPDATE `users` 
             SET `user_blocked`=1, `user_date_update`=? 
             WHERE `user_id`=? and `user_type`=2 LIMIT 1', array($date, $user_id));
 
-        if (1 == $this->db->affected_rows()) {
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
             return true;
-        } else {
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
             return false;
         }
     }
@@ -327,14 +367,22 @@ class Couch_model extends CI_Model
      */
     public function unblockCouch($user_id, $date)
     {
-        $this->db->query('
+        $up_data = $this->db->query('
             UPDATE `users` 
             SET `user_blocked`=0, `user_date_update`=? 
             WHERE `user_id`=? and `user_type`=2 LIMIT 1', array($date, $user_id));
 
-        if (1 == $this->db->affected_rows()) {
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
             return true;
-        } else {
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
             return false;
         }
     }
@@ -352,7 +400,8 @@ class Couch_model extends CI_Model
         $sel_portfolio = $this->db->query('
             SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `couch_portfolio` WHERE `cp_u_id`=?', $user_id);
 
-        if (0 < $sel_portfolio->num_rows()) {
+        if ($sel_portfolio !== false and 0 < $sel_portfolio->num_rows())
+        {
             $i = 0;
             foreach ($sel_portfolio->result() as $row)
             {
@@ -367,6 +416,11 @@ class Couch_model extends CI_Model
             }
             unset($row);
         }
+        elseif($sel_portfolio === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
         return $result;
     }
 
@@ -387,13 +441,18 @@ class Couch_model extends CI_Model
             WHERE `cp_u_id`=? and `cp_id`=?
             LIMIT 1', array($user_id, $post_id));
 
-        if (1 == $sel_post->num_rows()) {
+        if ($sel_post !== false and 1 == $sel_post->num_rows())
+        {
             $row = $sel_post->row();
 
             $result['post']['id']    = $row->cp_id;
             $result['post']['title'] = !empty($row->cp_image_title) ? $row->cp_image_title : '';
             $result['post']['path']  = !empty($row->cp_image_path) ? mb_substr($row->cp_image_path, 1) : '';
             $result['post']['desc']  = $row->cp_image_description;
+        }
+        elseif($sel_post === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -415,13 +474,18 @@ class Couch_model extends CI_Model
             WHERE `cp_id`=?
             LIMIT 1', array($post_id));
 
-        if (1 == $sel_post->num_rows()) {
+        if ($sel_post !== false and 1 == $sel_post->num_rows())
+        {
             $row = $sel_post->row();
 
             $result['post']['id']    = $row->cp_id;
             $result['post']['title'] = !empty($row->cp_image_title) ? $row->cp_image_title : '';
             $result['post']['path']  = !empty($row->cp_image_path) ? mb_substr($row->cp_image_path, 1) : '';
             $result['post']['desc']  = $row->cp_image_description;
+        }
+        elseif($sel_post === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -439,13 +503,21 @@ class Couch_model extends CI_Model
      */
     public function setCouchPortfolioPost($user_id, $image, $title, $description, $date)
     {
-        $this->db->query('
+        $up_data = $this->db->query('
             INSERT INTO `couch_portfolio` (`cp_u_id`, `cp_image_path`, `cp_image_title`, `cp_image_description`, `cp_date_add`, `cp_date_update`)
             VALUES (?, ?, ?, ?, ?, ?)', array($user_id, $image, $title, $description, $date, $date));
 
-        if (1 == $this->db->affected_rows()) {
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
             return $this->db->insert_id();
-        } else {
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
             return false;
         }
     }
@@ -465,28 +537,44 @@ class Couch_model extends CI_Model
     {
         $result = array('image' => '', 'data' => '');
 
-        if (!empty($image)) {
-            $this->db->query('
+        if (!empty($image))
+        {
+            $up_data = $this->db->query('
                 UPDATE `couch_portfolio`
                 SET `cp_image_path`=?, `cp_date_update`=?
                 WHERE `cp_u_id`=? and `cp_id`=? LIMIT 1', array($image, $date, $user_id, $post_id));
 
-            if (1 == $this->db->affected_rows()) {
+            if ($up_data !== false and 1 == $this->db->affected_rows())
+            {
                 $result['image'] = true;
-            } else {
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            else
+            {
                 $result['image'] = false;
             }
         }
 
-        if (!empty($title) and !empty($description)) {
-            $this->db->query('
+        if (!empty($title) and !empty($description))
+        {
+            $up_data = $this->db->query('
                 UPDATE `couch_portfolio`
                 SET `cp_image_title`=?, `cp_image_description`=?, `cp_date_update`=?
                 WHERE `cp_u_id`=? and `cp_id`=? LIMIT 1', array($title, $description, $date, $user_id, $post_id));
 
-            if (1 == $this->db->affected_rows()) {
+            if ($up_data !== false and 1 == $this->db->affected_rows())
+            {
                 $result['data'] = true;
-            } else {
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            else
+            {
                 $result['data'] = false;
             }
         }
@@ -503,12 +591,19 @@ class Couch_model extends CI_Model
      */
     public function deleteCouchPortfolioPost($user_id, $post_id)
     {
+        $up_data = $this->db->query('DELETE FROM `couch_portfolio` WHERE `cp_u_id`=? and `cp_id`=? LIMIT 1', array($user_id, $post_id));
 
-        $this->db->query('DELETE FROM `couch_portfolio` WHERE `cp_u_id`=? and `cp_id`=? LIMIT 1', array($user_id, $post_id));
-
-        if (1 == $this->db->affected_rows()) {
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
             return true;
-        } else {
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
             return false;
         }
     }
@@ -531,9 +626,11 @@ class Couch_model extends CI_Model
             LEFT JOIN `users` ON `uc_user_id`=`user_id`
             WHERE `uc_couch_id`=?', $user_id);
 
-        if (0 < $sel_users->num_rows()) {
+        if ($sel_users !== false and 0 < $sel_users->num_rows())
+        {
             $i = 0;
-            foreach ($sel_users->result() as $row) {
+            foreach ($sel_users->result() as $row)
+            {
                 $result['clients'][$i]['id']    = $row->uc_user_id;
                 $result['clients'][$i]['uc_id'] = $row->uc_id;
 
@@ -554,18 +651,21 @@ class Couch_model extends CI_Model
             }
             unset($row);
 
-            if (!empty($result['clients'])) {
+            if (!empty($result['clients']))
+            {
                 // Общее кол-во клиентов
                 $result['number_clients'] = parent::endingWords(count($result['clients']), 'клиент', 'клиентов', 'клиента');
 
-                foreach ($result['clients'] as $key => $client){
+                foreach ($result['clients'] as $key => $client)
+                {
                     // Выборка пропущенных занятий клиента
                     $sel_missed_workouts = $this->db->query('
                         SELECT COUNT(`utw_done`) as `missed_workouts`, `utw_date` 
                         FROM `users_training_weeks`
                         WHERE `utw_uc_id`=?', $client['uc_id']);
 
-                    if (1 == $sel_missed_workouts->num_rows()) {
+                    if ($sel_missed_workouts !== false and 1 == $sel_missed_workouts->num_rows())
+                    {
                         $row = $sel_missed_workouts->row();
 
                         $result['clients'][$key]['missed_workouts'] = parent::endingWords($row->missed_workouts, '</span> пропущенное занятие.', '</span> пропущенных занятий.');
@@ -574,6 +674,10 @@ class Couch_model extends CI_Model
                         $missed_date = ($row->utw_date != '0000-00-00' and $date !== false) ? $date->format('d.m.Y') : '';
 
                         $result['clients'][$key]['missed_date'] = $missed_date;
+                    }
+                    elseif($sel_missed_workouts === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
 
                     $sel_missed_workouts->free_result();
@@ -584,7 +688,8 @@ class Couch_model extends CI_Model
                         FROM `courses` 
                         WHERE `crs_id`=? LIMIT 1', $client['course_id']);
 
-                    if (1 == $sel_course->num_rows()) {
+                    if ($sel_course !== false and 1 == $sel_course->num_rows())
+                    {
                         $row = $sel_course->row();
                         // Общее кол-во тренировок курса
                         $total_workouts = $row->crs_count_weeks * $row->crs_count_days;
@@ -595,15 +700,28 @@ class Couch_model extends CI_Model
                             FROM `users_training_weeks`
                             WHERE `utw_uc_id`=? and `utw_duplicate`=0 and `utw_done`=1', $client['uc_id']);
 
-                        if (1 == $sel_done_workouts->num_rows()) {
+                        if ($sel_done_workouts !== false and 1 == $sel_done_workouts->num_rows())
+                        {
                             $row = $sel_done_workouts->row();
 
                             $result['clients'][$key]['workouts_done'] = ($row->workouts_done * 100) / $total_workouts;
                         }
+                        elseif($sel_done_workouts === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+                    elseif($sel_course === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
                 unset($client);
             }
+        }
+        elseif($sel_users === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -619,24 +737,37 @@ class Couch_model extends CI_Model
     {
         $result = false;
 
-        if (is_numeric($search_text)) {
+        if (is_numeric($search_text))
+        {
             $sel_couches = $this->db->query('
                 SELECT `user_id`, `user_name`, `user_email`, `user_image` 
                 FROM `users` 
                 WHERE `user_id`=? and `user_type`=2 LIMIT 1',
                     $search_text);
-        } else {
+            if($sel_couches === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+        else
+        {
             $search_text = $search_text.'*';
 
             $sel_couches = $this->db->query('
-            SELECT `user_id`, `user_name`, `user_email`, `user_image` 
-            FROM `users` 
-            WHERE `user_type`=2 and MATCH (`user_email`, `user_name`) AGAINST (? IN BOOLEAN MODE)',
-                $search_text);
+                SELECT `user_id`, `user_name`, `user_email`, `user_image` 
+                FROM `users` 
+                WHERE `user_type`=2 and MATCH (`user_email`, `user_name`) AGAINST (? IN BOOLEAN MODE)',
+                    $search_text);
+            if($sel_couches === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
 
-        if (0 < $sel_couches->num_rows()) {
-            foreach ($sel_couches->result() as $row) {
+        if (0 < $sel_couches->num_rows())
+        {
+            foreach ($sel_couches->result() as $row)
+            {
                 $user_name = !empty($row->user_name) ? $row->user_name : $row->user_email ;
                 $user_image = !empty($row->user_image) ? '<img src="' . mb_substr($row->user_image, 1) . '" alt="">' : '' ;
 
@@ -649,7 +780,8 @@ class Couch_model extends CI_Model
             }
             unset($row);
         }
-        else {
+        else
+        {
             $result = '<div class="not_found">Тренер не найден</div>';
         }
 
@@ -712,9 +844,11 @@ class Couch_model extends CI_Model
               ON `uc_user_id`=`user_id`
             WHERE `uc_couch_id`=?', $user_id);
 
-        if (0 < $sel_users->num_rows()) {
+        if ($sel_users !== false and 0 < $sel_users->num_rows())
+        {
             $i = 0;
-            foreach ($sel_users->result() as $row) {
+            foreach ($sel_users->result() as $row)
+            {
                 $result[$i]['id']    = $row->uc_user_id;
                 $result[$i]['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
                 $result[$i]['image'] = $row->user_image;
@@ -722,6 +856,10 @@ class Couch_model extends CI_Model
                 $i++;
             }
             unset($row);
+        }
+        elseif($sel_users === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -742,7 +880,7 @@ class Couch_model extends CI_Model
             FROM `users_courses`
             WHERE `uc_user_id`=?', $user_id);
 
-        if (0 < $sel_couches->num_rows()) {
+        if ($sel_couches !== false and 0 < $sel_couches->num_rows()) {
             $i = 0;
             foreach ($sel_couches->result() as $row) {
                 $result['id'][$i] = $row->uc_couch_id;
@@ -750,6 +888,10 @@ class Couch_model extends CI_Model
                 $i++;
             }
             unset($row);
+        }
+        elseif($sel_couches === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -770,7 +912,7 @@ class Couch_model extends CI_Model
             FROM `users_courses`
             WHERE `uc_couch_id`=?', $user_id);
 
-        if (0 < $sel_users->num_rows()) {
+        if ($sel_users !== false and 0 < $sel_users->num_rows()) {
             $i = 0;
             foreach ($sel_users->result() as $row) {
                 $result['id'][$i] = $row->uc_user_id;
@@ -778,6 +920,10 @@ class Couch_model extends CI_Model
                 $i++;
             }
             unset($row);
+        }
+        elseif($sel_users === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
