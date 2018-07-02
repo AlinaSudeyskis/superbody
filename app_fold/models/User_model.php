@@ -863,13 +863,15 @@ class User_model extends CI_Model
                 FROM `anthropometric`
                 WHERE `user_id`=? ORDER BY `id` DESC LIMIT 1', $user_id);
 
-            if (1 == $sel_last_anthrop->num_rows()) {
+            if ($sel_last_anthrop !== false and 1 == $sel_last_anthrop->num_rows())
+            {
                 $row = $sel_last_anthrop->row();
 
                 $db_weight = $row->user_weight;
 
-                if ($db_weight != $weight) {
-                    $this->db->query('
+                if ($db_weight != $weight)
+                {
+                    $ins_data = $this->db->query('
                         INSERT INTO `anthropometric` (`user_id`, `user_weight`, `user_circumference_chest`, `user_circumference_waist`, 
                         `user_circumference_buttocks`, `user_circumference_waist_sides`, `user_circumference_right_hip`, 
                         `user_circumference_left_hip`, `user_circumference_right_biceps`, `user_circumference_left_biceps`, 
@@ -879,9 +881,29 @@ class User_model extends CI_Model
                             $row->user_circumference_buttocks, $row->user_circumference_waist_sides, $row->user_circumference_right_hip,
                             $row->user_circumference_left_hip, $row->user_circumference_right_biceps,
                             $row->user_circumference_left_biceps, $date));
+
+                    if($ins_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
                 }
 
                 unset($row);
+            }
+            elseif($sel_last_anthrop === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            else
+            {
+                $ins_data = $this->db->query('
+                    INSERT INTO `anthropometric` (`user_id`, `user_weight`, `user_date_add`)
+                    VALUES (?, ?, ?)',
+                        array($user_id, $weight, $date));
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
 
             return true;
