@@ -265,24 +265,46 @@ class Couch_model extends CI_Model
      */
     public function setCouchData($user_id, $special, $experience, $title_awards, $about, $date)
     {
-        $up_data = $this->db->query('
-            UPDATE `couch_data` 
-            SET `cd_specialization`=?, `cd_experience`=?, `cd_titles_awards`=?, `cd_about`=?, `cd_date_update`=?
-            WHERE `cd_u_id`=? LIMIT 1', array($special, $experience, $title_awards, $about, $date, $user_id));
+        $result = false;
 
-        if ($up_data !== false and 1 == $this->db->affected_rows())
+        $sel_data = $this->db->query('SELECT `cd_u_id` FROM `couch_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
+        if($sel_data !== false and 1 == $sel_data->num_row())
         {
-            return true;
+            $up_data = $this->db->query('
+                UPDATE `couch_data` 
+                SET `cd_specialization`=?, `cd_experience`=?, `cd_titles_awards`=?, `cd_about`=?, `cd_date_update`=?
+                WHERE `cd_u_id`=? LIMIT 1', array($special, $experience, $title_awards, $about, $date, $user_id));
+
+            if ($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
-        elseif($up_data === false)
+        elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
         else
         {
-            return false;
+            $up_data = $this->db->query('
+                INSERT INTO `couch_data` (`cd_u_id`, `cd_specialization`, `cd_experience`, `cd_titles_awards`, `cd_about`, `cd_date_update`)
+                VALUES(?, ?, ?, ?, ?, ?)', array($user_id, $special, $experience, $title_awards, $about, $date));
+
+            if ($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
+
+        return $result;
     }
 
     /**
