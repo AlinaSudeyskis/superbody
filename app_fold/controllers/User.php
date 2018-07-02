@@ -447,7 +447,7 @@ class User extends CI_Controller
             // Валидация E-mail
             $email = (!empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
                     ? $this->input->post('email', true)
-                    : null;
+                    : $user_data['user_email'];
 
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
