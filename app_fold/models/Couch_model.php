@@ -268,7 +268,7 @@ class Couch_model extends CI_Model
         $result = false;
 
         $sel_data = $this->db->query('SELECT `cd_u_id` FROM `couch_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
-        if($sel_data !== false and 1 == $sel_data->num_row())
+        if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $up_data = $this->db->query('
                 UPDATE `couch_data` 

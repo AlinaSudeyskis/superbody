@@ -922,7 +922,13 @@ class CI_Controller {
     {
         set_status_header(404);
         log_message('error', 'Page not found (404): ' . $page_url);
+
+        ob_start();
         $this->load->view('errors/html/error_404', $this->page_data);
+        $page = ob_get_contents();
+        ob_end_clean();
+
+        exit($page);
     }
 
     /**
