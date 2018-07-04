@@ -189,7 +189,7 @@ class Couch extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Добавление тренера';
-        $this->page_data['page_menu'] = 'couches';
+        $this->page_data['page_menu'] = 'a_couches';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
@@ -240,7 +240,7 @@ class Couch extends CI_Controller
                         // Отправление письма с данными администратора
                         $system_message  = '';
 
-                        parent::sendEmail(6, $email, $system_message);
+                        parent::sendEmail(4, $email, $system_message);
 
                         // Сохранено
                         $this->session->set_tempdata('message', 83, 60);
@@ -258,7 +258,7 @@ class Couch extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Выбор тренера из пользователей';
-        $this->page_data['page_menu'] = 'couches';
+        $this->page_data['page_menu'] = 'a_couches';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
@@ -387,7 +387,7 @@ class Couch extends CI_Controller
                 // Отправление письма
                 $system_message  = '';
 
-                parent::sendEmail(3, $email, $system_message);
+                parent::sendEmail(5, $email, $system_message);
 
                 // Сохранено. Тип Тренер изменен на тип Пользователя
                 $this->session->set_tempdata('message', 85, 60);

@@ -486,8 +486,6 @@ class CI_Controller {
         // Список доступных пользователю курсов
         $courses = $this->Course_model->getAvailableCourses();
 
-        // Обновление БД
-        $this->Welcome_model->updateDatabase($this->date);
         // Данные сайта (контактные данные, о нас, соц. сети и т.д.)
         $site_info = $this->Welcome_model->getSiteInfo();
 

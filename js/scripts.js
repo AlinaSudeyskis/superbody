@@ -144,7 +144,7 @@ $(document).ready(function() {
                 setTimeout(function(){block_message.hide()},10500);
             }
 
-            $(document).on('input', '.add_user_in input:text', function () {
+            $(document).on('input', '.add_tov_in.users input:text', function () {
                 if($(this).val() != '' && $(this).val().length > 3 && $(this).val().length < 255){
                     var input_search = $(this).val(),
                         tov_in = $(this);
@@ -154,16 +154,16 @@ $(document).ready(function() {
                         data: {search_text: input_search},
                         complete: function (result) {
                             if (result != "") {
-                                tov_in.parents(".add_user_in").find(".add_tov_list").show();
-                                tov_in.parents(".add_user_in").find(".add_tov_list").html(result.responseText);
+                                tov_in.parents(".add_tov_in").find(".add_tov_list").show();
+                                tov_in.parents(".add_tov_in").find(".add_tov_list").html(result.responseText);
                             }
                             else {
-                                tov_in.parents(".add_user_in").find(".add_tov_list").hide();
+                                tov_in.parents(".add_tov_in").find(".add_tov_list").hide();
                             }
                         }
                     });
                 } else{
-                    $(this).parents(".add_user_in").find(".add_tov_list").hide();
+                    $(this).parents(".add_tov_in").find(".add_tov_list").hide();
                 }
             });
             $(document).on("click", ".user.add_tren_item", function() {
@@ -180,7 +180,7 @@ $(document).ready(function() {
                             '<div class="del_tov"></div></div>');
 
                 $(this).parents(".add_tov_list").hide();
-                $(this).parents(".add_tov_list").parents('.add_user_in').find('input:text').val('');
+                $(this).parents(".add_tov_list").parents('.add_tov_in.admins').find('input:text').val('');
                 $(this).addClass("disable");
             }
             return false;
@@ -298,6 +298,9 @@ $(document).ready(function() {
 
             /* Расчет BMI и BMR */
             $('#height').keyup(function () {
+                calcBmiBmr();
+            });
+            $('#height').on('change', function () {
                 calcBmiBmr();
             });
             $('#weight').keyup(function () {
@@ -1198,15 +1201,6 @@ $(document).ready(function() {
                     $("#method-login").hide();
                 }
             });
-
-            $("#pop-up_video").on('click', '#change-meal', function(){
-                if($('.meal_other_wrap').is(':hidden'))
-                {
-                    $("#pop-up_video").height($("#pop-up_video").height() + $('.meal_other_wrap').height());
-                    $('.meal_other_wrap').show();
-                }
-            });
-
     });
 
     /**

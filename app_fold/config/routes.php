@@ -82,6 +82,7 @@ $route['profile/course/(:num)/reviews']        = 'Course/userCourseReviews/$1';
 $route['profile/course/(:num)/review/(:num)']  = 'Course/userCourseReview/$1/$2';
 $route['profile/course/(:num)/menu']           = 'Course/userNutritionMenu/$1';
 $route['profile/(:num)']                       = 'User/profile/$1';
+$route['profile']                              = 'User/profile';
 
 $route['settings']               = 'User/settings';
 $route['questionnaire']          = 'User/userQuestionnaire';
@@ -118,8 +119,9 @@ $route['messages/feedback'] = 'Message/userConversation/feedback';
 
 // Админ. панель
 $route['administration'] = 'Administrator/index';
+$route['administration/update/database'] = 'Database/updateDatabase';
 // Администраторы
-$route['administration/admins']           = 'Administrator/admins';
+$route['administration/admins']          = 'Administrator/admins';
 $route['administration/admin/new']       = 'Administrator/newAdmin';
 $route['administration/admin/new/users'] = 'Administrator/newAdminOfTheUsers';
 $route['administration/admin/(:num)']    = 'Administrator/adminSettings/$1';

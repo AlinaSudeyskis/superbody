@@ -66,7 +66,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             ],
             eventClick: function(calEvent, jsEvent, view) {
-                if (calEvent.constraint == "workout" && calEvent.startParam != "") {
+                if (calEvent.constraint == "workout" && calEvent.startParam != "")
+                {
                     $.ajax({
                         url: '/show/video',
                         type: 'post',
@@ -141,24 +142,41 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 }
                 else if(calEvent.constraint == "nutrition")
                 {
+                    var start = calEvent.start._i;
                     $.ajax({
                         url: '/showMeal',
                         type: 'post',
                         dataType: 'json',
                         data: {
+                            start: start,
                             start_param: calEvent.startParam,
                             ml_id: calEvent.ml_id,
                             day: calEvent.day,
                             ingestion: calEvent.ingestion
                         },
                         complete: function (result) {
-                            var data = result.responseJSON;
+                            var up_meal = $("#pop-up_meal"),
+                                data = result.responseJSON;
                             if (data && !data.error) {
-                                $("#pop-up_video").html(data.meal);
-                                pop_up_def($("#pop-up_video"));
+                                up_meal.html(data.meal);
+                                pop_up_def(up_meal);
                             }
 
-                            $("#pop-up_video").on('click', '.meal_other_link', function(){
+                            up_meal.on('click', '#change-meal', function(){
+                                var meal_other = up_meal.find('.meal_other_wrap');
+                                if(meal_other.is(':hidden'))
+                                {
+                                    up_meal.height(up_meal.height() + meal_other.height());
+                                    meal_other.show();
+                                }
+                                else
+                                {
+                                    up_meal.height(up_meal.height() - meal_other.height());
+                                    meal_other.hide();
+                                }
+                            });
+
+                            up_meal.on('click', '.meal_other_link', function(){
                                 var mlid = $(this).data('mlid'),
                                     unid = $(this).data('unid'),
                                     did  = $(this).data('did'),
@@ -168,6 +186,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     type: 'post',
                                     dataType: 'json',
                                     data: {
+                                        start: start,
                                         mlid: mlid,
                                         unid: unid,
                                         did: did,
@@ -177,8 +196,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         var data = result.responseJSON;
                                         if (data && !data.error) {
                                             calEvent.ml_id = mlid;
-                                            $("#pop-up_video").html(data.meal);
-                                            pop_up_def($("#pop-up_video"));
+                                            up_meal.html(data.meal);
+                                            up_meal.css('height','auto');
+                                            pop_up_def(up_meal);
                                         }
                                     }
                                 });

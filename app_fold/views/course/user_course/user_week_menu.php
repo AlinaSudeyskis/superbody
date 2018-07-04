@@ -12,7 +12,7 @@ include_once('./app_fold/views/course/user_course/page_part/header.php');?>
                             foreach($cm as $cm_ingestion): ?>
                                 <div class="anketa_form_line parent">
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo $cm_ingestion['name']; ?></div></div>
-                                    <div style="float:left;">
+                                    <div style="float:left; width: calc(100% - 205px);">
                                         <?php if(!empty($cm_ingestion['meal'])):
                                             $meal = $cm_ingestion['meal'];
                                             //foreach($cm_ingestion['meal'] as $meal):?>

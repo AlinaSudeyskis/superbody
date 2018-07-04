@@ -20,7 +20,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php if (!empty($users)) :
                             foreach ($users as $u) : ?>
                                 <div class="admin_item parent">
-                                    <div class="admin_ava"><img src="<?php echo $u['user_image']; ?>" alt=""></div>
+                                    <?php if(!empty($u['user_image'])): ?>
+                                        <div class="admin_ava"><img src="<?php echo $u['user_image']; ?>" alt=""></div>
+                                    <?php endif; ?>
                                     <div class="admin_cont">
                                         <div class="admin_name">
                                             <a href="/profile/<?php echo $u['user_id']; ?>" class="admin_name"><?php echo $u['user_name']; ?></a>

@@ -6683,6 +6683,7 @@ class Course extends CI_Controller
                 $tem_date = new DateTime($this->date);
                 $today    = $tem_date->format('Y-m-d');
                 unset($tem_date);
+
                 // Вычисление даты начала курса
                 if (!in_array($current_num_day, $array_training_days))
                 {
@@ -6696,6 +6697,8 @@ class Course extends CI_Controller
                             $tmp_date = new DateTime($today);
                             $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
                             $new_course_start = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                            break;
                         }
                     }
                     unset($training_day);
@@ -7520,14 +7523,14 @@ class Course extends CI_Controller
      *
      * @param $course_id
      */
-    public function userNutritionMenu($course_id)
+    public function userNutritionMenu($user_course_id)
     {
         if (!is_numeric($this->user_id)) {
             parent::pageNotFound($this->page_url);
         }
 
-        $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id);
-        $menu        = $this->Course_model->getUserNutritionMenu($course_id, $this->user_id, $this->date);
+        $course_data = $this->Course_model->getUserCourseSettings($user_course_id, $this->user_id);
+        $menu        = $this->Course_model->getUserNutritionMenu($user_course_id, $this->user_id, $this->date);
         $result      = array_merge($course_data, $menu);
 
         // Объединенные данные страница
@@ -8446,6 +8449,7 @@ class Course extends CI_Controller
         $meal_id   = (empty($meal_id) and is_numeric($this->input->post('ml_id', true))) ? $this->input->post('ml_id', true) : $meal_id;
         $day       = (empty($day) and is_numeric($this->input->post('day', true))) ? $this->input->post('day', true) : $day;
         $ingestion = (empty($ingestion) and is_numeric($this->input->post('ingestion', true))) ? $this->input->post('ingestion', true) : $ingestion;
+        $meal_date = (!empty($this->input->post('start', true))) ? $this->input->post('start', true) : null;
 
         if (!empty($un_id) and !empty($day) and !empty($ingestion))
         {
@@ -8457,73 +8461,18 @@ class Course extends CI_Controller
                 // Данные приема пищи
                 $ingestion_data = $this->Course_model->getUserIngestionMeals($this->user_id, $un_id, $meal_data['duplicate_day'], $meal_data['duplicate_ing']);
 
+                // Время приема пищи
+                $tmp_date = new DateTime($meal_date);
+                $meal_time = ($tmp_date !== false) ? $tmp_date->format('H:i') : '';
+
                 $display_result['meal'] = '';
 
-                $display_result['meal'] .= '<div class="selected_meal">';
-                $display_result['meal'] .= '<div style="text-align:center;">' . $meal_data['meal']['name'] . '</div>';
-                $display_result['meal'] .= '<div style="text-align:center;">[ Вес: ' . $meal_data['meal']['weight'] . ']</div>';
-                $display_result['meal'] .= '<div style="text-align:center;">[ БЖУК: ' . $meal_data['meal']['proteins'] . ' '
-                    . $meal_data['meal']['fats'] . ' '
-                    . $meal_data['meal']['carbohydrates'] . ' '
-                    . $meal_data['meal']['calories'] . ' '
-                    . ']</div>';
-                $display_result['meal'] .= '<div>' . $meal_data['meal']['description'] . '</div>';
-                $display_result['meal'] .= '</div>';
+                ob_start();
+                include_once('./app_fold/views/meals/calendar_meal.php');
+                $meal_item = ob_get_contents();
+                ob_end_clean();
 
-                // Игредиенты блюда
-                if(!empty($meal_data['meal']['ingredients']))
-                {
-                    $display_result['meal'] .= '<div>Ингредиенты:</div>';
-                    foreach($meal_data['meal']['ingredients'] as $ingredient)
-                    {
-                        $display_result['meal'] .= '<div>' . $ingredient['name'] . ' [ Вес: ' . $ingredient['weight']
-                            . '; БЖУК: ' . $ingredient['proteins'] . ' '
-                            . $ingredient['fats'] . ' '
-                            . $ingredient['carbohydrates'] . ' '
-                            . $ingredient['calories'] . ' ]</div>';
-                    }
-                    unset($ingredient);
-                }
-
-                // Выбор другого блюда
-                $tmp_date = new DateTime($this->date);
-                $today    = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
-                $tmp_date->add(new DateInterval("P30D"));
-                $in_a_month = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
-
-                if(!empty($ingestion_data['meals']) and $meal_data['un_date'] >= $today and $meal_data['un_date'] < $in_a_month)
-                {
-                    $other_meals_result = '';
-                    foreach($ingestion_data['meals'] as $meal)
-                    {
-                        if($meal['id'] != $meal_data['meal']['id'])
-                        {
-                            $other_meals_result .= '<div class="meal_other_link" data-mlid="' . $meal['id'] . '"
-                            data-did="'.$day.'" data-iid="'.$ingestion.'" data-unid="'.$un_id.'">' . $meal['name'] . '
-                            [ Вес: ' . $meal['weight'] . '; БЖУК: ' . $meal['proteins'] . ' '
-                                . $meal['fats'] . ' '
-                                . $meal['carbohydrates'] . ' '
-                                . $meal['calories'] . ' '
-                                . ']</div>';
-                        }
-                    }
-                    unset($meal);
-
-
-                    if(!empty($other_meals_result))
-                    {
-                        $display_result['meal'] .= '<div class="meal_other_block">';
-
-                        $display_result['meal'] .= '<div class="meal_other_block_h" id="change-meal" 
-                        data-day="'.$day.'" data-ingestion="'.$ingestion.'">Выбрать другое блюдо</div>';
-
-                        $display_result['meal'] .= '<div class="meal_other_wrap">';
-
-                        $display_result['meal'] .= $other_meals_result;
-
-                        $display_result['meal'] .= '</div></div>';
-                    }
-                }
+                $display_result['meal'] .= $meal_item;
             }
             else
             {

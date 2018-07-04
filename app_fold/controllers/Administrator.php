@@ -195,7 +195,8 @@ class Administrator extends CI_Controller
      */
     public function newAdminOfTheUsers()
     {
-        if ($this->input->post('bt_save_new_admins', true)) {
+        if ($this->input->post('bt_save_new_admins', true))
+        {
             $users = array();
             if (!empty($this->input->post('users', true))) {
                 $input_users = $this->input->post('users', true);
@@ -224,7 +225,7 @@ class Administrator extends CI_Controller
                         // Отправка уведомления по email
                         $system_message = '';
 
-                        parent::sendEmail(2, $user_data['email'], $system_message);
+                        parent::sendEmail(4, $user_data['email'], $system_message);
 
                         // Сохранено
                         $this->session->set_tempdata('message', 82, 60);
@@ -246,7 +247,7 @@ class Administrator extends CI_Controller
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/new_admin_ot_users');
+        $this->load->view('admin/new_admin_of_users');
         $this->load->view('footer/footer');
     }
 
@@ -365,7 +366,7 @@ class Administrator extends CI_Controller
                 // Отправка уведомления по email
                 $system_message = '';
 
-                parent::sendEmail(3, $user_data['email'], $system_message);
+                parent::sendEmail(5, $user_data['email'], $system_message);
 
                 // Сохранено. Тип Администратора изменен на тип Пользователя
                 $this->session->set_tempdata('message', 84, 60);

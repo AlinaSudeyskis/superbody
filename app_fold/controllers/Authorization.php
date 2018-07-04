@@ -482,7 +482,7 @@ class Authorization extends CI_Controller
                     $system_message  .= 'Восстановить пароль';
                     $system_message  .= '</a></b>';
 
-                    parent::sendEmail(4, $email, $system_message);
+                    parent::sendEmail(3, $email, $system_message);
                     
                     // Письмо отправлено
                     $this->session->set_tempdata('message', 46, 60);
@@ -735,7 +735,7 @@ class Authorization extends CI_Controller
                             $system_message  .= 'Перейти на сайт';
                             $system_message  .= '</a></b>';
 
-                            parent::sendEmail(5, $user_email, $system_message);
+                            parent::sendEmail(2, $user_email, $system_message);
                         }
 
                         header('Location: ' . $return);
@@ -934,7 +934,7 @@ class Authorization extends CI_Controller
                                 $system_message  .= 'Перейти на сайт';
                                 $system_message  .= '</a></b>';
 
-                                parent::sendEmail(5, $user_soc_email, $system_message);
+                                parent::sendEmail(2, $user_soc_email, $system_message);
                             }
 
                             header('Location: ' . $return);
@@ -1124,7 +1124,7 @@ class Authorization extends CI_Controller
                                 $system_message  .= 'Перейти на сайт';
                                 $system_message  .= '</a></b>';
 
-                                parent::sendEmail(5, $fb_u_data['user_email'], $system_message);
+                                parent::sendEmail(2, $fb_u_data['user_email'], $system_message);
                             }
 
                             header('Location: ' . $return);
@@ -1425,7 +1425,7 @@ class Authorization extends CI_Controller
                                 $system_message  .= 'Перейти на сайт';
                                 $system_message  .= '</a></b>';
 
-                                parent::sendEmail(5, $user_soc_email, $system_message);
+                                parent::sendEmail(2, $user_soc_email, $system_message);
                             }
 
                             header('Location: ' . $return);

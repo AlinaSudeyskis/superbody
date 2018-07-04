@@ -33,6 +33,8 @@ class User extends CI_Controller
      */
     public function profile($user_id)
     {
+        $user_id = (empty($user_id)) ? $this->user_id : $user_id;
+
         if (!is_numeric($user_id)) {
             parent::pageNotFound($this->page_url);
         }
@@ -825,7 +827,7 @@ class User extends CI_Controller
                 $system_message .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
                 $system_message .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
 
-                parent::sendEmail(9, $email, $system_message);
+                parent::sendEmail(10, $email, $system_message);
 
                 // Сохрано
                 $this->session->set_tempdata('message', 10, 60);
@@ -872,7 +874,7 @@ class User extends CI_Controller
                 $system_message .= '<p>Рост: ' . $height . 'см</p> </br>';
                 $system_message .= '<p>Вес: ' . $weight . 'кг</p> </br>';
 
-                parent::sendEmail(9, $email, $system_message);
+                parent::sendEmail(10, $email, $system_message);
 
                 // Расчет и сохранение ИМТ и БСО
                 parent::calcBmiBmr($this->user_id, $weight);
@@ -1057,7 +1059,7 @@ class User extends CI_Controller
                 $system_message  .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
                 $system_message  .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
 
-                parent::sendEmail(9, $email, $system_message);
+                parent::sendEmail(10, $email, $system_message);
 
                 // Сохрано
                 $this->session->set_tempdata('message', 10, 60);

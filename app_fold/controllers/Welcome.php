@@ -149,10 +149,10 @@ class Welcome extends CI_Controller
 
                 if ($res_send === true)
                 {
-                    // Отправление письма с копией сообщения обратной связи
+                    // Отправление письма с уведомление об ожидании ответа
                     $system_message  = '';
 
-                    parent::sendEmail(10, $email, $system_message);
+                    parent::sendEmail(9, $email, $system_message);
 
                     // Сохранено
                     $this->session->set_tempdata('message', 135, 60);

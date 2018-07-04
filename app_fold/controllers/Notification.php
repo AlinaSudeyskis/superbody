@@ -225,8 +225,16 @@ class Notification extends CI_Controller
 
         if(is_numeric($email_id))
         {
-            $email_data = $this->Notification_model->getEmail($email_id);
-            $result     = array_merge($result, $email_data);
+            $email_data  = $this->Notification_model->getEmail($email_id);
+            $course_data = array();
+            $menu        = array();
+            if($email_id == 12)
+            {
+                $this->load->model('Course_model');
+                $course_data = $this->Course_model->getUserCourseSettings(33, 4);
+                $menu        = $this->Course_model->getUserNutritionMenu(33, 4, $this->date);
+            }
+            $result = array_merge($result, $email_data, $course_data, $menu);
         }
 
         $this->load->view('email/email_parts/full_page', $result);

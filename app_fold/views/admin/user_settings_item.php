@@ -15,21 +15,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото</div></div>
-        <div class="anketa_form_info_cont">
-            <div style="width: 330px;">
-                <div class="video_down_line parent">
-                    <div class="parent kurs_cur_wrap">
-                        <div class="video_down_line_but_wrap">
-                            <label for="video_down_line_but1cs" class="video_down_line_but">
-                                <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
-                                <input type="file" name="avatar_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
-                                <span>Выберите файл</span>
-                            </label>
-                        </div>
-                        <div class="video_down_line_name" style="width:45% !important;">Файл не выбран</div>
-                    </div>
-                </div>
+        <div class="video_down_line parent">
+            <div class="video_down_line_but_wrap">
+                <label for="video_down_line_but1cs" class="video_down_line_but">
+                    <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
+                    <input type="file" name="avatar_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png">
+                    <span>Выберите файл</span>
+                </label>
             </div>
+            <div class="video_down_line_name">Файл не выбран</div>
         </div>
     </div>
     <?php if (!empty($user_data['user_image'])) : ?>

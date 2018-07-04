@@ -65,6 +65,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="hidden" name="img_path" value="<?php echo $meal['image']; ?>">
                         <input type="submit" name="bt_del_img" class="admin_form_del" value="Удалить">
                     </div>
+                    <?php $image_info = pathinfo($meal['image'], PATHINFO_FILENAME); ?>
+                    <div class="admin_img_info"><?php echo $image_info; ?></div>
                 </div>
             <?php endif;?>
         </div>

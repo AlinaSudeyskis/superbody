@@ -73,18 +73,25 @@ class User_model extends CI_Model
             FROM `users` 
             WHERE `user_type`=1');
 
-        if ($sel_data !== false and 0 < $sel_data->num_rows()) {
+        if ($sel_data !== false and 0 < $sel_data->num_rows())
+        {
             $i = 0;
-            foreach ($sel_data->result() as $row) {
+            foreach ($sel_data->result() as $row)
+            {
                 $result[$i]['user_id'] = $row->user_id;
                 $result[$i]['user_name'] = !empty($row->user_name) ? $row->user_name : $row->user_email;
                 $result[$i]['user_blocked'] = $row->user_blocked;
 
                 $user_image = '';
-                if (!empty($row->user_image)) {
-                    $user_image = $row->user_image;
-                    if (mb_substr($row->user_image, 0, 1) == '.' and is_file($row->user_image)) {
+                if (!empty($row->user_image))
+                {
+                    if (mb_substr($row->user_image, 0, 1) == '.' and is_file($row->user_image))
+                    {
                         $user_image = mb_substr($row->user_image, 1);
+                    }
+                    elseif(is_file($row->user_image))
+                    {
+                        $user_image = $row->user_image;
                     }
                 }
                 $result[$i]['user_image'] = $user_image;

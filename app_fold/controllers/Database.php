@@ -9,6 +9,15 @@
 class Database extends CI_Controller
 {
     /**
+     * Database constructor.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->load->model('Database_model');
+    }
+
+    /**
      * Добавление таблиц
      *
      * @return void
@@ -31,5 +40,11 @@ class Database extends CI_Controller
               ) ENGINE = MyISAM;";
 
         $this->db->query($users);
+    }
+
+    public function updateDatabase()
+    {
+        // Обновление БД
+        $this->Database_model->updateDatabase($this->date);
     }
 }

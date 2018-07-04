@@ -6073,10 +6073,10 @@ class Course_model extends CI_Model
                         if(!empty($nutritions))
                         {
                             $ingestions        = self::getIngestions();
-                            $course_ingestions = self::getNutritionIngestions($course['course_id']);
-                            $course_first_meal = self::getNutritionIngestionsFirstMeal($course['course_id']);
+                            $course_ingestions = self::getNutritionIngestions($bl_course['course_id']);
+                            $course_first_meal = self::getNutritionIngestionsFirstMeal($bl_course['course_id']);
 
-                            $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
+                            $type_shade = $bl_course['id'] % 2 == 0 ? 'lighter' : '';
                             $rgb = self::different_shade($color, $type_shade);
                             $color = $rgb;
 
@@ -6089,7 +6089,7 @@ class Course_model extends CI_Model
                                 $w_ingestion = $nutrition['ingestion'];
 
                                 $events[$ei]['constraint'] = 'nutrition';
-                                $events[$ei]['blocked']    = ($course['blocked'] == 1) ? 'true' : 'false';
+                                $events[$ei]['blocked']    = ($bl_course['blocked'] == 1) ? 'true' : 'false';
                                 $events[$ei]['id']         = $nutrition['id'];
                                 $events[$ei]['day']        = $w_day;
                                 $events[$ei]['ingestion']  = $w_ingestion;
@@ -6676,7 +6676,7 @@ class Course_model extends CI_Model
 
         $sel_course = $this->db->query('
             SELECT `uc_id`, `uc_o_id`, `uc_course_id`, `uc_couch_id`, `uc_date_start`, `uc_date_end`, `uc_days`, `uc_blocked`, 
-              `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `crs_name`, `crs_description`, 
+              `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `crs_name`, `crs_description`, `crs_image`,
               `crs_count_weeks`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, `crs_count_rest`, `crs_category` 
             FROM `users_courses`
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
@@ -6714,6 +6714,7 @@ class Course_model extends CI_Model
             $result['course']['category']         = $row->crs_category;
             $result['course']['name']             = $row->crs_name;
             $result['course']['description']      = $row->crs_description;
+            $result['course']['image']            = (is_file($row->crs_image)) ? mb_substr($row->crs_image, 1) : '';
             $result['course']['count_weeks']      = $row->crs_count_weeks;
             $result['course']['count_days']       = $row->crs_count_days;
             $result['course']['count_rest']       = $row->crs_count_rest;
@@ -7171,7 +7172,7 @@ class Course_model extends CI_Model
                 {
                     foreach($schedules['fill_course_schedule'][$day_id] as $ing_id => $ingestion)
                     {
-                        $meal_id = $ingestion['id'];
+                        $meal_id = (is_numeric($ingestion['id'])) ? $ingestion['id'] : 0;
 
                         if(!empty($values))
                         {
@@ -10125,8 +10126,9 @@ class Course_model extends CI_Model
         $result['id']               = (!empty($row->ml_id)) ? $row->ml_id : null;
         $result['type_id']          = (!empty($row->ml_mt_id)) ? $row->ml_mt_id : null;
         $result['name']             = (!empty($row->ml_name)) ? $row->ml_name : null;
-        $result['description']      = (!empty($row->ml_description)) ? $row->ml_description : null;
-        $result['ingredients_text'] = (!empty($row->ml_ingredients)) ? $row->ml_ingredients : null;
+        $result['description']      = (!empty($row->ml_description)) ? nl2br($row->ml_description) : null;
+        $result['ingredients_text'] = (!empty($row->ml_ingredients)) ? nl2br($row->ml_ingredients) : null;
+        $result['images_path']      = (!empty($row->ml_images)) ? mb_substr($row->ml_images, 1) : null;
         $result['images']           = (!empty($row->ml_images)) ? array_diff(scandir($row->ml_images), array('..', '.')) : null;
         $result['image']            = null;
         $result['weight']           = (!empty($row->ml_weight)) ? $row->ml_weight : null;

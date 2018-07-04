@@ -960,10 +960,18 @@ div.info{
     background: #cdcdcd;
 }
 .content_block{
+    position: relative;
+    margin-top: 20px;
+
     background: #fff;
     border-bottom: 3px solid #cdcdcd;
     margin-bottom: 40px;
     /*overflow: hidden;*/
+}
+.pop-up_content_block{
+    margin: 0;
+    height: 100%;
+    min-height: 330px;
 }
 .content_block_val{
     position: relative;
@@ -1170,14 +1178,6 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .fc-day-top.fc-other-month{
 	opacity: .4;
-}
-.content_block{
-	position: relative;
-    margin-top: 20px;
-    background: #fff;
-    border-bottom: 3px solid #cdcdcd;
-    margin-bottom: 40px;
-    /*overflow: hidden;*/
 }
 .calendar_content_block .content_block_h_buts{
 	height: 45px;
@@ -1601,6 +1601,17 @@ tr:first-child > td > .fc-day-grid-event{
     width: 90%;
     max-width: 600px;
     padding: 15px;
+    z-index: 113;
+    left: 50%;
+    top: 50%;
+    background: #fff;
+    position: fixed;
+    display: none;
+    min-height: 330px;
+}
+#pop-up_meal{
+    width: 90%;
+    max-width: 600px;
     z-index: 113;
     left: 50%;
     top: 50%;
@@ -2718,6 +2729,77 @@ tr:first-child > td > .fc-day-grid-event{
 .kurs_block_val .nav_ul{
     margin: 30px 0;
 }
+
+/* Блок вывода блюда */
+.meal_block_val{
+    margin-top: 10px;
+}
+.meal_title{
+    font-weight: 600;
+}
+.meal_subtitle {
+    font-size: 13px;
+    margin: 10px 0;
+    line-height: 17px;
+}
+.meal_text_title {
+    font-size: 13px;
+    font-weight: 500;
+    color: #949494;
+}
+.meal_text {
+    font-size: 13px;
+    margin: 10px 0;
+    line-height: 17px;
+}
+.meal_wpfcc_wrap{
+    display: flex;
+    margin-top: 30px;
+}
+.meal_wpfcc{
+    flex: 1;
+}
+.meal_wpfcc_title {
+    text-align: center;
+    font-size: 12px;
+    color: #ffffff;
+    background-color: #72d0f4;
+    border-right: 1px solid #ffffff;
+    padding: 0 10px;
+}
+.meal_wpfcc_val {
+    text-align: center;
+    font-size: 13px;
+    color: #696969;
+    font-weight: 300;
+}
+.meal_other_block_wrap {
+    clear: both;
+    padding: 15px;
+    margin: 10px 0;
+    width: 100%;
+    height: auto;
+    position: relative;
+    font-size: 13px;
+    line-height: 26px;
+}
+.meal_other_block{
+}
+.meal_other_block_h{
+    text-align: center;
+    cursor: pointer;
+}
+.meal_other_wrap{
+    display: none;
+    margin-top: 10px;
+}
+.meal_other_link{
+    cursor: pointer;
+}
+.meal_other_block_h:hover, .meal_other_link:hover{
+    text-decoration: underline;
+}
+
 .prezent_head .container{
     width: 100%;
     font-size: 14px;
@@ -8111,6 +8193,23 @@ textarea.anketa_form_in{
     z-index: 1;
     padding: 7px 10px;
 }
+.admin_img_info{
+    position: absolute;
+    background: rgba(0,0,0,.5);
+    top: 10px;
+    left: 10px;
+    z-index: 1;
+    padding: 7px 10px;
+
+    color: #ffffff;
+    font-size: 15px;
+    min-width: 36px;
+    height: 30px;
+    text-align: center;
+    line-height: 16px;
+    font-weight: 900;
+    cursor: default;
+}
 .admin_edit_file{
     width: 16px;
     height: 16px;
@@ -12047,7 +12146,7 @@ input.tren_form_block_check{
     .js-fullscreen-controls .pull-left:first-child{
         width: 40% !important;
     }
-    #pop-up_video{
+    #pop-up_video, #pop-up_meal{
         min-height: 310px;
     }
     .close_video{
@@ -12996,7 +13095,7 @@ input.tren_form_block_check{
     .calendar h2{
         font-size: 14px;
     }
-    #pop-up_video{
+    #pop-up_video, #pop-up_meal{
         min-height: 200px;
     }
     .pull-left:first-child{
