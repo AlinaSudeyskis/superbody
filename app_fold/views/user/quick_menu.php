@@ -17,7 +17,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="cat_desk">Выбор личного эксперта</div>
         </a>
     </div>
-    <div class="cat_item_wrap" id="s-t-wo">
+    <?php $disabled = (!empty($available_workout) and $available_workout === true) ? '' : 'disabled';?>
+    <div class="cat_item_wrap <?php echo $disabled; ?>" id="s-t-wo">
         <div class="cat_item">
             <div class="cat_img"><img src="/img/cat3.png" alt=""></div>
             <div class="cat_desk">Тренировка</div>

@@ -783,6 +783,10 @@ h3.info{
 .notification_block h3.info{
     float: none;
 }
+h3.info.small{
+    font-size: 14px;
+    padding-top: 0;
+}
 .notification_block_h{
     float: left;
     text-transform: uppercase;

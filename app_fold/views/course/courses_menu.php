@@ -1,9 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<?php
-// TODO Добавить "Архив"
-?>
 <ul class="anketa_block_nav parent">
     <li>
         <a href="/administration/courses">

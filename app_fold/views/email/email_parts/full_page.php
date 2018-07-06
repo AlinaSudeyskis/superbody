@@ -7,9 +7,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <title><?php echo $title; ?> - Super Body</title>
 </head>
 <body style="font-family: Verdana, Geneva, sans-serif;">
-<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0; padding:0;">
-    <tr>
-        <td align="center">
+<table width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0; padding:0; font-family: Verdana, Geneva, sans-serif;">
+    <tr style="margin:0; padding:0; font-family: Verdana, Geneva, sans-serif;">
+        <td align="center" style="margin:0; padding:0; font-family: Verdana, Geneva, sans-serif;">
             <!--[if (gte mso 9)|(IE)]>
             <table width="600" cellspacing="0" cellpadding="0" border="0" align="center"><tr><td style="padding-top:0; padding-bottom:0; padding-right:0; padding-left:0; margin:0;">
             <![endif]-->

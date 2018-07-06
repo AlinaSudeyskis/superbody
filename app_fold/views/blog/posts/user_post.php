@@ -28,6 +28,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="parent">
                                 <div class="comment_page_cont">
                                     <?php if ($post['approval'] == 1):?>
+                                        <h3 class="info small">Изменение не доступно. Запись одобрена администратором.</h3>
                                         <div class="comment_page_cont_h"><?php echo $post['title'];?></div>
                                         <div class="comment_page_cont_txt"><?php echo $post['text'];?></div>
                                         <div class="comment_page_cont_link"></div>
@@ -71,13 +72,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php endif;?>
                         </div>
                     <?php else: ?>
-                        <div class="comment_page_block">
-                            <div class="parent">
-                                <div class="comment_page_cont">
-                                    <div class="comment_page_cont_txt">Запись блога не найдена</div>
-                                </div>
-                            </div>
-                        </div>
+                        <h3 class="info">Информация не найдена</h3>
                     <?php endif; ?>
                 </div>
             </div>

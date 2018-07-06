@@ -4,9 +4,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="content_block new_content_block no_over">
     <div class="content_block_h new_content_block_h parent">
         <h3>Портфолио</h3>
-        <?php $path = '/portfolio/post/';
+        <?php $path = '/portfolio/';
         if (empty($outsider) and $user_data['user_blocked'] == 0):
-            $path = '/portfolio/';?>
+            $path = '/portfolio/post/';?>
             <a href="/portfolio/post/new" class="add_tab_but">Добавить</a>
         <?php endif;?>
         <div class="content_block_h_buts">

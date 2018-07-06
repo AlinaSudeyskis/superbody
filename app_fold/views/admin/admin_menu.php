@@ -60,13 +60,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>*/
     ?>
     <li>
-        <a href="/administration/blog/posts" <?php if ($page_menu == 'blog_posts') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico14.png" alt=""></span><span>Записи блога</span>
+        <a href="/administration/blog/posts" <?php if ($page_menu == 'blog') { echo 'class="active"'; } ?>>
+            <span><img src="/img/menu_ico14.png" alt=""></span><span>Блог тренера</span>
         </a>
     </li>
     <li>
-        <a href="/administration/blog/comments" <?php if ($page_menu == 'blog_comments') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico14.png" alt=""></span><span>Комментарии блога</span>
+        <a href="/administration/couches/portfolio" <?php if ($page_menu == 'couch_portfolio') { echo 'class="active"'; } ?>>
+            <span><img src="/img/menu_ico14.png" alt=""></span><span>Портфолио тренера</span>
         </a>
     </li>
     <li>

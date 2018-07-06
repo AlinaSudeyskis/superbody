@@ -59,7 +59,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php endif;?>
                                 </div>
                             </form>
-                        <?php elseif ($page_submenu == 'promocodes' and !empty($promocodes)) :
+                        <?php elseif ($page_submenu == 'video' and ($video_menu == 'promo' or $video_menu == 'workouts' or $video_menu == 'instructions')):
+                            include_once('./app_fold/views/course/settings/course_video_item.php');
+                        elseif ($page_submenu == 'promocodes' and !empty($promocodes)) :
                             include_once('./app_fold/views/promocodes/promocodes.php');
                         elseif ($page_submenu == 'promocodes' and !empty($promocode)) :
                             include_once('./app_fold/views/promocodes/promocode_settings.php');

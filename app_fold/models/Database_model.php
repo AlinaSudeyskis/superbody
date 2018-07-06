@@ -10,9 +10,12 @@ class Database_model extends CI_Model
      * Обновление БД
      *
      * @param $date
+     * @return bool
      */
     public function updateDatabase($date)
     {
+        $result = false;
+
         // 15.01.2018
         /*$this->db->query('
             CREATE TABLE `site_banners` (
@@ -374,6 +377,26 @@ class Database_model extends CI_Model
 			"151" => "Курс продления заблокирован.",
 			"152" => "Курс продления разблокирован.",
 			"153" => "Последний раз Вы вводили параметры тела более двух недель назад.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
+			"154" => "Курс завершен.",
 			"154" => "Курс завершен."
 		);
 
@@ -577,11 +600,6 @@ class Database_model extends CI_Model
             `ca_date` DATETIME NOT NULL ,
             PRIMARY KEY (`ca_id`), INDEX `ix_ca_crs_id` (`ca_crs_id`)) ENGINE = MyISAM');
 
-        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Некорректные данные курса питания или тренировки. Пожалуйста, повторите попытку.', 'Ошибка! Некорректные данные курса питания или тренировки. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
-        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Не удалось прикрепить курс. Пожалуйста, повторите попытку.', 'Ошибка! Не удалось прикрепить курс. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
-        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Прикрепленный курс не заблокирован. Пожалуйста, повторите попытку.', 'Ошибка! Прикрепленный курс не заблокирован. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
-        $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Прикрепленный курс не разблокирован. Пожалуйста, повторите попытку.', 'Ошибка! Прикрепленный курс не разблокирован. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
-
         $this->db->query('ALTER TABLE `users_courses` ADD `uc_attached_uc_id` INT UNSIGNED NOT NULL AFTER `uc_course_id`');
         */
 
@@ -619,6 +637,20 @@ class Database_model extends CI_Model
         // 26.06.2018
         //$this->db->query("ALTER TABLE `users_courses` ADD `uc_display` TINYINT(1) UNSIGNED NOT NULL AFTER `uc_blocked_reason`");
 
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных июль 2018
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseJuly2018($date)
+    {
+        $result = false;
+
+
         // -------------------------------------------------------------------------------------------------------------
 
         // 04.07.2018
@@ -637,5 +669,98 @@ class Database_model extends CI_Model
         $this->db->query("INSERT INTO `emails` (`e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES ('Изменение персональных данных', '1', 'Изменение персональных данных на сайте SuperBody', '', '', '4', '2018-04-25 11:41:46')");
         $this->db->query("INSERT INTO `emails` (`e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES ('Курс заканчивается', '1', 'Курс заканчивается меньше, чем через неделю', '', '', '4', '2018-04-25 11:41:46')");
         $this->db->query("INSERT INTO `emails` (`e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES ('Меню на неделю', '1', 'Меню на неделю', '', '', '4', '2018-04-25 11:41:46')");*/
+
+        // -------------------------------------------------------------------------------------------------------------
+
+        // 06.07.2018
+        $date = '2018-07-06 10:03:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $in_data = $this->db->query('CREATE TABLE `database_update` ( `db_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , `db_date` DATETIME NOT NULL , PRIMARY KEY (`db_id`)) ENGINE = MyISAM;');
+
+            $del_data = $this->db->query('DELETE FROM `notifications` WHERE `n_id`>=159');
+            if($del_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            $up_data = $this->db->query('ALTER TABLE `notifications` AUTO_INCREMENT = 158;');
+            if($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Некорректные данные курса питания или тренировки. Пожалуйста, повторите попытку.', 'Ошибка! Некорректные данные курса питания или тренировки. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Не удалось прикрепить курс. Пожалуйста, повторите попытку.', 'Ошибка! Не удалось прикрепить курс. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Прикрепленный курс не заблокирован. Пожалуйста, повторите попытку.', 'Ошибка! Прикрепленный курс не заблокирован. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('Ошибка! Прикрепленный курс не разблокирован. Пожалуйста, повторите попытку.', 'Ошибка! Прикрепленный курс не разблокирован. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+
+            $ins_data = $this->db->query("INSERT INTO `notifications` (`n_name`, `n_text`, `n_admin_id`, `n_date`) 
+                VALUES ('Изображение портфолио тренера одобрено.', 'Изображение портфолио тренера одобрено.', '4', '2018-04-19 14:23:42'), 
+                ('Изображение портфолио тренера заблокировано.', 'Изображение портфолио тренера заблокировано.', '4', '2018-04-19 14:23:42'),
+                ('Ошибка! Изображение портфолио тренера не одобрено. Пожалуйста, повторите попытку.', 'Ошибка! Изображение портфолио тренера не одобрено.. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42'), 
+                ('Ошибка! Изображение портфолио тренера не заблокировано. Пожалуйста, повторите попытку.', 'Ошибка! Изображение портфолио тренера не заблокировано. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+            if($ins_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            $up_data = $this->db->query("UPDATE `notifications` SET `n_name` = 'Ошибка! Запись портфолио не добавлена. Пожалуйста, повторите попытку.', `n_text` = 'Ошибка! Запись портфолио не добавлена. Пожалуйста, повторите попытку.' WHERE `notifications`.`n_id` = 94");
+            if($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+
+            $result = true;
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Поиск даты обновления в БД
+     *
+     * @param $date
+     * @return bool
+     */
+    public function getDbUpdateData($date)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `db_id` FROM `database_update` WHERE `db_date`=? LIMIT 1', $date);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $result = true;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Добавление даты обновления БД
+     *
+     * @param $date
+     * @return bool
+     */
+    public function setDbUpdate($date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('INSERT INTO `database_update` (`db_date`) VALUES(?)', $date);
+        if($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        elseif($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+
+        return $result;
     }
 }

@@ -1,8 +1,7 @@
 <!-- header -->
 <tr>
     <td style="padding-top:15px; padding-bottom:15px; padding-right:10px; padding-left:10px;
-        font-family: Arial, Helvetica, sans-serif; font-size:24px; width: 100%; overflow: hidden;
-         background: #00bff0; color: #ffffff;">
+        line-height:24px; width: 100%; overflow: hidden; background: #00bff0; color: #ffffff;">
         <!--[if (gte mso 9)|(IE)]>
         <table width="100%" border="0" cellpadding="0" cellspacing="0">
             <tr>
@@ -218,8 +217,7 @@
 </tr>
 <tr>
     <td style="padding-top:5px; padding-bottom:5px; padding-right:10px; padding-left:10px;
-        font-family: Arial, Helvetica, sans-serif; font-size:24px; width: 100%; overflow: hidden;
-         background: #72d0f4; color: #ffffff;">
+        line-height:24px; width: 100%; overflow: hidden; background: #72d0f4; color: #ffffff;">
         <!--[if (gte mso 9)|(IE)]>
         <table width="100%" border="0" cellpadding="0" cellspacing="0">
             <tr>
@@ -230,7 +228,8 @@
                     <tr>
                         <td align="center" style="padding-top:0; padding-bottom:0; padding-right:0; padding-left:0; text-align:center;">
                             <a href="https://superbody.pro/profile"
-                               style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF; text-transform: uppercase; font-size: 12px;">Личный кабинет</a>
+                               style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF;
+                               text-transform: uppercase; font-size: 12px; line-height: 12px;">Личный кабинет</a>
                         </td>
                     </tr>
                 </table>
@@ -243,7 +242,8 @@
                     <tr>
                         <td align="center" style="padding-top:0; padding-bottom:0; padding-right:0; padding-left:0; text-align:center;">
                             <a href="https://superbody.pro/calendar"
-                               style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF; text-transform: uppercase; font-size: 12px;">Календарь</a>
+                               style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF;
+                               text-transform: uppercase; font-size: 12px; line-height: 12px;">Календарь</a>
                         </td>
                     </tr>
                 </table>
@@ -256,7 +256,8 @@
                     <tr>
                         <td align="center" style="padding-top:0; padding-bottom:0; padding-right:0; padding-left:0; text-align:center;">
                             <a href="https://superbody.pro/store"
-                               style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF; text-transform: uppercase; font-size: 12px;">Магазин</a>
+                               style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF;
+                               text-transform: uppercase; font-size: 12px; line-height: 12px;">Магазин</a>
                         </td>
                     </tr>
                 </table>

@@ -458,7 +458,7 @@ class Couch_model extends CI_Model
         $result = array();
 
         $sel_post = $this->db->query('
-            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` 
+            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description`, `cp_image_approval` 
             FROM `couch_portfolio` 
             WHERE `cp_u_id`=? and `cp_id`=?
             LIMIT 1', array($user_id, $post_id));
@@ -471,6 +471,7 @@ class Couch_model extends CI_Model
             $result['post']['title'] = !empty($row->cp_image_title) ? $row->cp_image_title : '';
             $result['post']['path']  = !empty($row->cp_image_path) ? mb_substr($row->cp_image_path, 1) : '';
             $result['post']['desc']  = $row->cp_image_description;
+            $result['post']['approval'] = $row->cp_image_approval;
         }
         elseif($sel_post === false)
         {
@@ -491,7 +492,7 @@ class Couch_model extends CI_Model
         $result = array();
 
         $sel_post = $this->db->query('
-            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` 
+            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description`, `cp_image_approval` 
             FROM `couch_portfolio` 
             WHERE `cp_id`=?
             LIMIT 1', array($post_id));
@@ -500,10 +501,11 @@ class Couch_model extends CI_Model
         {
             $row = $sel_post->row();
 
-            $result['post']['id']    = $row->cp_id;
-            $result['post']['title'] = !empty($row->cp_image_title) ? $row->cp_image_title : '';
-            $result['post']['path']  = !empty($row->cp_image_path) ? mb_substr($row->cp_image_path, 1) : '';
-            $result['post']['desc']  = $row->cp_image_description;
+            $result['post']['id']       = $row->cp_id;
+            $result['post']['title']    = !empty($row->cp_image_title) ? $row->cp_image_title : '';
+            $result['post']['path']     = !empty($row->cp_image_path) ? mb_substr($row->cp_image_path, 1) : '';
+            $result['post']['desc']     = $row->cp_image_description;
+            $result['post']['approval'] = $row->cp_image_approval;
         }
         elseif($sel_post === false)
         {
@@ -983,6 +985,135 @@ class Couch_model extends CI_Model
             unset($row);
         }
         elseif($sel_images === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Изображения портфолио тренеров
+     *
+     * @return array
+     */
+    public function getCouchesPortfolioPosts()
+    {
+        $result = array('portfolio' => array());
+
+        $sel_portfolio = $this->db->query('
+            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `couch_portfolio`');
+
+        if ($sel_portfolio !== false and 0 < $sel_portfolio->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_portfolio->result() as $row)
+            {
+                if (is_file($row->cp_image_path))
+                {
+                    $result['portfolio'][$i]['image_id']   = $row->cp_id;
+                    $result['portfolio'][$i]['image_path'] = mb_substr($row->cp_image_path, 1);
+                    $result['portfolio'][$i]['image_desc'] = mb_substr($row->cp_image_description, 0, 65);
+
+                    $i++;
+                }
+            }
+            unset($row);
+        }
+        elseif($sel_portfolio === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Данные изображения портфолио тренера
+     *
+     * @return array
+     */
+    public function getCouchesPortfolioPost($post_id)
+    {
+        $result = array();
+
+        $sel_post = $this->db->query('
+            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description`, `cp_image_approval` 
+            FROM `couch_portfolio` 
+            WHERE `cp_id`=?
+            LIMIT 1', array($post_id));
+
+        if ($sel_post !== false and 1 == $sel_post->num_rows())
+        {
+            $row = $sel_post->row();
+
+            $result['post']['id']       = $row->cp_id;
+            $result['post']['title']    = !empty($row->cp_image_title) ? $row->cp_image_title : '';
+            $result['post']['path']     = !empty($row->cp_image_path) ? mb_substr($row->cp_image_path, 1) : '';
+            $result['post']['desc']     = $row->cp_image_description;
+            $result['post']['approval'] = $row->cp_image_approval;
+        }
+        elseif($sel_post === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение изменений портфолио тренера
+     *
+     * @param int $user_id ID тренера
+     * @param int $post_id ID записи портфолио
+     * @param string|null $image Путь к изображению
+     * @param string|null $title Заголовок
+     * @param string|null $description Описание
+     * @param string $date Дата
+     * @return bool
+     */
+    public function updateCouchesPortfolio($post_id, $title = null, $description = null, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('
+            UPDATE `couch_portfolio`
+            SET `cp_image_title`=?, `cp_image_description`=?, `cp_date_update`=?
+            WHERE `cp_id`=? LIMIT 1', array($title, $description, $date, $post_id));
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Одобрение/блокировка записи портфолио тренера
+     *
+     * @param $post_id
+     * @param $approval
+     * @param $date
+     * @return bool
+     */
+    public function approvalCouchesPortfolio($post_id, $approval, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('
+            UPDATE `couch_portfolio` SET `cp_image_approval`=?, `cp_date_update`=? WHERE `cp_id`=? LIMIT 1',
+                array($approval, $date, $post_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }

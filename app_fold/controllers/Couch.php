@@ -613,8 +613,9 @@ class Couch extends CI_Controller
         $db_desc  = $result['post']['desc'];
 
 
-        if ($this->input->post('bt_save_image', true)) {
-            $files_data = '';
+        if ($this->input->post('bt_save_image', true))
+        {
+            $files_data = $db_image;
 
             if (is_uploaded_file($_FILES['portfolio_image']['tmp_name'])) {
                 $path = './user_files/'.$this->user_id.'/portfolio/';
@@ -635,22 +636,29 @@ class Couch extends CI_Controller
             }
 
             $title       = strip_tags(mb_substr($this->input->post('image_title', true), 0, 100));
-            $title       = ($db_title != $title) ? $title : null;
             $description = strip_tags(mb_substr($this->input->post('image_description', true), 0, 255));
-            $description = ($db_desc != $description) ? $description : null;
 
+            if($db_image != $files_data or $db_title != $title or $db_desc != $description)
+            {
+                $res_save_image = $this->Couch_model->updateCouchPortfolio($this->user_id, $post_id, $files_data, $title, $description, $this->date);
 
-            $res_save_image = $this->Couch_model->updateCouchPortfolio($this->user_id, $post_id, $files_data, $title, $description, $this->date);
-
-            if ($res_save_image['image'] === true or $res_save_image['data'] === true) {
-                // Сохранено
-                $this->session->set_tempdata('message', 87, 60);
-            } elseif ($res_save_image['image'] === false and $res_save_image['data'] === false) {
-                $this->session->set_tempdata('message', 90, 60);
-            } elseif ($res_save_image['image'] === false and $res_save_image['data'] !== false) {
-                $this->session->set_tempdata('message', 88, 60);
-            } elseif ($res_save_image['image'] !== false and $res_save_image['data'] === false) {
-                $this->session->set_tempdata('message', 89, 60);
+                if ($res_save_image['image'] === true or $res_save_image['data'] === true)
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 87, 60);
+                }
+                elseif ($res_save_image['image'] === false and $res_save_image['data'] === false)
+                {
+                    $this->session->set_tempdata('message', 90, 60);
+                }
+                elseif ($res_save_image['image'] === false and $res_save_image['data'] !== false)
+                {
+                    $this->session->set_tempdata('message', 88, 60);
+                }
+                elseif ($res_save_image['image'] !== false and $res_save_image['data'] === false)
+                {
+                    $this->session->set_tempdata('message', 89, 60);
+                }
             }
 
             header('Location: /portfolio/post/' . $post_id);
@@ -753,6 +761,109 @@ class Couch extends CI_Controller
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
         $this->load->view('couch/portfolio/form_new');
+        $this->load->view('footer/footer');
+    }
+
+    public function couchesPortfolioPosts()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result = $this->Couch_model->getCouchesPortfolioPosts();
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'АП - Портфолио тренера';
+        $this->page_data['page_menu'] = 'couch_portfolio';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('couch/portfolio/couches_portfolio_posts', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Страница редактирования/одобрения данных изображения портфолио тренера
+     *
+     * @param $post_id
+     */
+    public function couchesPortfolioPost($post_id)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result = $this->Couch_model->getCouchesPortfolioPost($post_id);
+
+        $db_title = $result['post']['title'];
+        $db_desc  = $result['post']['desc'];
+
+        if ($this->input->post('bt_save_image', true))
+        {
+            $title       = strip_tags(mb_substr($this->input->post('image_title', true), 0, 100));
+            $description = strip_tags(mb_substr($this->input->post('image_description', true), 0, 255));
+
+            if($db_title != $title or $db_desc != $description)
+            {
+                $res_save_image = $this->Couch_model->updateCouchesPortfolio($post_id, $title, $description, $this->date);
+
+                if ($res_save_image === true)
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 87, 60);
+                }
+                else
+                {
+                    $this->session->set_tempdata('message', 89, 60);
+                }
+            }
+
+            header('Location: /administration/couches/portfolio/' . $post_id);
+        }
+        elseif($this->input->post('bt_approval_post', true))
+        {
+            $res_block = $this->Couch_model->approvalCouchesPortfolio($post_id, 1, $this->date);
+
+            if ($res_block === true)
+            {
+                // Сохранено
+                $this->session->set_tempdata('message', 163, 60);
+            }
+            else
+            {
+                $this->session->set_tempdata('message', 165, 60);
+            }
+
+            header('Location: /administration/couches/portfolio/' . $post_id);
+        }
+        elseif($this->input->post('bt_block_post', true))
+        {
+            $res_block = $this->Couch_model->approvalCouchesPortfolio($post_id, 0, $this->date);
+
+            if ($res_block === true)
+            {
+                // Сохранено
+                $this->session->set_tempdata('message', 164, 60);
+            }
+            else
+            {
+                $this->session->set_tempdata('message', 166, 60);
+            }
+
+            header('Location: /administration/couches/portfolio/' . $post_id);
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'АП - Портфолио тренера';
+        $this->page_data['page_menu'] = 'couch_portfolio';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('couch/portfolio/couches_portfolio_post', $result);
         $this->load->view('footer/footer');
     }
 

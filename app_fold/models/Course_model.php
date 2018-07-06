@@ -5247,7 +5247,12 @@ class Course_model extends CI_Model
      */
     public function getUserCourses($user_id, $date, $courses_type, $user_training_time = null)
     {
-        $result = array('courses' => array(), 'events' => array(), 'notifications' => array(), 'blocked_courses' => array());
+        $result = array(
+            'courses' => array(),
+            'events' => array(),
+            'notifications' => array(),
+            'blocked_courses' => array(),
+            'available_workout' => false);
 
         // Активные курсы
         if($courses_type == 'active')
@@ -5753,6 +5758,7 @@ class Course_model extends CI_Model
                                 {
                                     $events[$ei]['id'] = $course_data['course']['workouts'][$w_num]['video_id'];
                                     $available_training = true;
+                                    $result['available_workout'] = true;
                                 }
 
                                 $events[$ei]['title'] = ($w_duplicate == 1)

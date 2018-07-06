@@ -14,6 +14,7 @@ class Database extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+
         $this->load->model('Database_model');
     }
 
@@ -45,6 +46,13 @@ class Database extends CI_Controller
     public function updateDatabase()
     {
         // Обновление БД
-        $this->Database_model->updateDatabase($this->date);
+        $up_data = $this->Database_model->updateDatabaseJuly2018($this->date);
+        if($up_data === true)
+        {
+            // Сохранено
+            $this->session->set_tempdata('message', 10, 60);
+        }
+
+        header('Location: /administration');
     }
 }

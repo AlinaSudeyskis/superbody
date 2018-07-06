@@ -36,9 +36,10 @@ class Blog extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Сообщения блогов';
-        $this->page_data['page_menu'] = 'blog_posts';
-        
+        $this->page_data['title']        = 'АП - Сообщения блогов';
+        $this->page_data['page_menu']    = 'blog';
+        $this->page_data['page_submenu'] = 'blog_posts';
+
         $result = $this->Blog_model->getBlogsPosts();
 
         $this->load->view('header/header', $this->page_data);
@@ -138,8 +139,9 @@ class Blog extends CI_Controller
         }*/
         
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Редактирование данных сообщения блога';
-        $this->page_data['page_menu'] = 'blog_posts';
+        $this->page_data['title']        = 'АП - Редактирование данных сообщения блога';
+        $this->page_data['page_menu']    = 'blog';
+        $this->page_data['page_submenu'] = 'blog_posts';
         
         $result = $this->Blog_model->getBlogPost($post_id);
 
@@ -164,8 +166,9 @@ class Blog extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Комментарии блогов';
-        $this->page_data['page_menu'] = 'blog_comments';
+        $this->page_data['title']        = 'АП - Комментарии блогов';
+        $this->page_data['page_menu']    = 'blog';
+        $this->page_data['page_submenu'] = 'blog_comments';
         
         $result = $this->Blog_model->getBlogsComments();
 
@@ -216,8 +219,9 @@ class Blog extends CI_Controller
         }
         
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Редактирование данных комментария блога';
-        $this->page_data['page_menu'] = 'blog_comments';
+        $this->page_data['title']        = 'АП - Редактирование данных комментария блога';
+        $this->page_data['page_menu']    = 'blog';
+        $this->page_data['page_submenu'] = 'blog_comments';
         
         $result = $this->Blog_model->getBlogComment($comment_id);
 
