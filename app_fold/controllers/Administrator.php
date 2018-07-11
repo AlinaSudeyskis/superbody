@@ -37,7 +37,7 @@ class Administrator extends CI_Controller
         $this->page_data['title'] = 'Администраторская панель';
         $this->page_data['page_menu'] = '';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('admin/index');
         $this->load->view('footer/footer');
@@ -56,7 +56,7 @@ class Administrator extends CI_Controller
         $this->page_data['title'] = 'АП - Администраторы';
         $this->page_data['page_menu'] = 'admins';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('admin/admins', $result);
         $this->load->view('footer/footer');
@@ -93,10 +93,10 @@ class Administrator extends CI_Controller
                 if (is_numeric($result))
                 {
                     // Отправление письма с данными администратора
-                    $system_message  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
+                    $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
                         . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                    $system_message  .= 'Подтвердить';
-                    $system_message  .= '</a></b>';
+                    $system_message['text']  .= 'Подтвердить';
+                    $system_message['text']  .= '</a></b>';
 
                     parent::sendEmail(1, $email, $system_message);
 
@@ -182,7 +182,7 @@ class Administrator extends CI_Controller
         $this->page_data['title'] = 'АП - Добавление администратора';
         $this->page_data['page_menu'] = 'admins';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('admin/new_admin');
         $this->load->view('footer/footer');
@@ -223,7 +223,7 @@ class Administrator extends CI_Controller
                         $user_data = $result['user_data'];
 
                         // Отправка уведомления по email
-                        $system_message = '';
+                        $system_message['text'] = '';
 
                         parent::sendEmail(4, $user_data['email'], $system_message);
 
@@ -245,7 +245,7 @@ class Administrator extends CI_Controller
         $this->page_data['title'] = 'АП - Выбор администратора из пользователей';
         $this->page_data['page_menu'] = 'admins';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('admin/new_admin_of_users');
         $this->load->view('footer/footer');
@@ -364,7 +364,7 @@ class Administrator extends CI_Controller
                 $user_data = $result['user_data'];
 
                 // Отправка уведомления по email
-                $system_message = '';
+                $system_message['text'] = '';
 
                 parent::sendEmail(5, $user_data['email'], $system_message);
 
@@ -434,7 +434,7 @@ class Administrator extends CI_Controller
         $this->page_data['title'] = 'АП - Редактирование данных администратора';
         $this->page_data['page_menu'] = 'admins';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('admin/admin_settings', $user);
         $this->load->view('footer/footer');
@@ -453,7 +453,7 @@ class Administrator extends CI_Controller
         $this->page_data['title'] = 'АП - Подписчики';
         $this->page_data['page_menu'] = 'sublist';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('user/sublist_users', $result);
         $this->load->view('footer/footer');
@@ -652,7 +652,7 @@ class Administrator extends CI_Controller
         $this->page_data['title'] = 'Информация о сайте - АП';
         $this->page_data['page_menu'] = 'site_info';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('site/info', $result);
         $this->load->view('footer/footer');
@@ -728,7 +728,7 @@ class Administrator extends CI_Controller
         $this->page_data['page_menu'] = 'site_info';
         $this->page_data['page_submenu'] = 'banner';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('site/banner/new_banner');
         $this->load->view('footer/footer');
@@ -864,7 +864,7 @@ class Administrator extends CI_Controller
         $this->page_data['page_menu'] = 'site_info';
         $this->page_data['page_submenu'] = 'banner';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('site/banner/banner_settings', $result);
         $this->load->view('footer/footer');

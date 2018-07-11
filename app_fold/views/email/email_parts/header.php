@@ -229,7 +229,7 @@
                         <td align="center" style="padding-top:0; padding-bottom:0; padding-right:0; padding-left:0; text-align:center;">
                             <a href="https://superbody.pro/profile"
                                style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF;
-                               text-transform: uppercase; font-size: 12px; line-height: 12px;">Личный кабинет</a>
+                               text-transform: uppercase; font-size: 12px; line-height: 24px;">Личный кабинет</a>
                         </td>
                     </tr>
                 </table>
@@ -243,7 +243,7 @@
                         <td align="center" style="padding-top:0; padding-bottom:0; padding-right:0; padding-left:0; text-align:center;">
                             <a href="https://superbody.pro/calendar"
                                style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF;
-                               text-transform: uppercase; font-size: 12px; line-height: 12px;">Календарь</a>
+                               text-transform: uppercase; font-size: 12px; line-height: 24px;">Календарь</a>
                         </td>
                     </tr>
                 </table>
@@ -257,7 +257,7 @@
                         <td align="center" style="padding-top:0; padding-bottom:0; padding-right:0; padding-left:0; text-align:center;">
                             <a href="https://superbody.pro/store"
                                style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF;
-                               text-transform: uppercase; font-size: 12px; line-height: 12px;">Магазин</a>
+                               text-transform: uppercase; font-size: 12px; line-height: 24px;">Магазин</a>
                         </td>
                     </tr>
                 </table>

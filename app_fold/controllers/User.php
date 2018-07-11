@@ -109,47 +109,47 @@ class User extends CI_Controller
 
                         if($notif['send_email'] === true)
                         {
-                            $system_message = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
+                            $system_message['text'] = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
                                 . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
-                            $system_message .= '<a href="https://superbody.pro/profile/course/' . $notif['course_id'] . '" '
+                            $system_message['text'] .= '<a href="https://superbody.pro/profile/course/' . $notif['course_id'] . '" '
                                 . 'style="text-transform: uppercase; font-weight: 300; font-size: 24px; line-height: 28px; '
                                 . 'padding: 20px 0 20px 30px; margin:0; color: #72d0f4; text-decoration: none;">'
                                 . $notif['course_name'] . '</a>';
-                            $system_message .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
-                            $system_message .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
+                            $system_message['text'] .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
+                            $system_message['text'] .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
                                 . 'font-weight: 300; border: none; white-space: normal; font-size: 18px; line-height: 22px;">'
                                 . $notification['notification']['text'] . '</p>';
-                            $system_message .= '</td></tr>';
+                            $system_message['text'] .= '</td></tr>';
                             // Курсы продления
                             if(!empty($notif['extends']))
                             {
-                                $system_message .= '<tr><td style="width:100%; padding:0; margin:0;">ПРОДЛИТЕ КУРС ИЛИ КУПИТЕ НОВЫЙ:</td></tr>';
-                                $system_message .= '<tr>';
+                                $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0;">ПРОДЛИТЕ КУРС ИЛИ КУПИТЕ НОВЫЙ:</td></tr>';
+                                $system_message['text'] .= '<tr>';
                                     foreach($notif['extends'] as $extend)
                                     {
-                                        $system_message .= '<td style="padding:0; margin:0;"><table>';
-                                        $system_message .= '<tr><td style="width:100%; padding:0; margin:0;"><a href="https://superbody.pro/course/' . $extend['course_id'] . '" '
+                                        $system_message['text'] .= '<td style="padding:0; margin:0;"><table>';
+                                        $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0;"><a href="https://superbody.pro/course/' . $extend['course_id'] . '" '
                                             . 'style="text-transform: uppercase; font-weight: 600; font-size: 16px; line-height: 28px; '
                                             . 'padding: 0; margin:0; color: #72d0f4; text-decoration: none;">'
                                             . $extend['course_name'] . '</a></td></tr>';
-                                        $system_message .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">' . $extend['promocode'] . '</td></tr>';
-                                        $system_message .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">';
+                                        $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">' . $extend['promocode'] . '</td></tr>';
+                                        $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">';
                                             if(!empty($extend['new_price']))
                                             {
-                                                $system_message .= '<s>' . $extend['price'] . ' руб.</s> ' . $extend['new_price'] . ' руб.';
+                                                $system_message['text'] .= '<s>' . $extend['price'] . ' руб.</s> ' . $extend['new_price'] . ' руб.';
                                             }
                                             else
                                             {
-                                                $system_message .= $extend['price'] . ' руб.';
+                                                $system_message['text'] .= $extend['price'] . ' руб.';
                                             }
-                                        $system_message .= '</td></tr></table>';
-                                        $system_message .= '</table></td>';
+                                        $system_message['text'] .= '</td></tr></table>';
+                                        $system_message['text'] .= '</table></td>';
                                     }
                                     unset($extend);
-                                $system_message .= '</tr>';
+                                $system_message['text'] .= '</tr>';
                             }
 
-                            $system_message .= '</table>';
+                            $system_message['text'] .= '</table>';
 
                             parent::sendEmail(11, $this->session->user['email'], $system_message);
                         }
@@ -461,11 +461,14 @@ class User extends CI_Controller
             $confirm_password = $this->input->post('confirm_new_password', true);
 
             // Если заполнены все поля паролей
-            if (!empty($old_password) and !empty($new_password) and !empty($confirm_password)) {
+            if (!empty($old_password) and !empty($new_password) and !empty($confirm_password))
+            {
                 // Старый пароль соответвует действительности
-                if (password_verify($old_password, $user_data['user_password_hash'])) {
+                if (password_verify($old_password, $user_data['user_password_hash']))
+                {
                     // Новый пароль подтвержден
-                    if ($new_password == $confirm_password) {
+                    if ($new_password == $confirm_password)
+                    {
                         $password_hash = password_hash($new_password, PASSWORD_DEFAULT);
                     }
                 }
@@ -816,16 +819,16 @@ class User extends CI_Controller
                 $email_hash = password_hash($email, PASSWORD_DEFAULT);
                 // Отправление уведомления об измениях в данных
 
-                $system_message  = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
-                $system_message .= '<p>Вес: ' . $weight . 'см</p> </br>';
-                $system_message .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
-                $system_message .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
-                $system_message .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
-                $system_message .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
-                $system_message .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
-                $system_message .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
-                $system_message .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
-                $system_message .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
+                $system_message['text']  = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
+                $system_message['text'] .= '<p>Вес: ' . $weight . 'см</p> </br>';
+                $system_message['text'] .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
+                $system_message['text'] .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
+                $system_message['text'] .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
+                $system_message['text'] .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
+                $system_message['text'] .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
+                $system_message['text'] .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
+                $system_message['text'] .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
+                $system_message['text'] .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
 
                 parent::sendEmail(10, $email, $system_message);
 
@@ -868,11 +871,11 @@ class User extends CI_Controller
                 $email = $this->session->user['email'];
                 $email_hash = password_hash($email, PASSWORD_DEFAULT);
                 // Отправление уведомления об измениях в данных
-                $system_message  = '<p>В Вашем аккаунте были изменены данные физических параметров:</p> </br></br>';
-                $system_message .= '<p>Пол: ' . $gender . '</p> </br>';
-                $system_message .= '<p>Дата рождения: ' . $birthday . '</p> </br>';
-                $system_message .= '<p>Рост: ' . $height . 'см</p> </br>';
-                $system_message .= '<p>Вес: ' . $weight . 'кг</p> </br>';
+                $system_message['text']  = '<p>В Вашем аккаунте были изменены данные физических параметров:</p> </br></br>';
+                $system_message['text'] .= '<p>Пол: ' . $gender . '</p> </br>';
+                $system_message['text'] .= '<p>Дата рождения: ' . $birthday . '</p> </br>';
+                $system_message['text'] .= '<p>Рост: ' . $height . 'см</p> </br>';
+                $system_message['text'] .= '<p>Вес: ' . $weight . 'кг</p> </br>';
 
                 parent::sendEmail(10, $email, $system_message);
 
@@ -1048,16 +1051,16 @@ class User extends CI_Controller
                 $email = $this->session->user['email'];
                 $email_hash = password_hash($email, PASSWORD_DEFAULT);
                 // Отправление уведомления об измениях в данных
-                $system_message   = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
-                $system_message  .= '<p>Вес: ' . $weight . 'см</p> </br>';
-                $system_message  .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
-                $system_message  .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
-                $system_message  .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
-                $system_message  .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
-                $system_message  .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
-                $system_message  .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
-                $system_message  .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
-                $system_message  .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
+                $system_message['text']   = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
+                $system_message['text']  .= '<p>Вес: ' . $weight . 'см</p> </br>';
+                $system_message['text']  .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
+                $system_message['text']  .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
+                $system_message['text']  .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
+                $system_message['text']  .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
+                $system_message['text']  .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
+                $system_message['text']  .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
+                $system_message['text']  .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
+                $system_message['text']  .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
 
                 parent::sendEmail(10, $email, $system_message);
 
@@ -1353,7 +1356,7 @@ class User extends CI_Controller
         $this->page_data['title'] = 'АП - Пользователи';
         $this->page_data['page_menu'] = 'users';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('user/users', $result);
         $this->load->view('footer/footer');
@@ -1520,7 +1523,7 @@ class User extends CI_Controller
         $this->page_data['title'] = 'АП - Редактирование данных пользователя';
         $this->page_data['page_menu'] = 'users';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('user/settings/user_settings', $user);
         $this->load->view('footer/footer');

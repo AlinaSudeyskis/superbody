@@ -18,6 +18,7 @@ function getInternetExplorerVersion() {
 }
 $(document).ready(function() {
 
+
 	/* Видео превью */
 
     function secondsToTime(time){
@@ -593,34 +594,8 @@ $(document).ready(function() {
             });
     });
 
-
-    $("#video-course").on('change', function(){
-        if ($.isNumeric($(this).val()))
-        {
-            var crs_id = $(this).val(),
-                crs_block = $(".course_length");
-
-            $.ajax({
-                url: '/show/weeks',
-                type: 'post',
-                dataType: 'json',
-                data: {crs_id: crs_id},
-                complete: function (result) {
-                    var data = result.responseJSON;
-                    if (data.crs_sch !== false) {
-                        crs_block.show();
-                        crs_block.children(".practice_block_table").html(data.crs_sch);
-                    }
-                    else {
-                        crs_block.hide();
-                    }
-                }
-            });
-        }
-    });
-
     /* Выбор курсов тренировок для отображения в календаре */
-    $("input:checkbox.anketa_form_radio").on('click', function(){
+    $("input:checkbox.calendar_course").on('click', function(){
         if ($.isNumeric($(this).val()))
         {
             var crs_id = $(this).val(),
@@ -635,12 +610,6 @@ $(document).ready(function() {
                 data: {crs_id: crs_id, display: display},
                 complete: function (result) {
                     var data = result.responseJSON;
-                    if (data.crs_sch !== false) {
-
-                    }
-                    else {
-
-                    }
                 }
             });
         }
@@ -662,12 +631,6 @@ $(document).ready(function() {
                 data: {crs_id: crs_id, display: display},
                 complete: function (result) {
                     var data = result.responseJSON;
-                    if (data.crs_sch !== false) {
-
-                    }
-                    else {
-
-                    }
                 }
             });
         }
@@ -1164,6 +1127,75 @@ function enableScroll() {
     window.onwheel = null;
     window.ontouchmove = null;
     document.onkeydown = null;
+}
+
+// Работа с youtube видео
+var tag = document.createElement('script');
+tag.id = 'iframe-demo';
+tag.src = 'https://www.youtube.com/iframe_api';
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+var player;
+function onYouTubeIframeAPIReady() {
+    var elems1 = $('.yt-player');
+    for(var i = 0; i < elems1.length; i++) {
+
+        player = new YT.Player(elems1[i], {
+            events: {
+                //'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+}
+function handleVideo(playerStatus) {
+    if (playerStatus == -1) {
+        // unstarted
+        $('.meal_block_img').slick('slickPlay');
+    } else if (playerStatus == 0) {
+        // ended
+        $('.meal_block_img').slick('slickPlay');
+    } else if (playerStatus == 1) {
+        // playing = green
+        $('.meal_block_img').slick('slickPause');
+    } else if (playerStatus == 2) {
+        // paused = red
+        $('.meal_block_img').slick('slickPlay');
+    } else if (playerStatus == 3) {
+        // buffering = purple
+    } else if (playerStatus == 5) {
+        // video cued
+    }
+}
+function onPlayerStateChange(event) {
+    handleVideo(event.data);
+}
+
+function meal_slider(meal_up)
+{
+    var meal_block_img = $('.meal_block_img');
+    meal_block_img.slick({
+        dots: true,
+        infinite: true,
+        autoplaySpeed: 5000,
+        speed: 500,
+        autoplay: true,
+        arrows: false
+    });
+    meal_block_img.on('afterChange',function(e,o){
+        //on change slide = do action
+        $('iframe').each(function(){
+            $(this)[0].contentWindow.postMessage('{"event":"command","func":"' + 'stopVideo' + '","args":""}', '*');
+        });
+    });
+    meal_block_img.on('beforeChange',function(event, slick, currentSlide, nextSlide){
+        $('.yt-player').each(function(){
+            this.contentWindow.postMessage('{"event":"command","func":"' + 'pauseVideo' + '","args":""}', '*')
+        });
+    });
+    meal_block_img.find('img').each(function(){$(this).css('height','auto')});
+    onYouTubeIframeAPIReady();
 }
 
 

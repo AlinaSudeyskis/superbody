@@ -104,6 +104,10 @@ $route['displayCourse']          = 'Course/displayUserCourse';
 $route['displayNutrition']       = 'Course/displayUserNutrition';
 $route['searchUsers']            = 'User/searchUsers';
 $route['searchPromo']            = 'Course/searchCoursePromocode';
+$route['activateVideo']          = 'Course/activateCourseVideo';
+
+$route['notifications/nutritionWeekMenu'] = 'Course/sendNutritionWeekMenuEmails';
+
 //$route['buy/course']             = 'Course/buyCourse';
 // Записи блога тренера
 $route['posts']       = 'Blog/getCouchPosts';
@@ -160,6 +164,7 @@ $route['administration/courses']    = 'Course/courses/workout';
 $route['administration/course/new'] = 'Course/newCourse';
 // Настройки
 $route['administration/course/(:num)']          = 'Course/course/$1';
+$route['administration/course/(:num)/preview']  = 'Course/coursePreview/$1';
 $route['administration/course/(:num)/settings'] = 'Course/course/$1/settings';
 // Landing настройки
 $route['administration/course/(:num)/landing'] = 'Course/course/$1/landing';
@@ -175,6 +180,7 @@ $route['administration/course/(:num)/video/workouts']     = 'Course/course/$1/vi
 $route['administration/course/(:num)/video/instructions'] = 'Course/course/$1/video_instructions';
 $route['administration/course/(:num)/video/new']          = 'Course/course/$1/video_new';
 $route['administration/course/(:num)/video/(:num)']       = 'Course/courseVideoSettings/$1/$2';
+
 // Промокоды курса
 $route['administration/course/(:num)/promocodes']       = 'Course/course/$1/promocodes';
 $route['administration/course/(:num)/promocode/new']    = 'Course/course/$1/promocode_new';
@@ -214,6 +220,7 @@ $route['administration/ingestion/type/(:num)'] = 'Course/ingestionType/$1';*/
 // Блюда
 $route['administration/meals']       = 'Course/meals';
 $route['administration/meal/new']    = 'Course/newMeal';
+$route['administration/meal/import'] = 'Course/importMeals';
 $route['administration/meal/(:num)'] = 'Course/meal/$1';
 
 $route['searchMeals'] = 'Course/searchMeals';

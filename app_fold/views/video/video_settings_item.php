@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Категория:</div>
-    <select name="s_type" class="journal_form_select">
+    <select name="s_type" class="journal_form_select" id="video-type">
         <option value="0" <?php if (!empty($video['type']) and $video['type'] == 0) { echo 'selected="selected"'; } ?>>Без категории</option>
         <option value="1" <?php if (!empty($video['type']) and $video['type'] == 1) { echo 'selected="selected"'; } ?>>Промо</option>
         <option value="2" <?php if (!empty($video['type']) and $video['type'] == 2) { echo 'selected="selected"'; } ?>>Тренировка</option>
@@ -23,16 +23,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             unset($crs);?>
         </select>
         <input type="hidden" name="hi_ctw" value="" id="crs_tr_w"/>
+        <input type="hidden" name="vd_id" value="<?php if(!empty($video)): echo $video['id']; endif; ?>" id="vd-id"/>
     <?php endif;?>
 </div>
-<div class="parent kurs_cur_wrap course_length" <?php if(!empty($course_length)):?>style="display: block;"<?php endif;?>>
+<div class="parent kurs_cur_wrap course_length" <?php if(!empty($course_length) and $video['type'] == 2):?>style="display: block;"<?php endif;?>>
     <div class="kurs_block_h">Тренировки:</div>
-    <div class="practice_block_table">
+    <div class="block_table">
         <?php if(!empty($course_length)) :
             $course['count_weeks'] = $course_length['count_weeks'];
             $course['count_days']  = $course_length['count_days'];
             $course['workouts']    = $workouts;
-            include_once('./app_fold/views/course/settings/course_length_item.php');
+            include_once('./app_fold/views/course/settings/course_length_multiple.php');
         endif; ?>
     </div>
 </div>
@@ -65,8 +66,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <img src="<?php echo $video['poster'];?>" alt="">
     </div>
 <?php endif; ?>
-<div class="parent kurs_cur_wrap down_line">
-    <div class="kurs_block_h">Постер видео:</div>
+<!--<div class="parent kurs_cur_wrap down_line">
+    <div class="kurs_block_h">Файл видео:</div>
     <div class="video_down_line parent">
         <div class="video_down_line_but_wrap">
             <label for="video_down_line_but2" class="video_down_line_but">
@@ -80,18 +81,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <progress class="progressbar" id="progressbar2" value="0" max="100"></progress>
         </div>
     </div>
-</div>
+</div>-->
 <?php if (!empty($video['video'])) : ?>
-    <div class="admin_form_file_line">
+    <!--<div class="admin_form_file_line">
         <div class="leanback-player-video">
             <!--poster="/video/poster1.jpg" autoplay-->
             <video width="640" height="360" preload="metadata" controls >
-                <source src="<?php echo $video['video']?>" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
+                <source src="<?php /*echo $video['video']*/?>" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"' />
                 <!--<source src="http://leanbackplayer.com/videos/360p/elephants_dream_640x360_2.30.webm" type='video/webm; codecs="vp8, vorbis"' />
                 <source src="http://leanbackplayer.com/videos/360p/elephants_dream_640x360_2.30.ogv" type='video/ogg; codecs="theora, vorbis"' />-->
             </video>
         </div>
-    </div>
+    </div>-->
 <?php endif;?>
 <!--<div class="admin_form_file_line parent">
             <div class="admin_form_file_line_h">Видео с YouTube.com:</div>

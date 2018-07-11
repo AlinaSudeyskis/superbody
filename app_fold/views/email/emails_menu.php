@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>
     <li>
         <a href="/administration/emails/addresses">
-            <span <?php if ($page_submenu == 'emails_addresses'): ?> class="anketa_active" <?php endif; ?>>Email адреса</span>
+            <span <?php if ($page_submenu == 'emails_addresses'): ?> class="anketa_active" <?php endif; ?>>Email адреса отправителя</span>
         </a>
     </li>
 </ul>

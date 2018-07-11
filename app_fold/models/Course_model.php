@@ -2403,12 +2403,12 @@ class Course_model extends CI_Model
      */
     public function getCourseSchedules($course_id)
     {
-        $result = array();
+        $result = array('course_length' => array(), 'workouts' => array(), 'workouts_id' => array());
 
         $sel_schedule = $this->db->query('
             SELECT `ctw_course_id`, `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`
             FROM `courses_training_weeks`
-            WHERE `ctw_course_id`=?', $course_id);
+            WHERE `ctw_course_id`=? and `ctw_num_workout`>0', $course_id);
 
         if ($sel_schedule !== false and 0 < $sel_schedule->num_rows())
         {
@@ -2429,6 +2429,8 @@ class Course_model extends CI_Model
                     : $row->ctw_video_id;
 
                 $result['workouts'][$num_workout]['video_id'] = $video_id;
+
+                $result['workouts_id'][$num_workout] = $video_id;
             }
             unset($row);
         }
@@ -2512,31 +2514,68 @@ class Course_model extends CI_Model
      * Изменение id видео тренировки курса
      *
      * @param $course_id
-     * @param $workout_num
+     * @param $selected_trainings
      * @param $video_id
      * @param $date
      * @return bool
      */
-    public function attachVideoToWorkout($course_id, $workout_num, $video_id, $date)
+    public function attachVideoToWorkouts($course_id, $selected_trainings, $video_id, $date)
     {
-        $up_data = $this->db->query('
-            UPDATE `courses_training_weeks` SET `ctw_video_id`=?, `ctw_date_update`=? 
-            WHERE `ctw_course_id`=? and `ctw_num_workout`=? LIMIT 1',
-                array($video_id, $date, $course_id, $workout_num));
+        $result = false;
 
-        if($up_data !== false and 1 == $this->db->affected_rows())
+        if(!empty($selected_trainings['update']))
         {
-            return true;
+            $where_in = '';
+            $i = 0;
+            foreach($selected_trainings['update'] as $tr_id)
+            {
+                $where_in .= ($i == 0) ? $tr_id : ', ' . $tr_id;
+                $i++;
+            }
+            unset($tr_id);
+
+            $up_data = $this->db->query('
+                UPDATE `courses_training_weeks` SET `ctw_video_id`=?, `ctw_date_update`=? 
+                WHERE `ctw_course_id`=? and `ctw_num_workout` IN (' . $where_in . ')',
+                    array($video_id, $date, $course_id));
+
+            if($up_data !== false and 0 < $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
-        elseif($up_data === false)
+
+        if($selected_trainings['delete'])
         {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
+            $where_in = '';
+            $i = 0;
+            foreach($selected_trainings['delete'] as $tr_id => $std)
+            {
+                $where_in .= ($i == 0) ? $tr_id : ', ' . $tr_id;
+                $i++;
+            }
+            unset($std);
+
+            $up_data = $this->db->query('
+                UPDATE `courses_training_weeks` SET `ctw_video_id`=0, `ctw_date_update`=? 
+                WHERE `ctw_course_id`=? and `ctw_num_workout` IN (' . $where_in . ')',
+                    array($date, $course_id));
+
+            if($up_data !== false and 0 < $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ ТРЕНИРОВОК КУРСА */
@@ -4559,7 +4598,7 @@ class Course_model extends CI_Model
         $result = array();
 
         $sel_video = $this->db->query('
-            SELECT `video_id`, `video_name`, `video_poster`, `video_type` 
+            SELECT `video_id`, `video_name`, `video_poster`, `video_type`, `video_active` 
             FROM `video`
             WHERE `video_crs_id`=? and `video_type`=1', $course_id);
 
@@ -4594,7 +4633,7 @@ class Course_model extends CI_Model
         $result = array();
 
         $sel_video = $this->db->query('
-            SELECT `video_id`, `video_name`, `video_poster`, `video_type` 
+            SELECT `video_id`, `video_name`, `video_poster`, `video_type`, `video_active` 
             FROM `video`
             WHERE `video_crs_id`=? and `video_type`=2', $course_id);
 
@@ -4629,7 +4668,7 @@ class Course_model extends CI_Model
         $result = array();
 
         $sel_video = $this->db->query('
-            SELECT `video_id`, `video_name`, `video_poster`, `video_type` 
+            SELECT `video_id`, `video_name`, `video_poster`, `video_type`, `video_active` 
             FROM `video`
             WHERE `video_crs_id`=? and `video_type`=3', $course_id);
 
@@ -5226,6 +5265,47 @@ class Course_model extends CI_Model
         else
         {
             $result = false;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Активация видео курса
+     *
+     * @param $course_id
+     * @param $video_id
+     * @param $video_type
+     * @param $display
+     * @param $date
+     * @return bool
+     */
+    public function activateCourseVideos($course_id, $video_id, $video_type, $date)
+    {
+        $result = false;
+        $video_types = array(1 => 'promo', 2 => 'workouts', 3 => 'instructions');
+        $type_id = array_search($video_type, $video_types);
+        log_message('debug', $type_id);
+
+        if(!empty($type_id))
+        {
+            $disact_data = $this->db->query('UPDATE `video` SET `video_active`=0, `video_date_update`=? WHERE `video_crs_id`=? and `video_type`=?',
+                array($date, $course_id, $type_id));
+            if($disact_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            $act_data = $this->db->query('UPDATE `video` SET `video_active`=1, `video_date_update`=? WHERE `video_id`=? and `video_crs_id`=? and `video_type`=? LIMIT 1',
+                array($date, $video_id, $course_id, $type_id));
+            if($act_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($act_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
 
         return $result;
@@ -7899,6 +7979,58 @@ class Course_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Выборка меню на неделю активного курса питания пользователей для отправки уведомления на почту
+     *
+     * @param $date
+     * @return array
+     */
+    public function getUsersNutritionWeekMenu($date)
+    {
+        $result = array('users_week_menu' => array());
+
+        $sel_courses = $this->db->query('
+            SELECT `uc_id`, `uc_user_id`, `uc_course_id`, `uc_date_start`, `uc_date_end`, `uc_display`,
+              `crs_category`, `user_email`, `s_unsubscribe`
+            FROM `users_courses`
+            LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
+            LEFT JOIN `users` ON `user_id`=`uc_user_id`
+            LEFT JOIN `subscription` ON `s_email`=`user_email`
+            WHERE `uc_display`=1 and `crs_category`="nutrition" and `s_unsubscribe`=0');
+
+        if($sel_courses !== false and 0 < $sel_courses->num_rows())
+        {
+            //log_message('debug', __METHOD__.' '.print_r($sel_courses->result(), true));
+
+            $i = 0;
+            foreach($sel_courses->result() as $row)
+            {
+                $result['users_week_menu'][$i]['uc_id']      = $row->uc_id;
+                $result['users_week_menu'][$i]['course_id']  = $row->uc_course_id;
+                $result['users_week_menu'][$i]['user_id']    = $row->uc_user_id;
+                $result['users_week_menu'][$i]['user_email'] = $row->user_email;
+                $result['users_week_menu'][$i]['date_start'] = $row->uc_date_start;
+                $result['users_week_menu'][$i]['date_end']   = $row->uc_date_end;
+
+                $course = self::getUserCourseSettings($row->uc_id, $row->uc_user_id);
+                $menu   = self::getUserNutritionMenu($row->uc_id, $row->uc_user_id, $date);
+
+                $result['users_week_menu'][$i] = array_merge($result['users_week_menu'][$i], $menu, $course);
+
+                $i++;
+            }
+            unset($row);
+
+            //log_message('debug', __METHOD__.' '.print_r($result['users_week_menu'], true));
+        }
+        elseif($sel_courses === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА ПОЛЬЗОВАТЕЛЕЙ */
 
 
@@ -9970,6 +10102,7 @@ class Course_model extends CI_Model
 
         $result['id']          = $row->video_id;
         $result['type']        = !empty($row->video_type) ? $row->video_type : null;
+        $result['active']      = !empty($row->video_active) ? $row->video_active : 0;
         $result['name']        = !empty($row->video_name) ? $row->video_name : null;
         $result['remove_url']  = !empty($row->video_remove_url) ? $row->video_remove_url : null;
         $result['poster']      = (!empty($row->video_poster) and is_file($row->video_poster)) ? mb_substr($row->video_poster, 1) : null;

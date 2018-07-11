@@ -41,7 +41,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Категории';
         $this->page_data['page_menu'] = 'categories';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/category/categories', $result);
         $this->load->view('footer/footer');
@@ -93,7 +93,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Новая категория';
         $this->page_data['page_menu'] = 'categories';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/category/new_category');
         $this->load->view('footer/footer');
@@ -188,7 +188,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Категория';
         $this->page_data['page_menu'] = 'categories';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/category/category_settings', $result);
         $this->load->view('footer/footer');
@@ -232,7 +232,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Новая подкатегория';
         $this->page_data['page_menu'] = 'categories';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/category/new_subcategory');
         $this->load->view('footer/footer');
@@ -308,7 +308,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Подкатегория';
         $this->page_data['page_menu'] = 'categories';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/category/subcategory_settings', $result);
         $this->load->view('footer/footer');
@@ -333,7 +333,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Интернет-магазин';
         $this->page_data['page_menu'] = 'a_store';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/product/products', $result);
         $this->load->view('footer/footer');
@@ -490,7 +490,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Интернет-магазин - Новый товар';
         $this->page_data['page_menu'] = 'a_store';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/product/new_product', $result);
         $this->load->view('footer/footer');
@@ -740,7 +740,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Интернет-магазин - Редактирование данных товара';
         $this->page_data['page_menu'] = 'a_store';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/product/product_settings', $result);
         $this->load->view('footer/footer');
@@ -764,7 +764,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Заказы';
         $this->page_data['page_menu'] = 'a_orders';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/cart/orders', $result);
         $this->load->view('footer/footer');
@@ -868,7 +868,7 @@ class Store extends CI_Controller
         $this->page_data['title'] = 'АП - Заказ №' . $order_id;
         $this->page_data['page_menu'] = 'a_orders';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('store/cart/order', $result);
         $this->load->view('footer/footer');

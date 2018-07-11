@@ -294,10 +294,6 @@ h3.landing span{
     padding: 20px;
 }
 
-.anketa_form_radio.long + label{
-    width: 160px;
-}
-
 .anketa_form_h_cell .jq-number.tov_number {
     width: 100px;
     margin: 0;
@@ -453,9 +449,9 @@ span.mess_block_full_time {
 }
 
 .practice_block{display: none;}
-.practice_block_table{display: block; overflow: hidden; padding: 0 0 20px;}
-.practice_block_table .practice_weeks{display: block; width:100%; height: 40px; overflow:hidden;}
-.practice_block_table .practice_weeks .practice_week{
+.practice_block_table, .block_table{display: block; overflow: hidden; padding: 0 0 20px;}
+.practice_block_table .practice_weeks, .block_table .practice_weeks{display: block; width:100%; height: 40px; overflow:hidden;}
+.practice_block_table .practice_weeks .practice_week, .block_table .practice_weeks .practice_week{
     display: block;
     float: left;
     padding: 5px 10px;
@@ -471,9 +467,9 @@ span.mess_block_full_time {
     width: 95px;
     text-align: center;
 }
-.practice_block_table .practice_weeks:first-child .practice_week {border-top: 1px solid #ccc;}
+.practice_block_table .practice_weeks:first-child .practice_week, .block_table .practice_weeks:first-child .practice_week {border-top: 1px solid #ccc;}
 .practice_week span{width: calc(100% - 10px);}
-.practice_block_table .practice_weeks .practice_days{
+.practice_block_table .practice_weeks .practice_days, .block_table .practice_weeks .practice_days{
     display: block;
     width: calc(100% - 95px);
     height: 40px;
@@ -509,7 +505,8 @@ span.mess_block_full_time {
     -ms-flex: 1;
     flex: 1;
 }
-.practice_block_table .practice_weeks:first-child .practice_days .practice_day {border-top: 1px solid #ccc;}
+.practice_block_table .practice_weeks:first-child .practice_days .practice_day,
+.block_table .practice_weeks:first-child .practice_days label{border-top: 1px solid #ccc;}
 .practice_block_table .practice_days .practice_day:hover {background-color: #88d5f3;}
 .practice_block_table .practice_days .practice_day.active {background-color: #88d5f3;}
 .practice_block_table .practice_days .practice_day.filled {background-color: #e8faff;}

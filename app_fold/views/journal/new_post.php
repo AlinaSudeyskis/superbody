@@ -30,7 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <form action="" class="video_admin_form" method="post" enctype="multipart/form-data">
                         <select name="journal_cat" class="journal_form_select">
                             <option value="">Выберите категорию</option>
-                            <option value="1">Статьи (по-умолчанию)</option>
+                            <option value="1">Статьи (по умолчанию)</option>
                             <option value="2">Интервью</option>
                             <option value="3">Новости</option>
                         </select>

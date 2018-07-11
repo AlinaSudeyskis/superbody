@@ -9,8 +9,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="practice_days">
                 <?php for($tr_day = 1; $tr_day <= $course['count_days']; $tr_day++) :
                     $filled = '';
-                    if(!empty($course['workouts']) and !empty($course['workouts'][$i]['video_id'])):
+                    if(!empty($course['workouts']) and !empty($course['workouts'][$i]['video_id']) and $video['id'] != $course['workouts'][$i]['video_id']):
                         $filled = 'filled';
+                    elseif(!empty($course['workouts'][$i]['video_id']) and $video['id'] != $course['workouts'][$i]['video_id']):
+                        $filled = 'active';
                     endif;?>
                     <div class="practice_day <?php echo $filled; ?>" id="practice<?php echo $i; ?>">Т <?php echo $tr_day; ?></div>
                     <?php $i++;

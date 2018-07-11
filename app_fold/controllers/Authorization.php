@@ -66,10 +66,10 @@ class Authorization extends CI_Controller
                         $reg_user_id = $result_registration;
 
                         // Отправление письма о подтвержении регистрации пользователю
-                        $system_message  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
+                        $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
                             . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                        $system_message  .= 'Подтвердить';
-                        $system_message  .= '</a></b>';
+                        $system_message['text']  .= 'Подтвердить';
+                        $system_message['text']  .= '</a></b>';
 
                         parent::sendEmail(1, $email, $system_message);
 
@@ -476,11 +476,11 @@ class Authorization extends CI_Controller
                 if ($result_restore === true)
                 {
                     // Отправление письма с указаниями по восстановлению пароля
-                    $system_message  = '<p>Обновить пароль Вы можете до ' . $date_in_an_hour . '</p> </br>';
-                    $system_message  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent
+                    $system_message['text']  = '<p>Обновить пароль Вы можете до ' . $date_in_an_hour . '</p> </br>';
+                    $system_message['text']  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent
                         . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                    $system_message  .= 'Восстановить пароль';
-                    $system_message  .= '</a></b>';
+                    $system_message['text']  .= 'Восстановить пароль';
+                    $system_message['text']  .= '</a></b>';
 
                     parent::sendEmail(3, $email, $system_message);
                     
@@ -731,9 +731,9 @@ class Authorization extends CI_Controller
                         // Отправляем письмо с уведомлением об регистрации
                         if (!empty($user_email) and filter_var($user_email, FILTER_VALIDATE_EMAIL))
                         {
-                            $system_message  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                            $system_message  .= 'Перейти на сайт';
-                            $system_message  .= '</a></b>';
+                            $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                            $system_message['text']  .= 'Перейти на сайт';
+                            $system_message['text']  .= '</a></b>';
 
                             parent::sendEmail(2, $user_email, $system_message);
                         }
@@ -930,9 +930,9 @@ class Authorization extends CI_Controller
                             // Отправляем письмо с уведомлением об регистрации
                             if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
                             {
-                                $system_message  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                                $system_message  .= 'Перейти на сайт';
-                                $system_message  .= '</a></b>';
+                                $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                                $system_message['text']  .= 'Перейти на сайт';
+                                $system_message['text']  .= '</a></b>';
 
                                 parent::sendEmail(2, $user_soc_email, $system_message);
                             }
@@ -1120,9 +1120,9 @@ class Authorization extends CI_Controller
                             // Отправляем письмо с уведомлением об регистрации
                             if (!empty($fb_u_data['user_email']) and filter_var($fb_u_data['user_email'], FILTER_VALIDATE_EMAIL))
                             {
-                                $system_message  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                                $system_message  .= 'Перейти на сайт';
-                                $system_message  .= '</a></b>';
+                                $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                                $system_message['text']  .= 'Перейти на сайт';
+                                $system_message['text']  .= '</a></b>';
 
                                 parent::sendEmail(2, $fb_u_data['user_email'], $system_message);
                             }
@@ -1421,9 +1421,9 @@ class Authorization extends CI_Controller
                             // Отправляем письмо с уведомлением об регистрации
                             if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
                             {
-                                $system_message  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                                $system_message  .= 'Перейти на сайт';
-                                $system_message  .= '</a></b>';
+                                $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                                $system_message['text']  .= 'Перейти на сайт';
+                                $system_message['text']  .= '</a></b>';
 
                                 parent::sendEmail(2, $user_soc_email, $system_message);
                             }

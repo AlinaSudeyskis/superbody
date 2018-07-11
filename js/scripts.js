@@ -1078,59 +1078,6 @@ $(document).ready(function() {
                 });
             });
 
-            // Формирование тренировок
-            $(".practice_block_table").on('click', '.practice_day', function(){
-                event.preventDefault();
-                var pr_bl_w  = $('.practice_block_wrap'),
-                    pr_bl    = $('.practice_block'),
-                    pr_d     = $('.practice_day'),
-                    crs_tr_w = $("#crs_tr_w"),
-                    pr_id    = $(this).attr('id').substr(8);
-
-                if ($(this).hasClass("active"))
-                {
-                    $(this).removeClass('active');
-                    if(pr_bl_w.length == 1)
-                    {
-                        pr_bl.hide();
-                    }
-                    if(crs_tr_w.length == 1)
-                    {
-                        crs_tr_w.val('');
-                    }
-                }
-                else
-                {
-                    pr_d.removeClass("active");
-                    $(this).addClass("active");
-
-                    if(pr_bl_w.length == 1)
-                    {
-                        pr_bl.hide();
-                        $('#' + $(this).attr('id') + '_block').show();
-                    }
-                    if(crs_tr_w.length == 1)
-                    {
-                        crs_tr_w.val(pr_id);
-                    }
-                }
-            });
-
-            $(".landing_block_table").on('click', '.landing_blocks', function(){
-                if ($(this).hasClass("active"))
-                {
-                    $(this).removeClass('active');
-                    $('.landing_block').hide();
-                }
-                else
-                {
-                    $('.landing_blocks').removeClass("active");
-                    $('.landing_block').hide();
-                    $(this).addClass("active");
-                    $('#l-' + $(this).attr('id')).show();
-                }
-            });
-
             $("#course-price, #recurrent-months, #recurrent-first").on('keyup change', function(){
                 calc_recurrent();
             });

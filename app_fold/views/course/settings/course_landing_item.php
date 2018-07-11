@@ -6,8 +6,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="tren_form_block_check_wrap example">
             ! Если не снять галочку
             <input type="checkbox" name="cb_example" checked="checked" class="tren_form_block_check" id="cb_example" disabled/>
-            <label for="cb_example">По-умолчанию</label>
-            , информация будет сохранена по-умолчанию.
+            <label for="cb_example">По умолчанию</label>
+            , информация будет сохранена по умолчанию.
         </div>
         <script>
             tinymce.init({
@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <select name="s_land_type" class="journal_form_select">
                     <option value="">Стиль</option>
                     <?php foreach ($landings_list as $ls) :
-                        $default = $ls['id'] == 1 ? ' (по-умолчанию)' : '';?>
+                        $default = $ls['id'] == 1 ? ' (по умолчанию)' : '';?>
                         <option value="<?php echo $ls['id']; ?>"
                             <?php if ($landing['lp_id'] == $ls['id']) : ?> selected="selected"<?php endif; ?>
                         ><?php echo $ls['name'] . $default; ?></option>
@@ -48,7 +48,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_slider_block1"
                             <?php if ($landing['slider_images_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check1bg" />
-                        <label for="tren_form_block_check1bg">Слайдер по-умолчанию</label>
+                        <label for="tren_form_block_check1bg">Слайдер по умолчанию</label>
                     </div>
                     <div class="add_foto_block_wrap">
                         <div class="add_foto_block">
@@ -93,7 +93,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_default_bg_block2"
                             <?php if ($landing['block2']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check2bg">
-                        <label for="tren_form_block_check2bg">Фон по-умолчанию</label>
+                        <label for="tren_form_block_check2bg">Фон по умолчанию</label>
                     </div>
                     <div class="bg_color">
                         <?php $h_color = (mb_substr($landing['block2']['bg_orig'], 0, 1) == '#') ? $landing['block2']['bg_orig'] : '';
@@ -144,7 +144,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_couch_image_block2"
                             <?php if ($landing['block2']['image_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check1bi" />
-                        <label for="tren_form_block_check1bi">Изображение тренера (слева) по-умолчанию</label>
+                        <label for="tren_form_block_check1bi">Изображение тренера (слева) по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Изображение тренера:</div>
@@ -177,7 +177,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_default_bg_block3"
                             <?php if ($landing['block3']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check3bg">
-                        <label for="tren_form_block_check3bg">Фон по-умолчанию</label>
+                        <label for="tren_form_block_check3bg">Фон по умолчанию</label>
                     </div>
                     <div class="bg_color">
                         <?php $h_color = (mb_substr($landing['block3']['bg_orig'], 0, 1) == '#') ? $landing['block3']['bg_orig'] : '';
@@ -220,7 +220,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_photo1_block3"
                             <?php if ($landing['block3']['images_default'][0] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check2bi" />
-                        <label for="tren_form_block_check2bi">Фото №1 по-умолчанию</label>
+                        <label for="tren_form_block_check2bi">Фото №1 по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Фото №1:</div>
@@ -244,7 +244,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_photo2_block3"
                             <?php if ($landing['block3']['images_default'][1] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check3bi" />
-                        <label for="tren_form_block_check3bi">Фото №2 по-умолчанию</label>
+                        <label for="tren_form_block_check3bi">Фото №2 по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Фото №2:</div>
@@ -289,7 +289,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_default_bg_block4"
                             <?php if ($landing['block4']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check4bg">
-                        <label for="tren_form_block_check4bg">Фон по-умолчанию</label>
+                        <label for="tren_form_block_check4bg">Фон по умолчанию</label>
                     </div>
                     <div class="bg_color">
                         <?php $h_color = (mb_substr($landing['block4']['bg_orig'], 0, 1) == '#') ? $landing['block4']['bg_orig'] : '';
@@ -331,7 +331,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_photo_block4"
                             <?php if ($landing['block4']['image_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check4bi" />
-                        <label for="tren_form_block_check4bi">Фото по-умолчанию</label>
+                        <label for="tren_form_block_check4bi">Фото по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Фото:</div>
@@ -378,7 +378,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_default_bg_block5"
                             <?php if ($landing['block5']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check5bg">
-                        <label for="tren_form_block_check5bg">Фон по-умолчанию</label>
+                        <label for="tren_form_block_check5bg">Фон по умолчанию</label>
                     </div>
                     <div class="bg_color">
                         <?php $h_color = (mb_substr($landing['block5']['bg_orig'], 0, 1) == '#') ? $landing['block5']['bg_orig'] : '';
@@ -425,7 +425,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_photo1_block5"
                             <?php if ($landing['block5']['images_default'][0] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check5bi" />
-                        <label for="tren_form_block_check5bi">Боковое фото №1 по-умолчанию</label>
+                        <label for="tren_form_block_check5bi">Боковое фото №1 по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Боковое фото №1:</div>
@@ -449,7 +449,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_photo2_block5"
                             <?php if ($landing['block5']['images_default'][1] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check6bi" />
-                        <label for="tren_form_block_check6bi">Боковое фото №2 по-умолчанию</label>
+                        <label for="tren_form_block_check6bi">Боковое фото №2 по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Боковое фото №2:</div>
@@ -473,7 +473,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_photo3_block5"
                             <?php if ($landing['block5']['images_default'][2] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check7bi" />
-                        <label for="tren_form_block_check7bi">Аватар по-умолчанию</label>
+                        <label for="tren_form_block_check7bi">Аватар по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Аватар:</div>
@@ -525,7 +525,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_default_bg_block6"
                             <?php if ($landing['block6']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check6bg">
-                        <label for="tren_form_block_check6bg">Фон по-умолчанию</label>
+                        <label for="tren_form_block_check6bg">Фон по умолчанию</label>
                     </div>
                     <div class="bg_color">
                         <?php $h_color = (mb_substr($landing['block6']['bg_orig'], 0, 1) == '#') ? $landing['block6']['bg_orig'] : '';
@@ -571,7 +571,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_photo_block6"
                             <?php if ($landing['block6']['image_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check8bi" />
-                        <label for="tren_form_block_check8bi">Боковое фото по-умолчанию</label>
+                        <label for="tren_form_block_check8bi">Боковое фото по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Боковое фото:</div>
@@ -630,7 +630,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_default_bg_block7"
                             <?php if ($landing['block7']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check7bg">
-                        <label for="tren_form_block_check7bg">Фон по-умолчанию</label>
+                        <label for="tren_form_block_check7bg">Фон по умолчанию</label>
                     </div>
                     <div class="bg_color">
                         <?php $h_color = (mb_substr($landing['block7']['bg_orig'], 0, 1) == '#') ? $landing['block7']['bg_orig'] : '';
@@ -668,7 +668,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_images_block7"
                             <?php if ($landing['block7']['images_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check15e" />
-                        <label for="tren_form_block_check15e">Все изображения по-умолчанию (4 шт.)</label>
+                        <label for="tren_form_block_check15e">Все изображения по умолчанию (4 шт.)</label>
                     </div>
                     <div class="lend_form_options_wrap">
                         <div class="lend_form_options">
@@ -687,11 +687,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <div class="progressbar_wrap">
                                                 <progress class="progressbar" id="progressbar20p" value="50" max="100"></progress>
                                             </div>
-                                            <?php if (($landing['block7']['images_default'] === false or $key > 3) and is_file($landing['block7']['images_orig'][$key])) :?>
-                                                <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
-                                            <?php endif;?>
                                         </div>
                                     </div>
+                                    <?php if (($landing['block7']['images_default'] === false or $key > 3) and is_file($landing['block7']['images_orig'][$key])) :?>
+                                        <div class="parent kurs_cur_wrap">
+                                            <div class="kurs_block_h"></div>
+                                            <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
+                                        </div>
+                                    <?php endif;?>
                                     <div class="parent kurs_cur_wrap">
                                         <div class="kurs_block_h">Текст плана:</div>
                                         <input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $b7_text;?>" maxlength="160"/>
@@ -741,7 +744,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="checkbox" name="cb_default_bg_block8"
                             <?php if ($landing['block8']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                class="tren_form_block_check" id="tren_form_block_check8bg">
-                        <label for="tren_form_block_check8bg">Фон по-умолчанию</label>
+                        <label for="tren_form_block_check8bg">Фон по умолчанию</label>
                     </div>
                     <div class="bg_color">
                         <?php $h_color = (mb_substr($landing['block8']['bg_orig'], 0, 1) == '#') ? $landing['block8']['bg_orig'] : '';

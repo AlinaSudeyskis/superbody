@@ -31,7 +31,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="hidden" name="post_id" value="<?php echo $post['id'];?>" id="post_id"/>
                         <select name="journal_cat" class="journal_form_select">
                             <option value="">Выберите категорию</option>
-                            <option value="1" <?php if ($post['type'] == 1) :?>selected="selected"<?php endif;?>>Статьи (по-умолчанию)</option>
+                            <option value="1" <?php if ($post['type'] == 1) :?>selected="selected"<?php endif;?>>Статьи (по умолчанию)</option>
                             <option value="2" <?php if ($post['type'] == 2) :?>selected="selected"<?php endif;?>>Интервью</option>
                             <option value="3" <?php if ($post['type'] == 3) :?>selected="selected"<?php endif;?>>Новости</option>
                         </select>

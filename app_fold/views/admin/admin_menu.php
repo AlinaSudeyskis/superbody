@@ -22,11 +22,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span><img src="/img/menu_ico18.png" alt=""></span><span>Администраторы</span>
         </a>
     </li>
-    <li>
-        <a href="/administration/video" <?php if ($page_menu == 'video') { echo 'class="active"'; } ?>>
+    <!--<li>
+        <a href="/administration/video" <?php /*if ($page_menu == 'video') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico19.png" alt=""></span><span>Видео</span>
         </a>
-    </li>
+    </li>-->
     <li>
         <a href="/administration/courses" <?php if ($page_menu == 'a_courses_w') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico21.png" alt=""></span><span>Курсы тренировок</span>

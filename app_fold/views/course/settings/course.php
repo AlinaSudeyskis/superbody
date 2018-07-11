@@ -10,10 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="content_block new_content_block ovv">
                 <div class="content_block_h parent">
                     <h3><?php echo $course['name']?></h3>
-                    <a href="/administration/course/<?php echo $course_id; ?>/video/new" class="add_tab_but">Доб. видео</a>
-                    <a href="/administration/course/<?php echo $course_id; ?>/promocode/new" class="add_tab_but">Доб. промокод</a>
-                    <a href="/administration/course/<?php echo $course_id; ?>/extend/new" class="add_tab_but">Продлить курс</a>
-                    <a href="/administration/course/<?php echo $course_id; ?>/attach/new" class="add_tab_but">Прикрепить курс</a>
+                    <?php include_once('./app_fold/views/course/settings/course_buts.php');?>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
@@ -44,7 +41,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             include_once('./app_fold/views/course/settings/course_reviews_item.php');
                         elseif ($page_submenu == 'reviews' and !empty($review)) :
                             include_once('./app_fold/views/course/settings/course_review_item.php');
-                        elseif ($page_submenu == 'video' and $video_menu == 'video_settings') :
+                        elseif ($page_submenu == 'video' and $video_page == 'video_settings') :
                             include_once('./app_fold/views/course/settings/course_video_menu.php');?>
                             <form action="" class="video_admin_form" method="post" enctype="multipart/form-data">
                                 <?php include_once('./app_fold/views/video/video_settings_item.php');?>

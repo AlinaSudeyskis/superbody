@@ -42,7 +42,7 @@ class Blog extends CI_Controller
 
         $result = $this->Blog_model->getBlogsPosts();
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('blog/posts/blog_posts', $result);
         $this->load->view('footer/footer');
@@ -145,7 +145,7 @@ class Blog extends CI_Controller
         
         $result = $this->Blog_model->getBlogPost($post_id);
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('blog/posts/blog_post', $result);
         $this->load->view('footer/footer');
@@ -172,7 +172,7 @@ class Blog extends CI_Controller
         
         $result = $this->Blog_model->getBlogsComments();
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('blog/posts/comments', $result);
         $this->load->view('footer/footer');
@@ -225,7 +225,7 @@ class Blog extends CI_Controller
         
         $result = $this->Blog_model->getBlogComment($comment_id);
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('blog/posts/comment', $result);
         $this->load->view('footer/footer');

@@ -150,7 +150,7 @@ class Welcome extends CI_Controller
                 if ($res_send === true)
                 {
                     // Отправление письма с уведомление об ожидании ответа
-                    $system_message  = '';
+                    $system_message['text']  = '';
 
                     parent::sendEmail(9, $email, $system_message);
 

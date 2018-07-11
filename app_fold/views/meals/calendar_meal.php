@@ -6,14 +6,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <h3><?php if(!empty($meal_time)) : echo $meal_time; endif; ?></h3>
     </div>
     <div class="meal_block_val" style="display: block;">
-        <div class="col-lg-5">
+        <div class="col-lg-6">
             <div class="meal_block_img">
-                <?php if(!empty(current($meal_data['meal']['images']))): ?>
-                    <img src="<?php echo $meal_data['meal']['images_path']; ?>/<?php echo current($meal_data['meal']['images']); ?>" alt="" style="width:100%;" />
-                <?php endif; ?>
+                <?php if(!empty($meal_data['meal']['meal_videos'])):
+                    foreach($meal_data['meal']['meal_videos'] as $ml_video): ?>
+                        <iframe src="<?php echo $ml_video; ?>?enablejsapi=1&origin=http://sb.theoutlines.ru" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen class="yt-player"></iframe>
+                    <?php endforeach;
+                    unset($ml_video);
+                endif;
+                if(!empty($meal_data['meal']['images'])):
+                    foreach($meal_data['meal']['images'] as $img):?>
+                        <img src="<?php echo $meal_data['meal']['images_path']; ?>/<?php echo $img; ?>" alt="" style="width:100%;" />
+                    <?php endforeach;
+                    unset($img);
+                endif; ?>
             </div>
         </div>
-        <div class="col-lg-7">
+        <div class="col-lg-6">
             <div class="selected_meal">
                 <div class="meal_title"><?php echo $meal_data['meal']['name']; ?></div>
                 <div class="meal_subtitle"><?php echo $meal_data['meal']['description']; ?></div>

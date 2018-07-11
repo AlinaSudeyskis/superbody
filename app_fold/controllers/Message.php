@@ -161,7 +161,7 @@ class Message extends CI_Controller
 
         $result = $this->Message_model->getMessages();
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('messages/messages', $result);
         $this->load->view('footer/footer');
@@ -221,7 +221,7 @@ class Message extends CI_Controller
 
         $result = $this->Message_model->getMessage($message_id);
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('messages/message', $result);
         $this->load->view('footer/footer');
@@ -295,7 +295,7 @@ class Message extends CI_Controller
         $this->page_data['title'] = 'АП - Сообщения обратной связи';
         $this->page_data['page_menu'] = 'feedback';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('messages/feedback_messages', $result);
         $this->load->view('footer/footer');
@@ -361,11 +361,11 @@ class Message extends CI_Controller
                     // Отправление письма с копией сообщений обратной связи
                     if (is_array($result))
                     {
-                        $system_message = '';
+                        $system_message['text'] = '';
 
                         foreach ($result['fb_user_messages'] as $fb_message)
                         {
-                            $system_message  .=
+                            $system_message['text']  .=
                                 '<div style="margin-bottom: 10px;">' .
                                 '<div style="margin-left: 10px; padding-top: 2px; color: #b7b7b7;">' . $fb_message['date'] . ' ' . $fb_message['time'] . '</div>' .
                                 '<div style="margin: 10px 0 0 20px;">' . nl2br($fb_message['text']) . '</div>' .
@@ -380,7 +380,7 @@ class Message extends CI_Controller
                     // Отправка уведомления о новом сообщении
                     elseif($result === true)
                     {
-                        $system_message  = '';
+                        $system_message['text']  = '';
 
                         parent::sendEmail(8, $identification, $system_message);
 
@@ -425,7 +425,7 @@ class Message extends CI_Controller
         $this->page_data['title'] = 'АП - Сообщения диалога обратной связи с пользователем';
         $this->page_data['page_menu'] = 'feedback';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('messages/feedback_user_messages', $result);
         $this->load->view('footer/footer');

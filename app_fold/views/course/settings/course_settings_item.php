@@ -52,7 +52,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <option value="">Выберите количество тренировок</option>
                     <option value="1"
                             <?php if ($course['count_days'] == 1) :?>selected="selected"<?php endif;?>
-                    >1 тренировка (по-умолчанию)</option>
+                    >1 тренировка (по умолчанию)</option>
                     <option value="2"
                             <?php if ($course['count_days'] == 2) :?>selected="selected"<?php endif;?>
                     >2 тренировки</option>
@@ -73,7 +73,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     >7 тренировок</option>
                 <?php else:?>
                     <option value="" selected="selected">Выберите количество тренировок</option>
-                    <option value="1">1 тренировка (по-умолчанию)</option>
+                    <option value="1">1 тренировка (по умолчанию)</option>
                     <option value="2">2 тренировки</option>
                     <option value="3">3 тренировки</option>
                     <option value="4">4 тренировки</option>
@@ -90,7 +90,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php if (!empty($course['count_rest']) and 0 <= $course['count_rest']) :?>
                     <option value="">Минимальный отдых между тренировками</option>
                     <option value="0" <?php if (0 == $course['count_rest']) :?>selected="selected"<?php endif;?>>
-                        Без отдыха (по-умолчанию)</option>
+                        Без отдыха (по умолчанию)</option>
                     <option value="1" <?php if (1 == $course['count_rest']) :?>selected="selected"<?php endif;?>>
                         Один день</option>
                     <option value="2" <?php if (2 == $course['count_rest']) :?>selected="selected"<?php endif;?>>
@@ -99,7 +99,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         Три дня</option>
                 <?php else:?>
                     <option value="" selected="selected">Минимальный отдых между тренировками</option>
-                    <option value="0">Без отдыха (по-умолчанию)</option>
+                    <option value="0">Без отдыха (по умолчанию)</option>
                     <option value="1">Один день</option>
                     <option value="2">Два дня</option>
                     <option value="3">Три дня</option>
@@ -172,7 +172,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 endif;?>
             </div>
         </div>
-        <div class="parent instruction_block">
+        <!--<div class="parent instruction_block">
             <div class="practice_block_h">Инструктаж курса:</div>
             <div class="add_tov_in_total">
                 <div class="add_tov_in video">
@@ -181,19 +181,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="add_tov_val">
                     <div class="add_tov_val_item parent">
-                        <?php if (!empty($course['instruction']['video_id'])) : ?>
-                            <div id="<?php echo $course['instruction']['video_id']; ?>video" class="add_tov_val_item parent">
+                        <?php /*if (!empty($course['instruction']['video_id'])) : */?>
+                            <div id="<?php /*echo $course['instruction']['video_id']; */?>video" class="add_tov_val_item parent">
                                 <div class="add_kurs_val_video_wrap parent">
-                                    <a href="/administration/video/<?php echo $course['instruction']['video_id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $course['instruction']['video_name']; ?></span></a>
+                                    <a href="/administration/video/<?php /*echo $course['instruction']['video_id']; */?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php /*echo $course['instruction']['video_name']; */?></span></a>
                                     <div class="del_tov"></div>
                                 </div>
                             </div>
-                        <?php endif;?>
+                        <?php /*endif;*/?>
                     </div>
                 </div>
-                <input type="hidden" name="video_instruction" value="<?php echo $course['instruction']['video_id'];?>" id="id-video-instruction"/>
+                <input type="hidden" name="video_instruction" value="<?php /*echo $course['instruction']['video_id'];*/?>" id="id-video-instruction"/>
             </div>
-        </div>
+        </div>-->
 
         <div class="parent block_wrap">
             <div class="practice_block_h">Тренировки:</div>

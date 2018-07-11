@@ -68,7 +68,7 @@ class Journal extends CI_Controller
         $this->page_data['title'] = 'АП - Журнал - Новая запись';
         $this->page_data['page_menu'] = 'a_journal';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/new_post');
         $this->load->view('footer/footer');
@@ -122,7 +122,7 @@ class Journal extends CI_Controller
         $this->page_data['title'] = 'АП - Журнал - Редактировать запись';
         $this->page_data['page_menu'] = 'a_journal';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/post_settings', $result);
         $this->load->view('footer/footer');
@@ -161,7 +161,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'articles';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
 
         if ($type_id == 1) {
@@ -196,7 +196,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'articles';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/article/e_articles', $result);
         $this->load->view('footer/footer');
@@ -261,7 +261,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'articles';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/article/new_article');
         $this->load->view('footer/footer');
@@ -357,7 +357,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'articles';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/article/article_settings', $result);
         $this->load->view('footer/footer');
@@ -382,7 +382,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'interviews';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/interview/e_interviews', $result);
         $this->load->view('footer/footer');
@@ -479,7 +479,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'interviews';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/interview/interview_settings', $result);
         $this->load->view('footer/footer');
@@ -543,7 +543,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'interviews';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/interview/new_interview');
         $this->load->view('footer/footer');
@@ -646,7 +646,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'news';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
 
         if (empty($news_id)) {
@@ -717,7 +717,7 @@ class Journal extends CI_Controller
         $this->page_data['page_menu'] = 'a_journal';
         $this->page_data['page_submenu'] = 'news';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('journal/news/new_news');
         $this->load->view('footer/footer');

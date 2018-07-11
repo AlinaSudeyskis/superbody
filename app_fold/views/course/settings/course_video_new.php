@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="content_block new_content_block ovv">
                 <div class="content_block_h parent">
                     <h3><?php echo $course['name']?></h3>
-                    <a href="/administration/course/<?php echo $course_id; ?>/video/new" class="add_tab_but">Добавить видео</a>
+                    <?php include_once('./app_fold/views/course/settings/course_buts.php');?>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>

@@ -34,7 +34,7 @@ class Notification extends CI_Controller
         $this->page_data['title'] = 'АП - Уведомления';
         $this->page_data['page_menu'] = 'notifications';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('notification/notifications', $result);
         $this->load->view('footer/footer');
@@ -81,7 +81,7 @@ class Notification extends CI_Controller
         $this->page_data['title'] = 'АП - Уведомления';
         $this->page_data['page_menu'] = 'notifications';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('notification/notification_settings', $result);
         $this->load->view('footer/footer');
@@ -101,7 +101,7 @@ class Notification extends CI_Controller
         $this->page_data['page_menu']    = 'emails';
         $this->page_data['page_submenu'] = 'emails';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('email/emails', $result);
         $this->load->view('footer/footer');
@@ -207,7 +207,7 @@ class Notification extends CI_Controller
         $this->page_data['page_menu']    = 'emails';
         $this->page_data['page_submenu'] = 'emails';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('email/email_settings', $result);
         $this->load->view('footer/footer');
@@ -254,7 +254,7 @@ class Notification extends CI_Controller
         $this->page_data['page_menu']    = 'emails';
         $this->page_data['page_submenu'] = 'emails_addresses';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('email/emails_addresses', $result);
         $this->load->view('footer/footer');
@@ -300,7 +300,7 @@ class Notification extends CI_Controller
         $this->page_data['page_menu']    = 'emails';
         $this->page_data['page_submenu'] = 'emails_addresses';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('email/new_email_address');
         $this->load->view('footer/footer');
@@ -351,7 +351,7 @@ class Notification extends CI_Controller
         $this->page_data['page_menu']    = 'emails';
         $this->page_data['page_submenu'] = 'emails_addresses';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('email/email_address_settings', $result);
         $this->load->view('footer/footer');

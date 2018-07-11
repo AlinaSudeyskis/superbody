@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="content_block new_content_block">
                 <div class="content_block_h new_content_block_h parent">
                     <h3>Курсы питания</h3>
-                    <?php include_once('./app_fold/views/course/nutritions/courses_buts.php'); ?>
+                    <?php include_once('./app_fold/views/meals/meals_buts.php'); ?>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>

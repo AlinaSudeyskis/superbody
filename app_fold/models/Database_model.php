@@ -715,6 +715,19 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+
+        // 10.07.2018
+        $date = '2018-07-10 10:03:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `video` ADD `video_active` TINYINT(1) UNSIGNED NOT NULL AFTER `video_crs_id`");
+
+            $result = true;
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

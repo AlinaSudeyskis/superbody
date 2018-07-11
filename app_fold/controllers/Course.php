@@ -44,7 +44,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'courses_types';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/types/types', $result);
         $this->load->view('footer/footer');
@@ -92,7 +92,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'courses_types';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/types/new_type');
         $this->load->view('footer/footer');
@@ -143,7 +143,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'courses_types';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/types/type_settings', $result);
         $this->load->view('footer/footer');
@@ -171,7 +171,7 @@ class Course extends CI_Controller
         $this->page_data['title'] = 'АП - Типы приемов пищи';
         $this->page_data['page_menu'] = 'ingestion_type';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('ingestion/types', $result);
         $this->load->view('footer/footer');
@@ -217,7 +217,7 @@ class Course extends CI_Controller
         $this->page_data['title'] = 'АП - Добавление нового типа приемов пищи';
         $this->page_data['page_menu'] = 'ingestion_type';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('ingestion/new_type');
         $this->load->view('footer/footer');
@@ -259,7 +259,7 @@ class Course extends CI_Controller
         $this->page_data['title'] = 'АП - Изменение данных типа приемов пищи';
         $this->page_data['page_menu'] = 'ingestion_type';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
 
         if (is_numeric($type_id)) {
@@ -324,7 +324,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu'] = 'video';
         $this->page_data['page_submenu'] = 'promo';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('video/video', $result);
         $this->load->view('footer/footer');
@@ -350,7 +350,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu'] = 'video';
         $this->page_data['page_submenu'] = 'courses';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('video/video_courses', $result);
         $this->load->view('footer/footer');
@@ -376,7 +376,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu'] = 'video';
         $this->page_data['page_submenu'] = 'uncategorized';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('video/video', $result);
         $this->load->view('footer/footer');
@@ -402,7 +402,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu'] = 'video';
         $this->page_data['page_submenu'] = 'instructions';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('video/video', $result);
         $this->load->view('footer/footer');
@@ -429,7 +429,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu'] = 'video';
         $this->page_data['page_submenu'] = 'courses';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('video/video', $result);
         $this->load->view('footer/footer');
@@ -523,7 +523,7 @@ class Course extends CI_Controller
         $this->page_data['title'] = 'АП - Добавление видео';
         $this->page_data['page_menu'] = 'video';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('video/new_video', $courses);
         $this->load->view('footer/footer');
@@ -651,148 +651,9 @@ class Course extends CI_Controller
         $this->page_data['title'] = 'АП - Редактирование данных видео';
         $this->page_data['page_menu'] = 'video';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('video/video_settings', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод формы и валидация данных видео курса
-     *
-     * @param $course_id
-     * @param $video_id
-     * @return void
-     */
-    public function courseVideoSettings($course_id, $video_id)
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
-            parent::pageNotFound($this->page_url);
-        }
-
-        $course_id = (is_numeric($course_id)) ? $course_id : '';
-        $video_id  = (is_numeric($video_id)) ? $video_id : '';
-
-        $video    = $this->Course_model->getCourseVideoData($course_id, $video_id);
-        $courses  = $this->Course_model->getWorkoutCourses();
-        $course   = $this->Course_model->getShortCourse($course_id);
-        $schedule = $this->Course_model->getCourseSchedules($course_id);
-        $result   = array_merge($video, $courses, $course, $schedule);
-
-        if ($this->input->post('bt_save_video', true) and !empty($course_id) and !empty($video_id))
-        {
-            // Введенные данные
-            $type        = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
-            $course_id   = is_numeric($this->input->post('s_courses', true)) ? $this->input->post('s_courses', true) : 0;
-            $poster_path = (!empty($this->input->post('poster_path', true)) and is_file('./video/' . $this->input->post('poster_path', true)))
-                ? './video/' . $this->input->post('poster_path', true)
-                : null;
-            $video_path  = (!empty($this->input->post('video_path', true)) and is_file('./video/' . $this->input->post('video_path', true)))
-                ? './video/' . $this->input->post('video_path', true)
-                : null;
-            $name = !empty($this->input->post('file_name', true))
-                ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255)
-                : '';
-            $remove_url = !empty($this->input->post('remove_url', true))
-                ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255)
-                : '';
-            $remove_id  = mb_substr($remove_url, -11);
-
-            // Сравненение с БД
-            $poster = (!empty($poster_path) and $poster_path != $result['video']['poster'])
-                ? $poster_path
-                : '.' . $result['video']['poster'];
-            $video  = (!empty($video_path) and $video_path != $result['video']['video'])
-                ? $video_path
-                : '.' . $result['video']['video'];
-            //$video_id = $result;
-
-            // Id тренировки курса
-            $workout_num = (is_numeric($this->input->post('hi_ctw', true))) ? $this->input->post('hi_ctw', true) : null;
-
-            // Прикрепление видео к тренировке
-            if(!empty($workout_num) and !empty($course_id))
-            {
-                $this->Course_model->attachVideoToWorkout($course_id, $workout_num, $video_id, $this->date);
-            }
-
-            $update = $this->Course_model->setVideoSettings($video_id, $type, $course_id, $video, $name, $poster, $remove_url, $this->user_id,
-                $this->date);
-
-            if ($update === true)
-            {
-                if ($video != $result['video']['video'] and is_file($result['video']['video']) and is_file($video))
-                {
-                    unlink($result['video']['video']);
-                }
-
-                if ($poster != $result['video']['poster'] and is_file($result['video']['poster']) and is_file($poster))
-                {
-                    unlink($result['video']['poster']);
-                }
-
-                // Изменения сохранены
-                $this->session->set_tempdata('message', 10, 60);
-            }
-            else
-            {
-                // Изменения не сохранены
-                $this->session->set_tempdata('message', 41, 60);
-            }
-
-            header('Location: /administration/video/' . $video_id);
-        }
-        elseif ($this->input->post('bt_block_video', true) and !empty($video_id)) {
-            $blocked = $this->Course_model->blockVideo($video_id, $this->date);
-
-            if ($blocked === true) {
-                // Сохранено
-                $this->session->set_tempdata('message', 42, 60);
-            } else {
-                // Не сохранено
-                $this->session->set_tempdata('message', 43, 60);
-            }
-            header('Location: /administration/video/' . $video_id);
-        }
-        elseif ($this->input->post('bt_unblock_video', true) and !empty($video_id)) {
-            $unblocked = $this->Course_model->unblockVideo($video_id, $this->date);
-
-            if ($unblocked === true) {
-                // Сохранено
-                $this->session->set_tempdata('message', 44, 60);
-            } else {
-                // Не сохранено
-                $this->session->set_tempdata('message', 45, 60);
-            }
-            header('Location: /administration/video/' . $video_id);
-        }
-        elseif ($this->input->post('bt_delete_video', true) and !empty($video_id)) {
-            $deleted = $this->Course_model->deleteVideo($video_id);
-
-            if ($deleted === true) {
-                // Удалено
-                $this->session->set_tempdata('message', 104, 60);
-
-                header('Location: /administration/video');
-            } else {
-                // Не удалено
-                $this->session->set_tempdata('message', 105, 60);
-
-                header('Location: /administration/video/' . $video_id);
-            }
-        }
-
-        // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Редактирование данных видео курса';
-        $this->page_data['page_menu']    = 'a_courses_w';
-        $this->page_data['page_submenu'] = 'video';
-        $this->page_data['video_menu']   = 'video_settings';
-        $this->page_data['course_id']    = $course_id;
-
-        $this->load->view('header/header', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
 
@@ -895,7 +756,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'a_courses_w';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/courses', $result);
         $this->load->view('footer/footer');
@@ -1134,7 +995,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'a_courses';
         
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/new_course', $course_types);
         $this->load->view('footer/footer');
@@ -1522,7 +1383,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'settings';
         $this->page_data['course_id'] = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -1611,7 +1472,7 @@ class Course extends CI_Controller
             // Фон
             $b2_bg = (!empty($landing['block2']['bg_orig']) and $landing['block2']['bg_default'] != 'default')
                 ? $landing['block2']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block2', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block2', true);
@@ -1661,7 +1522,7 @@ class Course extends CI_Controller
             // Фон
             $b3_bg = (!empty($landing['block3']['bg_orig']) and $landing['block3']['bg_default'] != 'default')
                 ? $landing['block3']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block3', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block3', true);
@@ -1738,7 +1599,7 @@ class Course extends CI_Controller
             // Фон
             $b4_bg = (!empty($landing['block4']['bg_orig']) and $landing['block4']['bg_default'] != 'default')
                 ? $landing['block4']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block4', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block4', true);
@@ -1790,7 +1651,7 @@ class Course extends CI_Controller
             // Фон
             $b5_bg = (!empty($landing['block5']['bg_orig']) and $landing['block5']['bg_default'] != 'default')
                 ? $landing['block5']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block5', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block5', true);
@@ -1894,7 +1755,7 @@ class Course extends CI_Controller
             // Фон
             $b6_bg = (!empty($landing['block6']['bg_orig']) and $landing['block6']['bg_default'] != 'default')
                 ? $landing['block6']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block6', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block6', true);
@@ -1951,7 +1812,7 @@ class Course extends CI_Controller
             // Фон
             $b7_bg = (!empty($landing['block7']['bg_orig']) and $landing['block7']['bg_default'] != 'default')
                 ? $landing['block7']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block7', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block7', true);
@@ -2043,7 +1904,7 @@ class Course extends CI_Controller
             // Фон
             $b8_bg = (!empty($landing['block8']['bg_orig']) and $landing['block8']['bg_default'] != 'default')
                 ? $landing['block8']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block8', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block8', true);
@@ -2172,7 +2033,7 @@ class Course extends CI_Controller
             // Фон
             $b2_bg = (!empty($landing['block2']['bg_orig']) and $landing['block2']['bg_default'] != 'default')
                 ? $landing['block2']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block2', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block2', true);
@@ -2248,7 +2109,7 @@ class Course extends CI_Controller
             // Фон
             $b3_bg = (!empty($landing['block3']['bg_orig']) and $landing['block3']['bg_default'] != 'default')
                 ? $landing['block3']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block3', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block3', true);
@@ -2344,7 +2205,7 @@ class Course extends CI_Controller
             // Фон
             $b4_bg = (!empty($landing['block4']['bg_orig']) and $landing['block4']['bg_default'] != 'default')
                 ? $landing['block4']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block4', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block4', true);
@@ -2415,7 +2276,7 @@ class Course extends CI_Controller
             // Фон
             $b5_bg = (!empty($landing['block5']['bg_orig']) and $landing['block5']['bg_default'] === false)
                 ? $landing['block5']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block5', true)))
             {
                 // Фон либо цвет, либо файл изображения
@@ -2547,7 +2408,7 @@ class Course extends CI_Controller
             // Фон
             $b6_bg = (!empty($landing['block6']['bg_orig']) and $landing['block6']['bg_default'] != 'default')
                 ? $landing['block6']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block6', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block6', true);
@@ -2623,7 +2484,7 @@ class Course extends CI_Controller
             // Фон
             $b7_bg = (!empty($landing['block7']['bg_orig']) and $landing['block7']['bg_default'] != 'default')
                 ? $landing['block7']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block7', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block7', true);
@@ -2733,7 +2594,7 @@ class Course extends CI_Controller
             // Фон
             $b8_bg = (!empty($landing['block8']['bg_orig']) and $landing['block8']['bg_default'] != 'default')
                 ? $landing['block8']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block8', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block8', true);
@@ -2787,7 +2648,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu']  = 'landing';
         $this->page_data['course_id']     = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -2825,7 +2686,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'statistics';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         if($course_type == 'workout')
         {
@@ -2836,6 +2697,52 @@ class Course extends CI_Controller
             $this->load->view('course/nutritions/settings/course', $result);
         }
         $this->load->view('footer/footer');
+    }
+
+    /**
+     * Страница предварительного просмотра курса.
+     *
+     * @param $course_id
+     * @return void
+     */
+    public function coursePreview($course_id)
+    {
+        // Выборка данных курса
+        $course         = $this->Course_model->getCourse($course_id);
+        $course_couches = $this->Course_model->getCourseCouchesId($course_id);
+        $user_courses   = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
+        $landing        = array();
+
+        if (!empty($course['course']) and !empty($course['course']['landing']['id']))
+        {
+            $landing = $this->Course_model->getLandingPage($course_id);
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']       = (!empty($course['course']['name'])) ? $course['course']['name'] : 'Курс №' . $course_id;
+        $this->page_data['page_menu']   = 'courses';
+        $this->page_data['course_id']   = $course_id;
+        $this->page_data['purchase_up'] = ($this->input->get('ref', true)) ? true : false;
+
+        $result = array_merge($course, $course_couches, $user_courses, $landing, $this->page_data);
+
+        if (!empty($landing['landing']['html_page']))
+        {
+            $this->load->view($landing['landing']['html_page'].'header', $result);
+            $this->load->view($landing['landing']['html_page'].'content');
+            $this->load->view($landing['landing']['html_page'].'footer');
+        }
+        elseif (!empty($course['course']))
+        {
+            $this->load->view('header/header', $this->page_data);
+            $this->load->view('header/secondary');
+            $this->load->view('course/public_course', $result);
+            $this->load->view('footer/footer');
+        }
+        else
+        {
+            $this->load->view('errors/html/error_404', $this->page_data);
+        }
     }
 
 
@@ -2862,7 +2769,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'reviews';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         if($course_type == 'workout')
         {
@@ -2973,7 +2880,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'reviews';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         if($course_type == 'workout')
         {
@@ -3008,7 +2915,7 @@ class Course extends CI_Controller
         $this->page_data['video_menu']   = 'promo';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -3033,7 +2940,7 @@ class Course extends CI_Controller
         $this->page_data['video_menu']   = 'workouts';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -3058,7 +2965,7 @@ class Course extends CI_Controller
         $this->page_data['video_menu']   = 'instructions';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -3153,10 +3060,228 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'video';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course_video_new', $result);
         $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы и валидация данных видео курса
+     *
+     * @param $course_id
+     * @param $video_id
+     * @return void
+     */
+    public function courseVideoSettings($course_id, $video_id)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $course_id = (is_numeric($course_id)) ? $course_id : '';
+        $video_id  = (is_numeric($video_id)) ? $video_id : '';
+
+        $video    = $this->Course_model->getCourseVideoData($course_id, $video_id);
+        $courses  = $this->Course_model->getWorkoutCourses();
+        $course   = $this->Course_model->getShortCourse($course_id);
+        $schedule = $this->Course_model->getCourseSchedules($course_id);
+        $result   = array_merge($video, $courses, $course, $schedule);
+
+        if ($this->input->post('bt_save_video', true) and !empty($course_id) and !empty($video_id))
+        {
+            // Введенные данные
+            $type          = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
+            $new_course_id = is_numeric($this->input->post('s_courses', true)) ? $this->input->post('s_courses', true) : null;
+            $poster_path   = (!empty($this->input->post('poster_path', true)) and is_file('./video/' . $this->input->post('poster_path', true)))
+                ? './video/' . $this->input->post('poster_path', true)
+                : null;
+            $video_path  = (!empty($this->input->post('video_path', true)) and is_file('./video/' . $this->input->post('video_path', true)))
+                ? './video/' . $this->input->post('video_path', true)
+                : null;
+            $name = !empty($this->input->post('file_name', true))
+                ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255)
+                : '';
+            $remove_url = !empty($this->input->post('remove_url', true))
+                ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255)
+                : '';
+            $remove_id  = mb_substr($remove_url, -11);
+
+            // Сравненение с БД
+            $poster_path = (!empty($poster_path) and $poster_path != $result['video']['poster'])
+                ? $poster_path
+                : '.' . $result['video']['poster'];
+            $video_path  = (!empty($video_path) and $video_path != $result['video']['video'])
+                ? $video_path
+                : '.' . $result['video']['video'];
+            //$video_id = $result;
+            // Выборка информации о тренировках нового выбранного курса
+            $schedule  = (!empty($new_course_id) and $new_course_id != $course_id) ? $this->Course_model->getCourseSchedules($new_course_id) : $schedule;
+
+            // Id тренировок курса
+            $workouts_num = (!empty($this->input->post('cb_practice_days', true))) ? $this->input->post('cb_practice_days', true) : null;
+            $selected_trainings = array('update' => array(), 'delete' => array());
+            $i = 0;
+            $search_w = array_flip(array_keys($schedule['workouts_id'], $video_id));
+            // Обновление id видео дней тренировок
+            if(!empty($workouts_num))
+            {
+                foreach($workouts_num as $w_id => $w_vd_id)
+                {
+                    if(is_numeric($w_id) and !array_key_exists($w_id, $search_w))
+                    {
+                        $selected_trainings['update'][$i] = $w_id;
+                        $i++;
+                    }
+                }
+                unset($w_vd_id);
+            }
+            // Удаление id видео из дней тренировок курса
+            $selected_trainings['delete'] = array_diff_key($search_w, $workouts_num);
+
+            // Обновление видео тренировке
+            if((!empty($selected_trainings['update']) or !empty($selected_trainings['delete'])) and !empty($course_id))
+            {
+                $this->Course_model->attachVideoToWorkouts($course_id, $selected_trainings, $video_id, $this->date);
+            }
+
+            if(!empty($video_id) and !empty($course_id) and ((!empty($poster_path) and $poster_path != $result['video']['poster'])
+                    or (!empty($video_path) and $video_path != $result['video']['video']) or $name != $result['video']['name']
+                    or $remove_url != $result['video']['remove_url'] or $type != $result['video']['type'] or $new_course_id != $course_id))
+            {
+                $course_id = (!empty($new_course_id) and $new_course_id != $course_id) ? $new_course_id : $course_id;
+
+                $update = $this->Course_model->setVideoSettings($video_id, $type, $course_id, $video_path, $name, $poster_path, $remove_url, $this->user_id, $this->date);
+
+                if ($update === true)
+                {
+                    if ($video_path != $result['video']['video'] and is_file($result['video']['video']) and is_file($video_path))
+                    {
+                        unlink($result['video']['video']);
+                    }
+
+                    if ($poster_path != $result['video']['poster'] and is_file($result['video']['poster']) and is_file($poster_path))
+                    {
+                        unlink($result['video']['poster']);
+                    }
+
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 41, 60);
+                }
+            }
+
+            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
+        }
+        elseif ($this->input->post('bt_block_video', true) and !empty($video_id))
+        {
+            $blocked = $this->Course_model->blockVideo($video_id, $this->date);
+
+            if ($blocked === true)
+            {
+                // Сохранено
+                $this->session->set_tempdata('message', 42, 60);
+            }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 43, 60);
+            }
+            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
+        }
+        elseif ($this->input->post('bt_unblock_video', true) and !empty($video_id))
+        {
+            $unblocked = $this->Course_model->unblockVideo($video_id, $this->date);
+
+            if ($unblocked === true)
+            {
+                // Сохранено
+                $this->session->set_tempdata('message', 44, 60);
+            }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 45, 60);
+            }
+            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
+        }
+        elseif ($this->input->post('bt_delete_video', true) and !empty($video_id))
+        {
+            $deleted = $this->Course_model->deleteVideo($video_id);
+
+            if ($deleted === true)
+            {
+                // Удалено
+                $this->session->set_tempdata('message', 104, 60);
+
+                header('Location: /administration/course/' . $course_id . '/video/');
+            }
+            else
+            {
+                // Не удалено
+                $this->session->set_tempdata('message', 105, 60);
+
+                header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
+            }
+        }
+
+        $video_types = array('promo' => 1, 'workouts' => 2, 'instructions' => 3);
+        $type_key    = (!empty($video['video']['type'])) ? array_search($video['video']['type'], $video_types) : '';
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Редактирование данных видео курса';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = (!empty($video['video']['type']) and in_array($video['video']['type'], $video_types)) ? $type_key : '';
+        $this->page_data['video_page']   = 'video_settings';
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * AJAX. Активация видео
+     */
+    public function activateCourseVideo()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $video_id   = is_numeric($this->input->post('vd_id', true)) ? $this->input->post('vd_id', true) : null;
+        $video_type = strip_tags($this->input->post('vd_t', true));
+        $course_id  = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
+        $display    = is_numeric($this->input->post('display', true)) ? $this->input->post('display', true) : null;
+
+        if (!empty($video_id) and !empty($course_id) and !empty($video_type) and !empty($display))
+        {
+            // Изменение активного видео
+            $res_up = $this->Course_model->activateCourseVideos($course_id, $video_id, $video_type, $this->date);
+
+            if($res_up === false)
+            {
+                $display_result['error'] = 'Select error';
+            }
+            else
+            {
+                $display_result = true;
+            }
+        }
+        else
+        {
+            $display_result['error'] = 'vd_id, vd_t, crs_id and|or display are empty';
+        }
+
+        echo json_encode($display_result, JSON_NUMERIC_CHECK);
     }
 
 
@@ -3175,7 +3300,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'a_courses';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/nutritions/courses', $result);
         $this->load->view('footer/footer');
@@ -3353,7 +3478,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'a_courses';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/nutritions/settings/new_course', $result);
         $this->load->view('footer/footer');
@@ -3701,7 +3826,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'settings';
         $this->page_data['course_id'] = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/nutritions/settings/course', $result);
         $this->load->view('footer/footer');
@@ -3790,7 +3915,7 @@ class Course extends CI_Controller
             // Фон
             $b2_bg = (!empty($landing['block2']['bg_orig']) and $landing['block2']['bg_default'] != 'default')
                 ? $landing['block2']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block2', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block2', true);
@@ -3840,7 +3965,7 @@ class Course extends CI_Controller
             // Фон
             $b3_bg = (!empty($landing['block3']['bg_orig']) and $landing['block3']['bg_default'] != 'default')
                 ? $landing['block3']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block3', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block3', true);
@@ -3917,7 +4042,7 @@ class Course extends CI_Controller
             // Фон
             $b4_bg = (!empty($landing['block4']['bg_orig']) and $landing['block4']['bg_default'] != 'default')
                 ? $landing['block4']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block4', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block4', true);
@@ -3969,7 +4094,7 @@ class Course extends CI_Controller
             // Фон
             $b5_bg = (!empty($landing['block5']['bg_orig']) and $landing['block5']['bg_default'] != 'default')
                 ? $landing['block5']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block5', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block5', true);
@@ -4073,7 +4198,7 @@ class Course extends CI_Controller
             // Фон
             $b6_bg = (!empty($landing['block6']['bg_orig']) and $landing['block6']['bg_default'] != 'default')
                 ? $landing['block6']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block6', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block6', true);
@@ -4130,7 +4255,7 @@ class Course extends CI_Controller
             // Фон
             $b7_bg = (!empty($landing['block7']['bg_orig']) and $landing['block7']['bg_default'] != 'default')
                 ? $landing['block7']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block7', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block7', true);
@@ -4222,7 +4347,7 @@ class Course extends CI_Controller
             // Фон
             $b8_bg = (!empty($landing['block8']['bg_orig']) and $landing['block8']['bg_default'] != 'default')
                 ? $landing['block8']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block8', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block8', true);
@@ -4351,7 +4476,7 @@ class Course extends CI_Controller
             // Фон
             $b2_bg = (!empty($landing['block2']['bg_orig']) and $landing['block2']['bg_default'] != 'default')
                 ? $landing['block2']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block2', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block2', true);
@@ -4427,7 +4552,7 @@ class Course extends CI_Controller
             // Фон
             $b3_bg = (!empty($landing['block3']['bg_orig']) and $landing['block3']['bg_default'] != 'default')
                 ? $landing['block3']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block3', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block3', true);
@@ -4523,7 +4648,7 @@ class Course extends CI_Controller
             // Фон
             $b4_bg = (!empty($landing['block4']['bg_orig']) and $landing['block4']['bg_default'] != 'default')
                 ? $landing['block4']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block4', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block4', true);
@@ -4594,7 +4719,7 @@ class Course extends CI_Controller
             // Фон
             $b5_bg = (!empty($landing['block5']['bg_orig']) and $landing['block5']['bg_default'] === false)
                 ? $landing['block5']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block5', true)))
             {
                 // Фон либо цвет, либо файл изображения
@@ -4726,7 +4851,7 @@ class Course extends CI_Controller
             // Фон
             $b6_bg = (!empty($landing['block6']['bg_orig']) and $landing['block6']['bg_default'] != 'default')
                 ? $landing['block6']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block6', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block6', true);
@@ -4802,7 +4927,7 @@ class Course extends CI_Controller
             // Фон
             $b7_bg = (!empty($landing['block7']['bg_orig']) and $landing['block7']['bg_default'] != 'default')
                 ? $landing['block7']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block7', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block7', true);
@@ -4912,7 +5037,7 @@ class Course extends CI_Controller
             // Фон
             $b8_bg = (!empty($landing['block8']['bg_orig']) and $landing['block8']['bg_default'] != 'default')
                 ? $landing['block8']['bg_orig']
-                : 'default'; // Фон по-умолчанию
+                : 'default'; // Фон по умолчанию
             if (empty($this->input->post('cb_default_bg_block8', true))) {
                 // Фон либо цвет, либо файл изображения
                 $color = $this->input->post('i_bg_color_block8', true);
@@ -4966,7 +5091,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu']  = 'landing';
         $this->page_data['course_id']     = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/nutritions/settings/course', $result);
         $this->load->view('footer/footer');
@@ -4993,7 +5118,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'meals';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('meals/meals', $result);
         $this->load->view('footer/footer');
@@ -5148,7 +5273,32 @@ class Course extends CI_Controller
                 header('Location: /administration/meal/new');
             }
         }
-        elseif($this->input->post('bt_load_excel', true))
+
+        $meals_types = $this->Course_model->getMealsTypes();
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Новое блюдо';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'meals';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('meals/new_meal', $meals_types);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Импорт блюд из файла Excel
+     */
+    public function importMeals()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if($this->input->post('bt_load_excel', true))
         {
             // Загрузка файла на сервер
             $path = './xls/';
@@ -5184,9 +5334,9 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'meals';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('meals/new_meal', $meals_types);
+        $this->load->view('meals/import_meals', $meals_types);
         $this->load->view('footer/footer');
     }
 
@@ -5470,7 +5620,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'meals';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('meals/meal_settings', $result);
         $this->load->view('footer/footer');
@@ -5494,7 +5644,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'meals_types';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('meals/meals_types', $result);
         $this->load->view('footer/footer');
@@ -5548,7 +5698,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'meals_types';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('meals/new_meals_type');
         $this->load->view('footer/footer');
@@ -5636,7 +5786,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'meals_types';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('meals/meals_type_settings', $result);
         $this->load->view('footer/footer');
@@ -5749,7 +5899,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'ingestions';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('ingestion/ingestions', $result);
         $this->load->view('footer/footer');
@@ -5804,7 +5954,7 @@ class Course extends CI_Controller
 
         $result = $this->Course_model->getIngestionTypes();
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('ingestion/new_ingestion', $result);
         $this->load->view('footer/footer');
@@ -5895,7 +6045,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'ingestions';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('ingestion/ingestion_settings', $ingestion);
         $this->load->view('footer/footer');
@@ -5925,7 +6075,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'promocodes';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         if($course_type == 'workout')
         {
@@ -6004,7 +6154,7 @@ class Course extends CI_Controller
         $this->page_data['promocode_new'] = true;
         $this->page_data['course_id']     = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         if($course_type == 'workout')
         {
@@ -6117,7 +6267,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'promocodes';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         if($course_type == 'workout')
         {
@@ -6150,7 +6300,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'extends';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -6208,7 +6358,7 @@ class Course extends CI_Controller
         $this->page_data['extend_new']   = true;
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -6299,7 +6449,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'extends';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -6368,7 +6518,7 @@ class Course extends CI_Controller
         $this->page_data['page_submenu'] = 'attached';
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -6420,7 +6570,7 @@ class Course extends CI_Controller
         $this->page_data['attach_new']   = true;
         $this->page_data['course_id']    = $course_id;
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
@@ -6741,7 +6891,7 @@ class Course extends CI_Controller
             if (!empty($array_training_days) and $training_days != $db_training_days and empty($db_training_days)) {
                 $update_workouts     = array(); // Тренировки, у которых необходимо обновить дату
                 $all_workouts        = array(); // Все тренировки (и обновленные и не обновленные)
-                $update_all_workouts = false; // Во всех ли тренировках обновлять дату (по-умолчанию: нет)
+                $update_all_workouts = false; // Во всех ли тренировках обновлять дату (по умолчанию: нет)
                 $set_start_date      = true; // Флаг начала отсчета дат после заморозки
 
                 // Если ни одна из тренировок не явл. пропущенной или выполненной, то смещаем начальную и конечную даты курса
@@ -7270,47 +7420,47 @@ class Course extends CI_Controller
 
                         if($notif['send_email'] === true)
                         {
-                            $system_message = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
+                            $system_message['text'] = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
                                 . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
-                            $system_message .= '<a href="https://superbody.pro/profile/course/' . $notif['course_id'] . '" '
+                            $system_message['text'] .= '<a href="https://superbody.pro/profile/course/' . $notif['course_id'] . '" '
                                 . 'style="text-transform: uppercase; font-weight: 300; font-size: 24px; line-height: 28px; '
                                 . 'padding: 20px 0 20px 30px; margin:0; color: #72d0f4; text-decoration: none;">'
                                 . $notif['course_name'] . '</a>';
-                            $system_message .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
-                            $system_message .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
+                            $system_message['text'] .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
+                            $system_message['text'] .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
                                 . 'font-weight: 300; border: none; white-space: normal; font-size: 18px; line-height: 22px;">'
                                 . $notification['notification']['text'] . '</p>';
-                            $system_message .= '</td></tr>';
+                            $system_message['text'] .= '</td></tr>';
                             // Курсы продления
                             if(!empty($notif['extends']))
                             {
-                                $system_message .= '<tr><td style="width:100%; padding:0; margin:0;">ПРОДЛИТЕ КУРС ИЛИ КУПИТЕ НОВЫЙ:</td></tr>';
-                                $system_message .= '<tr>';
+                                $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0;">ПРОДЛИТЕ КУРС ИЛИ КУПИТЕ НОВЫЙ:</td></tr>';
+                                $system_message['text'] .= '<tr>';
                                 foreach($notif['extends'] as $extend)
                                 {
-                                    $system_message .= '<td style="padding:0; margin:0;"><table>';
-                                    $system_message .= '<tr><td style="width:100%; padding:0; margin:0;"><a href="https://superbody.pro/course/' . $extend['course_id'] . '" '
+                                    $system_message['text'] .= '<td style="padding:0; margin:0;"><table>';
+                                    $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0;"><a href="https://superbody.pro/course/' . $extend['course_id'] . '" '
                                         . 'style="text-transform: uppercase; font-weight: 600; font-size: 16px; line-height: 28px; '
                                         . 'padding: 0; margin:0; color: #72d0f4; text-decoration: none;">'
                                         . $extend['course_name'] . '</a></td></tr>';
-                                    $system_message .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">' . $extend['promocode'] . '</td></tr>';
-                                    $system_message .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">';
+                                    $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">' . $extend['promocode'] . '</td></tr>';
+                                    $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">';
                                     if(!empty($extend['new_price']))
                                     {
-                                        $system_message .= '<s>' . $extend['price'] . ' руб.</s> ' . $extend['new_price'] . ' руб.';
+                                        $system_message['text'] .= '<s>' . $extend['price'] . ' руб.</s> ' . $extend['new_price'] . ' руб.';
                                     }
                                     else
                                     {
-                                        $system_message .= $extend['price'] . ' руб.';
+                                        $system_message['text'] .= $extend['price'] . ' руб.';
                                     }
-                                    $system_message .= '</td></tr></table>';
-                                    $system_message .= '</table></td>';
+                                    $system_message['text'] .= '</td></tr></table>';
+                                    $system_message['text'] .= '</table></td>';
                                 }
                                 unset($extend);
-                                $system_message .= '</tr>';
+                                $system_message['text'] .= '</tr>';
                             }
 
-                            $system_message .= '</table>';
+                            $system_message['text'] .= '</table>';
 
                             parent::sendEmail(11, $this->session->user['email'], $system_message);
                         }
@@ -7568,7 +7718,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu'] = 'courses';
         $this->page_data['page_submenu'] = 'activity';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/users_activity', $result);
         $this->load->view('footer/footer');
@@ -7607,7 +7757,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu'] = 'courses';
         $this->page_data['page_submenu'] = 'activity';
 
-        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('course/user_activity', $result);
         $this->load->view('footer/footer');
@@ -8373,6 +8523,7 @@ class Course extends CI_Controller
 
         $result['crs_sch'] = false;
         $course_id         = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+        $video_id          = (is_numeric($this->input->post('vd_id', true))) ? $this->input->post('vd_id', true) : null;
 
         if(!empty($course_id))
         {
@@ -8382,9 +8533,10 @@ class Course extends CI_Controller
             {
                 $course = $schedules['course_length'];
                 $course['workouts'] = $schedules['workouts'];
+                $video['id'] = $video_id;
 
                 ob_start();
-                    include_once('./app_fold/views/course/settings/course_length_item.php');
+                    include_once('./app_fold/views/course/settings/course_length_multiple.php');
                     $weeks = ob_get_contents();
                 ob_end_clean();
 
@@ -8555,5 +8707,33 @@ class Course extends CI_Controller
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * Отправка эл. писем с меню курса питания пользователям
+     */
+    public function sendNutritionWeekMenuEmails()
+    {
+        $tmp_date = new DateTime($this->date);
+        $num_day  = ($tmp_date !== false) ? $tmp_date->format('N') : null;
+
+        // Отправка уведомлений в понедельник
+        if($num_day == 1)
+        {
+            $users_week_menu = $this->Course_model->getUsersNutritionWeekMenu($this->date);
+
+            // Отправка писем
+            if(!empty($users_week_menu['users_week_menu']))
+            {
+                foreach($users_week_menu['users_week_menu'] as $user_wm)
+                {
+                    $system_message['course_menu'] = $user_wm['course_menu'];
+                    $system_message['course']      = $user_wm['course'];
+
+                    parent::sendEmail(12, $user_wm['user_email'], $system_message);
+                }
+                unset($user_wm);
+            }
+        }
     }
 }

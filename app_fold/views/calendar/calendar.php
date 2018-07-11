@@ -160,6 +160,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             if (data && !data.error) {
                                 up_meal.html(data.meal);
                                 pop_up_def(up_meal);
+                                meal_slider(up_meal);
                             }
 
                             up_meal.on('click', '#change-meal', function(){
@@ -199,6 +200,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             up_meal.html(data.meal);
                                             up_meal.css('height','auto');
                                             pop_up_def(up_meal);
+                                            meal_slider(up_meal);
                                         }
                                     }
                                 });
