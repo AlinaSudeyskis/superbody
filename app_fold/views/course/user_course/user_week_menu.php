@@ -13,9 +13,10 @@ include_once('./app_fold/views/course/user_course/page_part/header.php');?>
                                 <div class="anketa_form_line parent">
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo $cm_ingestion['name']; ?></div></div>
                                     <div style="float:left; width: calc(100% - 205px);">
-                                        <?php if(!empty($cm_ingestion['meal'])):
-                                            $meal = $cm_ingestion['meal'];
-                                            //foreach($cm_ingestion['meal'] as $meal):?>
+                                        <?php if(!empty($cm_ingestion['meal_category'])):
+                                            foreach($cm_ingestion['meal_category'] as $ml_type):
+                                                $meal = $ml_type['meal'];?>
+                                                <!--<div class="anketa_form_h"><div class="anketa_form_h_cell"><?php /*echo $ml_type['name']; */?></div></div>-->
                                                 <div>
                                                     <b><?php echo $meal['name']; ?></b> (БЖУК - <?php echo $meal['proteins'] . ' '
                                                         . $meal['fats'] . ' ' . $meal['carbohydrates'] . ' ' . $meal['calories'] ?>)
@@ -30,9 +31,10 @@ include_once('./app_fold/views/course/user_course/page_part/header.php');?>
                                                         </div>
                                                     <?php endforeach;
                                                     unset($ingredient);
-                                                endif;
-                                            //endforeach;
-                                            //unset($meal);
+                                                endif;?>
+                                                <br/>
+                                            <?php endforeach;
+                                            unset($ml_type);
                                         endif;?>
                                     </div>
                                 </div>

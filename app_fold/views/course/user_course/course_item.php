@@ -15,12 +15,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="my_kurs_but parent">
                 <a href="/course/<?php echo $course['course_id']?>" class="my_kurs_link">Узнать больше</a>
                 <!--<a href="#" class="my_kurs_link disabled">Расписание</a>-->
-                <?php if($course['category'] == 'workout'): ?>
+                <?php if($course['category'] == 'workout' and $page_submenu != 'finished'): ?>
                     <div class="my_kurs_radio_wrap">
                         <input type="checkbox" name="cb_calendar_workout[]" class="anketa_form_radio calendar_course" value="<?php echo $course['id']; ?>" id="calendar_workout<?php echo $course['id']; ?>" <?php if($course['display'] == 1):?>checked="checked"<?php endif;?>>
                         <label for="calendar_workout<?php echo $course['id']; ?>">Календарь</label>
                     </div>
-                <?php elseif($course['category'] == 'nutrition'): ?>
+                <?php elseif($course['category'] == 'nutrition' and $page_submenu != 'finished'): ?>
                     <div class="my_kurs_radio_wrap">
                         <input type="radio" name="r_calendar_nutrition" class="anketa_form_radio" value="<?php echo $course['id']; ?>" id="calendar_nutrition<?php echo $course['id']; ?>" <?php if($course['display'] == 1):?>checked="checked"<?php endif;?>>
                         <label for="calendar_nutrition<?php echo $course['id']; ?>">Календарь</label>

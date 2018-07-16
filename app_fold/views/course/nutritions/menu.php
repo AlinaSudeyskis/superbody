@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <ul class="anketa_block_nav parent">
     <li>
         <a href="/administration/nutritions">
-            <span <?php if ($page_submenu == 'a_courses'): ?> class="anketa_active" <?php endif;?>>Курсы</span>
+            <span <?php if ($page_submenu == 'a_courses_n'): ?> class="anketa_active" <?php endif;?>>Курсы</span>
         </a>
     </li>
     <li>

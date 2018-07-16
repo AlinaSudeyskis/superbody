@@ -91,25 +91,30 @@ if(!empty($system_message['course_menu']) and !empty($system_message['course']))
                                                                     <tr>
                                                                         <td style="vertical-align: top; width:25%;"><?php echo $cm_ingestion['name']; ?></td>
                                                                         <td style="width:74%;">
-                                                                            <?php if(!empty($cm_ingestion['meal'])):
-                                                                                $meal = $cm_ingestion['meal'];
-                                                                                $meal_image = (!empty($meal['image']) and empty($meal_image)) ? $meal['image'] : $meal_image;
-                                                                                $meal_images = (!empty($meal['images']) and empty($meal_images)) ? $meal['images_path'] . '/' .current($meal['images']) : $meal_images;
-                                                                                ?>
-                                                                                <table border="0" cellpadding="0" cellspacing="0" style="width:100%; margin:0; padding:0; font-size: 13px;">
-                                                                                    <tr>
-                                                                                        <td><b><?php echo $meal['name']; ?></b></td>
-                                                                                    </tr>
+                                                                            <?php if(!empty($cm_ingestion['meal_category'])):
+                                                                                foreach($cm_ingestion['meal_category'] as $ml_type):?>
+                                                                                    <?php if(!empty($ml_type['meal'])):
+                                                                                        $meal = $ml_type['meal'];
+                                                                                        $meal_image = (!empty($meal['image']) and empty($meal_image)) ? $meal['image'] : $meal_image;
+                                                                                        $meal_images = (!empty($meal['images']) and empty($meal_images)) ? $meal['images_path'] . '/' .current($meal['images']) : $meal_images;
+                                                                                        ?>
+                                                                                        <table border="0" cellpadding="0" cellspacing="0" style="width:100%; margin:0; padding:0; font-size: 13px; padding-bottom: 10px;">
+                                                                                            <tr>
+                                                                                                <td><b><?php echo $meal['name']; ?></b></td>
+                                                                                            </tr>
 
-                                                                                    <?php if(!empty($meal['description'])): ?>
-                                                                                        <tr><td><?php echo $meal['description']; ?></td></tr>
-                                                                                    <?php endif;?>
-                                                                                </table>
-                                                                                <?php  $weight += $meal['weight'];
-                                                                                $proteins += $meal['proteins'];
-                                                                                $fats += $meal['fats'];
-                                                                                $carbohydrates += $meal['carbohydrates'];
-                                                                                $calories += $meal['calories'];
+                                                                                            <?php if(!empty($meal['description'])): ?>
+                                                                                                <tr><td><?php echo $meal['description']; ?></td></tr>
+                                                                                            <?php endif;?>
+                                                                                        </table>
+                                                                                        <?php  $weight += $meal['weight'];
+                                                                                        $proteins += $meal['proteins'];
+                                                                                        $fats += $meal['fats'];
+                                                                                        $carbohydrates += $meal['carbohydrates'];
+                                                                                        $calories += $meal['calories'];
+                                                                                    endif;?>
+                                                                                <?php endforeach;
+                                                                                unset($ml_type);
                                                                             endif;?>
                                                                         </td>
                                                                     </tr>

@@ -1512,17 +1512,17 @@ tr:first-child > td > .fc-day-grid-event{
     position: fixed;
     display: none;
 }
-.policy_pop-up_cont{
+.policy_pop-up_cont, .ml_img_pop-up_cont{
     padding: 0 60px;
-    max-height: 400px;
+    /*max-height: 400px;*/
 }
-.policy_pop-up_h{
+.policy_pop-up_h, .ml_img_pop-up_h{
     font-size: 16px;
     line-height: 25px;
     color: #505961;
     padding: 16px 0;
 }
-.policy_pop-up_close{
+.policy_pop-up_close, .ml_img_pop-up_close{
     width: 40px;
     height: 40px;
     background: url(/img/close_but.png) 50% 50% no-repeat, #00bff0;
@@ -1532,6 +1532,24 @@ tr:first-child > td > .fc-day-grid-event{
     right: -20px;
     cursor: pointer;
     opacity: 1 !important;
+}
+#ml_img_pop-up{
+    background: #f1f2f3;
+    width: 80%;
+    max-width: 900px;
+    min-height: 300px;
+    /*max-height: 400px;*/
+    z-index: 114;
+    left: 50%;
+    top: 50%;
+    position: fixed;
+    display: none;
+}
+.ml_img_pop-up_h img{
+    width:100%;
+}
+.show_ml_img{
+    cursor: pointer;
 }
 #purchase_pop-up{
     background: #ffffff;
@@ -2753,6 +2771,25 @@ tr:first-child > td > .fc-day-grid-event{
 .meal_title{
     font-weight: 600;
 }
+.meal_type{
+    font-weight: 100;
+    font-size: 12px;
+    text-align: center;
+}
+.show_meal{
+    cursor: pointer;
+}
+.return_back{
+    cursor: pointer;
+}
+.return_back.video_admin_form_send{
+    float: none;
+    display: block;
+    text-align: center;
+    margin: 10px auto;
+    width: 120px;
+    height: 35px;
+}
 .meal_subtitle {
     font-size: 13px;
     margin: 10px 0;
@@ -2782,6 +2819,11 @@ tr:first-child > td > .fc-day-grid-event{
     background-color: #72d0f4;
     border-right: 1px solid #ffffff;
     padding: 0 10px;
+    position: relative;
+
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
 }
 .meal_wpfcc_val {
     text-align: center;
@@ -2805,15 +2847,30 @@ tr:first-child > td > .fc-day-grid-event{
     text-align: center;
     cursor: pointer;
 }
+.meal_other_block_h.video_admin_form_send{
+    display: block;
+    width: 200px;
+    margin: 0 auto;
+    float: none;
+}
 .meal_other_wrap{
     display: none;
     margin-top: 10px;
+    min-height: 80px;
 }
 .meal_other_link{
     cursor: pointer;
+    width: 50%;
+    float: left;
 }
-.meal_other_block_h:hover, .meal_other_link:hover{
-    text-decoration: underline;
+.meal_other_link:hover{
+    /*text-decoration: underline;*/
+}
+.meal_other_link .meal_title {
+    text-align: center;
+}
+.meal_other_link .meal_wpfcc_wrap {
+    margin-top: 5px;
 }
 
 .prezent_head .container{
@@ -3550,6 +3607,9 @@ tr:first-child > td > .fc-day-grid-event{
     border-bottom: 1px solid #c1c1c1;
     margin-top: 20px;
 }
+.my_kurs_item:last-child {
+     border: none;
+ }
 .my_kurs_block{
     padding: 10px 35px 0;
 }
@@ -8900,7 +8960,11 @@ textarea.anketa_form_in{
     line-height: 16px;
     padding: 8px 15px 9px;
     float: left;
-    margin-right: 30px;
+    /*margin-right: 30px;*/
+}
+.add_tov_val_cont.meal_cont{
+    display: block;
+    max-width: none;
 }
 .add_tov_val_h{
     float: left;
@@ -8908,6 +8972,7 @@ textarea.anketa_form_in{
     text-decoration: underline;
     color: #72d0f4;
     width: 170px;
+    padding-right: 15px;
 }
 .add_tov_val_sh {
     width: 100%;
@@ -8927,6 +8992,7 @@ textarea.anketa_form_in{
 .add_tov_val_item{
     padding-top: 20px;
     margin-bottom: 18px;
+    position: relative;
 }
 .add_tov_val_item:last-child{
     margin-bottom: 30px;
@@ -8936,6 +9002,7 @@ textarea.anketa_form_in{
     margin-bottom: 18px;
 }
 .del_tov{
+    position: relative;
     margin-top: 11px;
     margin-left: 30px;
     width: 13px;
@@ -8943,6 +9010,14 @@ textarea.anketa_form_in{
     background: url(/img/close.png) 0 0 no-repeat;
     float: left;
     cursor: pointer;
+}
+.add_kurs_val_video_wrap .del_tov{
+    position: absolute;
+    margin-top: 0;
+    margin-left: 0;
+    float: none;
+    right: 10px;
+    top: 12px;
 }
 .tov_form_img .admin_add_file{
     margin: 0 0 20px 30px;
@@ -8970,6 +9045,9 @@ textarea.anketa_form_in{
 .add_tren_name .add_tov_h span{
     display: block;
 }
+.add_tov_val{
+    clear:both;
+}
 .edit_kurs_form .add_tov_val_h,
 .add_kurs_form .add_tov_val_h,
 .landing_admin_form .add_tov_val_h{
@@ -8980,7 +9058,18 @@ textarea.anketa_form_in{
     padding-top: 0;
 }
 .meal ~ .add_tov_val .add_tov_val_item{
-    margin-left: 180px;
+    /*margin-left: 180px;*/
+    float: left;
+    width: 100%;
+    min-width: 326px;
+    position: relative;
+}
+.meal ~ .add_tov_val .add_tov_val_item_wrap {
+    float: left;
+    width: calc(100% - 180px);
+}
+.meal ~ .add_tov_val .kurs_block_h{
+    text-align: right;
 }
 .practice_block_h{
     font-size: 13px;
@@ -9038,7 +9127,12 @@ textarea.anketa_form_in{
     max-width: 330px;
 }
 .add_kurs_val_video_wrap{
-    margin-top: 18px;
+    /*margin-top: 18px;*/
+    position: relative;
+    max-width:330px;
+}
+.meal ~ .add_tov_val .add_tov_val_item .add_kurs_val_video_wrap{
+    max-width: none;
 }
 .tren_form_block_check_wrap{
     margin-bottom: 15px;
@@ -9046,6 +9140,9 @@ textarea.anketa_form_in{
 }
 .tren_form_block_check_wrap.ingestion{
     display: flex;
+}
+.tren_form_block_check_wrap.ingestions{
+    float: left;
 }
 input.tren_form_block_check{
     /*display: none;*/
@@ -11507,6 +11604,26 @@ input.tren_form_block_check{
     }
 }
 
+@media (max-width: 710px){
+    .meal ~ .add_tov_val .kurs_block_h{
+        text-align: center;
+        width: 100%;
+        margin-bottom: 0;
+    }
+    .meal ~ .add_tov_val .add_tov_val_item{
+        min-width: 326px;
+        position: relative;
+        clear: both;
+        width: 100%;
+    }
+    .meal ~ .add_tov_val .add_tov_val_item_wrap{
+        min-width: 326px;
+        position: relative;
+        clear: both;
+        width: 100%;
+    }
+}
+
 
 @media (max-width: 639px){
     .admin_feedback_info_dialog, .admin_feedback_info_mail{
@@ -11552,16 +11669,23 @@ input.tren_form_block_check{
         max-width: 302px;
         float: left;
     }
+    .edit_kurs_form .practice_block .add_tov_val_cont.meal_cont {
+        display: block;
+        max-width: none;
+        float: none;
+        width: 100%;
+    }
     .del_tov{
-        margin-top: 41px;
-        margin-left: 15px;
+       /* margin-top: 41px;
+        margin-left: 15px;*/
     }
     .practice_block .del_tov,
     .landing_admin_form .del_tov,
     .instruction_block .del_tov{
-        margin-top: 11px;
-        margin-left: 15px;
+        /*margin-top: 11px;
+        margin-left: 15px;*/
     }
+
     .admin_form_txt_dop_wrap input{
         margin-right: 0;
         float: none;
@@ -12270,6 +12394,10 @@ input.tren_form_block_check{
         width: 100%;
         float: none;
         margin: 0;
+    }
+    .add_tov_in.meal {
+        float: none;
+        width: 100%;
     }
     div.info{
         float: none;
@@ -13210,6 +13338,29 @@ input.tren_form_block_check{
         left: 0;
     }
 
+}
+
+@media (max-width: 386px){
+    .meal_wpfcc_title{
+        visibility: hidden;
+    }
+    .meal_wpfcc_title:after{
+        content: attr(short);
+        visibility: visible;
+        text-align: center;
+        font-size: 12px;
+        color: #ffffff;
+        background-color: #72d0f4;
+        border-right: 1px solid #ffffff;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .meal ~ .add_tov_val .add_tov_val_item, .meal ~ .add_tov_val .add_tov_val_item_wrap{
+        min-width: unset;
+    }
+    .meal_wpfcc{max-width: 20%;}
 }
 
 

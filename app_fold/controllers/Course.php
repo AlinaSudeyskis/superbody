@@ -3298,7 +3298,7 @@ class Course extends CI_Controller
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Курсы питания';
         $this->page_data['page_menu']    = 'a_courses_n';
-        $this->page_data['page_submenu'] = 'a_courses';
+        $this->page_data['page_submenu'] = 'a_courses_n';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -3476,7 +3476,7 @@ class Course extends CI_Controller
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Добавление нового курса питания';
         $this->page_data['page_menu']    = 'a_courses_n';
-        $this->page_data['page_submenu'] = 'a_courses';
+        $this->page_data['page_submenu'] = 'a_courses_n';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -3544,6 +3544,7 @@ class Course extends CI_Controller
         $course     = $this->Course_model->getCourse($course_id);
 
         $course_ingestions = $this->Course_model->getNutritionIngestions($course_id);
+        $course_ml_types   = $this->Course_model->getNutritionMealsTypes($course_id);
         $course_schedule   = $this->Course_model->getNutritionSchedule($course_id);
 
         // Валидация и сохранение данных
@@ -3664,7 +3665,7 @@ class Course extends CI_Controller
             // Расписание курса
             $schedule_day   = 1;
             $count_days     = $count_weeks * 7;
-            $id_meal        = $this->input->post('id_meal', true);
+            $id_meals       = $this->input->post('id_meal', true);
             $i = 0;
 
             // Цикл дней курса
@@ -3673,10 +3674,10 @@ class Course extends CI_Controller
                 // Цикл приемов пищи
                 foreach($cb_ingestions as $ingestion)
                 {
-                    if(!empty($id_meal[$schedule_day][$ingestion]))
+                    if(!empty($id_meals[$schedule_day][$ingestion]))
                     {
                         // Цикл блюд
-                        foreach($id_meal[$schedule_day][$ingestion] as $meal)
+                        foreach($id_meals[$schedule_day][$ingestion] as $meal)
                         {
                             $schedule_days[$schedule_day][$ingestion][$i] = $meal;
 
@@ -3818,7 +3819,7 @@ class Course extends CI_Controller
             }
         }
 
-        $result = array_merge($ingestions, $course, $course_ingestions, $course_schedule);
+        $result = array_merge($ingestions, $course, $course_ingestions, $course_ml_types, $course_schedule);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Редактирование данных курса';
@@ -6643,7 +6644,9 @@ class Course extends CI_Controller
         $courses_type = ($courses_type == 'finished') ? 'finished' : 'active';
         $course_data = $this->Course_model->getUserCourses($this->user_id, $this->date, $courses_type);
 
-        //$this->Course_model->setNewUserCourse(24, 6, 4, '', '', '', '', $this->date);
+        //$this->Course_model->setNewUserCourse(25, 12, 4, '', '', '', '', $this->date);
+        //$this->Course_model->setUserNutritionSchedule(12, 34, '2018-07-12', $this->date);
+        //$csch = $this->Course_model->getFillNutritionSchedule(12);
 
         // Даты начала и окончания курса
         // Количество тренировок за курс
@@ -7671,7 +7674,7 @@ class Course extends CI_Controller
     /**
      * Страница меню курса питания на неделю
      *
-     * @param $course_id
+     * @param $user_course_id
      */
     public function userNutritionMenu($user_course_id)
     {
@@ -8597,11 +8600,11 @@ class Course extends CI_Controller
      */
     public function showMeal($day = '', $ingestion = '', $un_id = '', $meal_id = '')
     {
-        $un_id     = (empty($un_id) and is_numeric($this->input->post('start_param', true))) ? $this->input->post('start_param', true) : $un_id;
-        $meal_id   = (empty($meal_id) and is_numeric($this->input->post('ml_id', true))) ? $this->input->post('ml_id', true) : $meal_id;
-        $day       = (empty($day) and is_numeric($this->input->post('day', true))) ? $this->input->post('day', true) : $day;
-        $ingestion = (empty($ingestion) and is_numeric($this->input->post('ingestion', true))) ? $this->input->post('ingestion', true) : $ingestion;
-        $meal_date = (!empty($this->input->post('start', true))) ? $this->input->post('start', true) : null;
+        $un_id     = is_numeric($this->input->post('unid', true)) ? $this->input->post('unid', true) : null;
+        $meal_id   = is_numeric($this->input->post('mlid', true)) ? $this->input->post('mlid', true) : null;
+        $day       = is_numeric($this->input->post('did', true)) ? $this->input->post('did', true) : null;
+        $ingestion = is_numeric($this->input->post('iid', true)) ? $this->input->post('iid', true) : null;
+        $meal_date = !empty($this->input->post('start', true)) ? $this->input->post('start', true) : null;
 
         if (!empty($un_id) and !empty($day) and !empty($ingestion))
         {
@@ -8625,6 +8628,58 @@ class Course extends CI_Controller
                 ob_end_clean();
 
                 $display_result['meal'] .= $meal_item;
+            }
+            else
+            {
+                $display_result['error'] = 'Meal data error';
+            }
+        }
+        else
+        {
+            $display_result['error'] = 'startParam, day or ingestion empty';
+        }
+
+        echo json_encode($display_result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * AJAX. Вывод блюд по категориям приема пищи
+     *
+     * @param string $day
+     * @param string $ingestion
+     * @param string $un_id
+     * @param string $meal_id
+     */
+    public function showMeals($day = '', $ingestion = '', $un_id = '', $meal_id = '')
+    {
+        $un_id     = (empty($un_id) and is_numeric($this->input->post('start_param', true))) ? $this->input->post('start_param', true) : $un_id;
+        $meal_id   = (empty($meal_id) and is_numeric($this->input->post('ml_id', true))) ? $this->input->post('ml_id', true) : $meal_id;
+        $day       = (empty($day) and is_numeric($this->input->post('day', true))) ? $this->input->post('day', true) : $day;
+        $ingestion = (empty($ingestion) and is_numeric($this->input->post('ingestion', true))) ? $this->input->post('ingestion', true) : $ingestion;
+        $meal_date = (!empty($this->input->post('start', true))) ? $this->input->post('start', true) : null;
+
+        if (!empty($day) and !empty($ingestion))
+        {
+            // Данные блюда
+            $meals_data = $this->Course_model->getUserNutritionMeals($this->user_id, $day, $ingestion, $un_id);
+
+            if (!empty($meals_data['meals']))
+            {
+                // Данные приема пищи
+                $ingestion_data = $this->Course_model->getUserIngestionMeals($this->user_id, $un_id, $meals_data['duplicate_day'], $meals_data['duplicate_ing']);
+
+                // Время приема пищи
+                $tmp_date = new DateTime($meal_date);
+                $meal_time = ($tmp_date !== false) ? $tmp_date->format('H:i') : '';
+
+                $display_result['meals'] = '';
+
+                ob_start();
+                include_once('./app_fold/views/meals/calendar_meals.php');
+                $meals_item = ob_get_contents();
+                ob_end_clean();
+
+                $display_result['meals'] .= $meals_item;
             }
             else
             {

@@ -877,7 +877,6 @@ class Course_model extends CI_Model
 
         if(is_numeric($user_id) and is_numeric($day) and is_numeric($ingestion) and is_numeric($un_id) and is_numeric($meal_id))
         {
-
             $sel_uc = $this->db->query('
                 SELECT `un_id`, `un_date`, `uc_course_id`, `uc_user_id`
                 FROM `users_nutritions`
@@ -908,6 +907,116 @@ class Course_model extends CI_Model
                 $result['duplicate_day'] = $fill_nutrition['duplicate_course_schedule'][$day][$ingestion]['day'];
                 $result['duplicate_ing'] = $fill_nutrition['duplicate_course_schedule'][$day][$ingestion]['ing'];
                 $result['un_date']       = $row->un_date;
+                $result['un_id']         = $row->un_id;
+            }
+            elseif($sel_uc === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка блюд приема пищи
+     *
+     * @param $user_id
+     * @param $day
+     * @param $ingestion
+     * @param $un_id
+     * @return array
+     */
+    public function getUserNutritionMeals($user_id, $day, $ingestion, $un_id)
+    {
+        $result = array('meals' => array());
+
+        if(is_numeric($user_id) and is_numeric($day) and is_numeric($ingestion) and !empty($un_id))
+        {
+            // Данные курса питания пользователя
+            $sel_uc = $this->db->query('
+                SELECT `uc_course_id`, `un_uc_id`, `un_date`
+                FROM `users_nutritions`
+                LEFT JOIN `users_courses` ON `uc_id`=`un_uc_id`
+                WHERE `un_id`=? and `uc_user_id`=? LIMIT 1', array($un_id, $user_id));
+
+            if($sel_uc !== false and 1 == $sel_uc->num_rows())
+            {
+                $row       = $sel_uc->row();
+                $course_id = $row->uc_course_id;
+                $uc_id     = $row->un_uc_id;
+                $nutr_date = $row->un_date;
+                unset($row);
+
+                $fill_nutrition = self::getFillNutritionSchedule($course_id);
+
+                // Выборка блюд приема пищи курса питания пользователя
+                $sel_meals = $this->db->query('
+                    SELECT `un_id`, `un_ml_id`, `un_date`, `ml_name`, `ml_mt_id`, `mt_name` 
+                    FROM `users_nutritions`
+                    LEFT JOIN `meals` ON `ml_id`=`un_ml_id`
+                    LEFT JOIN `meals_types` ON `mt_id`=`ml_mt_id`
+                    WHERE `un_uc_id`=? and `un_cds_day`=? and `un_cds_ci_id`=?', array($uc_id, $day, $ingestion));
+                if($sel_meals !== false and 0 < $sel_meals->num_rows())
+                {
+                    $images = array();
+                    $image  = array();
+                    $i = 0;
+                    $im_i = 0;
+                    foreach($sel_meals->result() as $row)
+                    {
+                        $meal = self::getMeal($row->un_ml_id);
+
+                        $result['meals'][$row->ml_mt_id][$i] = $meal['meal'];
+                        $result['meals'][$row->ml_mt_id][$i]['un_id'] = $row->un_id;
+                        $result['meals'][$row->ml_mt_id][$i]['date'] = $row->un_date;
+
+                        // Изображения блюд
+                        if(!empty($meal['meal']['images']))
+                        {
+                            $fi = 0;
+                            $full_images = array();
+                            foreach($meal['meal']['images'] as $mim)
+                            {
+                                $full_images[$fi] = $meal['meal']['images_path'].'/'.$mim;
+                                $fi++;
+                            }
+                            $images = array_merge_recursive($images, $full_images);
+                        }
+                        if(!empty($meal['meal']['image']))
+                        {
+                            $image[$im_i] = $meal['meal']['image'];
+                            $im_i++;
+                        }
+
+                        $result['meals_types'][$row->ml_mt_id] = $row->mt_name;
+
+                        $i++;
+                    }
+                    unset($row);
+                }
+                elseif($sel_meals === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $rand_image = '';
+                // Выбор случайного изображения
+                if(!empty($image))
+                {
+                    $rand_key = array_rand($image, 1);
+                    $rand_image = $image[$rand_key];
+                }
+                elseif(!empty($images))
+                {
+                    $rand_key = array_rand($images, 1);
+                    $rand_image = $images[$rand_key];
+                }
+
+                $result['duplicate_day'] = $fill_nutrition['duplicate_course_schedule'][$day][$ingestion]['day'];
+                $result['duplicate_ing'] = $fill_nutrition['duplicate_course_schedule'][$day][$ingestion]['ing'];
+                $result['un_date']       = $nutr_date;
+                $result['image']         = $rand_image;
             }
             elseif($sel_uc === false)
             {
@@ -932,19 +1041,21 @@ class Course_model extends CI_Model
         $result = array('meals' => array());
 
         $sel_data = $this->db->query('
-            SELECT `un_uc_id`, `uc_course_id`, `uc_user_id` 
+            SELECT `un_uc_id`, `uc_course_id`, `uc_user_id`, `ml_mt_id` 
             FROM `users_nutritions` 
             LEFT JOIN `users_courses` ON `uc_id`=`un_uc_id`
+            LEFT JOIN `meals` ON `ml_id`=`un_ml_id`
             WHERE `un_id`=? and `uc_user_id`=? LIMIT 1', array($un_id, $user_id));
 
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
-            $course_id = $row->uc_course_id;
+            $course_id  = $row->uc_course_id;
+            $ml_type_id = $row->ml_mt_id;
             unset($row);
 
             $schedule = self::getFillNutritionSchedule($course_id);
-            $result['meals'] = $schedule['course_schedule'][$day][$ingestion];
+            $result['meals'] = $schedule['course_schedule'][$day][$ingestion][$ml_type_id];
         }
         elseif($sel_data === false)
         {
@@ -1341,6 +1452,44 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Выборка категорий блюд курса питания
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getNutritionMealsTypes($course_id)
+    {
+        $result = array('course_ml_types' => array());
+
+        $sel_data = $this->db->query('
+          SELECT `cds_id`, `ml_id`, `ml_mt_id`, `mt_id`, `mt_name` 
+          FROM `courses_days_schedule`
+          LEFT JOIN `meals` ON `ml_id`=`cds_ml_id`
+          LEFT JOIN `meals_types` ON `mt_id`=`ml_mt_id`
+          WHERE `cds_crs_id`=?
+          GROUP BY `mt_id`', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['course_ml_types'][$i]['id']   = $row->mt_id;
+                $result['course_ml_types'][$i]['name'] = $row->mt_name;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * AJAX. Поиск блюд
      *
      * @param $search_text
@@ -1359,8 +1508,10 @@ class Course_model extends CI_Model
             }, $search_text);
 
         $sel_meals = $this->db->query('
-            SELECT `ml_id`, `ml_name`, `ml_description`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories`
-            FROM `meals` 
+            SELECT `ml_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_weight`, `ml_proteins`, `ml_fats`, 
+              `ml_carbohydrates`, `ml_calories`, `mt_name`
+            FROM `meals`
+            LEFT JOIN `meals_types` ON `mt_id`=`ml_mt_id`
             WHERE MATCH (`ml_name`) AGAINST (? IN BOOLEAN MODE) and `ml_blocked`=0', $search_text);
 
         if ($sel_meals !== false and 0 < $sel_meals->num_rows())
@@ -1369,7 +1520,8 @@ class Course_model extends CI_Model
             {
                 $result .= '
                     <div class="add_tren_item meal parent" data-day="' . $crs_day . '" data-meal-id="' . $row->ml_id . '" 
-                        data-ingestion="' . $crs_ingestion . '" data-meal-name="' . $row->ml_name . '" 
+                        data-ingestion="' . $crs_ingestion . '" data-ml-type="' . $row->ml_mt_id . '" data-ml-name="' . $row->mt_name . '" 
+                        data-meal-name="' . $row->ml_name . '" data-weight="' . $row->ml_weight . '" 
                         data-proteins="' . $row->ml_proteins . '" data-fats="' . $row->ml_fats . '" 
                         data-carbohydrates="' . $row->ml_carbohydrates . '" data-calories="' . $row->ml_calories . '">
                         <a href="/administration/meal/' . $row->ml_id . '" class="add_tov_cont add_tren_name">
@@ -2687,8 +2839,8 @@ class Course_model extends CI_Model
                 $sel_meal = (is_numeric($row->cds_ml_id) and $row->cds_ml_id > 0) ? self::getMeal($row->cds_ml_id) : array('meal' => array());
                 $meal     = $sel_meal['meal'];
 
-                $result['course_schedule'][$row->cds_day][$row->cds_ci_id][$i] = $meal;
-                $result['schedule_days'][$row->cds_day][$row->cds_ci_id][$i]   = $row->cds_ml_id;
+                $result['course_schedule'][$row->cds_day][$row->cds_ci_id][$meal['type_id']][$i] = $meal;
+                $result['schedule_days'][$row->cds_day][$row->cds_ci_id][$meal['type_id']][$i]   = $row->cds_ml_id;
 
                 $i++;
             }
@@ -2847,14 +2999,17 @@ class Course_model extends CI_Model
     {
         $result = array('fill_course_schedule' => array(), 'course_schedule' => array(), 'schedule_days' => array());
 
-        $course_data       = self::getCourse($course_id);
-        $course_ingestions = self::getNutritionIngestions($course_id);
+        $course_data        = self::getCourse($course_id);
+        $course_meals_types = self::getNutritionMealsTypes($course_id);
+        $course_ingestions  = self::getNutritionIngestions($course_id);
 
         $total_days = $course_data['course']['count_weeks'] * $course_data['course']['count_days'];
 
+        // Выборка расписания курса
         $sel_data = $this->db->query('
-            SELECT `cds_id`, `cds_day`, `cds_ci_id`, `cds_ml_id` 
+            SELECT `cds_id`, `cds_day`, `cds_ci_id`, `cds_ml_id`, `ml_mt_id` 
             FROM `courses_days_schedule`
+            LEFT JOIN `meals` ON `ml_id`=`cds_ml_id`
             WHERE `cds_crs_id`=? ORDER BY `cds_day` ASC', $course_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
@@ -2870,13 +3025,14 @@ class Course_model extends CI_Model
                     $meal     = $sel_meal['meal'];
                 }
 
-                $schedule[$row->cds_day][$row->cds_ci_id][$i] = $meal;
-                $result['schedule_days'][$row->cds_day][$row->cds_ci_id][$i] = $row->cds_ml_id;
+                $schedule[$row->cds_day][$row->cds_ci_id][$row->ml_mt_id][$i] = $meal;
+                $result['schedule_days'][$row->cds_day][$row->cds_ci_id][$row->ml_mt_id][$i] = $row->cds_ml_id;
 
                 $i++;
             }
             unset($row);
 
+            // Заполнение пустых дней заполненными
             if(!empty($schedule))
             {
                 $week_meals    = array();
@@ -2894,7 +3050,8 @@ class Course_model extends CI_Model
                     // Цикл по приемам пищи дня курса питания
                     foreach($course_ingestions['course_ingestions'] as $ci)
                     {
-                        // Заполнение пустых приемов пищи предыдущими введенными значениями
+                        $i = 0;
+                        // Заполнение пустых дней предыдущими введенными значениями
                         if(empty($day_meals))
                         {
                             $day_meals = $schedule[$day];
@@ -2920,17 +3077,31 @@ class Course_model extends CI_Model
                             $duplicate_ing[$ci['id']] = $ci['id'];
                         }
 
-                        // Массив блюд для случайного выбора
-                        if(empty($rand_list[$orig_day][$ci['id']]))
+                        // Цикл по категориям блюд
+                        if(!empty($course_meals_types['course_ml_types']))
                         {
-                            $rand_list[$orig_day][$ci['id']] = $week_meals[$orig_day][$ci['id']];
-                        }
-                        // Выбор случайного ключа
-                        $rand_key = array_rand($rand_list[$orig_day][$ci['id']]);
-                        // Удаляем сгенированный ключ
-                        unset($rand_list[$orig_day][$ci['id']][$rand_key]);
+                            foreach($course_meals_types['course_ml_types'] as $ml_type)
+                            {
+                                if(!empty($week_meals[$orig_day][$ci['id']][$ml_type['id']]))
+                                {
+                                    // Массив блюд для случайного выбора
+                                    if(empty($rand_list[$orig_day][$ci['id']][$ml_type['id']]))
+                                    {
+                                        $rand_list[$orig_day][$ci['id']][$ml_type['id']] = $week_meals[$orig_day][$ci['id']][$ml_type['id']];
+                                    }
+                                    // Выбор случайного ключа
+                                    $rand_key = array_rand($rand_list[$orig_day][$ci['id']][$ml_type['id']]);
+                                    //echo 'Rand list: <br/>'; print_r($rand_list[$orig_day][$ci['id']][$ml_type['id']]); echo '<br/>';
+                                    // Удаляем сгенированный ключ
+                                    unset($rand_list[$orig_day][$ci['id']][$ml_type['id']][$rand_key]);
 
-                        $result['fill_course_schedule'][$day][$ci['id']]             = $week_meals[$orig_day][$ci['id']][$rand_key];
+                                    $result['fill_course_schedule'][$day][$ci['id']][$i]         = $week_meals[$orig_day][$ci['id']][$ml_type['id']][$rand_key];
+
+                                    $i++;
+                                }
+                            }
+                            unset($ml_type);
+                        }
                         $result['course_schedule'][$day][$ci['id']]                  = $week_meals[$orig_day][$ci['id']];
                         $result['duplicate_course_schedule'][$day][$ci['id']]['day'] = $duplicate_day[$ci['id']];
                         $result['duplicate_course_schedule'][$day][$ci['id']]['ing'] = $duplicate_ing[$ci['id']];
@@ -5743,27 +5914,36 @@ class Course_model extends CI_Model
                     elseif($course['category'] == 'nutrition')
                     {
                         $sel_nutritions = $this->db->query('
-                        SELECT `un_id`, `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, 
-                          `ml_name`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories` 
-                        FROM `users_nutritions`
-                        LEFT JOIN `meals` ON `ml_id`=`un_ml_id`
-                        WHERE `un_uc_id`=?
-                        ORDER BY `un_date` ASC', $course['id']);
+                            SELECT `un_id`, `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, 
+                              `ml_name`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories` 
+                            FROM `users_nutritions`
+                            LEFT JOIN `meals` ON `ml_id`=`un_ml_id`
+                            WHERE `un_uc_id`=?
+                            ORDER BY `un_date` ASC', $course['id']);
                         if ($sel_nutritions !== false and 0 < $sel_nutritions->num_rows())
                         {
+                            $day = 0;
+                            $ingestion = 0;
+
                             $i = 0;
                             foreach ($sel_nutritions->result() as $row)
                             {
-                                $nutritions[$i]['id']        = $row->un_id;
-                                $nutritions[$i]['day']       = $row->un_cds_day;
-                                $nutritions[$i]['ingestion'] = $row->un_cds_ci_id;
-                                $nutritions[$i]['meal_id']   = !empty($row->un_ml_id) ? $row->un_ml_id : null;
-                                $nutritions[$i]['meal_name'] = $row->ml_name . ' [БЖУК - ' . $row->ml_proteins . ' '
-                                    . $row->ml_fats .  ' ' . $row->ml_carbohydrates . ' ' . $row->ml_caloreis . ']';
-                                $nutritions[$i]['date']      = $row->un_date;
-                                $nutritions[$i]['done']      = ($row->un_date < $today) ? 1 : 0;
+                                if($day != $row->un_cds_day or $ingestion != $row->un_cds_ci_id)
+                                {
+                                    $nutritions[$i]['id']        = $row->un_id;
+                                    $nutritions[$i]['day']       = $row->un_cds_day;
+                                    $nutritions[$i]['ingestion'] = $row->un_cds_ci_id;
+                                    $nutritions[$i]['meal_id']   = !empty($row->un_ml_id) ? $row->un_ml_id : null;
+                                    $nutritions[$i]['meal_name'] = $row->ml_name . ' [БЖУК - ' . $row->ml_proteins . ' '
+                                        . $row->ml_fats .  ' ' . $row->ml_carbohydrates . ' ' . $row->ml_caloreis . ']';
+                                    $nutritions[$i]['date']      = $row->un_date;
+                                    $nutritions[$i]['done']      = ($row->un_date < $today) ? 1 : 0;
 
-                                $i++;
+                                    $day = $row->un_cds_day;
+                                    $ingestion = $row->un_cds_ci_id;
+
+                                    $i++;
+                                }
                             }
                             unset($row);
                             unset($i);
@@ -6758,7 +6938,7 @@ class Course_model extends CI_Model
     public function getUserCourseSettings($user_course_id, $user_id, $date = null)
     {
         //self::deleteUsersCoursesInfo();
-        $result = array();
+        $result = array('course' => array());
 
         $sel_course = $this->db->query('
             SELECT `uc_id`, `uc_o_id`, `uc_course_id`, `uc_couch_id`, `uc_date_start`, `uc_date_end`, `uc_days`, `uc_blocked`, 
@@ -7256,19 +7436,22 @@ class Course_model extends CI_Model
 
                 if(!empty($schedules['fill_course_schedule'][$day_id]))
                 {
-                    foreach($schedules['fill_course_schedule'][$day_id] as $ing_id => $ingestion)
+                    foreach($schedules['fill_course_schedule'][$day_id] as $ing_id => $meal_type)
                     {
-                        $meal_id = (is_numeric($ingestion['id'])) ? $ingestion['id'] : 0;
-
-                        if(!empty($values))
+                        foreach($meal_type as $meal)
                         {
-                            $values .= ', ';
+                            $meal_id = (is_numeric($meal['id'])) ? $meal['id'] : 0;
+
+                            if(!empty($values))
+                            {
+                                $values .= ', ';
+                            }
+
+                            $values .= '(' . $uc_id . ', ' . $day_id . ', ' . $ing_id . ', ' . $meal_id . ', "' . $event_date . '", "' . $date . '")';
                         }
-
-                        $values .= '(' . $uc_id . ', ' . $day_id . ', ' . $ing_id . ', ' . $meal_id . ', "' . $event_date . '", "' . $date . '")';
-
+                        unset($meal);
                     }
-                    unset($ingestion);
+                    unset($meal_type);
                 }
             }
 
@@ -7776,10 +7959,13 @@ class Course_model extends CI_Model
         if(is_numeric($user_course_id) and is_numeric($user_id))
         {
             $sel_data = $this->db->query('
-                SELECT `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, `uc_course_id` 
+                SELECT `un_cds_day`, `un_cds_ci_id`, `un_ml_id`, `un_date`, `uc_course_id`, `ml_mt_id`, `mt_name` 
                 FROM `users_nutritions`
-                LEFT JOIN `users_courses` ON `uc_id`=`un_uc_id` 
-                WHERE `un_uc_id`=? and `un_date`>? and `un_date`<? ORDER BY `un_date`, `un_cds_ci_id`',
+                LEFT JOIN `users_courses` ON `uc_id`=`un_uc_id`
+                LEFT JOIN `meals` ON `ml_id`=`un_ml_id`
+                LEFT JOIN `meals_types` ON `mt_id`=`ml_mt_id`
+                WHERE `un_uc_id`=? and `un_date`>? and `un_date`<? 
+                ORDER BY `un_date`, `un_cds_ci_id`',
                     array($user_course_id, $monday_date, $sunday_date));
 
             if($sel_data !== false and 0 < $sel_data->num_rows())
@@ -7796,16 +7982,17 @@ class Course_model extends CI_Model
                     {
 
                         $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['name'] = $ingestions['ingestions'][$ing_id]['name'];
-                        $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal'] = array();
+                        $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal_category'][$row->ml_mt_id]['name'] = $row->mt_name;
+                        $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal_category'][$row->ml_mt_id]['meal'] = array();
 
                         if($row->un_ml_id > 0)
                         {
                             $meal_data = self::getMeal($row->un_ml_id);
-                            $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal'] = $meal_data['meal'];
+                            $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal_category'][$row->ml_mt_id]['meal'] = $meal_data['meal'];
                         }
                         else
                         {
-                            $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal'] = $fill_course['fill_course_schedule'][$row->un_cds_day][$row->un_cds_ci_id];
+                            $result['course_menu'][$row->un_date][$row->un_cds_ci_id]['meal_category'][$row->ml_mt_id]['meal'] = $fill_course['fill_course_schedule'][$row->un_cds_day][$row->un_cds_ci_id][$row->ml_mt_id];
                         }
                     }
                 }

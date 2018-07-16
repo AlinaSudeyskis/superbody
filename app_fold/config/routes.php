@@ -97,6 +97,7 @@ $route['ordering/(:num)']        = 'Store/ordering/$1';
 $route['viewed/video']           = 'Course/viewedVideo';
 $route['show/video']             = 'Course/showVideo';
 $route['showMeal']               = 'Course/showMeal';
+$route['showMeals']              = 'Course/showMeals';
 $route['selectMeal']             = 'Course/selectMeal';
 $route['show/workout']           = 'Course/showWorkout';
 $route['show/weeks']             = 'Course/showCourseWeeks';
@@ -201,6 +202,7 @@ $route['administration/nutritions']                = 'Course/courses/nutrition';
 $route['administration/nutrition/new']             = 'Course/newNutrition';
 // Настройки
 $route['administration/nutrition/(:num)']          = 'Course/nutrition/$1/settings';
+$route['administration/nutrition/(:num)/preview']  = 'Course/coursePreview/$1';
 $route['administration/nutrition/(:num)/settings'] = 'Course/nutrition/$1/settings';
 // Landing настройки
 $route['administration/nutrition/(:num)/landing'] = 'Course/nutrition/$1/landing';

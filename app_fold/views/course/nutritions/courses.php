@@ -34,6 +34,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <div class="admin_set">
                                             <a href="/administration/nutrition/<?php echo $course['id']?>" class="admin_set">Редактировать</a>
                                         </div>
+                                        <div class="admin_set">
+                                            <a href="/administration/nutrition/<?php echo $course['id']?>/preview" class="admin_set">Предпросмотр</a>
+                                        </div>
                                     </div>
                                     <?php if ($course['landing']['activated'] !== false) : ?>
                                         <form action="" method="post">

@@ -120,7 +120,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
                                     }
                                 }
-                                pop_up_def($("#pop-up_video"));
+                                pop_up_home($("#pop-up_video"));
 
                                 $('#bt-workout-done').on('click', function(){
                                     $.ajax({
@@ -144,7 +144,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 {
                     var start = calEvent.start._i;
                     $.ajax({
-                        url: '/showMeal',
+                        url: '/showMeals',
                         type: 'post',
                         dataType: 'json',
                         data: {
@@ -158,10 +158,67 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             var up_meal = $("#pop-up_meal"),
                                 data = result.responseJSON;
                             if (data && !data.error) {
-                                up_meal.html(data.meal);
-                                pop_up_def(up_meal);
-                                meal_slider(up_meal);
+                                up_meal.html(data.meals);
+                                pop_up_home(up_meal);
+                                //meal_slider(up_meal);
                             }
+
+                            up_meal.on('click', '.show_meal', function(){
+                                var mlid = $(this).data('mlid'),
+                                    unid = $(this).data('unid'),
+                                    did  = $(this).data('did'),
+                                    iid  = $(this).data('iid');
+                                $.ajax({
+                                    url: '/showMeal',
+                                    type: 'post',
+                                    dataType: 'json',
+                                    data: {
+                                        start: start,
+                                        mlid: mlid,
+                                        unid: unid,
+                                        did: did,
+                                        iid: iid
+                                    },
+                                    complete: function (result) {
+                                        var data = result.responseJSON;
+                                        if (data && !data.error) {
+                                            calEvent.ml_id = mlid;
+                                            up_meal.html(data.meal);
+                                            meal_slider(up_meal);
+                                            pop_up_home(up_meal);
+                                            up_meal.css('height','auto');
+                                        }
+                                    }
+                                });
+                            });
+
+                            up_meal.on('click', '.return_back', function(){
+                                var unid = $(this).data('unid'),
+                                    did  = $(this).data('did'),
+                                    iid  = $(this).data('iid'),
+                                    date = $(this).data('date');
+                                $.ajax({
+                                    url: '/showMeals',
+                                    type: 'post',
+                                    dataType: 'json',
+                                    data: {
+                                        start: date,
+                                        start_param: unid,
+                                        day: did,
+                                        ingestion: iid
+                                    },
+                                    complete: function (result) {
+                                        var up_meal = $("#pop-up_meal"),
+                                            data = result.responseJSON;
+                                        if (data && !data.error) {
+                                            up_meal.html(data.meals);
+                                            pop_up_home(up_meal);
+                                            //meal_slider(up_meal);
+                                            up_meal.css('height','auto');
+                                        }
+                                    }
+                                });
+                            });
 
                             up_meal.on('click', '#change-meal', function(){
                                 var meal_other = up_meal.find('.meal_other_wrap');
@@ -198,11 +255,39 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         if (data && !data.error) {
                                             calEvent.ml_id = mlid;
                                             up_meal.html(data.meal);
-                                            up_meal.css('height','auto');
-                                            pop_up_def(up_meal);
+                                            pop_up_home(up_meal);
                                             meal_slider(up_meal);
+                                            up_meal.css('height','auto');
                                         }
                                     }
+                                });
+                            });
+
+                            up_meal.on('click', '.show_ml_img', function(){
+                                event.preventDefault();
+                                var popup   = $("#ml_img_pop-up"),
+                                    shadow  = $("#shadow"),
+                                    opacity = 0.8,
+                                    ml_img = $(this).attr('src');
+
+                                if (shadow.length == 0)
+                                {
+                                    $("body").append("<div id='shadow'></div>");
+                                    shadow = $("#shadow");
+                                }
+
+                                popup.find('.ml_img_pop-up_h').html('<img src="'+ ml_img +'" alt=""/>');
+
+                                if($("#shadow2").is(':visible'))
+                                {
+                                    opacity = 0.6;
+                                }
+                                up_meal.hide();
+                                popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
+                                $("#shadow, .ml_img_pop-up_close").fadeTo(600, opacity).click(function() {
+                                    shadow.fadeOut(600);
+                                    up_meal.fadeIn(600);
+                                    popup.fadeOut(600);
                                 });
                             });
                         }

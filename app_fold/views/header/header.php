@@ -63,6 +63,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
 </div><!-- home_pop-up -->
+<div id="ml_img_pop-up">
+    <div class="ml_img_pop-up_cont">
+        <div class="ml_img_pop-up_close"></div>
+        <div class="ml_img_pop-up_h"></div>
+    </div>
+</div><!-- home_pop-up -->
 <!--<p id="page-info">Page rendered in <strong>{elapsed_time}</strong> seconds. Memory usage <strong>{memory_usage}</strong>. <?php /*echo  (ENVIRONMENT === 'development') ?  'PHP Version <strong>' . phpversion() . '</strong>' : '' */?></p>-->
 <?php
 /*<!-- Google -->

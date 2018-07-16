@@ -728,6 +728,18 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        // 11.07.2018
+        $date = '2018-07-11 10:13:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_days_schedule` DROP `cds_ml_mt_id`");
+
+            $result = true;
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
