@@ -7747,7 +7747,8 @@ class Course extends CI_Controller
         $result['course_users']    = $this->Course_model->getCourseUsers($course_id);
         $result['course_users_id'] = $this->Course_model->getCourseUsersId($course_id);
 
-        if (!empty($user_id) and in_array($user_id, $result['course_users_id']['id'])) {
+        if (!empty($user_id) and in_array($user_id, $result['course_users_id']['id']))
+        {
             $user_data        = $this->User_model->getUser($user_id);
             $last_anthop_data = $this->User_model->getLastAnthropometricData($user_id);
             $all_anthop_data  = $this->User_model->getAnthropometricData($user_id);

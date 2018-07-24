@@ -249,7 +249,7 @@ $route['administration/feedback/(:any)']     = 'Message/feedbackUserMessages/$1'
 $route['administration/sublist'] = 'Administrator/sublist';
 // Информация о сайте
 $route['administration/site'] = 'Administrator/siteInfo';
-$route['administration/site/(header|banner|about|contacts|auth)'] = 'Administrator/siteInfo/$1';
+$route['administration/site/(header|banner|about|contacts|auth|spec)'] = 'Administrator/siteInfo/$1';
 $route['administration/site/banner/new']    = 'Administrator/newBanner';
 $route['administration/site/banner/(:num)'] = 'Administrator/siteBanner/$1';
 // Уведомления и письма
@@ -338,6 +338,7 @@ $route['store/product/(:num)']        = 'Store/storeProduct/$1';
 $route['store/(:num)/product/(:num)'] = 'Store/storeProduct/$2/$1';
 
 $route['addProductToCart']   = 'Store/productToCart';
+$route['addCourseToCart']    = 'Store/courseToCart';
 $route['deleteCartProduct']  = 'Store/deleteCartProduct';
 $route['detachCartProducts'] = 'Store/detachCartProducts';
 $route['updateCartProduct']  = 'Store/updateCartProduct';

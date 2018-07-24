@@ -370,6 +370,9 @@ class CI_Controller {
         $this->load->model('Course_model');
         $this->load->model('Notification_model');
 
+        $admin_new_fbs    = null;
+        $admin_new_orders = null;
+
 		// Проверка данных авторизованного пользователя
         if (!empty($this->session->user) and is_numeric($this->session->user['id']) and
             (empty($this->session->user['email']) or filter_var($this->session->user['email'], FILTER_VALIDATE_EMAIL)))
@@ -403,6 +406,14 @@ class CI_Controller {
             }
             if ($new_fb_messages != $this->session->new_fb_messages) {
                 $this->session->set_userdata("new_fb_messages", $new_fb_messages);
+            }
+
+            // Кол-во новых сообщений обратной связи и новых заказов, требущих обработки
+            if($this->session->user['type'] == 3)
+            {
+                $admin_new_fbs    = $this->Message_model->getAdminCountNewFeedbackMessages();
+                log_message('debug', $admin_new_fbs);
+                $admin_new_orders = $this->Store_model->getAdminCountWaitingOrders();
             }
 
             // Сверка данных пользователя
@@ -503,7 +514,9 @@ class CI_Controller {
             "outsider" => false,
             "menu_courses" => $courses,
             "country_code" => $this->country_code,
-            "user_notification" => array()
+            "user_notification" => array(),
+            "e_new_messages" => $admin_new_fbs,
+            "e_new_orders" => $admin_new_orders
         );
 	}
 

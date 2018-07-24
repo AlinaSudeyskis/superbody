@@ -49,7 +49,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>
     <li>
         <a href="/administration/orders" <?php if ($page_menu == 'a_orders') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico10.png" alt=""></span><span>Заказы</span>
+            <span><img src="/img/menu_ico10.png" alt=""></span><span>Заказы<?php if(!empty($e_new_orders)): ?> [<?php echo $e_new_orders; ?>]<?php endif; ?></span>
         </a>
     </li>
     <?php
@@ -76,7 +76,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>
     <li>
         <a href="/administration/feedback" <?php if ($page_menu == 'feedback') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico20.png" alt=""></span><span>Обратная связь</span>
+            <span><img src="/img/menu_ico20.png" alt=""></span><span>Обратная связь<?php if(!empty($e_new_messages)): ?> [<?php echo $e_new_messages; ?>]<?php endif; ?></span>
         </a>
     </li> 
     <li>

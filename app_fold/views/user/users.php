@@ -17,11 +17,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <div class="admin_list">
-                        <?php if (!empty($users)) :
-                            foreach ($users as $u) : ?>
+                        <?php if (!empty($users)):
+                            foreach ($users as $u): ?>
                                 <div class="admin_item parent">
                                     <?php if(!empty($u['user_image'])): ?>
                                         <div class="admin_ava"><img src="<?php echo $u['user_image']; ?>" alt=""></div>
+                                    <?php elseif(!empty($u['user_soc_image'])): ?>
+                                        <div class="admin_ava"><img src="<?php echo $u['user_soc_image']; ?>" alt=""></div>
                                     <?php endif; ?>
                                     <div class="admin_cont">
                                         <div class="admin_name">
@@ -34,7 +36,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             <?php endforeach;
                             unset($u);
-                        endif;?>
+                        endif; ?>
                     </div>
                     <?php include_once('./app_fold/views/pagination.php'); ?>
                 </div>

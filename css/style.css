@@ -1743,7 +1743,7 @@ tr:first-child > td > .fc-day-grid-event{
     background: #72d0f4;
     display: flex;
 }
-.video_col_h span.video_title{
+.video_col_h .video_title{
     width: 100%;
     color: #fff;
     text-transform: uppercase;
@@ -1753,6 +1753,8 @@ tr:first-child > td > .fc-day-grid-event{
     padding: 5px 13px;
     margin: auto;
 
+    text-decoration: none;
+    font-weight: 600;
 }
 .video_col_h span{
     font-style: normal;
@@ -2212,6 +2214,7 @@ tr:first-child > td > .fc-day-grid-event{
 	width: 100%;
 	overflow: hidden;
 	border-right: 2px solid #fff;
+    /*height: 248px;*/
 }
 .gal_item:first-child{
 	border-bottom: 2px solid #fff;
@@ -3155,6 +3158,10 @@ tr:first-child > td > .fc-day-grid-event{
 .kurs_page_block_tab{
     float: right;
 }
+.kurs_page_block_tab.red_tab{
+    border-color: #e25050;
+    color: #e25050;
+}
 .kurs_page_row>div:nth-of-type(2n) .kurs_page_block_h,
 .kurs_page_row>div:nth-of-type(2n) .kurs_page_block_desk,
 .kurs_page_row>div:nth-of-type(2n) .kurs_page_block_slide_stat,
@@ -3175,8 +3182,17 @@ tr:first-child > td > .fc-day-grid-event{
     border-color: #90daf6;
     color: #72d0f4;
 }
+.kurs_page_row>div:nth-of-type(2n) .kurs_page_block_tab.red_tab{
+    border-color: #e25050;
+    color: #e25050;
+}
 .kurs_page_reg_wrap{
     margin-top: 45px;
+}
+
+.g-recaptcha{
+    width: 305px;
+    margin: 0 auto 20px;
 }
 
 
@@ -8375,7 +8391,7 @@ textarea.anketa_form_in{
 .admin_form_txt:last-child{
     /*margin-bottom: 0;*/
 }
-.admin_form_block,
+.admin_form_block, .admin_form_reset,
 .admin_form_submit,
 .admin_add_file,
 .admin_form_save,
@@ -8395,6 +8411,10 @@ textarea.anketa_form_in{
     float: right;
     margin-left: 20px;
     text-decoration: none;
+}
+.admin_form_reset{
+    background-color: #f3f3f3;
+    color: #595959;
 }
 .video_admin_form_block{
     margin-right: 20px;

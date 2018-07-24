@@ -176,8 +176,10 @@ class Authorization extends CI_Controller
 
                     if (is_array($result))
                     {
+                        $user_image = (!empty($result['user_image'])) ? $result['user_image'] : $result['user_soc_image'];
+
                         parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'],
-                            $result['user_name'], $result['user_phone'], $result['user_image'], '', 'native', 0, $this->date);
+                            $result['user_name'], $result['user_phone'], $user_image, '', 'native', 0, $this->date);
 
                         // После успешной авторизации переход на страницу пользователя
                         header('Location: /profile/'.$result['user_id']);
@@ -721,8 +723,10 @@ class Authorization extends CI_Controller
                     {
                         $user = $result['user'];
 
+                        $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
+
                         parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
-                            $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+                            $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
                         $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 
@@ -920,8 +924,11 @@ class Authorization extends CI_Controller
                         if (!empty($result['user']))
                         {
                             $user = $result['user'];
+
+                            $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
+
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
-                                $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+                                $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
                             $return = ($return == '/profile/') ? ($return . $this->session->user['id']) : $return;
 
@@ -1110,8 +1117,11 @@ class Authorization extends CI_Controller
                         if (!empty($result['user']))
                         {
                             $user = $result['user'];
+
+                            $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
+
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
-                                $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+                                $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
                             $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 
@@ -1411,8 +1421,10 @@ class Authorization extends CI_Controller
                         {
                             $user = $result['user'];
 
+                            $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
+
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
-                                $user['phone'], $user['image'], $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+                                $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
                             $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
 

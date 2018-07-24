@@ -32,4 +32,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'a_auth'): ?> class="anketa_active" <?php endif;?>>Авторизация</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/site/spec">
+            <span <?php if ($page_submenu == 'a_spec'): ?> class="anketa_active" <?php endif;?>>Курсы/Спец.</span>
+        </a>
+    </li>
 </ul>

@@ -134,11 +134,25 @@ class Welcome extends CI_Controller
     {
         if($this->input->post('bt_send_message', true))
         {
-            $email   = (filter_var($this->input->post('email'), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email') : null;
-            $name    = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
-            $message = mb_substr(strip_tags($this->input->post('message', true)), 0, 1000);
+            $email    = (filter_var($this->input->post('email'), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email') : null;
+            $name     = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+            $message  = mb_substr(strip_tags($this->input->post('message', true)), 0, 1000);
+            $g_c_resp = $this->input->post('g-recaptcha-response', true);
 
-            if (!empty($email) and !empty($message))
+            $myCurl = curl_init();
+            curl_setopt_array($myCurl, array(
+                CURLOPT_URL => 'https://www.google.com/recaptcha/api/siteverify',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_POSTFIELDS => http_build_query(array('secret' => '6LdyBmYUAAAAAM7E7voVemkU62C_BmqHZ7aNH20a',
+                    'response' => $g_c_resp, 'remoteip' => $_SERVER['REMOTE_ADDR']))
+            ));
+            $response = curl_exec($myCurl);
+            curl_close($myCurl);
+            $resp_info = json_decode($response);
+
+            if (!empty($email) and !empty($message) and $resp_info->success === true)
             {
                 $this->load->model('Message_model');
 

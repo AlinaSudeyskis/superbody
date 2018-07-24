@@ -21,6 +21,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </div>
                     </div>
+                    <div class="g-recaptcha" data-sitekey="6LdyBmYUAAAAANOua7WQ-8GHQlw9TWGnnHf7rPeB"></div>
                     <div class="row">
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12"><input type="submit" name="bt_send_message" value="отправить сообщение" class="contact_but"></div>
                         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 contact_but_desk">

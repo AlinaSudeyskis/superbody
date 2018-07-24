@@ -35,20 +35,24 @@ class User extends CI_Controller
     {
         $user_id = (empty($user_id)) ? $this->user_id : $user_id;
 
-        if (!is_numeric($user_id)) {
+        if (!is_numeric($user_id))
+        {
             parent::pageNotFound($this->page_url);
         }
 
         // Страница пользователя или администратора
-        if (!empty($this->user_id) and $this->user_id == $user_id and $this->session->user['type'] != 2) {
+        if (!empty($this->user_id) and $this->user_id == $user_id and $this->session->user['type'] != 2)
+        {
             self::userProfile($user_id);
         }
         // Страница тренера
-        elseif (!empty($this->user_id) and $this->user_id == $user_id and $this->session->user['type'] == 2) {
+        elseif (!empty($this->user_id) and $this->user_id == $user_id and $this->session->user['type'] == 2)
+        {
             self::couchProfile($user_id);
         }
         // Просмотр страницы другого пользователя
-        elseif (empty($this->user_id) or $this->user_id != $user_id) {
+        elseif (empty($this->user_id) or $this->user_id != $user_id)
+        {
             self::outsiderProfile($user_id);
         }
     }
@@ -278,17 +282,17 @@ class User extends CI_Controller
         $result = array_merge($user_data, $user_social);
 
         // Страница тренера
-        if ($result['user_data']['type'] == 2)
+        if ($result['user_data']['user_type'] == 2)
         {
             self::outsiderCouchProfile($user_id);
         }
         // Страница администратора
-        elseif ($result['user_data']['type'] == 3)
+        elseif ($result['user_data']['user_type'] == 3)
         {
             self::outsiderAdminProfile($user_id);
         }
         // Страница пользователя
-        elseif ($result['user_data']['type'] == 1)
+        elseif ($result['user_data']['user_type'] == 1)
         {
             self::outsiderUserProfile($user_id);
         }
@@ -358,7 +362,7 @@ class User extends CI_Controller
             }
         }
 
-        $portfolio = $this->Couch_model->getCouchPortfolioData($couch_id);
+        $portfolio = $this->Couch_model->getPublicCouchPortfolioData($couch_id);
         $posts     = $this->Blog_model->getPublicBlogPosts($couch_id);
         $user      = $this->Couch_model->getCouch($couch_id, $this->date);
         $result    = array_merge($portfolio, $posts, $user);
@@ -1351,7 +1355,7 @@ class User extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result['users'] = $this->User_model->getUsersData();
+        $result = $this->User_model->getUsersData();
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Пользователи';
         $this->page_data['page_menu'] = 'users';
@@ -1514,6 +1518,62 @@ class User extends CI_Controller
             elseif ($res_gb === true) {
                 // Сохранено
                 $this->session->set_tempdata('message', 10, 60);
+            }
+
+            header('Location: /administration/user/'.$user_id);
+        }
+        elseif($this->input->post('bt_reset_password', true))
+        {
+            $email      = null;
+            $email_hash = null;
+            $idempotent = null;
+            $today      = $this->date;
+            $date_in_an_hour = null;
+
+            // Валидация E-mail
+            if (!empty($user_data['user_email'])
+                && filter_var($user_data['user_email'], FILTER_VALIDATE_EMAIL))
+            {
+                $email      = $user_data['user_email'];
+                $email_hash = password_hash($user_data['user_email'], PASSWORD_DEFAULT);
+                $idempotent = password_hash($today, PASSWORD_DEFAULT);
+
+                // Дата и время через час после сохранения данных о восстановлении пароля
+                $tmp_date = new DateTime($today);
+                $tmp_date->add(new DateInterval('PT1H'));
+                $date_in_an_hour = $tmp_date->format('Y-m-d H:i:s');
+            }
+
+            // Сохранение данных в БД, отправка письма
+            if (!empty($email))
+            {
+                $this->load->model('Authorization_model');
+                $result_restore = $this->Authorization_model->setRestore($email, $email_hash, $idempotent, $today);
+
+                if ($result_restore === true)
+                {
+                    // Отправление письма с указаниями по восстановлению пароля
+                    $system_message['text']  = '<p>Обновить пароль Вы можете до ' . $date_in_an_hour . '</p> </br>';
+                    $system_message['text']  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent
+                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                    $system_message['text']  .= 'Восстановить пароль';
+                    $system_message['text']  .= '</a></b>';
+
+                    parent::sendEmail(3, $email, $system_message);
+
+                    // Письмо отправлено
+                    $this->session->set_tempdata('message', 46, 60);
+
+                }
+                else {
+                    // Пользователь с таким E-mail не существует
+                    $this->session->set_tempdata('message', 47, 60);
+                }
+            }
+            else
+            {
+                // Не корректный E-mail
+                $this->session->set_tempdata('message', 6, 60);
             }
 
             header('Location: /administration/user/'.$user_id);

@@ -34,11 +34,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Наименование:</div>
-            <input type="text" name="name" class="admin_form_txt kurs_form_txt_short" placeholder="Введите наименование" value="<?php if (!empty($course['name'])) : echo $course['name']; endif;?>" required="required"/>
+            <textarea name="name" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите наименование" required="required"><?php if (!empty($course['name'])) : echo $course['name']; endif;?></textarea>
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Описание:</div>
-            <input type="text" name="description" class="admin_form_txt kurs_form_txt_short" placeholder="Введите описание" value="<?php if (!empty($course['description'])) : echo $course['description']; endif;?>" required="required" />
+            <textarea name="description" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите описание" required="required"><?php if (!empty($course['description'])) : echo $course['description']; endif;?></textarea>
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Длительность курса:</div>

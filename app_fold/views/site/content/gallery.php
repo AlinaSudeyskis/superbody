@@ -8,16 +8,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="gal_block" data-info="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.">
             <?php $count_images = count($gallery);
             foreach($gallery as $key => $image):
-                if ($key != 0 and (($key-1) % 2) == 0):?>
+                if ($key != 0 and ($key-1) != 0 and ($key % 2) == 0):?>
                     </div>
                 <?php endif;
                 if ($key == 0 or ($key % 2) == 0):?>
                     <div class="gal_slide">
                 <?php endif;?>
 
-                <div class="gal_item"><a data-lightbox="gal" href="<?php echo $image['path'];?>"><img src="<?php echo $image['path']; ?>" alt=""></a></div>
+                <div class="gal_item">
+                    <a href="/portfolio/<?php echo $image['post_id'];?>">
+                        <img src="<?php echo $image['path']; ?>" alt="">
+                    </a><!-- data-lightbox="gal"  -->
+                </div>
 
-                <?php if ($key == $count_images):?>
+                <?php if ($key == ($count_images-1)):?>
                     </div>
                 <?php endif;?>
             <?php endforeach;

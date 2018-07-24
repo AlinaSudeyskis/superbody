@@ -226,12 +226,15 @@ class Couch extends CI_Controller
             $type = 2;
 
             // Изменение тип пользователя на администратор
-            if (!empty($users)) {
-                foreach ($users as $user_id) {
+            if (!empty($users))
+            {
+                foreach ($users as $user_id)
+                {
                     $this->load->model('Administrator_model');
                     $result = $this->Administrator_model->changeUserType($user_id, $type, $this->date);
 
-                    if ($result === true) {
+                    if ($result === true)
+                    {
                         $this->load->model('User_model');
                         $result = $this->User_model->getUser($user_id);
                         $user_data = $result['user_data'];
@@ -245,7 +248,8 @@ class Couch extends CI_Controller
                         // Сохранено
                         $this->session->set_tempdata('message', 83, 60);
                     }
-                    else {
+                    else
+                    {
                         // Не удалось изменить тип пользователя
                         $this->session->set_tempdata('message', 86, 60);
                     }
@@ -281,11 +285,10 @@ class Couch extends CI_Controller
         }
 
         $user = $this->Couch_model->getCouch($user_id);
+        $user_data = $user['user_data'];
 
         if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))
         {
-            $user_data = $user['user_data'];
-
             // Валидация E-mail
             if (!empty($this->input->post('email', true))
                 && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
@@ -393,7 +396,9 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 85, 60);
 
                 header('Location: /administration/user/'.$user_id);
-            } else {
+            }
+            else
+            {
                 // Не сохранено
                 $this->session->set_tempdata('message', 86, 60);
             }
@@ -467,6 +472,62 @@ class Couch extends CI_Controller
             elseif ($res_gb === true) {
                 // Сохранено
                 $this->session->set_tempdata('message', 10, 60);
+            }
+
+            header('Location: /administration/couch/'.$user_id);
+        }
+        elseif($this->input->post('bt_reset_password', true))
+        {
+            $email      = null;
+            $email_hash = null;
+            $idempotent = null;
+            $today      = $this->date;
+            $date_in_an_hour = null;
+
+            // Валидация E-mail
+            if (!empty($user_data['user_email'])
+                && filter_var($user_data['user_email'], FILTER_VALIDATE_EMAIL))
+            {
+                $email      = $user_data['user_email'];
+                $email_hash = password_hash($user_data['user_email'], PASSWORD_DEFAULT);
+                $idempotent = password_hash($today, PASSWORD_DEFAULT);
+
+                // Дата и время через час после сохранения данных о восстановлении пароля
+                $tmp_date = new DateTime($today);
+                $tmp_date->add(new DateInterval('PT1H'));
+                $date_in_an_hour = $tmp_date->format('Y-m-d H:i:s');
+            }
+
+            // Сохранение данных в БД, отправка письма
+            if (!empty($email))
+            {
+                $this->load->model('Authorization_model');
+                $result_restore = $this->Authorization_model->setRestore($email, $email_hash, $idempotent, $today);
+
+                if ($result_restore === true)
+                {
+                    // Отправление письма с указаниями по восстановлению пароля
+                    $system_message['text']  = '<p>Обновить пароль Вы можете до ' . $date_in_an_hour . '</p> </br>';
+                    $system_message['text']  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent
+                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                    $system_message['text']  .= 'Восстановить пароль';
+                    $system_message['text']  .= '</a></b>';
+
+                    parent::sendEmail(3, $email, $system_message);
+
+                    // Письмо отправлено
+                    $this->session->set_tempdata('message', 46, 60);
+
+                }
+                else {
+                    // Пользователь с таким E-mail не существует
+                    $this->session->set_tempdata('message', 47, 60);
+                }
+            }
+            else
+            {
+                // Не корректный E-mail
+                $this->session->set_tempdata('message', 6, 60);
             }
 
             header('Location: /administration/couch/'.$user_id);
@@ -940,14 +1001,18 @@ class Couch extends CI_Controller
         $this->load->model('User_model');
 
         $attached_users_id = $this->Couch_model->getAttachedUsersId($this->user_id);
-        
-        if (in_array($user_id, $attached_users_id['id'])) {
+
+        $user_data         = array();
+        $last_anthrop_data = array();
+        $anthrop_data      = array();
+        if (in_array($user_id, $attached_users_id['id']))
+        {
             $user_data         = $this->User_model->getUser($user_id);
             $last_anthrop_data = $this->User_model->getLastAnthropometricData($user_id);
             $anthrop_data      = $this->User_model->getAnthropometricData($user_id);
-            
-            $result = array_merge($last_anthrop_data, $anthrop_data, $user_data);
+            $last_anthrop_data = array();
         }
+        $result = array_merge($last_anthrop_data, $anthrop_data, $user_data);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Активность клиентов';

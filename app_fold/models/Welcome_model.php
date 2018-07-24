@@ -89,9 +89,10 @@ class Welcome_model extends CI_Model
             SELECT `si_id`, `si_logo`, `si_index_title`, `si_index_text`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinteres`, 
               `si_soc_google_plus`, `si_soc_tumblr`, `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, 
               `si_phone`, `si_email`, `si_rights`, `si_agreement`, `si_policy`, `si_personal_data`, `si_footer`, 
-              `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_auth_title1`, `si_auth_title2`, `si_auth_subtitle1`, 
-              `si_auth_subtitle2`, `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, `si_auth_url_name1`, 
-              `si_auth_url_name2`
+              `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_auth_display`, `si_auth_title1`, `si_auth_title2`, 
+              `si_auth_subtitle1`, `si_auth_subtitle2`, `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, 
+              `si_auth_url_name1`, `si_auth_url_name2`, `si_spec_display`, `si_spec_name`, `si_spec_title`, `si_spec_text`, 
+              `si_spec_url`, `si_spec_url_text`
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -122,6 +123,7 @@ class Welcome_model extends CI_Model
             $result['contacts_text1'] = $row->si_contacts_text1;
             $result['contacts_text2'] = $row->si_contacts_text2;
             $result['banners']        = array();
+            $result['auth_display']   = $row->si_auth_display;
             $result['auth_title1']    = $row->si_auth_title1;
             $result['auth_title2']    = $row->si_auth_title2;
             $result['auth_subtitle1'] = $row->si_auth_subtitle1;
@@ -132,6 +134,12 @@ class Welcome_model extends CI_Model
             $result['auth_url2']      = $row->si_auth_url2;
             $result['auth_url_name1'] = $row->si_auth_url_name1;
             $result['auth_url_name2'] = $row->si_auth_url_name2;
+            $result['spec_display']   = $row->si_spec_display;
+            $result['spec_name']      = $row->si_spec_name;
+            $result['spec_title']     = $row->si_spec_title;
+            $result['spec_text']      = $row->si_spec_text;
+            $result['spec_url']       = $row->si_spec_url;
+            $result['spec_url_text']  = $row->si_spec_url_text;
 
             $sel_banners = $this->db->query('
                 SELECT `sb_image`, `sb_url` FROM `site_banners` WHERE `sb_blocked`=0');

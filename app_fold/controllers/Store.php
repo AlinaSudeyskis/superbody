@@ -1328,7 +1328,7 @@ class Store extends CI_Controller
      */
     public function getSubcategories()
     {
-        $category_id = $this->input->post('id_category', true) and is_numeric($this->input->post('id_category', true))
+        $category_id = (!empty($this->input->post('id_category', true)) and is_numeric($this->input->post('id_category', true)))
             ? $this->input->post('id_category', true)
             : null;
         $ids_subcat = is_array($this->input->post('ids_subcat', true))
@@ -1368,10 +1368,10 @@ class Store extends CI_Controller
     {
         $result = array('cart' => false, 'cart_info' => '');
 
-        $product_id       = $this->input->post('product_id', true) and is_numeric($this->input->post('product_id', true))
+        $product_id       = (!empty($this->input->post('product_id', true)) and is_numeric($this->input->post('product_id', true)))
             ? $this->input->post('product_id', true)
             : null;
-        $product_quantity = ($this->input->post('product_quantity', true) and is_numeric($this->input->post('product_quantity', true)))
+        $product_quantity = (!empty($this->input->post('product_quantity', true)) and is_numeric($this->input->post('product_quantity', true)))
             ? $this->input->post('product_quantity', true)
             : 1;
 
@@ -1407,6 +1407,57 @@ class Store extends CI_Controller
                     $result['cart']       = true;
                     $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
                 }
+            }
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * AJAX Сохранение курса в корзину
+     *
+     * @return void
+     */
+    public function courseToCart()
+    {
+        $result = array('cart' => false, 'cart_info' => '');
+
+        $course_id  = (!empty($this->input->post('cid', true)) and is_numeric($this->input->post('cid', true)))
+            ? $this->input->post('cid', true)
+            : null;
+        $product_id = null;
+
+        if(!empty($course_id))
+        {
+            $product_id = $this->Store_model->getCourseProductId($course_id);
+        }
+
+        // Если пользователь авторизован
+        if (!empty($this->user_id) and is_numeric($this->user_id) and !empty($product_id))
+        {
+            $res = $this->Store_model->setProductToCart($product_id, $this->user_id, $this->date);
+
+            if ($res['add'] === true)
+            {
+                // Кол-во товаров в корзине
+                $cart_products = $this->Store_model->getCartCountProducts($this->user_id);
+
+                parent::updateSessionCart($cart_products);
+
+                $result['cart_info']  = '<div class="not_available">В корзине</div>';
+                $result['cart']       = true;
+                $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
+            }
+        }
+        elseif(!empty($product_id))
+        {
+            $res = parent::setProductToSessionCart($product_id, $this->date, 1);
+
+            if ($res['add'] === true)
+            {
+                $result['cart_info']  = '<div class="not_available">В корзине</div>';
+                $result['cart']       = true;
+                $result['cart_count'] = (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0;
             }
         }
 

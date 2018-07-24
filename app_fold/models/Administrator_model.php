@@ -441,8 +441,8 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_info = $this->db->query('
-            SELECT `si_id`, `si_auth_title1`, `si_auth_title2`, `si_auth_subtitle1`, `si_auth_subtitle2`, `si_auth_text1`, 
-              `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, `si_auth_url_name1`, `si_auth_url_name2` 
+            SELECT `si_id`, `si_auth_display`, `si_auth_title1`, `si_auth_title2`, `si_auth_subtitle1`, `si_auth_subtitle2`, 
+              `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, `si_auth_url_name1`, `si_auth_url_name2` 
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -450,6 +450,7 @@ class Administrator_model extends CI_Model
             $row = $sel_info->row();
 
             $result['si_id']          = $row->si_id;
+            $result['auth_display']   = $row->si_auth_display;
             $result['auth_title1']    = $row->si_auth_title1;
             $result['auth_title2']    = $row->si_auth_title2;
             $result['auth_subtitle1'] = $row->si_auth_subtitle1;
@@ -497,6 +498,37 @@ class Administrator_model extends CI_Model
             unset($row);
         }
         elseif ($sel_banners === false) {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных блока "Новые курсы"/"Спец. предложение"
+     *
+     * @return bool|array
+     */
+    public function getSiteCoursesBlock()
+    {
+        $result = false;
+
+        $sel_info = $this->db->query('
+            SELECT `si_id`, `si_spec_display`, `si_spec_name`, `si_spec_title`, `si_spec_text`, `si_spec_url`, `si_spec_url_text` 
+            FROM `site_info` LIMIT 1');
+
+        if ($sel_info !== false and 1 == $sel_info->num_rows()) {
+            $row = $sel_info->row();
+
+            $result['si_id']         = $row->si_id;
+            $result['spec_display']  = $row->si_spec_display;
+            $result['spec_name']     = $row->si_spec_name;
+            $result['spec_title']    = $row->si_spec_title;
+            $result['spec_text']     = $row->si_spec_text;
+            $result['spec_url']      = $row->si_spec_url;
+            $result['spec_url_text'] = $row->si_spec_url_text;
+        }
+        elseif ($sel_info === false) {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
@@ -641,6 +673,7 @@ class Administrator_model extends CI_Model
     /**
      * Сохранение изменений данных о блоке авторизации
      *
+     * @param $display
      * @param $title_1
      * @param $title_2
      * @param $subtitle_1
@@ -655,15 +688,15 @@ class Administrator_model extends CI_Model
      * @param $user_id
      * @return bool
      */
-    public function setSiteAuth($title_1, $title_2, $subtitle_1, $subtitle_2, $text_1, $text_2, $url_1, $url_2,
+    public function setSiteAuth($display, $title_1, $title_2, $subtitle_1, $subtitle_2, $text_1, $text_2, $url_1, $url_2,
                                 $url_name_1, $url_name_2, $date, $user_id)
     {
         $up_info = $this->db->query('
-            UPDATE `site_info` SET `si_auth_title1`=?, `si_auth_title2`=?, `si_auth_subtitle1`=?, `si_auth_subtitle2`=?,
-              `si_auth_text1`=?,`si_auth_text2`=?,`si_auth_url1`=?,`si_auth_url2`=?,`si_auth_url_name1`=?,
-              `si_auth_url_name2`=?,`si_user_id`=?,`si_date`=? 
+            UPDATE `site_info` SET `si_auth_display`=?, `si_auth_title1`=?, `si_auth_title2`=?, `si_auth_subtitle1`=?, 
+              `si_auth_subtitle2`=?, `si_auth_text1`=?, `si_auth_text2`=?, `si_auth_url1`=?, `si_auth_url2`=?, 
+              `si_auth_url_name1`=?, `si_auth_url_name2`=?, `si_user_id`=?,`si_date`=? 
             WHERE `si_id`=? LIMIT 1',
-                array($title_1, $title_2, $subtitle_1, $subtitle_2, $text_1, $text_2, $url_1, $url_2, $url_name_1,
+                array($display, $title_1, $title_2, $subtitle_1, $subtitle_2, $text_1, $text_2, $url_1, $url_2, $url_name_1,
                     $url_name_2, $user_id, $date, 1));
 
         if ($up_info !== false and 1 == $this->db->affected_rows()) {
@@ -735,6 +768,39 @@ class Administrator_model extends CI_Model
         }
         else
         {
+            return false;
+        }
+    }
+
+    /**
+     * Сохранение данных блока "Спец. предложение"
+     *
+     * @param $display
+     * @param $name
+     * @param $title
+     * @param $text
+     * @param $url
+     * @param $url_text
+     * @param $date
+     * @param $admin_id
+     * @return bool
+     */
+    public function setSiteCoursesBlock($display, $name, $title, $text, $url, $url_text, $date, $admin_id)
+    {
+        $up_info = $this->db->query('
+            UPDATE `site_info` SET `si_spec_display`=?, `si_spec_name`=?, `si_spec_title`=?, `si_spec_text`=?, 
+              `si_spec_url`=?, `si_spec_url_text`=?, `si_user_id`=?,`si_date`=? 
+            WHERE `si_id`=? LIMIT 1',
+                array($display, $name, $title, $text, $url, $url_text, $admin_id, $date, 1));
+
+        if ($up_info !== false and 1 == $this->db->affected_rows()) {
+            return true;
+        }
+        elseif ($up_info === false) {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else {
             return false;
         }
     }

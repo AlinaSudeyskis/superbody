@@ -26,8 +26,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 endif;?>
             </div>
             <div class="kurs_page_block_but parent">
-                <a href="/course/<?php echo $course['id'];?>" class="kurs_page_block_more">узнать больше</a>
-                <a href="#" class="kurs_page_block_tab">расписание</a>
+                <a href="/course/<?php echo $course['id'];?>" class="kurs_page_block_more">Узнать больше</a>
+                <a href="#" class="kurs_page_block_tab red_tab buy_course" data-cid="<?php echo $course['id']; ?>">Купить</a>
             </div>
         </div>
         <div class="kurs_page_block_img">

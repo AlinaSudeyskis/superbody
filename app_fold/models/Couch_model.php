@@ -447,6 +447,44 @@ class Couch_model extends CI_Model
     }
 
     /**
+     * Получение данных об изображениях портфолио тренера
+     *
+     * @param $user_id
+     * @return array
+     */
+    public function getPublicCouchPortfolioData($user_id)
+    {
+        $result = array('portfolio' => array());
+
+        $sel_portfolio = $this->db->query('
+            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `couch_portfolio`
+            WHERE `cp_u_id`=? and `cp_image_approval`=1', $user_id);
+
+        if ($sel_portfolio !== false and 0 < $sel_portfolio->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_portfolio->result() as $row)
+            {
+                if (is_file($row->cp_image_path))
+                {
+                    $result['portfolio'][$i]['image_id']   = $row->cp_id;
+                    $result['portfolio'][$i]['image_path'] = mb_substr($row->cp_image_path, 1);
+                    $result['portfolio'][$i]['image_desc'] = mb_substr($row->cp_image_description, 0, 65);
+
+                    $i++;
+                }
+            }
+            unset($row);
+        }
+        elseif($sel_portfolio === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка записи портфолио тренера
      *
      * @param int $user_id ID тренера
@@ -936,9 +974,11 @@ class Couch_model extends CI_Model
             FROM `users_courses`
             WHERE `uc_couch_id`=?', $user_id);
 
-        if ($sel_users !== false and 0 < $sel_users->num_rows()) {
+        if ($sel_users !== false and 0 < $sel_users->num_rows())
+        {
             $i = 0;
-            foreach ($sel_users->result() as $row) {
+            foreach ($sel_users->result() as $row)
+            {
                 $result['id'][$i] = $row->uc_user_id;
 
                 $i++;
@@ -963,7 +1003,7 @@ class Couch_model extends CI_Model
         $result = array('gallery' => array());
 
         $sel_images = $this->db->query('
-            SELECT `cp_image_path`, `cp_image_title`, `cp_image_description`
+            SELECT `cp_image_path`, `cp_image_title`, `cp_image_description`, `cp_id`
             FROM `couch_portfolio`
             WHERE `cp_image_approval`=1
             ORDER BY `cp_date_add` DESC
@@ -978,6 +1018,7 @@ class Couch_model extends CI_Model
                     $result['gallery'][$i]['path']        = mb_substr($row->cp_image_path, 1);
                     $result['gallery'][$i]['title']       = $row->cp_image_title;
                     $result['gallery'][$i]['description'] = $row->cp_image_description;
+                    $result['gallery'][$i]['post_id']     = $row->cp_id;
 
                     $i++;
                 }

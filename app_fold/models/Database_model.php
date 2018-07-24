@@ -740,6 +740,25 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        // TODO 19.07.2018
+        $date = '2018-07-19 11:37:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_auth_display` TINYINT(1) UNSIGNED NOT NULL AFTER `si_contacts_text2`");
+            $this->db->query("ALTER TABLE `site_info` ADD `si_spec_display` TINYINT(1) UNSIGNED NOT NULL AFTER `si_auth_url_name2`, 
+                ADD `si_spec_name` VARCHAR(18) NOT NULL AFTER `si_spec_display`, 
+                ADD `si_spec_title` VARCHAR(24) NOT NULL AFTER `si_spec_name`, 
+                ADD `si_spec_text` VARCHAR(100) NOT NULL AFTER `si_spec_title`, 
+                ADD `si_spec_url` VARCHAR(255) NOT NULL AFTER `si_spec_text`, 
+                ADD `si_spec_url_text` VARCHAR(7) NOT NULL AFTER `si_spec_url`");
+            $this->db->query("ALTER TABLE `users` ADD `user_soc_image` VARCHAR(255) NOT NULL AFTER `user_image`");
+
+            $result = true;
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

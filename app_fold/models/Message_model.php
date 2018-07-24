@@ -1058,6 +1058,34 @@ class Message_model extends CI_Model
     }
 
     /**
+     * АП. Кол-во новых сообщений обратной связи.
+     *
+     * @return int
+     */
+    public function getAdminCountNewFeedbackMessages()
+    {
+        $result = 0;
+
+        $sel_num_new = $this->db->query('SELECT COUNT(`fb_id`) as `count_new` FROM `feedback` 
+            WHERE `fb_new`=1 and `fb_admin_id`=0
+            GROUP BY `fb_user_email`');
+        if ($sel_num_new !== false and 0 < $sel_num_new->num_rows())
+        {
+            foreach($sel_num_new->result() as $row)
+            {
+                $result++;
+            }
+            unset($row);
+        }
+        elseif($sel_num_new === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Обновления статусов сообщений обратной связи как прочитанные
      *
      * @param $user_email

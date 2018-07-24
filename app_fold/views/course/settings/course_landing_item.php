@@ -43,6 +43,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="landing_block_wrap">
                 <div class="landing_block" id="l-block-1">
                     <h3 class="landing">Блок №1</h3>
+                    <img src="/img/landing parts/1.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Слайдер (максимум 7 изображений)</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_slider_block1"
@@ -88,6 +89,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <div class="landing_block" id="l-block-2">
                     <h3 class="landing">Блок №2</h3>
+                    <img src="/img/landing parts/2.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_default_bg_block2"
@@ -172,6 +174,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <div class="landing_block" id="l-block-3">
                     <h3 class="landing">Блок №3 <span>(результаты №1)</span></h3>
+                    <img src="/img/landing parts/3.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_default_bg_block3"
@@ -284,6 +287,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <div class="landing_block" id="l-block-4">
                     <h3 class="landing">Блок №4 <span>(результаты №2)</span></h3>
+                    <img src="/img/landing parts/4.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_default_bg_block4"
@@ -373,6 +377,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <div class="landing_block" id="l-block-5">
                     <h3 class="landing">Блок №5 <span>(тренер)</span></h3>
+                    <img src="/img/landing parts/5.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_default_bg_block5"
@@ -520,6 +525,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <div class="landing_block" id="l-block-6">
                     <h3 class="landing">Блок №6 <span>(описание курса)</span></h3>
+                    <img src="/img/landing parts/6.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_default_bg_block6"
@@ -625,6 +631,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <div class="landing_block" id="l-block-7">
                     <h3 class="landing">Блок №7</h3>
+                    <img src="/img/landing parts/7.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_default_bg_block7"
@@ -739,6 +746,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <div class="landing_block" id="l-block-8">
                     <h3 class="landing">Блок №8</h3>
+                    <img src="/img/landing parts/8.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_default_bg_block8"

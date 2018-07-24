@@ -321,7 +321,7 @@ class Authorization_model extends CI_Model
                                                $user_soc_bd = '', $user_soc_gender = '')
     {
         $this->db->query('
-            INSERT INTO `users` (`user_email`, `user_auth_via`, `user_name`, `user_image`, `user_date_reg`, `user_activated`, 
+            INSERT INTO `users` (`user_email`, `user_auth_via`, `user_name`, `user_soc_image`, `user_date_reg`, `user_activated`, 
               `user_date_update`) 
             VALUES (?, ?, ?, ?, ?, ?, ?)',
                 array($user_soc_email, $soc, $user_soc_name, $user_soc_image, $date, 1, $date));
@@ -388,7 +388,7 @@ class Authorization_model extends CI_Model
 
         // Выборка данных пользователя
         $sel_user = $this->db->query('
-            SELECT `user_email`, `user_type`, `user_blocked`, `user_name`, `user_phone`, `user_image` 
+            SELECT `user_email`, `user_type`, `user_blocked`, `user_name`, `user_phone`, `user_image`, `user_soc_image` 
             FROM `users`
             WHERE `user_id`=? LIMIT 1', $user_id);
 
@@ -403,9 +403,19 @@ class Authorization_model extends CI_Model
             $result['user']['name']         = $row->user_name;
             $result['user']['phone']        = $row->user_phone;
             $result['user']['image']        = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
+            $result['user']['soc_image']    = '';
             $result['user']['access_token'] = $access_token;
             $result['user']['soc_via']      = $user_soc_via;
             $result['user']['soc_id']       = $user_soc_id;
+
+            if(!empty($row->user_soc_image))
+            {
+                $Headers = @get_headers($row->user_soc_image);
+                if(strpos($Headers[0], '200'))
+                {
+                    $result['user']['soc_image'] = $row->user_soc_image;
+                }
+            }
         }
         elseif($sel_user === false)
         {
@@ -428,7 +438,8 @@ class Authorization_model extends CI_Model
     public function userAuthorization($email, $password, $date)
     {
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, `user_image` 
+            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
+              `user_image`, `user_soc_image` 
             FROM `users` 
             WHERE `user_email`=? LIMIT 1', $email);
 
@@ -442,13 +453,23 @@ class Authorization_model extends CI_Model
                 $this->db->query('
                     UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_email`=? LIMIT 1',  array($date, $email));
 
-                $result['user_id']       = $row->user_id;
-                $result['user_name']     = $row->user_name;
-                $result['user_phone']    = $row->user_phone;
-                $result['user_email']    = $row->user_email;
-                $result['user_type']     = $row->user_type;
-                $result['user_blocked']  = $row->user_blocked;
-                $result['user_image']    = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                $result['user_id']        = $row->user_id;
+                $result['user_name']      = $row->user_name;
+                $result['user_phone']     = $row->user_phone;
+                $result['user_email']     = $row->user_email;
+                $result['user_type']      = $row->user_type;
+                $result['user_blocked']   = $row->user_blocked;
+                $result['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+                $result['user_soc_image'] = '';
+
+                if(!empty($row->user_soc_image))
+                {
+                    $Headers = @get_headers($row->user_soc_image);
+                    if(strpos($Headers[0], '200'))
+                    {
+                        $result['user_soc_image'] = $row->user_soc_image;
+                    }
+                }
 
                 return $result;
             }
@@ -576,7 +597,8 @@ class Authorization_model extends CI_Model
     {
         if(!empty($password_hash))
         {
-            $up_data = $this->db->query('UPDATE `users` SET `user_password`=?, `user_restore_date`="", `user_idempotent`="", `user_date_update`=?
+            $up_data = $this->db->query('
+                UPDATE `users` SET `user_password`=?, `user_restore_date`="", `user_idempotent`="", `user_date_update`=?
                 WHERE `user_email`=? and `user_activate_code`=? and `user_idempotent`=? LIMIT 1',
                     array($password_hash, $date, $email, $code, $idempotent));
 

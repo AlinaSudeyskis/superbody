@@ -1862,6 +1862,7 @@ class Store_model extends CI_Model
         $result['cart'] = 0;
         $cart           = 0;
 
+        // Поиск товара в корзине пользователя
         $sel_product = $this->db->query('
             SELECT `c_id`, `c_p_quantity` FROM `cart` 
             WHERE `c_p_id`=? and `c_user_id`=? and `c_attached_c_id`=0 LIMIT 1', array($product_id, $user_id));
@@ -2000,6 +2001,32 @@ class Store_model extends CI_Model
         }
 
         $result['cart'] = $cart;
+
+        return $result;
+    }
+
+    /**
+     * Id курса в таблице товаров
+     *
+     * @param int $course_id ID товара
+     * @return bool
+     */
+    public function getCourseProductId($course_id)
+    {
+        $result = false;
+
+        // Определение номера курса в таблице товаров
+        $sel_c_p = $this->db->query('SELECT `p_id` FROM `products` WHERE `p_course_id`=? LIMIT 1', $course_id);
+        if($sel_c_p !== false and 1 == $sel_c_p->num_rows())
+        {
+            $row = $sel_c_p->row();
+            $result = $row->p_id;
+            unset($row);
+        }
+        elseif($sel_c_p === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
 
         return $result;
     }
@@ -3059,6 +3086,33 @@ class Store_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Количество заказов, требующих подтверждения
+     *
+     * @return int
+     */
+    public function getAdminCountWaitingOrders()
+    {
+        $result = 0;
+
+        $sel_orders = $this->db->query('SELECT COUNT(`o_id`) as `count_orders` FROM `orders` 
+            LEFT JOIN `orders_payment` ON `op_o_id`=`o_id`
+            WHERE `op_status`="waiting_for_capture"
+            GROUP BY `o_id`');
+
+        if($sel_orders !== false and 0 < $sel_orders->num_rows())
+        {
+            $row = $sel_orders->row();
+            $result = $row->count_orders;
+        }
+        elseif($sel_orders === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;

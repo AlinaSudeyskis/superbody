@@ -237,6 +237,9 @@ h3.landing span{
 .edit_lend_form img {
     width: 30%;
 }
+.edit_lend_form img.land_template{
+    width: 100%;
+}
 .edit_kurs_form img {
     width: 30%;
 }
@@ -356,6 +359,9 @@ span.mess_block_full_time {
     font-size: 20px;
 }
 
+.reviews_row {
+    margin-bottom: 30px;
+}
 .reviews_row .revive_item{
     background: #d4d6d6;
     padding: 10px;

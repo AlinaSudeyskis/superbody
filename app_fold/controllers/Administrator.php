@@ -217,7 +217,8 @@ class Administrator extends CI_Controller
                 foreach ($users as $user_id) {
                     $result = $this->Administrator_model->changeUserType($user_id, $type, $this->date);
 
-                    if ($result === true) {
+                    if ($result === true)
+                    {
                         $this->load->model('User_model');
                         $result = $this->User_model->getUser($user_id);
                         $user_data = $result['user_data'];
@@ -230,7 +231,8 @@ class Administrator extends CI_Controller
                         // Сохранено
                         $this->session->set_tempdata('message', 82, 60);
                     }
-                    else {
+                    else
+                    {
                         // Не удалось изменить тип пользователя
                         $this->session->set_tempdata('message', 86, 60);
                     }
@@ -333,7 +335,8 @@ class Administrator extends CI_Controller
 
             header('Location: /administration/admin/'.$user_id);
         }
-        elseif ($this->input->post('bt_block_user', true) and is_numeric($user_id)) {
+        elseif ($this->input->post('bt_block_user', true) and is_numeric($user_id))
+        {
             $result = $this->Administrator_model->blockAdmin($user_id, $this->date);
 
             if ($result === true) {
@@ -344,7 +347,8 @@ class Administrator extends CI_Controller
                 $this->session->set_tempdata('message', 17, 60);
             }
         }
-        elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id)) {
+        elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id))
+        {
             $result = $this->Administrator_model->unblockAdmin($user_id, $this->date);
 
             if ($result === true) {
@@ -355,11 +359,13 @@ class Administrator extends CI_Controller
                 $this->session->set_tempdata('message', 19, 60);
             }            
         }
-        elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id)) {
+        elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id))
+        {
             $type = 1;
             $result = $this->Administrator_model->changeUserType($user_id, $type, $this->date);
 
-            if ($result === true) {
+            if ($result === true)
+            {
                 $result = $this->User_model->getUser($user_id);
                 $user_data = $result['user_data'];
 
@@ -372,12 +378,15 @@ class Administrator extends CI_Controller
                 $this->session->set_tempdata('message', 84, 60);
 
                 header('Location: /administration/user/'.$user_id);
-            } else {
+            }
+            else
+            {
                 // Не сохранено
                 $this->session->set_tempdata('message', 86, 60);
             }
         }
-        elseif ($this->input->post('bt_delete_avatar', true)) {
+        elseif ($this->input->post('bt_delete_avatar', true))
+        {
             $res_del = $this->User_model->deleteUserAvatar($user_id);
 
             if ($res_del === false) {
@@ -428,6 +437,62 @@ class Administrator extends CI_Controller
             }
 
             header('Location: /administration/couch/'.$user_id);
+        }
+        elseif($this->input->post('bt_reset_password', true))
+        {
+            $email      = null;
+            $email_hash = null;
+            $idempotent = null;
+            $today      = $this->date;
+            $date_in_an_hour = null;
+
+            // Валидация E-mail
+            if (!empty($user_data['user_email'])
+                && filter_var($user_data['user_email'], FILTER_VALIDATE_EMAIL))
+            {
+                $email      = $user_data['user_email'];
+                $email_hash = password_hash($user_data['user_email'], PASSWORD_DEFAULT);
+                $idempotent = password_hash($today, PASSWORD_DEFAULT);
+
+                // Дата и время через час после сохранения данных о восстановлении пароля
+                $tmp_date = new DateTime($today);
+                $tmp_date->add(new DateInterval('PT1H'));
+                $date_in_an_hour = $tmp_date->format('Y-m-d H:i:s');
+            }
+
+            // Сохранение данных в БД, отправка письма
+            if (!empty($email))
+            {
+                $this->load->model('Authorization_model');
+                $result_restore = $this->Authorization_model->setRestore($email, $email_hash, $idempotent, $today);
+
+                if ($result_restore === true)
+                {
+                    // Отправление письма с указаниями по восстановлению пароля
+                    $system_message['text']  = '<p>Обновить пароль Вы можете до ' . $date_in_an_hour . '</p> </br>';
+                    $system_message['text']  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent
+                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                    $system_message['text']  .= 'Восстановить пароль';
+                    $system_message['text']  .= '</a></b>';
+
+                    parent::sendEmail(3, $email, $system_message);
+
+                    // Письмо отправлено
+                    $this->session->set_tempdata('message', 46, 60);
+
+                }
+                else {
+                    // Пользователь с таким E-mail не существует
+                    $this->session->set_tempdata('message', 47, 60);
+                }
+            }
+            else
+            {
+                // Не корректный E-mail
+                $this->session->set_tempdata('message', 6, 60);
+            }
+
+            header('Location: /administration/admin/'.$user_id);
         }
 
         // Объединенные данные страница
@@ -502,6 +567,11 @@ class Administrator extends CI_Controller
         {
             $result = $this->Administrator_model->getSiteAuth();
             $this->page_data['page_submenu'] = 'a_auth';
+        }
+        elseif($page == 'spec')
+        {
+            $result = $this->Administrator_model->getSiteCoursesBlock();
+            $this->page_data['page_submenu'] = 'a_spec';
         }
 
         // Сохранение изменений
@@ -620,18 +690,19 @@ class Administrator extends CI_Controller
         }
         elseif ($this->input->post('bt_save_auth', true))
         {
-            $title_1 = mb_substr(strip_tags($this->input->post('i_title_1', true)), 0, 30);
-            $title_2 = mb_substr(strip_tags($this->input->post('i_title_2', true)), 0, 30);
+            $display    = !empty($this->input->post('cb_auth_display', true)) ? 1 : 0;
+            $title_1    = mb_substr(strip_tags($this->input->post('i_title_1', true)), 0, 30);
+            $title_2    = mb_substr(strip_tags($this->input->post('i_title_2', true)), 0, 30);
             $subtitle_1 = mb_substr(strip_tags($this->input->post('i_subtitle_1', true)), 0, 30);
             $subtitle_2 = mb_substr(strip_tags($this->input->post('i_subtitle_2', true)), 0, 30);
-            $text_1 = mb_substr(strip_tags($this->input->post('ta_text_1', true)), 0, 150);
-            $text_2 = mb_substr(strip_tags($this->input->post('ta_text_2', true)), 0, 150);
-            $url_1 = mb_substr(strip_tags($this->input->post('i_url_1', true)), 0, 255);
-            $url_2 = mb_substr(strip_tags($this->input->post('i_url_2', true)), 0, 255);
+            $text_1     = mb_substr(strip_tags($this->input->post('ta_text_1', true)), 0, 150);
+            $text_2     = mb_substr(strip_tags($this->input->post('ta_text_2', true)), 0, 150);
+            $url_1      = mb_substr(strip_tags($this->input->post('i_url_1', true)), 0, 255);
+            $url_2      = mb_substr(strip_tags($this->input->post('i_url_2', true)), 0, 255);
             $url_name_1 = mb_substr(strip_tags($this->input->post('i_url_name_1', true)), 0, 30);
             $url_name_2 = mb_substr(strip_tags($this->input->post('i_url_name_2', true)), 0, 15);
 
-            $result = $this->Administrator_model->setSiteAuth($title_1, $title_2, $subtitle_1, $subtitle_2, $text_1,
+            $result = $this->Administrator_model->setSiteAuth($display, $title_1, $title_2, $subtitle_1, $subtitle_2, $text_1,
                 $text_2, $url_1, $url_2, $url_name_1, $url_name_2, $this->date, $this->user_id);
 
             if ($result === true)
@@ -647,9 +718,33 @@ class Administrator extends CI_Controller
 
             header('Location: /administration/site/auth');
         }
+        elseif($this->input->post('bt_save_spec', true))
+        {
+            $display  = !empty($this->input->post('cb_spec_display', true)) ? 1 : 0;
+            $name     = mb_substr(strip_tags($this->input->post('i_name', true)), 0, 18);
+            $title    = mb_substr(strip_tags($this->input->post('i_title', true)), 0, 24);
+            $text     = mb_substr(strip_tags($this->input->post('i_text', true)), 0, 100);
+            $url      = mb_substr(strip_tags($this->input->post('i_url', true)), 0, 255);
+            $url_text = mb_substr(strip_tags($this->input->post('i_url_text', true)), 0, 7);
+
+            $result = $this->Administrator_model->setSiteCoursesBlock($display, $name, $title, $text, $url, $url_text, $this->date, $this->user_id);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 134, 60);
+            }
+
+            header('Location: /administration/site/spec');
+        }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Информация о сайте - АП';
+        $this->page_data['title']     = 'Информация о сайте - АП';
         $this->page_data['page_menu'] = 'site_info';
 
         $this->load->view('header/header_admin', $this->page_data);

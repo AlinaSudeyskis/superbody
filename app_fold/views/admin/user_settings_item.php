@@ -35,9 +35,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     <?php endif;?>
+    <?php if (!empty($user_data['user_soc_image'])) : ?>
+        <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
+            <div class="tren_set_form_img" id="settings_img">
+                <img src="<?php echo $user_data['user_soc_image'];?>" alt="">
+            </div>
+        </div>
+    <?php endif;?>
 
     <div class="admin_form_bats parent">
         <input type="submit" name="bt_save_user_settings" class="admin_form_submit" value="Сохранить">
+        <input type="submit" name="bt_reset_password" class="admin_form_reset" value="Сбос пароля"/>
         <?php if ($user_blocked == 0) :?>
             <input type="submit" name="bt_block_user" class="admin_form_block" value="Блокировать"/>
         <?php else :?>

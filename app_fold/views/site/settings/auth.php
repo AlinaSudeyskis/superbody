@@ -4,6 +4,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="anketa_block_item">
     <div class="anketa_block_item_cont">
         <form action="" method="post" class="anketa_form site_info">
+            <div class="tren_form_block_check_wrap"></div>
+            <div class="tren_form_block_check_wrap">
+                <input type="checkbox" name="cb_auth_display" <?php if(!empty($auth_display)): ?>checked="checked"<?php endif; ?> class="tren_form_block_check" id="tren_form_block_check1bg">
+                <label for="tren_form_block_check1bg">Отобразить блок "Авторизация/Регистрация"</label>
+            </div>
             <div class="anketa_block_item_h">Блок регистрации</div>
             <div class="anketa_form_line parent">
                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Заголовок</div></div>

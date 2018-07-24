@@ -22,7 +22,7 @@ class User_model extends CI_Model
         $result = array('user_data' => array());
         
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`, `user_blocked`
+            SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`
             FROM `users`
             WHERE `user_id`=? LIMIT 1', $user_id);
         
@@ -30,26 +30,7 @@ class User_model extends CI_Model
         {
             $row = $sel_user->row();
             
-            $result['user_data']['id']    = $row->user_id; 
-            $result['user_data']['name']  = !empty($row->user_name) ? $row->user_name : 'Пользователь';
-
-            $split_name = !empty($row->user_name) ? explode(" ", $row->user_name) : '';
-            $result['user_data']['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Пользователь';
-            $result['user_data']['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
-
-            $result['user_data']['email'] = $row->user_email;
-            $result['user_data']['type']  = $row->user_type;
-
-            $result['user_data']['user_blocked'] = $row->user_blocked;
-
-            $user_image = '';
-            if (!empty($row->user_image)) {
-                $user_image = $row->user_image;
-                if (mb_substr($row->user_image, 0, 1) == '.' and is_file($row->user_image)) {
-                    $user_image = mb_substr($row->user_image, 1);
-                }
-            }
-            $result['user_data']['image'] = $user_image;
+            $result['user_data'] = self::parseUserData($row);
         }
         elseif ($sel_user === false)
         {
@@ -66,10 +47,10 @@ class User_model extends CI_Model
      */
     public function getUsersData()
     {
-        $result = null;
+        $result = array('users' => array());
         
         $sel_data = $this->db->query('
-            SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_blocked` 
+            SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked` 
             FROM `users` 
             WHERE `user_type`=1');
 
@@ -78,24 +59,8 @@ class User_model extends CI_Model
             $i = 0;
             foreach ($sel_data->result() as $row)
             {
-                $result[$i]['user_id'] = $row->user_id;
-                $result[$i]['user_name'] = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                $result[$i]['user_blocked'] = $row->user_blocked;
+                $result['users'][$i] = self::parseUserData($row);
 
-                $user_image = '';
-                if (!empty($row->user_image))
-                {
-                    if (mb_substr($row->user_image, 0, 1) == '.' and is_file($row->user_image))
-                    {
-                        $user_image = mb_substr($row->user_image, 1);
-                    }
-                    elseif(is_file($row->user_image))
-                    {
-                        $user_image = $row->user_image;
-                    }
-                }
-                $result[$i]['user_image'] = $user_image;
-                
                 $i++;
             }
         }
@@ -121,6 +86,7 @@ class User_model extends CI_Model
             'user_country_code' => '',
             'user_phone' => '',
             'user_image' => '',
+            'user_soc_image' => '',
             'user_blocked' => '',
             'user_type' => '',
             'user_password_hash' => '',
@@ -134,8 +100,8 @@ class User_model extends CI_Model
         ));
 
         $sel_data = $this->db->query('
-            SELECT `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, `user_image`, `user_blocked`, `user_type`, 
-              `user_gender`, `user_birthday`
+            SELECT `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, `user_image`, `user_soc_image`,
+              `user_blocked`, `user_type`, `user_gender`, `user_birthday`
             FROM `users` 
             LEFT JOIN `questionnaire`
               ON `questionnaire`.`user_id`=`users`.`user_id`
@@ -145,24 +111,7 @@ class User_model extends CI_Model
         {
             $row = $sel_data->row();
 
-            $result['user_data']['user_name']          = $row->user_name;
-            $result['user_data']['user_email']         = $row->user_email;
-            $result['user_data']['user_country_code']  = $row->user_country_code;
-            $result['user_data']['user_phone']         = $row->user_phone;
-            $result['user_data']['user_password_hash'] = $row->user_password;
-            $result['user_data']['user_blocked']       = $row->user_blocked;
-            $result['user_data']['user_type']          = $row->user_type;
-
-            $user_image = '';
-            if (!empty($row->user_image))
-            {
-                $user_image = $row->user_image;
-                if (mb_substr($row->user_image, 0, 1) == '.' and is_file($row->user_image))
-                {
-                    $user_image = mb_substr($row->user_image, 1);
-                }
-            }
-            $result['user_data']['user_image'] = $user_image;
+            $result['user_data'] = self::parseUserData($row);
 
             $date = DateTime::createFromFormat('Y-m-d', $row->user_birthday);
             $birthday = ($row->user_birthday != '0000-00-00' and $date !== false) ? $date->format('d.m.Y') : '';
@@ -691,17 +640,7 @@ class User_model extends CI_Model
     public function getLastAnthropometricData($user_id)
     {
         // Массив возвращаемых значений
-        $result = array ('user_data' => array(
-            'user_weight' => '',
-            'user_chest' => '',
-            'user_waist' => '',
-            'user_buttocks' => '',
-            'user_waist_sides' => '',
-            'user_right_hip' => '',
-            'user_left_hip' => '',
-            'user_right_biceps' => '',
-            'user_left_biceps' => '')
-        );
+        $result = array ('user_anthrop_data' => array());
 
         $sel_anth_data = $this->db->query('
             SELECT `user_weight`, `user_circumference_chest`, `user_circumference_waist`, `user_circumference_buttocks`, 
@@ -716,15 +655,15 @@ class User_model extends CI_Model
         {
             $row = $sel_anth_data->row();
 
-            $result['user_data']['user_weight']       = $row->user_weight;
-            $result['user_data']['user_chest']        = $row->user_circumference_chest;
-            $result['user_data']['user_waist']        = $row->user_circumference_waist;
-            $result['user_data']['user_buttocks']     = $row->user_circumference_buttocks;
-            $result['user_data']['user_waist_sides']  = $row->user_circumference_waist_sides;
-            $result['user_data']['user_right_hip']    = $row->user_circumference_right_hip;
-            $result['user_data']['user_left_hip']     = $row->user_circumference_left_hip;
-            $result['user_data']['user_right_biceps'] = $row->user_circumference_right_biceps;
-            $result['user_data']['user_left_biceps']  = $row->user_circumference_left_biceps;
+            $result['user_anthrop_data']['user_weight']       = $row->user_weight;
+            $result['user_anthrop_data']['user_chest']        = $row->user_circumference_chest;
+            $result['user_anthrop_data']['user_waist']        = $row->user_circumference_waist;
+            $result['user_anthrop_data']['user_buttocks']     = $row->user_circumference_buttocks;
+            $result['user_anthrop_data']['user_waist_sides']  = $row->user_circumference_waist_sides;
+            $result['user_anthrop_data']['user_right_hip']    = $row->user_circumference_right_hip;
+            $result['user_anthrop_data']['user_left_hip']     = $row->user_circumference_left_hip;
+            $result['user_anthrop_data']['user_right_biceps'] = $row->user_circumference_right_biceps;
+            $result['user_anthrop_data']['user_left_biceps']  = $row->user_circumference_left_biceps;
         }
         elseif ($sel_anth_data === false)
         {
@@ -741,7 +680,7 @@ class User_model extends CI_Model
      * @param $today
      * @return array
      */
-    public function getAnthropometricData($user_id, $today)
+    public function getAnthropometricData($user_id, $today = '')
     {
         // Массив возвращаемых значений
         $result = array('anthropometric' => array(), 'min' => null, 'max' => null, 'anthrop_notif' => false);
@@ -826,12 +765,15 @@ class User_model extends CI_Model
             $result['min'] = $min_date->format('Y-m-d H:i:s');
             $result['max'] = $max_date->format('Y-m-d H:i:s');
 
-            // Уведомление пользователю если последний ввод данных был более 2х недель назад
-            $tmp_date = new DateTime($today);
-            $tmp_date->sub(new DateInterval('P14D'));
-            if($result['max'] < $tmp_date->format('Y-m-d H:i:s'))
+            if(!empty($today))
             {
-                $result['anthrop_notif'] = true;
+                // Уведомление пользователю если последний ввод данных был более 2х недель назад
+                $tmp_date = new DateTime($today);
+                $tmp_date->sub(new DateInterval('P14D'));
+                if($result['max'] < $tmp_date->format('Y-m-d H:i:s'))
+                {
+                    $result['anthrop_notif'] = true;
+                }
             }
         }
         elseif ($sel_anth_data === false)
@@ -1196,7 +1138,7 @@ class User_model extends CI_Model
         $result = '';
 
         $sel_users = $this->db->query('
-            SELECT `user_id`, `user_name`, `user_email`, `user_image` 
+            SELECT `user_id`, `user_name`, `user_email`, `user_image`, `user_soc_image` 
             FROM `users` 
             WHERE `user_type`=1 and MATCH (`user_email`, `user_name`) AGAINST (? IN BOOLEAN MODE)',
             $search_text);
@@ -1206,13 +1148,9 @@ class User_model extends CI_Model
             foreach ($sel_users->result() as $row) {
                 $user_name = !empty($row->user_name) ? $row->user_name : $row->user_email ;
 
-                $image = '';
-                if (!empty($row->user_image)) {
-                    $image = $row->user_image;
-                    if (mb_substr($row->user_image, 0, 1) == '.' and is_file($row->user_image)) {
-                        $image = mb_substr($row->user_image, 1);
-                    }
-                }
+                $db_image   = (!empty($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+                $soc_image  = (is_file($row->user_soc_image)) ? $row->user_soc_image : '';
+                $image      = (!empty($db_image)) ? $db_image : $soc_image;
                 $user_image = !empty($image) ? '<img src="' . $image . '" alt="">' : '';
 
                 $result .= '<div class="add_tren_item parent user" id="' . $row->user_id . '">
@@ -1228,6 +1166,43 @@ class User_model extends CI_Model
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
+
+        return $result;
+    }
+
+    /**
+     * Обработка данных пользователя
+     *
+     * @param $row
+     * @return array
+     */
+    public function parseUserData($row)
+    {
+        $result = array();
+
+        $result['user_id']            = (!empty($row->user_id)) ? $row->user_id : '';
+        $result['user_name']          = (!empty($row->user_name)) ? $row->user_name : 'Пользователь №' . $row->user_id;
+        $result['user_email']         = (!empty($row->user_email)) ? $row->user_email : '';
+        $result['user_country_code']  = (!empty($row->user_country_code)) ? $row->user_country_code : '';
+        $result['user_phone']         = (!empty($row->user_phone)) ? $row->user_phone : '';
+        $result['user_password_hash'] = (!empty($row->user_password)) ? $row->user_password : '';
+        $result['user_blocked']       = (!empty($row->user_blocked)) ? $row->user_blocked : '';
+        $result['user_type']          = (!empty($row->user_type)) ? $row->user_type : '';
+        $result['user_image']         = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+        $result['user_soc_image']     = '';
+
+        if(!empty($row->user_soc_image))
+        {
+            $Headers = @get_headers($row->user_soc_image);
+            if(strpos($Headers[0], '200'))
+            {
+                $result['user_soc_image'] = $row->user_soc_image;
+            }
+        }
+
+        $split_name = !empty($row->user_name) ? explode(" ", $row->user_name) : '';
+        $result['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Пользователь';
+        $result['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
 
         return $result;
     }
