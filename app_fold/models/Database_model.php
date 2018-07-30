@@ -807,6 +807,26 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2018-07-30 12:50:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query('CREATE TABLE `courses_attached` (
+                `ca_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+                `ca_crs_id` INT UNSIGNED NOT NULL ,
+                `ca_attached_crs_id` INT UNSIGNED NOT NULL ,
+                `ca_blocked` TINYINT(0) UNSIGNED NOT NULL ,
+                `ca_admin_id` INT UNSIGNED NOT NULL ,
+                `ca_date` DATETIME NOT NULL ,
+                PRIMARY KEY (`ca_id`), INDEX `ix_ca_crs_id` (`ca_crs_id`)) ENGINE = MyISAM');
+            $result .= $this->db->last_query() . '<br/>';
+
+            $this->db->query('ALTER TABLE `users_courses` ADD `uc_attached_uc_id` INT UNSIGNED NOT NULL AFTER `uc_course_id`');
+            $result .= $this->db->last_query() . '<br/>';
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
@@ -870,6 +890,28 @@ class Database_model extends CI_Model
         if($sel_data !== false)
         {
             $result = $sel_data->result();
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных таблиц
+     *
+     * @return bool
+     */
+    public function showTables()
+    {
+        $result = false;
+
+        $sel_data = $this->db->list_tables();;
+        if($sel_data !== false)
+        {
+            $result = $sel_data;
         }
         elseif($sel_data === false)
         {

@@ -28,6 +28,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php if(!empty($update_result)):
                             echo $update_result;
                         endif; ?>
+                        <?php if(!empty($tables_data)):
+                            foreach($tables_data as $table):
+                                echo $table.'<br/>';
+                            endforeach;
+                            unset($table);
+                        endif; ?>
                     </div>
                 </div>
             </div>

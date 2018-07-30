@@ -68,10 +68,25 @@ class Database extends CI_Controller
         $this->load->view('footer/footer');
     }
 
-    // Просмотр БД
+    // Просмотр Таблицы
     public function showTable()
     {
-        $result['table_data'] = $this->Database_model->showTable('meals');
+        $result['table_data'] = $this->Database_model->showTable('courses_attached');
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - База данных';
+        $this->page_data['page_menu']    = '';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('admin/index', $result);
+        $this->load->view('footer/footer');
+    }
+
+    // Просмотр Таблиц
+    public function showTables()
+    {
+        $result['tables_data'] = $this->Database_model->showTables();
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - База данных';
