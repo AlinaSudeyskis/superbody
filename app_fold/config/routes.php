@@ -124,9 +124,9 @@ $route['messages/feedback'] = 'Message/userConversation/feedback';
 
 // Админ. панель
 $route['administration'] = 'Administrator/index';
-$route['administration/update/database'] = 'Database/updateDatabase';
-$route['administration/show/table']      = 'Database/showTable';
-$route['administration/show/tables']     = 'Database/showTables';
+$route['administration/update/database']   = 'Database/updateDatabase';
+$route['administration/show/table/(:any)'] = 'Database/showTable/$1';
+$route['administration/show/tables']       = 'Database/showTables';
 // Администраторы
 $route['administration/admins']          = 'Administrator/admins';
 $route['administration/admin/new']       = 'Administrator/newAdmin';

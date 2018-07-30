@@ -67,10 +67,14 @@ class Database extends CI_Controller
         $this->load->view('footer/footer');
     }
 
-    // Просмотр Таблицы
-    public function showTable()
+    /**
+     * Просмотр Таблицы
+     *
+     * @param $table
+     */
+    public function showTable($table)
     {
-        $result['table_data'] = $this->Database_model->showTable('courses_attached');
+        $result['table_data'] = $this->Database_model->showTable($table);
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - База данных';
