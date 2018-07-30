@@ -52,6 +52,10 @@ class Database extends CI_Controller
         {
             // Сохранено
             $this->session->set_tempdata('message', 10, 60);
+            // Данные результата
+            $this->session->set_tempdata('update_result', $up_data['update_result'], 60);
+
+            header('Location: /administration/update/database');
         }
 
         // Объединенные данные страница
@@ -60,7 +64,7 @@ class Database extends CI_Controller
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/index', $up_data['update_result']);
+        $this->load->view('admin/index');
         $this->load->view('footer/footer');
     }
 

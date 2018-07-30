@@ -769,9 +769,6 @@ class Database_model extends CI_Model
             CHANGE `ml_calories` `ml_calories` DECIMAL(6,2) UNSIGNED NOT NULL");
             $result .= $this->db->last_query() . '<br/>';
 
-            $this->db->query("ALTER TABLE `meals` ADD `ml_ingredients` VARCHAR(2000) NOT NULL AFTER `ml_description`");
-            $result .= $this->db->last_query() . '<br/>';
-
             $this->db->query("ALTER TABLE `meals` ADD `ml_description` VARCHAR(2000) NOT NULL AFTER `ml_name`, ADD `ml_videos` TEXT NOT NULL AFTER `ml_description`");
             $result .= $this->db->last_query() . '<br/>';
 
@@ -795,6 +792,16 @@ class Database_model extends CI_Model
             $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (169, 'Ошибка! Не удалось считать данные из файла Excel. Пожалуйста, повторите попытку.', 'Ошибка! Не удалось считать данные из файла Excel. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
             $result .= $this->db->last_query() . '<br/>';
             $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (170, 'Ошибка! Не удалось загрузить файл Excel. Пожалуйста, повторите попытку.', 'Ошибка! Не удалось загрузить файл Excel. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+            $result .= $this->db->last_query() . '<br/>';
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-07-30 12:42:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `meals` ADD `ml_ingredients` VARCHAR(2000) NOT NULL AFTER `ml_description`");
             $result .= $this->db->last_query() . '<br/>';
 
             self::setDbUpdate($date);
