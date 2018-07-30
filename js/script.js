@@ -529,69 +529,71 @@ $(document).ready(function() {
             ing_id = $(this).val(),
             html = '';
 
-            $(".practice_block").each(function(i, v){
-                var pb = $(this),
-                    pb_id = pb.data("id"),
-                    bl_after = 'crs-ingestion-' + pb_id + '-' + ing_after,
-                    ing_block = $('#crs-ingestion-' + pb_id + '-' + ing_id);
+        $(".practice_block").each(function(i, v){
+            var pb = $(this),
+                pb_id = pb.data("id"),
+                bl_after = 'crs-ingestion-' + pb_id + '-' + ing_after,
+                ing_block = $('#crs-ingestion-' + pb_id + '-' + ing_id);
 
-                html = '<div class="parent kurs_cur_wrap" id="crs-ingestion-' + pb_id + '-' + ing_id + '">' +
-                    '<div class="kurs_block_h">' + ing_name + '</div>' +
-                    '<div class="add_tov_in_total">' +
-                    '<div class="add_tov_in meal">' +
-                    '<input type="text" name="name_meal['+pb_id+']" data-day="'+pb_id+'" data-ingestion="'+ing_id+'" class="admin_form_txt admin_form_txt_middle" placeholder="Введите наименование блюда">' +
-                    '<div class="add_tov_list"></div>' +
-                    '</div>' +
-                    '<div class="add_tov_val"></div>' +
-                    '</div>' +
-                    '</div>';
+            html = '<div class="parent kurs_cur_wrap" id="crs-ingestion-' + pb_id + '-' + ing_id + '">' +
+                '<div class="kurs_block_h">' + ing_name + '</div>' +
+                '<div class="add_tov_in_total">' +
+                '<div class="add_tov_in meal">' +
+                '<input type="text" name="name_meal['+pb_id+']" data-day="'+pb_id+'" data-ingestion="'+ing_id+'" class="admin_form_txt admin_form_txt_middle" placeholder="Введите наименование блюда">' +
+                '<div class="add_tov_list"></div>' +
+                '</div>' +
+                '<div class="add_tov_val"></div>' +
+                '</div>' +
+                '</div>';
 
-                if(ing_cb.is(':checked'))
+            if(ing_cb.is(':checked'))
+            {
+                if(ing_after == 'first')
                 {
-                    if(ing_after == 'first')
+                    if(ing_block.length == 0)
                     {
-                        if(ing_block.length == 0)
-                        {
-                            pb.prepend(html);
-                        }
-                        else
-                        {
-                            ing_block.show();
-                        }
-                    }
-                    else if(ing_after == 'last')
-                    {
-                        if(ing_block.length == 0)
-                        {
-                            pb.append(html);
-                        }
-                        else
-                        {
-                            ing_block.show();
-                        }
+                        pb.prepend(html);
                     }
                     else
                     {
-                        pb.children(".kurs_cur_wrap").each(function(){
-                            if($(this).attr('id') == bl_after)
-                            {
-                                if(ing_block.length == 0)
-                                {
-                                    $(this).after(html);
-                                }
-                                else
-                                {
-                                    ing_block.show();
-                                }
-                            }
-                        });
+                        ing_block.show();
+                    }
+                }
+                else if(ing_after == 'last')
+                {
+                    if(ing_block.length == 0)
+                    {
+                        pb.append(html);
+                    }
+                    else
+                    {
+                        ing_block.show();
                     }
                 }
                 else
                 {
-                    ing_block.hide();
+                    pb.children(".kurs_cur_wrap").each(function(){
+                        if($(this).attr('id') == bl_after)
+                        {
+                            if(ing_block.length == 0)
+                            {
+                                $(this).after(html);
+                            }
+                            else
+                            {
+                                ing_block.show();
+                            }
+                        }
+                    });
                 }
-            });
+            }
+            else
+            {
+                ing_block.hide();
+            }
+        });
+
+        $('.h_subtitle').hide();
     });
 
     /* Выбор курсов тренировок для отображения в календаре */

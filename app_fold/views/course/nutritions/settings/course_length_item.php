@@ -21,5 +21,5 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php endfor;
     unset($tr_week);
 else:?>
-    <span class="h_subtitle">Введите длительность курса</span>
+    <span class="h_subtitle">Выберите приемы пищи и введите длительность курса</span>
 <?php endif;?>

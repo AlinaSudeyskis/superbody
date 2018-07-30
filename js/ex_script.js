@@ -51,7 +51,8 @@ $(document).ready(function(){
         var pr_bl_w  = $('.practice_block_wrap'),
             pr_bl    = $('.practice_block'),
             pr_d     = $('.practice_day'),
-            pr_id    = $(this).attr('id').substr(8);
+            pr_id    = $(this).attr('id').substr(8),
+            pr_block = $('#' + $(this).attr('id') + '_block');
 
         if ($(this).hasClass("active"))
         {
@@ -68,8 +69,24 @@ $(document).ready(function(){
 
             if(pr_bl_w.length == 1)
             {
+                var h_info = $('.h_subtitle');
                 pr_bl.hide();
-                $('#' + $(this).attr('id') + '_block').show();
+                if (pr_block.children(".practice_block:visible").length == 0)
+                {
+                    if(h_info.length == 0)
+                    {
+                        pr_bl_w.append('<span class="h_subtitle">Выберите приемы пищи</span>');
+                    }
+                    else
+                    {
+                        h_info.show();
+                    }
+                }
+                else if(h_info.length == 1)
+                {
+                    h_info.hide();
+                }
+                pr_block.show();
             }
         }
     });
