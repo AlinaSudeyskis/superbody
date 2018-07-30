@@ -29,6 +29,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             echo $update_result;
                         endif; ?>
                         <?php if(!empty($tables_data)):
+                            $count_tables = count($tables_data);
+                            echo $count_tables.'<br/>';
                             foreach($tables_data as $table):
                                 echo $table.'<br/>';
                             endforeach;
