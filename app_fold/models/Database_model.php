@@ -807,10 +807,60 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2018-07-30 12:50:10';
+        $date = '2018-07-30 13:00:10';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
+            $this->db->query("CREATE TABLE `ingredients` (
+                `ingr_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+                `ingr_ml_id` INT UNSIGNED NOT NULL ,
+                `ingr_name` VARCHAR(255) NOT NULL ,
+                `ingr_weight` SMALLINT UNSIGNED NOT NULL ,
+                `ingr_proteins` SMALLINT UNSIGNED NOT NULL ,
+                `ingr_fats` SMALLINT UNSIGNED NOT NULL ,
+                `ingr_carbohydrates` SMALLINT UNSIGNED NOT NULL ,
+                `ingr_calories` SMALLINT UNSIGNED NOT NULL ,
+                `ingr_admin_id` INT UNSIGNED NOT NULL ,
+                `ingr_update` DATETIME NOT NULL ,
+                PRIMARY KEY (`ingr_id`), INDEX `ix_ingr_ml_id` (`ingr_ml_id`)) ENGINE = MyISAM");
+
+            $this->db->query("ALTER TABLE `meals` ADD FULLTEXT `fix_ml_name` (`ml_name`)");
+            $this->db->query("ALTER TABLE `meals` CHANGE `ml_name` `ml_name` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            $this->db->query("CREATE TABLE `courses_ingestions` (
+                `ci_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+                `ci_crs_id` INT UNSIGNED NOT NULL ,
+                `ci_ing_id` SMALLINT UNSIGNED NOT NULL ,
+                `ci_ing_time_from` TIME NOT NULL ,
+                `ci_ing_time_to` TIME NOT NULL ,
+                `ci_admin_id` INT UNSIGNED NOT NULL ,
+                `ci_update` DATETIME NOT NULL ,
+                PRIMARY KEY (`ci_id`), INDEX `ic_ci_crs_id` (`ci_crs_id`)) ENGINE = MyISAM");
+
+            $this->db->query("CREATE TABLE `courses_days_schedule` (
+                `cds_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+                `cds_crs_id` INT UNSIGNED NOT NULL ,
+                `cds_day` SMALLINT UNSIGNED NOT NULL ,
+                `cds_ci_id` INT UNSIGNED NOT NULL ,
+                `cds_ml_id` INT UNSIGNED NOT NULL ,
+                `cds_admin_id` INT UNSIGNED NOT NULL ,
+                `cds_update` DATETIME NOT NULL ,
+                PRIMARY KEY (`cds_id`), INDEX `ix_cds_crs_id` (`cds_crs_id`)) ENGINE = MyISAM");
+
+            $this->db->query("CREATE TABLE `users_nutritions` (
+                `un_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+                `un_u_id` INT UNSIGNED NOT NULL ,
+                `un_uc_id` INT UNSIGNED NOT NULL ,
+                `un_cds_day` INT UNSIGNED NOT NULL ,
+                `un_cds_ci_id` INT UNSIGNED NOT NULL ,
+                `un_ml_id` INT UNSIGNED NOT NULL ,
+                `un_date` DATE NOT NULL ,
+                `un_update` DATETIME NOT NULL ,
+                PRIMARY KEY (`un_id`), INDEX `ix_un_ucid_uid` (`un_uc_id`, `un_u_id`)) ENGINE = MyISAM");
+
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_blocked_reason` `uc_blocked_reason` ENUM('','payment_refunded','payment_succeeded','payment_canceled') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+
             $this->db->query('CREATE TABLE `courses_attached` (
                 `ca_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
                 `ca_crs_id` INT UNSIGNED NOT NULL ,
@@ -819,10 +869,22 @@ class Database_model extends CI_Model
                 `ca_admin_id` INT UNSIGNED NOT NULL ,
                 `ca_date` DATETIME NOT NULL ,
                 PRIMARY KEY (`ca_id`), INDEX `ix_ca_crs_id` (`ca_crs_id`)) ENGINE = MyISAM');
-            $result .= $this->db->last_query() . '<br/>';
 
             $this->db->query('ALTER TABLE `users_courses` ADD `uc_attached_uc_id` INT UNSIGNED NOT NULL AFTER `uc_course_id`');
-            $result .= $this->db->last_query() . '<br/>';
+
+            $this->db->query("ALTER TABLE `meals` ADD `ml_description` VARCHAR(2000) NOT NULL AFTER `ml_name`, ADD `ml_videos` TEXT NOT NULL AFTER `ml_description`");
+            $this->db->query("CREATE TABLE `meals_videos` (
+                `mv_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+                `mv_ml_id` INT UNSIGNED NOT NULL ,
+                `mv_video` VARCHAR(2000) NOT NULL ,
+                `mv_admin_id` INT UNSIGNED NOT NULL ,
+                `mv_update` DATETIME NOT NULL ,
+                PRIMARY KEY (`mv_id`), INDEX `ix_mv_ml_id` (`mv_ml_id`)) ENGINE = MyISAM");
+
+            $this->db->query("ALTER TABLE `meals` DROP `ml_videos`");
+            $this->db->query("ALTER TABLE `meals` ADD `ml_ingredients` VARCHAR(2000) NOT NULL AFTER `ml_description`");
+
+            $this->db->query("UPDATE `notifications` SET `n_name` = 'Ошибка! Категория курса не сохранена. Пожалуйста, повторите попытку.', `n_text` = 'Ошибка! Категория курса не сохранена. Пожалуйста, повторите попытку.' WHERE `notifications`.`n_id` = 25");
 
             self::setDbUpdate($date);
         }
