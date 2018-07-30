@@ -942,7 +942,7 @@ class Database_model extends CI_Model
      * Выборка данных таблицы
      *
      * @param $table
-     * @return bool
+     * @return bool|array
      */
     public function showTable($table)
     {
@@ -964,16 +964,38 @@ class Database_model extends CI_Model
     /**
      * Выборка данных таблиц
      *
-     * @return bool
+     * @return bool|array
      */
     public function showTables()
     {
         $result = false;
 
-        $sel_data = $this->db->list_tables();;
+        $sel_data = $this->db->list_tables();
         if($sel_data !== false)
         {
             $result = $sel_data;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка дат обновления БД
+     *
+     * @return bool|array
+     */
+    public function getUpdateDates()
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `db_id`, `db_date` FROM `database_update` ORDER BY `db_date` DESC');
+        if($sel_data !== false)
+        {
+            $result = $sel_data->result();
         }
         elseif($sel_data === false)
         {

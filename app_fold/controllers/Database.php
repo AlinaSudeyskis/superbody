@@ -47,16 +47,15 @@ class Database extends CI_Controller
     public function updateDatabase()
     {
         // Обновление БД
-        $up_data['update_result'] = $this->Database_model->updateDatabaseJuly2018($this->date);
-        if($up_data['update_result'] !== false)
+        $up_data = $this->Database_model->updateDatabaseJuly2018($this->date);
+        if($up_data !== false)
         {
             // Сохранено
             $this->session->set_tempdata('message', 10, 60);
-            // Данные результата
-            $this->session->set_tempdata('update_result', $up_data['update_result'], 60);
 
             header('Location: /administration/update/database');
         }
+        $result = $this->Database_model->getUpdateDates();
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - База данных';
@@ -64,7 +63,7 @@ class Database extends CI_Controller
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/index');
+        $this->load->view('admin/index', $result);
         $this->load->view('footer/footer');
     }
 
