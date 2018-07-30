@@ -784,6 +784,22 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2018-07-30 12:32:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (167, 'Ошибка! Файл Excel не прошел проверку. Пожалуйста, повторите попытку.', 'Ошибка! Файл Excel не прошел проверку. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+            $result .= $this->db->last_query() . '<br/>';
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (168, 'Все или часть данных из файла Excel не были сохранены.', 'Все или часть данных из файла Excel не были сохранены.', '4', '2018-04-19 14:23:42')");
+            $result .= $this->db->last_query() . '<br/>';
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (169, 'Ошибка! Не удалось считать данные из файла Excel. Пожалуйста, повторите попытку.', 'Ошибка! Не удалось считать данные из файла Excel. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+            $result .= $this->db->last_query() . '<br/>';
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (170, 'Ошибка! Не удалось загрузить файл Excel. Пожалуйста, повторите попытку.', 'Ошибка! Не удалось загрузить файл Excel. Пожалуйста, повторите попытку.', '4', '2018-04-19 14:23:42')");
+            $result .= $this->db->last_query() . '<br/>';
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

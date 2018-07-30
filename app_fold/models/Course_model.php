@@ -401,14 +401,17 @@ class Course_model extends CI_Model
             $i = 0;
             foreach ($sel_types->result() as $row)
             {
+                $time_from = mb_substr($row->ing_time_from, 0, 5);
+                $time_to   = mb_substr($row->ing_time_to, 0, 5);
+
                 $result['ingestions'][$i]['id']        = $row->ing_id;
                 $result['ingestions'][$i]['name']      = $row->ing_name;
-                $result['ingestions'][$i]['time_from'] = $row->ing_time_from;
-                $result['ingestions'][$i]['time_to']   = $row->ing_time_to;
+                $result['ingestions'][$i]['time_from'] = $time_from;
+                $result['ingestions'][$i]['time_to']   = $time_to;
 
                 $result['ingestions_id'][$i]             = $row->ing_id;
-                $result['ingestions_from'][$row->ing_id] = $row->ing_time_from;
-                $result['ingestions_to'][$row->ing_id]   = $row->ing_time_to;
+                $result['ingestions_from'][$row->ing_id] = $time_from;
+                $result['ingestions_to'][$row->ing_id]   = $time_to;
 
                 $i++;
             }
@@ -4864,6 +4867,41 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Активное видео курса категории "Инструктажи"
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getActiveCourseInstructionVideo($course_id)
+    {
+        $result = array();
+
+        $sel_video = $this->db->query('
+            SELECT `video_id`, `video_name`, `video_poster`, `video_type`, `video_active` 
+            FROM `video`
+            WHERE `video_crs_id`=? and `video_type`=3 and `video_active`=1 LIMIT 1', $course_id);
+
+        if ($sel_video !== false and 0 < $sel_video->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_video->result() as $row)
+            {
+                $result['video'] = self::parseVideoData($row);
+                $result['video']['name'] = !empty($row->video_name) ? $row->video_name : $row->video_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_video === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка данных видео курса
      *
      * @param $course_id
@@ -5140,23 +5178,8 @@ class Course_model extends CI_Model
                 }
 
                 // Данные инструктажа тренировки
-                $sel_instruction = $this->db->query('
-                    SELECT `ctw_video_id` 
-                    FROM `courses_training_weeks`
-                    WHERE `ctw_course_id`=? and `ctw_num_workout`=0 LIMIT 1', $cw['course']);
-
-                if ($sel_instruction !== false and 1 == $sel_instruction->num_rows())
-                {
-                    $row = $sel_instruction->row();
-
-                    $result['workouts'][$key]['instruction'] = $row->ctw_video_id;
-
-                    unset($row);
-                }
-                elseif ($sel_instruction === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
+                $instruction_video = self::getActiveCourseInstructionVideo($cw['course']);
+                $result['workouts'][$key]['instruction'] = (!empty($instruction_video['video'])) ? $instruction_video['video']['id'] : '';
             }
             unset($cw);
         }
@@ -5254,23 +5277,8 @@ class Course_model extends CI_Model
                     unset($row);
 
                     // Данные инструктажа тренировки
-                    $sel_instruction = $this->db->query('
-                        SELECT `ctw_video_id` 
-                        FROM `courses_training_weeks`
-                        WHERE `ctw_course_id`=? and `ctw_num_workout`=0 LIMIT 1', $course_id);
-
-                    if ($sel_instruction !== false and 1 == $sel_instruction->num_rows())
-                    {
-                        $row = $sel_instruction->row();
-
-                        $instruction = $row->ctw_video_id;
-
-                        unset($row);
-                    }
-                    elseif ($sel_instruction === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
+                    $instruction_video = self::getActiveCourseInstructionVideo($course_id);
+                    $instruction = (!empty($instruction_video['video'])) ? $instruction_video['video']['id'] : '';
                 }
                 elseif ($sel_ctw === false)
                 {
@@ -5503,7 +5511,8 @@ class Course_model extends CI_Model
             'events' => array(),
             'notifications' => array(),
             'blocked_courses' => array(),
-            'available_workout' => false);
+            'available_workout' => false,
+            'next_training' => null);
 
         // Активные курсы
         if($courses_type == 'active')
@@ -5590,9 +5599,9 @@ class Course_model extends CI_Model
 
                     // Паузы тренировок
                     $sel_course_pauses = $this->db->query('
-                    SELECT `ucp_pause_start`, `ucp_pause_end` 
-                    FROM `users_courses_pauses`
-                    WHERE `ucp_uc_id`=?', $course['id']);
+                        SELECT `ucp_pause_start`, `ucp_pause_end` 
+                        FROM `users_courses_pauses`
+                        WHERE `ucp_uc_id`=?', $course['id']);
                     if ($sel_course_pauses !== false and 0 < $sel_course_pauses->num_rows())
                     {
                         $i = 0;
@@ -5885,10 +5894,10 @@ class Course_model extends CI_Model
 
                         // Выборка расписания тренировок
                         $sel_workouts = $this->db->query('
-                        SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_duplicate`, `utw_date`
-                        FROM `users_training_weeks`
-                        WHERE `utw_uc_id`=?
-                        ORDER BY `utw_date` ASC', $course['id']);
+                            SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_duplicate`, `utw_date`
+                            FROM `users_training_weeks`
+                            WHERE `utw_uc_id`=?
+                            ORDER BY `utw_date` ASC', $course['id']);
                         if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
                         {
                             $i = 0;
@@ -5958,8 +5967,10 @@ class Course_model extends CI_Model
                     if($course['display'] == 1)
                     {
                         // Паузы в курсе
-                        if (!empty($pauses) and !empty($course['days'])) {
-                            foreach ($pauses as $pause) {
+                        if (!empty($pauses) and !empty($course['days']))
+                        {
+                            foreach ($pauses as $pause)
+                            {
                                 // Начало заморозки
                                 $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['start']);
                                 $pause_start = $temp_date->format('Y-m-d');
@@ -5986,6 +5997,8 @@ class Course_model extends CI_Model
                         {
                             // Флаг доступного тренировочного дня
                             $available_training = false;
+                            // Флаг следующего тренировочного дня
+                            $next_training = false;
 
                             // Данные курса тренировок
                             $course_data  = self::getCourse($course['course_id']);
@@ -6021,6 +6034,19 @@ class Course_model extends CI_Model
                                     $result['available_workout'] = true;
                                 }
 
+                                // Дата следующей тренировки
+                                if($w_date > $today and $next_training === false)
+                                {
+                                    setlocale(LC_ALL, 'ru_RU.UTF-8');
+                                    $tmp_w_date = DateTime::createFromFormat('Y-m-d', $w_date);
+                                    $next_w_date = ($tmp_w_date !== false)
+                                        ? $tmp_w_date->format('j') . ' ' . parent::declensionRussianMonths($tmp_w_date->format('n'))
+                                        : '';
+
+                                    $result['next_training'] = $next_w_date;
+                                    $next_training = true;
+                                }
+
                                 $events[$ei]['title'] = ($w_duplicate == 1)
                                     ? 'Пропущенное занятие'
                                     : $course_data['course']['workouts'][$w_num]['video_name'];
@@ -6043,10 +6069,15 @@ class Course_model extends CI_Model
                                     $events[$ei]['color'] = 'rgba(255, 159, 137, 0.5)';
                                 }
 
-
                                 $ei++;
                             }
                             unset($workout);
+
+                            // Если есть активное видео на сегодня, то не выводить дату следующей тренировки
+                            if($available_training === true)
+                            {
+                                $result['next_training'] = null;
+                            }
                         }
 
                         // Питание
@@ -7950,10 +7981,10 @@ class Course_model extends CI_Model
         $result = array('course_menu' => array());
 
         $tmp_date    = new DateTime($date);
-        $cur_num_day = ((int) $tmp_date->format('N')) + 1;
+        $cur_num_day = ((int) $tmp_date->format('N')); // +1
         $monday      = $tmp_date->sub(new DateInterval("P". $cur_num_day ."D"));
         $monday_date = $monday->format('Y-m-d');
-        $sunday      = $tmp_date->add(new DateInterval("P9D"));
+        $sunday      = $tmp_date->add(new DateInterval("P8D")); // 9
         $sunday_date = $sunday->format('Y-m-d');
 
         if(is_numeric($user_course_id) and is_numeric($user_id))

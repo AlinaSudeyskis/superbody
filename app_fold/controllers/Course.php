@@ -3136,9 +3136,10 @@ class Course extends CI_Controller
                     }
                 }
                 unset($w_vd_id);
+
+                // Удаление id видео из дней тренировок курса
+                $selected_trainings['delete'] = array_diff_key($search_w, $workouts_num);
             }
-            // Удаление id видео из дней тренировок курса
-            $selected_trainings['delete'] = array_diff_key($search_w, $workouts_num);
 
             // Обновление видео тренировке
             if((!empty($selected_trainings['update']) or !empty($selected_trainings['delete'])) and !empty($course_id))
@@ -5313,6 +5314,9 @@ class Course extends CI_Controller
                     if ($this->security->xss_clean($full_path_file, TRUE) === FALSE)
                     {
                         unlink($full_path_file);
+                        // Файл Excel не прошел проверку
+                        $this->session->set_tempdata('message', 167, 60);
+                        header('Location: /administration/meal/import');
                     }
                     else
                     {
@@ -5320,18 +5324,46 @@ class Course extends CI_Controller
                         if(!empty($result['meals']))
                         {
                             $ins_meals = $this->Course_model->setNewMeals($result, $this->user_id, $this->date);
+                            if($ins_meals === true)
+                            {
+                                // Данные из файла Excel сохранены
+                                $this->session->set_tempdata('message', 10, 60);
+                            }
+                            else
+                            {
+                                // Часть/Все данные из файла Excel не сохранены
+                                $this->session->set_tempdata('message', 168, 60);
+                            }
+
+                            header('Location: /administration/meal/import');
+                        }
+                        else
+                        {
+                            // Данные из файла Excel не прочитаны
+                            $this->session->set_tempdata('message', 169, 60);
+                            header('Location: /administration/meal/import');
                         }
                     }
                 }
+                else
+                {
+                    // Файл Excel не загружен
+                    $this->session->set_tempdata('message', 170, 60);
+                    header('Location: /administration/meal/import');
+                }
             }
-
-            header('Location: /administration/meal/new');
+            else
+            {
+                // Файл Excel не загружен
+                $this->session->set_tempdata('message', 170, 60);
+                header('Location: /administration/meal/import');
+            }
         }
 
         $meals_types = $this->Course_model->getMealsTypes();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Новое блюдо';
+        $this->page_data['title'] = 'АП - Импотр блюд';
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'meals';
 
