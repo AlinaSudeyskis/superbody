@@ -28,7 +28,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <div class="video_down_line parent">
                                             <div class="video_down_line_but_wrap">
                                                 <label for="video_down_line_but2cs" class="video_down_line_but">
-                                                    <input type="file" name="xls" class="admin_form_videofile" id="video_down_line_but2cs" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/excel,application/vnd.ms-excel,application/x-excel,application/x-msexcel" required="required"/>
+                                                    <input type="file" name="xls" class="admin_form_videofile" id="video_down_line_but2cs" required="required"/>
+                                                    <!--  accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/excel,application/vnd.ms-excel,application/x-excel,application/x-msexcel" -->
                                                     <span>Выберите файл</span>
                                                 </label>
                                             </div>

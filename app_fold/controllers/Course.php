@@ -5335,7 +5335,7 @@ class Course extends CI_Controller
                                 $this->session->set_tempdata('message', 168, 60);
                             }
 
-                            header('Location: /administration/meal/import');
+                            header('Location: /administration/meals');
                         }
                         else
                         {
