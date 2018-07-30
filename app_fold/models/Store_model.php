@@ -3230,22 +3230,8 @@ class Store_model extends CI_Model
             $i = 0;
             foreach($sel_payments->result() as $row)
             {
-                $confirm_url = '';
-
-                $payment = self::getPaymentInfo($row->op_payment_id);
-
-                if ($payment->_status == 'pending')
-                {
-                    $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
-                }
-
                 // Данные платежа
                 $result[$i] = self::parsePaymentData($row);
-                $result[$i]['confirm_url'] = $confirm_url;
-
-                // Данные возвратов
-                $refunds = self::getPaymentRefunds($row->op_payment_id);
-                $result[$i] = array_merge($result[$i], $refunds);
 
                 $i++;
             }

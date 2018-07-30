@@ -26,47 +26,49 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="ordering_block_tab">
                                 <?php $price_sum = 0;
                                 $fc_price_sum = 0;
-                                foreach ($order['products'] as $product):
-                                    $price = !empty($product['discount_price']) ? $product['discount_price'] : $product['price'];
-                                    $product_sum = $price;
-                                    // Общая итоговая сумма корзины
-                                    if (!empty($product['price']) and $product['quantity'] > 0 and $product['course_id'] == 0) :
-                                        $product_sum = $price * $product['cart_quantity'];
-                                    endif;
+                                if(!empty($order['products'])):
+                                    foreach ($order['products'] as $product):
+                                        $price = !empty($product['discount_price']) ? $product['discount_price'] : $product['price'];
+                                        $product_sum = $price;
+                                        // Общая итоговая сумма корзины
+                                        if (!empty($product['price']) and $product['quantity'] > 0 and $product['course_id'] == 0) :
+                                            $product_sum = $price * $product['cart_quantity'];
+                                        endif;
 
-                                    $price_sum += $product_sum;
+                                        $price_sum += $product_sum;
 
-                                    $product_item = $product;
-                                    include('./app_fold/views/store/cart/order_product_item.php');
+                                        $product_item = $product;
+                                        include('./app_fold/views/store/cart/order_product_item.php');
 
-                                    // Прикрепленные товары
-                                    if (!empty($product['attached'])):?>
+                                        // Прикрепленные товары
+                                        if (!empty($product['attached'])):?>
 
-                                        <div class="dop_tov_line parent">
-                                            <div class="dop_tov_line_h">Прикрепленные товары</div>
-                                        </div>
+                                            <div class="dop_tov_line parent">
+                                                <div class="dop_tov_line_h">Прикрепленные товары</div>
+                                            </div>
 
-                                        <?php foreach ($product['attached'] as $attached):
-                                            $price = !empty($attached['discount_price']) ? $attached['discount_price'] : $attached['price'];
-                                            $product_sum = $price;
-                                            // Общая итоговая сумма корзины
-                                            if (!empty($attached['price']) and $attached['quantity'] > 0 and $attached['course_id'] == 0) :
-                                                $product_sum = $price * $attached['cart_quantity'];
-                                            endif;
+                                            <?php foreach ($product['attached'] as $attached):
+                                                $price = !empty($attached['discount_price']) ? $attached['discount_price'] : $attached['price'];
+                                                $product_sum = $price;
+                                                // Общая итоговая сумма корзины
+                                                if (!empty($attached['price']) and $attached['quantity'] > 0 and $attached['course_id'] == 0) :
+                                                    $product_sum = $price * $attached['cart_quantity'];
+                                                endif;
 
-                                            $price_sum += $product_sum;
+                                                $price_sum += $product_sum;
 
-                                            $product_item = $attached;
-                                            include('./app_fold/views/store/cart/order_product_item.php');
+                                                $product_item = $attached;
+                                                include('./app_fold/views/store/cart/order_product_item.php');
 
-                                        endforeach;
-                                        unset($attached);
+                                            endforeach;
+                                            unset($attached);
 
-                                        // Разделитель окончания прикрепленных товаров?>
-                                        <div class="dop_tov_line"></div>
-                                    <?php endif;
-                                endforeach;
-                                unset($product);?>
+                                            // Разделитель окончания прикрепленных товаров?>
+                                            <div class="dop_tov_line"></div>
+                                        <?php endif;
+                                    endforeach;
+                                    unset($product);
+                                endif;?>
                             </div>
                         </div>
                     </div>
