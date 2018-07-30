@@ -55,7 +55,7 @@ class Database extends CI_Controller
 
             header('Location: /administration/update/database');
         }
-        $result = $this->Database_model->getUpdateDates();
+        $result['update_dates'] = $this->Database_model->getUpdateDates();
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - База данных';

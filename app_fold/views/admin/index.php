@@ -36,6 +36,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             endforeach;
                             unset($table);
                         endif; ?>
+                        <?php if(!empty($update_dates)):
+                            foreach($update_dates as $up_date):
+                                echo $up_date->db_date.'<br/>';
+                            endforeach;
+                            unset($table);
+                        endif; ?>
                     </div>
                 </div>
             </div>
