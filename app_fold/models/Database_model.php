@@ -889,12 +889,12 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2018-07-30 15:42:10';
+        $date = '2018-07-30 15:43:10';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
-            $this->db->query("ALTER TABLE `orders_payment` ADD `op_payment_type` VARCHAR(25) NOT NULL AFTER `ml_description`");
-            $result .= $this->db->last_query() . '<br/>';
+            $up_data = $this->db->query("ALTER TABLE `orders_payment` ADD `op_payment_type` VARCHAR(25) NOT NULL AFTER `op_number`");
+            log_message('debug', print_r($up_data, true));
 
             self::setDbUpdate($date);
         }
