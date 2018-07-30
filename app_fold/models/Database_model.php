@@ -807,4 +807,27 @@ class Database_model extends CI_Model
 
         return $result;
     }
+
+    /**
+     * Выборка данных таблицы
+     *
+     * @param $table
+     * @return bool
+     */
+    public function showTable($table)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('DESCRIBE `'.$table.'`');
+        if($sel_data !== false)
+        {
+            $result = $sel_data->result();
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
 }

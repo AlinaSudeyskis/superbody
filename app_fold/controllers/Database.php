@@ -43,6 +43,7 @@ class Database extends CI_Controller
         $this->db->query($users);
     }
 
+    // Обновление БД
     public function updateDatabase()
     {
         // Обновление БД
@@ -54,5 +55,20 @@ class Database extends CI_Controller
         }
 
         header('Location: /administration');
+    }
+
+    // Просмотр БД
+    public function showTable()
+    {
+        $result['table_data'] = $this->Database_model->showTable('meals');
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - База данных';
+        $this->page_data['page_menu']    = '';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('admin/index', $result);
+        $this->load->view('footer/footer');
     }
 }

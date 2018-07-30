@@ -412,7 +412,6 @@ class CI_Controller {
             if($this->session->user['type'] == 3)
             {
                 $admin_new_fbs    = $this->Message_model->getAdminCountNewFeedbackMessages();
-                log_message('debug', $admin_new_fbs);
                 $admin_new_orders = $this->Store_model->getAdminCountWaitingOrders();
             }
 
@@ -452,9 +451,11 @@ class CI_Controller {
                 $this->Course_model->updateUserCourseData($this->user_id, $this->date);
             }*/
         }
-        elseif(!empty($this->session->user))
+        elseif(!empty($this->session->user) and
+            (!is_numeric($this->session->user['id']) or (!empty($this->session->user['email']) and
+                    !filter_var($this->session->user['email'], FILTER_VALIDATE_EMAIL))))
         {
-            session_destroy();
+            $this->session->sess_destroy();
         }
 
         // Проверка кода страны пользователя
@@ -642,13 +643,15 @@ class CI_Controller {
      * @param $user_type
      * @param $user_blocked
      * @param $user_name
+     * @param $user_phone
      * @param $user_image
      * @param $access_token
      * @param $user_soc_via
      * @param $user_soc_id
      * @param $date
      */
-    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
+    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $user_phone, $user_image,
+                                  $access_token, $user_soc_via, $user_soc_id, $date)
     {
         $split_name = mb_split(' ', $user_name);
         $s_name     = !empty($split_name[0]) ? $split_name[0] : '';
@@ -657,8 +660,7 @@ class CI_Controller {
         if (!empty($this->session->user))
         {
             // Обновление данных сессии, если она пренадлежит ему
-            if ($this->session->user['id'] == $user_id or
-                ($this->session->user['social_id'] == $user_soc_id and $this->session->user['social_id'] == $user_soc_via))
+            if ($this->session->user['id'] == $user_id)
             {
                 $user_data['user'] = $this->session->user;
 
@@ -671,7 +673,6 @@ class CI_Controller {
             // Удаляем сессию и создаем новую
             else
             {
-                $this->session->sess_destroy();
                 // Создание сессии
                 self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
             }
