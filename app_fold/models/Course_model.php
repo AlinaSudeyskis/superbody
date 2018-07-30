@@ -5018,7 +5018,7 @@ class Course_model extends CI_Model
               `crs_name`, `crs_blocked`
             FROM `video`
             LEFT JOIN `courses` ON `crs_id`=`video_crs_id`
-            WHERE `video_blocked`=0 and `video_type`=1 and `video_crs_id`>0 and `crs_blocked`=0
+            WHERE `video_blocked`=0 and `video_type`=1 and `video_crs_id`>0 and `crs_blocked`=0 and `video_active`=1
             GROUP BY `video_crs_id`
             ORDER BY `video_date_add` DESC');
 
