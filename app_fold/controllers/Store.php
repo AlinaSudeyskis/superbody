@@ -24,7 +24,7 @@ class Store extends CI_Controller
     }
 
     /**
-     * Вывод списка категорий
+     * АП. Вывод списка категорий
      *
      * @return void
      */
@@ -38,8 +38,9 @@ class Store extends CI_Controller
         $result = $this->Store_model->getECategories();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Категории';
-        $this->page_data['page_menu'] = 'categories';
+        $this->page_data['title']        = 'АП - Категории';
+        $this->page_data['page_menu']    = 'a_store';
+        $this->page_data['page_submenu'] = 'categories';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -48,7 +49,7 @@ class Store extends CI_Controller
     }
 
     /**
-     * Форма добавления категории
+     * АП. Форма добавления категории
      *
      * @return void
      */
@@ -90,8 +91,9 @@ class Store extends CI_Controller
         }
         
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Новая категория';
-        $this->page_data['page_menu'] = 'categories';
+        $this->page_data['title']        = 'АП - Новая категория';
+        $this->page_data['page_menu']    = 'a_store';
+        $this->page_data['page_submenu'] = 'categories';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -100,7 +102,7 @@ class Store extends CI_Controller
     }
 
     /**
-     * Вывод данных для редактирования категории, список подкатегорий, обработка введенных данных
+     * АП. Вывод данных для редактирования категории, список подкатегорий, обработка введенных данных
      *
      * @param $category_id
      * @return void
@@ -185,8 +187,9 @@ class Store extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Категория';
-        $this->page_data['page_menu'] = 'categories';
+        $this->page_data['title']        = 'АП - Категория';
+        $this->page_data['page_menu']    = 'a_store';
+        $this->page_data['page_submenu'] = 'categories';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -195,7 +198,7 @@ class Store extends CI_Controller
     }
 
     /**
-     * Форма добавления подкатегории
+     * АП. Форма добавления подкатегории
      *
      * @param $category_id
      * @return void
@@ -239,7 +242,7 @@ class Store extends CI_Controller
     }
 
     /**
-     * Вывод данных для редактирования подкатегории, обработка введенных данных
+     * АП. Вывод данных для редактирования подкатегории, обработка введенных данных
      *
      * @param $category_id
      * @param $subcategory_id
@@ -330,8 +333,9 @@ class Store extends CI_Controller
         $result = $this->Store_model->getProducts();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Интернет-магазин';
-        $this->page_data['page_menu'] = 'a_store';
+        $this->page_data['title']        = 'АП - Интернет-магазин';
+        $this->page_data['page_menu']    = 'a_store';
+        $this->page_data['page_submenu'] = 'products';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -487,8 +491,9 @@ class Store extends CI_Controller
         $result = $this->Store_model->getCategories();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Интернет-магазин - Новый товар';
-        $this->page_data['page_menu'] = 'a_store';
+        $this->page_data['title']        = 'АП - Интернет-магазин - Новый товар';
+        $this->page_data['page_menu']    = 'a_store';
+        $this->page_data['page_submenu'] = 'products';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -737,8 +742,9 @@ class Store extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Интернет-магазин - Редактирование данных товара';
-        $this->page_data['page_menu'] = 'a_store';
+        $this->page_data['title']        = 'АП - Интернет-магазин - Редактирование данных товара';
+        $this->page_data['page_menu']    = 'a_store';
+        $this->page_data['page_submenu'] = 'products';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

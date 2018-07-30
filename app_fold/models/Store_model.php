@@ -2725,7 +2725,26 @@ class Store_model extends CI_Model
             foreach($sel_orders->result() as $row)
             {
                 // Данные заказа
-                $result['orders'][$i] = self::parseOrderData($row);
+                $order = self::parseOrderData($row);
+
+                // Данные оплаты заказа
+                $waiting_status   = false;
+                $waiting_payments = self::getOrderWaitingPayments($row->o_id);
+                if(!empty($waiting_payments))
+                {
+                    $waiting_status = true;
+                }
+                $order['waiting_status'] = $waiting_status;
+
+                // Если есть платежи, требующие обработки, помещаем данные в начало массива, иначе в конец
+                if($waiting_status === true)
+                {
+                    array_unshift($result['orders'], $order);
+                }
+                else
+                {
+                    $result['orders'][$i] = $order;
+                }
 
                 $i++;
             }
@@ -3169,6 +3188,55 @@ class Store_model extends CI_Model
                     {
                         $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
                     }
+                }
+
+                // Данные платежа
+                $result[$i] = self::parsePaymentData($row);
+                $result[$i]['confirm_url'] = $confirm_url;
+
+                // Данные возвратов
+                $refunds = self::getPaymentRefunds($row->op_payment_id);
+                $result[$i] = array_merge($result[$i], $refunds);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_payments === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Получение данных о платежах заказа из БД (со статусом waiting_for_capture)
+     *
+     * @param $order_id
+     * @return array
+     */
+    public function getOrderWaitingPayments($order_id)
+    {
+        $result = array();
+
+        $sel_payments = $this->db->query('
+            SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, `op_captured_at`
+                `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
+            FROM `orders_payment`
+            WHERE `op_o_id`=? and `op_status`="waiting_for_capture"', $order_id);
+        if ($sel_payments !== false and 0 < $sel_payments->num_rows())
+        {
+            $i = 0;
+            foreach($sel_payments->result() as $row)
+            {
+                $confirm_url = '';
+
+                $payment = self::getPaymentInfo($row->op_payment_id);
+
+                if ($payment->_status == 'pending')
+                {
+                    $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
                 }
 
                 // Данные платежа

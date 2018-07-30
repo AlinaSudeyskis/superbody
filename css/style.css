@@ -67,6 +67,7 @@ audio, canvas, progress, video{
 
 .sing-in_bg{
     overflow: hidden;
+    height: 350px;
 }
 .sing-in_bg>img{
     display: block;
@@ -80,6 +81,7 @@ audio, canvas, progress, video{
     position: relative;
     overflow: hidden;
     background: #00bff0;
+    height: 350px;
 }
 .sing-in{
     width: 620px;
@@ -544,6 +546,9 @@ audio, canvas, progress, video{
     position: relative;
     display: none;
 }
+.header_bg{
+    height:100%;
+}
 .up_but_top.hide_chart{
     top: 15px;
 }
@@ -722,6 +727,12 @@ audio, canvas, progress, video{
 }
 .cat_desk{
     padding: 10px;
+}
+.cat_desk span {
+    font-size: 11px;
+    display: block;
+    margin-top: 5px;
+    color: #6d6d6d;
 }
 .cat_item_wrap:first-child .cat_img{
     background: #d99900;
@@ -8237,11 +8248,15 @@ textarea.anketa_form_in{
 }
 .admin_item{
     border-bottom: 1px solid #c1c1c1;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
+    padding: 15px;
+    /*margin-bottom: 15px;
+    padding-bottom: 15px;*/
+}
+.bg_gray{
+    background-color: #f7f7f7;
 }
 .admin_item:last-child{
-    margin-bottom: 0;
+    /*margin-bottom: 0;*/
     border-bottom: none;
 }
 .admin_ava,
@@ -8277,6 +8292,11 @@ textarea.anketa_form_in{
     text-decoration: none;
     color: #00bff0;
     padding-left: 3px;
+}
+.admin_name a span {
+    color: #9a9a9a;
+    font-size: 14px;
+    font-weight: 100;
 }
 .admin_set{
     margin-top: 15px;
@@ -9617,7 +9637,7 @@ input.tren_form_block_check{
         margin-left: -830px;
     }
     .sing-in{
-        top: 125px;
+        top: 25px; /*125*/
     }
     .footer_subscribe_wrap{
         padding-right: 5%;
@@ -9753,7 +9773,7 @@ input.tren_form_block_check{
         margin-left: -660px;
     }
     .sing-in{
-        top: 40px; /*77*/
+        top: 20px; /*77; 40*/
         /*padding: 15px;*/
     }
     /*.new_kurs_block_col:last-child{

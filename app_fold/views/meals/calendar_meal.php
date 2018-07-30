@@ -34,23 +34,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="meal_wpfcc_wrap">
                     <div class="meal_wpfcc">
-                        <div class="meal_wpfcc_title">Вес</div>
+                        <div class="meal_wpfcc_title" short="В">Вес</div>
                         <div class="meal_wpfcc_val"><?php echo $meal_data['meal']['weight']; ?></div>
                     </div>
                     <div class="meal_wpfcc">
-                        <div class="meal_wpfcc_title">Белки</div>
+                        <div class="meal_wpfcc_title" short="Б">Белки</div>
                         <div class="meal_wpfcc_val"><?php echo $meal_data['meal']['proteins']; ?></div>
                     </div>
                     <div class="meal_wpfcc">
-                        <div class="meal_wpfcc_title">Жиры</div>
+                        <div class="meal_wpfcc_title" short="Ж">Жиры</div>
                         <div class="meal_wpfcc_val"><?php echo $meal_data['meal']['fats']; ?></div>
                     </div>
                     <div class="meal_wpfcc">
-                        <div class="meal_wpfcc_title">Углеводы</div>
+                        <div class="meal_wpfcc_title" short="У">Углеводы</div>
                         <div class="meal_wpfcc_val"><?php echo $meal_data['meal']['carbohydrates']; ?></div>
                     </div>
                     <div class="meal_wpfcc">
-                        <div class="meal_wpfcc_title">Калории</div>
+                        <div class="meal_wpfcc_title" short="К">Калории</div>
                         <div class="meal_wpfcc_val"><?php echo $meal_data['meal']['calories']; ?></div>
                     </div>
                 </div>
@@ -74,23 +74,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="meal_title"><?php echo $meal['name']; ?></div>
                                     <div class="meal_wpfcc_wrap">
                                         <div class="meal_wpfcc">
-                                            <div class="meal_wpfcc_title">Вес</div>
+                                            <div class="meal_wpfcc_title" short="В">Вес</div>
                                             <div class="meal_wpfcc_val"><?php echo $meal['weight']; ?></div>
                                         </div>
                                         <div class="meal_wpfcc">
-                                            <div class="meal_wpfcc_title">Белки</div>
+                                            <div class="meal_wpfcc_title" short="Б">Белки</div>
                                             <div class="meal_wpfcc_val"><?php echo $meal['proteins']; ?></div>
                                         </div>
                                         <div class="meal_wpfcc">
-                                            <div class="meal_wpfcc_title">Жиры</div>
+                                            <div class="meal_wpfcc_title" short="Ж">Жиры</div>
                                             <div class="meal_wpfcc_val"><?php echo $meal['fats']; ?></div>
                                         </div>
                                         <div class="meal_wpfcc">
-                                            <div class="meal_wpfcc_title">Углеводы</div>
+                                            <div class="meal_wpfcc_title" short="У">Углеводы</div>
                                             <div class="meal_wpfcc_val"><?php echo $meal['carbohydrates']; ?></div>
                                         </div>
                                         <div class="meal_wpfcc">
-                                            <div class="meal_wpfcc_title">Калории</div>
+                                            <div class="meal_wpfcc_title" short="К">Калории</div>
                                             <div class="meal_wpfcc_val"><?php echo $meal['calories']; ?></div>
                                         </div>
                                     </div>

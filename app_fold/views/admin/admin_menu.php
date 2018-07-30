@@ -12,16 +12,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span><img src="/img/menu_ico1.png" alt=""></span><span>Пользователи</span>
         </a>
     </li>
-    <li>
-        <a href="/administration/couches" <?php if ($page_menu == 'a_couches') { echo 'class="active"'; } ?>>
+    <!--<li>
+        <a href="/administration/couches" <?php /*if ($page_menu == 'a_couches') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico17.png" alt=""></span><span>Тренеры</span>
         </a>
     </li>
     <li>
-        <a href="/administration/admins" <?php if ($page_menu == 'admins') { echo 'class="active"'; } ?>>
+        <a href="/administration/admins" <?php /*if ($page_menu == 'admins') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico18.png" alt=""></span><span>Администраторы</span>
         </a>
-    </li>
+    </li>-->
     <!--<li>
         <a href="/administration/video" <?php /*if ($page_menu == 'video') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico19.png" alt=""></span><span>Видео</span>
@@ -37,14 +37,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span><img src="/img/menu_ico8.png" alt=""></span><span>Курсы питания</span>
         </a>
     </li>
-    <li>
-        <a href="/administration/categories" <?php if ($page_menu == 'categories') { echo 'class="active"'; } ?>>
+    <!--<li>
+        <a href="/administration/categories" <?php /*if ($page_menu == 'categories') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico9.png" alt=""></span><span>Категория товара</span>
         </a>
-    </li>
+    </li>-->
     <li>
         <a href="/administration/store" <?php if ($page_menu == 'a_store') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico9.png" alt=""></span><span>Товар</span>
+            <span><img src="/img/menu_ico9.png" alt=""></span><span>Товары</span>
         </a>
     </li>
     <li>

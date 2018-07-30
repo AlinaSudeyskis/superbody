@@ -10,8 +10,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="sing-in_bg"><img src="<?php echo $si_banner['image'];?>" alt=""></div>
 
         <?php if (!empty($si_banner['url'])):?>
-        </a>
-    <?php endif;?>
+            </a>
+        <?php endif;?>
     <?php endforeach;
     unset($si_banner);
 endif;?>

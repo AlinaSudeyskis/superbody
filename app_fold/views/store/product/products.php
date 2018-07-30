@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
                 <div class="content_block_h new_content_block_h parent">
-                    <h3>Товар</h3>
+                    <h3>Товары</h3>
                     <a href="/administration/store/product/new" class="add_tab_but">Добавить</a>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
@@ -17,6 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val tov">
+                    <?php include_once('./app_fold/views/store/product/product_submenu.php'); ?>
                     <div class="admin_list tov_list">
                         <?php if (!empty($products)) :
                             foreach ($products as $product) :

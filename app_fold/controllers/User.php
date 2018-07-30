@@ -1344,7 +1344,7 @@ class User extends CI_Controller
     }
 
     /**
-     * Вывод списка пользователей
+     * АП. Вывод списка пользователей
      *
      * @return void
      */
@@ -1357,8 +1357,9 @@ class User extends CI_Controller
 
         $result = $this->User_model->getUsersData();
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Пользователи';
-        $this->page_data['page_menu'] = 'users';
+        $this->page_data['title']        = 'АП - Пользователи';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_users';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -1367,7 +1368,7 @@ class User extends CI_Controller
     }
 
     /**
-     * Форма редактирования и сохранение изменений настроек тренера
+     * АП. Форма редактирования и сохранение изменений настроек тренера
      *
      * @param $user_id
      * @return void
@@ -1580,8 +1581,9 @@ class User extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Редактирование данных пользователя';
-        $this->page_data['page_menu'] = 'users';
+        $this->page_data['title']        = 'АП - Редактирование данных пользователя';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_users';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

@@ -25,7 +25,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="admin_ava"></div>
                                     <div class="admin_cont">
                                         <div class="admin_name">
-                                            <a href="/administration/ingestion/<?php echo $ingestion['id']?>" class="admin_name"><?php echo $ingestion['name']?></a>
+                                            <a href="/administration/ingestion/<?php echo $ingestion['id']?>" class="admin_name">
+                                                <?php echo $ingestion['name']?>
+                                                <span>( <?php echo $ingestion['time_from'].' - '.$ingestion['time_to']; ?> )</span>
+                                            </a>
                                         </div>
                                     </div>
                                 </div>

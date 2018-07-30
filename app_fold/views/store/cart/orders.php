@@ -19,8 +19,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="admin_journal">
                         <div class="admin_list">
                             <?php if (!empty($orders)) :
-                                foreach ($orders as $order) :?>
-                                    <div class="admin_item">
+                                foreach ($orders as $order) :
+                                    $waiting_status = ($order['waiting_status'] === true) ? 'bg_gray' : ''; ?>
+                                    <div class="admin_item <?php echo $waiting_status; ?>">
                                         <div class="journal_block_item_h"><a href="/administration/order/<?php echo $order['id']; ?>">Заказ №<?php echo $order['id']; ?></a></div>
                                         <div class="journal_block_item_data">Дата заказа: <?php echo $order['date']; ?></div>
                                         <div class="journal_block_item_data">Адрес доставки: <?php echo $order['address']; ?></div>

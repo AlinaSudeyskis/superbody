@@ -21,7 +21,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="cat_item_wrap <?php echo $disabled; ?>" id="s-t-wo">
         <div class="cat_item">
             <div class="cat_img"><img src="/img/cat3.png" alt=""></div>
-            <div class="cat_desk">Тренировка</div>
+            <div class="cat_desk">Тренировка
+                <?php if(!empty($next_training)):?>
+                    <span>Сл. тренировка: <?php echo $next_training; ?></span>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
     <div class="cat_item_wrap">

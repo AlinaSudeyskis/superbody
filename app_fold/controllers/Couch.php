@@ -22,7 +22,7 @@ class Couch extends CI_Controller
     }
 
     /**
-     * Вывод списка тренеров в АП
+     * АП. Вывод списка тренеров
      *
      * @return void
      */
@@ -37,8 +37,9 @@ class Couch extends CI_Controller
         $result = $this->Couch_model->getCouches();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Тренеры';
-        $this->page_data['page_menu'] = 'a_couches';
+        $this->page_data['title']        = 'АП - Тренеры';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_couches';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -188,8 +189,9 @@ class Couch extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Добавление тренера';
-        $this->page_data['page_menu'] = 'a_couches';
+        $this->page_data['title']        = 'АП - Добавление тренера';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_couches';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -261,8 +263,9 @@ class Couch extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Выбор тренера из пользователей';
-        $this->page_data['page_menu'] = 'a_couches';
+        $this->page_data['title']        = 'АП - Выбор тренера из пользователей';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_couches';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -271,7 +274,7 @@ class Couch extends CI_Controller
     }
 
     /**
-     * Форма редактирования и сохранение изменений настроек тренера
+     * АП. Форма редактирования и сохранение изменений настроек тренера
      *
      * @param $user_id
      * @return void
@@ -476,7 +479,7 @@ class Couch extends CI_Controller
 
             header('Location: /administration/couch/'.$user_id);
         }
-        elseif($this->input->post('bt_reset_password', true))
+        elseif ($this->input->post('bt_reset_password', true))
         {
             $email      = null;
             $email_hash = null;
@@ -532,10 +535,43 @@ class Couch extends CI_Controller
 
             header('Location: /administration/couch/'.$user_id);
         }
+        elseif ($this->input->post('bt_on_behalf_login', true))
+        {
+            $this->load->model('Authorization_model');
+            // Поиск тренера в БД
+            $search_couch = $this->Authorization_model->authorizationOnBehalfCouch($user_id);
+
+            if ($search_couch !== false and is_array($search_couch))
+            {
+                // Завершение текущей сессии
+                if ($this->session->user['auth_via'] == 'native')
+                {
+                    $this->Authorization_model->userLogout($this->session->user['id'], $this->date);
+                }
+                else
+                {
+                    $this->Authorization_model->userSocialLogout($this->session->user['auth_via'], $this->session->user['social_id'], $this->date);
+                }
+
+                // Создание новой сессии
+                $user_image = (!empty($search_couch['user_image'])) ? $search_couch['user_image'] : $search_couch['user_soc_image'];
+
+                parent::updateSession($search_couch['user_id'], $search_couch['user_email'], $search_couch['user_type'], $search_couch['user_blocked'],
+                    $search_couch['user_name'], $search_couch['user_phone'], $user_image, '', 'native', 0, $this->date);
+
+                // После успешной авторизации переход на страницу тренера
+                header('Location: /profile/'.$search_couch['user_id']);
+            }
+            else
+            {
+                header('Location: /administration/couch/'.$user_id);
+            }
+        }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Редактирование данных тренера';
-        $this->page_data['page_menu'] = 'a_couches';
+        $this->page_data['title']        = 'АП - Редактирование данных тренера';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_couches';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

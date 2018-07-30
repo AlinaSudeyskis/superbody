@@ -490,6 +490,52 @@ class Authorization_model extends CI_Model
     }
 
     /**
+     * Авторизация администратора от имени тренера.
+     *
+     * @param $couch_id
+     * @return array | bool
+     */
+    public function authorizationOnBehalfCouch($couch_id)
+    {
+        $result = false;
+
+        $sel_user = $this->db->query('
+            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
+              `user_image`, `user_soc_image` 
+            FROM `users` 
+            WHERE `user_id`=? and `user_type`=2 LIMIT 1', $couch_id);
+
+        if ($sel_user !== false and 1 == $sel_user->num_rows())
+        {
+            $row = $sel_user->row();
+
+            $result['user_id']        = $row->user_id;
+            $result['user_name']      = $row->user_name;
+            $result['user_phone']     = $row->user_phone;
+            $result['user_email']     = $row->user_email;
+            $result['user_type']      = $row->user_type;
+            $result['user_blocked']   = $row->user_blocked;
+            $result['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+            $result['user_soc_image'] = '';
+
+            if(!empty($row->user_soc_image))
+            {
+                $Headers = @get_headers($row->user_soc_image);
+                if(strpos($Headers[0], '200'))
+                {
+                    $result['user_soc_image'] = $row->user_soc_image;
+                }
+            }
+        }
+        elseif($sel_user === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Сохранение нового пароля (восставновление пароля).
      * 
      * @param $email

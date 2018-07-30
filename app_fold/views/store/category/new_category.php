@@ -16,6 +16,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <?php include_once('./app_fold/views/store/product/product_submenu.php'); ?>
                     <form action="" class="video_admin_form" method="post">
                         <?php include_once('./app_fold/views/store/category/settings_item.php'); ?>
                         <div class="video_admin_form_buts parent">

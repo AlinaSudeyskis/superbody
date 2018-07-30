@@ -32,23 +32,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="">
                     <div class="meal_wpfcc_wrap">
                         <div class="meal_wpfcc">
-                            <div class="meal_wpfcc_title">Вес</div>
+                            <div class="meal_wpfcc_title" short="В">Вес</div>
                             <div class="meal_wpfcc_val"><?php echo $weight; ?></div>
                         </div>
                         <div class="meal_wpfcc">
-                            <div class="meal_wpfcc_title">Белки</div>
+                            <div class="meal_wpfcc_title" short="Б">Белки</div>
                             <div class="meal_wpfcc_val"><?php echo $proteins; ?></div>
                         </div>
                         <div class="meal_wpfcc">
-                            <div class="meal_wpfcc_title">Жиры</div>
+                            <div class="meal_wpfcc_title" short="Ж">Жиры</div>
                             <div class="meal_wpfcc_val"><?php echo $fats; ?></div>
                         </div>
                         <div class="meal_wpfcc">
-                            <div class="meal_wpfcc_title">Углеводы</div>
+                            <div class="meal_wpfcc_title" short="У">Углеводы</div>
                             <div class="meal_wpfcc_val"><?php echo $carbohydrates; ?></div>
                         </div>
                         <div class="meal_wpfcc">
-                            <div class="meal_wpfcc_title">Калории</div>
+                            <div class="meal_wpfcc_title" short="К">Калории</div>
                             <div class="meal_wpfcc_val"><?php echo $calories; ?></div>
                         </div>
                     </div>

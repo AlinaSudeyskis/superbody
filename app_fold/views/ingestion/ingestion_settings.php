@@ -21,7 +21,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="anketa_block_cont">
                         <div class="anketa_block_item">
                             <?php if(!empty($ingestion)):?>
-                                <div class="anketa_block_item_h">Новое блюдо</div>
+                                <div class="anketa_block_item_h">Редактирование данных приема пищи</div>
                                 <div class="anketa_block_item_cont">
                                     <form action="" class="anketa_form" method="post">
                                         <?php include_once('./app_fold/views/ingestion/settings_item.php'); ?>

@@ -1181,7 +1181,7 @@ class User_model extends CI_Model
         $result = array();
 
         $result['user_id']            = (!empty($row->user_id)) ? $row->user_id : '';
-        $result['user_name']          = (!empty($row->user_name)) ? $row->user_name : 'Пользователь №' . $row->user_id;
+        $result['user_name']          = (!empty($row->user_name)) ? $row->user_name : '';
         $result['user_email']         = (!empty($row->user_email)) ? $row->user_email : '';
         $result['user_country_code']  = (!empty($row->user_country_code)) ? $row->user_country_code : '';
         $result['user_phone']         = (!empty($row->user_phone)) ? $row->user_phone : '';

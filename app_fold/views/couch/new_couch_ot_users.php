@@ -17,6 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     <div class="anketa_block_cont">
                         <form action="" class="video_admin_form edit_kurs_form" method="post" enctype="multipart/form-data">
                             <div class="parent">

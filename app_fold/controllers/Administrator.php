@@ -44,7 +44,7 @@ class Administrator extends CI_Controller
     }
 
     /**
-     * Вывод списка администраторов
+     * АП. Вывод списка администраторов
      *
      * @return void
      */
@@ -53,8 +53,9 @@ class Administrator extends CI_Controller
         $result['admins'] = $this->Administrator_model->getAdmins();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Администраторы';
-        $this->page_data['page_menu'] = 'admins';
+        $this->page_data['title']        = 'АП - Администраторы';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_admins';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -179,8 +180,9 @@ class Administrator extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Добавление администратора';
-        $this->page_data['page_menu'] = 'admins';
+        $this->page_data['title']        = 'АП - Добавление администратора';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_admins';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -244,8 +246,9 @@ class Administrator extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Выбор администратора из пользователей';
-        $this->page_data['page_menu'] = 'admins';
+        $this->page_data['title']        = 'АП - Выбор администратора из пользователей';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_admins';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -496,8 +499,9 @@ class Administrator extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Редактирование данных администратора';
-        $this->page_data['page_menu'] = 'admins';
+        $this->page_data['title']        = 'АП - Редактирование данных администратора';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_admins';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

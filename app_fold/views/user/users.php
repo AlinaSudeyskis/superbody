@@ -9,13 +9,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
                 <div class="content_block_h new_content_block_h parent">
-                    <h3>Пользователь</h3>
+                    <h3>Пользователи</h3>
                     <div class="content_block_h_buts">
                         <div class="content_block_h_slide kurs_slide"></div>
                         <div class="content_block_h_close"></div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     <div class="admin_list">
                         <?php if (!empty($users)):
                             foreach ($users as $u): ?>
@@ -27,7 +28,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php endif; ?>
                                     <div class="admin_cont">
                                         <div class="admin_name">
-                                            <a href="/profile/<?php echo $u['user_id']; ?>" class="admin_name"><?php echo $u['user_name']; ?></a>
+                                            <?php $u_name = (!empty($u['user_name'])) ? $u['user_name'] : 'Пользователь №' . $u['user_id']; ?>
+                                            <a href="/profile/<?php echo $u['user_id']; ?>" class="admin_name"><?php echo $u_name; ?></a>
                                         </div>
                                         <div class="admin_set">
                                             <a href="/administration/user/<?php echo $u['user_id']; ?>" class="admin_set">Редактировать</a>
