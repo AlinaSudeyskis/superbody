@@ -627,7 +627,8 @@ class Database_model extends CI_Model
             CHANGE `ml_proteins` `ml_proteins` DECIMAL(6,2) UNSIGNED NOT NULL,
             CHANGE `ml_fats` `ml_fats` DECIMAL(6,2) UNSIGNED NOT NULL,
             CHANGE `ml_carbohydrates` `ml_carbohydrates` DECIMAL(6,2) UNSIGNED NOT NULL,
-            CHANGE `ml_calories` `ml_calories` DECIMAL(6,2) UNSIGNED NOT NULL");*/
+            CHANGE `ml_calories` `ml_calories` DECIMAL(6,2) UNSIGNED NOT NULL");
+        */
 
         // -------------------------------------------------------------------------------------------------------------
 
@@ -740,7 +741,6 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        // TODO 19.07.2018
         $date = '2018-07-19 11:37:10';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
@@ -753,6 +753,26 @@ class Database_model extends CI_Model
                 ADD `si_spec_url` VARCHAR(255) NOT NULL AFTER `si_spec_text`, 
                 ADD `si_spec_url_text` VARCHAR(7) NOT NULL AFTER `si_spec_url`");
             $this->db->query("ALTER TABLE `users` ADD `user_soc_image` VARCHAR(255) NOT NULL AFTER `user_image`");
+
+            $result = true;
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-07-30 11:32:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `meals` CHANGE `ml_weight` `ml_weight` DECIMAL(6,2) UNSIGNED NOT NULL,
+            CHANGE `ml_proteins` `ml_proteins` DECIMAL(6,2) UNSIGNED NOT NULL,
+            CHANGE `ml_fats` `ml_fats` DECIMAL(6,2) UNSIGNED NOT NULL,
+            CHANGE `ml_carbohydrates` `ml_carbohydrates` DECIMAL(6,2) UNSIGNED NOT NULL,
+            CHANGE `ml_calories` `ml_calories` DECIMAL(6,2) UNSIGNED NOT NULL");
+
+            $this->db->query("ALTER TABLE `meals` ADD `ml_ingredients` VARCHAR(2000) NOT NULL AFTER `ml_description`");
+            $this->db->query("ALTER TABLE `meals` ADD `ml_description` VARCHAR(2000) NOT NULL AFTER `ml_name`, ADD `ml_videos` TEXT NOT NULL AFTER `ml_description`");
+            $this->db->query("ALTER TABLE `meals` ADD FULLTEXT `fix_ml_name` (`ml_name`)");
+            $this->db->query("ALTER TABLE `meals` CHANGE `ml_name` `ml_name` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
 
             $result = true;
 
