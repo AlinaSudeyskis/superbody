@@ -91,7 +91,7 @@ audio, canvas, progress, video{
     border-bottom: 4px solid #72d0f4;
     position: absolute;
     left: 140px;
-    top: 165px;
+    top: 25px; /* 165px*/
     z-index: 100;
 }
 .sing-in.page_form{

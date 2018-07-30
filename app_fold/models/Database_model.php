@@ -891,10 +891,18 @@ class Database_model extends CI_Model
 
         $date = '2018-07-30 15:43:10';
         $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false) {
+            $up_data = $this->db->query("ALTER TABLE `orders_payment` ADD `op_payment_type` VARCHAR(25) NOT NULL AFTER `op_number`");
+            /*log_message('debug', print_r($up_data, true));*/
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-07-30 18:05:10';
+        $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
-            $up_data = $this->db->query("ALTER TABLE `orders_payment` ADD `op_payment_type` VARCHAR(25) NOT NULL AFTER `op_number`");
-            log_message('debug', print_r($up_data, true));
+            $up_data = $this->db->query("TRUNCATE TABLE `meals`");
 
             self::setDbUpdate($date);
         }
