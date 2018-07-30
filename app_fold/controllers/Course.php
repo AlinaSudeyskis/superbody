@@ -5837,8 +5837,8 @@ class Course extends CI_Controller
         $xlsData = self::getXLS($path.$file); // Извлекаем данные из XLS
         $count_rows = count($xlsData);
 
-        if($count_rows > 100){
-            $count_rows = 100;
+        if($count_rows > 500){
+            $count_rows = 500;
         }
 
         $result['count_rows'] = $count_rows;

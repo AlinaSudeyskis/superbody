@@ -902,7 +902,7 @@ class Database_model extends CI_Model
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
-            $up_data = $this->db->query("TRUNCATE TABLE `meals`");
+            //$up_data = $this->db->query("TRUNCATE TABLE `meals`");
 
             self::setDbUpdate($date);
         }
