@@ -651,7 +651,6 @@ class Database_model extends CI_Model
     {
         $result = false;
 
-
         // -------------------------------------------------------------------------------------------------------------
 
         // 04.07.2018
@@ -768,13 +767,19 @@ class Database_model extends CI_Model
             CHANGE `ml_fats` `ml_fats` DECIMAL(6,2) UNSIGNED NOT NULL,
             CHANGE `ml_carbohydrates` `ml_carbohydrates` DECIMAL(6,2) UNSIGNED NOT NULL,
             CHANGE `ml_calories` `ml_calories` DECIMAL(6,2) UNSIGNED NOT NULL");
+            $result .= $this->db->last_query() . '<br/>';
 
             $this->db->query("ALTER TABLE `meals` ADD `ml_ingredients` VARCHAR(2000) NOT NULL AFTER `ml_description`");
-            $this->db->query("ALTER TABLE `meals` ADD `ml_description` VARCHAR(2000) NOT NULL AFTER `ml_name`, ADD `ml_videos` TEXT NOT NULL AFTER `ml_description`");
-            $this->db->query("ALTER TABLE `meals` ADD FULLTEXT `fix_ml_name` (`ml_name`)");
-            $this->db->query("ALTER TABLE `meals` CHANGE `ml_name` `ml_name` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+            $result .= $this->db->last_query() . '<br/>';
 
-            $result = true;
+            $this->db->query("ALTER TABLE `meals` ADD `ml_description` VARCHAR(2000) NOT NULL AFTER `ml_name`, ADD `ml_videos` TEXT NOT NULL AFTER `ml_description`");
+            $result .= $this->db->last_query() . '<br/>';
+
+            $this->db->query("ALTER TABLE `meals` ADD FULLTEXT `fix_ml_name` (`ml_name`)");
+            $result .= $this->db->last_query() . '<br/>';
+
+            $this->db->query("ALTER TABLE `meals` CHANGE `ml_name` `ml_name` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+            $result .= $this->db->last_query() . '<br/>';
 
             self::setDbUpdate($date);
         }

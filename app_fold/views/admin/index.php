@@ -25,6 +25,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             endforeach;
                             unset($table);
                         endif; ?>
+                        <?php if(!empty($update_result)):
+                            echo $update_result;
+                        endif; ?>
                     </div>
                 </div>
             </div>
