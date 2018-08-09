@@ -8,11 +8,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block">
-                <div class="content_block_h new_content_block_h parent">
-                    <h3>Уведомления</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Уведомления</h3>
+                        </div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <div class="admin_ava"></div>
                                         <div class="admin_cont">
                                             <div class="admin_name">
-                                                <a href="/administration/notification/<?php echo $key; ?>" class="admin_name">[<?php echo $key; ?>] <?php echo $notification; ?></a>
+                                                <a href="/administration/notification/<?php echo $key; ?>">[<?php echo $key; ?>] <?php echo $notification; ?></a>
                                             </div>
                                         </div>
                                     </div>

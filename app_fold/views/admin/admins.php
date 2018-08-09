@@ -8,13 +8,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h new_content_block_h parent">
-                    <h3>Администраторы</h3>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_h new_content_block_h parent">
+                        <h3>Администраторы</h3>
                     <a href="/administration/admin/new" class="add_tab_but">Добавить</a>
                     <a href="/administration/admin/new/users" class="add_tab_but">Выбрать</a>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
@@ -29,10 +27,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="admin_cont">
                                         <div class="admin_name">
                                             <?php $u_name = (!empty($admin['name'])) ? $admin['name'] : 'Пользователь №' . $admin['id']; ?>
-                                            <a href="/profile/<?php echo $admin['id']; ?>" class="admin_name"><?php echo $u_name; ?></a>
+                                            <a href="/profile/<?php echo $admin['id']; ?>"><?php echo $u_name; ?></a>
                                         </div>
                                         <div class="admin_set">
-                                            <a href="/administration/admin/<?php echo $admin['id']; ?>" class="admin_set">Редактировать</a>
+                                            <a href="/administration/admin/<?php echo $admin['id']; ?>">Редактировать</a>
                                         </div>
                                     </div>
                                 </div>

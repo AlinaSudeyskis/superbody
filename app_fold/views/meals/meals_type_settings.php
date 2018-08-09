@@ -8,20 +8,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h new_content_block_h parent">
-                    <h3>Курсы питания</h3>
-                    <?php include_once('./app_fold/views/course/nutritions/courses_buts.php'); ?>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Курсы питания</h3>
+                            <a href="/administration/meals/type/new" class="add_tab_but">Новый тип блюда</a>
+                        </div>
+                        <?php include_once('./app_fold/views/course/nutritions/menu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/course/nutritions/menu.php'); ?>
                     <div class="anketa_block_cont">
                         <div class="anketa_block_item">
                             <?php if(!empty($meals_type)):?>
-                                <div class="anketa_block_item_h">Новое блюдо</div>
+                                <div class="anketa_block_item_h">Редактирование данных типа блюда</div>
                                 <div class="anketa_block_item_cont">
                                     <form action="" class="anketa_form" method="post">
                                         <div class="anketa_form_line parent">

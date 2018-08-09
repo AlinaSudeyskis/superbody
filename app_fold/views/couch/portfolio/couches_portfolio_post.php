@@ -8,16 +8,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h parent">
-                    <h3>Портфолио тренера</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Портфолио тренера</h3>
+                        </div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" class="tren_set_form" method="post" enctype="multipart/form-data">
-                        <div class="parent">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        <div class="admin_form_buts_wrap_container">
+                            <div class="admin_form_buts_wrap parent">
+                                <?php if($post['approval'] == 0): ?>
+                                    <input type="submit" name="bt_approval_post" value="Одобрить" class="video_admin_form_block" />
+                                <?php else: ?>
+                                    <input type="submit" name="bt_block_post" value="Блокировать" class="video_admin_form_block" />
+                                <?php endif; ?>
+                                <input type="submit" name="bt_save_image" value="Сохранить" class="video_admin_form_send" />
+                            </div>
+                        </div>
+                        <div class="tren_set_form">
                             <div class="tren_set_form_l">
                                 <div class="tren_set_form_img">
                                     <?php if(!empty($post['path'])): ?>
@@ -32,14 +42,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <input type="text" name="image_title" class="tren_set_form_in" placeholder="Введите название" value="<?php if(!empty($post['title'])): echo $post['title']; endif; ?>"/>
                                 <div class="tren_set_form_h">Описание</div>
                                 <textarea name="image_description" class="tren_set_form_txt" placeholder="Введите описание"><?php if(!empty($post['title'])): echo $post['desc']; endif; ?></textarea>
-                            </div>
-                            <div class="anketa_form_buts_wrap parent">
-                                <input type="submit" name="bt_save_image" value="Сохранить" class="video_admin_form_send" />
-                                <?php if($post['approval'] == 0): ?>
-                                    <input type="submit" name="bt_approval_post" value="Одобрить" class="video_admin_form_block" />
-                                <?php else: ?>
-                                    <input type="submit" name="bt_block_post" value="Блокировать" class="video_admin_form_block" />
-                                <?php endif; ?>
                             </div>
                         </div>
                     </form>

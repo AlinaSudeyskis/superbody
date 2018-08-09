@@ -8,15 +8,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h parent">
-                    <h3>Блог тренера</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Блог тренера</h3>
+                        </div>
+                        <?php include_once('./app_fold/views/blog/posts/menu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/blog/posts/menu.php'); ?>
                     <div class="admin_list">
                         <div class="full_photo_block_comm_wrap">
                             <?php if (!empty($comments)) :
@@ -32,7 +32,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <div class="full_photo_block_comm_txt"><?php echo $comment['text']; ?></div>
 
                                             <div class="admin_set">
-                                                <a href="/administration/blog/comment/<?php echo $comment['id']; ?>" class="admin_set">Настройки</a>
+                                                <a href="/administration/blog/comment/<?php echo $comment['id']; ?>">Настройки</a>
                                             </div>
                                         </div>
                                     </div>

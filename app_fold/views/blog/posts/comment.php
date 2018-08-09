@@ -8,15 +8,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h parent">
-                    <h3>Блог тренера</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Блог тренера</h3>
+                        </div>
+                        <?php include_once('./app_fold/views/blog/posts/menu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/blog/posts/menu.php'); ?>
+                    <form action="" method="post">
+                        <div class="admin_form_buts_wrap_container">
+                            <div class="admin_form_buts_wrap parent">
+                                <?php if ($comment['approval'] == 0) :?>
+                                    <input type="submit" name="bt_approval_comment" class="video_admin_form_block" value="Одобрить"/>
+                                <?php else :?>
+                                    <input type="submit" name="bt_block_comment" class="video_admin_form_block" value="Заблокировать"/>
+                                <?php endif;?>
+                            </div>
+                        </div>
+                    </form>
                     <div class="admin_list">
                         <div class="full_photo_block_comm parent">
                             <div class="full_photo_block_comm_img">
@@ -32,13 +43,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="full_photo_block_comm_info_item"><a href=""><i class="fa fa-comment-o" aria-hidden="true"></i></a><span>100</span></div>
                                 </div>
                             </div>
-                            <form action="" method="post">
-                                <?php if ($comment['approval'] == 0) :?>
-                                    <input type="submit" name="bt_approval_comment" class="admin_form_block" value="Одобрить"/>
-                                <?php else :?>
-                                    <input type="submit" name="bt_block_comment" class="admin_form_block" value="Заблокировать"/>
-                                <?php endif;?>
-                            </form>
                         </div>
                     </div>
                 </div>

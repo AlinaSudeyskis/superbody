@@ -95,6 +95,7 @@ class Couch_model extends CI_Model
     {
         // Массив возвращаемых значений
         $result = array ( 'user_data' => array(
+            'user_id' => '',
             'user_email' => '',
             'user_name' => '',
             'user_country_code' => '',
@@ -117,7 +118,7 @@ class Couch_model extends CI_Model
         ));
 
         $sel_admin = $this->db->query('
-            SELECT `user_email`, `user_name`, `user_image`, `user_blocked`, `user_password`, 
+            SELECT `users`.`user_id`, `user_email`, `user_name`, `user_image`, `user_blocked`, `user_password`, 
               `user_gender`, `user_birthday`, `user_country_code`, `user_phone`,
               `cd_specialization`, `cd_experience`, `cd_titles_awards`, `cd_about` 
             FROM `users` 
@@ -129,6 +130,7 @@ class Couch_model extends CI_Model
         {
             $row = $sel_admin->row();
 
+            $result['user_data']['user_id']            = $row->user_id;
             $result['user_data']['user_email']         = $row->user_email;
             $result['user_data']['user_name']          = !empty($row->user_name) ? $row->user_name : 'Тренер';
             $result['user_data']['user_country_code']  = $row->user_country_code;

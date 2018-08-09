@@ -128,20 +128,23 @@ $route['administration/update/database']   = 'Database/updateDatabase';
 $route['administration/show/table/(:any)'] = 'Database/showTable/$1';
 $route['administration/show/tables']       = 'Database/showTables';
 // Администраторы
-$route['administration/admins']          = 'Administrator/admins';
-$route['administration/admin/new']       = 'Administrator/newAdmin';
-$route['administration/admin/new/users'] = 'Administrator/newAdminOfTheUsers';
-$route['administration/admin/(:num)']    = 'Administrator/adminSettings/$1';
+$route['administration/admins']                = 'Administrator/admins';
+$route['administration/admin/new']             = 'Administrator/newAdmin';
+$route['administration/admin/new/users']       = 'Administrator/newAdminOfTheUsers';
+$route['administration/admin/(:num)/personal'] = 'Administrator/adminSettings/$1/personal';
+$route['administration/admin/(:num)']          = 'Administrator/adminSettings/$1';
 // Тренеры
 $route['administration/couches']                  = 'Couch/couches';
 $route['administration/couch/new']                = 'Couch/newCouch';
 $route['administration/couch/new/users']          = 'Couch/newCouchOfTheUsers';
+$route['administration/couch/(:num)/personal']    = 'Couch/couchSettings/$1/personal';
 $route['administration/couch/(:num)']             = 'Couch/couchSettings/$1';
 $route['administration/couches/portfolio']        = 'Couch/couchesPortfolioPosts';
 $route['administration/couches/portfolio/(:num)'] = 'Couch/couchesPortfolioPost/$1';
 // Пользователи
-$route['administration/users']        = 'User/users';
-$route['administration/user/(:num)']  = 'User/userASettings/$1';
+$route['administration/users']                 = 'User/users';
+$route['administration/user/(:num)/personal']  = 'User/userASettings/$1/personal';
+$route['administration/user/(:num)']           = 'User/userASettings/$1';
 // Видео
 $route['administration/video']                = 'Course/video/promo';
 $route['administration/video/promo']          = 'Course/video/promo';

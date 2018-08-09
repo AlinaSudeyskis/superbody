@@ -44,7 +44,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="landing_block" id="l-block-1">
                     <h3 class="landing">Блок №1</h3>
                     <img src="/img/landing parts/1.PNG" alt="" class="land_template"/>
-                    <div class="lend_form_h">Слайдер (максимум 7 изображений)</div>
+                    <div class="lend_form_h">Слайдер (максимум 7 изображений; 1920х600)</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_slider_block1"
                             <?php if ($landing['slider_images_default'] === true) : ?> checked="checked" <?php endif ; ?>
@@ -107,7 +107,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="kurs_block_h bg_color">Файл фона:
+                            <div class="h_subtitle">(1920х1)</div>
+                        </div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but2fbg" class="video_down_line_but">
@@ -149,7 +151,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="tren_form_block_check1bi">Изображение тренера (слева) по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Изображение тренера:</div>
+                        <div class="kurs_block_h">Изображение тренера:
+                            <div class="h_subtitle">(354х430)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but1fbi" class="video_down_line_but">
@@ -192,7 +195,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="kurs_block_h bg_color">Файл фона:
+                            <div class="h_subtitle">(1920х1280)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but3fbg" class="video_down_line_but">
@@ -226,7 +230,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="tren_form_block_check2bi">Фото №1 по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Фото №1:</div>
+                        <div class="kurs_block_h">Фото №1:
+                            <div class="h_subtitle">(360х400)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but2fbi" class="video_down_line_but">
@@ -250,7 +255,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="tren_form_block_check3bi">Фото №2 по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Фото №2:</div>
+                        <div class="kurs_block_h">Фото №2:
+                            <div class="h_subtitle">(360х400)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but3fbi" class="video_down_line_but">
@@ -305,7 +311,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="kurs_block_h bg_color">Файл фона:
+                            <div class="h_subtitle">(1920х525)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but4fbg" class="video_down_line_but">
@@ -338,7 +345,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="tren_form_block_check4bi">Фото по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Фото:</div>
+                        <div class="kurs_block_h">Фото:
+                            <div class="h_subtitle">(570х435)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but4fbi" class="video_down_line_but">
@@ -433,7 +441,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="tren_form_block_check5bi">Боковое фото №1 по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Боковое фото №1:</div>
+                        <div class="kurs_block_h">Боковое фото №1:
+                            <div class="h_subtitle">(293х390)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but5fbi" class="video_down_line_but">
@@ -457,7 +466,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="tren_form_block_check6bi">Боковое фото №2 по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Боковое фото №2:</div>
+                        <div class="kurs_block_h">Боковое фото №2:
+                            <div class="h_subtitle">(293х390)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but6fbi" class="video_down_line_but">
@@ -481,7 +491,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="tren_form_block_check7bi">Аватар по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Аватар:</div>
+                        <div class="kurs_block_h">Аватар:
+                            <div class="h_subtitle">(120х120)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but7fbi" class="video_down_line_but">
@@ -543,7 +554,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="kurs_block_h bg_color">Файл фона:
+                            <div class="h_subtitle">(1920х1080)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but6fbg" class="video_down_line_but">
@@ -580,7 +592,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <label for="tren_form_block_check8bi">Боковое фото по умолчанию</label>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Боковое фото:</div>
+                        <div class="kurs_block_h">Боковое фото:
+                            <div class="h_subtitle">(252х441)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but8fbi" class="video_down_line_but">
@@ -670,7 +683,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="kurs_block_h">Заголовок:</div>
                         <input type="text" name="i_title_block7" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block7']['title']; ?>" />
                     </div>
-                    <div class="lend_form_h">Изображения и текст (рекомендация: количество планов кратно 2)</div>
+                    <div class="lend_form_h">Изображения и текст (рекомендация: количество планов кратно 2; 285х285)</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_images_block7"
                             <?php if ($landing['block7']['images_default'] === true) : ?> checked="checked" <?php endif ; ?>
@@ -764,7 +777,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="kurs_block_h bg_color">Файл фона:
+                            <div class="h_subtitle">(1920х1080)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but8fbg" class="video_down_line_but">

@@ -8,10 +8,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="admin_video"><img src="<?php echo $banner['image']?>" alt=""></div>
                 <div class="admin_video_cont">
                     <div class="admin_name">
-                        <a href="/administration/site/banner/<?php echo $banner['id']?>" class="admin_name">Баннер №<?php echo $banner['id']?></a>
+                        <a href="/administration/site/banner/<?php echo $banner['id']?>">Баннер №<?php echo $banner['id']?></a>
                     </div>
                     <div class="admin_set">
-                        <a href="/administration/site/banner/<?php echo $banner['id']?>" class="admin_set">Редактировать</a>
+                        <a href="/administration/site/banner/<?php echo $banner['id']?>">Редактировать</a>
                     </div>
                 </div>
             </div>

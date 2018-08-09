@@ -80,6 +80,7 @@ class User extends CI_Controller
 
         $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data);
 
+        $this->load->model('Notification_model');
         // Уведомления курсов
         if(!empty($course_notifs['notifications']))
         {
@@ -93,7 +94,6 @@ class User extends CI_Controller
                     // Оплата курса
                     if(is_numeric($code) and ($code == 142 or $code == 144))
                     {
-                        $this->load->model('Notification_model');
                         $notification = $this->Notification_model->getNotification($code);
                         $pattern = '/\[date_attempts\]/';
                         $replacement = $notif['date_attempts'];
@@ -104,7 +104,6 @@ class User extends CI_Controller
                     // Завершение курса
                     if(is_numeric($code) and $code == 143)
                     {
-                        $this->load->model('Notification_model');
                         $notification = $this->Notification_model->getNotification($code);
 
                         $this->page_data['course_notification'][$user_course_id]['course_ends']['text']           = $notification['notification']['text'];
@@ -161,7 +160,6 @@ class User extends CI_Controller
                     // Курс завершен
                     elseif(is_numeric($code) and $code == 154)
                     {
-                        $this->load->model('Notification_model');
                         $notification = $this->Notification_model->getNotification($code);
 
                         $this->page_data['course_notification'][$user_course_id]['course_finished']['text']    = $notification['notification']['text'];
@@ -171,24 +169,39 @@ class User extends CI_Controller
             }
             unset($course_notif);
         }
+        // Уведомления отображения курсов в календаре
+        if($course_notifs['display_workout'] === true and $course_notifs['display_nutrition'] === true)
+        {
+            $notification = $this->Notification_model->getNotification(173);
+
+            $this->page_data['display_courses']['text'] = $notification['notification']['text'];
+        }
+        elseif($course_notifs['display_workout'] === true)
+        {
+            $notification = $this->Notification_model->getNotification(172);
+
+            $this->page_data['display_courses']['text'] = $notification['notification']['text'];
+        }
+        elseif($course_notifs['display_nutrition'] === true)
+        {
+            $notification = $this->Notification_model->getNotification(171);
+
+            $this->page_data['display_courses']['text'] = $notification['notification']['text'];
+        }
         // Уведомления пользователя
         // Пользователь заблокирован
         if($u_data['user_data']['user_blocked'] == 1)
         {
-            $this->load->model('Notification_model');
             $notification = $this->Notification_model->getNotification(16);
 
             $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
-
         }
         // Пользователь вводил антропометрические данные более 2х недель назад
         if($anthrop_data['anthrop_notif'] === true)
         {
-            $this->load->model('Notification_model');
             $notification = $this->Notification_model->getNotification(153);
 
             $this->page_data['user_notification']['anthrop']['text'] = $notification['notification']['text'];
-
         }
 
         // Объединенные данные страница
@@ -1371,9 +1384,10 @@ class User extends CI_Controller
      * АП. Форма редактирования и сохранение изменений настроек тренера
      *
      * @param $user_id
+     * @param $page_type
      * @return void
      */
-    public function userASettings($user_id)
+    public function userASettings($user_id, $page_type = 'settings')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
@@ -1581,9 +1595,10 @@ class User extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Редактирование данных пользователя';
-        $this->page_data['page_menu']    = 'users';
-        $this->page_data['page_submenu'] = 'a_users';
+        $this->page_data['title']         = 'АП - Редактирование данных пользователя';
+        $this->page_data['page_menu']     = 'users';
+        $this->page_data['page_submenu']  = 'a_users';
+        $this->page_data['page_2submenu'] = $page_type == 'settings' ? 'settings' : 'personal_data';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

@@ -42,6 +42,7 @@ input, textarea, select, button{
     content: ".";
     display: block;
     height: 0;
+    width: 0;
     clear: both;
     visibility: hidden;
 }
@@ -782,6 +783,10 @@ audio, canvas, progress, video{
 .content_block.notification_block{
     margin-bottom: 20px;
 }
+.notification_block .new_content_block h3{
+    font-size: 16px;
+    line-height: 18px;
+}
 h3.info{
     text-align: center;
     padding: 20px 15px;
@@ -793,6 +798,10 @@ h3.info{
 }
 .notification_block h3.info{
     float: none;
+
+    font-size: 15px;
+    line-height: 17px;
+    padding: 15px 10px;
 }
 h3.info.small{
     font-size: 14px;
@@ -802,9 +811,12 @@ h3.info.small{
     float: left;
     text-transform: uppercase;
     font-weight: 300;
-    font-size: 24px;
-    line-height: 28px;
-    padding: 20px 0 20px 30px;
+    /*font-size: 24px;
+    line-height: 28px;*/
+    font-size: 16px;
+    line-height: 17px;
+    /*padding: 20px 0 20px 30px;*/
+    padding: 15px 0 10px 30px;
 }
 .notification_block_h a{
     color: #72d0f4;
@@ -816,7 +828,7 @@ h3.info.small{
     padding: 0 30px 20px;
     color: #606060;
     font-weight: 300;
-    font-size: 17px;
+    font-size: 15px; /*17px*/
     text-transform: uppercase;
 }
 .notification_block_ext_wrap{
@@ -831,15 +843,17 @@ h3.info.small{
 .notification_block_ext_h{
     text-transform: uppercase;
     font-weight: 600;
-    font-size: 16px;
-    line-height: 28px;
+    /*font-size: 16px;
+    line-height: 28px;*/
+    font-size: 14px;
+    line-height: 20px;
 }
 .notification_block_ext_h a{
     color: #72d0f4;
     text-decoration: none;
 }
 .notification_block_ext_title{
-    height: 25px;
+    height: 20px;
 }
 .notification_block_ext_title input{
     float: none;
@@ -913,6 +927,9 @@ div.info{
     padding-right: 70px;
     flex-flow: row nowrap;
 }
+.content_block_container_wrap .content_block_h{
+    padding-right: 0;
+}
 /*.new_content_block .content_block_h{
     border-bottom: 1px solid #cdcdcd;
 }*/
@@ -982,6 +999,27 @@ div.info{
     border-bottom: 3px solid #cdcdcd;
     margin-bottom: 40px;
     /*overflow: hidden;*/
+}
+.content_block_container_wrap{
+    height: auto;
+}
+.content_block_container.fixed{
+    position: fixed;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    z-index:101;
+}
+.admin_form_buts_wrap_container{
+    height: 55px;
+}
+.admin_form_buts_wrap.fixed{
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    background: #fff;
+    z-index:101;
 }
 .pop-up_content_block{
     margin: 0;
@@ -3964,15 +4002,23 @@ tr:first-child > td > .fc-day-grid-event{
 	margin: 0;
 	padding: 0;
 	list-style: none;
-	border-bottom: 1px solid #e5e5e5;
+	border-bottom: 2px solid #e5e5e5; /*1px*/
+
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 .journal_block_nav, .anketa_block_nav a{
     text-decoration: none;
 }
 .journal_block_nav li, .anketa_block_nav li{
 	float: left;
-	border-right: 1px solid #ccc;
+	border-right: 1px solid #cccccc;
+    border-bottom: 1px solid #cccccc;
 }
+.anketa_block_nav li:first-child {
+    border-left: 1px solid #cccccc;
+ }
 .journal_block_nav a, .anketa_block_nav span{
 	display: block;
 	padding: 10px 20px;
@@ -3983,6 +4029,10 @@ tr:first-child > td > .fc-day-grid-event{
 	color: #000;
 	text-decoration: none;
 	cursor: pointer;
+    white-space: nowrap;
+
+    text-align: center;
+    vertical-align: middle;
 }
 .journal_block_nav a.journal_active, .journal_block_nav a:hover,
 .anketa_block_nav span.anketa_active, .anketa_block_nav span:hover{
@@ -6099,9 +6149,10 @@ textarea.journal_post_comm_in{
 	text-align: center;
 
     margin: 9px 10px 9px 0;
+    overflow: hidden;
 }
 .new_content_block_h h3{
-	padding-right: 220px;
+	/*padding-right: 220px;*/
 }
 .tren_cat_item_tab{
 	display: table;
@@ -6973,7 +7024,7 @@ textarea.journal_post_comm_in{
 	color: #33363f;
 	cursor: pointer;
 }
-.block_table .anketa_form_radio + label{
+.block_table .anketa_form_radio + label, .nutrition_block_table .anketa_form_radio + label{
     border-radius: unset;
     display: block;
     float: left;
@@ -6996,14 +7047,19 @@ textarea.journal_post_comm_in{
     flex: 1;
 }
 .block_table .anketa_form_radio:checked + label,
-.block_table .anketa_form_radio:checked + label.filled{
+.nutrition_block_table .anketa_form_radio:checked + label,
+.block_table .anketa_form_radio:checked + label.filled,
+.nutrition_block_table .anketa_form_radio:checked + label.filled{
     background-color: #88d5f3;
     color: inherit;
     border-color: #cccccc;
 }
-.block_table .anketa_form_radio + label:hover {background-color: #88d5f3;}
-.block_table .anketa_form_radio + label.filled {background-color: #e8faff;}
-.block_table .anketa_form_radio + label.filled:hover {background-color: #88d5f3;}
+.block_table .anketa_form_radio + label:hover,
+.nutrition_block_table .anketa_form_radio + label:hover {background-color: #88d5f3;}
+.block_table .anketa_form_radio + label.filled,
+.nutrition_block_table .anketa_form_radio + label.filled {background-color: #e8faff;}
+.block_table .anketa_form_radio + label.filled:hover,
+.nutrition_block_table .anketa_form_radio + label.filled:hover {background-color: #88d5f3;}
 .ir_active_video_checked{
     display: block;
     width: 80px;
@@ -8279,10 +8335,13 @@ textarea.anketa_form_in{
 .admin_cont{
     overflow: hidden;
     float: left;
+    width: calc(100% - 240px);
+    white-space: normal;
 }
 .admin_cont.f_right{
     float: right;
     text-align: center;
+    width: auto;
 }
 .admin_name{
     font-size: 16px;
@@ -8291,7 +8350,7 @@ textarea.anketa_form_in{
 .admin_name a{
     text-decoration: none;
     color: #00bff0;
-    padding-left: 3px;
+    /*padding-left: 3px;*/
 }
 .admin_name a span {
     color: #9a9a9a;
@@ -8299,13 +8358,17 @@ textarea.anketa_form_in{
     font-weight: 100;
 }
 .admin_set{
-    margin-top: 15px;
+    margin: 15px 10px 0 0;
     font-size: 14px;
     line-height: 16px;
+    float: left;
+}
+.admin_set:last-child{
+    margin-right: 0;
 }
 .admin_set a{
     color: #7f8c8c;
-    padding-left: 3px;
+    /*padding-left: 3px;*/
 }
 .admin_form_l{
     width: 180px;
@@ -8343,6 +8406,13 @@ textarea.anketa_form_in{
 .admin_form_foto img{
     display: block;
     width: 100%;
+}
+.admin_form_buts_wrap{
+    padding: 10px;
+    /*padding-right: 20px;*/
+    display: flex;
+    justify-content: center;
+    border-bottom: 1px solid #e5e5e5;
 }
 .admin_form_buts{
     position: absolute;
@@ -8437,7 +8507,7 @@ textarea.anketa_form_in{
     color: #595959;
 }
 .video_admin_form_block{
-    margin-right: 20px;
+    /*margin-right: 20px;*/
 }
 .video_admin_form_send{
     background: #2acaf2;
@@ -8599,8 +8669,9 @@ textarea.anketa_form_in{
     width: 100%;
 }
 .video_admin_form{
-    padding: 30px 100px;
+    padding: 30px; /*30px 100px*/
     max-width: 930px;
+    margin: 0 auto;
 }
 .video_down_line_h,
 .admin_form_file_line_h{
@@ -9038,7 +9109,8 @@ textarea.anketa_form_in{
     margin-bottom: 30px;
 }
 .practice_block .add_tov_val_item:last-child,
-.instruction_block .add_tov_val_item:last-child{
+.instruction_block .add_tov_val_item:last-child,
+.nutrition_block .add_tov_val_item:last-child{
     margin-bottom: 18px;
 }
 .del_tov{
@@ -9094,7 +9166,8 @@ textarea.anketa_form_in{
     width: 100%;
 }
 .practice_block .add_tov_val_item,
-.instruction_block .add_tov_val_item{
+.instruction_block .add_tov_val_item,
+.nutrition_block .add_tov_val_item{
     padding-top: 0;
 }
 .meal ~ .add_tov_val .add_tov_val_item{
@@ -9111,7 +9184,7 @@ textarea.anketa_form_in{
 .meal ~ .add_tov_val .kurs_block_h{
     text-align: right;
 }
-.practice_block_h{
+.practice_block_h, .nutrition_block_h{
     font-size: 13px;
     line-height: 15px;
     font-weight: bold;
@@ -9131,7 +9204,8 @@ textarea.anketa_form_in{
 }
 .practice_block .del_tov,
 .landing_admin_form .del_tov,
-.instruction_block .del_tov{
+.instruction_block .del_tov,
+.nutrition_block .del_tov{
     margin-left: 0;
 }
 .add_kurs_val_video{
@@ -9250,7 +9324,7 @@ input.tren_form_block_check{
 .form_video_list{
     display: none;
 }
-.practice_block, .instruction_block{
+.practice_block, .instruction_block, .nutrition_block{
     padding-top: 5px;
 }
 .lend_list .admin_video img{
@@ -10163,11 +10237,12 @@ input.tren_form_block_check{
 	}
 
 	.anketa_block_nav{
-		padding-right: 40px;
+		/*padding-right: 40px;*/
 	}
 	.anketa_block_nav li{
 		display: table-cell;
 		float: none;
+        flex: 2;
 	}
 	.anketa_block_nav span{
 		height: auto;
@@ -10815,6 +10890,7 @@ input.tren_form_block_check{
 	}
 }
 
+
 @media (max-width: 889px){
     .email_error{
         clear: both;
@@ -10824,6 +10900,15 @@ input.tren_form_block_check{
     }
 }
 
+
+@media (max-width: 800px){
+    .admin_form_buts_wrap{
+        justify-content: space-evenly;
+    }
+    .admin_form_buts_wrap input{
+        margin: 0 auto;
+    }
+}
 
 @media (max-width: 799px) and (min-width: 640px){
 	.tren_gal_col:nth-of-type(3n+1):hover .tren_gal_cont, .tren_gal_col:first-child:hover .tren_gal_cont{
@@ -11644,6 +11729,7 @@ input.tren_form_block_check{
     }
 }
 
+
 @media (max-width: 710px){
     .meal ~ .add_tov_val .kurs_block_h{
         text-align: center;
@@ -11661,6 +11747,17 @@ input.tren_form_block_check{
         position: relative;
         clear: both;
         width: 100%;
+    }
+}
+
+@media (max-width: 650px){
+    .admin_cont.f_right{
+        clear: both;
+        float: none;
+        padding-top: 10px;
+    }
+    .admin_cont{
+        width: calc(100% - 80px);
     }
 }
 
@@ -11704,12 +11801,13 @@ input.tren_form_block_check{
     .edit_kurs_form .practice_block .add_tov_val_cont,
     .add_kurs_form .practice_block .add_tov_val_cont,
     .landing_admin_form .add_tov_val_cont,
-    .instruction_block .add_tov_val_cont{
+    .instruction_block .add_tov_val_cont,
+    .nutrition_block .add_tov_val_cont{
         width: calc(100% - 28px);
         max-width: 302px;
         float: left;
     }
-    .edit_kurs_form .practice_block .add_tov_val_cont.meal_cont {
+    .nutrition_block .add_tov_val_cont.meal_cont {
         display: block;
         max-width: none;
         float: none;
@@ -11721,7 +11819,8 @@ input.tren_form_block_check{
     }
     .practice_block .del_tov,
     .landing_admin_form .del_tov,
-    .instruction_block .del_tov{
+    .instruction_block .del_tov,
+    .nutrition_block .del_tov{
         /*margin-top: 11px;
         margin-left: 15px;*/
     }
@@ -11948,12 +12047,13 @@ input.tren_form_block_check{
 		padding-right: 0;
 	}
 	.anketa_block_nav li{
-		display: block;
+		/*display: block;
 		border-right: none;
-		border-bottom: 1px solid #fff;
+		border-bottom: 1px solid #fff;*/
+        border-bottom: 1px solid #cccccc;
 	}
 	.anketa_block_nav li:last-child{
-		border-bottom: none;
+		/*border-bottom: none;*/
 	}
     .anketa_form_h_cell{
         display: block;
@@ -12658,11 +12758,11 @@ input.tren_form_block_check{
         line-height: 18px;
     }
     .admin_set{
-        font-size: 12px;
+        font-size: 11px; /*12px*/
         line-height: 14px;
     }
     .admin_cont{
-        margin-left: 85px;
+        /*margin-left: 85px;*/
     }
     .nav_ul li:nth-of-type(4),
     .nav_ul li:nth-of-type(5),
@@ -12680,9 +12780,9 @@ input.tren_form_block_check{
         width: calc(100% + 30px);
     }
     .new_content_block_h h3 {
-        padding-right: 163px;
+        /*padding-right: 163px;*/
     }
-    .add_tab_but{
+    /*.add_tab_but{
         font-size: 13px;
         line-height: 15px;
         color: #2acaf2;
@@ -12692,7 +12792,7 @@ input.tren_form_block_check{
         text-decoration: underline;
         right: 87px;
         top: 13px;
-    }
+    }*/
     .add_tab_but:hover{
         text-decoration: none;
     }
@@ -12798,23 +12898,7 @@ input.tren_form_block_check{
 	.subscription_block .blog_block_nav li{
 	    width: 50%;
 	}
-	.add_tab_but{
-		font-size: 13px;
-		line-height: 15px;
-		color: #2acaf2;
-		width: auto;
-		height: auto;
-		background: none;
-		text-decoration: underline;
-		right: 87px;
-		top: 13px;
-	}
-	.add_tab_but:hover{
-		text-decoration: none;
-	}
-	.new_content_block_h h3 {
-	    padding-right: 163px;
-	}
+
 	.tren_gal_col {
 	    width: 215px;
 	    min-height: 215px;
@@ -13380,6 +13464,10 @@ input.tren_form_block_check{
 
 }
 
+@media (max-width: 400px){
+    .admin_form_buts_wrap{padding: 10px 0;}
+}
+
 @media (max-width: 386px){
     .meal_wpfcc_title{
         visibility: hidden;
@@ -13401,8 +13489,12 @@ input.tren_form_block_check{
         min-width: unset;
     }
     .meal_wpfcc{max-width: 20%;}
-}
+    .admin_form_buts_wrap .video_admin_form_block,
+    .admin_form_buts_wrap .video_admin_form_send{
+        padding: 0 5px;
+    }
 
+}
 
 @media (max-width: 379px){
     .anketa_form .video_down_line_name{
@@ -13493,4 +13585,19 @@ input.tren_form_block_check{
         float: none;
     }
 
+}
+
+@media (max-width: 375px){
+    .admin_form_buts_wrap .video_admin_form_block,
+    .admin_form_buts_wrap .video_admin_form_send{
+        font-size: 12px;
+        min-width: 110px;
+    }
+}
+
+@media (max-width: 340px){
+    .admin_form_buts_wrap .video_admin_form_block,
+    .admin_form_buts_wrap .video_admin_form_send{
+        min-width: 100px;
+    }
 }

@@ -21,15 +21,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Наименование:</div>
-            <textarea name="name" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите наименование" required="required"><?php if (!empty($course['name'])) : echo $course['name']; endif;?></textarea>
+            <textarea name="name" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите наименование" r
+                      equired="required"><?php if (!empty($course['name'])) : echo $course['name']; endif;?></textarea>
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Описание:</div>
-            <textarea name="description" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите описание" required="required"><?php if (!empty($course['description'])) : echo $course['description']; endif;?></textarea>
+            <textarea name="description" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите описание"
+                      required="required"><?php if (!empty($course['description'])) : echo $course['description']; endif;?></textarea>
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Стоимость курса:</div>
-            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" id="course-price"/>
+            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса"
+                   value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" id="course-price"/>
             <div class="kurs_cur">Руб.</div>
         </div>
         <div class="content_block new_content_block ovv content_block_internal" style="max-width: 600px;">
@@ -85,7 +88,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         ?>
                         <div class="tren_form_block_check_wrap ingestion">
                             <input type="checkbox" name="cb_ingestions[<?php echo $ingestion['id']; ?>]" class="tren_form_block_check"
-                                   id="tren_form_block_check_ing<?php echo $key;?>" value="<?php echo $ingestion['id']; ?>" data-after="<?php echo $after; ?>" data-name="<?php echo $ingestion['name']; ?>"
+                                   id="tren_form_block_check_ing<?php echo $key;?>" value="<?php echo $ingestion['id']; ?>"
+                                   data-after="<?php echo $after; ?>" data-name="<?php echo $ingestion['name']; ?>"
                                    <?php if(!empty($course_ingestions_id) and in_array($ingestion['id'], $course_ingestions_id)): ?>checked="checked"<?php endif; ?>
                             >
                             <label for="tren_form_block_check_ing<?php echo $key;?>"><?php echo $ingestion['name']; ?></label>
@@ -122,20 +126,32 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Длительность курса:</div>
-            <input type="text" name="count_weeks" class="admin_form_txt nutr_time_in kurs_form_txt_short" placeholder="Введите длительность курса" value="<?php if (!empty($course['count_weeks'])) : echo $course['count_weeks']; endif;?>" />
+            <input type="text" name="count_weeks" class="admin_form_txt nutr_time_in kurs_form_txt_short"
+               placeholder="Введите длительность курса" value="<?php if (!empty($course['count_weeks'])) : echo $course['count_weeks']; endif;?>" />
             <div class="kurs_cur">(нед.)</div>
         </div>
 
         <div class="parent block_wrap">
-            <div class="practice_block_h">Меню:</div>
-            <div class="practice_block_table">
+            <div class="practice_block_h">Инструкция:</div>
+            <div class="h_subtitle" style="margin-bottom: 15px;">
+                <ul>
+                    <li>Выберите приемы пищи.</li>
+                    <li>Введите длительность курса.</li>
+                    <li>Выберите один день, что бы отобразить информацию и добавить/изменить блюда приемов пищи на текущий день.</li>
+                    <li>Выберите несколько дней, что бы отобразить пустые поля для добавления/изменения блюд приемов пищи выбранных дней. Новые блюда заменят добавленные до этого блюда.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="parent block_wrap">
+            <div class="nutrition_block_h">Меню:</div>
+            <div class="nutrition_block_table">
                 <?php include_once('./app_fold/views/course/nutritions/settings/course_length_item.php'); ?>
             </div>
         </div>
-        <div class="practice_block_wrap">
+        <div class="nutrition_block_wrap">
             <?php if(is_numeric($course['count_weeks'])):
                 for($day = 1; $day <= ($course['count_weeks']*7); $day++): ?>
-                    <div class="practice_block" id="practice<?php echo $day; ?>_block" data-id="<?php echo $day; ?>">
+                    <div class="nutrition_block" id="nutrition<?php echo $day; ?>_block" data-id="<?php echo $day; ?>">
                         <?php if(!empty($course_schedule) and !empty($course_ingestions)):
                             foreach($course_ingestions as $ci):
                                 $ing_id   = array_search($ci['id'], $ingestions_id);
@@ -144,7 +160,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="kurs_block_h"><?php echo $ing_name; ?></div>
                                     <div class="add_tov_in_total">
                                         <div class="add_tov_in meal">
-                                            <input type="text" name="name_meal[<?php echo $day; ?>]" data-day="<?php echo $day; ?>" data-ingestion="<?php echo $ci['id']; ?>" class="admin_form_txt" placeholder="Введите наименование блюда" autocomplete="off" />
+                                            <input type="text" name="name_meal[<?php echo $day; ?>]" data-day="<?php echo $day; ?>"
+                                                   data-ingestion="<?php echo $ci['id']; ?>" class="admin_form_txt" placeholder="Введите наименование блюда" autocomplete="off" />
                                             <div class="add_tov_list"></div>
                                         </div>
                                         <div class="add_tov_val">
@@ -161,7 +178,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                                                 <a href="/administration/meal/<?php echo $meal['id']; ?>" class="add_tov_val_cont meal_cont parent">
                                                                                     <div class="add_tov_val_h"><?php echo $meal['name']; ?></div>
                                                                                     <div class="add_tov_val_sh">
-                                                                                        <!--БЖУК - <?php /*echo $meal['proteins']; */?> <?php /*echo $meal['fats']; */?> <?php /*echo $meal['carbohydrates']; */?> --><?php /*echo $meal['calories']; */?>
                                                                                         <div class="meal_wpfcc_wrap">
                                                                                             <div class="meal_wpfcc">
                                                                                                 <div class="meal_wpfcc_title" short="В">Вес</div>
@@ -188,7 +204,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                                                 </a>
                                                                                 <div class="del_tov"></div>
                                                                             </div>
-                                                                            <input type="hidden" name="id_meal[<?php echo $day; ?>][<?php echo $ci['id']; ?>][]" value="<?php echo $meal['id']; ?>" id="id-meal-<?php echo $day; ?>-<?php echo $ci['id']; ?>-<?php echo $meal['id']; ?>"/>
+                                                                            <input type="hidden" name="id_meal[<?php echo $day; ?>][<?php echo $ci['id']; ?>][]" value="<?php echo $meal['id']; ?>"
+                                                                                   id="id-meal-<?php echo $day; ?>-<?php echo $ci['id']; ?>-<?php echo $meal['id']; ?>"/>
                                                                         </div>
                                                                     <?php endif;
                                                                 endforeach;
@@ -206,8 +223,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             unset($ci);
                         endif;?>
                     </div>
-                <?php endfor;
-            endif; ?>
+                <?php endfor;?>
+                <div class="nutrition_block multiple" id="nutrition_multiple_block" data-id="multiple">
+                    <?php if(!empty($course_schedule) and !empty($course_ingestions)):
+                        foreach($course_ingestions as $ci):
+                            $ing_id   = array_search($ci['id'], $ingestions_id);
+                            $ing_name = $ingestions[$ing_id]['name'];?>
+                            <div class="parent kurs_cur_wrap" id="crs-ingestion-multiple-<?php echo $ci['id']; ?>">
+                                <div class="kurs_block_h"><?php echo $ing_name; ?></div>
+                                <div class="add_tov_in_total">
+                                    <div class="add_tov_in meal">
+                                        <input type="text" name="name_meal[multiple]" data-day="multiple"
+                                               data-ingestion="<?php echo $ci['id']; ?>" class="admin_form_txt" placeholder="Введите наименование блюда" autocomplete="off" />
+                                        <div class="add_tov_list"></div>
+                                    </div>
+                                    <div class="add_tov_val"></div>
+                                </div>
+                            </div>
+                        <?php endforeach;
+                        unset($ci);
+                    endif;?>
+                </div>
+            <?php endif; ?>
         </div>
     </div>
 </div>

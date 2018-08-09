@@ -12,10 +12,10 @@ include_once('./app_fold/views/course/settings/course_video_menu.php');
                 <div class="admin_video"><img src="<?php echo $vd['poster']?>" alt=""></div>
                 <div class="admin_video_cont">
                     <div class="admin_name">
-                        <a href="/administration/course/<?php echo $course_id; ?>/video/<?php echo $vd['id']; ?>" class="admin_name"><?php echo $vd['name']; ?></a>
+                        <a href="/administration/course/<?php echo $course_id; ?>/video/<?php echo $vd['id']; ?>"><?php echo $vd['name']; ?></a>
                     </div>
                     <div class="admin_set">
-                        <a href="/administration/course/<?php echo $course_id; ?>/video/<?php echo $vd['id']; ?>" class="admin_set">Редактировать</a>
+                        <a href="/administration/course/<?php echo $course_id; ?>/video/<?php echo $vd['id']; ?>">Редактировать</a>
                     </div>
                 </div>
                 <?php if($video_menu == 'promo' or $video_menu == 'instructions'): ?>

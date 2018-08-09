@@ -15,11 +15,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             // Уведомления
             include_once('./app_fold/views/notification/user_profile_notifications.php');?>
             <div class="content_block new_content_block">
-                <div class="content_block_h parent">
-                    <h3><?php echo $title; ?></h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_h parent">
+                        <h3><?php echo $title; ?></h3>
                     </div>
                 </div>
                 <div class="kurs_block_val">

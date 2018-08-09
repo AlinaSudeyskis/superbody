@@ -1,4 +1,37 @@
 $(document).ready(function(){
+    $(function(){
+        var kursBlockValHeight = $('.kurs_block_val').height(),
+            fxTopCont = $('.content_block_container'),
+            fxTopContWrap = $('.content_block_container_wrap'),
+            parTopContWidth = fxTopContWrap.outerWidth(),
+            parTopContHeight = fxTopContWrap.outerHeight(),
+            fxButCont = $('.admin_form_buts_wrap'),
+            parButContWidth = $('.admin_form_buts_wrap_container').outerWidth(),
+            topPos = fxTopCont.offset().top;
+        $(window).scroll(function() {
+            var top = $(document).scrollTop();
+
+            if (top > topPos && kursBlockValHeight > 500)
+            {
+                fxTopCont.addClass('fixed');
+                fxTopCont.width(parTopContWidth);
+                fxTopContWrap.height(parTopContHeight);
+                if(fxButCont.length == 1)
+                {
+                    fxButCont.addClass('fixed');
+                    fxButCont.css({ top: parTopContHeight + 'px' });
+                    fxButCont.css({ width: parButContWidth + 'px' });
+                }
+            }
+            else
+            {
+                fxTopCont.removeClass('fixed');
+                if(fxButCont.length == 1) {
+                    fxButCont.removeClass('fixed');
+                }
+            }
+        });
+    });
 
     /* Выбор активного видео */
     $("input[name=ir_active_video]:radio").change(function(){
@@ -69,9 +102,64 @@ $(document).ready(function(){
 
             if(pr_bl_w.length == 1)
             {
-                var h_info = $('.h_subtitle');
                 pr_bl.hide();
-                if (pr_block.children(".practice_block:visible").length == 0)
+                pr_block.show();
+            }
+        }
+    });
+
+    // Формирование расписания питания
+    $(".nutrition_block_table").on('click', '.nutrition_day', function(){
+        event.preventDefault();
+        var pr_bl_w  = $('.nutrition_block_wrap'),
+            pr_bl    = $('.nutrition_block'),
+            pr_d     = $('.nutrition_day'),
+            pr_id    = $(this).attr('id').substr(8),
+            pr_block = $('#' + $(this).attr('id') + '_block'),
+            pr_d_act = $('.nutrition_day.active'),
+            ingestions = $(".ingestion");
+
+        if ($(this).hasClass("active"))
+        {
+            $(this).removeClass('active');
+            pr_d_act = $('.nutrition_day.active');
+            if(pr_bl_w.length == 1)
+            {
+                if(pr_d_act.length == 0)
+                {
+                    pr_bl.hide();
+                }
+                else if(pr_d_act.length == 1)
+                {
+                    pr_bl.hide();
+                    $('#' + pr_d_act.attr('id') + '_block').show();
+                }
+            }
+        }
+        else
+        {
+            //pr_d.removeClass("active");
+            $(this).addClass("active");
+            pr_d_act = $('.nutrition_day.active');
+
+            if(pr_bl_w.length == 1)
+            {
+                var h_info = pr_bl_w.children('.h_subtitle');
+                pr_bl.hide();
+                if(pr_d_act.length == 1)
+                {
+                    pr_block.show();
+                }
+                else if(pr_d_act.length > 1)
+                {
+                    var nut_bl_multi = $('.nutrition_block.multiple'),
+                        add_tov_val = nut_bl_multi.find('.add_tov_val');
+
+                    add_tov_val.empty();
+                    nut_bl_multi.show();
+                }
+
+                if (pr_bl_w.children(".nutrition_block:visible").length == 0)
                 {
                     if(h_info.length == 0)
                     {
@@ -86,9 +174,193 @@ $(document).ready(function(){
                 {
                     h_info.hide();
                 }
-                pr_block.show();
             }
         }
+    });
+    /* Формирование меню питания */
+    $(".nutr_time_in").on('keyup', function() {
+        var kurs_time_in = $(this).parents("form").find("input.nutr_time_in").val(),
+            kurs_length_in = 7,
+            kurs_length_out = $(this).parents("form").find(".nutrition_block").length,
+            active_practice_block = $('.nutrition_day.active').attr('id'),
+            video_list = $(".form_video_list").html(),
+            index = 'e', rez, html_table = '', html = '', option, num,
+            i = 1, tr_week = 1, tr_day = 1,
+            block_id, active_class = "",
+            ingestions = $(".ingestion");
+
+        if(kurs_time_in != 0 && kurs_length_in != 0)
+        {
+            rez = kurs_time_in * kurs_length_in;
+            while (tr_week <= kurs_time_in) {
+                html_table = html_table + '<div class="nutrition_weeks"><div class="nutrition_week"><span>Неделя</span> '+tr_week+'</div>' +
+                    '<div class="nutrition_days">';
+                tr_day = 1;
+                while(tr_day <= kurs_length_in){
+                    block_id = 'practice' + i;
+                    active_class = "";
+                    if (active_practice_block == block_id)
+                    {
+                        active_class = "active";
+                    }
+                    html_table = html_table + '<div class="nutrition_day '+active_class+'" id="nutrition'+i+'">Т '+tr_day+'</div>';
+                    tr_day++;
+                    i++;
+                }
+                html_table = html_table + '</div></div>';
+                tr_week++;
+            }
+            $(".nutrition_block_table").html(html_table);
+        }
+
+        if(kurs_time_in != 0 && kurs_length_in != 0 && kurs_length_out < 1){
+            rez = kurs_time_in * kurs_length_in;
+            i = 1;
+            html = '';
+            while (i < rez) {
+                html = html + '<div class="nutrition_block" id="nutrition'+i+'_block" data-id="'+i+'">';
+
+                ingestions.each(function(index, value){
+                    $(this).children("input:checkbox:checked").each(function(index2, value2)
+                    {
+                        html = html + '<div class="parent kurs_cur_wrap" id="crs-ingestion-'+i+'-'+$(this).val()+'">' +
+                            '<div class="kurs_block_h">' + $(this).next("label").html() + '</div>' +
+                            '<div class="add_tov_in_total">' +
+                            '<div class="add_tov_in meal">' +
+                            '<input type="text" name="name_meal['+i+']" data-day="'+i+'" data-ingestion="'+$(this).val()+'" class="admin_form_txt admin_form_txt_middle" placeholder="Введите наименование блюда">' +
+                            '<div class="add_tov_list">'+video_list+'</div>' +
+                            '</div>' +
+                            '<div class="add_tov_val"></div>' +
+                            '</div>' +
+                            '</div>';
+                    });
+                });
+
+                html = html + '</div>';
+                i++;
+            }
+            $(this).parents("form").find(".nutrition_block_wrap").html(html);
+            $(this).parents("form").find(".nutrition_block_wrap").find(".journal_form_select").styler();
+        }
+        else if(kurs_time_in != 0 && kurs_length_in != 0 && kurs_length_out >= 1){
+            rez = kurs_time_in * kurs_length_in - kurs_length_out;
+            //$(this).parents("form").find(".practice_block").show();
+            if(rez>0){
+                num = kurs_length_out + 1;
+                i = 0;
+                a = 1;
+                html = '';
+                while (i < rez) {
+
+                    html = html + '<div class="nutrition_block" id="nutrition'+num+'_block" data-id="'+i+'">';
+
+                    ingestions.each(function(index, value){
+                        $(this).children("input:checkbox:checked").each(function(index2, value2)
+                        {
+                            html = html + '<div class="parent kurs_cur_wrap" id="crs-ingestion-'+i+'-'+$(this).val()+'">' +
+                                '<div class="kurs_block_h">' + $(this).next("label").html() + '</div>' +
+                                '<div class="add_tov_in_total">' +
+                                '<div class="add_tov_in meal">' +
+                                '<input type="text" name="name_meal['+num+']" data-day="'+num+'" data-ingestion="'+$(this).val()+'" class="admin_form_txt admin_form_txt_middle" placeholder="Введите наименование блюда">' +
+                                '<div class="add_tov_list">'+video_list+'</div>' +
+                                '</div>' +
+                                '<div class="add_tov_val"></div>' +
+                                '</div>' +
+                                '</div>';
+                        });
+                    });
+
+                    html = html + '</div>';
+                    i++;
+                    num++;
+                }
+                $(this).parents("form").find(".nutrition_block_wrap").append(html);
+                $(this).parents("form").find(".nutrition_block_wrap").find(".journal_form_select").styler();
+                $('#' + active_practice_block + '_block').show();
+            }
+            else if(rez<0){
+                i = 0;
+                while (i > rez) {
+                    $(this).parents("form").find(".nutrition_block:nth-of-type("+(kurs_length_out + i)+")").hide();
+                    i--;
+                }
+            }
+        }
+        $('.nutrition_block_table').children('.h_subtitle').hide();
+    });
+    // Изменение кол-ва приемов пищи
+    $(".ingestion input:checkbox").on('click', function(){
+        var ing_after = $(this).data('after'),
+            ing_name = $(this).data("name"),
+            ing_cb = $(this),
+            ing_id = $(this).val(),
+            html = '';
+
+        $(".nutrition_block").each(function(i, v){
+            var pb = $(this),
+                pb_id = pb.data("id"),
+                bl_after = 'crs-ingestion-' + pb_id + '-' + ing_after,
+                ing_block = $('#crs-ingestion-' + pb_id + '-' + ing_id);
+
+            html = '<div class="parent kurs_cur_wrap" id="crs-ingestion-' + pb_id + '-' + ing_id + '">' +
+                '<div class="kurs_block_h">' + ing_name + '</div>' +
+                '<div class="add_tov_in_total">' +
+                '<div class="add_tov_in meal">' +
+                '<input type="text" name="name_meal['+pb_id+']" data-day="'+pb_id+'" data-ingestion="'+ing_id+'" class="admin_form_txt admin_form_txt_middle" placeholder="Введите наименование блюда">' +
+                '<div class="add_tov_list"></div>' +
+                '</div>' +
+                '<div class="add_tov_val"></div>' +
+                '</div>' +
+                '</div>';
+
+            if(ing_cb.is(':checked'))
+            {
+                if(ing_after == 'first')
+                {
+                    if(ing_block.length == 0)
+                    {
+                        pb.prepend(html);
+                    }
+                    else
+                    {
+                        ing_block.show();
+                    }
+                }
+                else if(ing_after == 'last')
+                {
+                    if(ing_block.length == 0)
+                    {
+                        pb.append(html);
+                    }
+                    else
+                    {
+                        ing_block.show();
+                    }
+                }
+                else
+                {
+                    pb.children(".kurs_cur_wrap").each(function(){
+                        if($(this).attr('id') == bl_after)
+                        {
+                            if(ing_block.length == 0)
+                            {
+                                $(this).after(html);
+                            }
+                            else
+                            {
+                                ing_block.show();
+                            }
+                        }
+                    });
+                }
+            }
+            else
+            {
+                ing_block.hide();
+            }
+        });
+
+        $('.nutrition_block_wrap').children('.h_subtitle').hide();
     });
 
     $(".landing_block_table").on('click', '.landing_blocks', function(){
@@ -358,20 +630,22 @@ $(document).ready(function(){
     });
 
     $(document).on('click', '.add_tren_item.meal', function () {
+        event.preventDefault();
         if(!$(this).hasClass("disable")){
-            var link = $(this).find(".add_tov_cont").attr("href"),
-                name = $(this).data('meal-name'),
-                number = $(this).data('meal-id'),
-                crs_day = $(this).data('day'),
-                crs_ingestion = $(this).data('ingestion'),
-                ml_type = $(this).data('ml-type'),
-                ml_name = $(this).data('ml-name'),
-                weight = $(this).data('weight'),
-                proteins = $(this).data('proteins'),
-                fats = $(this).data('fats'),
-                carbohydrates = $(this).data('carbohydrates'),
-                calories = $(this).data('calories'),
-                add_tov_val = $(this).parents(".add_tov_in_total").find('.add_tov_val'),
+            var this_meal = $(this),
+                link = this_meal.find(".add_tov_cont").attr("href"),
+                name = this_meal.data('meal-name'),
+                number = this_meal.data('meal-id'),
+                crs_day = this_meal.data('day'),
+                crs_ingestion = this_meal.data('ingestion'),
+                ml_type = this_meal.data('ml-type'),
+                ml_name = this_meal.data('ml-name'),
+                weight = this_meal.data('weight'),
+                proteins = this_meal.data('proteins'),
+                fats = this_meal.data('fats'),
+                carbohydrates = this_meal.data('carbohydrates'),
+                calories = this_meal.data('calories'),
+                add_tov_val = this_meal.parents(".add_tov_in_total").find('.add_tov_val'),
                 ml_type_block = add_tov_val.children('#ml-type-' + crs_day + '-' + crs_ingestion + '-' + ml_type),
                 ml_block_wrap = ml_type_block.children('.add_tov_val_item_wrap'),
                 ml_block = ml_block_wrap.find('#meal-' + crs_day + '-' + crs_ingestion + '-' + ml_type + '-' + number),
@@ -422,10 +696,118 @@ $(document).ready(function(){
             {
                 ml_block_wrap.append(ml_block_content);
             }
-            $(this).parents(".add_tov_list").hide();
-            $(this).parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');
-            $(this).addClass("disable");
+
+            var pr_d_act = $('.nutrition_day.active');
+            if(pr_d_act.length > 1)
+            {
+                pr_d_act.each(function(index, value){
+                    var pr_block = $('#' + value.id + '_block'),
+                        crs_day = pr_block.data('id'),
+                        add_tov_val = pr_block.children('#crs-ingestion-' + crs_day + '-' + crs_ingestion).find('.add_tov_val'),
+                        ml_type_block = add_tov_val.children('#ml-type-' + crs_day + '-' + crs_ingestion + '-' + ml_type),
+                        ml_block_wrap = ml_type_block.children('.add_tov_val_item_wrap'),
+                        ml_block = ml_block_wrap.find('#meal-' + crs_day + '-' + crs_ingestion + '-' + ml_type + '-' + number),
+                        ml_block_content = '<div id="meal-' + crs_day + '-' + crs_ingestion + '-' + ml_type + '-' + number + '" class="add_tov_val_item parent">' +
+                            '<div class="add_kurs_val_video_wrap parent">' +
+                            '<a href="/administration/meal/' + number + '" class="add_tov_val_cont meal_cont parent">' +
+                            '<div class="add_tov_val_h">' + name + '</div>' +
+                            '<div class="add_tov_val_sh">' +
+                            '   <div class="meal_wpfcc_wrap">' +
+                            '<div class="meal_wpfcc">' +
+                            '<div class="meal_wpfcc_title" short="В">Вес</div>' +
+                            '<div class="meal_wpfcc_val">' + weight + '</div>' +
+                            '</div>' +
+                            '<div class="meal_wpfcc">' +
+                            '<div class="meal_wpfcc_title" short="Б">Белки</div>' +
+                            '<div class="meal_wpfcc_val">' + proteins + '</div>' +
+                            '</div>' +
+                            '<div class="meal_wpfcc">' +
+                            '<div class="meal_wpfcc_title" short="Ж">Жиры</div>' +
+                            '<div class="meal_wpfcc_val">' + fats + '</div>' +
+                            '</div>' +
+                            '<div class="meal_wpfcc">' +
+                            '<div class="meal_wpfcc_title" short="У">Углеводы</div>' +
+                            '<div class="meal_wpfcc_val">' + carbohydrates + '</div>' +
+                            '</div>' +
+                            '<div class="meal_wpfcc">' +
+                            '<div class="meal_wpfcc_title" short="К">Калории</div>' +
+                            '<div class="meal_wpfcc_val">' + calories + '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</div>' +
+                            '</a>' +
+                            '<div class="del_tov"></div>' +
+                            '</div>' +
+                            '<input type="hidden" name="id_meal[' + crs_day + '][' + crs_ingestion + '][]" value="' + number + '" id="id-meal-' + crs_day + '-' + crs_ingestion + '-' + number + '"/>' +
+                            '</div>';
+
+                    if(ml_type_block.length == 0)
+                    {
+                        add_tov_val.append('<div id="ml-type-' + crs_day + '-' + crs_ingestion + '-' + ml_type + '">' +
+                            '<div class="kurs_block_h">' + ml_name + '</div>' +
+                            '<div class="add_tov_val_item_wrap"></div>' +
+                            '</div>');
+                        ml_type_block = add_tov_val.children('#ml-type-' + crs_day + '-' + crs_ingestion + '-' + ml_type);
+                        ml_block_wrap = ml_type_block.children('.add_tov_val_item_wrap');
+                    }
+                    if(ml_block.length == 0)
+                    {
+                        ml_block_wrap.append(ml_block_content);
+                    }
+                });
+            }
+
+            this_meal.parents(".add_tov_list").hide();
+            this_meal.parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');
+            this_meal.addClass("disable");
         }
         return false;
+    });
+
+
+    /* Добавление фото */
+    $(".add_new_foto_but").click(function() {
+        var num = $(this).parents(".add_foto_block_wrap").find(".video_down_line").length + 1;
+        if (num <= 7) {
+            $(this).parents(".add_foto_block_wrap").find(".add_foto_block")
+                .append('<div class="parent kurs_cur_wrap">' +
+                    '<div class="kurs_block_h">Изображение № ' + num + ':</div>' +
+                    '<div class="video_down_line parent">' +
+                    '<div class="video_down_line_but_wrap">' +
+                    '<label for="video_down_line_but' + num + 's" class="video_down_line_but">' +
+                    '<input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but' + num + 's" accept="image/jpeg,image/png" />' +
+                    '<span>Выберите файл</span>' +
+                    '</label>' +
+                    '</div>' +
+                    '<div class="video_down_line_name">Файл не выбран</div>' +
+                    '<div class="progressbar_wrap"><progress class="progressbar" id="progressbar1" value="50" max="100"></progress></div>' +
+                    '</div></div>');
+        }
+        if (num == 7) {
+            $(this).hide();
+        }
+    });
+
+    /* Добавление ингредиента */
+    $(".add_new_ingredient").click(function() {
+        var this_block = $(this).parents(".anketa_form_line");
+        this_block.before('<div class="anketa_form_line parent ingredients">' +
+            '<div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>' +
+            '<input type="text" name="i_ingredient_name[]" value="" placeholder="Наименование" class="anketa_form_in" maxlength="255" style="width:180px;"/>' +
+            '<input type="number" name="i_ingredient_weight[]" value="" placeholder="Вес" class="anketa_form_in in_tiny ingr_weight" maxlength="5" />' +
+            '<input type="number" name="i_ingredient_proteins[]" value="" placeholder="Белки" class="anketa_form_in in_tiny ingr_proteins" maxlength="5" />' +
+            '<input type="number" name="i_ingredient_fats[]" value="" placeholder="Жиры" class="anketa_form_in in_tiny ingr_fats" maxlength="5" />' +
+            '<input type="number" name="i_ingredient_carbohydrates[]" value="" placeholder="Углеводы" class="anketa_form_in in_tiny ingr_carbohydrates" maxlength="5" />' +
+            '<input type="number" name="i_ingredient_calories[]" value="" placeholder="Калории" class="anketa_form_in in_tiny ingr_calories" maxlength="5" />' +
+            '</div>');
+    });
+
+    /* Добавление видео блока */
+    $(".add_new_ml_videos_block").click(function() {
+        var this_block = $(this).parents(".anketa_form_line");
+        this_block.before('<div class="anketa_form_line parent ml_videos_block">' +
+            '<div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>' +
+            '<input name="ta_videos_block[]" class="anketa_form_in anketa_form_in_long" placeholder="URL видео" />' +
+            '</div>');
     });
 });

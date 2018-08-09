@@ -16,7 +16,8 @@ class Payment extends CI_Controller
     const CURRENCY = 'RUB';
     const PAYMENT_METHOD = 'bank_card';
     const SHOPID = 188363;
-    const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
+    const SHOP_SECRET = 'live_ant_14AylFl7dwPp3StFpDUJWBuqo9i0ijeyZm8A5dk';
+    //const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
     const SCID = 715012;
     const TEST_SCID = 561490;
 

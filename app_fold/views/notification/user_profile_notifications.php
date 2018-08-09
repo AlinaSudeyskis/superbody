@@ -19,6 +19,13 @@ if(!empty($user_notification['anthrop'])):
     $h3_info       = $user_notification['anthrop']['text'];
     include('notification_block.php');
 endif;
+// Уведомления вывода курсов в календаре
+if(!empty($display_courses)):
+    $notif_block_h = '<a href="/profile/courses">Мои курсы</a>';
+    $h3_info       = $display_courses['text'];
+    include('notification_block.php');
+endif;
+// Уведомления курсов
 if(!empty($course_notification)):
     $h3_info = '';
 

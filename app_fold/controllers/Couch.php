@@ -277,9 +277,10 @@ class Couch extends CI_Controller
      * АП. Форма редактирования и сохранение изменений настроек тренера
      *
      * @param $user_id
+     * @param $page_type
      * @return void
      */
-    public function couchSettings($user_id)
+    public function couchSettings($user_id, $page_type = 'settings')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
@@ -569,9 +570,10 @@ class Couch extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Редактирование данных тренера';
-        $this->page_data['page_menu']    = 'users';
-        $this->page_data['page_submenu'] = 'a_couches';
+        $this->page_data['title']         = 'АП - Редактирование данных тренера';
+        $this->page_data['page_menu']     = 'users';
+        $this->page_data['page_submenu']  = 'a_couches';
+        $this->page_data['page_2submenu'] = ($page_type == 'settings') ? 'settings' : 'personal_data';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

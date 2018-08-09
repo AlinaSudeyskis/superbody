@@ -6509,7 +6509,7 @@ class Course_model extends CI_Model
      */
     public function getUserCoursesNotifications($user_id, $date)
     {
-        $result = array('notifications' => array());
+        $result = array('notifications' => array(), 'display_workout' => true, 'display_nutrition' => true);
 
         // Замороженные курсы из-за не успешной оплаты
         $sel_courses = $this->db->query('
@@ -6723,6 +6723,62 @@ class Course_model extends CI_Model
         elseif($sel_courses3 === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Активные курсы тренировок, выбранные для вывода в календарь. Вывод уведомления, если нет выбранных курсов.
+        $sel_display_workouts = $this->db->query('
+            SELECT `uc_id`, `uc_display` FROM `users_courses`
+            LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
+            WHERE `uc_user_id`=? and `uc_blocked`=0 and (`uc_date_end`>=? or `uc_date_end`="0000-00-00") 
+              and `crs_category`="workout"',
+                array($user_id, $today));
+        if($sel_display_workouts !== false and 0 < $sel_display_workouts->num_rows())
+        {
+            foreach($sel_display_workouts->result() as $row)
+            {
+                if($row->uc_display == 1)
+                {
+                    $result['display_workout'] = false;
+                    break;
+                }
+            }
+            unset($row);
+        }
+        elseif($sel_display_workouts === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        else
+        {
+            $result['display_workout'] = false;
+        }
+
+        // Активные курсы питания, выбранные для вывода в календарь. Вывод уведомления, если нет выбранных курсов.
+        $sel_display_nutritions = $this->db->query('
+            SELECT `uc_id`, `uc_display` FROM `users_courses`
+            LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
+            WHERE `uc_user_id`=? and `uc_blocked`=0 and (`uc_date_end`>=? or `uc_date_end`="0000-00-00") 
+              and `crs_category`="nutrition"',
+                array($user_id, $today));
+        if($sel_display_nutritions !== false and 0 < $sel_display_nutritions->num_rows())
+        {
+            foreach($sel_display_workouts->result() as $row)
+            {
+                if($row->uc_display == 1)
+                {
+                    $result['display_nutrition'] = false;
+                    break;
+                }
+            }
+            unset($row);
+        }
+        elseif($sel_display_nutritions === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        else
+        {
+            $result['display_nutrition'] = false;
         }
 
         return $result;
@@ -9857,6 +9913,7 @@ class Course_model extends CI_Model
         if (!empty($row->clp_slider_images) and $row->clp_slider_images != 'default')
         {
             $s_images = explode(';', $row->clp_slider_images);
+            $result['slider_images_default'] = false;
         }
         elseif ($row->clp_slider_images == 'default')
         {

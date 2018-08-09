@@ -81,6 +81,7 @@ class User_model extends CI_Model
     {
         // Массив возвращаемых значений
         $result = array ( 'user_data' => array(
+            'user_id' => '',
             'user_email' => '',
             'user_name' => '',
             'user_country_code' => '',
@@ -100,8 +101,8 @@ class User_model extends CI_Model
         ));
 
         $sel_data = $this->db->query('
-            SELECT `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, `user_image`, `user_soc_image`,
-              `user_blocked`, `user_type`, `user_gender`, `user_birthday`
+            SELECT `users`.`user_id`, `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, 
+              `user_image`, `user_soc_image`, `user_blocked`, `user_type`, `user_gender`, `user_birthday`
             FROM `users` 
             LEFT JOIN `questionnaire`
               ON `questionnaire`.`user_id`=`users`.`user_id`

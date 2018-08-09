@@ -40,6 +40,7 @@ use YandexCheckout\Model\PaymentMethod\AbstractPaymentMethod;
  * @property string $status Текущее состояние платежа
  * @property RecipientInterface $recipient  Получатель платежа
  * @property AmountInterface $amount Сумма заказа
+ * @property string $description Описание транзакци
  * @property AbstractPaymentMethod $paymentMethod Способ проведения платежа
  * @property AbstractPaymentMethod $payment_method Способ проведения платежа
  * @property \DateTime $createdAt Время создания заказа
@@ -55,9 +56,13 @@ use YandexCheckout\Model\PaymentMethod\AbstractPaymentMethod;
  * @property string $receiptRegistration Состояние регистрации фискального чека
  * @property string $receipt_registration Состояние регистрации фискального чека
  * @property Metadata $metadata Метаданные платежа указанные мерчантом
+ * @property CancellationDetailsInterface $cancellationDetails Комментарий к отмене платежа
+ * @property CancellationDetailsInterface $cancellation_details Комментарий к отмене платежа
  */
 class Payment extends AbstractObject implements PaymentInterface
 {
+    const MAX_LENGTH_DESCRIPTION = 128;
+
     /**
      * @var string Идентификатор платежа
      */
@@ -77,6 +82,11 @@ class Payment extends AbstractObject implements PaymentInterface
      * @var AmountInterface
      */
     private $_amount;
+
+    /**
+     * @var string
+     */
+    private $_description;
 
     /**
      * @var AbstractPaymentMethod Способ проведения платежа
@@ -126,6 +136,14 @@ class Payment extends AbstractObject implements PaymentInterface
      * @since 1.0.2
      */
     private $_expiresAt;
+
+    /**
+     * Комментарий к статусу canceled: кто отменил платеж и по какой причине
+     * @var CancellationDetailsInterface
+     * @since 1.0.13
+     */
+    private $_cancellationDetails;
+
 
     /**
      * Возвращает идентификатор платежа
@@ -220,6 +238,41 @@ class Payment extends AbstractObject implements PaymentInterface
     public function setAmount(AmountInterface $value)
     {
         $this->_amount = $value;
+    }
+
+    /**
+     * Возвращает описание транзакции
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->_description;
+    }
+
+    /**
+     * Устанавливает описание транзакции
+     * @param string $value
+     *
+     * @throws InvalidPropertyValueException Выбрасывается если переданное значение превышает допустимую длину
+     * @throws InvalidPropertyValueTypeException Выбрасывается если переданное значение не является строкой
+     */
+    public function setDescription($value)
+    {
+        if ($value === null || $value === '') {
+            $this->_description = null;
+        } elseif (TypeCast::canCastToString($value)) {
+            $length = mb_strlen((string)$value, 'utf-8');
+            if ($length > self::MAX_LENGTH_DESCRIPTION) {
+                throw new InvalidPropertyValueException(
+                    'Invalid description value', 0, 'CreatePaymentRequest.description', $value
+                );
+            }
+            $this->_description = (string)$value;
+        } else {
+            throw new InvalidPropertyValueTypeException(
+                'Invalid description value type', 0, 'CreatePaymentRequest.description', $value
+            );
+        }
     }
 
     /**
@@ -456,5 +509,25 @@ class Payment extends AbstractObject implements PaymentInterface
         } else {
             throw new InvalidPropertyValueTypeException('Invalid expires_at value', 0, 'payment.expires_at', $value);
         }
+    }
+
+    /**
+     * Возвращает комментарий к статусу canceled: кто отменил платеж и по какой причине
+     * @return CancellationDetailsInterface|null Комментарий к статусу canceled
+     * @since 1.0.13
+     */
+    public function getCancellationDetails()
+    {
+        return $this->_cancellationDetails;
+    }
+
+
+    /**
+     * Устанавливает комментарий к статусу canceled: кто отменил платеж и по какой причине
+     * @param CancellationDetailsInterface $value Комментарий к статусу canceled
+     */
+    public function setCancellationDetails(CancellationDetailsInterface $value)
+    {
+        $this->_cancellationDetails = $value;
     }
 }

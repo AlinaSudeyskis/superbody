@@ -911,6 +911,30 @@ class Database_model extends CI_Model
     }
 
     /**
+     * Обновление базы данных август 2018
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseAugust2018($date)
+    {
+        $result = false;
+
+        $date = '2018-08-07 15:26:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (171, 'Выберите курс питания для отображения в календаре.', 'Выберите курс питания для отображения в календаре.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (172, 'Выберите курс тренировок для отображения в календаре.', 'Выберите курс тренировок для отображения в календаре.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (173, 'Выберите курс тренировок и питания для отображения в календаре.', 'Выберите курс тренировок и питания для отображения в календаре.', '4', '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
      * Поиск даты обновления в БД
      *
      * @param $date

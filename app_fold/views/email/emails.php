@@ -8,16 +8,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h new_content_block_h parent">
-                    <h3>Эл. письма</h3>
-                    <a href="/administration/emails/addresses/new" class="add_tab_but">Добавить эл. адрес</a>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Эл. письма</h3>
+                            <a href="/administration/emails/addresses/new" class="add_tab_but">Добавить эл. адрес</a>
+                        </div>
+                        <?php include_once('./app_fold/views/email/emails_menu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/email/emails_menu.php'); ?>
                     <div class="admin_list">
                         <?php if (!empty($emails)) :
                             foreach ($emails as $email) : ?>

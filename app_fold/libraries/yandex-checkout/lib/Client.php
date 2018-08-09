@@ -81,10 +81,12 @@ use YandexCheckout\Request\Refunds\RefundsResponse;
  */
 class Client
 {
+    const PAYMENTS_PATH = '/payments';
+    const REFUNDS_PATH = '/refunds';
     /**
      * Текущая версия библиотеки
      */
-    const SDK_VERSION = '1.0.3';
+    const SDK_VERSION = '1.0.16';
 
     /**
      * Имя HTTP заголовка, используемого для передачи idempotence key
@@ -153,8 +155,6 @@ class Client
      *
      * @param Client\ApiClientInterface|null $apiClient
      * @param ConfigurationLoaderInterface|null $configLoader
-     *
-     * @internal-param null|ConfigurationLoader $config
      */
     public function __construct(
         Client\ApiClientInterface $apiClient = null,
@@ -238,6 +238,14 @@ class Client
      * @param PaymentOptionsRequestInterface|array $paymentOptionsRequest
      *
      * @return PaymentOptionsResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
      */
     public function getPaymentOptions($paymentOptionsRequest = null)
     {
@@ -272,10 +280,18 @@ class Client
      * @param PaymentsRequestInterface|array|null $filter
      *
      * @return PaymentsResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
      */
     public function getPayments($filter = null)
     {
-        $path = '/payments';
+        $path = self::PAYMENTS_PATH;
 
         if ($filter === null) {
             $queryParams = array();
@@ -327,10 +343,19 @@ class Client
      * @param string $idempotencyKey {@link https://kassa.yandex.ru/docs/checkout-api/?php#idempotentnost}
      *
      * @return CreatePaymentResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
+     * @throws \Exception
      */
     public function createPayment($payment, $idempotencyKey = null)
     {
-        $path = '/payments';
+        $path = self::PAYMENTS_PATH;
 
         $headers = array();
 
@@ -368,6 +393,14 @@ class Client
      * @param string $paymentId
      *
      * @return PaymentInterface
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
      */
     public function getPaymentInfo($paymentId)
     {
@@ -379,7 +412,7 @@ class Client
             throw new \InvalidArgumentException('Invalid paymentId value');
         }
 
-        $path = '/payments/'.$paymentId;
+        $path = self::PAYMENTS_PATH.'/'.$paymentId;
 
         $response = $this->execute($path, HttpVerb::GET, null);
 
@@ -410,6 +443,15 @@ class Client
      * @param $idempotencyKey {@link https://kassa.yandex.ru/docs/checkout-api/?php#idempotentnost}
      *
      * @return CreateCaptureResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
+     * @throws \Exception
      */
     public function capturePayment($captureRequest, $paymentId, $idempotencyKey = null)
     {
@@ -463,6 +505,15 @@ class Client
      * @param $idempotencyKey {@link https://kassa.yandex.ru/docs/checkout-api/?php#idempotentnost}
      *
      * @return CancelResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
+     * @throws \Exception
      */
     public function cancelPayment($paymentId, $idempotencyKey = null)
     {
@@ -474,7 +525,7 @@ class Client
             throw new \InvalidArgumentException('Invalid paymentId value');
         }
 
-        $path    = '/payments/'.$paymentId.'/cancel';
+        $path    = self::PAYMENTS_PATH.'/'.$paymentId.'/cancel';
         $headers = array();
         if ($idempotencyKey) {
             $headers[self::IDEMPOTENCY_KEY_HEADER] = $idempotencyKey;
@@ -501,10 +552,18 @@ class Client
      * @param RefundsRequestInterface|array|null $filter
      *
      * @return RefundsResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
      */
     public function getRefunds($filter = null)
     {
-        $path = '/refunds';
+        $path = self::REFUNDS_PATH;
 
         if ($filter === null) {
             $queryParams = array();
@@ -540,10 +599,19 @@ class Client
      * @param null $idempotencyKey {@link https://kassa.yandex.ru/docs/checkout-api/?php#idempotentnost}
      *
      * @return CreateRefundResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
+     * @throws \Exception
      */
     public function createRefund($request, $idempotencyKey = null)
     {
-        $path = '/refunds';
+        $path = self::REFUNDS_PATH;
 
         $headers = array();
 
@@ -579,6 +647,14 @@ class Client
      * @param $refundId
      *
      * @return RefundResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
      */
     public function getRefundInfo($refundId)
     {
@@ -589,7 +665,7 @@ class Client
         } elseif (strlen($refundId) !== 36) {
             throw new \InvalidArgumentException('Invalid refundId value');
         }
-        $path = '/refunds/'.$refundId;
+        $path = self::REFUNDS_PATH.'/'.$refundId;
 
         $response = $this->execute($path, HttpVerb::GET, null);
 
@@ -759,6 +835,7 @@ class Client
      * @param array $headers
      *
      * @return ResponseObject
+     * @throws Common\Exceptions\AuthorizeException
      */
     private function execute($path, $method, $queryParams, $httpBody = null, $headers = array())
     {

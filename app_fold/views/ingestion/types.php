@@ -8,12 +8,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block">
-                <div class="content_block_h new_content_block_h parent">
-                    <h3>Тип приема пищи</h3>
-                    <a href="/administration/ingestion/type/new" class="add_tab_but">Добавить</a>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Тип приема пищи</h3>
+                            <a href="/administration/ingestion/type/new" class="add_tab_but">Добавить</a>
+                        </div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="admin_ava"></div>
                                     <div class="admin_cont">
                                         <div class="admin_name">
-                                            <a href="/administration/ingestion/type/<?php echo $type['id']?>" class="admin_name"><?php echo $type['name']?></a>
+                                            <a href="/administration/ingestion/type/<?php echo $type['id']?>"><?php echo $type['name']?></a>
                                         </div>
                                     </div>
                                 </div>

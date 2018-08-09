@@ -30,7 +30,9 @@ use YandexCheckout\Common\AbstractRequest;
 use YandexCheckout\Common\Exceptions\InvalidPropertyValueException;
 use YandexCheckout\Common\Exceptions\InvalidPropertyValueTypeException;
 use YandexCheckout\Helpers\TypeCast;
+use YandexCheckout\Model\AirlineInterface;
 use YandexCheckout\Model\AmountInterface;
+use YandexCheckout\Model\Payment;
 use YandexCheckout\Model\PaymentData\AbstractPaymentData;
 use YandexCheckout\Model\ConfirmationAttributes\AbstractConfirmationAttributes;
 use YandexCheckout\Model\Metadata;
@@ -45,6 +47,7 @@ use YandexCheckout\Model\RecipientInterface;
  *
  * @property RecipientInterface $recipient Получатель платежа, если задан
  * @property AmountInterface $amount Сумма создаваемого платежа
+ * @property string $description Описание транзакции
  * @property ReceiptInterface $receipt Данные фискального чека 54-ФЗ
  * @property string $paymentToken Одноразовый токен для проведения оплаты, сформированный Yandex.Checkout JS widget
  * @property string $payment_token Одноразовый токен для проведения оплаты, сформированный Yandex.Checkout JS widget
@@ -64,6 +67,8 @@ use YandexCheckout\Model\RecipientInterface;
  */
 class CreatePaymentRequest extends AbstractRequest implements CreatePaymentRequestInterface
 {
+    const MAX_LENGTH_PAYMENT_TOKEN = 10240;
+
     /**
      * @var RecipientInterface Получатель платежа
      */
@@ -73,6 +78,11 @@ class CreatePaymentRequest extends AbstractRequest implements CreatePaymentReque
      * @var AmountInterface Сумма платежа
      */
     private $_amount;
+
+    /**
+     * @var string Описание транзакции
+     */
+    private $_description;
 
     /**
      * @var Receipt Данные фискального чека 54-ФЗ
@@ -115,6 +125,11 @@ class CreatePaymentRequest extends AbstractRequest implements CreatePaymentReque
     private $_clientIp;
 
     /**
+     * @var AirlineInterface Объект с данными для продажи авиабилетов
+     */
+    private $_airline;
+
+    /**
      * @var Metadata Метаданные привязанные к платежу
      */
     private $_metadata;
@@ -153,6 +168,50 @@ class CreatePaymentRequest extends AbstractRequest implements CreatePaymentReque
     public function setAmount(AmountInterface $value)
     {
         $this->_amount = $value;
+    }
+
+    /**
+     * Возвращает описание транзакции
+     * @return string
+     */
+    public function getDescription()
+    {
+        return $this->_description;
+    }
+
+    /**
+     * Устанавливает описание транзакции
+     * @param string $value
+     *
+     * @throws InvalidPropertyValueException Выбрасывается если переданное значение превышает допустимую длину
+     * @throws InvalidPropertyValueTypeException Выбрасывается если переданное значение не является строкой
+     */
+    public function setDescription($value)
+    {
+        if ($value === null || $value === '') {
+            $this->_description = null;
+        } elseif (TypeCast::canCastToString($value)) {
+            $length = mb_strlen((string)$value, 'utf-8');
+            if ($length > Payment::MAX_LENGTH_DESCRIPTION) {
+                throw new InvalidPropertyValueException(
+                    'Invalid description value', 0, 'CreatePaymentRequest.description', $value
+                );
+            }
+            $this->_description = (string)$value;
+        } else {
+            throw new InvalidPropertyValueTypeException(
+                'Invalid description value type', 0, 'CreatePaymentRequest.description', $value
+            );
+        }
+    }
+
+    /**
+     * Проверяет наличие описания транзакции в создаваемом платеже
+     * @return bool True если описание транзакции есть, false если нет
+     */
+    public function hasDescription()
+    {
+        return $this->_description !== null;
     }
 
     /**
@@ -227,7 +286,7 @@ class CreatePaymentRequest extends AbstractRequest implements CreatePaymentReque
      * Устанавливает одноразовый токен для проведения оплаты, сформированный Yandex.Checkout JS widget
      * @param string $value Одноразовый токен для проведения оплаты
      *
-     * @throws InvalidPropertyValueException Выбрасывается если переданное значение длинее 200 символов
+     * @throws InvalidPropertyValueException Выбрасывается если переданное значение превышает допустимую длину
      * @throws InvalidPropertyValueTypeException Выбрасывается если переданное значение не является строкой
      */
     public function setPaymentToken($value)
@@ -236,7 +295,7 @@ class CreatePaymentRequest extends AbstractRequest implements CreatePaymentReque
             $this->_paymentToken = null;
         } elseif (TypeCast::canCastToString($value)) {
             $length = mb_strlen((string)$value, 'utf-8');
-            if ($length > 10240) {
+            if ($length > self::MAX_LENGTH_PAYMENT_TOKEN) {
                 throw new InvalidPropertyValueException(
                     'Invalid paymentToken value', 0, 'CreatePaymentRequest.paymentToken', $value
                 );
@@ -482,6 +541,32 @@ class CreatePaymentRequest extends AbstractRequest implements CreatePaymentReque
                 'Invalid clientIp value type in CreatePaymentRequest', 0, 'CreatePaymentRequest.clientIp', $value
             );
         }
+    }
+
+    /**
+     * @return AirlineInterface
+     */
+    public function getAirline()
+    {
+        return $this->_airline;
+    }
+
+
+    /**
+     * @param AirlineInterface $value
+     */
+    public function setAirline(AirlineInterface $value)
+    {
+        $this->_airline = $value;
+    }
+
+    /**
+     * Проверяет были ли установлены данные длинной записи
+     * @return bool
+     */
+    function hasAirline()
+    {
+        return $this->_airline !== null;
     }
 
     /**

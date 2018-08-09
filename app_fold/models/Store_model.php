@@ -14,7 +14,8 @@ use YandexCheckout\Client;
 class Store_model extends CI_Model
 {
     const SHOPID = 188363;
-    const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
+    const SHOP_SECRET = 'live_ant_14AylFl7dwPp3StFpDUJWBuqo9i0ijeyZm8A5dk';
+    //const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
     const SCID = 715012;
     const TEST_SCID = 561490;
 
@@ -3184,7 +3185,7 @@ class Store_model extends CI_Model
                             $expires_at, $captured_at, $method_id, $method_saved);
                     }*/
 
-                    if ($payment->_status == 'pending')
+                    if ($payment !== false and $payment->_status == 'pending')
                     {
                         $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
                     }
@@ -3249,14 +3250,19 @@ class Store_model extends CI_Model
      * Получение данных о платеже
      *
      * @param $payment_id
-     * @return \YandexCheckout\Model\PaymentInterface
+     * @return bool|\YandexCheckout\Model\PaymentInterface
      */
     public function getPaymentInfo($payment_id)
     {
-        $client = new Client();
-        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+        $payment = false;
 
-        $payment = $client->getPaymentInfo($payment_id);
+        if(!empty($payment_id))
+        {
+            $client = new Client();
+            $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+            $payment = $client->getPaymentInfo($payment_id);
+        }
 
         return $payment;
     }

@@ -993,7 +993,7 @@ class Course extends CI_Controller
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Добавление нового курса';
         $this->page_data['page_menu']    = 'a_courses_w';
-        $this->page_data['page_submenu'] = 'a_courses';
+        $this->page_data['page_submenu'] = 'a_courses_w';
         
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -1965,13 +1965,17 @@ class Course extends CI_Controller
 
             // Слайдер (max 7 images)
             $slider_images = '';
-            if ($this->input->post('cb_slider_block1', true)) {
+            if ($this->input->post('cb_slider_block1', true))
+            {
                 $slider_images = 'default';
             }
-            else {
+            else
+            {
                 $input_files = $_FILES;
                 $i = 0;
-                foreach ($input_files['slider_files']['name'] as $name) {
+                foreach ($input_files['slider_files']['name'] as $name)
+                {
+                    $slider_image = '';
 
                     $_FILES['slider_files'] = array(
                         'name' => $input_files['slider_files']['name'][$i],
@@ -1980,13 +1984,18 @@ class Course extends CI_Controller
                         'error' => $input_files['slider_files']['error'][$i],
                         'size' => $input_files['slider_files']['size'][$i]);
 
-                    if (!empty($_FILES['slider_files']) and is_uploaded_file($_FILES['slider_files']['tmp_name'])) {
+                    if (!empty($_FILES['slider_files']) and is_uploaded_file($_FILES['slider_files']['tmp_name']))
+                    {
                         $image = parent::uploadImage('slider_files', $_FILES['slider_files']['type'], $img_path);
                         $full_path_img = $img_path . $image;
-                        if (file_exists($full_path_img)) {
-                            if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                        if (file_exists($full_path_img))
+                        {
+                            if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                            {
                                 $slider_image = $full_path_img . ';';
-                            } else {
+                            }
+                            else
+                            {
                                 unlink($full_path_img);
                             }
                         }
@@ -8614,6 +8623,11 @@ class Course extends CI_Controller
         $search_text   = mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255);
         $crs_day       = is_numeric($this->input->post('crs_day', true)) ? $this->input->post('crs_day', true) : null;
         $crs_ingestion = is_numeric($this->input->post('crs_ingestion', true)) ? $this->input->post('crs_ingestion', true) : null;
+
+        if(empty($crs_day))
+        {
+            $crs_day = ($this->input->post('crs_day', true) == 'multiple') ? 'multiple' : null;
+        }
 
         if (!empty($search_text) and !empty($crs_day) and !empty($crs_ingestion))
         {

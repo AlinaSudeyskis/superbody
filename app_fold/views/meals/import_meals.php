@@ -8,27 +8,36 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h new_content_block_h parent">
-                    <h3>Курсы питания</h3>
-                    <?php include_once('./app_fold/views/meals/meals_buts.php'); ?>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Курсы питания</h3>
+                            <?php include_once('./app_fold/views/meals/meals_buts.php'); ?>
+                        </div>
+                        <?php include_once('./app_fold/views/course/nutritions/menu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/course/nutritions/menu.php'); ?>
                     <div class="anketa_block_cont">
                         <div class="anketa_block_item">
                             <div class="anketa_block_item_h">Импорт блюд</div>
                             <div class="anketa_block_item_cont">
                                 <form action="" class="anketa_form" method="post" enctype="multipart/form-data">
+                                    <div class="h_subtitle" style="margin-bottom: 15px;">
+                                        <ul>
+                                            <li>Формат файла - Книга Excel 97-2003 (*.xls).</li>
+                                            <li>Максимальное количество строк прочтенное с файла - 500.</li>
+                                            <li>Первая строка - шапка (не учитывается при чтении файла).</li>
+                                        </ul>
+                                    </div>
                                     <div class="anketa_form_line parent">
-                                        <div class="anketa_form_h"><div class="anketa_form_h_cell">Файл Excel (формат .xls):</div></div>
+                                        <div class="anketa_form_h"><div class="anketa_form_h_cell">Файл Excel:</div></div>
                                         <div class="video_down_line parent">
                                             <div class="video_down_line_but_wrap">
                                                 <label for="video_down_line_but2cs" class="video_down_line_but">
-                                                    <input type="file" name="xls" class="admin_form_videofile" id="video_down_line_but2cs" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/excel,application/vnd.ms-excel,application/x-excel,application/x-msexcel" required="required"/>
+                                                    <input type="file" name="xls" class="admin_form_videofile" id="video_down_line_but2cs"
+                                                       accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/excel,
+                                                        application/vnd.ms-excel,application/x-excel,application/x-msexcel" required="required"/>
                                                     <span>Выберите файл</span>
                                                 </label>
                                             </div>

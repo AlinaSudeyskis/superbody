@@ -8,11 +8,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h parent">
-                    <h3>Сообщения пользователей</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Сообщения пользователей</h3>
+                        </div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
@@ -31,7 +31,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <div class="full_photo_block_comm_txt"><?php echo $message['text']; ?></div>
 
                                             <div class="admin_set">
-                                                <a href="/administration/message/<?php echo $message['id']; ?>" class="admin_set">Настройки</a>
+                                                <a href="/administration/message/<?php echo $message['id']; ?>">Настройки</a>
                                             </div>
                                         </div>
                                     </div>

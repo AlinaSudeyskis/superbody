@@ -224,9 +224,10 @@ h3.landing span{
 
 .admin_cont.f_right .admin_name {
     font-size: 15px;
-}
-.admin_cont.f_right .admin_set {
     margin-top: 5px;
+}
+.admin_cont.f_right .admin_name:first-child {
+    margin-top: 0;
 }
 .admin_cont.f_right .video_admin_form_send {
      width: 100%;
@@ -454,10 +455,16 @@ span.mess_block_full_time {
     height: 22px;
 }
 
-.practice_block{display: none;}
-.practice_block_table, .block_table{display: block; overflow: hidden; padding: 0 0 20px;}
-.practice_block_table .practice_weeks, .block_table .practice_weeks{display: block; width:100%; height: 40px; overflow:hidden;}
-.practice_block_table .practice_weeks .practice_week, .block_table .practice_weeks .practice_week{
+.practice_block, .nutrition_block{display: none; max-width: 650px;}
+.practice_block_table, .block_table, .nutrition_block_table{display: block; overflow: hidden; padding: 0 0 20px;}
+.practice_block_table .practice_weeks, .block_table .practice_weeks, .nutrition_block_table .nutrition_weeks{
+    display: block;
+    width:100%;
+    height: 40px;
+    overflow:hidden;
+}
+.practice_block_table .practice_weeks .practice_week, .block_table .practice_weeks .practice_week,
+.nutrition_block_table .nutrition_weeks .nutrition_week{
     display: block;
     float: left;
     padding: 5px 10px;
@@ -473,9 +480,14 @@ span.mess_block_full_time {
     width: 95px;
     text-align: center;
 }
-.practice_block_table .practice_weeks:first-child .practice_week, .block_table .practice_weeks:first-child .practice_week {border-top: 1px solid #ccc;}
-.practice_week span{width: calc(100% - 10px);}
-.practice_block_table .practice_weeks .practice_days, .block_table .practice_weeks .practice_days{
+.practice_block_table .practice_weeks:first-child .practice_week,
+.block_table .practice_weeks:first-child .practice_week,
+.nutrition_block_table .nutrition_weeks:first-child .nutrition_week {
+    border-top: 1px solid #ccc;
+}
+.practice_week span, .nutrition_week span{width: calc(100% - 10px);}
+.practice_block_table .practice_weeks .practice_days, .block_table .practice_weeks .practice_days,
+.nutrition_block_table .nutrition_weeks .nutrition_days{
     display: block;
     width: calc(100% - 95px);
     height: 40px;
@@ -490,14 +502,14 @@ span.mess_block_full_time {
     flex-flow: row nowrap;
     margin: 0 auto;
 }
-.practice_block_table .practice_days .practice_day{
+.practice_block_table .practice_days .practice_day, .nutrition_block_table .nutrition_days .nutrition_day{
     display: block;
     float: left;
     height: 40px;
     line-height: 40px;
     text-align: center;
     font-size: 13px;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
     color: #000;
     text-decoration: none;
     border: 1px solid #ccc;
@@ -510,14 +522,23 @@ span.mess_block_full_time {
     -webkit-flex: 1;
     -ms-flex: 1;
     flex: 1;
+
+    position: relative;
 }
 .practice_block_table .practice_weeks:first-child .practice_days .practice_day,
-.block_table .practice_weeks:first-child .practice_days label{border-top: 1px solid #ccc;}
-.practice_block_table .practice_days .practice_day:hover {background-color: #88d5f3;}
-.practice_block_table .practice_days .practice_day.active {background-color: #88d5f3;}
-.practice_block_table .practice_days .practice_day.filled {background-color: #e8faff;}
-.practice_block_table .practice_days .practice_day.filled:hover {background-color: #88d5f3;}
-.practice_block_table .practice_days .practice_day.active.filled {background-color: #88d5f3;}
+.nutrition_block_table .nutrition_weeks:first-child .nutrition_days .nutrition_day,
+.block_table .practice_weeks:first-child .practice_days label,
+.nutrition_block_table .nutrition_weeks:first-child .nutrition_days label{border-top: 1px solid #ccc;}
+.practice_block_table .practice_days .practice_day:hover,
+.nutrition_block_table .nutrition_days .nutrition_day:hover {background-color: #88d5f3;}
+.practice_block_table .practice_days .practice_day.active,
+.nutrition_block_table .nutrition_days .nutrition_day.active {background-color: #88d5f3;}
+.practice_block_table .practice_days .practice_day.filled,
+.nutrition_block_table .nutrition_days .nutrition_day.filled {background-color: #e8faff;}
+.practice_block_table .practice_days .practice_day.filled:hover,
+.nutrition_block_table .nutrition_days .nutrition_day.filled:hover {background-color: #88d5f3;}
+.practice_block_table .practice_days .practice_day.active.filled,
+.nutrition_block_table .nutrition_days .nutrition_day.active.filled {background-color: #88d5f3;}
 
 .course_length{display: none;}
 
@@ -679,4 +700,36 @@ span.mess_block_full_time {
     font-weight: 300;
     color: #606060;
     padding: 15px 0;
+}
+
+@media (max-width: 710px){
+    .nutrition_block_table .nutrition_weeks:first-child .nutrition_days{
+        border-top: 1px solid #cccccc;
+    }
+    .nutrition_block_table .nutrition_weeks:first-child .nutrition_days .nutrition_day{
+        border-top: none;
+    }
+    .nutrition_block_table .nutrition_weeks .nutrition_days{
+        border-bottom: 1px solid #cccccc;
+    }
+    .nutrition_block_table .nutrition_days .nutrition_day{
+        visibility: hidden;
+    }
+    .nutrition_block_table .nutrition_days .nutrition_day:after{
+        content: attr(short);
+        visibility: visible;
+        height: calc(100% - 1px);
+        width: 100%;
+        line-height: 40px;
+        text-align: center;
+        font-size: 13px;
+        color: #000;
+        text-decoration: none;
+        border-right: 1px solid #ccc;
+        cursor: pointer;
+
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
 }

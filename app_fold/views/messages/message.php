@@ -8,14 +8,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h parent">
-                    <h3>Комментарии блога</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Сообщение пользователя</h3>
+                        </div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <form action="" method="post">
+                        <div class="admin_form_buts_wrap_container">
+                            <div class="admin_form_buts_wrap parent">
+                                <?php if ($message['blocked'] == 1) :?>
+                                    <input type="submit" name="bt_unblock_message" class="admin_form_block" value="Разблокировать"/>
+                                <?php else :?>
+                                    <input type="submit" name="bt_block_message" class="admin_form_block" value="Блокировать"/>
+                                <?php endif;?>
+                            </div>
+                        </div>
+                    </form>
                     <div class="admin_list">
                         <div class="full_photo_block_comm parent">
                             <div class="full_photo_block_comm_img">
@@ -27,13 +38,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="full_photo_block_comm_name"><?php echo $message['user']['name']; ?></div>
                                 <div class="full_photo_block_comm_txt"><?php echo $message['text']; ?></div>
                             </div>
-                            <form action="" method="post">
-                                <?php if ($message['blocked'] == 1) :?>
-                                    <input type="submit" name="bt_unblock_message" class="admin_form_block" value="Разблокировать"/>
-                                <?php else :?>
-                                    <input type="submit" name="bt_block_message" class="admin_form_block" value="Блокировать"/>
-                                <?php endif;?>
-                            </form>
                         </div>
                     </div>
                 </div>

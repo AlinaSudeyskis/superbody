@@ -8,25 +8,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block">
-                <div class="content_block_h parent">
-                    <h3>Редактировать уведомление</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Редактировать уведомление</h3>
+                        </div>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" class="video_admin_form" method="post">
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Исходное уведомление:</div>
-                            <div class="info"><?php echo $notification['name']; ?></div>
+                    <form action="" method="post">
+                        <div class="admin_form_buts_wrap_container">
+                            <div class="admin_form_buts_wrap parent">
+                                <input type="submit" name="bt_save_notification" value="Сохранить" class="video_admin_form_send" />
+                            </div>
                         </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Текст уведомления:</div>
-                            <textarea name="ta_description" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php echo $notification['text']; ?></textarea>
-                        </div>
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_notification" value="Сохранить" class="video_admin_form_send" />
+                        <div class="video_admin_form">
+                            <div class="parent kurs_cur_wrap">
+                                <div class="kurs_block_h">Исходное уведомление:</div>
+                                <div class="info"><?php echo $notification['name']; ?></div>
+                            </div>
+                            <div class="parent kurs_cur_wrap">
+                                <div class="kurs_block_h">Текст уведомления:</div>
+                                <textarea name="ta_description" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php echo $notification['text']; ?></textarea>
+                            </div>
                         </div>
                     </form>
                 </div>

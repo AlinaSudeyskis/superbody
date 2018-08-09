@@ -32,7 +32,7 @@ class PaymentMethodCardType extends AbstractEnum
 {
     const MASTER_CARD = 'MasterCard';
     const VISA = 'Visa';
-    const MIR = 'Mir';
+    const MIR = 'MIR';
     const UNION_PAY = 'UnionPay';
     const JCB = 'JCB';
     const AMERICAN_EXPRESS = 'AmericanExpress';

@@ -8,24 +8,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block">
-                <div class="content_block_h parent">
-                    <h3>Редактировать категорию товара</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Редактировать категорию товара</h3>
+                        </div>
+                        <?php include_once('./app_fold/views/store/product/product_submenu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/store/product/product_submenu.php'); ?>
-                    <form action="" class="video_admin_form" method="post">
-                        <?php include_once('./app_fold/views/store/category/settings_item.php'); ?>
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_category" value="Сохранить" class="video_admin_form_send" />
-                            <?php if ($category['blocked'] == 0) : ?>
-                                <input type="submit" name="bt_block_category" value="Заблокировать" class="admin_form_block"/>
-                            <?php else: ?>
-                                <input type="submit" name="bt_unblock_category" value="Разблокировать" class="admin_form_block"/>
-                            <?php endif;?>
+                    <form action="" method="post">
+                        <div class="admin_form_buts_wrap_container">
+                            <div class="admin_form_buts_wrap parent">
+                                <input type="submit" name="bt_save_category" value="Сохранить" class="video_admin_form_send" />
+                                <?php if ($category['blocked'] == 0) : ?>
+                                    <input type="submit" name="bt_block_category" value="Заблокировать" class="video_admin_form_block"/>
+                                <?php else: ?>
+                                    <input type="submit" name="bt_unblock_category" value="Разблокировать" class="video_admin_form_block"/>
+                                <?php endif;?>
+                            </div>
+                        </div>
+
+                        <div class="video_admin_form">
+                            <?php include_once('./app_fold/views/store/category/settings_item.php'); ?>
                         </div>
                     </form>
                 </div>

@@ -14,7 +14,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     endif;?>
                     <input type="checkbox" name="cb_practice_days[<?php echo $i; ?>]" class="anketa_form_radio" value="<?php echo $video['id']; ?>"
                            id="practice<?php echo $i; ?>" <?php if(!empty($course['workouts'][$i]['video_id']) and $video['id'] == $course['workouts'][$i]['video_id']): ?>checked="checked"<?php endif; ?>/>
-                    <label for="practice<?php echo $i; ?>" class="<?php echo $filled; ?>">Т <?php echo $tr_day; ?></label>
+                    <label for="practice<?php echo $i; ?>" class="practice_day <?php echo $filled; ?>" id="practice<?php /*echo $i; */?>">Т <?php echo $tr_day; ?></label>
                     <!--<div class="practice_day <?php /*echo $filled; */?>" id="practice<?php /*echo $i; */?>">Т <?php /*echo $tr_day; */?></div>-->
                     <?php $i++;
                 endfor;

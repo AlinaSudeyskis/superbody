@@ -869,7 +869,6 @@ class Store extends CI_Controller
         }
 
         $result = array_merge($order, $course_data);
-        log_message('debug', print_r($result, true));
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Заказ №' . $order_id;

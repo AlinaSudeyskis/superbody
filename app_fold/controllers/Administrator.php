@@ -260,9 +260,10 @@ class Administrator extends CI_Controller
      * Форма редактирования и сохранение изменений настроек администратора
      *
      * @param $user_id
+     * @param $page_type
      * @return void
      */
-    public function adminSettings($user_id)
+    public function adminSettings($user_id, $page_type = 'settings')
     {
         $user = $this->Administrator_model->getAdmin($user_id);
         if (!empty($user['user_data']))
@@ -499,9 +500,10 @@ class Administrator extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Редактирование данных администратора';
-        $this->page_data['page_menu']    = 'users';
-        $this->page_data['page_submenu'] = 'a_admins';
+        $this->page_data['title']         = 'АП - Редактирование данных администратора';
+        $this->page_data['page_menu']     = 'users';
+        $this->page_data['page_submenu']  = 'a_admins';
+        $this->page_data['page_2submenu'] = ($page_type ==  'settings') ? 'settings' : 'personal_data';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

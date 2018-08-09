@@ -19,11 +19,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block">
-                <div class="content_block_h parent">
-                    <h3>Редактирование страниц журнала</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Редактирование страниц журнала</h3>
+                        </div>
                     </div>
                 </div>
                 <div class="kurs_block_val">

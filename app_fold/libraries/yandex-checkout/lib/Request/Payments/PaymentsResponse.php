@@ -26,6 +26,7 @@
 
 namespace YandexCheckout\Request\Payments;
 
+use YandexCheckout\Model\CancellationDetails;
 use YandexCheckout\Model\Confirmation\ConfirmationRedirect;
 use YandexCheckout\Model\Confirmation\ConfirmationExternal;
 use YandexCheckout\Model\ConfirmationType;
@@ -69,6 +70,9 @@ class PaymentsResponse
                 $paymentInfo['amount']['value'],
                 $paymentInfo['amount']['currency']
             ));
+            if (!empty($paymentInfo['description'])) {
+                $payment->setDescription($paymentInfo['description']);
+            }
             $payment->setCreatedAt(strtotime($paymentInfo['created_at']));
             $payment->setPaymentMethod($this->factoryPaymentMethod($paymentInfo['payment_method']));
             $payment->setPaid($paymentInfo['paid']);
@@ -107,6 +111,11 @@ class PaymentsResponse
                     $metadata->offsetSet($key, $value);
                 }
                 $payment->setMetadata($metadata);
+            }
+            if (!empty($paymentInfo['cancellation_details'])) {
+                $payment->setCancellationDetails(new CancellationDetails(
+                    $paymentInfo['cancellation_details']['party'], $paymentInfo['cancellation_details']['reason']
+                ));
             }
             $this->items[] = $payment;
         }

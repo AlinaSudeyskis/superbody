@@ -8,15 +8,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
-                <div class="content_block_h new_content_block_h parent">
-                    <h3>Пользователи</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
+                <div class="content_block_container_wrap">
+                    <div class="content_block_container">
+                        <div class="content_block_h new_content_block_h parent">
+                            <h3>Пользователи</h3>
+                        </div>
+                        <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     <div class="admin_list">
                         <?php if (!empty($users)):
                             foreach ($users as $u): ?>
@@ -29,10 +29,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="admin_cont">
                                         <div class="admin_name">
                                             <?php $u_name = (!empty($u['user_name'])) ? $u['user_name'] : 'Пользователь №' . $u['user_id']; ?>
-                                            <a href="/profile/<?php echo $u['user_id']; ?>" class="admin_name"><?php echo $u_name; ?></a>
+                                            <a href="/profile/<?php echo $u['user_id']; ?>"><?php echo $u_name; ?></a>
                                         </div>
                                         <div class="admin_set">
-                                            <a href="/administration/user/<?php echo $u['user_id']; ?>" class="admin_set">Редактировать</a>
+                                            <a href="/administration/user/<?php echo $u['user_id']; ?>">Редактировать</a>
                                         </div>
                                     </div>
                                 </div>

@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                     <div class="admin_cont">
                         <div class="admin_name">
-                            <a href="/administration/video/course/<?php echo $course['id'];?>" class="admin_name"><?php echo $course['name'];?></a>
+                            <a href="/administration/video/course/<?php echo $course['id'];?>"><?php echo $course['name'];?></a>
                         </div>
                     </div>
                 </div>
