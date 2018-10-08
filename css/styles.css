@@ -702,6 +702,19 @@ span.mess_block_full_time {
     padding: 15px 0;
 }
 
+.remaining_characters {
+    position: absolute;
+    right: 0;
+    height: 35px;
+    line-height: 35px;
+    border-left: 1px solid #cccccc;
+    background-color: #f3f3f3;
+    width: 30px;
+    text-align: center;
+    font-size: 12px;
+    color: #a0a0a0;
+}
+
 @media (max-width: 710px){
     .nutrition_block_table .nutrition_weeks:first-child .nutrition_days{
         border-top: 1px solid #cccccc;

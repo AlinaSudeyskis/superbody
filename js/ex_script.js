@@ -1,37 +1,114 @@
 $(document).ready(function(){
-    $(function(){
-        var kursBlockValHeight = $('.kurs_block_val').height(),
-            fxTopCont = $('.content_block_container'),
-            fxTopContWrap = $('.content_block_container_wrap'),
-            parTopContWidth = fxTopContWrap.outerWidth(),
-            parTopContHeight = fxTopContWrap.outerHeight(),
-            fxButCont = $('.admin_form_buts_wrap'),
-            parButContWidth = $('.admin_form_buts_wrap_container').outerWidth(),
-            topPos = fxTopCont.offset().top;
-        $(window).scroll(function() {
-            var top = $(document).scrollTop();
+    if($('.kurs_block_val').length > 0 && $('.content_block_container').length > 0)
+    {
+        $(function(){
+            var kursBlockValHeight = $('.kurs_block_val').height(),
+                fxTopCont = $('.content_block_container'),
+                fxTopContWrap = $('.content_block_container_wrap'),
+                parTopContWidth = fxTopContWrap.outerWidth(),
+                parTopContHeight = fxTopContWrap.outerHeight(),
+                fxButCont = $('.admin_form_buts_wrap'),
+                parButContWidth = $('.admin_form_buts_wrap_container').outerWidth(),
+                topPos = fxTopCont.offset().top;
+            $(window).scroll(function() {
+                var top = $(document).scrollTop();
 
-            if (top > topPos && kursBlockValHeight > 500)
-            {
-                fxTopCont.addClass('fixed');
-                fxTopCont.width(parTopContWidth);
-                fxTopContWrap.height(parTopContHeight);
-                if(fxButCont.length == 1)
+                if (top > topPos && kursBlockValHeight > 500)
                 {
-                    fxButCont.addClass('fixed');
-                    fxButCont.css({ top: parTopContHeight + 'px' });
-                    fxButCont.css({ width: parButContWidth + 'px' });
+                    fxTopCont.addClass('fixed');
+                    fxTopCont.width(parTopContWidth);
+                    fxTopContWrap.height(parTopContHeight);
+                    if(fxButCont.length == 1)
+                    {
+                        fxButCont.addClass('fixed');
+                        fxButCont.css({ top: parTopContHeight + 'px' });
+                        fxButCont.css({ width: parButContWidth + 'px' });
+                    }
                 }
-            }
-            else
+                else
+                {
+                    fxTopCont.removeClass('fixed');
+                    if(fxButCont.length == 1) {
+                        fxButCont.removeClass('fixed');
+                    }
+                }
+            });
+        });
+    }
+
+    /* Добавление опции */
+
+    $(".add_new_options_but.add_form_advantage").click(function() {
+        $(this).parents(".lend_form_options_wrap").find(".lend_form_options")
+            .append('<input type="text" name="i_advantages_block6[]" class="admin_form_txt" value="" placeholder="Преимущество" />');
+    });
+
+    $(".add_new_options_but.add_form_plan").click(function() {
+        var num = $(this).parents(".lend_form_options_wrap").find(".lend_form_option").length + 1;
+
+        $(this).parents(".lend_form_options_wrap").find(".lend_form_options")
+            .append('<div class="lend_form_option">' +
+                '<div class="parent kurs_cur_wrap">' +
+                '<div class="kurs_block_h">' +
+                    'Изображение:' +
+                    '<div class="h_subtitle">(285х285)</div>' +
+                '</div>' +
+                '<div class="video_down_line parent">' +
+                '<div class="video_down_line_but_wrap">' +
+                '<label for="video_down_line_but'+num+'p" class="video_down_line_but">' +
+                '<input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but'+num+'p">' +
+                '<span>Выберите файл</span>' +
+                '</label>' +
+                '</div>' +
+                '<div class="video_down_line_name">Файл не выбран</div>' +
+                '<div class="progressbar_wrap"><progress class="progressbar" id="progressbar'+num+'p" value="50" max="100"></progress></div>' +
+                '</div></div>' +
+                '<div class="parent kurs_cur_wrap">' +
+                '<div class="kurs_block_h">Текст плана:</div>' +
+                '<input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" />' +
+                '</div>' +
+                '</div>');
+
+        if(num == 4)
+        {
+            $(".add_new_options_but.add_form_plan").hide();
+        }
+    });
+
+    if($('form.landing_admin_form').length == 1)
+    {
+        var input_text = $('input[type=text]');
+
+        input_text.each(function(){
+            if($(this).prop('name') != 'i_old_price_block8' && $(this).prop('name') != 'i_new_price_block8')
             {
-                fxTopCont.removeClass('fixed');
-                if(fxButCont.length == 1) {
-                    fxButCont.removeClass('fixed');
+                var i_this = $(this),
+                    max_length = i_this.attr('maxLength'),
+                    value_length = i_this.val().length,
+                    remaining_length = max_length - value_length;
+                if(max_length > 0 && remaining_length >= 0)
+                {
+                    i_this.after('<span class="remaining_characters">' + remaining_length + '</span>');
                 }
             }
         });
-    });
+
+        input_text.on('keyup', function(){
+            var i_this = $(this),
+                rmc_span = i_this.next('.remaining_characters');
+            if(rmc_span.length == 1)
+            {
+                var max_length = i_this.attr('maxLength'),
+                    value_length = i_this.val().length,
+                    remaining_length = max_length - value_length;
+                if(max_length > 0 && remaining_length >= 0)
+                {
+                    rmc_span.html(remaining_length);
+                }
+            }
+        });
+    }
+
 
     /* Выбор активного видео */
     $("input[name=ir_active_video]:radio").change(function(){

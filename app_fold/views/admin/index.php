@@ -25,6 +25,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             endforeach;
                             unset($table);
                         endif; ?>
+                        <?php if(!empty($table_info)):
+                            foreach($table_info as $t_i):
+                                print_r($t_i); echo '<br/>';
+                            endforeach;
+                            unset($table);
+                        endif; ?>
                         <?php if(!empty($update_result)):
                             echo $update_result;
                         endif; ?>

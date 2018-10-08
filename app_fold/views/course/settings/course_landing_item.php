@@ -3,12 +3,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="anketa_block_item">
     <div class="anketa_block_item_cont">
-        <div class="tren_form_block_check_wrap example">
-            ! Если не снять галочку
-            <input type="checkbox" name="cb_example" checked="checked" class="tren_form_block_check" id="cb_example" disabled/>
-            <label for="cb_example">По умолчанию</label>
-            , информация будет сохранена по умолчанию.
-        </div>
         <script>
             tinymce.init({
                 selector: "textarea.formatted_textarea",
@@ -20,18 +14,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             });
         </script>
         <form action="" class="edit_lend_form video_admin_form landing_admin_form" method="post" enctype="multipart/form-data">
-            <?php if (!empty($landings_list)) : ?>
-                <select name="s_land_type" class="journal_form_select">
-                    <option value="">Стиль</option>
-                    <?php foreach ($landings_list as $ls) :
-                        $default = $ls['id'] == 1 ? ' (по умолчанию)' : '';?>
-                        <option value="<?php echo $ls['id']; ?>"
-                            <?php if ($landing['lp_id'] == $ls['id']) : ?> selected="selected"<?php endif; ?>
-                        ><?php echo $ls['name'] . $default; ?></option>
-                    <?php endforeach;
-                    unset($ls);?>
-                </select>
-            <?php endif; ?>
+            <div class="tren_form_block_check_wrap example">
+                ! Если не снять галочку
+                <input type="checkbox" name="cb_example" checked="checked" class="tren_form_block_check" id="cb_example" disabled/>
+                <label for="cb_example">По умолчанию</label>
+                , информация будет сохранена по умолчанию.
+            </div>
             <div class="landing_block_table">
                 <?php for($i = 1; $i <= 8; $i++) :
                     $active = ($i == 1) ? 'active' : '';?>
@@ -44,6 +32,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="landing_block" id="l-block-1">
                     <h3 class="landing">Блок №1</h3>
                     <img src="/img/landing parts/1.PNG" alt="" class="land_template"/>
+                    <div class="parent kurs_cur_wrap" style="margin-top:18px;">
+                        <div class="kurs_block_h">Стиль страницы:</div>
+                        <?php if (!empty($landings_list)) : ?>
+                            <select name="s_land_type" class="journal_form_select">
+                                <option value="">Стиль</option>
+                                <?php foreach ($landings_list as $ls) :
+                                    $default = $ls['id'] == 1 ? ' (по умолчанию)' : '';?>
+                                    <option value="<?php echo $ls['id']; ?>"
+                                        <?php if ($landing['lp_id'] == $ls['id']) : ?> selected="selected"<?php endif; ?>
+                                    ><?php echo $ls['name'] . $default; ?></option>
+                                <?php endforeach;
+                                unset($ls);?>
+                            </select>
+                        <?php endif; ?>
+                    </div>
                     <div class="lend_form_h">Слайдер (максимум 7 изображений; 1920х600)</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_slider_block1"
@@ -365,11 +368,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php endif;?>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Заголовок:</div>
-                        <input type="text" name="i_result_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['r_title']; ?>" />
+                        <input type="text" name="i_result_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="11" value="<?php echo $landing['block4']['r_title']; ?>" />
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Описание:</div>
-                        <input type="text" name="i_result_desc_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['r_subtitle']; ?>" />
+                        <input type="text" name="i_result_desc_block4" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block4']['r_subtitle']; ?>" />
                     </div>
                     <div class="lend_form_h">Кнопка</div>
                     <div class="parent kurs_cur_wrap">
@@ -683,7 +686,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="kurs_block_h">Заголовок:</div>
                         <input type="text" name="i_title_block7" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block7']['title']; ?>" />
                     </div>
-                    <div class="lend_form_h">Изображения и текст (рекомендация: количество планов кратно 2; 285х285)</div>
+                    <div class="lend_form_h">Изображения и текст (рекомендация: кол-во планов кратно 2; максимальное кол-во планов 4)</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_images_block7"
                             <?php if ($landing['block7']['images_default'] === true) : ?> checked="checked" <?php endif ; ?>
@@ -692,14 +695,53 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                     <div class="lend_form_options_wrap">
                         <div class="lend_form_options">
-                            <?php if (!empty($landing['block7']['texts'])):
-                                foreach ($landing['block7']['texts'] as $key => $b7_text) :?>
+                            <?php $num_plan = 0;
+                            if (!empty($landing['block7']['texts'])):
+                                foreach ($landing['block7']['texts'] as $key => $b7_text) :
+                                    $num_plan = $key+1; ?>
+                                    <div class="lend_form_option">
+                                        <div class="parent kurs_cur_wrap">
+                                            <div class="kurs_block_h">
+                                                Изображение:
+                                                <div class="h_subtitle">(285х285)</div>
+                                            </div>
+                                            <div class="video_down_line parent">
+                                                <div class="video_down_line_but_wrap">
+                                                    <label for="video_down_line_but<?php echo $key+1;?>p" class="video_down_line_but">
+                                                        <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but<?php echo $key+1;?>p" accept="image/jpeg,image/png" />
+                                                        <span>Выберите файл</span>
+                                                    </label>
+                                                </div>
+                                                <div class="video_down_line_name">Файл не выбран</div>
+                                                <div class="progressbar_wrap">
+                                                    <progress class="progressbar" id="progressbar20p" value="50" max="100"></progress>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php if (($landing['block7']['images_default'] === false or $key > 3) and is_file($landing['block7']['images_orig'][$key])) :?>
+                                            <div class="parent kurs_cur_wrap">
+                                                <div class="kurs_block_h"></div>
+                                                <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
+                                            </div>
+                                        <?php endif;?>
+                                        <div class="parent kurs_cur_wrap">
+                                            <div class="kurs_block_h">Текст плана:</div>
+                                            <input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $b7_text;?>" maxlength="160"/>
+                                        </div>
+                                    </div>
+                                <?php endforeach;
+                                unset($b7_text);
+                            else: ?>
+                                <div class="lend_form_option">
                                     <div class="parent kurs_cur_wrap">
-                                        <div class="kurs_block_h">Изображение:</div>
+                                        <div class="kurs_block_h">
+                                            Изображение:
+                                            <div class="h_subtitle">(285х285)</div>
+                                        </div>
                                         <div class="video_down_line parent">
                                             <div class="video_down_line_but_wrap">
-                                                <label for="video_down_line_but<?php echo $key+1;?>p" class="video_down_line_but">
-                                                    <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but<?php echo $key+1;?>p" accept="image/jpeg,image/png" />
+                                                <label for="video_down_line_but1p" class="video_down_line_but">
+                                                    <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but1p" accept="image/jpeg,image/png" />
                                                     <span>Выберите файл</span>
                                                 </label>
                                             </div>
@@ -709,41 +751,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                         </div>
                                     </div>
-                                    <?php if (($landing['block7']['images_default'] === false or $key > 3) and is_file($landing['block7']['images_orig'][$key])) :?>
-                                        <div class="parent kurs_cur_wrap">
-                                            <div class="kurs_block_h"></div>
-                                            <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
-                                        </div>
-                                    <?php endif;?>
                                     <div class="parent kurs_cur_wrap">
                                         <div class="kurs_block_h">Текст плана:</div>
-                                        <input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $b7_text;?>" maxlength="160"/>
+                                        <input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" value=""/>
                                     </div>
-                                <?php endforeach;
-                                unset($b7_text);
-                            else: ?>
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Изображение:</div>
-                                    <div class="video_down_line parent">
-                                        <div class="video_down_line_but_wrap">
-                                            <label for="video_down_line_but1p" class="video_down_line_but">
-                                                <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but1p" accept="image/jpeg,image/png" />
-                                                <span>Выберите файл</span>
-                                            </label>
-                                        </div>
-                                        <div class="video_down_line_name">Файл не выбран</div>
-                                        <div class="progressbar_wrap">
-                                            <progress class="progressbar" id="progressbar20p" value="50" max="100"></progress>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Текст плана:</div>
-                                    <input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" value=""/>
                                 </div>
                             <?php endif;?>
                         </div>
-                        <div class="add_new_options_but add_form_plan">+ добавить план (изображение и текст)</div>
+                        <?php if($num_plan < 4): ?>
+                            <div class="add_new_options_but add_form_plan">+ добавить план (изображение и текст)</div>
+                        <?php endif; ?>
                     </div>
                     <div class="lend_form_h">Кнопка</div>
                     <div class="parent kurs_cur_wrap">

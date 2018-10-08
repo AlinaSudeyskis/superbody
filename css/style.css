@@ -8301,6 +8301,9 @@ textarea.anketa_form_in{
     max-width: 1130px;
     margin: 0 auto;
     padding: 30px 30px 0;
+
+    overflow: hidden;
+    word-wrap: break-word;
 }
 .admin_item{
     border-bottom: 1px solid #c1c1c1;
@@ -8969,6 +8972,7 @@ textarea.anketa_form_in{
     max-width: 330px;
     width: calc(100% - 270px);
 }
+.kurs_cur_wrap{position: relative;}
 .admin_form_txt_dop_wrap input,
 .kurs_cur_wrap input{
     float: left;

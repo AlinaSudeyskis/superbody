@@ -1459,10 +1459,10 @@ class Course extends CI_Controller
                     }
                 }
             }
-            if (empty($slider_images)) {
+            if (empty($slider_images))
+            {
                 $slider_images = (!empty($landing['slider_images']) and $landing['slider_images'] != 'default')
-                    ? implode(";", array_walk($landing['slider_images'], 'add_dot'))
-                    : 'default';
+                    ? $landing['full_slider_images'] : 'default';
             }
 
             // Заголовк страницы
@@ -2010,10 +2010,10 @@ class Course extends CI_Controller
                     }
                 }
             }
-            if (empty($slider_images)) {
+            if (empty($slider_images))
+            {
                 $slider_images = (!empty($landing['slider_images']) and $landing['slider_images'] != 'default')
-                    ? implode(";", array_walk($landing['slider_images'], 'add_dot'))
-                    : 'default';
+                    ? $landing['full_slider_images'] : 'default';
             }
 
             // Заголовк страницы
@@ -2661,17 +2661,6 @@ class Course extends CI_Controller
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
-    }
-
-    /**
-     * Функция добавления к началу пути файла точки
-     *
-     * @param string $item Элемент массива
-     * @param string $key Ключ элеменита массива
-     */
-    function add_dot(&$item, $key)
-    {
-        $item = '.' . $item;
     }
 
     /**
@@ -3913,10 +3902,10 @@ class Course extends CI_Controller
                     }
                 }
             }
-            if (empty($slider_images)) {
+            if (empty($slider_images))
+            {
                 $slider_images = (!empty($landing['slider_images']) and $landing['slider_images'] != 'default')
-                    ? implode(";", array_walk($landing['slider_images'], 'add_dot'))
-                    : 'default';
+                    ? $landing['full_slider_images'] : 'default';
             }
 
             // Заголовк страницы
@@ -4455,10 +4444,10 @@ class Course extends CI_Controller
                     }
                 }
             }
-            if (empty($slider_images)) {
+            if (empty($slider_images))
+            {
                 $slider_images = (!empty($landing['slider_images']) and $landing['slider_images'] != 'default')
-                    ? implode(";", array_walk($landing['slider_images'], 'add_dot'))
-                    : 'default';
+                    ? $landing['full_slider_images'] : 'default';
             }
 
             // Заголовк страницы

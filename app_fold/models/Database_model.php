@@ -931,6 +931,42 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2018-08-24 8:26:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `notification_tokens` ( 
+                `nt_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `nt_token` VARCHAR(255) NOT NULL , 
+                `nt_u_id` INT UNSIGNED NOT NULL , 
+                `nt_date` DATETIME NOT NULL , 
+                PRIMARY KEY (`nt_id`), INDEX `ix_nt_u_id` (`nt_u_id`)) ENGINE = MyISAM;");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных октябрь 2018
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseOctober2018($date)
+    {
+        $result = false;
+
+        $date = '2018-10-05 13:44:45';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` CHANGE `clp_block6_advantages` `clp_block6_advantages` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
@@ -975,6 +1011,29 @@ class Database_model extends CI_Model
         elseif($ins_data !== false and 1 == $this->db->affected_rows())
         {
             $result = true;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка структуры таблицы
+     *
+     * @param $table
+     * @return bool|array
+     */
+    public function showDataTable($table)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `nt_id`, `nt_token`, `nt_u_id`, `nt_date` FROM `'.$table.'`');
+        if($sel_data !== false)
+        {
+            $result = $sel_data->result();
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;

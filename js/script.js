@@ -224,38 +224,6 @@ $(document).ready(function() {
 
 	/* Добавление опции */
 
-    $(".add_new_options_but.add_form_advantage").click(function() {
-        $(this).parents(".lend_form_options_wrap").find(".lend_form_options")
-            .append('<input type="text" name="i_advantages_block6[]" class="admin_form_txt" value="" placeholder="Преимущество" />');
-    });
-
-    $(".add_new_options_but.add_form_plan").click(function() {
-        var val = $(this).parents(".new_form_option_wrap").find(".new_form_option").val(),
-            num = $(this).parents(".lend_form_options_wrap").find(".add_foto_block_wrap").length + 1;
-
-        if(val != ''){
-            $(this).parents(".lend_form_options_wrap").find(".lend_form_options")
-                .append('<div class="parent kurs_cur_wrap">' +
-                    '<div class="kurs_block_h">Изображение:</div>' +
-                    '<div class="video_down_line parent">' +
-                        '<div class="video_down_line_but_wrap">' +
-                            '<label for="video_down_line_but'+num+'p" class="video_down_line_but">' +
-                                '<input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but'+num+'p">' +
-                                '<span>Выберите файл</span>' +
-                            '</label>' +
-                        '</div>' +
-                        '<div class="video_down_line_name">Файл не выбран</div>' +
-                        '<div class="progressbar_wrap"><progress class="progressbar" id="progressbar'+num+'p" value="50" max="100"></progress></div>' +
-                    '</div></div>' +
-                    '<div class="parent kurs_cur_wrap">' +
-                        '<div class="kurs_block_h">Текст плана:</div>' +
-                        '<input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" />' +
-                    '</div>');
-            $(this).parents(".new_form_option_wrap").find(".new_form_option").val('');
-            $(this).parents(".new_form_option_wrap").hide();
-        }
-    });
-
     $(".add_new_options_but").click(function() {
         $(this).parents(".lend_form_options_wrap").find(".new_form_option_wrap").show();
     });
@@ -606,9 +574,10 @@ $(document).ready(function() {
 function pop_up_def(popup) {
   var shadow = $("#shadow");
   popup.css({marginLeft:-popup.width()/2-15,marginTop:-popup.height()/2-15}).fadeIn(600); /*+$(window).scrollTop()*/
-  $("#shadow, .close_video").fadeTo(600,0.8).click(function() {
+  $("#shadow, #shadow2, .close_video").fadeTo(600,0.8).click(function() {
     shadow.fadeOut(600);
     popup.fadeOut(600);
+    playerTwoPlayer.destroy();
     //enableScroll();
   });
   //disableScroll();
@@ -619,13 +588,15 @@ function pop_up_home(popup) {
   $("#shadow2, .home_pop-up_close").fadeTo(600,0.8).click(function() {
     shadow.fadeOut(600);
     popup.fadeOut(600);
+      playerTwoPlayer.destroy();
     //enableScroll();
   });
-    $("#shadow2, .close_meal").fadeTo(600,0.8).click(function() {
-        shadow.fadeOut(600);
-        popup.fadeOut(600);
-        //enableScroll();
-    });
+  $("#shadow2, .close_meal").fadeTo(600,0.8).click(function() {
+      shadow.fadeOut(600);
+      popup.fadeOut(600);
+      playerTwoPlayer.destroy();
+      //enableScroll();
+  });
   //disableScroll();
 }
 

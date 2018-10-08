@@ -3286,7 +3286,7 @@ class Course_model extends CI_Model
     public function getCourseLandingPage($course_id)
     {
         $result = array(
-            'landing' => array('html_page' => '', 'lp_id' => '', 'bg' => '', 'slider_images' => array(), 'main_title' => '', 'slider_images_default' => true,
+            'landing' => array('html_page' => '', 'lp_id' => '', 'bg' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
                 'block2' => array('bg' => '', 'bg_orig' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
                 'block3' => array('bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
                 'block4' => array('bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
@@ -9882,7 +9882,7 @@ class Course_model extends CI_Model
     protected function parseLandingData($row)
     {
         $result = array(
-            'html_page' => '', 'lp_id' => '', 'bg' => '', 'slider_images' => array(), 'main_title' => '', 'slider_images_default' => true,
+            'html_page' => '', 'lp_id' => '', 'bg' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
             'block2' => array('bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
             'block3' => array('bg' => '', 'title' => '', 'subtitle' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
             'block4' => array('bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
@@ -9914,6 +9914,7 @@ class Course_model extends CI_Model
         {
             $s_images = explode(';', $row->clp_slider_images);
             $result['slider_images_default'] = false;
+            $result['full_slider_images']    = $row->clp_slider_images;
         }
         elseif ($row->clp_slider_images == 'default')
         {

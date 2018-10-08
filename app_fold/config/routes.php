@@ -124,9 +124,10 @@ $route['messages/feedback'] = 'Message/userConversation/feedback';
 
 // Админ. панель
 $route['administration'] = 'Administrator/index';
-$route['administration/update/database']   = 'Database/updateDatabase';
-$route['administration/show/table/(:any)'] = 'Database/showTable/$1';
-$route['administration/show/tables']       = 'Database/showTables';
+$route['administration/update/database']        = 'Database/updateDatabase';
+$route['administration/show/table/(:any)']      = 'Database/showTable/$1';
+$route['administration/show/tables']            = 'Database/showTables';
+$route['administration/show/data/table/(:any)'] = 'Database/showDataTable/$1';
 // Администраторы
 $route['administration/admins']                = 'Administrator/admins';
 $route['administration/admin/new']             = 'Administrator/newAdmin';
@@ -258,14 +259,16 @@ $route['administration/site/(header|banner|about|contacts|auth|spec)'] = 'Admini
 $route['administration/site/banner/new']    = 'Administrator/newBanner';
 $route['administration/site/banner/(:num)'] = 'Administrator/siteBanner/$1';
 // Уведомления и письма
-$route['administration/notifications']        = 'Notification/notifications';
-$route['administration/notification/(:num)']  = 'Notification/notification/$1';
-$route['administration/emails']               = 'Notification/emails';
-$route['administration/emails/addresses']     = 'Notification/emailsAddresses';
-$route['administration/emails/addresses/new'] = 'Notification/newEmailAddress';
-$route['administration/email/address/(:num)'] = 'Notification/emailAddress/$1';
-$route['administration/email/(:num)']         = 'Notification/email/$1';
+$route['administration/notifications']          = 'Notification/notifications';
+$route['administration/notification/(:num)']    = 'Notification/notification/$1';
+$route['administration/emails']                 = 'Notification/emails';
+$route['administration/emails/addresses']       = 'Notification/emailsAddresses';
+$route['administration/emails/addresses/new']   = 'Notification/newEmailAddress';
+$route['administration/email/address/(:num)']   = 'Notification/emailAddress/$1';
+$route['administration/email/(:num)']           = 'Notification/email/$1';
 $route['administration/email_sample(/(:num))?'] = 'Notification/emailSample/$2';
+$route['sendTokenToServer']                     = 'Notification/setToken';
+$route['testBrowserNotifications']              = 'Notification/sendBrowserNotifications';
 // Журнал
 //$route['administration/journal']     = 'Journal/journalList';
 //$route['administration/journal/new']    = 'Journal/journalNew';
