@@ -507,7 +507,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block5']['images_default'][2] === false and is_file($landing['block5']['images_orig'][2])) :?>
-                        <img src="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>" alt=""/>
+                        <img src="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>" alt="" style="width:120px;"/>
                     <?php endif;?>
                     <div class="lend_form_h">Слова тренера о программе</div>
                     <div class="parent kurs_cur_wrap">

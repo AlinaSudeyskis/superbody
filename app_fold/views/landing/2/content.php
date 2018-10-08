@@ -102,7 +102,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
             <?php if (!empty($landing['block5']['button'])):?>
-                <a href="#" class="lp_block4_but"><?php echo $landing['block5']['button']; ?></a>
+                <a href="#" class="lp_block_but lp_block4_but"><?php echo $landing['block5']['button']; ?></a>
             <?php endif;?>
         </div>
         <div class="lp_block4_img">
@@ -117,7 +117,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="lp_block5 container">
         <h2 class="lp_block5_h"><?php echo $landing['block6']['title']; ?></h2>
         <div class="lp_block5_cont parent">
-            <div class="lp_block5_img"><img src="/img/lp_img8.png" alt=""></div>
+            <div class="lp_block5_img"><img src="<?php echo $landing['block6']['image']; ?>" alt=""></div>
             <div class="lp_block5_info">
                 <div class="lp_block5_desk"><?php echo $landing['block6']['desc']; ?></div>
                 <div class="lp_block5_line"><?php echo $landing['block6']['subtitle']; ?></div>

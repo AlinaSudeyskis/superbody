@@ -7740,7 +7740,7 @@ textarea.anketa_form_in{
     height: 50px;
 }
 .lp_block4_but{
-    display: block;
+    /*display: block;
     width: 280px;
     height: 50px;
     text-align: center;
@@ -7753,8 +7753,8 @@ textarea.anketa_form_in{
     text-decoration: none;
     -webkit-box-shadow: 0 3px 5px rgba(0,0,0,.3);
     box-shadow: 0 3px 5px rgba(0,0,0,.3);
+    padding: 2px 0 4px;*/
     margin: 0 auto;
-    padding: 2px 0 4px;
 }
 .lp_block4_but span{
     display: block;
@@ -9706,10 +9706,10 @@ input.tren_form_block_check{
 		font-size: 14px;
 	}
 
-    .sing-in_bg > img{
+    /*.sing-in_bg > img{
         width: 1660px;
         margin-left: -830px;
-    }
+    }*/
     .sing-in{
         top: 25px; /*125*/
     }
