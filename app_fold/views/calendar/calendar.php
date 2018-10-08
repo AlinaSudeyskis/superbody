@@ -98,10 +98,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         });
                                     }
                                     var options = {
-                                        width: 640,
-                                        loop: true
-                                    };
-                                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+                                            width: 640,
+                                            loop: false
+                                        },
+                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
 
                                     if ($('#vimeo-player-1').length == 1)
                                     {
@@ -119,6 +119,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         }
                                         playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
                                     }
+
+                                    playerTwoPlayer.ready().then(function() {
+                                        console.log('Ready');
+
+                                        playerTwoPlayer.on('play', function(data){
+                                            console.log('Play ' + data);
+
+                                            playerTwoPlayer.getCurrentTime().then(function(seconds) {
+                                                console.log('Current time (seconds): ' + seconds);
+                                            }).catch(function(error) {
+                                                console.log('Current time error: ' + error);
+                                            });
+
+                                        });
+                                        playerTwoPlayer.on('pause', function(data){
+                                            console.log('Pause ' + data);
+                                        });
+                                        playerTwoPlayer.on('ended', function(data){
+                                            console.log('Video ended ' + data);
+                                        });
+
+                                        playerTwoPlayer.setCurrentTime(15.456).then(function(seconds) {
+                                            // seconds = the actual time that the player seeked to
+                                            console.log('Current time (seconds): ' + seconds);
+                                        }).catch(function(error) {
+                                            switch (error.name) {
+                                                case 'RangeError':
+                                                    // the time was less than 0 or greater than the video’s duration
+                                                    break;
+
+                                                default:
+                                                    // some other error occurred
+                                                    break;
+                                            }
+                                        });
+                                    });
+
                                 }
                                 pop_up_home($("#pop-up_video"));
 
@@ -315,6 +352,5 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 $('.calendar_info').remove();
             }
         });
-
     });
 </script>

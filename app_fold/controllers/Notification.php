@@ -356,4 +356,71 @@ class Notification extends CI_Controller
         $this->load->view('email/email_address_settings', $result);
         $this->load->view('footer/footer');
     }
+
+    public function setToken()
+    {
+        $token = $this->input->post('token', true);
+
+        if(!empty($token))
+        {
+            $user_id = (!empty($this->user_id) and is_numeric($this->user_id)) ? $this->user_id : 0;
+            $this->Notification_model->setToken($token, $this->date, $user_id);
+        }
+    }
+
+    public function sendBrowserNotifications()
+    {
+        /*$this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');*/
+
+        $url = 'https://fcm.googleapis.com/fcm/send';
+        //$YOUR_API_KEY = 'AIzaSyAobMYxn_4_7n_KobO12m6ZKKhJmlTpLJ8'; // Server key
+        //$YOUR_API_KEY = 'BL_k7Ds8BjXIPenTiw0FCJt_dPvJWXhsS8QSR78WJ9eYgqnyJL5YfTCYBt5VBd0Fju8XjzrWS4M3arnTSeGBWuo'; // Server key
+        $YOUR_API_KEY = 'AAAAHtNiGgE:APA91bGe5uluRyYoZGUi5vzpFCnJz9EWPGW2MLDL6aixVMj4SLMZmGBHTR7FWvKGN5VLO9J_nQgQXgFdRg34LMm_6UgA1cFkAL6uPB7heE8hRGuRAfMSqb3d8k5yHFyLsOPL0YDimj_SpYmCcoqtQRT0kR-PgvVUDQ'; // Server key
+
+        $tokens = $this->Notification_model->getTokens();
+
+        $request_body = array(
+            'notification' => array(
+                'title' => 'Superbody.pro',
+                'body' => 'Тест уведомления',
+                'icon' => 'https://superbody.pro/logo/128.png',
+                'click_action' => 'https://superbody.pro/',
+            )
+            , 'to' => 'eWmB72NDDsQ:APA91bG0OJxG7IGgIav45-vN4nd-ee2bgOu-ulhVRxbDTjEr72Q0CZtJU-Da9TonE5x_4R99XoeT0_oCe0U0BZUpO-RHq0Jj9Gvo7Zw4sDw1OSpMwJB2awL1IZgj7R45MYyMyFZB9EuR'
+            /*, 'to' => '/topics/all'*/
+        );
+        /*if(!empty($tokens['tokens']) and count($tokens['tokens']) === 1)
+        {
+            $request_body['to'] = $tokens['tokens'][0];
+        }
+        elseif(!empty($tokens['tokens']))
+        {
+            foreach ($tokens['tokens'] as $token)
+            {
+                $request_body['registration_ids'][] = $token;
+            }
+            unset($token);
+        }*/
+        $fields = json_encode($request_body);
+
+        $request_headers = [
+            'Content-Type:application/json',
+            'Authorization:key=' . $YOUR_API_KEY
+        ];
+
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        $response = curl_exec($ch);
+        curl_close($ch);
+
+        echo $response;
+
+        /*$this->load->view('footer/footer');*/
+    }
 }

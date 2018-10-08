@@ -570,7 +570,7 @@ $(document).ready(function() {
                                         });
                                     }
 
-                                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+                                    var playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
 
                                     if ($('#vimeo-player-1').length == 1)
                                     {
@@ -588,6 +588,32 @@ $(document).ready(function() {
                                         }
                                         playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
                                     }
+
+
+                                    playerTwoPlayer.getPaused().then(function(paused) {
+                                        // paused = whether or not the player is paused
+                                        console.log('Video paused');
+                                    }).catch(function(error) {
+                                        // an error occurred
+                                    });
+
+                                    playerTwoPlayer.getCurrentTime().then(function(seconds) {
+                                        // seconds = the current playback position
+                                        console.log('Current time: ' + seconds);
+                                    }).catch(function(error) {
+                                        // an error occurred
+                                    });
+
+                                    playerTwoPlayer.getEnded().then(function(ended) {
+                                        // ended = whether or not the video has ended
+                                        console.log('Video ended');
+                                    }).catch(function(error) {
+                                        // an error occurred
+                                    });
+
+                                    playerTwoPlayer.on('seeked', function(data) {
+                                        console.log(data);
+                                    });
                                 }
                                 pop_up_def($("#pop-up_video"));
                             });
@@ -1086,11 +1112,41 @@ $(document).ready(function() {
             var options = {
                 width: 640,
                 loop: true
-            };
+            },
+                player, playerTwoPlayer;
+
             if ($(".vimeo_players").length > 0) {
                 $(".vimeo_players").each(function() {
-                    var player = this.id,
-                        playerTwoPlayer = new Vimeo.Player(player, options);
+                    player = this.id;
+                    playerTwoPlayer = new Vimeo.Player(player, options);
+                });
+            }
+
+            if(playerTwoPlayer)
+            {
+                playerTwoPlayer.getPaused().then(function(paused) {
+                    // paused = whether or not the player is paused
+                    console.log('Video paused');
+                }).catch(function(error) {
+                    // an error occurred
+                });
+
+                playerTwoPlayer.getCurrentTime().then(function(seconds) {
+                    // seconds = the current playback position
+                    console.log('Current time: ' + seconds);
+                }).catch(function(error) {
+                    // an error occurred
+                });
+
+                playerTwoPlayer.getEnded().then(function(ended) {
+                    // ended = whether or not the video has ended
+                    console.log('Video ended');
+                }).catch(function(error) {
+                    // an error occurred
+                });
+
+                playerTwoPlayer.on('seeked', function(data) {
+                    console.log(data);
                 });
             }
 

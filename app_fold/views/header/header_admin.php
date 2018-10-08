@@ -8,6 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title><?php echo $title; ?> - Super Body</title>
     <link rel="icon" type="image/png" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
 
     <link rel="stylesheet" href="/css/google_fonts.css">
     <link rel="stylesheet" href="/css/grid.css">
@@ -48,6 +49,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <!--<script src="/js/colorpicker/eye.js"></script>
     <script src="/js/colorpicker/utils.js"></script>
     <script src="/js/colorpicker/layout.js"></script>-->
+    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
 </head>
 <body>
 <span id="block-message" <?php if (!empty($message)){ echo 'class="show"';}?>>

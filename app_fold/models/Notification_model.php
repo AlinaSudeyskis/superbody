@@ -394,4 +394,64 @@ class Notification_model extends CI_Model
 
         return $result;
     }
+
+    /**
+     * Сохранение токена устройства в БД
+     *
+     * @param $token
+     * @param $date
+     * @param $user_id
+     * @return bool
+     */
+    public function setToken($token, $date, $user_id = 0)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `nt_token`, `nt_u_id` FROM `notification_tokens` WHERE `nt_token`=? LIMIT 1', $token);
+
+        if($sel_data !== false and 0 == $sel_data->num_rows())
+        {
+            $ins_data = $this->db->query('INSERT INTO `notification_tokens`(`nt_token`, `nt_date`, `nt_u_id`) VALUES (?, ?, ?)',
+                array($token, $date, $user_id));
+            if($ins_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка всех токенов
+     *
+     * @return array
+     */
+    public function getTokens()
+    {
+        $result = array('tokens' => array());
+
+        $sel_data = $this->db->query('SELECT `nt_token` FROM `notification_tokens` LIMIT 1000');
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['tokens'][$i] = $row->nt_token;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
 }
