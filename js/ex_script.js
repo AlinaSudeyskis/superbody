@@ -177,6 +177,7 @@ $(document).ready(function(){
             }
         }
     });
+
     /* Формирование меню питания */
     $(".nutr_time_in").on('keyup', function() {
         var kurs_time_in = $(this).parents("form").find("input.nutr_time_in").val(),
@@ -288,6 +289,7 @@ $(document).ready(function(){
         }
         $('.nutrition_block_table').children('.h_subtitle').hide();
     });
+
     // Изменение кол-ва приемов пищи
     $(".ingestion input:checkbox").on('click', function(){
         var ing_after = $(this).data('after'),
