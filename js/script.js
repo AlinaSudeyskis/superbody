@@ -186,41 +186,6 @@ $(document).ready(function() {
         }
     });
 
-    /* Расчет итоговых величин блюда */
-    $(".anketa_form .ingredients :input").on('keyup mouseup', function(){
-        var total_weight        = 0,
-            total_proteins      = 0,
-            total_fats          = 0,
-            total_carbohydrates = 0,
-            total_calories      = 0;
-
-        $(".ingredients").each(function(){
-            var weight        = $(this).children(".ingr_weight").val(),
-                proteins      = $(this).children(".ingr_proteins").val(),
-                fats          = $(this).children(".ingr_fats").val(),
-                carbohydrates = $(this).children(".ingr_carbohydrates").val(),
-                calories      = $(this).children(".ingr_calories").val();
-
-            if(weight == "") weight = 0;
-            if(proteins == "") proteins = 0;
-            if(fats == "") fats = 0;
-            if(carbohydrates == "") carbohydrates = 0;
-            if(calories == "") calories = 0;
-
-            total_weight        = total_weight + parseFloat(weight);
-            total_proteins      = total_proteins + parseFloat(proteins);
-            total_fats          = total_fats + parseFloat(fats);
-            total_carbohydrates = total_carbohydrates + parseFloat(carbohydrates);
-            total_calories      = total_calories + parseFloat(calories);
-        });
-
-        if($("#meal-weight").val() < total_weight) $("#meal-weight").val(total_weight);
-        if($("#meal-proteins").val() < total_proteins) $("#meal-proteins").val(total_proteins);
-        if($("#meal-fats").val() < total_fats) $("#meal-fats").val(total_fats);
-        if($("#meal-carbohydrates").val() < total_carbohydrates) $("#meal-carbohydrates").val(total_carbohydrates);
-        if($("#meal-calories").val() < total_calories) $("#meal-calories").val(total_calories);
-    });
-
 
 	/* Добавление опции */
 

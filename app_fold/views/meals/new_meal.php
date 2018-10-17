@@ -20,7 +20,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="kurs_block_val">
                     <div class="anketa_block_cont">
                         <div class="anketa_block_item">
-                            <div class="anketa_block_item_h">Новое блюдо</div>
+                            <div class="anketa_block_item_h">Новое блюдо/продукт</div>
                             <div class="anketa_block_item_cont">
                                 <form action="" class="anketa_form" method="post" enctype="multipart/form-data">
                                     <?php include_once('./app_fold/views/meals/settings_item.php'); ?>

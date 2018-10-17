@@ -75,6 +75,7 @@ $(document).ready(function(){
         }
     });
 
+    /* Добавление информации об остаточном кол-ве символов для ввода */
     if($('form.landing_admin_form').length == 1)
     {
         var input_text = $('input[type=text]');
@@ -109,6 +110,247 @@ $(document).ready(function(){
         });
     }
 
+    /* Отображение и скрытие полей блюда и продукта соответственно */
+    var meal_category = $('#meal-category');
+    if(meal_category.length == 1)
+    {
+        meal_category.on('change', function(){
+            var ingr_desc = $('#meal-ingredients-desc'),
+                ingrs = $('.ingredients'),
+                add_ingr = $('#meal-add-ingredient'),
+                video_block = $('.ml_videos_block'),
+                add_video = $('#meal-add-video'),
+                videos = $('#meal-videos');
+            if($(this).val() == 2)
+            {
+                ingr_desc.hide();
+                ingrs.hide();
+                add_ingr.hide();
+                video_block.hide();
+                add_video.hide();
+                videos.hide();
+            }
+            else
+            {
+                ingr_desc.show();
+                ingrs.show();
+                add_ingr.show();
+                video_block.show();
+                add_video.show();
+                videos.show();
+            }
+        });
+    }
+
+    /* Расчет итоговых КБЖУ блюда/продукта */
+    /*$(".anketa_form .ingredients :input").on('keyup mouseup', function(){
+        var total_weight        = 0,
+            total_proteins      = 0,
+            total_fats          = 0,
+            total_carbohydrates = 0,
+            total_calories      = 0,
+            meal_weight         = $("#meal-weight"),
+            meal_proteins       = $("#meal-proteins"),
+            meal_fats           = $("#meal-fats"),
+            meal_carbohydrates  = $("#meal-carbohydrates"),
+            meal_calories       = $("#meal-calories");
+
+        $(".ingredients").each(function(){
+            var weight        = $(this).children(".ingr_weight").val(),
+                proteins      = $(this).children(".ingr_proteins").val(),
+                fats          = $(this).children(".ingr_fats").val(),
+                carbohydrates = $(this).children(".ingr_carbohydrates").val(),
+                calories      = $(this).children(".ingr_calories").val();
+
+            if(weight == "") weight = 0;
+            if(proteins == "") proteins = 0;
+            if(fats == "") fats = 0;
+            if(carbohydrates == "") carbohydrates = 0;
+            if(calories == "") calories = 0;
+
+            total_weight        = total_weight + parseFloat(weight);
+            total_proteins      = total_proteins + parseFloat(proteins);
+            total_fats          = total_fats + parseFloat(fats);
+            total_carbohydrates = total_carbohydrates + parseFloat(carbohydrates);
+            total_calories      = total_calories + parseFloat(calories);
+        });
+
+        if(meal_weight.val() < total_weight) meal_weight.val(total_weight);
+        if(meal_proteins.val() < total_proteins) meal_proteins.val(total_proteins);
+        if(meal_fats.val() < total_fats) meal_fats.val(total_fats);
+        if(meal_carbohydrates.val() < total_carbohydrates) meal_carbohydrates.val(total_carbohydrates);
+        if(meal_calories.val() < total_calories) meal_calories.val(total_calories);
+    });*/
+
+    /* Подсчет итоговых значений ВКБЖУ */
+    $(".meal_wpfcc_val :input").on('keyup', function(){
+        var meal_calories_100      = $("#meal-calories-100"),
+            meal_proteins_100      = $("#meal-proteins-100"),
+            meal_fats_100          = $("#meal-fats-100"),
+            meal_carbohydrates_100 = $("#meal-carbohydrates-100"),
+            total_proteins      = 0,
+            total_fats          = 0,
+            total_carbohydrates = 0,
+            total_calories      = 0,
+            total_weight        = 0,
+            meal_weight            = $("#meal-weight"),
+            meal_proteins          = $("#meal-proteins"),
+            meal_fats              = $("#meal-fats"),
+            meal_carbohydrates     = $("#meal-carbohydrates"),
+            meal_calories          = $("#meal-calories");
+
+        if(meal_category.val() == 2 && meal_weight.val() > 0)
+        {
+            var koef = 1;
+            koef = meal_weight.val() / 100;
+            total_proteins      = parseFloat(koef) * parseFloat(meal_proteins_100.val());
+            total_fats          = parseFloat(koef) * parseFloat(meal_fats_100.val());
+            total_carbohydrates = parseFloat(koef) * parseFloat(meal_carbohydrates_100.val());
+            total_calories      = parseFloat(koef) * parseFloat(meal_calories_100.val());
+
+            meal_proteins.val(total_proteins.toFixed(2));
+            meal_fats.val(total_fats.toFixed(2));
+            meal_carbohydrates.val(total_carbohydrates.toFixed(2));
+            meal_calories.val(total_calories.toFixed(2));
+        }
+        else if(meal_category.val() == 1)
+        {
+            calcWCPFC();
+        }
+    });
+    $('.ingredients').on('keyup', ':input.ingr_weight', function()
+    {
+        if(meal_category.val() == 1)
+        {
+            calcWCPFC();
+            $('#meal-calories-100').prop('readonly', true);
+            $('#meal-proteins-100').prop('readonly', true);
+            $('#meal-fats-100').prop('readonly', true);
+            $('#meal-carbohydrates-100').prop('readonly', true);
+            $('#meal-weight').prop('readonly', true);
+        }
+    });
+
+    function calcWCPFC(total_weight, total_calories, total_proteins, total_fats, total_carbohydrates, calories_100,
+                       proteins_100, fats_100, carbohydrates_100)
+    {
+        total_weight = total_weight || 0;
+        total_calories = total_calories || 0;
+        total_proteins = total_proteins || 0;
+        total_fats = total_fats || 0;
+        total_carbohydrates = total_carbohydrates || 0;
+        calories_100 = calories_100 || 0;
+        proteins_100 = proteins_100 || 0;
+        fats_100 = fats_100 || 0;
+        carbohydrates_100 = carbohydrates_100 || 0;
+
+        var count_ingr = 0,
+            meal_weight        = $("#meal-weight"),
+            meal_proteins      = $("#meal-proteins"),
+            meal_fats          = $("#meal-fats"),
+            meal_carbohydrates = $("#meal-carbohydrates"),
+            meal_calories      = $("#meal-calories"),
+            ingrs_data         = $(".ingredients_data");
+
+        ingrs_data.each(function(){
+            var weight        = $(this).find(".ingr_weight").val(),
+                proteins      = $(this).find(".ingr_proteins").html(),
+                fats          = $(this).find(".ingr_fats").html(),
+                carbohydrates = $(this).find(".ingr_carbohydrates").html(),
+                calories      = $(this).find(".ingr_calories").html(),
+                koef = 0;
+
+            if(weight == "") weight = 0;
+            if(proteins == "") proteins = 0;
+            if(fats == "") fats = 0;
+            if(carbohydrates == "") carbohydrates = 0;
+            if(calories == "") calories = 0;
+
+            if(weight > 0)
+            {
+                koef = weight / 100;
+
+                total_weight        = total_weight + parseFloat(weight);
+
+                total_proteins      = total_proteins + (parseFloat(proteins)*koef);
+                total_fats          = total_fats + (parseFloat(fats)*koef);
+                total_carbohydrates = total_carbohydrates + (parseFloat(carbohydrates)*koef);
+                total_calories      = total_calories + (parseFloat(calories)*koef);
+            }
+
+            count_ingr++;
+        });
+
+        if(total_weight == 0 && count_ingr > 0)
+        {
+            total_weight = 100 * count_ingr;
+
+            ingrs_data.each(function(){
+                var proteins      = $(this).find(".ingr_proteins").html(),
+                    fats          = $(this).find(".ingr_fats").html(),
+                    carbohydrates = $(this).find(".ingr_carbohydrates").html(),
+                    calories      = $(this).find(".ingr_calories").html();
+
+                if(proteins == "") proteins = 0;
+                if(fats == "") fats = 0;
+                if(carbohydrates == "") carbohydrates = 0;
+                if(calories == "") calories = 0;
+
+
+                total_proteins      = total_proteins + parseFloat(proteins);
+                total_fats          = total_fats + parseFloat(fats);
+                total_carbohydrates = total_carbohydrates + parseFloat(carbohydrates);
+                total_calories      = total_calories + parseFloat(calories);
+            });
+        }
+
+        var koef_100 = 1;
+
+        if(total_weight < 100)
+        {
+            koef_100 = 100 / total_weight;
+
+            calories_100      = total_calories * koef_100;
+            proteins_100      = total_proteins * koef_100;
+            fats_100          = total_fats * koef_100;
+            carbohydrates_100 = total_carbohydrates * koef_100;
+        }
+        else
+        {
+            koef_100 = total_weight / 100;
+
+            calories_100      = total_calories / koef_100;
+            proteins_100      = total_proteins / koef_100;
+            fats_100          = total_fats / koef_100;
+            carbohydrates_100 = total_carbohydrates / koef_100;
+        }
+
+        meal_weight.val(total_weight.toFixed(2));
+        meal_proteins.val(total_proteins.toFixed(2));
+        meal_fats.val(total_fats.toFixed(2));
+        meal_carbohydrates.val(total_carbohydrates.toFixed(2));
+        meal_calories.val(total_calories.toFixed(2));
+
+        $("#meal-proteins-100").val(proteins_100.toFixed(2));
+        $("#meal-fats-100").val(fats_100.toFixed(2));
+        $("#meal-carbohydrates-100").val(carbohydrates_100.toFixed(2));
+        $("#meal-calories-100").val(calories_100.toFixed(2));
+
+
+        var return_array = {
+            r_total_weight: total_weight,
+            r_total_calories: total_calories,
+            r_total_proteins: total_proteins,
+            r_total_fats: total_fats,
+            r_total_carbohydrates: total_carbohydrates,
+            r_calories_100: calories_100,
+            r_proteins_100: proteins_100,
+            r_fats_100: fats_100,
+            r_carbohydrates_100: carbohydrates_100
+        };
+
+        return(return_array);
+    }
 
     /* Выбор активного видео */
     $("input[name=ir_active_video]:radio").change(function(){
@@ -598,6 +840,34 @@ $(document).ready(function(){
         }
     });
 
+    /* выпадающий список продуктов/ингредиентов */
+    $(document).on('input', '.add_tov_in.ingredient input:text', function () {
+        var tov_in = $(this),
+            input_search = tov_in.val();
+        if(input_search != '' && input_search.length >= 3 && input_search.length < 255){
+            $.ajax({
+                url: '/searchIngredients',
+                type: 'post',
+                dataType: 'json',
+                data: {search_text: input_search},
+                complete: function (result) {
+                    var data = result.responseJSON;
+                    if(data)
+                    {
+                        tov_in.parents(".add_tov_in.ingredient").find(".add_tov_list").html(data.ingredients);
+                        tov_in.parents(".add_tov_in.ingredient").find(".add_tov_list").show();
+                    }
+                    else{
+                        tov_in.parents(".add_tov_in").find(".add_tov_list").hide();
+                    }
+                }
+            });
+        }
+        else{
+            tov_in.parents(".add_tov_in").find(".add_tov_list").hide();
+        }
+    });
+
     /* выпадающий список тренеров */
     $(document).on('input', '.add_tov_in.couches input:text', function () {
         if($(this).val() != '' && $(this).val().length < 255){
@@ -666,11 +936,25 @@ $(document).ready(function(){
         if(meal_block.length == 1)
         {
             meal_block.remove();
+
+            // Удалить блок категории блюда
+            if(ml_type_block.find('.add_tov_val_item').length == 0)
+            {
+                ml_type_block.remove();
+            }
         }
-        // Удалить блок категории блюда
-        if(ml_type_block.find('.add_tov_val_item').length == 0)
+        // Пересчет ВКБЖУ
+        if($(this).parents('.ingredients_data').length == 1)
         {
-            ml_type_block.remove();
+            calcWCPFC();
+            if($(".add_tov_in_total").children('.add_tov_val').length == 0)
+            {
+                $('#meal-calories-100').prop('readonly', false);
+                $('#meal-proteins-100').prop('readonly', false);
+                $('#meal-fats-100').prop('readonly', false);
+                $('#meal-carbohydrates-100').prop('readonly', false);
+                $('#meal-weight').prop('readonly', false);
+            }
         }
     });
 
@@ -833,6 +1117,71 @@ $(document).ready(function(){
                     }
                 });
             }
+
+            this_meal.parents(".add_tov_list").hide();
+            this_meal.parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');
+            this_meal.addClass("disable");
+        }
+        return false;
+    });
+
+    $(document).on('click', '.add_tren_item.ingredient', function () {
+        event.preventDefault();
+        if(!$(this).hasClass("disable")){
+            var this_meal = $(this),
+                link = this_meal.find(".add_tov_cont").attr("href"),
+                name = this_meal.data('meal-name'),
+                number = this_meal.data('meal-id'),
+                weight = this_meal.data('weight'),
+                proteins = this_meal.data('proteins'),
+                fats = this_meal.data('fats'),
+                carbohydrates = this_meal.data('carbohydrates'),
+                calories = this_meal.data('calories'),
+                add_tov_val = this_meal.parents(".add_tov_in_total").find('.add_tov_val'),
+                ml_block_content = '<div id="ingredient-' + number + '" class="add_tov_val_item parent ingredients_data">' +
+                    '<div class="add_kurs_val_video_wrap parent">' +
+                        '<div class="add_tov_val_cont meal_cont parent">' +
+                            '<div class="add_tov_val_h"><a href="/administration/meal/' + number + '">' + name + '</a></div>' +
+                            '<div class="add_tov_val_sh">' +
+                            '   <div class="meal_wpfcc_wrap">' +
+                                    '<div class="meal_wpfcc">' +
+                                        '<div class="meal_wpfcc_title" short="В">Вес</div>' +
+                                        '<div class="meal_wpfcc_val"><input type="number" name="i_ingredient_weight[' + number + ']" value="" placeholder="0.00" class="anketa_form_in in_fill ingr_weight" required="required"/></div>' +
+                                    '</div>' +
+                                    '<div class="meal_wpfcc">' +
+                                        '<div class="meal_wpfcc_title" short="К">Калории</div>' +
+                                        '<div class="meal_wpfcc_val ingr_calories">' + calories + '</div>' +
+                                    '</div>' +
+                                    '<div class="meal_wpfcc">' +
+                                        '<div class="meal_wpfcc_title" short="Б">Белки</div>' +
+                                        '<div class="meal_wpfcc_val ingr_proteins">' + proteins + '</div>' +
+                                    '</div>' +
+                                    '<div class="meal_wpfcc">' +
+                                        '<div class="meal_wpfcc_title" short="Ж">Жиры</div>' +
+                                        '<div class="meal_wpfcc_val ingr_fats">' + fats + '</div>' +
+                                    '</div>' +
+                                    '<div class="meal_wpfcc">' +
+                                        '<div class="meal_wpfcc_title" short="У">Углеводы</div>' +
+                                        '<div class="meal_wpfcc_val ingr_carbohydrates">' + carbohydrates + '</div>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div class="del_tov"></div>' +
+                    '</div>' +
+                '</div>';
+
+            if(add_tov_val.length == 0)
+            {
+                this_meal.parents(".add_tov_in_total").append('<div class="add_tov_val"></div>');
+                add_tov_val = this_meal.parents(".add_tov_in_total").find('.add_tov_val');
+            }
+            if(add_tov_val.children('#ingredient-' + number).length == 0)
+            {
+                add_tov_val.append(ml_block_content);
+            }
+
+            calcWCPFC();
 
             this_meal.parents(".add_tov_list").hide();
             this_meal.parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');

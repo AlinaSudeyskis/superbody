@@ -2,6 +2,15 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="anketa_form_line parent">
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Категория:</div></div>
+    <div class="anketa_form_one_wrap anketa_form_three_wrap">
+        <select name="s_category" class="anketa_form_select" id="meal-category">
+            <option value="1" <?php if($meal['category_id'] == 1):?>selected="selected"<?php endif; ?>>Блюдо</option>
+            <option value="2" <?php if($meal['category_id'] == 2):?>selected="selected"<?php endif; ?>>Продукт/Ингредиент</option>
+        </select>
+    </div>
+</div>
+<div class="anketa_form_line parent">
     <div class="anketa_form_h"><div class="anketa_form_h_cell">Тип блюда:</div></div>
     <div class="anketa_form_one_wrap anketa_form_three_wrap">
         <select name="s_meal_type" class="anketa_form_select">
@@ -22,7 +31,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="anketa_form_h"><div class="anketa_form_h_cell">Описание:</div></div>
     <textarea name="ta_desc" class="journal_form_textarea admin_form_txt_middle" maxlength="2000"><?php if(!empty($meal['description'])): echo $meal['description']; endif; ?></textarea>
 </div>
-<div class="anketa_form_line parent">
+<div class="anketa_form_line parent" id="meal-ingredients-desc" <?php if($meal['category_id'] == 2):?>style="display:none;"<?php endif;?>>
     <div class="anketa_form_h"><div class="anketa_form_h_cell">Игредиенты:</div></div>
     <textarea name="ta_ingredients" class="journal_form_textarea admin_form_txt_middle" maxlength="2000"><?php if(!empty($meal['ingredients_text'])): echo $meal['ingredients_text']; endif; ?></textarea>
 </div>
@@ -72,16 +81,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
 <?php endif;?>
-<div class="anketa_form_line parent ml_videos_block">
+<div class="anketa_form_line parent ml_videos_block" <?php if($meal['category_id'] == 2):?>style="display:none;"<?php endif;?>>
     <div class="anketa_form_h"><div class="anketa_form_h_cell">URL видео: </div></div>
     <input name="ta_videos_block[]" class="anketa_form_in anketa_form_in_long" placeholder="URL видео" />
 </div>
-<div class="anketa_form_line parent">
+<div class="anketa_form_line parent" id="meal-add-video" <?php if($meal['category_id'] == 2):?>style="display:none;"<?php endif;?>>
     <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
     <div class="anketa_form_h"><div class="add_new_ml_videos_block">+ добавить блок видео</div></div>
 </div>
 <?php if(!empty($meal['meal_videos'])):?>
-    <div class="anketa_form_line parent">
+    <div class="anketa_form_line parent" id="meal-videos" <?php if($meal['category_id'] == 2):?>style="display:none;"<?php endif;?>>
         <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
         <div class="tov_form_img parent">
             <?php foreach($meal['meal_videos'] as $key => $v_data):?>
@@ -97,43 +106,147 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             unset($v_data); ?>
         </div>
     </div>
-<?php endif;
-if(!empty($meal['ingredients'])):
-    $i = 0;
-    foreach($meal['ingredients'] as $ingr):
-        $bl_title = ($i == 0) ? 'Ингредиенты:' : ''; ?>
-        <div class="anketa_form_line parent ingredients">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo $bl_title; ?></div></div>
-            <input type="text" name="i_ingredient_name[<?php echo $ingr['id']; ?>]" value="<?php echo $ingr['name']; ?>" placeholder="Наименование" class="anketa_form_in" maxlength="255" style="width:180px;"/>
-            <input type="number" name="i_ingredient_weight[<?php echo $ingr['id']; ?>]" value="<?php echo $ingr['weight']; ?>" placeholder="Вес" class="anketa_form_in in_tiny ingr_weight" maxlength="5" />
-            <input type="number" name="i_ingredient_proteins[<?php echo $ingr['id']; ?>]" value="<?php echo $ingr['proteins']; ?>" placeholder="Белки" class="anketa_form_in in_tiny ingr_proteins" maxlength="5" />
-            <input type="number" name="i_ingredient_fats[<?php echo $ingr['id']; ?>]" value="<?php echo $ingr['fats']; ?>" placeholder="Жиры" class="anketa_form_in in_tiny ingr_fats" maxlength="5" />
-            <input type="number" name="i_ingredient_carbohydrates[<?php echo $ingr['id']; ?>]" value="<?php echo $ingr['carbohydrates']; ?>" placeholder="Углеводы" class="anketa_form_in in_tiny ingr_carbohydrates" maxlength="5" />
-            <input type="number" name="i_ingredient_calories[<?php echo $ingr['id']; ?>]" value="<?php echo $ingr['calories']; ?>" placeholder="Калории" class="anketa_form_in in_tiny ingr_calories" maxlength="5" />
+<?php endif; ?>
+<div class="anketa_form_line parent ingredients" <?php if($meal['category_id'] == 2):?>style="display:none;"<?php endif;?>>
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Ингредиенты:</div></div>
+    <div class="add_tov_in_total">
+        <div class="add_tov_in ingredient">
+            <input type="text" name="name_ingredient" class="anketa_form_in anketa_form_in_long" placeholder="Введите наименование продукта/ингредиента" autocomplete="off">
+            <div class="add_tov_list"></div>
         </div>
-        <?php $i++;
-    endforeach;
-    unset($ingr);?>
-<?php endif;
-$bl_title = (empty($meal['ingredients'])) ? 'Ингредиенты:' : ''; ?>
-<div class="anketa_form_line parent ingredients">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo $bl_title; ?></div></div>
-    <input type="text" name="i_ingredient_name[]" value="" placeholder="Наименование" class="anketa_form_in" maxlength="255" style="width:180px;"/>
-    <input type="number" name="i_ingredient_weight[]" value="" placeholder="Вес" class="anketa_form_in in_tiny ingr_weight" maxlength="5" />
-    <input type="number" name="i_ingredient_proteins[]" value="" placeholder="Белки" class="anketa_form_in in_tiny ingr_proteins" maxlength="5" />
-    <input type="number" name="i_ingredient_fats[]" value="" placeholder="Жиры" class="anketa_form_in in_tiny ingr_fats" maxlength="5" />
-    <input type="number" name="i_ingredient_carbohydrates[]" value="" placeholder="Углеводы" class="anketa_form_in in_tiny ingr_carbohydrates" maxlength="5" />
-    <input type="number" name="i_ingredient_calories[]" value="" placeholder="Калории" class="anketa_form_in in_tiny ingr_calories" maxlength="5" />
+        <div class="add_tov_val">
+            <?php $input_readonly = false;
+            if(!empty($meal['ingredients'])):
+                $input_readonly = true;
+                $i = 0;
+                foreach($meal['ingredients'] as $ingr_id => $ingr): ?>
+                    <div id="ingredient-<?php echo $ingr_id; ?>" class="add_tov_val_item parent ingredients_data">
+                        <div class="add_kurs_val_video_wrap parent">
+                            <div class="add_tov_val_cont meal_cont parent">
+                                <div class="add_tov_val_h"><a href="/administration/meal/<?php echo $ingr_id ?>"><?php echo $ingr['name']; ?></a></div>
+                                <div class="add_tov_val_sh">
+                                    <div class="meal_wpfcc_wrap">
+                                        <div class="meal_wpfcc">
+                                            <div class="meal_wpfcc_title" short="В">Вес</div>
+                                            <div class="meal_wpfcc_val"><input type="number" name="i_ingredient_weight[<?php echo $ingr_id; ?>]" value="<?php echo $ingr['weight']; ?>" placeholder="0.00" class="anketa_form_in in_fill ingr_weight" required="required"/></div>
+                                        </div>
+                                        <div class="meal_wpfcc">
+                                            <div class="meal_wpfcc_title" short="К">Калории</div>
+                                            <div class="meal_wpfcc_val ingr_calories"><?php echo $ingr['calories']; ?></div>
+                                        </div>
+                                        <div class="meal_wpfcc">
+                                            <div class="meal_wpfcc_title" short="Б">Белки</div>
+                                            <div class="meal_wpfcc_val ingr_proteins"><?php echo $ingr['proteins']; ?></div>
+                                        </div>
+                                        <div class="meal_wpfcc">
+                                            <div class="meal_wpfcc_title" short="Ж">Жиры</div>
+                                            <div class="meal_wpfcc_val ingr_fats"><?php echo $ingr['fats']; ?></div>
+                                        </div>
+                                        <div class="meal_wpfcc">
+                                            <div class="meal_wpfcc_title" short="У">Углеводы</div>
+                                            <div class="meal_wpfcc_val ingr_carbohydrates"><?php echo $ingr['carbohydrates']; ?></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="del_tov"></div>
+                        </div>
+                    </div>
+                    <?php $i++;
+                endforeach;
+                unset($ingr);?>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 <div class="anketa_form_line parent">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
-    <div class="anketa_form_h"><div class="add_new_ingredient">+ добавить ингредиент</div></div>
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">КБЖУ на 100г:</div></div>
+    <div class="meal_wpfcc_wrap">
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="В">Вес</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_weight_100" value="100" class="anketa_form_in in_fill" disabled="disabled"/>
+            </div>
+        </div>
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="К">Калории</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_calories_100" value="<?php if(!empty($meal)): echo $meal['calories']; endif; ?>"
+                   placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-calories-100"
+                   <?php if($input_readonly): ?>readonly<?php endif;?>/>
+            </div>
+        </div>
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="Б">Белки</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_proteins_100" value="<?php if(!empty($meal)): echo $meal['proteins']; endif; ?>"
+                   placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-proteins-100"
+                   <?php if($input_readonly): ?>readonly<?php endif;?> />
+            </div>
+        </div>
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="Ж">Жиры</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_fats_100" value="<?php if(!empty($meal)): echo $meal['fats']; endif; ?>"
+                   placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-fats-100"
+                   <?php if($input_readonly): ?>readonly<?php endif;?> />
+            </div>
+        </div>
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="У">Углеводы</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_carbohydrates_100" value="<?php if(!empty($meal)): echo $meal['carbohydrates']; endif; ?>"
+                   placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-carbohydrates-100"
+                   <?php if($input_readonly): ?>readonly<?php endif;?> />
+            </div>
+        </div>
+    </div>
 </div>
+<?php
+$koef = ($meal['weight'] > 0) ? ($meal['weight'] / 100) : 0;
+$calories = ($koef > 0) ? ($meal['calories'] * $koef) : '';
+$proteins = ($koef > 0) ? ($meal['proteins'] * $koef) : 0;
+$fats = ($koef > 0) ? ($meal['fats'] * $koef) : 0;
+$carbohydrates = ($koef > 0) ? ($meal['carbohydrates'] * $koef) : 0;
+?>
 <div class="anketa_form_line parent">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell">Итого:</div></div>
-    <input type="number" name="i_meal_weight" value="<?php if(!empty($meal)): echo $meal['weight']; endif; ?>" placeholder="Вес" class="anketa_form_in in_tiny" maxlength="5" id="meal-weight" />
-    <input type="number" name="i_meal_proteins" value="<?php if(!empty($meal)): echo $meal['proteins']; endif; ?>" placeholder="Белки" class="anketa_form_in in_tiny" maxlength="5" id="meal-proteins" />
-    <input type="number" name="i_meal_fats" value="<?php if(!empty($meal)): echo $meal['fats']; endif; ?>" placeholder="Жиры" class="anketa_form_in in_tiny" maxlength="5" id="meal-fats" />
-    <input type="number" name="i_meal_carbohydrates" value="<?php if(!empty($meal)): echo $meal['carbohydrates']; endif; ?>" placeholder="Углеводы" class="anketa_form_in in_tiny" maxlength="5" id="meal-carbohydrates" />
-    <input type="number" name="i_meal_calories" value="<?php if(!empty($meal)): echo $meal['calories']; endif; ?>" placeholder="Калории" class="anketa_form_in in_tiny" maxlength="5" id="meal-calories" />
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Итоговое КБЖУ:</div></div>
+    <div class="meal_wpfcc_wrap">
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="В">Вес</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_weight" value="<?php if(!empty($meal)): echo $meal['weight']; endif; ?>"
+                   placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-weight"
+                   <?php if($input_readonly): ?>readonly<?php endif;?> />
+            </div>
+        </div>
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="К">Калории</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_calories" value="<?php echo $calories; ?>"
+                       placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-calories" disabled="disabled"/>
+            </div>
+        </div>
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="Б">Белки</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_proteins" value="<?php echo $proteins; ?>"
+                       placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-proteins" disabled="disabled"/>
+            </div>
+        </div>
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="Ж">Жиры</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_fats" value="<?php echo $fats; ?>"
+                       placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-fats" disabled="disabled"/>
+            </div>
+        </div>
+        <div class="meal_wpfcc">
+            <div class="meal_wpfcc_title" short="У">Углеводы</div>
+            <div class="meal_wpfcc_val">
+                <input type="number" name="i_meal_carbohydrates" value="<?php echo $carbohydrates; ?>"
+                       placeholder="0.00" class="anketa_form_in in_fill" maxlength="5" id="meal-carbohydrates" disabled="disabled"/>
+            </div>
+        </div>
+    </div>
 </div>

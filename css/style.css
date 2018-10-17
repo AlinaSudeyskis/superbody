@@ -6964,6 +6964,26 @@ textarea.journal_post_comm_in{
     margin-left: 10px;
     width: 80px;
 }
+.in_fill
+{
+    width: calc(100% - 1px);
+    text-align: center;
+    font-style: normal;
+    font-size: 14px;
+}
+.meal_wpfcc_val input[type="number"]::-webkit-outer-spin-button,
+.meal_wpfcc_val input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.meal_wpfcc_val input[type="number"] {
+    -moz-appearance: textfield;
+}
+.meal_wpfcc_val input[type=number]::-webkit-inner-spin-button,
+.meal_wpfcc_val input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 .anketa_form_desk{
 	float: left;
 	padding-left: 20px;
@@ -7141,6 +7161,7 @@ textarea.journal_post_comm_in{
 .anketa_form_three_wrap .anketa_form_select .jq-selectbox__select-text,
 .anketa_form_two_wrap .anketa_form_select .jq-selectbox__select-text{
 	width: auto !important;
+    padding-left: 1px;
 }
 .anketa_form_three_wrap .anketa_form_select .jq-selectbox__dropdown,
 .anketa_form_two_wrap .anketa_form_select .jq-selectbox__dropdown{
@@ -8991,7 +9012,7 @@ textarea.anketa_form_in{
     position: relative;
     /*max-width: 330px; Для настроек курса*/
 }
-.add_tov_in.meal{
+.add_tov_in.meal, .add_tov_in.ingredient{
     float: left;
     width: calc(100% - 180px);
 }
@@ -9088,6 +9109,13 @@ textarea.anketa_form_in{
     color: #72d0f4;
     width: 170px;
     padding-right: 15px;
+}
+.add_tov_val_cont.meal_cont .add_tov_val_h{
+    width: unset;
+}
+.add_tov_val_h a{
+    text-decoration: none;
+    color: #72d0f4;
 }
 .add_tov_val_sh {
     width: 100%;
@@ -9188,6 +9216,9 @@ textarea.anketa_form_in{
 .meal ~ .add_tov_val .kurs_block_h{
     text-align: right;
 }
+.ingredient ~ .add_tov_val {
+    margin-left: 180px;
+}
 .practice_block_h, .nutrition_block_h{
     font-size: 13px;
     line-height: 15px;
@@ -9251,6 +9282,22 @@ textarea.anketa_form_in{
 }
 .meal ~ .add_tov_val .add_tov_val_item .add_kurs_val_video_wrap{
     max-width: none;
+}
+.ingredient ~ .add_tov_val .add_tov_val_item .add_kurs_val_video_wrap{
+    max-width: 600px;
+}
+.ingredients .meal_wpfcc_val > input{
+    line-height: 25px;
+    height: 25px;
+    font-size: 13px;
+    width: 100%;
+}
+.ingredients .meal_wpfcc_val{
+    line-height: 25px;
+    height: 25px;
+    font-size: 13px;
+    background: #f3f3f3;
+    border-right: 1px solid #ffffff;
 }
 .tren_form_block_check_wrap{
     margin-bottom: 15px;
@@ -11730,6 +11777,10 @@ input.tren_form_block_check{
     }
     .policy_pop-up_cont{
         padding: 0 40px;
+    }
+
+    .ingredient ~ .add_tov_val{
+        margin-left: 0;
     }
 }
 

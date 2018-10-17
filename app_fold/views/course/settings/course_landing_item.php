@@ -27,14 +27,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endfor;
                 unset($i);?>
             </div>
-
             <div class="landing_block_wrap">
                 <div class="landing_block" id="l-block-1">
                     <h3 class="landing">Блок №1</h3>
                     <img src="/img/landing parts/1.PNG" alt="" class="land_template"/>
-                    <div class="parent kurs_cur_wrap" style="margin-top:18px;">
-                        <div class="kurs_block_h">Стиль страницы:</div>
-                        <?php if (!empty($landings_list)) : ?>
+                    <div class="parent kurs_cur_wrap"><div class="kurs_block_h"></div></div>
+                    <?php if (!empty($landings_list)) : ?>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Стиль:</div>
                             <select name="s_land_type" class="journal_form_select">
                                 <option value="">Стиль</option>
                                 <?php foreach ($landings_list as $ls) :
@@ -45,8 +45,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php endforeach;
                                 unset($ls);?>
                             </select>
-                        <?php endif; ?>
-                    </div>
+                        </div>
+                    <?php endif; ?>
                     <div class="lend_form_h">Слайдер (максимум 7 изображений; 1920х600)</div>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_slider_block1"
@@ -368,11 +368,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php endif;?>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Заголовок:</div>
-                        <input type="text" name="i_result_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="11" value="<?php echo $landing['block4']['r_title']; ?>" />
+                        <input type="text" name="i_result_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['r_title']; ?>" />
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Описание:</div>
-                        <input type="text" name="i_result_desc_block4" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block4']['r_subtitle']; ?>" />
+                        <input type="text" name="i_result_desc_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['r_subtitle']; ?>" />
                     </div>
                     <div class="lend_form_h">Кнопка</div>
                     <div class="parent kurs_cur_wrap">
@@ -510,7 +510,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block5']['images_default'][2] === false and is_file($landing['block5']['images_orig'][2])) :?>
-                        <img src="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>" alt=""/>
+                        <img src="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>" alt="" style="width:120px;"/>
                     <?php endif;?>
                     <div class="lend_form_h">Слова тренера о программе</div>
                     <div class="parent kurs_cur_wrap">

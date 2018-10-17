@@ -5137,6 +5137,7 @@ class Course extends CI_Controller
 
         if($this->input->post('bt_save_new_meal', true))
         {
+            $category         = is_numeric($this->input->post('s_category', true)) ? $this->input->post('s_category', true) : 1;
             $type             = is_numeric($this->input->post('s_meal_type', true)) ? $this->input->post('s_meal_type', true) : 1;
             $name             = mb_substr(strip_tags($this->input->post('i_name')), 0, 255);
             $description      = mb_substr(strip_tags($this->input->post('ta_desc')), 0, 2000);
@@ -5212,7 +5213,7 @@ class Course extends CI_Controller
                 unset($ingr_name);
             }
 
-            $res_ins = $this->Course_model->setNewMeal($name, $description, $type, $insert_videos, $ingredients,
+            $res_ins = $this->Course_model->setNewMeal($category, $name, $description, $type, $insert_videos, $ingredients,
                 $ingredients_text, $total_weight, $total_proteins, $total_fats, $total_carbohydrates, $total_calories,
                 $this->user_id, $this->date);
 
@@ -5391,82 +5392,46 @@ class Course extends CI_Controller
         {
             $db_data = $meal['meal'];
 
+            $category         = is_numeric($this->input->post('s_category', true)) ? $this->input->post('s_category', true) : 1;
             $type             = in_array($this->input->post('s_meal_type', true), $types['meals_types_id']) ? $this->input->post('s_meal_type', true) : 1;
             $name             = mb_substr(strip_tags($this->input->post('i_name')), 0, 255);
             $description      = mb_substr(strip_tags($this->input->post('ta_desc')), 0, 2000);
             $ingredients_text = mb_substr(strip_tags($this->input->post('ta_ingredients')), 0, 2000);
 
-            // Ингредиенты, их БЖУК и общее БЖУК
+            // Ингредиенты, их КБЖУ и общее КБЖУ
             $ingredients         = array();
             $insert_ingredients  = array();
             $update_ingredients  = array();
             $delete_ingredients  = array();
             $total_weight        = 0;
-            $total_proteins      = 0;
-            $total_fats          = 0;
-            $total_carbohydrates = 0;
-            $total_calories      = 0;
 
-            $ingr_names         = $this->input->post('i_ingredient_name', true);
-            $ingr_weights       = $this->input->post('i_ingredient_weight', true);
-            $ingr_proteins      = $this->input->post('i_ingredient_proteins', true);
-            $ingr_fats          = $this->input->post('i_ingredient_fats', true);
-            $ingr_carbohydrates = $this->input->post('i_ingredient_carbohydrates', true);
-            $ingr_calories      = $this->input->post('i_ingredient_calories', true);
+            $ingredients_weights = $this->input->post('i_ingredient_weight', true);
 
-            if(is_array($ingr_names))
+            if(is_array($ingredients_weights))
             {
                 $i = 0;
-                foreach($ingr_names as $ingr_id => $ingr_name)
+                foreach($ingredients_weights as $ingr_id => $ingr_weight)
                 {
-                    $ingr_name = mb_substr(strip_tags($ingr_name), 0, 255);
+                    $ingredients[$ingr_id] = $ingr_id;
+                    $ingr_weight = is_numeric($ingr_weight) ? $ingr_weight : 0;
 
-                    if(!empty($ingr_name))
+                    $total_weight += $ingr_weight;
+
+                    // Обновление данных ингредиента
+                    if(!empty($db_data['ingredients_id']) and in_array($ingr_id, $db_data['ingredients_id'])
+                        and $ingr_weight != $db_data['ingredients'][$ingr_id]['weight'])
                     {
-                        $ingredients[$ingr_id]['name']          = $ingr_name;
-                        $ingredients[$ingr_id]['weight']        = is_numeric($ingr_weights[$ingr_id]) ? $ingr_weights[$ingr_id] : 0;
-                        $ingredients[$ingr_id]['proteins']      = is_numeric($ingr_proteins[$ingr_id]) ? $ingr_proteins[$ingr_id] : 0;
-                        $ingredients[$ingr_id]['fats']          = is_numeric($ingr_fats[$ingr_id]) ? $ingr_fats[$ingr_id] : 0;
-                        $ingredients[$ingr_id]['carbohydrates'] = is_numeric($ingr_carbohydrates[$ingr_id]) ? $ingr_carbohydrates[$ingr_id] : 0;
-                        $ingredients[$ingr_id]['calories']      = is_numeric($ingr_calories[$ingr_id]) ? $ingr_calories[$ingr_id] : 0;
-
-                        $total_weight        += $ingredients[$ingr_id]['weight'];
-                        $total_proteins      += $ingredients[$ingr_id]['proteins'];
-                        $total_fats          += $ingredients[$ingr_id]['fats'];
-                        $total_carbohydrates += $ingredients[$ingr_id]['carbohydrates'];
-                        $total_calories      += $ingredients[$ingr_id]['calories'];
-
-                        // Обновление данных ингредиента
-                        if(in_array($ingr_id, $db_data['ingredients_id']))
-                        {
-                            if($ingredients[$ingr_id]['name'] != $db_data['ingredients'][$ingr_id]['name'] or
-                                $ingredients[$ingr_id]['weight'] != $db_data['ingredients'][$ingr_id]['weight'] or
-                                $ingredients[$ingr_id]['proteins'] != $db_data['ingredients'][$ingr_id]['proteins'] or
-                                $ingredients[$ingr_id]['fats'] != $db_data['ingredients'][$ingr_id]['fats'] or
-                                $ingredients[$ingr_id]['carbohydrates'] != $db_data['ingredients'][$ingr_id]['carbohydrates'] or
-                                $ingredients[$ingr_id]['calories'] != $db_data['ingredients'][$ingr_id]['calories'])
-                            {
-                                $update_ingredients[$ingr_id] = $ingredients[$ingr_id];
-                            }
-                        }
-                        // Добавление ингредиента
-                        else
-                        {
-                            $insert_ingredients[$i] = $ingredients[$ingr_id];
-                        }
-
-                        $i++;
+                        $update_ingredients[$ingr_id] = $ingr_weight;
                     }
-                    else
+                    // Добавление ингредиента
+                    elseif(empty($db_data['ingredients_id']) or !in_array($ingr_id, $db_data['ingredients_id']))
                     {
-                        // Удаление ингредиента
-                        if(in_array($ingr_id, $db_data['ingredients_id']))
-                        {
-                            $delete_ingredients[$ingr_id]['id'] = $ingr_id;
-                        }
+                        $insert_ingredients[$ingr_id] = $ingr_weight;
                     }
+
+                    $i++;
                 }
-                unset($ingr_name);
+                unset($ingr_weight);
             }
             else
             {
@@ -5476,18 +5441,17 @@ class Course extends CI_Controller
                     $delete_ingredients = $db_data['ingredients'];
                 }
             }
+            // Удаление ингредиентов
+            $delete_ingredients = (!empty($db_data['ingredients_id'])) ? array_diff($db_data['ingredients_id'], $ingredients) : $delete_ingredients;
 
-            $i_total_weights       = is_numeric($this->input->post('i_meal_weight', true)) ? $this->input->post('i_meal_weight', true) : null;
-            $i_total_proteins      = is_numeric($this->input->post('i_meal_proteins', true)) ? $this->input->post('i_meal_proteins', true) : null;
-            $i_total_fats          = is_numeric($this->input->post('i_meal_fats', true)) ? $this->input->post('i_meal_fats', true) : null;
-            $i_total_carbohydrates = is_numeric($this->input->post('i_meal_carbohydrates', true)) ? $this->input->post('i_meal_carbohydrates', true) : null;
-            $i_total_calories      = is_numeric($this->input->post('i_meal_calories', true)) ? $this->input->post('i_meal_calories', true) : null;
+            $i_total_weights = is_numeric($this->input->post('i_meal_weight', true)) ? $this->input->post('i_meal_weight', true) : 0;
+            $i_proteins      = is_numeric($this->input->post('i_meal_proteins_100', true)) ? $this->input->post('i_meal_proteins_100', true) : 0;
+            $i_fats          = is_numeric($this->input->post('i_meal_fats_100', true)) ? $this->input->post('i_meal_fats_100', true) : 0;
+            $i_carbohydrates = is_numeric($this->input->post('i_meal_carbohydrates_100', true)) ? $this->input->post('i_meal_carbohydrates_100', true) : 0;
+            $i_calories      = is_numeric($this->input->post('i_meal_calories_100', true)) ? $this->input->post('i_meal_calories_100', true) : 0;
 
-            $total_weight        = ($i_total_weights > $total_weight) ? $i_total_weights : $total_weight;
-            $total_proteins      = ($i_total_proteins > $total_proteins) ? $i_total_proteins : $total_proteins;
-            $total_fats          = ($i_total_fats > $total_fats) ? $i_total_fats : $total_fats;
-            $total_carbohydrates = ($i_total_carbohydrates > $total_carbohydrates) ? $i_total_carbohydrates : $total_carbohydrates;
-            $total_calories      = ($i_total_calories > $total_calories) ? $i_total_calories : $total_calories;
+            $total_weight = ($total_weight == 0 and $i_total_weights > 0) ? $i_total_weights : $total_weight;
+            log_message('debug', 'WPFCC: W=' . $total_weight . ' P=' . $i_proteins . ' F=' . $i_fats . ' C=' . $i_carbohydrates . ' C=' . $i_calories );
 
             // Загрузка изображений на сервер
             $img_path = './meals_files/' . $meal_id . '/';
@@ -5542,15 +5506,16 @@ class Course extends CI_Controller
 
             // Сохранить данные в БД
             if((!empty($name) and $name != $db_data['name']) or $description != $db_data['description'] or
-                $type != $db_data['type_id'] or $ingredients_text != $db_data['ingredients_text'] or
-                $total_weight != $db_data['weight'] or $total_proteins != $db_data['proteins'] or
-                $total_fats != $db_data['fats'] or $total_carbohydrates != $db_data['carbohydrates'] or
-                $total_calories != $db_data['calories'] or !empty($insert_ingredients) or !empty($update_ingredients) or
-                !empty($delete_ingredients) or !empty($insert_videos))
+                $type != $db_data['type_id'] or $category != $db_data['category_id'] or
+                $ingredients_text != $db_data['ingredients_text'] or $total_weight != $db_data['weight'] or
+                $i_proteins != $db_data['proteins'] or $i_fats != $db_data['fats'] or
+                $i_carbohydrates != $db_data['carbohydrates'] or $i_calories != $db_data['calories'] or
+                !empty($insert_ingredients) or !empty($update_ingredients) or !empty($delete_ingredients) or
+                !empty($insert_videos))
             {
-                $res_up = $this->Course_model->updateMealSettings($meal_id, $name, $description, $type, $insert_videos, $insert_ingredients,
-                    $update_ingredients, $delete_ingredients, $ingredients_text, $total_weight, $total_proteins, $total_fats,
-                    $total_carbohydrates, $total_calories, $this->user_id, $this->date);
+                $res_up = $this->Course_model->updateMealSettings($meal_id, $category, $name, $description, $type,
+                    $insert_videos, $insert_ingredients, $update_ingredients, $delete_ingredients, $ingredients_text,
+                    $total_weight, $i_proteins, $i_fats, $i_carbohydrates, $i_calories, $this->user_id, $this->date);
 
                 if ($res_up === true)
                 {
@@ -8599,6 +8564,9 @@ class Course extends CI_Controller
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 
+    /**
+     * AJAX. Поиск блюд
+     */
     public function searchMeals()
     {
         // Если пользователь не авторизован, вывод страницы 404
@@ -8621,6 +8589,29 @@ class Course extends CI_Controller
         if (!empty($search_text) and !empty($crs_day) and !empty($crs_ingestion))
         {
             $result['meals'] = $this->Course_model->searchMeals($search_text, $crs_day, $crs_ingestion);
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * AJAX. Поиск продуктов/ингредиентов
+     */
+    public function searchIngredients()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result['ingredients'] = false;
+
+        $search_text   = mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255);
+
+        if (!empty($search_text))
+        {
+            $result['ingredients'] = $this->Course_model->searchIngredients($search_text);
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);

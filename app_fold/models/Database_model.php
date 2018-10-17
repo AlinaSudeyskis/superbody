@@ -967,6 +967,36 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2018-10-09 12:04:14';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `meals` ADD `ml_category_id` TINYINT(2) UNSIGNED NOT NULL DEFAULT '1' AFTER `ml_id`, ADD INDEX `ix_ml_category_id` (`ml_category_id`)");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-10-11 13:38:55';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `ingredients` DROP `ingr_name`, DROP `ingr_proteins`, DROP `ingr_fats`, DROP `ingr_carbohydrates`, DROP `ingr_calories`");
+            $this->db->query("ALTER TABLE `ingredients` ADD `ingr_attached_ml_id` INT UNSIGNED NOT NULL AFTER `ingr_ml_id`");
+            $this->db->query("ALTER TABLE `ingredients` DROP INDEX `ix_ingr_ml_id`, ADD INDEX `ix_ingr_ml_id` (`ingr_ml_id`, `ingr_attached_ml_id`) USING BTREE");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-10-17 09:25:15';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (174, 'Ошибка! Не указан Email отправителя.', 'Ошибка! Не указан Email отправителя.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (175, 'Ошибка! Некорректный Email получателя.', 'Ошибка! Некорректный Email получателя.', '4', '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

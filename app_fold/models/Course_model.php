@@ -490,8 +490,10 @@ class Course_model extends CI_Model
         return $result;
     }
 
-    /** Сохранение нового блюда
+    /**
+     * Сохранение нового блюда
      *
+     * @param $category
      * @param $name
      * @param $description
      * @param $type
@@ -507,14 +509,14 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setNewMeal($name, $description, $type, $videos, $ingredients, $ingredients_text, $total_weight,
+    public function setNewMeal($category, $name, $description, $type, $videos, $ingredients, $ingredients_text, $total_weight,
                                $total_proteins, $total_fats, $total_carbohydrates, $total_calories, $admin_id, $date)
     {
         $ins_data = $this->db->query('
-            INSERT INTO `meals` (`ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_weight`, `ml_proteins`, 
-              `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_admin_id`, `ml_update`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($type, $name, $description, $ingredients_text, $total_weight, $total_proteins, $total_fats,
+            INSERT INTO `meals` (`ml_category_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_weight`, 
+              `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_admin_id`, `ml_update`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($category, $type, $name, $description, $ingredients_text, $total_weight, $total_proteins, $total_fats,
                     $total_carbohydrates, $total_calories, $admin_id, $date));
 
         if ($ins_data !== false and 1 == $this->db->affected_rows())
@@ -612,8 +614,8 @@ class Course_model extends CI_Model
         $result = array('meal' => array());
 
         $sel_data = $this->db->query('
-            SELECT `ml_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_images`, `ml_image`, 
-              `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_blocked` 
+            SELECT `ml_id`, `ml_category_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_ingredients`, `ml_images`, 
+              `ml_image`, `ml_weight`, `ml_proteins`, `ml_fats`, `ml_carbohydrates`, `ml_calories`, `ml_blocked` 
             FROM `meals` WHERE `ml_id`=? LIMIT 1', $meal_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
@@ -643,6 +645,7 @@ class Course_model extends CI_Model
      * Сохранение изменений данных блюда
      *
      * @param $meal_id
+     * @param $category
      * @param $name
      * @param $description
      * @param $type
@@ -660,7 +663,7 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function updateMealSettings($meal_id, $name, $description, $type, $insert_videos, $insert_ingredients,
+    public function updateMealSettings($meal_id, $category, $name, $description, $type, $insert_videos, $insert_ingredients,
                                        $update_ingredients, $delete_ingredients, $ingredients_text, $total_weight,
                                        $total_proteins, $total_fats, $total_carbohydrates, $total_calories, $admin_id, $date)
     {
@@ -669,11 +672,12 @@ class Course_model extends CI_Model
         if(is_numeric($meal_id))
         {
             $up_data = $this->db->query('
-                UPDATE `meals` SET `ml_mt_id`=?, `ml_name`=?, `ml_description`=?, `ml_ingredients`=?, `ml_weight`=?, 
-                  `ml_proteins`=?, `ml_fats`=?, `ml_carbohydrates`=?, `ml_calories`=?, `ml_admin_id`=?, `ml_update`=? 
+                UPDATE `meals` SET `ml_category_id`=?, `ml_mt_id`=?, `ml_name`=?, `ml_description`=?, `ml_ingredients`=?, 
+                  `ml_weight`=?, `ml_proteins`=?, `ml_fats`=?, `ml_carbohydrates`=?, `ml_calories`=?, `ml_admin_id`=?, 
+                  `ml_update`=? 
                 WHERE `ml_id`=? LIMIT 1',
-                    array($type, $name, $description, $ingredients_text, $total_weight, $total_proteins, $total_fats,
-                        $total_carbohydrates, $total_calories, $admin_id, $date, $meal_id));
+                    array($category, $type, $name, $description, $ingredients_text, $total_weight, $total_proteins,
+                        $total_fats, $total_carbohydrates, $total_calories, $admin_id, $date, $meal_id));
 
             if($up_data !== false and 1 == $this->db->affected_rows())
             {
@@ -1124,8 +1128,9 @@ class Course_model extends CI_Model
         $result = array('ingredients' => array());
 
         $sel_data = $this->db->query('
-            SELECT `ingr_id`, `ingr_name`, `ingr_weight`, `ingr_proteins`, `ingr_fats`, `ingr_carbohydrates`, `ingr_calories` 
+            SELECT `ingr_id`, `ingr_attached_ml_id`, `ingr_weight`, `ml_name`, `ml_calories`, `ml_proteins`, `ml_fats`, `ml_carbohydrates` 
             FROM `ingredients`
+            LEFT JOIN `meals` ON `ml_id`=`ingr_attached_ml_id` 
             WHERE `ingr_ml_id`=?', $meal_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
@@ -1133,15 +1138,15 @@ class Course_model extends CI_Model
             $i = 0;
             foreach($sel_data->result() as $row)
             {
-                $result['ingredients'][$row->ingr_id]['id']            = $row->ingr_id;
-                $result['ingredients'][$row->ingr_id]['name']          = $row->ingr_name;
-                $result['ingredients'][$row->ingr_id]['weight']        = $row->ingr_weight;
-                $result['ingredients'][$row->ingr_id]['proteins']      = $row->ingr_proteins;
-                $result['ingredients'][$row->ingr_id]['fats']          = $row->ingr_fats;
-                $result['ingredients'][$row->ingr_id]['carbohydrates'] = $row->ingr_carbohydrates;
-                $result['ingredients'][$row->ingr_id]['calories']      = $row->ingr_calories;
+                $result['ingredients'][$row->ingr_attached_ml_id]['id']            = $row->ingr_attached_ml_id;
+                $result['ingredients'][$row->ingr_attached_ml_id]['name']          = $row->ml_name;
+                $result['ingredients'][$row->ingr_attached_ml_id]['weight']        = $row->ingr_weight;
+                $result['ingredients'][$row->ingr_attached_ml_id]['proteins']      = $row->ml_proteins;
+                $result['ingredients'][$row->ingr_attached_ml_id]['fats']          = $row->ml_fats;
+                $result['ingredients'][$row->ingr_attached_ml_id]['carbohydrates'] = $row->ml_carbohydrates;
+                $result['ingredients'][$row->ingr_attached_ml_id]['calories']      = $row->ml_calories;
 
-                $result['ingredients_id'][$i] = $row->ingr_id;
+                $result['ingredients_id'][$row->ingr_attached_ml_id] = $row->ingr_attached_ml_id;
 
                 $i++;
             }
@@ -1172,24 +1177,21 @@ class Course_model extends CI_Model
         {
             $values = '';
             $i = 0;
-            foreach($ingredients as $ingr)
+            foreach($ingredients as $ingr_id => $ingr_weight)
             {
                 if($i > 0)
                 {
                     $values .= ', ';
                 }
 
-                $values .= '('. $meal_id .', "'. $ingr['name'] .'", '. $ingr['weight'] .', '. $ingr['proteins']
-                    .', '. $ingr['fats'] .', '. $ingr['carbohydrates'] .', '. $ingr['calories']
-                    .', '. $admin_id .', "'. $date .'")';
+                $values .= '('. $meal_id .', "'. $ingr_id .'", '. $ingr_weight .', '. $admin_id .', "'. $date .'")';
 
                 $i++;
             }
-            unset($ingr);
+            unset($ingr_weight);
 
             $ins_ingr = $this->db->query('
-                INSERT INTO `ingredients` (`ingr_ml_id`, `ingr_name`, `ingr_weight`, `ingr_proteins`, `ingr_fats`, 
-                  `ingr_carbohydrates`, `ingr_calories`, `ingr_admin_id`, `ingr_update`) 
+                INSERT INTO `ingredients` (`ingr_ml_id`, `ingr_attached_ml_id`, `ingr_weight`, `ingr_admin_id`, `ingr_update`) 
                 VALUES ' . $values);
 
             if($ins_ingr !== false)
@@ -1220,14 +1222,12 @@ class Course_model extends CI_Model
 
         if(is_array($ingredients))
         {
-            foreach($ingredients as $ingr_id => $ingredient)
+            foreach($ingredients as $ingr_id => $ingr_weight)
             {
                 $up_data = $this->db->query('
-                    UPDATE `ingredients` SET `ingr_ml_id`=?, `ingr_name`=?, `ingr_weight`=?, `ingr_proteins`=?, 
-                      `ingr_fats`=?, `ingr_carbohydrates`=?, `ingr_calories`=?, `ingr_admin_id`=?, `ingr_update`=?
-                    WHERE `ingr_id`=? LIMIT 1',
-                        array($meal_id, $ingredient['name'], $ingredient['weight'], $ingredient['proteins'], $ingredient['fats'],
-                            $ingredient['carbohydrates'], $ingredient['calories'], $admin_id, $date, $ingr_id));
+                    UPDATE `ingredients` SET `ingr_weight`=?, `ingr_admin_id`=?, `ingr_update`=?
+                    WHERE `ingr_ml_id`=? and `ingr_attached_ml_id`=? LIMIT 1',
+                        array($ingr_weight, $admin_id, $date, $meal_id, $ingr_id));
 
                 if($up_data === false)
                 {
@@ -1235,7 +1235,7 @@ class Course_model extends CI_Model
                     $result = false;
                 }
             }
-            unset($ingredient);
+            unset($ingr_weight);
         }
 
         return $result;
@@ -1254,10 +1254,10 @@ class Course_model extends CI_Model
 
         if(is_array($ingredients))
         {
-            foreach($ingredients as $ingr_id => $ingredient)
+            foreach($ingredients as $ingr_id => $ingr_weight)
             {
-                $up_data = $this->db->query('DELETE FROM `ingredients` WHERE `ingr_id`=? and `ingr_ml_id`=? LIMIT 1',
-                    array($ingr_id, $meal_id));
+                $up_data = $this->db->query('DELETE FROM `ingredients` WHERE `ingr_ml_id`=? and `ingr_attached_ml_id`=? LIMIT 1',
+                    array($meal_id, $ingr_id));
 
                 if($up_data === false)
                 {
@@ -1265,7 +1265,7 @@ class Course_model extends CI_Model
                     $result = false;
                 }
             }
-            unset($ingredient);
+            unset($ingr_weight);
         }
 
         return $result;
@@ -1546,6 +1546,57 @@ class Course_model extends CI_Model
                             <input type="hidden" name="id_meal['. $crs_day .']['. $crs_ingestion .']['. $row->ml_id .']" value="" id="id-meal-'. $crs_day .'-'. $crs_ingestion .'-'. $row->ml_id .'"/>
                         </div>
                     </div>';*/
+            }
+            unset($row);
+        }
+        elseif ($sel_meals === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        else
+        {
+            $result = '<div class="not_found">Блюдо не найдено</div>';
+        }
+
+        return $result;
+    }
+
+    /**
+     * AJAX. Поиск продуктов/ингредиентов
+     *
+     * @param $search_text
+     * @return bool|string
+     */
+    public function searchIngredients($search_text)
+    {
+        $result = false;
+
+        $search_text = $search_text.'*';
+        $search_text = preg_replace_callback('/([^"]+)/',
+            function ($matches) {
+                return str_replace(' ', ' +', $matches[1]);
+            }, $search_text);
+
+        $sel_meals = $this->db->query('
+            SELECT `ml_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_weight`, `ml_proteins`, `ml_fats`, 
+              `ml_carbohydrates`, `ml_calories`, `mt_name`
+            FROM `meals`
+            LEFT JOIN `meals_types` ON `mt_id`=`ml_mt_id`
+            WHERE MATCH (`ml_name`) AGAINST (? IN BOOLEAN MODE) and `ml_category_id`=2 and `ml_blocked`=0', $search_text);
+
+        if ($sel_meals !== false and 0 < $sel_meals->num_rows())
+        {
+            foreach ($sel_meals->result() as $row)
+            {
+                $result .= '
+                    <div class="add_tren_item ingredient parent" data-meal-id="' . $row->ml_id . '" 
+                        data-meal-name="' . $row->ml_name . '" data-weight="' . $row->ml_weight . '" 
+                        data-proteins="' . $row->ml_proteins . '" data-fats="' . $row->ml_fats . '" 
+                        data-carbohydrates="' . $row->ml_carbohydrates . '" data-calories="' . $row->ml_calories . '">
+                        <a href="/administration/meal/' . $row->ml_id . '" class="add_tov_cont add_tren_name">
+                            <div class="add_tov_h">' . $row->ml_name . '</div>
+                        </a>
+                    </div>';
             }
             unset($row);
         }
@@ -10539,6 +10590,7 @@ class Course_model extends CI_Model
     protected function parseMealData($row)
     {
         $result['id']               = (!empty($row->ml_id)) ? $row->ml_id : null;
+        $result['category_id']      = (!empty($row->ml_category_id)) ? $row->ml_category_id : null;
         $result['type_id']          = (!empty($row->ml_mt_id)) ? $row->ml_mt_id : null;
         $result['name']             = (!empty($row->ml_name)) ? $row->ml_name : null;
         $result['description']      = (!empty($row->ml_description)) ? nl2br($row->ml_description) : null;
@@ -10546,11 +10598,11 @@ class Course_model extends CI_Model
         $result['images_path']      = (!empty($row->ml_images)) ? mb_substr($row->ml_images, 1) : null;
         $result['images']           = (!empty($row->ml_images)) ? array_diff(scandir($row->ml_images), array('..', '.')) : null;
         $result['image']            = null;
-        $result['weight']           = (!empty($row->ml_weight)) ? $row->ml_weight : null;
-        $result['proteins']         = (!empty($row->ml_proteins)) ? $row->ml_proteins : null;
-        $result['fats']             = (!empty($row->ml_fats)) ? $row->ml_fats : null;
-        $result['carbohydrates']    = (!empty($row->ml_carbohydrates)) ? $row->ml_carbohydrates : null;
-        $result['calories']         = (!empty($row->ml_calories)) ? $row->ml_calories : null;
+        $result['weight']           = (!empty($row->ml_weight)) ? number_format($row->ml_weight, 2, '.', '') : null;
+        $result['proteins']         = (!empty($row->ml_proteins)) ? number_format($row->ml_proteins, 2, '.', '') : null;
+        $result['fats']             = (!empty($row->ml_fats)) ? number_format($row->ml_fats, 2, '.', ''): null;
+        $result['carbohydrates']    = (!empty($row->ml_carbohydrates)) ? number_format($row->ml_carbohydrates, 2, '.', '') : null;
+        $result['calories']         = (!empty($row->ml_calories)) ? number_format($row->ml_calories, 2, '.', '') : null;
         $result['blocked']          = (!empty($row->ml_blocked)) ? $row->ml_blocked : null;
         $result['ingredients']      = array();
         $result['meal_videos']      = array();

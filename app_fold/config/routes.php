@@ -231,7 +231,8 @@ $route['administration/meal/new']    = 'Course/newMeal';
 $route['administration/meal/import'] = 'Course/importMeals';
 $route['administration/meal/(:num)'] = 'Course/meal/$1';
 
-$route['searchMeals'] = 'Course/searchMeals';
+$route['searchMeals']       = 'Course/searchMeals';
+$route['searchIngredients'] = 'Course/searchIngredients';
 // Тип блюда
 $route['administration/meals/types']       = 'Course/mealsTypes';
 $route['administration/meals/type/new']    = 'Course/newMealsType';

@@ -1355,6 +1355,7 @@ class CI_Controller {
      * @param $email_id
      * @param $recipient_email
      * @param $system_message
+     * @return bool
      */
     public function sendEmail($email_id, $recipient_email, $system_message)
     {
@@ -1362,20 +1363,40 @@ class CI_Controller {
         {
             $email_data = $this->Notification_model->getEmail($email_id);
             $email      = $email_data['email'];
-            $site_info  = $this->page_data['site_info'];
 
-            $email_to  = "<$recipient_email>";
+            if(!empty($email['sender_email']))
+            {
+                $site_info  = $this->page_data['site_info'];
 
-            ob_start();
-            include_once('./app_fold/views/email/email_parts/full_page.php');
-            $message = ob_get_contents();
-            ob_end_clean();
+                $email_to  = "<$recipient_email>";
 
-            $headers   = "Content-type: text/html; charset=utf-8 \r\n";
-            $headers   .= "From: " . $email['sender_name'] . "<" . $email['sender_email'] . ">\r\n";
-            $headers   .= "Reply-To: " . $email['sender_email'] . "\r\n";
+                ob_start();
+                include_once('./app_fold/views/email/email_parts/full_page.php');
+                $message = ob_get_contents();
+                ob_end_clean();
 
-            mail($email_to, $email_data['email']['subject'], $message, $headers);
+                $headers   = "Content-type: text/html; charset=utf-8 \r\n";
+                $headers   .= "From: " . $email['sender_name'] . "<" . $email['sender_email'] . ">\r\n";
+                $headers   .= "Reply-To: " . $email['sender_email'] . "\r\n";
+
+                mail($email_to, $email_data['email']['subject'], $message, $headers);
+
+                return true;
+            }
+            else
+            {
+                // Письмо отправлено
+                $this->session->set_tempdata('message', 46, 60);
+
+                return false;
+            }
+        }
+        else
+        {
+            // Письмо отправлено
+            $this->session->set_tempdata('message', 46, 60);
+
+            return false;
         }
     }
 }

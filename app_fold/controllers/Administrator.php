@@ -479,10 +479,13 @@ class Administrator extends CI_Controller
                     $system_message['text']  .= 'Восстановить пароль';
                     $system_message['text']  .= '</a></b>';
 
-                    parent::sendEmail(3, $email, $system_message);
+                    $send_res = parent::sendEmail(3, $email, $system_message);
 
-                    // Письмо отправлено
-                    $this->session->set_tempdata('message', 46, 60);
+                    if($send_res === true)
+                    {
+                        // Письмо отправлено
+                        $this->session->set_tempdata('message', 46, 60);
+                    }
 
                 }
                 else {

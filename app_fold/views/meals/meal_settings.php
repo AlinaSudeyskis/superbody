@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     if(!empty($meal)):?>
                         <div class="anketa_block_cont">
                             <div class="anketa_block_item">
-                                <div class="anketa_block_item_h">Редактирование данных блюда</div>
+                                <div class="anketa_block_item_h">Редактирование данных блюда/продукта</div>
                                 <div class="anketa_block_item_cont">
                                     <form action="" class="anketa_form" method="post" enctype="multipart/form-data">
 
