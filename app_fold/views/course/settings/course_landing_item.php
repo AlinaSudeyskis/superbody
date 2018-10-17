@@ -100,17 +100,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check2bg">
                         <label for="tren_form_block_check2bg">Фон по умолчанию</label>
                     </div>
-                    <div class="bg_color">
-                        <?php $h_color = (mb_substr($landing['block2']['bg_orig'], 0, 1) == '#') ? $landing['block2']['bg_orig'] : '';
-                        $v_color = (mb_substr($landing['block2']['bg_orig'], 0, 1) == '#') ? $landing['block2']['bg_orig'] : '';?>
-                        <input type="hidden" name="i_bg_color_block2" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                        <div id="customWidget">
-                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                            <div class="colorpickerholder2"></div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Цвет фона:</div>
+                        <div class="bg_color">
+                            <?php $h_color = (mb_substr($landing['block2']['bg_orig'], 0, 1) == '#') ? $landing['block2']['bg_orig'] : '';
+                            $v_color = (mb_substr($landing['block2']['bg_orig'], 0, 1) == '#') ? $landing['block2']['bg_orig'] : '';?>
+                            <input type="hidden" name="i_bg_color_block2" value="<?php echo $h_color;?>" id="block_bg_color"/>
+                            <div id="customWidget">
+                                <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
+                                <div class="colorpickerholder2"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:
+                        <div class="kurs_block_h">Файл фона:
                             <div class="h_subtitle">(1920х1)</div>
                         </div>
                         <div class="video_down_line parent">
@@ -188,17 +191,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check3bg">
                         <label for="tren_form_block_check3bg">Фон по умолчанию</label>
                     </div>
-                    <div class="bg_color">
-                        <?php $h_color = (mb_substr($landing['block3']['bg_orig'], 0, 1) == '#') ? $landing['block3']['bg_orig'] : '';
-                        $v_color = (mb_substr($landing['block3']['bg_orig'], 0, 1) == '#') ? $landing['block3']['bg_orig'] : '';?>
-                        <input type="hidden" name="i_bg_color_block3" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                        <div id="customWidget">
-                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                            <div class="colorpickerholder2"></div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Цвет фона:</div>
+                        <div class="bg_color">
+                            <?php $h_color = (mb_substr($landing['block3']['bg_orig'], 0, 1) == '#') ? $landing['block3']['bg_orig'] : '';
+                            $v_color = (mb_substr($landing['block3']['bg_orig'], 0, 1) == '#') ? $landing['block3']['bg_orig'] : '';?>
+                            <input type="hidden" name="i_bg_color_block3" value="<?php echo $h_color;?>" id="block_bg_color"/>
+                            <div id="customWidget">
+                                <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
+                                <div class="colorpickerholder2"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:
+                        <div class="kurs_block_h">Файл фона:
                             <div class="h_subtitle">(1920х1280)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
@@ -304,17 +310,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check4bg">
                         <label for="tren_form_block_check4bg">Фон по умолчанию</label>
                     </div>
-                    <div class="bg_color">
-                        <?php $h_color = (mb_substr($landing['block4']['bg_orig'], 0, 1) == '#') ? $landing['block4']['bg_orig'] : '';
-                        $v_color = (mb_substr($landing['block4']['bg_orig'], 0, 1) == '#') ? $landing['block4']['bg_orig'] : '';?>
-                        <input type="hidden" name="i_bg_color_block4" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                        <div id="customWidget">
-                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                            <div class="colorpickerholder2"></div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Цвет фона:</div>
+                        <div class="bg_color">
+                            <?php $h_color = (mb_substr($landing['block4']['bg_orig'], 0, 1) == '#') ? $landing['block4']['bg_orig'] : '';
+                            $v_color = (mb_substr($landing['block4']['bg_orig'], 0, 1) == '#') ? $landing['block4']['bg_orig'] : '';?>
+                            <input type="hidden" name="i_bg_color_block4" value="<?php echo $h_color;?>" id="block_bg_color"/>
+                            <div id="customWidget">
+                                <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
+                                <div class="colorpickerholder2"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:
+                        <div class="kurs_block_h">Файл фона:
                             <div class="h_subtitle">(1920х525)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
@@ -396,17 +405,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check5bg">
                         <label for="tren_form_block_check5bg">Фон по умолчанию</label>
                     </div>
-                    <div class="bg_color">
-                        <?php $h_color = (mb_substr($landing['block5']['bg_orig'], 0, 1) == '#') ? $landing['block5']['bg_orig'] : '';
-                        $v_color = (mb_substr($landing['block5']['bg_orig'], 0, 1) == '#') ? $landing['block5']['bg_orig'] : '';?>
-                        <input type="hidden" name="i_bg_color_block5" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                        <div id="customWidget">
-                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                            <div class="colorpickerholder2"></div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Цвет фона:</div>
+                        <div class="bg_color">
+                            <?php $h_color = (mb_substr($landing['block5']['bg_orig'], 0, 1) == '#') ? $landing['block5']['bg_orig'] : '';
+                            $v_color = (mb_substr($landing['block5']['bg_orig'], 0, 1) == '#') ? $landing['block5']['bg_orig'] : '';?>
+                            <input type="hidden" name="i_bg_color_block5" value="<?php echo $h_color;?>" id="block_bg_color"/>
+                            <div id="customWidget">
+                                <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
+                                <div class="colorpickerholder2"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="kurs_block_h">Файл фона:</div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but5fbg" class="video_down_line_but">
@@ -547,17 +559,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check6bg">
                         <label for="tren_form_block_check6bg">Фон по умолчанию</label>
                     </div>
-                    <div class="bg_color">
-                        <?php $h_color = (mb_substr($landing['block6']['bg_orig'], 0, 1) == '#') ? $landing['block6']['bg_orig'] : '';
-                        $v_color = (mb_substr($landing['block6']['bg_orig'], 0, 1) == '#') ? $landing['block6']['bg_orig'] : '';?>
-                        <input type="hidden" name="i_bg_color_block6" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                        <div id="customWidget">
-                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                            <div class="colorpickerholder2"></div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Цвет фона:</div>
+                        <div class="bg_color">
+                            <?php $h_color = (mb_substr($landing['block6']['bg_orig'], 0, 1) == '#') ? $landing['block6']['bg_orig'] : '';
+                            $v_color = (mb_substr($landing['block6']['bg_orig'], 0, 1) == '#') ? $landing['block6']['bg_orig'] : '';?>
+                            <input type="hidden" name="i_bg_color_block6" value="<?php echo $h_color;?>" id="block_bg_color"/>
+                            <div id="customWidget">
+                                <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
+                                <div class="colorpickerholder2"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:
+                        <div class="kurs_block_h">Файл фона:
                             <div class="h_subtitle">(1920х1080)</div></div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
@@ -655,17 +670,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check7bg">
                         <label for="tren_form_block_check7bg">Фон по умолчанию</label>
                     </div>
-                    <div class="bg_color">
-                        <?php $h_color = (mb_substr($landing['block7']['bg_orig'], 0, 1) == '#') ? $landing['block7']['bg_orig'] : '';
-                        $v_color = (mb_substr($landing['block7']['bg_orig'], 0, 1) == '#') ? $landing['block7']['bg_orig'] : '';?>
-                        <input type="hidden" name="i_bg_color_block7" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                        <div id="customWidget">
-                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                            <div class="colorpickerholder2"></div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Цвет фона:</div>
+                        <div class="bg_color">
+                            <?php $h_color = (mb_substr($landing['block7']['bg_orig'], 0, 1) == '#') ? $landing['block7']['bg_orig'] : '';
+                            $v_color = (mb_substr($landing['block7']['bg_orig'], 0, 1) == '#') ? $landing['block7']['bg_orig'] : '';?>
+                            <input type="hidden" name="i_bg_color_block7" value="<?php echo $h_color;?>" id="block_bg_color"/>
+                            <div id="customWidget">
+                                <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
+                                <div class="colorpickerholder2"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:</div>
+                        <div class="kurs_block_h">Файл фона:</div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but7fbg" class="video_down_line_but">
@@ -784,18 +802,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check8bg">
                         <label for="tren_form_block_check8bg">Фон по умолчанию</label>
                     </div>
-                    <div class="bg_color">
-                        <?php $h_color = (mb_substr($landing['block8']['bg_orig'], 0, 1) == '#') ? $landing['block8']['bg_orig'] : '';
-                        $v_color = (mb_substr($landing['block8']['bg_orig'], 0, 1) == '#') ? $landing['block8']['bg_orig'] : '';?>
-                        <input type="hidden" name="i_bg_color_block8" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                        <div id="customWidget">
-                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                            <div class="colorpickerholder2"></div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Цвет фона:</div>
+                        <div class="bg_color">
+                            <?php $h_color = (mb_substr($landing['block8']['bg_orig'], 0, 1) == '#') ? $landing['block8']['bg_orig'] : '';
+                            $v_color = (mb_substr($landing['block8']['bg_orig'], 0, 1) == '#') ? $landing['block8']['bg_orig'] : '';?>
+                            <input type="hidden" name="i_bg_color_block8" value="<?php echo $h_color;?>" id="block_bg_color"/>
+                            <div id="customWidget">
+                                <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
+                                <div class="colorpickerholder2"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h bg_color">Файл фона:
-                            <div class="h_subtitle">(1920х1080)</div></div>
+                        <div class="kurs_block_h">Файл фона:
+                            <div class="h_subtitle">(1920х1080)</div>
+                        </div>
                         <div class="video_down_line parent">
                             <div class="video_down_line_but_wrap">
                                 <label for="video_down_line_but8fbg" class="video_down_line_but">
