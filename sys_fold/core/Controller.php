@@ -1363,6 +1363,7 @@ class CI_Controller {
         {
             $email_data = $this->Notification_model->getEmail($email_id);
             $email      = $email_data['email'];
+            log_message('debug', print_r($email, true));
 
             if(!empty($email['sender_email']))
             {
