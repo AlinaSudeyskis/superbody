@@ -75,15 +75,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="lp_block3_cont">
             <h2 class="lp_block3_h"><?php echo $landing['block4']['title']; ?></h2>
             <div class="lp_block3_desk"><?php echo $landing['block4']['subtitle']; ?></div>
+            <div class="lp_block3_txt">
+                <span><?php echo $landing['block4']['r_title']; ?></span><?php echo $landing['block4']['r_subtitle']; ?>
+            </div>
             <?php if (!empty($landing['block4']['button'])):?>
                 <a href="#" class="lp_block_but lp_block3_but parent"><?php echo $landing['block4']['button']; ?></a>
             <?php endif;?>
         </div>
         <div class="lp_block3_img">
             <img src="<?php echo $landing['block4']['image']; ?>" alt="">
-            <div class="lp_block3_txt">
-                <span><?php echo $landing['block4']['r_title']; ?></span><?php echo $landing['block4']['r_subtitle']; ?>
-            </div>
         </div>
     </div>
 </div><!-- lp_block3_wrap -->
@@ -104,7 +104,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <div class="lp_block4_but_wrap">
                 <?php if (!empty($landing['block5']['button'])):?>
-                    <a href="#" class="lp_block4_but disable"><?php echo $landing['block5']['button']; ?></a>
+                    <a href="#" class="lp_block_but lp_block4_but disable"><?php echo $landing['block5']['button']; ?></a>
                 <?php endif;?>
             </div>
         </div>
@@ -127,7 +127,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="lp_block5 container">
         <h2 class="lp_block5_h"><?php echo $landing['block6']['title']; ?></h2>
         <div class="lp_block5_cont parent">
-            <div class="lp_block5_img"><img src="/img/lp_img8.png" alt=""></div>
+            <div class="lp_block5_img"><img src="<?php echo $landing['block6']['image']; ?>" alt=""></div>
             <div class="lp_block5_info">
                 <div class="lp_block5_desk"><?php echo $landing['block6']['desc']; ?></div>
                 <div class="lp_block5_line"><?php echo $landing['block6']['subtitle']; ?></div>
