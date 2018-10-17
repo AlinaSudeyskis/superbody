@@ -49,6 +49,7 @@ class Database extends CI_Controller
         // Обновление БД
         //$up_data = $this->Database_model->updateDatabaseJuly2018($this->date);
         $up_data = $this->Database_model->updateDatabaseAugust2018($this->date);
+        $up_data = $this->Database_model->updateDatabaseOctober2018($this->date);
         if($up_data !== false)
         {
             // Сохранено
