@@ -1363,9 +1363,8 @@ class CI_Controller {
         {
             $email_data = $this->Notification_model->getEmail($email_id);
             $email      = $email_data['email'];
-            log_message('debug', print_r($email, true));
 
-            if(!empty($email['sender_email']))
+            if(!empty($email['sender_email']) and filter_var($email['sender_email'], FILTER_VALIDATE_EMAIL) !== false)
             {
                 $site_info  = $this->page_data['site_info'];
 

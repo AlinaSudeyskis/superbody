@@ -997,6 +997,18 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2018-10-17 10:33:38';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("
+                UPDATE `notifications` 
+                SET `n_name`='Ошибка! Email отправителя не указан или некорректен.', `n_text`='Ошибка! Email отправителя не указан или некорректен.'
+                WHERE `n_id`=174 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
