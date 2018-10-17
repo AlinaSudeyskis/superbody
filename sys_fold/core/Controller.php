@@ -1385,16 +1385,16 @@ class CI_Controller {
             }
             else
             {
-                // Письмо отправлено
-                $this->session->set_tempdata('message', 46, 60);
+                // Отсутствует Email отправителя
+                $this->session->set_tempdata('message', 174, 60);
 
                 return false;
             }
         }
         else
         {
-            // Письмо отправлено
-            $this->session->set_tempdata('message', 46, 60);
+            // Некорректный Email получателя
+            $this->session->set_tempdata('message', 175, 60);
 
             return false;
         }
