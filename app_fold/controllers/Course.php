@@ -1022,7 +1022,8 @@ class Course extends CI_Controller
         }
         elseif ($page_type == 'landing')
         {
-            self::courseLanding($course_id);
+            $block_id = is_numeric($page_id) ? $page_id : 1;
+            self::courseLanding($course_id, $block_id);
         }
         elseif ($page_type == 'statistics')
         {
@@ -1394,7 +1395,7 @@ class Course extends CI_Controller
      *
      * @param $course_id
      */
-    protected function courseLanding($course_id)
+    protected function courseLanding($course_id, $block_id = 1)
     {
         $course_landing  = $this->Course_model->getCourseLandingPage($course_id);
         $landing_list    = $this->Course_model->getLandingPagesList();
@@ -2029,7 +2030,7 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 112, 60);
             }
 
-            header('Location: /administration/course/'.$course_id.'/landing');
+            header('Location: /administration/course/'.$course_id.'/landing/1');
         }
         elseif ($this->input->post('bt_save_block_2', true))
         {
@@ -2106,7 +2107,7 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 112, 60);
             }
 
-            header('Location: /administration/course/'.$course_id.'/landing');
+            header('Location: /administration/course/'.$course_id.'/landing/2');
         }
         elseif ($this->input->post('bt_save_block_3', true))
         {
@@ -2202,7 +2203,7 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 112, 60);
             }
 
-            header('Location: /administration/course/'.$course_id.'/landing');
+            header('Location: /administration/course/'.$course_id.'/landing/3');
         }
         elseif ($this->input->post('bt_save_block_4', true))
         {
@@ -2273,7 +2274,7 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 112, 60);
             }
 
-            header('Location: /administration/course/'.$course_id.'/landing');
+            header('Location: /administration/course/'.$course_id.'/landing/4');
         }
         elseif ($this->input->post('bt_save_block_5', true))
         {
@@ -2405,7 +2406,7 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 112, 60);
             }
 
-            header('Location: /administration/course/'.$course_id.'/landing');
+            header('Location: /administration/course/'.$course_id.'/landing/5');
         }
         elseif ($this->input->post('bt_save_block_6', true))
         {
@@ -2481,7 +2482,7 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 112, 60);
             }
 
-            header('Location: /administration/course/'.$course_id.'/landing');
+            header('Location: /administration/course/'.$course_id.'/landing/6');
         }
         elseif ($this->input->post('bt_save_block_7', true))
         {
@@ -2591,7 +2592,7 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 112, 60);
             }
 
-            header('Location: /administration/course/'.$course_id.'/landing');
+            header('Location: /administration/course/'.$course_id.'/landing/7');
         }
         elseif ($this->input->post('bt_save_block_8', true))
         {
@@ -2646,7 +2647,7 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 112, 60);
             }
 
-            header('Location: /administration/course/'.$course_id.'/landing');
+            header('Location: /administration/course/'.$course_id.'/landing/8');
         }
 
         $result = array_merge($course_landing, $landing_list, $course);
@@ -2656,6 +2657,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']     = 'a_courses_w';
         $this->page_data['page_submenu']  = 'landing';
         $this->page_data['course_id']     = $course_id;
+        $this->page_data['lend_block_id'] = $block_id;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -5451,7 +5453,7 @@ class Course extends CI_Controller
             $i_calories      = is_numeric($this->input->post('i_meal_calories_100', true)) ? $this->input->post('i_meal_calories_100', true) : 0;
 
             $total_weight = ($total_weight == 0 and $i_total_weights > 0) ? $i_total_weights : $total_weight;
-            log_message('debug', 'WPFCC: W=' . $total_weight . ' P=' . $i_proteins . ' F=' . $i_fats . ' C=' . $i_carbohydrates . ' C=' . $i_calories );
+            //log_message('debug', 'WPFCC: W=' . $total_weight . ' P=' . $i_proteins . ' F=' . $i_fats . ' C=' . $i_carbohydrates . ' C=' . $i_calories );
 
             // Загрузка изображений на сервер
             $img_path = './meals_files/' . $meal_id . '/';

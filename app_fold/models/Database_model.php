@@ -1068,7 +1068,7 @@ class Database_model extends CI_Model
     {
         $result = false;
 
-        $sel_data = $this->db->query('SELECT `nt_id`, `nt_token`, `nt_u_id`, `nt_date` FROM `'.$table.'`');
+        $sel_data = $this->db->query('SELECT * FROM `'.$table.'`');
         if($sel_data !== false)
         {
             $result = $sel_data->result();

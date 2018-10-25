@@ -205,7 +205,7 @@ h3.landing{
     color: #ffffff;
     font-weight: 700;
     font-size: 23px;
-    margin-top: 50px;
+    /*margin-top: 30px;*/
     border: none;
     background-color: #2acaf2;
     padding: 10px 15px;
@@ -576,13 +576,14 @@ span.mess_block_full_time {
     overflow: hidden;
     flex-wrap: wrap;
     flex-direction: row;
-    margin-top: 50px;
+    margin-top: 30px;
 }
 .landing_blocks {
     flex-grow: 1;
     font-weight: 700;
     font-size: 18px;
-    color: #ccc;
+    color: #cccccc;
+    background-color: #f3f3f3;
     padding: 10px 15px;
     cursor: pointer;
 }
@@ -591,13 +592,20 @@ span.mess_block_full_time {
     color: #FFFFFF;
 }
 .landing_blocks:hover {
-    background: #2acaf2;
+    /*background: #2acaf2;*/
+    background: #a7e3f3;
     color: #FFFFFF;
 }
-.landing_block_wrap .landing_block{
+.landing_blocks.active:hover {
+    background: #2acaf2;
+}
+/*.landing_block_wrap .landing_block{
     display: block;
 }
 .landing_block_wrap .landing_block:not(:first-child){
+    display: none;
+}*/
+.landing_block_wrap .landing_block{
     display: none;
 }
 

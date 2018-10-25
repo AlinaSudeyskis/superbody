@@ -598,7 +598,8 @@ class Authorization_model extends CI_Model
     public function checkRestore($email, $code, $idempotent, $date)
     {
         $sel_data = $this->db->query('SELECT `user_restore_date`, `user_idempotent` FROM `users` 
-            WHERE `user_email`=? and `user_activate_code`=? and `user_idempotent`=? LIMIT 1', array($email, $code, $idempotent));
+            WHERE `user_email`=? and `user_activate_code`=? and `user_idempotent`=? LIMIT 1',
+                array($email, $code, $idempotent));
 
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {

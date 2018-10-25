@@ -22,13 +22,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <div class="landing_block_table">
                 <?php for($i = 1; $i <= 8; $i++) :
-                    $active = ($i == 1) ? 'active' : '';?>
+                    $active = ($i == $lend_block_id) ? 'active' : '';?>
                     <div class="landing_blocks <?php echo $active; ?>" id="block-<?php echo $i; ?>">Блок <?php echo $i; ?></div>
                 <?php endfor;
                 unset($i);?>
             </div>
             <div class="landing_block_wrap">
-                <div class="landing_block" id="l-block-1">
+                <div class="landing_block" <?php if($lend_block_id == 1): ?>style="display:block;"<?php endif; ?> id="l-block-1">
                     <h3 class="landing">Блок №1</h3>
                     <img src="/img/landing parts/1.PNG" alt="" class="land_template"/>
                     <div class="parent kurs_cur_wrap"><div class="kurs_block_h"></div></div>
@@ -90,7 +90,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
 
-                <div class="landing_block" id="l-block-2">
+                <div class="landing_block" <?php if($lend_block_id == 2): ?>style="display:block;"<?php endif; ?> id="l-block-2">
                     <h3 class="landing">Блок №2</h3>
                     <img src="/img/landing parts/2.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
@@ -181,7 +181,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
 
-                <div class="landing_block" id="l-block-3">
+                <div class="landing_block" <?php if($lend_block_id == 3): ?>style="display:block;"<?php endif; ?> id="l-block-3">
                     <h3 class="landing">Блок №3 <span>(результаты №1)</span></h3>
                     <img src="/img/landing parts/3.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
@@ -300,7 +300,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
 
-                <div class="landing_block" id="l-block-4">
+                <div class="landing_block" <?php if($lend_block_id == 4): ?>style="display:block;"<?php endif; ?> id="l-block-4">
                     <h3 class="landing">Блок №4 <span>(результаты №2)</span></h3>
                     <img src="/img/landing parts/4.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
@@ -395,7 +395,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
 
-                <div class="landing_block" id="l-block-5">
+                <div class="landing_block" <?php if($lend_block_id == 5): ?>style="display:block;"<?php endif; ?> id="l-block-5">
                     <h3 class="landing">Блок №5 <span>(тренер)</span></h3>
                     <img src="/img/landing parts/5.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
@@ -549,7 +549,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
 
-                <div class="landing_block" id="l-block-6">
+                <div class="landing_block" <?php if($lend_block_id == 6): ?>style="display:block;"<?php endif; ?> id="l-block-6">
                     <h3 class="landing">Блок №6 <span>(описание курса)</span></h3>
                     <img src="/img/landing parts/6.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
@@ -660,7 +660,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
 
-                <div class="landing_block" id="l-block-7">
+                <div class="landing_block" <?php if($lend_block_id == 7): ?>style="display:block;"<?php endif; ?> id="l-block-7">
                     <h3 class="landing">Блок №7</h3>
                     <img src="/img/landing parts/7.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>
@@ -792,7 +792,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
 
-                <div class="landing_block" id="l-block-8">
+                <div class="landing_block" <?php if($lend_block_id == 8): ?>style="display:block;"<?php endif; ?> id="l-block-8">
                     <h3 class="landing">Блок №8</h3>
                     <img src="/img/landing parts/8.PNG" alt="" class="land_template"/>
                     <div class="lend_form_h">Фон</div>

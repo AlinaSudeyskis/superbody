@@ -174,7 +174,7 @@ $route['administration/course/(:num)']          = 'Course/course/$1';
 $route['administration/course/(:num)/preview']  = 'Course/coursePreview/$1';
 $route['administration/course/(:num)/settings'] = 'Course/course/$1/settings';
 // Landing настройки
-$route['administration/course/(:num)/landing'] = 'Course/course/$1/landing';
+$route['administration/course/(:num)/landing(/(:num))?'] = 'Course/course/$1/landing/$3';
 // Статистика
 $route['administration/course/(:num)/statistics'] = 'Course/course/$1/statistics';
 // Отзывы
