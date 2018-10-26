@@ -1,4 +1,12 @@
 $(document).ready(function(){
+    tinymce.init({
+        selector: "textarea.formatted_textarea",
+        menubar:false,
+        theme: "modern",
+        language_url : '/js/tinymce/langs/ru.js',
+        plugins: "textcolor colorpicker bbcode",
+        toolbar: "undo redo | bold italic | forecolor"
+    });
     if($('.kurs_block_val').length > 0 && $('.content_block_container').length > 0)
     {
         $(function(){
@@ -81,7 +89,8 @@ $(document).ready(function(){
         var input_text = $('input[type=text]');
 
         input_text.each(function(){
-            if($(this).prop('name') != 'i_old_price_block8' && $(this).prop('name') != 'i_new_price_block8')
+            if($(this).prop('name') != 'i_old_price_block8' && $(this).prop('name') != 'i_new_price_block8' &&
+                $(this).parent('.subscribe_form_in_wrap').length == 0)
             {
                 var i_this = $(this),
                     max_length = i_this.attr('maxLength'),

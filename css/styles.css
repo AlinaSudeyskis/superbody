@@ -235,9 +235,9 @@ h3.landing span{
      padding: 5px 10px;*/
 }
 
-.edit_lend_form img {
+/*.edit_lend_form img {
     width: 30%;
-}
+}*/
 .edit_lend_form img.land_template{
     width: 100%;
 }
@@ -607,6 +607,21 @@ span.mess_block_full_time {
 }*/
 .landing_block_wrap .landing_block{
     display: none;
+}
+.landing_images{
+    display: block;
+    position: relative;
+    overflow: hidden;
+}
+.landing_image{
+    display: block;
+    position: relative;
+    width: 30%;
+    float: left;
+    padding: 0 5px;
+}
+.landing_image img{
+    width: 100%;
 }
 
 .empty_cart{

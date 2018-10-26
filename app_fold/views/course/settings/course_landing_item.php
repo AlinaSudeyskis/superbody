@@ -3,16 +3,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="anketa_block_item">
     <div class="anketa_block_item_cont">
-        <script>
-            tinymce.init({
-                selector: "textarea.formatted_textarea",
-                menubar:false,
-                theme: "modern",
-                language_url : '/js/tinymce/langs/ru.js',
-                plugins: "textcolor colorpicker bbcode",
-                toolbar: "undo redo | bold italic | forecolor"
-            });
-        </script>
         <form action="" class="edit_lend_form video_admin_form landing_admin_form" method="post" enctype="multipart/form-data">
             <div class="tren_form_block_check_wrap example">
                 ! Если не снять галочку
@@ -54,32 +44,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                class="tren_form_block_check" id="tren_form_block_check1bg" />
                         <label for="tren_form_block_check1bg">Слайдер по умолчанию</label>
                     </div>
-                    <div class="add_foto_block_wrap">
-                        <div class="add_foto_block">
-                            <div class="parent kurs_cur_wrap">
-                                <div class="kurs_block_h">Изображение №1:</div>
-                                <div class="video_down_line parent">
-                                    <div class="video_down_line_but_wrap">
-                                        <label for="video_down_line_but1s" class="video_down_line_but">
-                                            <input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" />
-                                            <span>Выберите файл</span>
-                                        </label>
-                                    </div>
-                                    <div class="video_down_line_name">Файл не выбран</div>
-                                    <div class="progressbar_wrap">
-                                        <progress class="progressbar" id="progressbar1" value="50" max="100"></progress>
+                    <?php $available_images = ($landing['slider_images_default'] === false and count($landing['slider_images']) < 7) ? true : false;
+                    if($available_images === true): ?>
+                        <div class="add_foto_block_wrap">
+                            <div class="add_foto_block">
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Изображения:</div>
+                                    <div class="video_down_line parent">
+                                        <div class="video_down_line_but_wrap">
+                                            <label for="video_down_line_but1s" class="video_down_line_but">
+                                                <input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" multiple="multiple"/>
+                                                <span>Выберите файл</span>
+                                            </label>
+                                        </div>
+                                        <div class="video_down_line_name">Файл не выбран</div>
+                                        <div class="progressbar_wrap">
+                                            <progress class="progressbar" id="progressbar1" value="50" max="100"></progress>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="add_new_foto_but">+ добавить фото</div>
-                    </div>
-                    <?php if ($landing['slider_images_default'] === false) :
-                        foreach ($landing['slider_images'] as $s_image) : ?>
-                            <img src="<?php echo $s_image; ?>" alt=""/>
-                        <?php endforeach;
-                        unset($s_image);
-                    endif;?>
+                    <?php endif;
+                    if ($landing['slider_images_default'] === false): ?>
+                        <div class="landing_images">
+                            <?php foreach ($landing['slider_images'] as $key => $s_image): ?>
+                                <div class="landing_image">
+                                    <img src="<?php echo $s_image; ?>" alt=""/>
+                                    <div class="admin_form_buts parent">
+                                        <input type="hidden" name="img_path_1_<?php echo $key; ?>" value="<?php echo $s_image; ?>">
+                                        <input type="hidden" name="img_path_1_<?php echo $key; ?>_type" value="slider">
+                                        <input type="submit" name="bt_delete_landing_img[1][<?php echo $key; ?>]" class="admin_form_del" value="Удалить">
+                                    </div>
+                                </div>
+                            <?php endforeach;
+                            unset($s_image); ?>
+                        </div>
+                    <?php endif; ?>
                     <div class="lend_form_h">Заголовок страницы</div>
                     <div class="journal_form_textarea_wrap journal_form_textarea_small">
                         <textarea id="area3" name="ta_main_title" class="journal_form_textarea formatted_textarea" placeholder="Заголовок страницы" maxlength="50"><?php echo $landing['main_title']; ?></textarea>
@@ -130,7 +131,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block2']['bg_default'] === false and is_file($landing['block2']['bg_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_2_0" value="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_2_0_type" value="background">
+                                    <input type="submit" name="bt_delete_landing_img[2][0]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
                     <div class="parent kurs_cur_wrap">
@@ -173,7 +183,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block2']['image_default'] === false and is_file($landing['block2']['image_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_2_1" value="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_2_1_type" value="image">
+                                    <input type="submit" name="bt_delete_landing_img[2][1]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
 
                     <div class="video_admin_form_buts parent">
@@ -220,7 +239,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block3']['bg_default'] === false and is_file($landing['block3']['bg_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block3']['bg_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block3']['bg_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_3_0" value="<?php echo mb_substr($landing['block3']['bg_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_3_0_type" value="background">
+                                    <input type="submit" name="bt_delete_landing_img[3][0]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
                     <div class="parent kurs_cur_wrap">
@@ -255,7 +283,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block3']['images_default'][0] === false and is_file($landing['block3']['images_orig'][0])) :?>
-                        <img src="<?php echo mb_substr($landing['block3']['images_orig'][0], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block3']['images_orig'][0], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_3_1" value="<?php echo mb_substr($landing['block3']['images_orig'][0], 1); ?>">
+                                    <input type="hidden" name="img_path_3_1_type" value="images">
+                                    <input type="submit" name="bt_delete_landing_img[3][1]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_photo2_block3"
@@ -280,7 +317,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block3']['images_default'][1] === false and is_file($landing['block3']['images_orig'][1])) :?>
-                        <img src="<?php echo mb_substr($landing['block3']['images_orig'][1], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block3']['images_orig'][1], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_3_2" value="<?php echo mb_substr($landing['block3']['images_orig'][1], 1); ?>">
+                                    <input type="hidden" name="img_path_3_2_type" value="images">
+                                    <input type="submit" name="bt_delete_landing_img[3][2]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Заголовок:</div>
@@ -339,7 +385,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block4']['bg_default'] === false and is_file($landing['block4']['bg_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block4']['bg_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block4']['bg_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_4_0" value="<?php echo mb_substr($landing['block4']['bg_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_4_0_type" value="background">
+                                    <input type="submit" name="bt_delete_landing_img[4][0]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
                     <div class="parent kurs_cur_wrap">
@@ -373,7 +428,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block4']['image_default'] === false and is_file($landing['block4']['image_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block4']['image_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block4']['image_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_4_1" value="<?php echo mb_substr($landing['block4']['image_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_4_1_type" value="background">
+                                    <input type="submit" name="bt_delete_landing_img[4][1]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Заголовок:</div>
@@ -433,7 +497,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block5']['bg_default'] === false and is_file($landing['block5']['bg_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block5']['bg_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block5']['bg_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_5_0" value="<?php echo mb_substr($landing['block5']['bg_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_5_0_type" value="background">
+                                    <input type="submit" name="bt_delete_landing_img[5][0]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
                     <div class="parent kurs_cur_wrap">
@@ -472,7 +545,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block5']['images_default'][0] === false and is_file($landing['block5']['images_orig'][0])) :?>
-                        <img src="<?php echo mb_substr($landing['block5']['images_orig'][0], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block5']['images_orig'][0], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_5_1" value="<?php echo mb_substr($landing['block5']['images_orig'][0], 1); ?>">
+                                    <input type="hidden" name="img_path_5_1_type" value="images">
+                                    <input type="submit" name="bt_delete_landing_img[5][1]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_photo2_block5"
@@ -497,7 +579,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block5']['images_default'][1] === false and is_file($landing['block5']['images_orig'][1])) :?>
-                        <img src="<?php echo mb_substr($landing['block5']['images_orig'][1], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block5']['images_orig'][1], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_5_2" value="<?php echo mb_substr($landing['block5']['images_orig'][1], 1); ?>">
+                                    <input type="hidden" name="img_path_5_2_type" value="images">
+                                    <input type="submit" name="bt_delete_landing_img[5][2]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="tren_form_block_check_wrap">
                         <input type="checkbox" name="cb_photo3_block5"
@@ -522,7 +613,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block5']['images_default'][2] === false and is_file($landing['block5']['images_orig'][2])) :?>
-                        <img src="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>" alt="" style="width:120px;"/>
+                        <div class="landing_image" style="width:120px;">
+                            <img src="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>" alt=""/>
+                            <div class="admin_form_buts parent">
+                                <input type="hidden" name="img_path_5_3" value="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>">
+                                <input type="hidden" name="img_path_5_3_type" value="images">
+                                <input type="submit" name="bt_delete_landing_img[5][3]" class="admin_form_del" value="Удалить">
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="lend_form_h">Слова тренера о программе</div>
                     <div class="parent kurs_cur_wrap">
@@ -588,7 +686,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block6']['bg_default'] === false and is_file($landing['block6']['bg_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block6']['bg_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block6']['bg_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_6_0" value="<?php echo mb_substr($landing['block6']['bg_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_6_0_type" value="background">
+                                    <input type="submit" name="bt_delete_landing_img[6][0]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
                     <div class="parent kurs_cur_wrap">
@@ -626,7 +733,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block6']['image_default'] === false and is_file($landing['block6']['image_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block6']['image_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block6']['image_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_6_1" value="<?php echo mb_substr($landing['block6']['image_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_6_1_type" value="image">
+                                    <input type="submit" name="bt_delete_landing_img[6][1]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="lend_form_h">Преимущества (рекомендация: 2 преимущества)</div>
                     <div class="lend_form_options_wrap">
@@ -698,7 +814,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block7']['bg_default'] === false and is_file($landing['block7']['bg_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block7']['bg_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block7']['bg_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_7_0" value="<?php echo mb_substr($landing['block7']['bg_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_7_0_type" value="background">
+                                    <input type="submit" name="bt_delete_landing_img[7][0]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Заголовок:</div>
@@ -739,7 +864,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php if (($landing['block7']['images_default'] === false or $key > 3) and is_file($landing['block7']['images_orig'][$key])) :?>
                                             <div class="parent kurs_cur_wrap">
                                                 <div class="kurs_block_h"></div>
-                                                <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
+                                                <div class="landing_images">
+                                                    <div class="landing_image">
+                                                        <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
+                                                        <div class="admin_form_buts parent">
+                                                            <input type="hidden" name="img_path_7_<?php echo $key+1; ?>" value="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>">
+                                                            <input type="hidden" name="img_path_7_<?php echo $key+1; ?>_type" value="images">
+                                                            <input type="submit" name="bt_delete_landing_img[7][<?php echo $key+1; ?>]" class="admin_form_del" value="Удалить">
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         <?php endif;?>
                                         <div class="parent kurs_cur_wrap">
@@ -832,7 +966,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                     <?php if ($landing['block8']['bg_default'] === false and is_file($landing['block8']['bg_orig'])) :?>
-                        <img src="<?php echo mb_substr($landing['block8']['bg_orig'], 1); ?>" alt=""/>
+                        <div class="landing_images">
+                            <div class="landing_image">
+                                <img src="<?php echo mb_substr($landing['block8']['bg_orig'], 1); ?>" alt=""/>
+                                <div class="admin_form_buts parent">
+                                    <input type="hidden" name="img_path_8_0" value="<?php echo mb_substr($landing['block8']['bg_orig'], 1); ?>">
+                                    <input type="hidden" name="img_path_8_0_type" value="background">
+                                    <input type="submit" name="bt_delete_landing_img[8][0]" class="admin_form_del" value="Удалить">
+                                </div>
+                            </div>
+                        </div>
                     <?php endif;?>
                     <div class="lend_form_h">Информация</div>
                     <div class="parent kurs_cur_wrap">

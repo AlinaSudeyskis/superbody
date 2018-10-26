@@ -3863,6 +3863,116 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Удаление файлов изображений landing страницы курса из БД
+     *
+     * @param $course_id
+     * @param $block_id
+     * @param $img_type
+     * @param $img_path
+     * @return bool
+     */
+    public function deleteLandingImage($course_id, $block_id, $img_type, $img_path)
+    {
+        $result = false;
+
+        if($img_type == 'background' or $img_type == 'image')
+        {
+            $col_name = 'clp_block'.$block_id.'_'.$img_type;
+
+            $up_data = $this->db->query('UPDATE `courses_landing_pages` SET `'.$col_name.'`="default" WHERE `clp_course_id`=? LIMIT 1', $course_id);
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+        elseif($img_type == 'images' or $img_type == 'slider')
+        {
+            $col_name = ($img_type == 'slider') ? 'clp_slider_images' : 'clp_block'.$block_id.'_'.$img_type;
+
+            $sel_data = $this->db->query('SELECT `'.$col_name.'` as `col_images` FROM `courses_landing_pages` WHERE `clp_course_id`=? LIMIT 1', $course_id);
+
+            if($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
+
+                if(!empty($row->col_images))
+                {
+                    $images      = explode(';', $row->col_images);
+                    $save_images = array();
+
+                    $i = 0;
+                    foreach($images as $image)
+                    {
+                        if(!empty($image) and $image != $img_path)
+                        {
+                            $save_images[$i] = $image;
+                            $i++;
+                        }
+                        elseif($image == $img_path and $img_type != 'slider')
+                        {
+                            $save_images[$i] = 'default';
+                            $i++;
+                        }
+                    }
+                    unset($image);
+                    $default_block3 = 'default;default;';
+                    $default_block5 = 'default;default;default;';
+                    $default_block7 = 'default;default;default;default;';
+                    if(!empty($save_images))
+                    {
+                        $save_images = implode(';', $save_images);
+                    }
+                    else
+                    {
+                        if($block_id == 3)
+                        {
+                            $save_images = $default_block3;
+                        }
+                        elseif($block_id == 5)
+                        {
+                            $save_images = $default_block5;
+                        }
+                        elseif($block_id == 7)
+                        {
+                            $save_images = $default_block7;
+                        }
+                        else
+                        {
+                            $save_images = 'default';
+                        }
+                    }
+
+                    if($save_images != $row->col_images)
+                    {
+                        $up_data = $this->db->query('UPDATE `courses_landing_pages` SET `'.$col_name.'`=? WHERE `clp_course_id`=? LIMIT 1',
+                            array($save_images, $course_id));
+                        if($up_data !== false and 1 == $this->db->affected_rows())
+                        {
+                            $result = true;
+                        }
+                        elseif($up_data === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+                }
+
+                unset($row);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка данных стандартных Landing page
      *
      * @param int $lp_id ID default landing page

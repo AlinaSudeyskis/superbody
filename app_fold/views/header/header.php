@@ -38,7 +38,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/autoresize-textarea.js"></script>
     <script src="/js/masonry.pkgd.min.js"></script>
     <script src="/js/jquery.mask.min.js" type="text/javascript"></script>
-    <script src="https://cdn.tinymce.com/4/tinymce.min.js"></script>
+    <script src="/js/tinymce/jquery.tinymce.min.js" type="text/javascript"></script>
+    <script src="/js/tinymce/tinymce.min.js" type="text/javascript"></script>
 
     <script src="/js/script.js"></script>
     <script src="/js/scripts.js"></script>

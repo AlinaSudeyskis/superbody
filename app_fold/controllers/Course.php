@@ -17,8 +17,6 @@ class Course extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-
-        $this->load->model('Course_model');
     }
 
 
@@ -1394,6 +1392,7 @@ class Course extends CI_Controller
      * Редактирование и сохранение Landing page курса
      *
      * @param $course_id
+     * @param $block_id
      */
     protected function courseLanding($course_id, $block_id = 1)
     {
@@ -1965,57 +1964,79 @@ class Course extends CI_Controller
                 ? $this->input->post('s_land_type', true) : 1;
 
             // Слайдер (max 7 images)
-            $slider_images = '';
+            $slider_images = explode(';', $landing['full_slider_images']);
             if ($this->input->post('cb_slider_block1', true))
             {
                 $slider_images = 'default';
+                // Удаление изображений
+                if(!empty($landing['full_slider_images']))
+                {
+                    $s_images = explode(';', $landing['full_slider_images']);
+                    foreach($s_images as $s_image)
+                    {
+                        if(is_file($s_image))
+                        {
+                            unlink($s_image);
+                        }
+                    }
+                    unset($s_image);
+                }
             }
             else
             {
-                $input_files = $_FILES;
-                $i = 0;
-                foreach ($input_files['slider_files']['name'] as $name)
+                $count_images           = count($slider_images);
+                $available_count_images = ((7 - $count_images) < 0) ? 0 : (7 - $count_images);
+
+                if($available_count_images > 0)
                 {
-                    $slider_image = '';
-
-                    $_FILES['slider_files'] = array(
-                        'name' => $input_files['slider_files']['name'][$i],
-                        'type' => $input_files['slider_files']['type'][$i],
-                        'tmp_name' => $input_files['slider_files']['tmp_name'][$i],
-                        'error' => $input_files['slider_files']['error'][$i],
-                        'size' => $input_files['slider_files']['size'][$i]);
-
-                    if (!empty($_FILES['slider_files']) and is_uploaded_file($_FILES['slider_files']['tmp_name']))
+                    $input_files = $_FILES;
+                    $i   = 0;
+                    $imi = $count_images + 1;
+                    foreach ($input_files['slider_files']['name'] as $name)
                     {
-                        $image = parent::uploadImage('slider_files', $_FILES['slider_files']['type'], $img_path);
-                        $full_path_img = $img_path . $image;
-                        if (file_exists($full_path_img))
+                        $slider_image = '';
+
+                        $_FILES['slider_files'] = array(
+                            'name' => $input_files['slider_files']['name'][$i],
+                            'type' => $input_files['slider_files']['type'][$i],
+                            'tmp_name' => $input_files['slider_files']['tmp_name'][$i],
+                            'error' => $input_files['slider_files']['error'][$i],
+                            'size' => $input_files['slider_files']['size'][$i]);
+
+                        if (!empty($_FILES['slider_files']) and is_uploaded_file($_FILES['slider_files']['tmp_name']))
                         {
-                            if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                            $image = parent::uploadImage('slider_files', $_FILES['slider_files']['type'], $img_path);
+                            $full_path_img = $img_path . $image;
+                            if (file_exists($full_path_img))
                             {
-                                $slider_image = $full_path_img . ';';
-                            }
-                            else
-                            {
-                                unlink($full_path_img);
+                                if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                                {
+                                    $slider_image = $full_path_img;
+                                }
+                                else
+                                {
+                                    unlink($full_path_img);
+                                }
                             }
                         }
-                    }
 
-                    $slider_images .= !empty($slider_image) ? $slider_image : '';
 
-                    $i++;
+                        if(!empty($slider_image))
+                        {
+                            $slider_images[$imi] = $slider_image;
 
-                    if ($i == 7) {
-                        break;
+                            $imi++;
+                        }
+
+                        $i++;
+
+                        if ($i == $available_count_images) {
+                            break;
+                        }
                     }
                 }
             }
-            if (empty($slider_images))
-            {
-                $slider_images = (!empty($landing['slider_images']) and $landing['slider_images'] != 'default')
-                    ? $landing['full_slider_images'] : 'default';
-            }
+            $slider_images = (empty($slider_images)) ? 'default' : implode(';', $slider_images);
 
             // Заголовк страницы
             $main_title_bbcode = mb_substr(strip_tags($this->input->post('ta_main_title'), '<span><br/><b><i><p>'), 0, 255);
@@ -2648,6 +2669,42 @@ class Course extends CI_Controller
             }
 
             header('Location: /administration/course/'.$course_id.'/landing/8');
+        }
+        elseif ($this->input->post('bt_delete_landing_img', true))
+        {
+            foreach($this->input->post('bt_delete_landing_img', true) as $img_block_id => $bt)
+            {
+                $img_block_id = (is_numeric($img_block_id)) ? $img_block_id : null;
+                $img_id = (is_numeric(key($bt))) ? key($bt) : null;
+                if(!empty($img_block_id) and !empty($img_id))
+                {
+                    $img_types = array('background', 'images', 'image', 'slider');
+
+                    $img_path = '.'.$this->input->post('img_path_'.$img_block_id.'_'.$img_id, true);
+                    $img_type = $this->input->post('img_path_'.$img_block_id.'_'.$img_id.'_type', true);
+                    $img_type = (in_array($img_type, $img_types)) ? $img_type : null;
+
+                    if(is_file($img_path) and !empty($img_type))
+                    {
+                        // Удаление файлов изображений landing страницы курса из папки хранения
+                        $res_del = unlink($img_path);
+
+                        if($res_del === true)
+                        {
+                            $del_img = $this->Course_model->deleteLandingImage($course_id, $img_block_id, $img_type, $img_path);
+                        }
+                    }
+                }
+            }
+            unset($bt);
+
+            if (!empty($del_img) and $del_img === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing/'.$img_block_id);
         }
 
         $result = array_merge($course_landing, $landing_list, $course);
