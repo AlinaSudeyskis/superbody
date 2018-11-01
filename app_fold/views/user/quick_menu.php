@@ -28,6 +28,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     </div>
+    <div class="cat_item_wrap" id="s-adding-meal">
+        <div class="cat_item">
+            <div class="cat_img"></div>
+            <div class="cat_desk">Питание</div>
+        </div>
+    </div>
     <div class="cat_item_wrap">
         <a href="/anthropometric" class="cat_item">
             <div class="cat_img"><img src="/img/cat4.png" alt=""></div>

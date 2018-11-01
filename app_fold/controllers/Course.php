@@ -8850,6 +8850,50 @@ class Course extends CI_Controller
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 
+    public function showUserMeal()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id)) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result = array('form' => '', 'error' => '');
+
+        //$user_meal_data = $this->Course_model->getTodayUserMeal($this->user_id, $this->date);
+
+        ob_start();
+            include_once('./app_fold/views/meals/user_add_meal_form.php');
+            $form = ob_get_contents();
+        ob_end_clean();
+
+        $result['form'] = $form;
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    public function userSearchMeals()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id)) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result['meals'] = false;
+
+        $search_text = mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255);
+
+        if (!empty($search_text))
+        {
+            $result['meals'] = $this->Course_model->userSearchMeals($search_text);
+        }
+        else
+        {
+            $result['meals'] = '<div class="not_found">Продукт/ингредиент/блюдо не найдены</div>';
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
     /**
      * Отправка эл. писем с меню курса питания пользователям
      */

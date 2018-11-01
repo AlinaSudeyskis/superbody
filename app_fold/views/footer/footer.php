@@ -90,6 +90,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="close_meal"></div>
 </div><!-- pop-up_video -->
 
+<div id="pop-up_user_meal">
+    <div class="close_user_meal"></div>
+</div><!-- pop-up_video -->
+
 <script src="/js/lightbox.js"></script>
 
 </body>

@@ -542,6 +542,66 @@ $(document).ready(function() {
                 });
             });
 
+            // Отображение и поиск приема пищи пользователя
+            $('#s-adding-meal').on('click', function(){
+                $.ajax({
+                    url: '/show/userMeal',
+                    type: 'post',
+                    dataType: 'json',
+                    complete: function(result){
+                        var data = jQuery.parseJSON(result.responseText);
+                        if(!data.error)
+                        {
+                            $('#pop-up_user_meal').html(data.form);
+                            pop_up_home($("#pop-up_user_meal"));
+                        }
+                    }
+                });
+            });
+            $(document).on('input', '.add_tov_in.user_meal input:text', function () {
+                if($(this).val() != '' && $(this).val().length > 3 && $(this).val().length < 255){
+                    var input_search = $(this).val(),
+                        tov_in = $(this);
+                    $.ajax({
+                        url: '/userSearchMeals',
+                        type: 'post',
+                        dataType: 'json',
+                        data: {search_text: input_search},
+                        complete: function (result) {
+                            var data = jQuery.parseJSON(result.responseText);
+                            if (data.meals != "") {
+                                tov_in.parents(".add_tov_in").find(".add_tov_list").show();
+                                tov_in.parents(".add_tov_in").find(".add_tov_list").html(data.meals);
+                            }
+                            else {
+                                tov_in.parents(".add_tov_in").find(".add_tov_list").hide();
+                            }
+                        }
+                    });
+                } else{
+                    $(this).parents(".add_tov_in").find(".add_tov_list").hide();
+                }
+            });
+            $(document).on("click", ".user_meal.add_tren_item", function() {
+                if(!$(this).hasClass("disable")){
+                    var link = $(this).find(".add_tov_cont").attr("href"),
+                        name = $(this).find(".add_tov_h").text(),
+                        number = $(this).attr("id");
+
+                    $(this).parents(".add_tov_in_total").find(".add_tov_val")
+                        .append('<div id="'+number+'tov" class="add_tov_val_item parent">' +
+                            '<input type="hidden" name="users[]" value="' + number + '"/>' +
+                            '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                            '<div class="add_tov_val_sale user">' +
+                            '<div class="del_tov"></div></div>');
+
+                    $(this).parents(".add_tov_list").hide();
+                    $(this).parents(".add_tov_list").parents('.add_tov_in.admins').find('input:text').val('');
+                    $(this).addClass("disable");
+                }
+                return false;
+            });
+
             $('#s-t-wo').on('click', function(){
                 $.ajax({
                     url: '/show/workout',

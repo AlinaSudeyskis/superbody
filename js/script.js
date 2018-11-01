@@ -562,6 +562,11 @@ function pop_up_home(popup) {
       playerTwoPlayer.destroy();
       //enableScroll();
   });
+  $("#shadow2, .close_user_meal").fadeTo(600,0.8).click(function() {
+      shadow.fadeOut(600);
+      popup.fadeOut(600);
+      //enableScroll();
+  });
   //disableScroll();
 }
 

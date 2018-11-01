@@ -1612,6 +1612,57 @@ class Course_model extends CI_Model
         return $result;
     }
 
+    /**
+     * AJAX. Поиск по продуктам/ингредиентам/блюдам
+     *
+     * @param $search_text
+     * @return bool
+     */
+    public function userSearchMeals($search_text)
+    {
+        $result = '';
+
+        $search_text = $search_text.'*';
+        $search_text = preg_replace_callback('/([^"]+)/',
+            function ($matches) {
+                return str_replace(' ', ' +', $matches[1]);
+            }, $search_text);
+
+        $sel_meals = $this->db->query('
+            SELECT `ml_id`, `ml_mt_id`, `ml_name`, `ml_description`, `ml_weight`, `ml_proteins`, `ml_fats`, 
+              `ml_carbohydrates`, `ml_calories`, `mt_name`
+            FROM `meals`
+            LEFT JOIN `meals_types` ON `mt_id`=`ml_mt_id`
+            WHERE MATCH (`ml_name`) AGAINST (? IN BOOLEAN MODE) and `ml_blocked`=0', array($search_text));
+
+        if($sel_meals !== false and 0 < $sel_meals->num_rows())
+        {
+            foreach($sel_meals->result() as $row)
+            {
+                $result .= '
+                    <div class="add_tren_item ingredient parent" data-meal-id="' . $row->ml_id . '" 
+                        data-meal-name="' . $row->ml_name . '" data-weight="' . $row->ml_weight . '" 
+                        data-proteins="' . $row->ml_proteins . '" data-fats="' . $row->ml_fats . '" 
+                        data-carbohydrates="' . $row->ml_carbohydrates . '" data-calories="' . $row->ml_calories . '">
+                        <div class="add_tov_cont add_tren_name">
+                            <div class="add_tov_h">' . $row->ml_name . '</div>
+                        </div>
+                    </div>';
+            }
+            unset($row);
+        }
+        elseif($sel_meals === false)
+        {
+            parent::logDbMessages(__METHOD__ . ':' . __LINE__);
+        }
+        else
+        {
+            $result = '<div class="not_found">Продукт/ингредиент/блюдо не найдены</div>';
+        }
+
+        return $result;
+    }
+
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ БЛЮДА */
 
 
