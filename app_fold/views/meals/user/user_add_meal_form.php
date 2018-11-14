@@ -100,11 +100,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $today_fats = (is_numeric($user_meal_data['today_meal_fats'])) ? $user_meal_data['today_meal_fats'] : '0.00';
             $today_carbohydrates = (is_numeric($user_meal_data['today_meal_carbohydrates'])) ? $user_meal_data['today_meal_carbohydrates'] : '0.00';
 
+            $display = 'none';
             if($today_calories > 0)
             {
                 $cal_percent = round(((100 * $today_calories) / $user_bmr['user_bmr']));
                 $background = '#dcfbcd';
-                $display = 'none';
                 if($cal_percent > 0 && $cal_percent <= 100)
                 {
                     $width = $cal_percent.'%';
