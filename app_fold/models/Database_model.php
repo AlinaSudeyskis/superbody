@@ -1013,6 +1013,39 @@ class Database_model extends CI_Model
     }
 
     /**
+     * Обновление базы данных ноябрь 2018
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseNovember2018()
+    {
+        $result = false;
+
+        $date = '2018-11-09 14:57:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("
+                CREATE TABLE `users_day_meals` ( 
+                `udm_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `udm_u_id` INT UNSIGNED NOT NULL , 
+                `udm_ml_id` INT UNSIGNED NOT NULL , 
+                `udm_ml_weight` DECIMAL(6,2) UNSIGNED NOT NULL , 
+                `udm_datetime` DATETIME NOT NULL , 
+                `udm_update` DATETIME NOT NULL , 
+                PRIMARY KEY (`udm_id`), 
+                INDEX `idx_udm_u_id` (`udm_u_id`), 
+                INDEX `idx_udm_ml_id` (`udm_ml_id`), 
+                INDEX `uidx_u_id_ml_id` (`udm_u_id`, `udm_ml_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
      * Поиск даты обновления в БД
      *
      * @param $date

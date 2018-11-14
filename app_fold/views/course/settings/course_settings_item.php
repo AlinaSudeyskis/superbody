@@ -4,33 +4,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="anketa_block_item">
     <div class="anketa_block_item_cont">
         <input type="hidden" name="course_id" value="<?php echo $course['id']; ?>" id="c-id"/>
-        <?php if (!empty($course['image'])) : ?>
-            <img src="<?php echo $course['image']; ?>" alt=""/>
-        <?php endif;?>
-        <div class="parent kurs_cur_wrap">
-            <div class="kurs_block_h">Изображение:</div>
-            <div class="video_down_line parent">
-                <div class="video_down_line_but_wrap">
-                    <label for="video_down_line_but1cs" class="video_down_line_but">
-                        <input type="file" name="course_image" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
-                        <span>Выберите файл</span>
-                    </label>
+        <div class="parent kurs_cur_wrap" style="margin-bottom: 18px;">
+            <div class="tren_set_form_l">
+                <div class="tren_set_form_img">
+                    <?php if (!empty($course['image'])): ?>
+                        <img src="<?php echo $course['image']; ?>" alt=""/>
+                    <?php else: ?>
+                        <img src="/img/no_img.png" alt="">
+                    <?php endif; ?>
                 </div>
-                <div class="video_down_line_name">Файл не выбран</div>
             </div>
-        </div>
-        <div class="parent kurs_cur_wrap">
-            <div class="kurs_block_h">Категория:</div>
-            <select name="s_course_type" class="journal_form_select">
-                <?php if (!empty($types)) :
-                    foreach ($types as $type) :?>
-                        <option value="<?php echo $type['id'];?>"
-                                <?php if (!empty($course['type']) and $course['type'] == $type['id']) :?>selected="selected"<?php endif;?>
-                        ><?php echo $type['name'];?></option>
-                    <?php endforeach;
-                    unset($type);
-                endif;?>
-            </select>
+            <div class="tren_set_form_r">
+                <div class="parent kurs_cur_wrap">
+                    <div class="kurs_block_h">Изображение:</div>
+                    <div class="video_down_line parent">
+                        <div class="video_down_line_but_wrap">
+                            <label for="video_down_line_but1cs" class="video_down_line_but">
+                                <input type="file" name="course_image" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
+                                <span>Выберите файл</span>
+                            </label>
+                        </div>
+                        <div class="video_down_line_name" style="width:calc(100% - 120px);">Файл не выбран</div>
+                    </div>
+                </div>
+                <div class="parent kurs_cur_wrap">
+                    <div class="kurs_block_h">Категория:</div>
+                    <select name="s_course_type" class="journal_form_select">
+                        <?php if (!empty($types)) :
+                            foreach ($types as $type) :?>
+                                <option value="<?php echo $type['id'];?>"
+                                        <?php if (!empty($course['type']) and $course['type'] == $type['id']) :?>selected="selected"<?php endif;?>
+                                ><?php echo $type['name'];?></option>
+                            <?php endforeach;
+                            unset($type);
+                        endif;?>
+                    </select>
+                </div>
+            </div>
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Наименование:</div>

@@ -992,7 +992,7 @@ class User extends CI_Controller
         // Получение данных анкеты из БД
         $user_quest_data     = $this->User_model->getQuestionnaireData($this->user_id);
         $user_anthrop_data   = $this->User_model->getLastAnthropometricData($this->user_id);
-        $result['user_data'] = array_merge($user_quest_data['user_data'], $user_anthrop_data['user_data']);
+        $result['user_data'] = array_merge($user_quest_data['user_data'], $user_anthrop_data['user_anthrop_data']);
         $result['user_name'] = $this->session->user['name'];
 
         // Объединенные данные страница

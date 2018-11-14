@@ -43,6 +43,11 @@ if (!empty($user_session)) :
             </a>
         </li>
         <li <?php echo $user_blocked; ?> >
+            <a href="/profile/meals" <?php if ($page_menu == 'u_meals') { echo 'class="active"'; } ?>>
+                <span></span><span>Питание</span>
+            </a>
+        </li>
+        <li <?php echo $user_blocked; ?> >
             <a href="/progress" <?php if ($page_menu == 'progress') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico7.png" alt=""></span><span>Прогресс</span>
             </a>

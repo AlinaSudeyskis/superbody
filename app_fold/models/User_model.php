@@ -680,6 +680,7 @@ class User_model extends CI_Model
      * @param $user_id
      * @param $today
      * @return array
+     * @throws Exception
      */
     public function getAnthropometricData($user_id, $today = '')
     {
@@ -1126,6 +1127,36 @@ class User_model extends CI_Model
         {
             return false;
         }
+    }
+
+    /**
+     * Получение данных БСО
+     *
+     * @param $user_id
+     *
+     * @return mixed
+     */
+    public function getUserBMR($user_id)
+    {
+        $result['user_bmr'] = null;
+
+        $sel_data = $this->db->query('
+            SELECT `user_bmr` 
+            FROM `questionnaire` 
+            WHERE `user_id`=? LIMIT 1', $user_id);
+
+        if ($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['user_bmr'] = $row->user_bmr;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
     }
 
     /**

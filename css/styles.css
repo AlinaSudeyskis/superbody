@@ -211,6 +211,12 @@ h3.landing{
     padding: 10px 15px;
     float: none;
 }
+.user_meal_form h3.landing{
+    margin: 0;
+    font-size: 18px;
+    padding: 10px 0;
+    text-align: center;
+}
 h3.landing span{
     color: #ffffff;
     font-size: 13px;
@@ -220,6 +226,10 @@ h3.landing span{
 }
 .lend_form_options {
     margin-bottom: 10px;
+}
+.lend_form_option {
+    margin-bottom: 20px;
+    height: 160px;
 }
 
 .admin_cont.f_right .admin_name {
@@ -242,7 +252,7 @@ h3.landing span{
     width: 100%;
 }
 .edit_kurs_form img {
-    width: 30%;
+    /*width: 30%;*/
 }
 .add_user_in {
     position: relative;
@@ -576,7 +586,7 @@ span.mess_block_full_time {
     overflow: hidden;
     flex-wrap: wrap;
     flex-direction: row;
-    margin-top: 30px;
+    /*margin-top: 30px;*/
 }
 .landing_blocks {
     flex-grow: 1;
@@ -586,6 +596,7 @@ span.mess_block_full_time {
     background-color: #f3f3f3;
     padding: 10px 15px;
     cursor: pointer;
+    text-decoration: none;
 }
 .landing_blocks.active {
     background: #2acaf2;

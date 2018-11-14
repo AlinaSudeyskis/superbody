@@ -17,10 +17,7 @@ function getInternetExplorerVersion() {
     return rv;
 }
 $(document).ready(function() {
-
-
 	/* Видео превью */
-
     function secondsToTime(time){
         var h = Math.floor(time / (60 * 60)),
             dm = time % (60 * 60),
@@ -508,12 +505,16 @@ $(document).ready(function() {
     });
 
     $(".kurs_slide").click(function() {
+        var block_h_buts = $(this).parent('.content_block_h_buts'),
+            content_block_h = block_h_buts.parent('.content_block_h'),
+            content_block = content_block_h.parent(".content_block"),
+            block = content_block.find(".kurs_block_val");
         if($(this).hasClass("hide_chart")){
             $(this).removeClass("hide_chart");
-            $(this).parents(".content_block").find(".kurs_block_val").slideDown(200);
+            block.slideDown(200);
         } else{
             $(this).addClass("hide_chart");
-            $(this).parents(".content_block").find(".kurs_block_val").slideUp(200);
+            block.slideUp(200);
         }
     });
 
@@ -542,35 +543,75 @@ function pop_up_def(popup) {
   $("#shadow, #shadow2, .close_video").fadeTo(600,0.8).click(function() {
     shadow.fadeOut(600);
     popup.fadeOut(600);
-    playerTwoPlayer.destroy();
+      if(typeof(playerTwoPlayer) !== "undefined")
+      {
+          playerTwoPlayer.destroy();
+      }
     //enableScroll();
   });
   //disableScroll();
 }
 function pop_up_home(popup) {
-  var shadow = $("#shadow2");
-  popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
-  $("#shadow2, .home_pop-up_close").fadeTo(600,0.8).click(function() {
-    shadow.fadeOut(600);
-    popup.fadeOut(600);
-      playerTwoPlayer.destroy();
-    //enableScroll();
-  });
-  $("#shadow2, .close_meal").fadeTo(600,0.8).click(function() {
-      shadow.fadeOut(600);
-      popup.fadeOut(600);
-      playerTwoPlayer.destroy();
-      //enableScroll();
-  });
-  $("#shadow2, .close_user_meal").fadeTo(600,0.8).click(function() {
-      shadow.fadeOut(600);
-      popup.fadeOut(600);
-      //enableScroll();
-  });
-  //disableScroll();
+    var shadow = $("#shadow2");
+    popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
+
+    // если необходимо делегирование событий, замените на mouseenter и mouseleave соответственно
+    $(popup).hover(function() {
+        preventScroll(popup);
+    }, function() {
+        returnScroll();
+    });
+
+    $("#shadow2, .home_pop-up_close").fadeTo(600,0.8).click(function() {
+        shadow.fadeOut(600);
+        popup.fadeOut(600);
+        if(typeof(playerTwoPlayer) !== "undefined")
+        {
+            playerTwoPlayer.destroy();
+        }
+    });
+    $("#shadow2, .close_meal").fadeTo(600,0.8).click(function() {
+        shadow.fadeOut(600);
+        popup.fadeOut(600);
+        if(typeof(playerTwoPlayer) !== "undefined")
+        {
+            playerTwoPlayer.destroy();
+        }
+    });
+    $("#shadow2, .close_user_meal").fadeTo(600,0.8).click(function() {
+        shadow.fadeOut(600);
+        popup.fadeOut(600);
+    });
+}
+var scrollKeys = [33,34,35,36,38,40];
+
+function preventScroll(popUp) {
+    $(document).on("mousewheel DOMMouseScroll", "body", function(e) {
+        var $np = $(popUp)[0];
+        var st = $np.scrollTop;
+        if (e.originalEvent.wheelDelta > 0 || e.originalEvent.detail < 0) {
+            if ($(e.target).closest(popUp).length &&
+                st > 0) return;
+        } else {
+            if ($(e.target).closest(popUp).length &&
+                st + $np.offsetHeight < $np.scrollHeight) return;
+        }
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    $(document).on("keydown", function(e) {
+        if (scrollKeys.indexOf(e.which) > -1) {
+            e.preventDefault();
+        }
+    });
 }
 
-var keys = {37: 1, 38: 1, 39: 1, 40: 1};
+function returnScroll() {
+    $(document).off("mousewheel DOMMouseScroll keydown");
+}
+
+/*var keys = {37: 1, 38: 1, 39: 1, 40: 1};
 
 function preventDefault(e) {
     e = e || window.event;
@@ -599,10 +640,11 @@ function enableScroll() {
     if (window.removeEventListener)
         window.removeEventListener('DOMMouseScroll', preventDefault, false);
     window.onmousewheel = document.onmousewheel = null;
-    window.onwheel = null;
+    //window.onwheel = null;
+    document.onwheel = null;
     window.ontouchmove = null;
     document.onkeydown = null;
-}
+}*/
 
 // Работа с youtube видео
 var tag = document.createElement('script');

@@ -49,6 +49,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/colorpicker/utils.js"></script>
     <script src="/js/colorpicker/layout.js"></script>-->
     <script src='https://www.google.com/recaptcha/api.js'></script>
+
+    <link rel="stylesheet" type="text/css" href="/datetimepicker/jquery.datetimepicker.css"/ >
+    <script src="/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 </head>
 <body>
 <span id="block-message" <?php if (!empty($message)){ echo 'class="show"';}?>>

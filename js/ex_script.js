@@ -5,7 +5,8 @@ $(document).ready(function(){
         theme: "modern",
         language_url : '/js/tinymce/langs/ru.js',
         plugins: "textcolor colorpicker bbcode",
-        toolbar: "undo redo | bold italic | forecolor"
+        toolbar: "undo redo | bold italic | forecolor",
+        max_chars_indicator: "pageLength"
     });
     if($('.kurs_block_val').length > 0 && $('.content_block_container').length > 0)
     {
@@ -48,7 +49,11 @@ $(document).ready(function(){
 
     $(".add_new_options_but.add_form_advantage").click(function() {
         $(this).parents(".lend_form_options_wrap").find(".lend_form_options")
-            .append('<input type="text" name="i_advantages_block6[]" class="admin_form_txt" value="" placeholder="Преимущество" />');
+            .append('<div class="parent kurs_cur_wrap">' +
+                '<div class="kurs_block_h">Преимущество:</div>' +
+                '<input type="text" name="i_advantages_block6[]" class="admin_form_txt admin_form_txt_middle" value="" maxlength="70"/>' +
+                '</div>');
+        addInfoOfRemainingCharacters();
     });
 
     $(".add_new_options_but.add_form_plan").click(function() {
@@ -56,47 +61,104 @@ $(document).ready(function(){
 
         $(this).parents(".lend_form_options_wrap").find(".lend_form_options")
             .append('<div class="lend_form_option">' +
-                '<div class="parent kurs_cur_wrap">' +
-                '<div class="kurs_block_h">' +
-                    'Изображение:' +
-                    '<div class="h_subtitle">(285х285)</div>' +
+                '<div class="tren_set_form_l">' +
+                    '<div class="tren_set_form_img"><img src="/img/no_img.png" alt=""></div>' +
                 '</div>' +
-                '<div class="video_down_line parent">' +
-                '<div class="video_down_line_but_wrap">' +
-                '<label for="video_down_line_but'+num+'p" class="video_down_line_but">' +
-                '<input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but'+num+'p">' +
-                '<span>Выберите файл</span>' +
-                '</label>' +
-                '</div>' +
-                '<div class="video_down_line_name">Файл не выбран</div>' +
-                '<div class="progressbar_wrap"><progress class="progressbar" id="progressbar'+num+'p" value="50" max="100"></progress></div>' +
-                '</div></div>' +
-                '<div class="parent kurs_cur_wrap">' +
-                '<div class="kurs_block_h">Текст плана:</div>' +
-                '<input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" />' +
-                '</div>' +
+                '<div class="tren_set_form_r">' +
+                    '<div class="tren_form_block_check_wrap">' +
+                        '<input type="checkbox" name="cb_images_block7[]" checked="checked" class="tren_form_block_check" id="tren_form_block_check15e'+num+'" />' +
+                        '<label for="tren_form_block_check15e'+num+'">Изображение по умолчанию</label>' +
+                    '</div>' +
+                    '<div class="parent kurs_cur_wrap" style="max-height: 72px">' +
+                    '<div class="kurs_block_h">' +
+                        'Изображение:' +
+                        '<div class="h_subtitle">(285х285)</div>' +
+                    '</div>' +
+                    '<div class="video_down_line parent">' +
+                    '<div class="video_down_line_but_wrap">' +
+                    '<label for="video_down_line_but'+num+'p" class="video_down_line_but">' +
+                    '<input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but'+num+'p">' +
+                    '<span>Выберите файл</span>' +
+                    '</label>' +
+                    '</div>' +
+                    '<div class="video_down_line_name">Файл не выбран</div>' +
+                    '</div></div>' +
+                    '<div class="parent kurs_cur_wrap">' +
+                    '<div class="kurs_block_h">Текст плана:</div>' +
+                    '<input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" />' +
+                    '</div>' +
+                    '</div>' +
                 '</div>');
-
-        if(num == 4)
+        addInfoOfRemainingCharacters();
+        if(num === 4)
         {
             $(".add_new_options_but.add_form_plan").hide();
         }
     });
 
     /* Добавление информации об остаточном кол-ве символов для ввода */
-    if($('form.landing_admin_form').length == 1)
+    if($('form.landing_admin_form').length === 1)
+    {
+        addInfoOfRemainingCharacters();
+    }
+
+    // Выбор фонового цвета блока landing page
+    var colorselector = $('.colorselector');
+    if (colorselector.length > 0) {
+        var widt = true;
+        colorselector.on('click', function () {
+            var parent = $(this).parent('#customWidget'),
+                parent_child = parent.find('.colorpickerholder2'),
+                color = parent.parent('.bg_color').find('#block_bg_color').val();
+
+            if (color === '' || color.substr(1, 1) !== '#') {
+                color = '#00bff0';
+            }
+
+            if (parent_child.is(':visible')) {
+                parent_child.hide();
+            } else {
+                $('.colorpickerholder2').hide();
+                parent_child.show();
+                widt = !widt;
+            }
+
+            parent_child.ColorPicker({
+                flat: true,
+                color: color,
+                onChange: function (hsb, hex, rgb) {
+                    if ($(this).is(':visible')){
+                        var color_selector = $(this).parent('.colorpickerholder2').parent('#customWidget').find('.colorselector div'),
+                            input_bg = $(this).parent('.colorpickerholder2').parent('#customWidget').parent('.bg_color').find('#block_bg_color');
+
+                        color_selector.css('backgroundColor', '#' + hex);
+                        input_bg.val('#' + hex);
+                        $(this).ColorPickerSetColor('#' + hex);
+                    }
+                },
+                onSubmit: function (hsb, hex, rgb, el) {
+                    var color_selector = $(el).parent('#customWidget').find('.colorselector div');
+
+                    color_selector.css('backgroundColor', 'transparent');
+                }
+            });
+        });
+    }
+
+    // Добавление информции о доступном кол-ве символов для ввода
+    function addInfoOfRemainingCharacters()
     {
         var input_text = $('input[type=text]');
 
         input_text.each(function(){
-            if($(this).prop('name') != 'i_old_price_block8' && $(this).prop('name') != 'i_new_price_block8' &&
-                $(this).parent('.subscribe_form_in_wrap').length == 0)
+            if($(this).prop('name') !== 'i_old_price_block8' && $(this).prop('name') !== 'i_new_price_block8' &&
+                $(this).parent('.subscribe_form_in_wrap').length === 0)
             {
                 var i_this = $(this),
                     max_length = i_this.attr('maxLength'),
                     value_length = i_this.val().length,
                     remaining_length = max_length - value_length;
-                if(max_length > 0 && remaining_length >= 0)
+                if(max_length > 0 && remaining_length >= 0 && i_this.next('.remaining_characters').length === 0)
                 {
                     i_this.after('<span class="remaining_characters">' + remaining_length + '</span>');
                 }
@@ -106,7 +168,7 @@ $(document).ready(function(){
         input_text.on('keyup', function(){
             var i_this = $(this),
                 rmc_span = i_this.next('.remaining_characters');
-            if(rmc_span.length == 1)
+            if(rmc_span.length === 1)
             {
                 var max_length = i_this.attr('maxLength'),
                     value_length = i_this.val().length,
@@ -693,7 +755,7 @@ $(document).ready(function(){
         $('.nutrition_block_wrap').children('.h_subtitle').hide();
     });
 
-    $(".landing_block_table").on('click', '.landing_blocks', function(){
+    /*$(".landing_block_table").on('click', '.landing_blocks', function(){
         if ($(this).hasClass("active"))
         {
             $(this).removeClass('active');
@@ -706,7 +768,7 @@ $(document).ready(function(){
             $(this).addClass("active");
             $('#l-' + $(this).attr('id')).show();
         }
-    });
+    });*/
 
     $("#video-course").on('change', function(){
         var crs_block = $('.course_length');

@@ -1663,6 +1663,110 @@ class Course_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Приемы пищи пользователя за последнюю неделю
+     *
+     * @param $user_id
+     * @param $date
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getLastWeekMeals($user_id, $date)
+    {
+        $result = array('user_meals' => array());
+
+        $tmp_date = new DateTime($date);
+        $tmp_date->sub(new DateInterval('P8D'));
+        $week_ago = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
+
+        if(is_numeric($user_id) and !empty($week_ago))
+        {
+            $sel_data = $this->db->query('
+                SELECT `udm_id`, `udm_u_id`, `udm_ml_id`, `udm_ml_weight`, `udm_datetime`, `udm_update`,
+                  `ml_name`, `ml_calories`, `ml_proteins`, `ml_fats`, `ml_carbohydrates` 
+                FROM `users_day_meals` 
+                LEFT JOIN `meals` ON `ml_id`=`udm_ml_id`
+                WHERE `udm_u_id`=? and `udm_datetime`>?
+                ORDER BY `udm_datetime` DESC', array($user_id, $week_ago));
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                $i = 0;
+                foreach($sel_data->result() as $row)
+                {
+                    $result['user_meals'][$i] = self::parseUserMeals($row);
+
+                    $i++;
+                }
+                unset($row);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка приемов пищи пользователя на сегодня
+     *
+     * @param $user_id
+     * @param $date
+     *
+     * @return array
+     */
+    public function getTodayUserMeal($user_id, $date)
+    {
+        $result = array('user_meal' => array(), 'today_meal_calories' => 0, 'today_meal_proteins' => 0,
+            'today_meal_fats' => 0, 'today_meal_carbohydrates' => 0);
+
+        $tmp_date = new DateTime($date);
+        $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
+
+        if(is_numeric($user_id))
+        {
+            $sel_data = $this->db->query('
+                SELECT `udm_id`, `udm_u_id`, `udm_ml_id`, `udm_ml_weight`, `udm_datetime`, `udm_update`,
+                  `ml_name`, `ml_calories`, `ml_proteins`, `ml_fats`, `ml_carbohydrates` 
+                FROM `users_day_meals` 
+                LEFT JOIN `meals` ON `ml_id`=`udm_ml_id`
+                WHERE `udm_u_id`=? and `udm_datetime`>?
+                ORDER BY `udm_datetime` DESC', array($user_id, $today));
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                $today_calories = 0;
+                $today_proteins = 0;
+                $today_fats = 0;
+                $today_carbohydrates = 0;
+                $i = 0;
+                foreach($sel_data->result() as $row)
+                {
+                    $koef = $row->udm_ml_weight / 100;
+
+                    $today_calories += $koef*$row->ml_calories;
+                    $today_proteins += $koef*$row->ml_proteins;
+                    $today_fats += $koef*$row->ml_fats;
+                    $today_carbohydrates += $koef*$row->ml_carbohydrates;
+
+                    $i++;
+                }
+                unset($row);
+                $result['today_meal_calories'] = number_format($today_calories, 2, '.', '');
+                $result['today_meal_proteins'] = number_format($today_proteins, 2, '.', '');
+                $result['today_meal_fats'] = number_format($today_fats, 2, '.', '');
+                $result['today_meal_carbohydrates'] = number_format($today_carbohydrates, 2, '.', '');
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ БЛЮДА */
 
 
@@ -3786,74 +3890,26 @@ class Course_model extends CI_Model
     }
 
     /**
-     * Сохранение/изменение Landing page курса
+     * Сохранение/изменение Landing page курса. Блок 7
      *
      * @param $course_id
-     * @param $landing_style
-     * @param $slider_images
-     * @param $main_title_bbcode
-     * @param $b2_bg
-     * @param $b2_image
-     * @param $b2_title
-     * @param $b2_subtitle
-     * @param $b2_text
-     * @param $b2_button
-     * @param $b3_bg
-     * @param $b3_images
-     * @param $b3_title
-     * @param $b3_subtitle
-     * @param $b3_r_title
-     * @param $b3_r_subtitle
-     * @param $b3_r_reviews
-     * @param $b4_bg
-     * @param $b4_image
-     * @param $b4_title
-     * @param $b4_subtitle
-     * @param $b4_r_title
-     * @param $b4_r_desc
-     * @param $b4_button
-     * @param $b5_bg
-     * @param $b5_images
-     * @param $b5_title
-     * @param $b5_subtitle
-     * @param $b5_text
-     * @param $b5_r_title
-     * @param $b5_r_subtitle
-     * @param $b5_r_text
-     * @param $b5_button
-     * @param $b6_bg
-     * @param $b6_image
-     * @param $b6_title
-     * @param $b6_desc
-     * @param $b6_subtitle
-     * @param $b6_advantages
-     * @param $b6_button
      * @param $b7_bg
      * @param $b7_title
      * @param $b7_images
      * @param $b7_texts
      * @param $b7_button
-     * @param $b8_bg
-     * @param $b8_title
-     * @param $b8_desc1
-     * @param $b8_subtitle
-     * @param $b8_desc2
-     * @param $b8_old_price
-     * @param $b8_new_price
-     * @param $b8_button
-     * @param $admin_id
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock7($course_id, $landing_style, $b7_bg, $b7_title, $b7_images, $b7_texts,
+    public function setCourseLandingBlock7($course_id, $b7_bg, $b7_title, $b7_images, $b7_texts,
                                            $b7_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_block7_background`=?, `clp_block7_title`=?, `clp_block7_images`=?, `clp_block7_text`=?, 
+            SET `clp_block7_background`=?, `clp_block7_title`=?, `clp_block7_images`=?, `clp_block7_text`=?, 
             `clp_block7_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button, $date, $course_id));
+                array($b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -7703,10 +7759,12 @@ class Course_model extends CI_Model
     /**
      * Сохранение расписания курса питания
      *
-     * @param int $course_id ID курса
-     * @param int $uc_id ID курса пользователя
+     * @param int    $course_id ID курса
+     * @param int    $uc_id ID курса пользователя
      * @param string $start_date Дата начала курса
      * @param string $date Текущая дата
+     *
+     * @throws Exception
      */
     public function setUserNutritionSchedule($course_id, $uc_id, $start_date, $date)
     {
@@ -8518,6 +8576,60 @@ class Course_model extends CI_Model
     }
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА ПОЛЬЗОВАТЕЛЕЙ */
+
+
+    /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ ПРИЕМА ПИЩИ ПОЛЬЗОВАТЕЛЯ */
+
+    /**
+     * Сохранение данных приема пищи пользователя
+     *
+     * @param $user_id
+     * @param $ingr_weights
+     * @param $meal_datetime
+     * @param $date
+     *
+     * @return bool
+     */
+    public function addNewUserMeal($user_id, $ingr_weights, $meal_datetime, $date)
+    {
+        $result = false;
+
+        if(is_array($ingr_weights))
+        {
+            $values = '';
+            foreach($ingr_weights as $ml_id => $weight)
+            {
+                if(!empty($values))
+                {
+                    $values .= ', ';
+                }
+
+                $values .= '(' . $user_id . ', ' . $ml_id . ', "' . $weight . '", "' . $meal_datetime. '", "' . $date . '")';
+            }
+            unset($ml_id);
+            unset($weight);
+
+            if(!empty($values))
+            {
+                $ins_data = $this->db->query('
+                    INSERT INTO `users_day_meals`(`udm_u_id`, `udm_ml_id`, `udm_ml_weight`, `udm_datetime`, `udm_update`) 
+                    VALUES ' . $values);
+
+                if($ins_data !== false and 0 < $this->db->affected_rows())
+                {
+                    $result = true;
+                }
+                elseif($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ ПРИЕМА ПИЩИ ПОЛЬЗОВАТЕЛЯ */
 
 
     /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ ОТЗЫВОВ О КУРСЕ */
@@ -10100,7 +10212,7 @@ class Course_model extends CI_Model
             'block4' => array('bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
             'block5' => array('bg' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'button' => ''),
             'block6' => array('bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => array(), 'image' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-            'block7' => array('bg' => '', 'images' => array(), 'texts' => array(), 'bg_default' => true, 'images_default' => true, 'button' => ''),
+            'block7' => array('bg' => '', 'images' => array(), 'texts' => array(), 'bg_default' => true, 'images_default' => array(), 'button' => ''),
             'block8' => array('bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'bg_default' => true, 'button' => '')
         );
 
@@ -10242,11 +10354,13 @@ class Course_model extends CI_Model
             $i = 0;
             foreach ($clp_images as $key => $s_image)
             {
+                $result['block3']['images_orig'][$i]    = $s_image;
+                $result['block3']['images_default'][$i] = true;
+
                 if (!empty($s_image) and $s_image != 'default')
                 {
                     $result['block3']['images'][$i]         = is_file($s_image) ? mb_substr($s_image, 1) : '';
                     $result['block3']['images_default'][$i] = false;
-                    $result['block3']['images_orig'][$i]    = $s_image;
 
                     if (empty($result['block3']['images'][$i]))
                     {
@@ -10258,9 +10372,7 @@ class Course_model extends CI_Model
                 }
                 elseif($s_image == 'default')
                 {
-                    $result['block3']['images'][$i]         = is_file($lp_images[$key]) ? mb_substr($lp_images[$key], 1) : '';
-                    $result['block3']['images_default'][$i] = true;
-                    $result['block3']['images_orig'][$i]    = $s_image;
+                    $result['block3']['images'][$i] = is_file($lp_images[$key]) ? mb_substr($lp_images[$key], 1) : '';
 
                     $i++;
                 }
@@ -10485,29 +10597,24 @@ class Course_model extends CI_Model
         if (!empty($row->clp_block7_images))
         {
             $clp_images = explode(';', $row->clp_block7_images);
-            $lp_images = explode(';', $row->lp_block7_images);
-            $b7_images_default = true;
+            $lp_images  = explode(';', $row->lp_block7_images);
 
             $i = 0;
             foreach ($clp_images as $key => $s_image)
             {
                 if (!empty($s_image))
                 {
-                    $result['block7']['images_orig'][$i] = $s_image;
+                    $result['block7']['images_orig'][$i]    = $s_image;
+                    $result['block7']['images_default'][$i] = false;
 
                     if ($s_image == 'default' and $i <= 3)
                     {
                         $result['block7']['images'][$i] = is_file($lp_images[$key]) ? mb_substr($lp_images[$key], 1) : '';
+                        $result['block7']['images_default'][$i] = true;
                     }
                     else
                     {
                         $result['block7']['images'][$i] = is_file($s_image) ? mb_substr($s_image, 1) : 'default';
-                    }
-
-                    if ($b7_images_default === true and $i <= 3 and $s_image != 'default')
-                    {
-                        $result['block7']['images_default'] = false;
-                        $b7_images_default = false;
                     }
 
                     $i++;
@@ -10528,11 +10635,6 @@ class Course_model extends CI_Model
                 if (!empty($text))
                 {
                     $result['block7']['texts'][$i] = $text;
-
-                    if (empty($result['block7']['images'][$i]))
-                    {
-                        unset($result['block7']['texts'][$i]);
-                    }
 
                     $i++;
                 }
@@ -10802,6 +10904,44 @@ class Course_model extends CI_Model
         $result['attached_id'] = (!empty($row->ca_attached_crs_id)) ? $row->ca_attached_crs_id : null;
         $result['name']        = (!empty($row->crs_name)) ? $row->crs_name : null;
         $result['blocked']     = (!empty($row->ca_blocked)) ? $row->ca_blocked : null;
+
+        return $result;
+    }
+
+    /**
+     * Обработка данные приемов пищи пользователя
+     *
+     * @param $row
+     *
+     * @return array
+     */
+    protected function parseUserMeals($row)
+    {
+        $result = array('id' => '', 'u_id' => '', 'ml_id' => '', 'ml_weight' => '', 'datetime' => '', 'update' => '',
+            'meal_date' => '', 'meal_date_details' => '');
+
+        $result['id']        = (!empty($row->udm_id)) ? $row->udm_id : null;
+        $result['u_id']      = (!empty($row->udm_u_id)) ? $row->udm_u_id : null;
+        $result['ml_id']     = (!empty($row->udm_ml_id)) ? $row->udm_ml_id : null;
+        $result['ml_name']   = (!empty($row->ml_name)) ? $row->ml_name : null;
+        $result['ml_weight'] = (!empty($row->udm_ml_weight)) ? $row->udm_ml_weight : null;
+        $result['datetime']  = (!empty($row->udm_datetime)) ? $row->udm_datetime : null;
+        $result['update']    = (!empty($row->udm_update)) ? $row->udm_update : null;
+
+        if(!empty($row->udm_datetime))
+        {
+            $tmp_dt = new DateTime($row->udm_datetime);
+            setlocale(LC_ALL, 'ru_RU.UTF-8');
+            $tmp_nd = ($tmp_dt !== false) ? strftime('%d %b %Gг.', strtotime($row->udm_datetime)) : false;
+            $result['meal_date'] = ($tmp_dt !== false) ? $tmp_dt->format('Y-m-d') : null;
+            $result['meal_time'] = ($tmp_dt !== false) ? $tmp_dt->format('H:i') : null;
+            $result['meal_date_details'] = ($tmp_nd !== false) ? $tmp_nd : null;
+        }
+
+        $result['ml_calories']      = (!empty($row->ml_calories)) ? $row->ml_calories : null;
+        $result['ml_proteins']      = (!empty($row->ml_proteins)) ? $row->ml_proteins : null;
+        $result['ml_fats']          = (!empty($row->ml_fats)) ? $row->ml_fats : null;
+        $result['ml_carbohydrates'] = (!empty($row->ml_carbohydrates)) ? $row->ml_carbohydrates : null;
 
         return $result;
     }

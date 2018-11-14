@@ -1694,7 +1694,7 @@ tr:first-child > td > .fc-day-grid-event{
 }
 #pop-up_meal{
     width: 90%;
-    max-width: 900px;
+    max-width: 500px;
     z-index: 113;
     left: 50%;
     top: 50%;
@@ -1705,14 +1705,14 @@ tr:first-child > td > .fc-day-grid-event{
 }
 #pop-up_user_meal{
     width: 90%;
-    max-width: 900px;
+    height: 90%;
+    max-width: 500px;
     z-index: 113;
     left: 50%;
     top: 50%;
     background: #fff;
     position: fixed;
     display: none;
-    min-height: 330px;
     padding: 15px;
 }
 .px-video-container video{
@@ -2869,12 +2869,44 @@ tr:first-child > td > .fc-day-grid-event{
     margin: 10px 0;
     line-height: 17px;
 }
+
+.wpfcc_title{
+    margin: 20px 0 0;
+    text-align: center;
+    line-height: 35px;
+    display: block;
+    background: #f3f3f3;
+    color: #757575;
+    text-transform: uppercase;
+    font-size: 13px;
+}
 .meal_wpfcc_wrap{
     display: flex;
     margin-top: 30px;
 }
+.current_meal .meal_wpfcc_wrap, .current_meal_day .meal_wpfcc_wrap{
+    margin-top: 0;
+}
 .meal_wpfcc{
     flex: 1;
+
+    position: relative;
+    background-color: #f3f3f3;
+    z-index: 0;
+}
+.meal_wpfcc_progress{
+    position: absolute;
+    height: 25px;
+    width: 0;
+    bottom: 0;
+    border-right: 1px solid #ffffff;
+    z-index: -1;
+}
+.meal_wpfcc_progress.right{
+    right: 0;
+    background-color: #ffd6a9;
+    width: 100%;
+    z-index: -2;
 }
 .meal_wpfcc_title {
     text-align: center;
@@ -6796,15 +6828,18 @@ textarea.journal_post_comm_in{
     width: 160px;
 }
 .tren_set_form_r{
-    margin-left: 200px;
+    margin-left: 180px;
+    padding-top: 10px;
 }
 .tren_set_form_img {
     overflow: hidden;
+    position: relative;
 }
 .tren_set_form_img img{
     display: block;
     /*width: 160px;*/
     height: 160px;
+    margin: 0 auto;
 }
 .tren_set_form_add {
     margin-top: 20px;
@@ -7008,6 +7043,9 @@ textarea.journal_post_comm_in{
 	margin-bottom: 20px;
     min-height: 36px;
 }
+.anketa_form_line.current_meal_day, .anketa_form_line.user_meal_time{
+    margin-bottom: 0;
+}
 .anketa_form_line.country_code{
     margin-bottom: 5px;
 }
@@ -7015,6 +7053,14 @@ textarea.journal_post_comm_in{
 	padding-left: 180px;
 	padding-top: 10px;
 	padding-bottom: 40px;
+}
+.user_meal_form .anketa_form_buts_wrap{
+    margin: 0 auto;
+    width: 120px;
+    padding: 0;
+}
+.user_meal_form .anketa_form_buts_wrap .video_admin_form_send{
+    margin: 0;
 }
 .anketa_form_but{
 	display: block;
@@ -7137,6 +7183,26 @@ textarea.journal_post_comm_in{
 .anketa_form_three_wrap .anketa_form_select, .anketa_form_two_wrap .anketa_form_select{
 	width: 100%;
 }
+.user_meal_time .jq-selectbox {
+    text-align: center;
+}
+.user_meal_time .jq-selectbox.select{
+    float: left;
+    width: 50%;
+}
+#um-datetimepicker {
+    display: none;
+    line-height: 35px;
+    width: calc(50% - 1px);
+    font-style: italic;
+    border: none;
+    padding: 0 10px;
+    background-color: #f3f3f3;
+    cursor: pointer;
+    margin-left: 1px;
+    font-size: 13px;
+    font-weight: 300;
+}
 .anketa_form_three_wrap .anketa_form_select .jq-selectbox__select,
 .anketa_form_two_wrap .anketa_form_select .jq-selectbox__select{
 	width: 100%;
@@ -7253,6 +7319,9 @@ textarea.journal_post_comm_in{
 .anketa_form_one_wrap{
 	width: 330px;
 	padding-left: 0;
+}
+.user_meal_form .anketa_form_one_wrap{
+    width: 100%;
 }
 textarea.anketa_form_in{
 	resize: none;
@@ -8765,9 +8834,10 @@ textarea.anketa_form_in{
     padding-right: 20px;
     font-size: 13px;
 }
-.anketa_form_info_cont .video_down_line_name{
-     width: calc(100% - 120px);
- }
+.anketa_form_info_cont .video_down_line_name,
+.landing_admin_form .video_down_line_name {
+    width: calc(100% - 120px);
+}
 .progressbar_wrap{
     float: left;
     width: calc(55% - 120px);
@@ -9006,7 +9076,13 @@ textarea.anketa_form_in{
     max-width: 330px;
     width: calc(100% - 270px);
 }
-.kurs_cur_wrap{position: relative;}
+.kurs_cur_wrap{
+    position: relative;
+}
+.lend_form_option .kurs_cur_wrap, .tren_set_form_r .kurs_cur_wrap{
+    position: relative;
+    max-height: 55px;
+}
 .admin_form_txt_dop_wrap input,
 .kurs_cur_wrap input{
     float: left;
@@ -9029,16 +9105,33 @@ textarea.anketa_form_in{
     float: left;
     width: calc(100% - 180px);
 }
+.user_meal_form{
+    height: 100%;
+    cursor: default;
+}
+.user_meals{
+    min-height: unset;
+    height: calc(100% - 343px);
+}
+.user_meals .add_tov_in_total{
+    height: 100%;
+    overflow: hidden;
+}
+.user_meals .add_tov_val{
+    height: calc(100% - 60px);
+    overflow: hidden;
+    overflow-y: auto;
+    margin: 20px 0 0;
+}
 .add_tov_in.user_meal{
-    margin: 0 auto;
-    width: 50%;
+    width: 100%;
     float: none;
-    min-width: 250px;
     height: 35px;
 }
 .user_meal .anketa_form_in.anketa_form_in_long{
     clear: both;
     width: 100%;
+    text-align: center;
 }
 .add_tov_list{
     position: absolute;
@@ -9053,6 +9146,9 @@ textarea.anketa_form_in{
     margin-top: 5px;
     z-index: 101;
     display: none;
+}
+.user_meal .add_tov_list{
+    max-width: none;
 }
 .meal .add_tov_list{
     top: 35px;
@@ -9163,6 +9259,12 @@ textarea.anketa_form_in{
 }
 .add_tov_val_item:last-child{
     margin-bottom: 30px;
+}
+.add_tov_val_item.user_meals_data{
+    padding-top: 0;
+}
+.add_tov_val_item.user_meals_data:last-child{
+    margin-bottom: 0;
 }
 .practice_block .add_tov_val_item:last-child,
 .instruction_block .add_tov_val_item:last-child,
@@ -9304,23 +9406,29 @@ textarea.anketa_form_in{
     position: relative;
     max-width:330px;
 }
-.meal ~ .add_tov_val .add_tov_val_item .add_kurs_val_video_wrap{
+.meal ~ .add_tov_val .add_tov_val_item .add_kurs_val_video_wrap,
+.user_meal ~ .add_tov_val .add_tov_val_item .add_kurs_val_video_wrap
+{
     max-width: none;
 }
 .ingredient ~ .add_tov_val .add_tov_val_item .add_kurs_val_video_wrap{
     max-width: 600px;
 }
-.ingredients .meal_wpfcc_val > input{
+
+.ingredients .meal_wpfcc_val > input, .user_meals .meal_wpfcc_val > input,
+.current_meal .meal_wpfcc_val > input, .current_meal_day .meal_wpfcc_val > input
+{
     line-height: 25px;
     height: 25px;
     font-size: 13px;
     width: 100%;
 }
-.ingredients .meal_wpfcc_val{
+.ingredients .meal_wpfcc_val, .user_meals .meal_wpfcc_val,
+.current_meal .meal_wpfcc_val, .current_meal_day .meal_wpfcc_val{
     line-height: 25px;
     height: 25px;
     font-size: 13px;
-    background: #f3f3f3;
+    /*background: #f3f3f3;*/
     border-right: 1px solid #ffffff;
 }
 .tren_form_block_check_wrap{
@@ -9917,10 +10025,10 @@ input.tren_form_block_check{
     .tren_item{
         padding: 0 15px;
     }
-    .sing-in_bg > img{
+    /*.sing-in_bg > img{
         width: 1320px;
         margin-left: -660px;
-    }
+    }*/
     .sing-in{
         top: 20px; /*77; 40*/
         /*padding: 15px;*/
@@ -12580,10 +12688,10 @@ input.tren_form_block_check{
         width: 100%;
         left: 0;
     }
-    .sing-in_bg > img{
+    /*.sing-in_bg > img{
     	width: 1100px;
     	margin-left: -550px;
-    }
+    }*/
     .in_bg_wrap .slick-dots{
         position: relative;
         top: -50px;
@@ -13503,14 +13611,14 @@ input.tren_form_block_check{
     .js-fullscreen-controls .px-video-mute-btn-container{
     	padding-left: 15px;
     }
-    .sing-in_bg > img{
+    /*.sing-in_bg > img{
         width: 800px;
         margin-left: -400px;
-    }
-    .header_bg_main .sing-in_bg > img{
+    }*/
+    /*.header_bg_main .sing-in_bg > img{
         width: 1140px;
         margin-left: -570px;
-    }
+    }*/
     .sing-in{
     	top: 30px;
     }

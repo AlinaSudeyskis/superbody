@@ -34,50 +34,6 @@ $(document).ready(function() {
                 chat.scrollTop(chat[0].scrollHeight);
             }/**/
 
-            if ($('.colorselector').length > 0) {
-                var colorselectors = $('.colorselector'),
-                    widt = true;
-                /*colorselectors.each(function() {
-                    $(this).parent('#customWidget').find('.colorpickerholder2').ColorPicker('#00bff0');
-                });*/
-                $('.colorselector').on('click', function () {
-                    var parent = $(this).parent('#customWidget'),
-                        parent_child = parent.find('.colorpickerholder2'),
-                        color = parent.parent('.bg_color').find('#block_bg_color').val();
-
-                    if (color == '' || color.substr(1, 1) != '#') {
-                        color = '#00bff0';
-                    }
-
-                    if (parent_child.is(':visible')) {
-                        parent_child.hide();
-                    } else {
-                        $('.colorpickerholder2').hide();
-                        parent_child.show();
-                        widt = !widt;
-                    }
-
-                    parent_child.ColorPicker({
-                        flat: true,
-                        color: color,
-                        onChange: function (hsb, hex, rgb) {
-                            if ($(this).is(':visible')){
-                                var color_selector = $(this).parent('.colorpickerholder2').parent('#customWidget').find('.colorselector div'),
-                                    input_bg = $(this).parent('.colorpickerholder2').parent('#customWidget').parent('.bg_color').find('#block_bg_color');
-
-                                color_selector.css('backgroundColor', '#' + hex);
-                                input_bg.val('#' + hex);
-                                $(this).ColorPickerSetColor('#' + hex);
-                            }
-                        },
-                        onSubmit: function (hsb, hex, rgb, el) {
-                            var color_selector = $(el).parent('#customWidget').find('.colorselector div');
-
-                            color_selector.css('backgroundColor', 'transparent');
-                        }
-                    });
-                });
-            }
 
             // Валидация email
             var email_error = $('.email_error'),
@@ -543,23 +499,55 @@ $(document).ready(function() {
             });
 
             // Отображение и поиск приема пищи пользователя
+            var pop_umeal = $('#pop-up_user_meal');
             $('#s-adding-meal').on('click', function(){
-                $.ajax({
-                    url: '/show/userMeal',
-                    type: 'post',
-                    dataType: 'json',
-                    complete: function(result){
-                        var data = jQuery.parseJSON(result.responseText);
-                        if(!data.error)
-                        {
-                            $('#pop-up_user_meal').html(data.form);
-                            pop_up_home($("#pop-up_user_meal"));
+                if(pop_umeal.children('form').length === 1)
+                {
+                    pop_up_home(pop_umeal);
+                }
+                else
+                {
+                    $.ajax({
+                        url: '/show/userMeal',
+                        type: 'post',
+                        dataType: 'json',
+                        complete: function(result){
+                            var data = jQuery.parseJSON(result.responseText);
+                            if(!data.error)
+                            {
+                                pop_umeal.html(data.form);
+                                pop_up_home(pop_umeal);
+
+                                $(document).find('.anketa_form_select').styler();
+                                $.datetimepicker.setLocale('ru');
+                                $(document).find('#um-datetimepicker').datetimepicker({
+                                    onSelectDate:function(ct,$i){
+                                        calcUserMealsWCPFC();
+                                    },
+                                    format:'d.m.Y H:i',
+                                    maxDate:'+1970/01/01',
+                                    dayOfWeekStart:'1'
+                                });
+                            }
                         }
-                    }
-                });
+                    });
+                }
+            });
+            $(document).on('change', '.user_meal_time #u-meal-time', function(){
+
+                if($(this).val() === 'select')
+                {
+                    $(this).parent('.jq-selectbox').addClass('select');
+                    $(document).find('#um-datetimepicker').show();
+                }
+                else{
+                    $(this).parent('.jq-selectbox').removeClass('select');
+                    $(document).find('#um-datetimepicker').hide();
+                }
+                calcUserMealsWCPFC();
             });
             $(document).on('input', '.add_tov_in.user_meal input:text', function () {
-                if($(this).val() != '' && $(this).val().length > 3 && $(this).val().length < 255){
+                if($(this).val().length > 3 && $(this).val().length < 255){
                     var input_search = $(this).val(),
                         tov_in = $(this);
                     $.ajax({
@@ -569,7 +557,7 @@ $(document).ready(function() {
                         data: {search_text: input_search},
                         complete: function (result) {
                             var data = jQuery.parseJSON(result.responseText);
-                            if (data.meals != "") {
+                            if (data.meals !== "") {
                                 tov_in.parents(".add_tov_in").find(".add_tov_list").show();
                                 tov_in.parents(".add_tov_in").find(".add_tov_list").html(data.meals);
                             }
@@ -582,141 +570,352 @@ $(document).ready(function() {
                     $(this).parents(".add_tov_in").find(".add_tov_list").hide();
                 }
             });
-            $(document).on("click", ".user_meal.add_tren_item", function() {
+            $(document).on("click", ".user_meal .add_tren_item", function () {
+                event.preventDefault();
                 if(!$(this).hasClass("disable")){
-                    var link = $(this).find(".add_tov_cont").attr("href"),
-                        name = $(this).find(".add_tov_h").text(),
-                        number = $(this).attr("id");
+                    var this_meal = $(this),
+                        link = this_meal.find(".add_tov_cont").attr("href"),
+                        name = this_meal.data('meal-name'),
+                        number = this_meal.data('meal-id'),
+                        weight = this_meal.data('weight'),
+                        proteins = this_meal.data('proteins'),
+                        fats = this_meal.data('fats'),
+                        carbohydrates = this_meal.data('carbohydrates'),
+                        calories = this_meal.data('calories'),
+                        add_tov_val = this_meal.parents(".add_tov_in_total").find('.add_tov_val'),
+                        ml_block_content = '<div id="user-meal-' + number + '" class="add_tov_val_item parent user_meals_data">' +
+                                '<div class="add_kurs_val_video_wrap parent">' +
+                                    '<div class="add_tov_val_cont meal_cont parent">' +
+                                        '<div class="add_tov_val_h">' + name + '</div>' +
+                                        '<div class="add_tov_val_sh">' +
+                                            '<div class="meal_wpfcc_wrap">' +
+                                                '<div class="meal_wpfcc">' +
+                                                    '<div class="meal_wpfcc_title" short="В">Вес</div>' +
+                                                    '<div class="meal_wpfcc_val"><input type="number" name="i_user_meal_weight[' + number + ']" value="" placeholder="0.00" class="anketa_form_in in_fill ingr_weight" required="required"/></div>' +
+                                                '</div>' +
+                                                '<div class="meal_wpfcc">' +
+                                                    '<div class="meal_wpfcc_title" short="К">Калории</div>' +
+                                                    '<div class="meal_wpfcc_val ingr_calories">' + calories + '</div>' +
+                                                '</div>' +
+                                                '<div class="meal_wpfcc">' +
+                                                    '<div class="meal_wpfcc_title" short="Б">Белки</div>' +
+                                                    '<div class="meal_wpfcc_val ingr_proteins">' + proteins + '</div>' +
+                                                '</div>' +
+                                                '<div class="meal_wpfcc">' +
+                                                    '<div class="meal_wpfcc_title" short="Ж">Жиры</div>' +
+                                                    '<div class="meal_wpfcc_val ingr_fats">' + fats + '</div>' +
+                                                '</div>' +
+                                                '<div class="meal_wpfcc">' +
+                                                    '<div class="meal_wpfcc_title" short="У">Углеводы</div>' +
+                                                    '<div class="meal_wpfcc_val ingr_carbohydrates">' + carbohydrates + '</div>' +
+                                                '</div>' +
+                                            '</div>' +
+                                        '</div>' +
+                                    '</div>' +
+                                    '<div class="del_tov"></div>' +
+                                '</div>' +
+                            '</div>';
 
-                    $(this).parents(".add_tov_in_total").find(".add_tov_val")
-                        .append('<div id="'+number+'tov" class="add_tov_val_item parent">' +
-                            '<input type="hidden" name="users[]" value="' + number + '"/>' +
-                            '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
-                            '<div class="add_tov_val_sale user">' +
-                            '<div class="del_tov"></div></div>');
+                    if(add_tov_val.length === 0)
+                    {
+                        this_meal.parents(".add_tov_in_total").append('<div class="add_tov_val"></div>');
+                        add_tov_val = this_meal.parents(".add_tov_in_total").find('.add_tov_val');
+                    }
+                    if(add_tov_val.children('#user-meal-' + number).length === 0)
+                    {
+                        add_tov_val.append(ml_block_content);
+                    }
 
-                    $(this).parents(".add_tov_list").hide();
-                    $(this).parents(".add_tov_list").parents('.add_tov_in.admins').find('input:text').val('');
-                    $(this).addClass("disable");
+                    //calcUserMealsWCPFC();
+
+                    var meal_search = this_meal.parents(".add_tov_list").parents('.add_tov_in').find('input:text');
+
+                    this_meal.parents(".add_tov_list").hide();
+                    meal_search.val('');
+                    this_meal.addClass("disable");
+                    meal_search.focus();
                 }
                 return false;
             });
-
-            $('#s-t-wo').on('click', function(){
+            $(document).on('keyup', ':input.ingr_weight', function(){
+                calcUserMealsWCPFC();
+            });
+            $(document).on('click', '.del_tov', function () {
+                var id = $(this).parents(".add_tov_val_item").attr("id"),
+                    meal_block = $("#" + id);
+                if(meal_block.length === 1) {
+                    meal_block.remove();
+                    // Пересчет ВКБЖУ
+                    if($(this).parents('.user_meals_data').length === 1)
+                    {
+                        calcUserMealsWCPFC();
+                    }
+                }
+            });
+            $(document).on('click', '#bt-save-user-meal', function(){
+                var um_block = $(this).parents('.user_meal_form'),
+                    um_s_datetime = um_block.find('#u-meal-time').val(),
+                    um_datetime = um_block.find('#um-datetimepicker').val(),
+                    ingr_weights = um_block.find('input.ingr_weight').serialize();
                 $.ajax({
-                    url: '/show/workout',
+                    url: '/saveUserMeal',
                     type: 'post',
+                    data: {s_datetime: um_s_datetime, i_datetime: um_datetime, ingr_weights: ingr_weights},
                     dataType: 'json',
-                    complete: function (result) {
+                    complete: function(result){
                         var data = jQuery.parseJSON(result.responseText);
-                        if (!data.error) {
-                            $.each(data.video, function(id, video){
-                                $("#pop-up_video").html(video);
-                                $("#pop-up_video").append(data.i_video[id]);
-                                $("#pop-up_video").append(data.i_a[id]);
-                                $("#pop-up_video").append(data.description[id]);
-                                $("#pop-up_video").append(data.done[id]);
-                                if(getInternetExplorerVersion()==-1) {
-                                    if (data.player[id] == 1) {
-                                        $("#myvid").each(function () {
-                                            new InitPxVideo({
-                                                "videoId": this,
-                                                "captionsOnDefault": false,
-                                                "seekInterval": 20,
-                                                "videoTitle": "Promo",
-                                                "debug": true,
-                                                "woid": $("#wo-id").val()
-                                            });
-                                        });
-                                    }
-
-                                    var playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
-
-                                    if ($('#vimeo-player-1').length == 1)
-                                    {
-                                        if (data.i_player == 1) {
-                                            $("#ivid").each(function () {
-                                                new InitPxVideo({
-                                                    "videoId": this,
-                                                    "captionsOnDefault": false,
-                                                    "seekInterval": 20,
-                                                    "videoTitle": "Promo",
-                                                    "debug": true,
-                                                    "woid": $("#wo-id").val()
-                                                });
-                                            });
-                                        }
-                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
-                                    }
-
-
-                                    playerTwoPlayer.getPaused().then(function(paused) {
-                                        // paused = whether or not the player is paused
-                                        console.log('Video paused');
-                                    }).catch(function(error) {
-                                        // an error occurred
-                                    });
-
-                                    playerTwoPlayer.getCurrentTime().then(function(seconds) {
-                                        // seconds = the current playback position
-                                        console.log('Current time: ' + seconds);
-                                    }).catch(function(error) {
-                                        // an error occurred
-                                    });
-
-                                    playerTwoPlayer.getEnded().then(function(ended) {
-                                        // ended = whether or not the video has ended
-                                        console.log('Video ended');
-                                    }).catch(function(error) {
-                                        // an error occurred
-                                    });
-
-                                    playerTwoPlayer.on('seeked', function(data) {
-                                        console.log(data);
-                                    });
-                                }
-                                pop_up_def($("#pop-up_video"));
-                            });
-
-                            $('#bt-workout-done').on('click', function(){
-                                var wo_id = $(this).parent('#wo-done').find('#wo-id').val();
-                                $.ajax({
-                                    url: '/viewed/video',
-                                    type: 'post',
-                                    data: {
-                                        woid: wo_id
-                                    },
-                                    complete: function (result) {
-                                        if (result.responseText == 'true') {
-                                            $('#wo-done').html("<div id='wo-done'><div class='workout_form_but done'>Выполнено</div></div>");
-                                        }
-                                    }
-                                });
-                            });
+                        if(data === true)
+                        {
+                            $(document).find('.user_meals').find('.add_tov_val').html('');
+                            $(document).find('#u-meal-time').val('now').change();
                         }
                     }
                 });
             });
-
-            $('#pop-up_video').on('click', '#wo-i-but', function()
+            function calcUserMealsWCPFC()
             {
-                if ($(this).hasClass('video'))
+                var total_weight = 0,
+                    total_calories = 0,
+                    total_proteins = 0,
+                    total_fats = 0,
+                    total_carbohydrates = 0,
+                    calories_current = 0,
+                    proteins_current = 0,
+                    fats_current = 0,
+                    carbohydrates_current = 0;
+
+                var count_ingr = 0,
+                    body = $('body'),
+                    t_meal_proteins       = body.find("#today-meal-proteins"),
+                    t_meal_fats           = body.find("#today-meal-fats"),
+                    t_meal_carbohydrates  = body.find("#today-meal-carbohydrates"),
+                    t_meal_calories       = body.find("#today-meal-calories"),
+                    dt_meal_calories      = parseFloat(body.find("#today-meal-calories").data("today-meal-calories")),
+                    dt_meal_proteins      = parseFloat(body.find("#today-meal-proteins").data("today-meal-proteins")),
+                    dt_meal_fats          = parseFloat(body.find("#today-meal-fats").data("today-meal-fats")),
+                    dt_meal_carbohydrates = parseFloat(body.find("#today-meal-carbohydrates").data("today-meal-carbohydrates")),
+                    c_meal_proteins       = body.find("#current-meal-proteins"),
+                    c_meal_fats           = body.find("#current-meal-fats"),
+                    c_meal_carbohydrates  = body.find("#current-meal-carbohydrates"),
+                    c_meal_calories       = body.find("#current-meal-calories"),
+                    ingrs_data            = body.find(".user_meals_data");
+
+                ingrs_data.each(function(){
+                    var weight        = $(this).find(".ingr_weight").val(),
+                        proteins      = $(this).find(".ingr_proteins").html(),
+                        fats          = $(this).find(".ingr_fats").html(),
+                        carbohydrates = $(this).find(".ingr_carbohydrates").html(),
+                        calories      = $(this).find(".ingr_calories").html(),
+                        koef = 0;
+
+                    if(weight === "") weight = 0;
+                    if(proteins === "") proteins = 0;
+                    if(fats === "") fats = 0;
+                    if(carbohydrates === "") carbohydrates = 0;
+                    if(calories === "") calories = 0;
+
+                    if(weight > 0)
+                    {
+                        koef = weight / 100;
+
+                        total_weight = total_weight + parseFloat(weight);
+
+                        calories_current      = calories_current + (parseFloat(calories)*koef);
+                        proteins_current      = proteins_current + (parseFloat(proteins)*koef);
+                        fats_current          = fats_current + (parseFloat(fats)*koef);
+                        carbohydrates_current = carbohydrates_current + (parseFloat(carbohydrates)*koef);
+                    }
+
+                    count_ingr++;
+                });
+
+                total_calories      = dt_meal_calories + calories_current;
+                total_proteins      = dt_meal_proteins + proteins_current;
+                total_fats          = dt_meal_fats + fats_current;
+                total_carbohydrates = dt_meal_carbohydrates + carbohydrates_current;
+
+                var sel_um_date = $(document).find('.user_meal_time #u-meal-time'),
+                    dp = $('#um-datetimepicker').val(),
+                    dp_day = dp.substr(0, 2),
+                    dp_month = dp.substr(3, 2),
+                    dp_year = dp.substr(6, 4),
+                    dp_date = new Date(dp_year + '-' + dp_month + '-' + dp_day),
+                    today = new Date(),
+                    ubmr = $(document).find('#u-bmr').val();
+
+                if((sel_um_date.val() === 'now' || (dp_date.getFullYear() === today.getFullYear() && dp_date.getDay() === today.getDay() &&
+                    dp_date.getMonth() === today.getMonth())) && total_calories > 0 && total_proteins > 0 &&
+                    total_fats > 0 && total_carbohydrates > 0)
                 {
-                    $('#wo-instruction').show();
-                    $('#bt-workout-done').hide();
-                    $('#wo-video').hide();
-                    $(this).removeClass("video");
-                    $(this).html("Тренировка");
+                    t_meal_proteins.html(total_proteins.toFixed(2));
+                    t_meal_fats.html(total_fats.toFixed(2));
+                    t_meal_carbohydrates.html(total_carbohydrates.toFixed(2));
+                    t_meal_calories.html(total_calories.toFixed(2));
+
+                    if(ubmr !== '' && total_calories !== 0)
+                    {
+                        var cal_percent = (100 * total_calories) / ubmr,
+                            wpfcc_progress = t_meal_calories.next('.meal_wpfcc_progress'),
+                            n_wpfcc_progress = wpfcc_progress.next('.meal_wpfcc_progress.right');
+
+                        if(cal_percent > 0 && cal_percent <= 100)
+                        {
+                            wpfcc_progress.css({'width': cal_percent + '%'});
+                            wpfcc_progress.css({'background-color': '#dcfbcd'});
+                            if(n_wpfcc_progress.length === 1)
+                            {
+                                n_wpfcc_progress.hide();
+                            }
+                        }
+                        else if(cal_percent > 100)
+                        {
+                            cal_percent = 100 - (cal_percent - 100);
+                            wpfcc_progress.css({'width': cal_percent + '%'});
+                            wpfcc_progress.css({'background-color': '#dcfbcd'});
+                            if(n_wpfcc_progress.length === 1)
+                            {
+                                n_wpfcc_progress.show();
+                            }
+                            else
+                            {
+                                wpfcc_progress.after('<div class="meal_wpfcc_progress right"></div>');
+                            }
+                        }
+                    }
                 }
                 else
+                {
+                    t_meal_proteins.html(dt_meal_calories.toFixed(2));
+                    t_meal_fats.html(dt_meal_fats.toFixed(2));
+                    t_meal_carbohydrates.html(dt_meal_carbohydrates.toFixed(2));
+                    t_meal_calories.html(dt_meal_calories.toFixed(2));
+                }
+
+                c_meal_proteins.html(proteins_current.toFixed(2));
+                c_meal_fats.html(fats_current.toFixed(2));
+                c_meal_carbohydrates.html(carbohydrates_current.toFixed(2));
+                c_meal_calories.html(calories_current.toFixed(2));
+            }
+            function calcWCPFC(total_weight, total_calories, total_proteins, total_fats, total_carbohydrates, calories_100,
+                               proteins_100, fats_100, carbohydrates_100)
+            {
+                total_weight = total_weight || 0;
+                total_calories = total_calories || 0;
+                total_proteins = total_proteins || 0;
+                total_fats = total_fats || 0;
+                total_carbohydrates = total_carbohydrates || 0;
+                calories_100 = calories_100 || 0;
+                proteins_100 = proteins_100 || 0;
+                fats_100 = fats_100 || 0;
+                carbohydrates_100 = carbohydrates_100 || 0;
+
+                var count_ingr = 0,
+                    meal_weight        = $("#meal-weight"),
+                    meal_proteins      = $("#meal-proteins"),
+                    meal_fats          = $("#meal-fats"),
+                    meal_carbohydrates = $("#meal-carbohydrates"),
+                    meal_calories      = $("#meal-calories"),
+                    ingrs_data         = $(".ingredients_data");
+
+                ingrs_data.each(function(){
+                    var weight        = $(this).find(".ingr_weight").val(),
+                        proteins      = $(this).find(".ingr_proteins").html(),
+                        fats          = $(this).find(".ingr_fats").html(),
+                        carbohydrates = $(this).find(".ingr_carbohydrates").html(),
+                        calories      = $(this).find(".ingr_calories").html(),
+                        koef = 0;
+
+                    if(weight == "") weight = 0;
+                    if(proteins == "") proteins = 0;
+                    if(fats == "") fats = 0;
+                    if(carbohydrates == "") carbohydrates = 0;
+                    if(calories == "") calories = 0;
+
+                    if(weight > 0)
                     {
-                        $('#wo-instruction').hide();
-                        $('#bt-workout-done').show();
-                        $('#wo-video').show();
-                        $(this).addClass("video");
-                        $(this).html("Инструктаж");
+                        koef = weight / 100;
+
+                        total_weight        = total_weight + parseFloat(weight);
+
+                        total_proteins      = total_proteins + (parseFloat(proteins)*koef);
+                        total_fats          = total_fats + (parseFloat(fats)*koef);
+                        total_carbohydrates = total_carbohydrates + (parseFloat(carbohydrates)*koef);
+                        total_calories      = total_calories + (parseFloat(calories)*koef);
                     }
-            });
+
+                    count_ingr++;
+                });
+
+                if(total_weight == 0 && count_ingr > 0)
+                {
+                    total_weight = 100 * count_ingr;
+
+                    ingrs_data.each(function(){
+                        var proteins      = $(this).find(".ingr_proteins").html(),
+                            fats          = $(this).find(".ingr_fats").html(),
+                            carbohydrates = $(this).find(".ingr_carbohydrates").html(),
+                            calories      = $(this).find(".ingr_calories").html();
+
+                        if(proteins == "") proteins = 0;
+                        if(fats == "") fats = 0;
+                        if(carbohydrates == "") carbohydrates = 0;
+                        if(calories == "") calories = 0;
+
+
+                        total_proteins      = total_proteins + parseFloat(proteins);
+                        total_fats          = total_fats + parseFloat(fats);
+                        total_carbohydrates = total_carbohydrates + parseFloat(carbohydrates);
+                        total_calories      = total_calories + parseFloat(calories);
+                    });
+                }
+
+                var koef_100 = 1;
+
+                if(total_weight < 100)
+                {
+                    koef_100 = 100 / total_weight;
+
+                    calories_100      = total_calories * koef_100;
+                    proteins_100      = total_proteins * koef_100;
+                    fats_100          = total_fats * koef_100;
+                    carbohydrates_100 = total_carbohydrates * koef_100;
+                }
+                else
+                {
+                    koef_100 = total_weight / 100;
+
+                    calories_100      = total_calories / koef_100;
+                    proteins_100      = total_proteins / koef_100;
+                    fats_100          = total_fats / koef_100;
+                    carbohydrates_100 = total_carbohydrates / koef_100;
+                }
+
+                meal_weight.val(total_weight.toFixed(2));
+                meal_proteins.val(total_proteins.toFixed(2));
+                meal_fats.val(total_fats.toFixed(2));
+                meal_carbohydrates.val(total_carbohydrates.toFixed(2));
+                meal_calories.val(total_calories.toFixed(2));
+
+                $("#meal-proteins-100").val(proteins_100.toFixed(2));
+                $("#meal-fats-100").val(fats_100.toFixed(2));
+                $("#meal-carbohydrates-100").val(carbohydrates_100.toFixed(2));
+                $("#meal-calories-100").val(calories_100.toFixed(2));
+
+
+                var return_array = {
+                    r_total_weight: total_weight,
+                    r_total_calories: total_calories,
+                    r_total_proteins: total_proteins,
+                    r_total_fats: total_fats,
+                    r_total_carbohydrates: total_carbohydrates,
+                    r_calories_100: calories_100,
+                    r_proteins_100: proteins_100,
+                    r_fats_100: fats_100,
+                    r_carbohydrates_100: carbohydrates_100
+                };
+
+                return(return_array);
+            }
 
             // Поиск тренера курса
             $('#input-couch-search').keyup(function () {
@@ -1181,6 +1380,122 @@ $(document).ready(function() {
                     playerTwoPlayer = new Vimeo.Player(player, options);
                 });
             }
+
+            $('#s-t-wo').on('click', function(){
+                $.ajax({
+                    url: '/show/workout',
+                    type: 'post',
+                    dataType: 'json',
+                    complete: function (result) {
+                        var data = jQuery.parseJSON(result.responseText);
+                        if (!data.error) {
+                            $.each(data.video, function(id, video){
+                                $("#pop-up_video").html(video);
+                                $("#pop-up_video").append(data.i_video[id]);
+                                $("#pop-up_video").append(data.i_a[id]);
+                                $("#pop-up_video").append(data.description[id]);
+                                $("#pop-up_video").append(data.done[id]);
+                                if(getInternetExplorerVersion()==-1) {
+                                    if (data.player[id] == 1) {
+                                        $("#myvid").each(function () {
+                                            new InitPxVideo({
+                                                "videoId": this,
+                                                "captionsOnDefault": false,
+                                                "seekInterval": 20,
+                                                "videoTitle": "Promo",
+                                                "debug": true,
+                                                "woid": $("#wo-id").val()
+                                            });
+                                        });
+                                    }
+
+                                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+
+                                    if ($('#vimeo-player-1').length == 1)
+                                    {
+                                        if (data.i_player == 1) {
+                                            $("#ivid").each(function () {
+                                                new InitPxVideo({
+                                                    "videoId": this,
+                                                    "captionsOnDefault": false,
+                                                    "seekInterval": 20,
+                                                    "videoTitle": "Promo",
+                                                    "debug": true,
+                                                    "woid": $("#wo-id").val()
+                                                });
+                                            });
+                                        }
+                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
+                                    }
+
+
+                                    playerTwoPlayer.getPaused().then(function(paused) {
+                                        // paused = whether or not the player is paused
+                                        console.log('Video paused');
+                                    }).catch(function(error) {
+                                        // an error occurred
+                                    });
+
+                                    playerTwoPlayer.getCurrentTime().then(function(seconds) {
+                                        // seconds = the current playback position
+                                        console.log('Current time: ' + seconds);
+                                    }).catch(function(error) {
+                                        // an error occurred
+                                    });
+
+                                    playerTwoPlayer.getEnded().then(function(ended) {
+                                        // ended = whether or not the video has ended
+                                        console.log('Video ended');
+                                    }).catch(function(error) {
+                                        // an error occurred
+                                    });
+
+                                    playerTwoPlayer.on('seeked', function(data) {
+                                        console.log(data);
+                                    });
+                                }
+                                pop_up_def($("#pop-up_video"));
+                            });
+
+                            $('#bt-workout-done').on('click', function(){
+                                var wo_id = $(this).parent('#wo-done').find('#wo-id').val();
+                                $.ajax({
+                                    url: '/viewed/video',
+                                    type: 'post',
+                                    data: {
+                                        woid: wo_id
+                                    },
+                                    complete: function (result) {
+                                        if (result.responseText == 'true') {
+                                            $('#wo-done').html("<div id='wo-done'><div class='workout_form_but done'>Выполнено</div></div>");
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    }
+                });
+            });
+
+            $('#pop-up_video').on('click', '#wo-i-but', function()
+            {
+                if ($(this).hasClass('video'))
+                {
+                    $('#wo-instruction').show();
+                    $('#bt-workout-done').hide();
+                    $('#wo-video').hide();
+                    $(this).removeClass("video");
+                    $(this).html("Тренировка");
+                }
+                else
+                {
+                    $('#wo-instruction').hide();
+                    $('#bt-workout-done').show();
+                    $('#wo-video').show();
+                    $(this).addClass("video");
+                    $(this).html("Инструктаж");
+                }
+            });
 
             if(playerTwoPlayer)
             {

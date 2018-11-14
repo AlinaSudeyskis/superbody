@@ -75,14 +75,15 @@ $route['restore']                = 'Authorization/restorePassword';
 $route['block']                  = 'Authorization/blockAccount';
 
 // Страницы пользователя
-$route['profile/courses']                      = 'Course/usersCourses/active';
-$route['profile/courses/finished']             = 'Course/usersCourses/finished';
-$route['profile/course/(:num)']                = 'Course/usersCourse/$1';
-$route['profile/course/(:num)/reviews']        = 'Course/userCourseReviews/$1';
-$route['profile/course/(:num)/review/(:num)']  = 'Course/userCourseReview/$1/$2';
-$route['profile/course/(:num)/menu']           = 'Course/userNutritionMenu/$1';
-$route['profile/(:num)']                       = 'User/profile/$1';
-$route['profile']                              = 'User/profile';
+$route['profile/meals']                       = 'Course/userMeals';
+$route['profile/courses']                     = 'Course/usersCourses/active';
+$route['profile/courses/finished']            = 'Course/usersCourses/finished';
+$route['profile/course/(:num)']               = 'Course/usersCourse/$1';
+$route['profile/course/(:num)/reviews']       = 'Course/userCourseReviews/$1';
+$route['profile/course/(:num)/review/(:num)'] = 'Course/userCourseReview/$1/$2';
+$route['profile/course/(:num)/menu']          = 'Course/userNutritionMenu/$1';
+$route['profile/(:num)']                      = 'User/profile/$1';
+$route['profile']                             = 'User/profile';
 
 $route['settings']               = 'User/settings';
 $route['questionnaire']          = 'User/userQuestionnaire';
@@ -101,6 +102,7 @@ $route['showMeals']              = 'Course/showMeals';
 $route['selectMeal']             = 'Course/selectMeal';
 $route['show/workout']           = 'Course/showWorkout';
 $route['show/userMeal']          = 'Course/showUserMeal';
+$route['saveUserMeal']           = 'Course/saveUserMeal';
 $route['userSearchMeals']        = 'Course/userSearchMeals';
 $route['show/weeks']             = 'Course/showCourseWeeks';
 $route['displayCourse']          = 'Course/displayUserCourse';
