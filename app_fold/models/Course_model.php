@@ -10251,12 +10251,14 @@ class Course_model extends CI_Model
             $i = 0;
             foreach ($s_images as $s_image)
             {
-                if (is_file($s_image))
-                {
-                    $result['slider_images'][$i] = mb_substr($s_image, 1);
+                $result['slider_images'][$i] = is_file($s_image) ? mb_substr($s_image, 1) : '';
 
-                    $i++;
+                if (empty($result['slider_images'][$i]))
+                {
+                    unset($result['slider_images'][$i]);
                 }
+
+                $i++;
             }
             unset($s_image);
         }

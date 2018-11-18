@@ -45,26 +45,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                    class="tren_form_block_check" id="tren_form_block_check1bg" />
                             <label for="tren_form_block_check1bg">Слайдер по умолчанию</label>
                         </div>
-                        <div class="add_foto_block_wrap">
-                            <div class="add_foto_block">
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Изображения:</div>
-                                    <div class="video_down_line parent">
-                                        <div class="video_down_line_but_wrap">
-                                            <label for="video_down_line_but1s" class="video_down_line_but">
-                                                <input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" multiple="multiple"/>
-                                                <span>Выберите файл</span>
-                                            </label>
-                                        </div>
-                                        <div class="video_down_line_name">Файл не выбран</div>
-                                        <div class="progressbar_wrap">
-                                            <progress class="progressbar" id="progressbar1" value="50" max="100"></progress>
+                        <?php $available_images = ($landing['slider_images_default'] === false and count($landing['slider_images']) < 7) ? true : false;
+                        if($available_images === true): ?>
+                            <div class="add_foto_block_wrap">
+                                <div class="add_foto_block">
+                                    <div class="parent kurs_cur_wrap">
+                                        <div class="kurs_block_h">Изображения:</div>
+                                        <div class="video_down_line parent">
+                                            <div class="video_down_line_but_wrap">
+                                                <label for="video_down_line_but1s" class="video_down_line_but">
+                                                    <input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" multiple="multiple"/>
+                                                    <span>Выберите файл</span>
+                                                </label>
+                                            </div>
+                                            <div class="video_down_line_name">Файл не выбран</div>
+                                            <div class="progressbar_wrap">
+                                                <progress class="progressbar" id="progressbar1" value="50" max="100"></progress>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <?php if ($landing['slider_images_default'] === false): ?>
+                        <?php endif;
+                        if ($landing['slider_images_default'] === false): ?>
                             <div class="landing_images">
                                 <?php foreach ($landing['slider_images'] as $key => $s_image): ?>
                                     <div class="landing_image">
