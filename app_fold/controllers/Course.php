@@ -2912,12 +2912,11 @@ class Course extends CI_Controller
         {
             foreach($this->input->post('bt_delete_landing_img', true) as $img_block_id => $bt)
             {
-                $img_block_id = (is_numeric($img_block_id)) ? $img_block_id : null;
-                $img_id = (is_numeric(key($bt))) ? key($bt) : null;
-                if(!empty($img_block_id) and is_numeric($img_id))
+                if(is_numeric($img_block_id) and is_numeric(key($bt)))
                 {
-                    $img_types = array('background', 'images', 'image', 'slider');
+	                $img_types = array('background', 'images', 'image', 'slider');
 
+	                $img_id   = key($bt);
                     $img_path = '.'.$this->input->post('img_path_'.$img_block_id.'_'.$img_id, true);
                     $img_type = $this->input->post('img_path_'.$img_block_id.'_'.$img_id.'_type', true);
                     $img_type = (in_array($img_type, $img_types)) ? $img_type : null;
