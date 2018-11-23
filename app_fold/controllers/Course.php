@@ -2914,7 +2914,7 @@ class Course extends CI_Controller
             {
                 $img_block_id = (is_numeric($img_block_id)) ? $img_block_id : null;
                 $img_id = (is_numeric(key($bt))) ? key($bt) : null;
-                if(!empty($img_block_id) and !empty($img_id))
+                if(!empty($img_block_id) and is_numeric($img_id))
                 {
                     $img_types = array('background', 'images', 'image', 'slider');
 
