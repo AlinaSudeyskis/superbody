@@ -10240,11 +10240,10 @@ class Course_model extends CI_Model
             $result['slider_images_default'] = false;
             $result['full_slider_images']    = $row->clp_slider_images;
         }
-        elseif ($row->clp_slider_images == 'default')
+        else
         {
             $s_images = explode(';', $row->lp_slider_images);
         }
-        else {$s_images = '';}
 
         if (!empty($s_images))
         {
@@ -10271,11 +10270,10 @@ class Course_model extends CI_Model
             $result['block2']['bg_default'] = false;
             $block2_background = $row->clp_block2_background;
         }
-        elseif ($row->clp_block2_background == 'default')
+        else
         {
             $block2_background = $row->lp_block2_background;
         }
-        else {$block2_background = '';}
 
         if (!empty($block2_background)) {
             if (is_file($block2_background)) {
@@ -10294,11 +10292,10 @@ class Course_model extends CI_Model
             $result['block2']['image_default'] = false;
             $block2_image = $row->clp_block2_image;
         }
-        elseif ($row->clp_block2_image == 'default')
+        else
         {
             $block2_image = $row->lp_block2_image;
         }
-        else {$block2_image = '';}
 
         $block2_image = (!empty($block2_image) and is_file($block2_image)) ? mb_substr($block2_image, 1) : '';
         $result['block2']['image']      = $block2_image;
@@ -10316,11 +10313,10 @@ class Course_model extends CI_Model
             $result['block3']['bg_default'] = false;
             $block3_background = $row->clp_block3_background;
         }
-        elseif ($row->clp_block3_background == 'default')
+        else
         {
             $block3_background = $row->lp_block3_background;
         }
-        else {$block3_background = '';}
 
         if (!empty($block3_background))
         {
@@ -10376,6 +10372,8 @@ class Course_model extends CI_Model
                 }
             }
             unset($s_images);
+            unset($clp_images);
+            unset($lp_images);
         }
 
         // БЛОК 4
@@ -10385,16 +10383,19 @@ class Course_model extends CI_Model
             $result['block4']['bg_default'] = false;
             $block4_background = $row->clp_block4_background;
         }
-        elseif ($row->clp_block4_background == 'default') {
+        else
+        {
             $block4_background = $row->lp_block4_background;
         }
-        else {$block4_background = '';}
 
-        if (!empty($block4_background)) {
-            if (is_file($block4_background)) {
+        if (!empty($block4_background))
+        {
+            if (is_file($block4_background))
+            {
                 $block4_background = 'background-image: url(' . mb_substr($block4_background, 1) . ');';
             }
-            elseif (mb_substr($block4_background, 0, 1) == '#') {
+            elseif (mb_substr($block4_background, 0, 1) == '#')
+            {
                 $block4_background = 'background: ' . $block4_background . ';';
             }
         }
@@ -10412,7 +10413,7 @@ class Course_model extends CI_Model
             $result['block4']['image_default'] = false;
             $block4_image = is_file($row->clp_block4_image) ? mb_substr($row->clp_block4_image, 1) : '';
         }
-        elseif ($row->clp_block4_image == 'default')
+        else
         {
             $block4_image = is_file($row->lp_block4_image) ? mb_substr($row->lp_block4_image, 1) : '';
         }
@@ -10429,11 +10430,10 @@ class Course_model extends CI_Model
             $result['block5']['bg_default'] = false;
             $block5_background = $row->clp_block5_background;
         }
-        elseif ($row->clp_block5_background == 'default')
+        else
         {
             $block5_background = $row->lp_block5_background;
         }
-        else {$block5_background = '';}
 
         if (!empty($block5_background))
         {
@@ -10489,6 +10489,8 @@ class Course_model extends CI_Model
                 }
                 unset($s_image);
             }
+	        unset($clp_images);
+	        unset($lp_images);
         }
 
         $result['block5']['r_title']    = $row->clp_block5_r_title;
@@ -10503,11 +10505,10 @@ class Course_model extends CI_Model
             $result['block6']['bg_default'] = false;
             $block6_background = $row->clp_block6_background;
         }
-        elseif ($row->clp_block6_background == 'default')
+        else
         {
             $block6_background = $row->lp_block6_background;
         }
-        else {$block6_background = '';}
 
         if (!empty($block6_background))
         {
@@ -10554,7 +10555,7 @@ class Course_model extends CI_Model
             $result['block6']['image_default'] = false;
             $block6_image = is_file($row->clp_block6_image) ? mb_substr($row->clp_block6_image, 1) : '';
         }
-        elseif ($row->clp_block6_image == 'default')
+        else
         {
             $block6_image = is_file($row->lp_block6_image) ? mb_substr($row->lp_block6_image, 1) : '';
         }
@@ -10568,11 +10569,10 @@ class Course_model extends CI_Model
             $result['block7']['bg_default'] = false;
             $block7_background = $row->clp_block7_background;
         }
-        elseif ($row->clp_block7_background == 'default')
+        else
         {
             $block7_background = $row->lp_block7_background;
         }
-        else {$block7_background = '';}
 
         if (!empty($block7_background))
         {
@@ -10619,6 +10619,8 @@ class Course_model extends CI_Model
                 }
             }
             unset($s_image);
+	        unset($clp_images);
+	        unset($lp_images);
         }
 
         // Текст блока
@@ -10647,11 +10649,10 @@ class Course_model extends CI_Model
             $result['block8']['bg_default'] = false;
             $block8_background = $row->clp_block8_background;
         }
-        elseif ($row->clp_block8_background == 'default')
+        else
         {
             $block8_background = $row->lp_block8_background;
         }
-        else {$block8_background = '';}
 
         if (!empty($block8_background))
         {
