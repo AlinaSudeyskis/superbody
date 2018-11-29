@@ -9083,6 +9083,9 @@ textarea.anketa_form_in{
     position: relative;
     max-height: 55px;
 }
+#bl-ua-number, #bl-pv{
+    display: none;
+}
 .admin_form_txt_dop_wrap input,
 .kurs_cur_wrap input{
     float: left;

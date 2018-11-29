@@ -45,6 +45,32 @@ $(document).ready(function(){
         });
     }
 
+    // Скрыть/отобразить блоки периода действия и число использований промокода
+    $('#s-pv-type').on('change', function(){
+        var bl_pv = $('#bl-pv'),
+            pv_type = $(this).val();
+        if(pv_type === 'date_range')
+        {
+            bl_pv.show();
+        }
+        else
+        {
+            bl_pv.hide();
+        }
+    });
+    $('#s-ua-type').on('change', function(){
+        var ua_number = $('#bl-ua-number'),
+            ua_type = $(this).val();
+        if(ua_type === 'number')
+        {
+            ua_number.show();
+        }
+        else
+        {
+            ua_number.hide();
+        }
+    });
+
     /* Добавление опции */
 
     $(".add_new_options_but.add_form_advantage").click(function() {

@@ -25,30 +25,32 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Тип периода действия:</div>
-    <select name="s_pv_type" class="journal_form_select">
+    <select name="s_pv_type" class="journal_form_select" id="s-pv-type">
         <option value="unlimited" <?php if(!empty($promocode['validity_type']) and $promocode['validity_type'] == 'unlimited'):?>selected="selected"<?php endif; ?>>Не ограничен</option>
         <option value="date_range" <?php if(!empty($promocode['validity_type']) and $promocode['validity_type'] == 'date_range'):?>selected="selected"<?php endif; ?>>Диапазон дат</option>
     </select>
 </div>
-<div class="parent kurs_cur_wrap">
-    <div class="kurs_block_h">Период действия:</div>
-</div>
-<div class="parent kurs_cur_wrap">
-    <div class="kurs_block_h" style="text-align: right;">с:</div>
-    <input type="date" name="i_validity_date_start" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['pv_date_start'])): echo $promocode['pv_date_start']; endif; ?>"/>
-</div>
-<div class="parent kurs_cur_wrap">
-    <div class="kurs_block_h" style="text-align: right;">до:</div>
-    <input type="date" name="i_validity_date_end" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['pv_date_end'])): echo $promocode['pv_date_end']; endif; ?>"/>
+<div id="bl-pv" <?php if($promocode['validity_type'] == 'date_range'): ?>style="display: block;"<?php endif;?>>
+    <div class="parent kurs_cur_wrap">
+        <div class="kurs_block_h">Период действия:</div>
+    </div>
+    <div class="parent kurs_cur_wrap">
+        <div class="kurs_block_h" style="text-align: right;">с:</div>
+        <input type="date" name="i_validity_date_start" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['pv_date_start'])): echo $promocode['pv_date_start']; endif; ?>"/>
+    </div>
+    <div class="parent kurs_cur_wrap">
+        <div class="kurs_block_h" style="text-align: right;">до:</div>
+        <input type="date" name="i_validity_date_end" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['pv_date_end'])): echo $promocode['pv_date_end']; endif; ?>"/>
+    </div>
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Кол-во использований:</div>
-    <select name="s_ua_type" class="journal_form_select">
+    <select name="s_ua_type" class="journal_form_select" id="s-ua-type">
         <option value="unlimited" <?php if(!empty($promocode['use_type']) and $promocode['user_type'] == 'unlimited'):?>selected="selected"<?php endif; ?>>Не ограничено</option>
         <option value="number" <?php if(!empty($promocode['use_type']) and $promocode['use_type'] == 'number'):?>selected="selected"<?php endif; ?>>Число</option>
     </select>
 </div>
-<div class="parent kurs_cur_wrap">
+<div class="parent kurs_cur_wrap" id="bl-ua-number" <?php if($promocode['use_type'] == 'number'): ?>style="display: block;"<?php endif;?>>
     <div class="kurs_block_h">Число использований:</div>
     <input type="number" name="i_ua_number" step="1" min="0" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['ua_number'])): echo $promocode['ua_number']; endif; ?>"/>
 </div>
