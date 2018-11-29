@@ -17,7 +17,7 @@ $(document).ready(function(){
             purchase_up();
         }
 
-        $(".lp_block_but").on('click', function(){
+        $(".lp_block_but").on('click', function(event){
             event.preventDefault();
             purchase_up();
         });
@@ -103,7 +103,7 @@ $(document).ready(function(){
     });
 
     if($("#policy_pop-up").length > 0){
-        $(".policy").on('click', function(){
+        $(".policy").on('click', function(event){
             event.preventDefault();
             var popup = $("#policy_pop-up"),
                 shadow = $("#shadow");

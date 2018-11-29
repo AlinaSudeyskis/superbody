@@ -570,7 +570,7 @@ $(document).ready(function() {
                     $(this).parents(".add_tov_in").find(".add_tov_list").hide();
                 }
             });
-            $(document).on("click", ".user_meal .add_tren_item", function () {
+            $(document).on("click", ".user_meal .add_tren_item", function (event) {
                 event.preventDefault();
                 if(!$(this).hasClass("disable")){
                     var this_meal = $(this),
@@ -1251,7 +1251,7 @@ $(document).ready(function() {
                 }
             });
 
-            $('.shop_block').on('click', '.shop_block_nav #prev_page', function () {
+            $('.shop_block').on('click', '.shop_block_nav #prev_page', function (event) {
                 event.preventDefault();
 
                 var sort = $('#i_sort').val(),
@@ -1264,7 +1264,7 @@ $(document).ready(function() {
 
                 searchProducts(sort, category_id, subcategory_id, search, first_id, first_price, first_discount, null, null, null);
             });
-            $('.shop_block').on('click', '.shop_block_nav #next_page', function () {
+            $('.shop_block').on('click', '.shop_block_nav #next_page', function (event) {
                 event.preventDefault();
 
                 var sort = $('#i_sort').val(),
@@ -1278,7 +1278,7 @@ $(document).ready(function() {
                 searchProducts(sort, category_id, subcategory_id, search, null, null, null, last_id, last_price, last_discount);
             });
 
-            $('.tov').on('click', '.shop_block_nav #prev_page', function () {
+            $('.tov').on('click', '.shop_block_nav #prev_page', function (event) {
                 event.preventDefault();
 
                 var first_id = $('#i_first_id').val(),
@@ -1287,7 +1287,7 @@ $(document).ready(function() {
 
                 searchAProducts(first_id, first_price, first_discount, null, null, null);
             });
-            $('.tov').on('click', '.shop_block_nav #next_page', function () {
+            $('.tov').on('click', '.shop_block_nav #next_page', function (event) {
                 event.preventDefault();
 
                 var last_id = $('#i_last_id').val(),

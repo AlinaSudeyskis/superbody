@@ -496,7 +496,6 @@ $(document).ready(function(){
 
     // Формирование блока тренировок
     $(".practice_block_table").on('click', '.practice_day', function(){
-        event.preventDefault();
         var pr_bl_w  = $('.practice_block_wrap'),
             pr_bl    = $('.practice_block'),
             pr_d     = $('.practice_day'),
@@ -506,7 +505,7 @@ $(document).ready(function(){
         if ($(this).hasClass("active"))
         {
             $(this).removeClass('active');
-            if(pr_bl_w.length == 1)
+            if(pr_bl_w.length === 1)
             {
                 pr_bl.hide();
             }
@@ -516,7 +515,7 @@ $(document).ready(function(){
             pr_d.removeClass("active");
             $(this).addClass("active");
 
-            if(pr_bl_w.length == 1)
+            if(pr_bl_w.length === 1)
             {
                 pr_bl.hide();
                 pr_block.show();
@@ -525,7 +524,7 @@ $(document).ready(function(){
     });
 
     // Формирование расписания питания
-    $(".nutrition_block_table").on('click', '.nutrition_day', function(){
+    $(".nutrition_block_table").on('click', '.nutrition_day', function(event){
         event.preventDefault();
         var pr_bl_w  = $('.nutrition_block_wrap'),
             pr_bl    = $('.nutrition_block'),
@@ -1089,7 +1088,7 @@ $(document).ready(function(){
         return false;
     });
 
-    $(document).on('click', '.add_tren_item.meal', function () {
+    $(document).on('click', '.add_tren_item.meal', function (event) {
         event.preventDefault();
         if(!$(this).hasClass("disable")){
             var this_meal = $(this),
@@ -1224,7 +1223,7 @@ $(document).ready(function(){
         return false;
     });
 
-    $(document).on('click', '.add_tren_item.ingredient', function () {
+    $(document).on('click', '.add_tren_item.ingredient', function (event) {
         event.preventDefault();
         if(!$(this).hasClass("disable")){
             var this_meal = $(this),

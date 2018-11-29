@@ -1,3 +1,4 @@
+
 function getInternetExplorerVersion() {
     var rv = -1;
     if (navigator.appName == 'Microsoft Internet Explorer')
@@ -1576,7 +1577,7 @@ $(".chat_search_mob_but").click(function() {
 }*/
 
 if($("#policy_pop-up").length > 0){
-    $(".policy").on('click', function(){
+    $(".policy").on('click', function(event){
         event.preventDefault();
         var popup = $("#policy_pop-up"),
             shadow = $("#shadow");
