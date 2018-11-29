@@ -10549,7 +10549,6 @@ class Course_model extends CI_Model
         }
 
         // Изображение блока
-        $block6_image = '';
         if (!empty($row->clp_block6_image) and $row->clp_block6_image != 'default')
         {
             $result['block6']['image_default'] = false;

@@ -1042,6 +1042,16 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2018-11-29 13:00:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `landing_pages` SET `lp_block6_image` = './landing/default/1/lp_img8.png' WHERE `landing_pages`.`lp_id` = 1");
+			$this->db->query("UPDATE `landing_pages` SET `lp_block6_image` = './landing/default/1/lp_img8.png' WHERE `landing_pages`.`lp_id` = 2");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
