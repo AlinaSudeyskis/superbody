@@ -44,7 +44,7 @@ if (!empty($user_session)) :
         </li>
         <li <?php echo $user_blocked; ?> >
             <a href="/profile/meals" <?php if ($page_menu == 'u_meals') { echo 'class="active"'; } ?>>
-                <span></span><span>Питание</span>
+                <span><img src="/img/menu_ico24.png" alt=""></span><span>Питание</span>
             </a>
         </li>
         <li <?php echo $user_blocked; ?> >

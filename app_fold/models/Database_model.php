@@ -1056,6 +1056,59 @@ class Database_model extends CI_Model
     }
 
     /**
+     * Обновление базы данных ноябрь 2018
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseDecember2018()
+    {
+        $result = false;
+
+        $date = '2018-12-04 18:01:33';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block1_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `clp_course_id`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block2_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `clp_main_title`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block3_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `clp_block2_button`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block4_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `clp_block3_r_reviews`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block5_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `clp_block4_button`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block6_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `clp_block5_button`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block7_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `clp_block6_button`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block8_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `clp_block7_button`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-06 12:48:33';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block2_background_top` VARCHAR(255) NOT NULL AFTER `lp_block2_background`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block2_background_top` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `clp_block2_background`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` CHANGE `clp_slider_images` `clp_slider_images` VARCHAR(2000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+  				CHANGE `clp_block2_background` `clp_block2_background` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+  				CHANGE `clp_block2_image` `clp_block2_image` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+  				CHANGE `clp_block3_background` `clp_block3_background` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+  				CHANGE `clp_block3_images` `clp_block3_images` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default;default;', 
+			    CHANGE `clp_block4_background` `clp_block4_background` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+			    CHANGE `clp_block4_image` `clp_block4_image` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+			    CHANGE `clp_block5_background` `clp_block5_background` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+			    CHANGE `clp_block5_images` `clp_block5_images` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default;default;default;', 
+			    CHANGE `clp_block6_background` `clp_block6_background` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+			    CHANGE `clp_block6_image` `clp_block6_image` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+			    CHANGE `clp_block7_background` `clp_block7_background` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default', 
+			    CHANGE `clp_block7_images` `clp_block7_images` VARCHAR(1000) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default;default;default;default;', 
+			    CHANGE `clp_block8_background` `clp_block8_background` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default'");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
      * Поиск даты обновления в БД
      *
      * @param $date

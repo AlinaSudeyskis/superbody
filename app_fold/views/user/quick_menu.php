@@ -30,8 +30,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="cat_item_wrap" id="s-adding-meal">
         <div class="cat_item">
-            <div class="cat_img"></div>
-            <div class="cat_desk">Питание</div>
+            <div class="cat_img"><img src="/img/cat10.png" alt=""></div>
+            <div class="cat_desk">Добавить прием пищи</div>
         </div>
     </div>
     <div class="cat_item_wrap">

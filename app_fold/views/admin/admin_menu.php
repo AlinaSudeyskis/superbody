@@ -34,7 +34,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>
     <li>
         <a href="/administration/nutritions" <?php if ($page_menu == 'a_courses_n') { echo 'class="active"'; } ?>>
-            <span><img src="/img/menu_ico8.png" alt=""></span><span>Курсы питания</span>
+            <span><img src="/img/menu_ico24.png" alt=""></span><span>Курсы питания</span>
         </a>
     </li>
     <!--<li>

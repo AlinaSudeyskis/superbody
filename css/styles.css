@@ -224,12 +224,44 @@ h3.landing span{
     padding-left: 5px;
     font-style: italic;
 }
+.landing_title{
+    border: none;
+    background-color: #2acaf2;
+    padding: 10px 15px;
+    width: 100%;
+    line-height: 28px;
+}
+.landing_title span{
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 23px;
+    float: left;
+    margin-right: 25px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 28px;
+}
+.landing_title .tren_form_block_check_wrap{
+    margin-bottom: 0;
+}
+.landing_title .tren_form_block_check_wrap label {
+    display: inline-block;
+    height: 14px;
+    line-height: 14px;
+    font-size: 13px;
+    color: #ffffff;
+    padding-left: 24px;
+    background: url(/img/check_white.png) 0 0 no-repeat;
+    background-size: 14px;
+    cursor: pointer;
+}
 .lend_form_options {
     margin-bottom: 10px;
 }
 .lend_form_option {
     margin-bottom: 20px;
-    height: 160px;
+    min-height: 160px;
 }
 
 .admin_cont.f_right .admin_name {

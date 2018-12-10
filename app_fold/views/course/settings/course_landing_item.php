@@ -20,7 +20,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="landing_block_wrap">
                 <?php if($lend_block_id == 1): ?>
                     <div class="landing_block" style="display:block;" id="l-block-1">
-                        <h3 class="landing">Блок №1</h3>
+                        <div class="landing_title">
+                            <span>Блок №1</span>
+                            <div class="tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_hide_block1"
+			                        <?php if ($landing['hide'] === true) : ?> checked="checked" <?php endif ; ?>
+                                       class="tren_form_block_check" id="tren_form_block_check1hb" />
+                                <label for="tren_form_block_check1hb">Скрыть блок</label>
+                            </div>
+                        </div>
                         <img src="/img/landing parts/1.PNG" alt="" class="land_template"/>
                         <div class="parent kurs_cur_wrap"><div class="kurs_block_h"></div></div>
                         <?php if (!empty($landings_list)) : ?>
@@ -91,8 +99,55 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endif;
                 if($lend_block_id == 2): ?>
                     <div class="landing_block" style="display:block;" id="l-block-2">
-                        <h3 class="landing">Блок №2</h3>
+                        <div class="landing_title">
+                            <span>Блок №2</span>
+                            <div class="tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_hide_block2"
+				                    <?php if ($landing['block2']['hide'] === true) : ?> checked="checked" <?php endif ; ?>
+                                       class="tren_form_block_check" id="tren_form_block_check2hb" />
+                                <label for="tren_form_block_check2hb">Скрыть блок</label>
+                            </div>
+                        </div>
                         <img src="/img/landing parts/2.PNG" alt="" class="land_template"/>
+                        <div class="lend_form_h">Шапка фона</div>
+                        <div class="lend_form_option">
+                            <div class="tren_set_form_l">
+                                <div class="tren_set_form_img">
+                                    <?php if ($landing['block2']['bg_top_default'] === false and is_file($landing['block2']['bg_top_orig'])) :?>
+                                        <img src="<?php echo mb_substr($landing['block2']['bg_top_orig'], 1); ?>" alt=""/>
+                                        <div class="admin_form_buts parent">
+                                            <input type="hidden" name="img_path_2_0" value="<?php echo mb_substr($landing['block2']['bg_top_orig'], 1); ?>">
+                                            <input type="hidden" name="img_path_2_0_type" value="background">
+                                            <input type="submit" name="bt_delete_landing_img[2][0]" class="admin_form_del" value="Удалить">
+                                        </div>
+                                    <?php else: ?>
+                                        <img src="/img/no_img.png" alt="">
+                                    <?php endif;?>
+                                </div>
+                            </div>
+                            <div class="tren_set_form_r">
+                                <div class="tren_form_block_check_wrap">
+                                    <input type="checkbox" name="cb_default_bg_top_block2"
+                                        <?php if ($landing['block2']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
+                                           class="tren_form_block_check" id="tren_form_block_check2tbg">
+                                    <label for="tren_form_block_check2tbg">Шапка фона по умолчанию</label>
+                                </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Файл шапки фона:
+                                        <div class="h_subtitle">(1920х55)</div>
+                                    </div>
+                                    <div class="video_down_line parent">
+                                        <div class="video_down_line_but_wrap">
+                                            <label for="video_down_line_but2ftbg" class="video_down_line_but">
+                                                <input type="file" name="bg_top_file_block2" class="admin_form_videofile" id="video_down_line_but2ftbg" accept="image/jpeg,image/png" />
+                                                <span>Выберите файл</span>
+                                            </label>
+                                        </div>
+                                        <div class="video_down_line_name">Файл не выбран</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="lend_form_h">Фон</div>
                         <div class="lend_form_option">
                             <div class="tren_set_form_l">
@@ -100,9 +155,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php if ($landing['block2']['bg_default'] === false and is_file($landing['block2']['bg_orig'])) :?>
                                         <img src="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
-                                            <input type="hidden" name="img_path_2_0" value="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_2_0_type" value="background">
-                                            <input type="submit" name="bt_delete_landing_img[2][0]" class="admin_form_del" value="Удалить">
+                                            <input type="hidden" name="img_path_2_1" value="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>">
+                                            <input type="hidden" name="img_path_2_1_type" value="background">
+                                            <input type="submit" name="bt_delete_landing_img[2][1]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
                                         <img src="/img/no_img.png" alt="">
@@ -160,7 +215,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст кнопки:</div>
-                            <input type="text" name="i_button_block2" class="admin_form_txt admin_form_txt_middle" placeholder="Текст кнопки" maxlength="40" value="<?php echo $landing['block2']['button']; ?>" />
+                            <input type="text" name="i_button_block2" class="admin_form_txt admin_form_txt_middle" placeholder="Текст кнопки" maxlength="26" value="<?php echo $landing['block2']['button']; ?>" />
                         </div>
                         <div class="lend_form_h">Изображение тренера слева</div>
                         <div class="lend_form_option">
@@ -169,9 +224,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php if ($landing['block2']['image_default'] === false and is_file($landing['block2']['image_orig'])) :?>
                                         <img src="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
-                                            <input type="hidden" name="img_path_2_1" value="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_2_1_type" value="image">
-                                            <input type="submit" name="bt_delete_landing_img[2][1]" class="admin_form_del" value="Удалить">
+                                            <input type="hidden" name="img_path_2_2" value="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>">
+                                            <input type="hidden" name="img_path_2_2_type" value="image">
+                                            <input type="submit" name="bt_delete_landing_img[2][2]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
                                         <img src="/img/no_img.png" alt="">
@@ -208,7 +263,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endif;
                 if($lend_block_id == 3): ?>
                     <div class="landing_block" style="display:block;" id="l-block-3">
-                        <h3 class="landing">Блок №3 <span>(результаты №1)</span></h3>
+                        <div class="landing_title">
+                            <span>Блок №3</span>
+                            <div class="tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_hide_block3"
+				                    <?php if ($landing['block3']['hide'] === true) : ?> checked="checked" <?php endif ; ?>
+                                       class="tren_form_block_check" id="tren_form_block_check3hb" />
+                                <label for="tren_form_block_check3hb">Скрыть блок</label>
+                            </div>
+                        </div>
                         <img src="/img/landing parts/3.PNG" alt="" class="land_template"/>
                         <div class="lend_form_h">Фон</div>
 
@@ -367,7 +430,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endif;
                 if($lend_block_id == 4): ?>
                     <div class="landing_block" style="display:block;" id="l-block-4">
-                        <h3 class="landing">Блок №4 <span>(результаты №2)</span></h3>
+                        <div class="landing_title">
+                            <span>Блок №4</span>
+                            <div class="tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_hide_block4"
+				                    <?php if ($landing['block4']['hide'] === true) : ?> checked="checked" <?php endif ; ?>
+                                       class="tren_form_block_check" id="tren_form_block_check4hb" />
+                                <label for="tren_form_block_check4hb">Скрыть блок</label>
+                            </div>
+                        </div>
                         <img src="/img/landing parts/4.PNG" alt="" class="land_template"/>
                         <div class="lend_form_h">Фон</div>
                         <div class="lend_form_option">
@@ -477,7 +548,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст кнопки:</div>
-                            <input type="text" name="i_button_block4" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block4']['button']; ?>" />
+                            <input type="text" name="i_button_block4" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['block4']['button']; ?>" />
                         </div>
 
 
@@ -488,7 +559,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endif;
                 if($lend_block_id == 5): ?>
                     <div class="landing_block" style="display:block;" id="l-block-5">
-                        <h3 class="landing">Блок №5 <span>(тренер)</span></h3>
+                        <div class="landing_title">
+                            <span>Блок №5</span>
+                            <div class="tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_hide_block5"
+				                    <?php if ($landing['block5']['hide'] === true) : ?> checked="checked" <?php endif ; ?>
+                                       class="tren_form_block_check" id="tren_form_block_check5hb" />
+                                <label for="tren_form_block_check5hb">Скрыть блок</label>
+                            </div>
+                        </div>
                         <img src="/img/landing parts/5.PNG" alt="" class="land_template"/>
                         <div class="lend_form_h">Фон</div>
                         <div class="lend_form_option">
@@ -684,7 +763,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст кнопки:</div>
-                            <input type="text" name="i_button_block5" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block5']['button']; ?>" />
+                            <input type="text" name="i_button_block5" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['block5']['button']; ?>" />
                         </div>
 
                         <div class="video_admin_form_buts parent">
@@ -694,7 +773,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endif;
                 if($lend_block_id == 6): ?>
                     <div class="landing_block" style="display:block;" id="l-block-6">
-                        <h3 class="landing">Блок №6 <span>(описание курса)</span></h3>
+                        <div class="landing_title">
+                            <span>Блок №6</span>
+                            <div class="tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_hide_block6"
+				                    <?php if ($landing['block6']['hide'] === true) : ?> checked="checked" <?php endif ; ?>
+                                       class="tren_form_block_check" id="tren_form_block_check6hb" />
+                                <label for="tren_form_block_check6hb">Скрыть блок</label>
+                            </div>
+                        </div>
                         <img src="/img/landing parts/6.PNG" alt="" class="land_template"/>
                         <div class="lend_form_h">Фон</div>
                         <div class="lend_form_option">
@@ -820,7 +907,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст кнопки:</div>
-                            <input type="text" name="i_button_block6" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block6']['button']; ?>" />
+                            <input type="text" name="i_button_block6" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['block6']['button']; ?>" />
                         </div>
 
                         <div class="video_admin_form_buts parent">
@@ -830,7 +917,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endif;
                 if($lend_block_id == 7): ?>
                     <div class="landing_block" style="display:block;" id="l-block-7">
-                        <h3 class="landing">Блок №7</h3>
+                        <div class="landing_title">
+                            <span>Блок №7</span>
+                            <div class="tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_hide_block7"
+				                    <?php if ($landing['block7']['hide'] === true) : ?> checked="checked" <?php endif ; ?>
+                                       class="tren_form_block_check" id="tren_form_block_check7hb" />
+                                <label for="tren_form_block_check7hb">Скрыть блок</label>
+                            </div>
+                        </div>
                         <img src="/img/landing parts/7.PNG" alt="" class="land_template"/>
                         <div class="lend_form_h">Фон</div>
                         <div class="tren_form_block_check_wrap">
@@ -975,7 +1070,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст кнопки:</div>
-                            <input type="text" name="i_button_block7" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block7']['button']; ?>" />
+                            <input type="text" name="i_button_block7" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['block7']['button']; ?>" />
                         </div>
 
 
@@ -986,7 +1081,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endif;
                 if($lend_block_id == 8): ?>
                     <div class="landing_block" style="display:block;" id="l-block-8">
-                        <h3 class="landing">Блок №8</h3>
+                        <div class="landing_title">
+                            <span>Блок №8</span>
+                            <div class="tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_hide_block8"
+				                    <?php if ($landing['block8']['hide'] === true) : ?> checked="checked" <?php endif ; ?>
+                                       class="tren_form_block_check" id="tren_form_block_check8hb" />
+                                <label for="tren_form_block_check8hb">Скрыть блок</label>
+                            </div>
+                        </div>
                         <img src="/img/landing parts/8.PNG" alt="" class="land_template"/>
                         <div class="lend_form_h">Фон</div>
                         <div class="lend_form_option">
@@ -1070,7 +1173,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст кнопки:</div>
-                            <input type="text" name="i_button_block8" class="admin_form_txt admin_form_txt_middle" maxlength="40" value="<?php echo $landing['block8']['button']; ?>" />
+                            <input type="text" name="i_button_block8" class="admin_form_txt admin_form_txt_middle" maxlength="30" value="<?php echo $landing['block8']['button']; ?>" />
                         </div>
 
 

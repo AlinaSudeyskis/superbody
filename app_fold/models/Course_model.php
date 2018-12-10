@@ -3492,31 +3492,34 @@ class Course_model extends CI_Model
     public function getCourseLandingPage($course_id)
     {
         $result = array(
-            'landing' => array('html_page' => '', 'lp_id' => '', 'bg' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
-                'block2' => array('bg' => '', 'bg_orig' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-                'block3' => array('bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
-                'block4' => array('bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-                'block5' => array('bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'button' => ''),
-                'block6' => array('bg' => '', 'bg_orig' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => array(), 'image' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-                'block7' => array('bg' => '', 'bg_orig' => '', 'title' => '', 'images' => array(), 'texts' => array(), 'bg_default' => true, 'images_default' => true, 'button' => ''),
-                'block8' => array('bg' => '', 'bg_orig' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'bg_default' => true, 'button' => '')
+            'landing' => array('html_page' => '', 'lp_id' => '', 'hide' => false, 'bg' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
+                'block2' => array('hide' => false, 'bg_top' => '', 'bg' => '', 'bg_top_orig' => '', 'bg_orig' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_top_default' => true, 'bg_default' => true, 'image_default' => true, 'button' => ''),
+                'block3' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
+                'block4' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
+                'block5' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'button' => ''),
+                'block6' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => array(), 'image' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
+                'block7' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'images' => array(), 'texts' => array(), 'bg_default' => true, 'images_default' => true, 'button' => ''),
+                'block8' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'bg_default' => true, 'button' => '')
             )
         );
 
         $sel_landing = $this->db->query('
-            SELECT `clp_lp_id`, `clp_slider_images`, `clp_main_title`, `clp_block2_background`, 
-              `clp_block2_image`, `clp_block2_title`, `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, 
-              `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, `clp_block3_images`, `clp_block3_r_title`, 
-              `clp_block3_r_subtitle`, `clp_block3_r_reviews`, `clp_block4_background`, `clp_block4_title`, 
-              `clp_block4_subtitle`, `clp_block4_image`, `clp_block4_r_title`, `clp_block4_r_subtitle`, `clp_block4_button`, 
-              `clp_block5_background`, `clp_block5_title`, `clp_block5_subtitle`, `clp_block5_text`, `clp_block5_images`, 
+            SELECT `clp_lp_id`, `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, 
+              `clp_block2_hide`, `clp_block2_background`, `clp_block2_background_top`, `clp_block2_image`, 
+              `clp_block2_title`, `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, 
+              `clp_block3_hide`, `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, 
+              `clp_block3_images`, `clp_block3_r_title`, `clp_block3_r_subtitle`, `clp_block3_r_reviews`, 
+              `clp_block4_hide`, `clp_block4_background`, `clp_block4_title`, `clp_block4_subtitle`, 
+              `clp_block4_image`, `clp_block4_r_title`, `clp_block4_r_subtitle`, `clp_block4_button`, 
+              `clp_block5_hide`, `clp_block5_background`, `clp_block5_title`, `clp_block5_subtitle`, `clp_block5_text`, `clp_block5_images`, 
               `clp_block5_r_title`, `clp_block5_r_subtitle`, `clp_block5_r_text`, `clp_block5_button`, 
-              `clp_block6_background`, `clp_block6_title`, `clp_block6_description`, `clp_block6_subtitle`, 
-              `clp_block6_advantages`, `clp_block6_image`, `clp_block6_button`, `clp_block7_background`, `clp_block7_title`, 
-              `clp_block7_images`, `clp_block7_text`, `clp_block8_background`, `clp_block7_button`, 
-              `clp_block8_title`, `clp_block8_description1`, `clp_block8_subtitle`, `clp_block8_description2`, `clp_block8_old_price`, 
-              `clp_block8_new_price`, `clp_block8_button`,
-              `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_block2_background`, `lp_block2_image`, `lp_block3_background`, 
+              `clp_block6_hide`, `clp_block6_background`, `clp_block6_title`, `clp_block6_description`, 
+              `clp_block6_subtitle`, `clp_block6_advantages`, `clp_block6_image`, `clp_block6_button`,
+              `clp_block7_hide`, `clp_block7_background`, `clp_block7_title`, `clp_block7_images`, `clp_block7_text`, 
+              `clp_block8_hide`, `clp_block8_background`, `clp_block7_button`, `clp_block8_title`, 
+              `clp_block8_description1`, `clp_block8_subtitle`, `clp_block8_description2`, 
+              `clp_block8_old_price`, `clp_block8_new_price`, `clp_block8_button`,
+              `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_block2_background_top`, `lp_block2_background`, `lp_block2_image`, `lp_block3_background`, 
               `lp_block3_images`, `lp_block4_background`, `lp_block4_image`, `lp_block5_background`, `lp_block5_images`, 
               `lp_block6_background`, `lp_block6_image`, `lp_block7_background`, `lp_block7_images`, `lp_block8_background`
             FROM `courses_landing_pages`
@@ -3529,6 +3532,7 @@ class Course_model extends CI_Model
             $row = $sel_landing->row();
 
             // Путь к HTML странице landing page
+	        log_message('debug', print_r($row, true));
             $result['landing'] = self::parseLandingData($row);
         }
         elseif ($sel_landing === false)
@@ -3609,7 +3613,7 @@ class Course_model extends CI_Model
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_slider_images`=?, `clp_main_title`=?, `clp_block2_background`=?, 
+            SET `clp_lp_id`=?, `clp_slider_images`=?, `clp_main_title`=?, `clp_block2_background`=?, `clp_block2_background_top`=?, 
             `clp_block2_image`=?, `clp_block2_title`=?, `clp_block2_subtitle`=?, `clp_block2_text`=?, `clp_block2_button`=?, 
             `clp_block3_background`=?, `clp_block3_images`=?, `clp_block3_title`=?, `clp_block3_subtitle`=?, `clp_block3_r_title`=?, 
             `clp_block3_r_subtitle`=?, `clp_block3_r_reviews`=?, 
@@ -3653,19 +3657,20 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса
      *
      * @param $course_id
+     * @param $hide_block
      * @param $landing_style
      * @param $slider_images
      * @param $main_title_bbcode
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock1($course_id, $landing_style, $slider_images, $main_title_bbcode, $date)
+    public function setCourseLandingBlock1($course_id, $hide_block, $landing_style, $slider_images, $main_title_bbcode, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_slider_images`=?, `clp_main_title`=?, `clp_date_update`=? 
+            SET `clp_block1_hide`=?, `clp_lp_id`=?, `clp_slider_images`=?, `clp_main_title`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $slider_images, $main_title_bbcode, $date, $course_id));
+                array($hide_block, $landing_style, $slider_images, $main_title_bbcode, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3687,7 +3692,8 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса
      *
      * @param $course_id
-     * @param $landing_style
+     * @param $hide_block
+     * @param $b2_bg_top
      * @param $b2_bg
      * @param $b2_image
      * @param $b2_title
@@ -3697,15 +3703,16 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock2($course_id, $landing_style, $b2_bg, $b2_image, $b2_title, $b2_subtitle,
+    public function setCourseLandingBlock2($course_id, $hide_block, $b2_bg_top, $b2_bg, $b2_image, $b2_title, $b2_subtitle,
                                            $b2_text, $b2_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_block2_background`=?, `clp_block2_image`=?, `clp_block2_title`=?, 
-            `clp_block2_subtitle`=?, `clp_block2_text`=?, `clp_block2_button`=?, `clp_date_update`=? 
+            SET `clp_block2_hide`=?, `clp_block2_background_top`=?, `clp_block2_background`=?, 
+                `clp_block2_image`=?, `clp_block2_title`=?, `clp_block2_subtitle`=?, `clp_block2_text`=?, 
+                `clp_block2_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button, $date, $course_id));
+                array($hide_block, $b2_bg_top, $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3726,7 +3733,7 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса
      *
      * @param $course_id
-     * @param $landing_style
+     * @param $hide_block
      * @param $b3_bg
      * @param $b3_images
      * @param $b3_title
@@ -3737,15 +3744,15 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock3($course_id, $landing_style, $b3_bg, $b3_images, $b3_title, $b3_subtitle,
+    public function setCourseLandingBlock3($course_id, $hide_block, $b3_bg, $b3_images, $b3_title, $b3_subtitle,
                                            $b3_r_title, $b3_r_subtitle, $b3_r_reviews, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_block3_background`=?, `clp_block3_images`=?, `clp_block3_title`=?, `clp_block3_subtitle`=?, `clp_block3_r_title`=?, 
+            SET `clp_block3_hide`=?, `clp_block3_background`=?, `clp_block3_images`=?, `clp_block3_title`=?, `clp_block3_subtitle`=?, `clp_block3_r_title`=?, 
             `clp_block3_r_subtitle`=?, `clp_block3_r_reviews`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $b3_bg, $b3_images, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews,
+                array($hide_block, $b3_bg, $b3_images, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews,
                 $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -3767,7 +3774,7 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса
      *
      * @param $course_id
-     * @param $landing_style
+     * @param $hide_block
      * @param $b4_bg
      * @param $b4_image
      * @param $b4_title
@@ -3778,15 +3785,15 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock4($course_id, $landing_style, $b4_bg, $b4_image, $b4_title, $b4_subtitle,
+    public function setCourseLandingBlock4($course_id, $hide_block, $b4_bg, $b4_image, $b4_title, $b4_subtitle,
                                            $b4_r_title, $b4_r_desc, $b4_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_block4_background`=?, `clp_block4_image`=?, `clp_block4_title`=?, 
+            SET `clp_block4_hide`=?, `clp_block4_background`=?, `clp_block4_image`=?, `clp_block4_title`=?, 
             `clp_block4_subtitle`=?, `clp_block4_r_title`=?, `clp_block4_r_subtitle`=?, `clp_block4_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button,
+                array($hide_block, $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button,
                     $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -3808,7 +3815,7 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса
      *
      * @param $course_id
-     * @param $landing_style
+     * @param $hide_block
      * @param $b5_bg
      * @param $b5_images
      * @param $b5_title
@@ -3821,16 +3828,16 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock5($course_id, $landing_style, $b5_bg, $b5_images, $b5_title, $b5_subtitle,
+    public function setCourseLandingBlock5($course_id, $hide_block, $b5_bg, $b5_images, $b5_title, $b5_subtitle,
                                            $b5_text, $b5_r_title, $b5_r_subtitle, $b5_r_text, $b5_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_block5_background`=?, `clp_block5_images`=?, `clp_block5_title`=?, 
+            SET `clp_block5_hide`=?, `clp_block5_background`=?, `clp_block5_images`=?, `clp_block5_title`=?, 
             `clp_block5_subtitle`=?, `clp_block5_text`=?, `clp_block5_r_title`=?, `clp_block5_r_subtitle`=?, 
             `clp_block5_r_text`=?, `clp_block5_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $b5_bg, $b5_images, $b5_title, $b5_subtitle, $b5_text, $b5_r_title,
+                array($hide_block, $b5_bg, $b5_images, $b5_title, $b5_subtitle, $b5_text, $b5_r_title,
                     $b5_r_subtitle, $b5_r_text, $b5_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -3852,7 +3859,7 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса
      *
      * @param $course_id
-     * @param $landing_style
+     * @param $hide_block
      * @param $b6_bg
      * @param $b6_image
      * @param $b6_title
@@ -3863,15 +3870,15 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock6($course_id, $landing_style, $b6_bg, $b6_image, $b6_title, $b6_desc,
+    public function setCourseLandingBlock6($course_id, $hide_block, $b6_bg, $b6_image, $b6_title, $b6_desc,
                                            $b6_subtitle, $b6_advantages, $b6_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_block6_background`=?, `clp_block6_image`=?, `clp_block6_title`=?, 
+            SET `clp_block6_hide`=?, `clp_block6_background`=?, `clp_block6_image`=?, `clp_block6_title`=?, 
             `clp_block6_description`=?, `clp_block6_subtitle`=?, `clp_block6_advantages`=?, `clp_block6_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button,
+                array($hide_block, $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button,
                     $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -3893,6 +3900,7 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса. Блок 7
      *
      * @param $course_id
+     * @param $hide_block
      * @param $b7_bg
      * @param $b7_title
      * @param $b7_images
@@ -3901,15 +3909,15 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock7($course_id, $b7_bg, $b7_title, $b7_images, $b7_texts,
+    public function setCourseLandingBlock7($course_id, $hide_block, $b7_bg, $b7_title, $b7_images, $b7_texts,
                                            $b7_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block7_background`=?, `clp_block7_title`=?, `clp_block7_images`=?, `clp_block7_text`=?, 
+            SET `clp_block7_hide`=?, `clp_block7_background`=?, `clp_block7_title`=?, `clp_block7_images`=?, `clp_block7_text`=?, 
             `clp_block7_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button, $date, $course_id));
+                array($hide_block, $b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3930,7 +3938,7 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса
      *
      * @param $course_id
-     * @param $landing_style
+     * @param $hide_block
      * @param $b8_bg
      * @param $b8_title
      * @param $b8_desc1
@@ -3942,16 +3950,16 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock8($course_id, $landing_style, $b8_bg, $b8_title, $b8_desc1, $b8_subtitle,
+    public function setCourseLandingBlock8($course_id, $hide_block, $b8_bg, $b8_title, $b8_desc1, $b8_subtitle,
                                            $b8_desc2, $b8_old_price, $b8_new_price, $b8_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_block8_background`=?, `clp_block8_title`=?, `clp_block8_description1`=?, `clp_block8_subtitle`=?, 
+            SET `clp_block8_hide`=?, `clp_block8_background`=?, `clp_block8_title`=?, `clp_block8_description1`=?, `clp_block8_subtitle`=?, 
             `clp_block8_description2`=?, `clp_block8_old_price`=?, `clp_block8_new_price`=?, `clp_block8_button`=?, 
             `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $b8_bg, $b8_title, $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price,
+                array($hide_block, $b8_bg, $b8_title, $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price,
                     $b8_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -4088,19 +4096,19 @@ class Course_model extends CI_Model
     public function getDefaultLandingPage($lp_id)
     {
         $result = array(
-            'landing' => array('html_page' => '', 'bg' => '', 'slider_images' => '', 'main_title' => '',
-                'block2' => array('bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'button' => ''),
-                'block3' => array('bg' => '', 'title' => '', 'subtitle' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => ''),
-                'block4' => array('bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'button' => ''),
-                'block5' => array('title' => '', 'subtitle' => '', 'text' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'button' => ''),
-                'block6' => array('bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => '', 'image' => '', 'button' => ''),
-                'block7' => array('title' => '', 'images' => '', 'text' => '', 'button' => ''),
-                'block8' => array('bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'button' => '')
+            'landing' => array('html_page' => '', 'hide' => false, 'bg' => '', 'slider_images' => '', 'main_title' => '',
+                'block2' => array('hide' => false, 'bg_top' => '', 'bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'button' => ''),
+                'block3' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => ''),
+                'block4' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'button' => ''),
+                'block5' => array('hide' => false, 'title' => '', 'subtitle' => '', 'text' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'button' => ''),
+                'block6' => array('hide' => false, 'bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => '', 'image' => '', 'button' => ''),
+                'block7' => array('hide' => false, 'title' => '', 'images' => '', 'text' => '', 'button' => ''),
+                'block8' => array('hide' => false, 'bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'button' => '')
             )
         );
 
         $sel_landing = $this->db->query('
-            SELECT `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_main_title`, `lp_block2_background`, 
+            SELECT `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_main_title`, `lp_block2_background`, `lp_block2_background_top`, 
               `lp_block2_image`, `lp_block2_title`, `lp_block2_subtitle`, `lp_block2_text`, `lp_block2_button`,
               `lp_block3_background`, `lp_block3_title`, `lp_block3_subtitle`, `lp_block3_images`, `lp_block3_r_title`, `lp_block3_r_subtitle`, 
               `lp_block3_r_reviews`, `lp_block4_background`, `lp_block4_title`, `lp_block4_subtitle`, `lp_block4_image`, 
@@ -4164,6 +4172,14 @@ class Course_model extends CI_Model
             $result['landing']['main_title'] = $row->lp_main_title;
 
             // БЛОК 2
+            // Шапка фона блока
+            $block_background_top = '';
+            if (!empty($row->lp_block2_background_top) and is_file($row->lp_block2_background_top))
+            {
+                $block_background_top = 'background: url(' . mb_substr($row->lp_block2_background_top, 1) . ') top center no-repeat;';
+            }
+            $result['landing']['block2']['bg_top'] = $block_background_top;
+
             // Фон блока
             $block_background = '';
             if (!empty($row->lp_block2_background))
@@ -4494,37 +4510,38 @@ class Course_model extends CI_Model
     public function getLandingPage($course_id)
     {
         $result = array(
-            'landing' => array('html_page' => '', 'bg' => '', 'slider_images' => '', 'main_title' => '',
-                'block2' => array('bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'button' => ''),
-                'block3' => array('bg' => '', 'title' => '', 'subtitle' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => ''),
-                'block4' => array('bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'button' => ''),
-                'block5' => array('bg' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'button' => ''),
-                'block6' => array('bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => '', 'image' => '', 'button' => ''),
-                'block7' => array('bg' => '', 'title' => '', 'images' => '', 'text' => '', 'button' => ''),
-                'block8' => array('bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'button' => '')
+            'landing' => array('html_page' => '', 'hide' => false, 'bg' => '', 'slider_images' => '', 'main_title' => '',
+                'block2' => array('hide' => false, 'bg_top' => '', 'bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'button' => ''),
+                'block3' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => ''),
+                'block4' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'button' => ''),
+                'block5' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'button' => ''),
+                'block6' => array('hide' => false, 'bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => '', 'image' => '', 'button' => ''),
+                'block7' => array('hide' => false, 'bg' => '', 'title' => '', 'images' => '', 'text' => '', 'button' => ''),
+                'block8' => array('hide' => false, 'bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'button' => '')
             )
         );
 
         $sel_landing = $this->db->query('
-            SELECT `clp_slider_images`, `clp_main_title`, `clp_block2_background`, 
-              `clp_block2_image`, `clp_block2_title`, `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, 
-              `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, `clp_block3_images`, `clp_block3_r_title`, 
-              `clp_block3_r_subtitle`, `clp_block3_r_reviews`, 
-              `clp_block4_background`, `clp_block4_title`, `clp_block4_subtitle`, `clp_block4_image`, `clp_block4_r_title`, 
-              `clp_block4_r_subtitle`, `clp_block4_button`,  
-              `clp_block5_background`, `clp_block5_title`, `clp_block5_subtitle`, `clp_block5_text`, `clp_block5_images`, 
-              `clp_block5_r_title`, `clp_block5_r_subtitle`, `clp_block5_r_text`, `clp_block5_button`,  
-              `clp_block6_background`, `clp_block6_title`, `clp_block6_description`, `clp_block6_subtitle`, `clp_block6_advantages`, 
-              `clp_block6_image`, `clp_block6_button`,  
-              `clp_block7_background`, `clp_block7_title`, `clp_block7_images`, `clp_block7_text`, `clp_block7_button`, 
-              `clp_block8_background`, `clp_block8_title`, `clp_block8_description1`, `clp_block8_subtitle`, 
-              `clp_block8_description2`, `clp_block8_old_price`, `clp_block8_new_price`, `clp_block8_button`,  
-              `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_block2_background`, `lp_block2_image`, `lp_block3_background`, 
+			SELECT `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, 
+              `clp_block2_hide`, `clp_block2_background_top`, `clp_block2_background`, `clp_block2_image`, `clp_block2_title`, 
+              `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, 
+              `clp_block3_hide`, `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, 
+              `clp_block3_images`, `clp_block3_r_title`, `clp_block3_r_subtitle`, `clp_block3_r_reviews`, 
+              `clp_block4_hide`, `clp_block4_background`, `clp_block4_title`, `clp_block4_subtitle`, 
+              `clp_block4_image`, `clp_block4_r_title`, `clp_block4_r_subtitle`, `clp_block4_button`, 
+              `clp_block5_hide`, `clp_block5_background`, `clp_block5_title`, `clp_block5_subtitle`, `clp_block5_text`, `clp_block5_images`, 
+              `clp_block5_r_title`, `clp_block5_r_subtitle`, `clp_block5_r_text`, `clp_block5_button`, 
+              `clp_block6_hide`, `clp_block6_background`, `clp_block6_title`, `clp_block6_description`, 
+              `clp_block6_subtitle`, `clp_block6_advantages`, `clp_block6_image`, `clp_block6_button`,
+              `clp_block7_hide`, `clp_block7_background`, `clp_block7_title`, `clp_block7_images`, `clp_block7_text`, 
+              `clp_block8_hide`, `clp_block8_background`, `clp_block7_button`, `clp_block8_title`, 
+              `clp_block8_description1`, `clp_block8_subtitle`, `clp_block8_description2`, 
+              `clp_block8_old_price`, `clp_block8_new_price`, `clp_block8_button`,
+              `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_block2_background_top`, `lp_block2_background`, `lp_block2_image`, `lp_block3_background`, 
               `lp_block3_images`, `lp_block4_background`, `lp_block4_image`, `lp_block5_background`, `lp_block5_images`, 
               `lp_block6_background`, `lp_block6_image`, `lp_block7_background`, `lp_block7_images`, `lp_block8_background`
             FROM `courses_landing_pages`
-            LEFT JOIN `landing_pages`
-              ON `lp_id`=`clp_lp_id`
+            LEFT JOIN `landing_pages` ON `lp_id`=`clp_lp_id`
             WHERE `clp_course_id`=? and `clp_activated`="activate" LIMIT 1', $course_id);
 
         if ($sel_landing !== false and 1 == $sel_landing->num_rows())
@@ -8599,12 +8616,15 @@ class Course_model extends CI_Model
             $values = '';
             foreach($ingr_weights as $ml_id => $weight)
             {
-                if(!empty($values))
-                {
-                    $values .= ', ';
-                }
+            	if(is_numeric($weight) and $weight > 0)
+            	{
+		            if(!empty($values))
+		            {
+			            $values .= ', ';
+		            }
 
-                $values .= '(' . $user_id . ', ' . $ml_id . ', "' . $weight . '", "' . $meal_datetime. '", "' . $date . '")';
+		            $values .= '(' . $user_id . ', ' . $ml_id . ', "' . $weight . '", "' . $meal_datetime. '", "' . $date . '")';
+	            }
             }
             unset($ml_id);
             unset($weight);
@@ -10206,19 +10226,22 @@ class Course_model extends CI_Model
     protected function parseLandingData($row)
     {
         $result = array(
-            'html_page' => '', 'lp_id' => '', 'bg' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
-            'block2' => array('bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-            'block3' => array('bg' => '', 'title' => '', 'subtitle' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
-            'block4' => array('bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-            'block5' => array('bg' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'button' => ''),
-            'block6' => array('bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => array(), 'image' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-            'block7' => array('bg' => '', 'images' => array(), 'texts' => array(), 'bg_default' => true, 'images_default' => array(), 'button' => ''),
-            'block8' => array('bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'bg_default' => true, 'button' => '')
+            'html_page' => '', 'lp_id' => '', 'hide' => false, 'bg' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
+            'block2' => array('hide' => false, 'bg_top' => '', 'bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_top_default' => true, 'bg_default' => true, 'image_default' => true, 'button' => ''),
+            'block3' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
+            'block4' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
+            'block5' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'button' => ''),
+            'block6' => array('hide' => false, 'bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => array(), 'image' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
+            'block7' => array('hide' => false, 'bg' => '', 'images' => array(), 'texts' => array(), 'bg_default' => true, 'images_default' => array(), 'button' => ''),
+            'block8' => array('hide' => false, 'bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'bg_default' => true, 'button' => '')
         );
 
         // Путь к HTML странице landing page
         $result['html_page'] = $row->lp_html_page;
         $result['lp_id']     = !empty($row->clp_lp_id) ? $row->clp_lp_id : '';
+
+        // Скрыть блок 1
+	    $result['hide'] = ($row->clp_block1_hide == 1) ? true : false;
 
         // Фон страницы
         $clp_background = '';
@@ -10264,6 +10287,26 @@ class Course_model extends CI_Model
         $result['bbc_main_title'] = $row->clp_main_title;
 
         // БЛОК 2
+	    // Скрыть блок 2
+	    $result['block2']['hide'] = ($row->clp_block2_hide == 1) ? true : false;
+
+        // Шапка фона блока
+        if (!empty($row->clp_block2_background_top) and $row->clp_block2_background_top != 'default')
+        {
+            $result['block2']['bg_top_default'] = false;
+            $block2_background_top = $row->clp_block2_background_top;
+        }
+        else
+        {
+            $block2_background_top = $row->lp_block2_background_top;
+        }
+
+        if (!empty($block2_background_top) and is_file($block2_background_top)) {
+            $block2_background_top = 'background: url(' . mb_substr($block2_background_top, 1) . ') top center no-repeat;';
+        }
+        $result['block2']['bg_top']      = $block2_background_top;
+        $result['block2']['bg_top_orig'] = $row->clp_block2_background_top;
+
         // Фон блока
         if (!empty($row->clp_block2_background) and $row->clp_block2_background != 'default')
         {
@@ -10307,6 +10350,9 @@ class Course_model extends CI_Model
         $result['block2']['button']   = strip_tags($row->clp_block2_button);
 
         // БЛОК 3
+	    // Скрыть блок 3
+	    $result['block3']['hide'] = ($row->clp_block3_hide == 1) ? true : false;
+
         // Фон блока
         if (!empty($row->clp_block3_background) and $row->clp_block3_background != 'default')
         {
@@ -10377,6 +10423,9 @@ class Course_model extends CI_Model
         }
 
         // БЛОК 4
+	    // Скрыть блок 4
+	    $result['block4']['hide'] = ($row->clp_block4_hide == 1) ? true : false;
+
         // Фон блока
         if (!empty($row->clp_block4_background) and $row->clp_block4_background != 'default')
         {
@@ -10424,6 +10473,9 @@ class Course_model extends CI_Model
         $result['block4']['r_subtitle'] = $row->clp_block4_r_subtitle;
 
         // БЛОК 5
+	    // Скрыть блок 5
+	    $result['block5']['hide'] = ($row->clp_block5_hide == 1) ? true : false;
+
         // Фон блока
         if (!empty($row->clp_block5_background) and $row->clp_block5_background != 'default')
         {
@@ -10499,6 +10551,9 @@ class Course_model extends CI_Model
         $result['block5']['button']     = strip_tags($row->clp_block5_button);
 
         // БЛОК 6
+	    // Скрыть блок 6
+	    $result['block6']['hide'] = ($row->clp_block6_hide == 1) ? true : false;
+
         // Фон блока
         if (!empty($row->clp_block6_background) and $row->clp_block6_background != 'default')
         {
@@ -10562,6 +10617,9 @@ class Course_model extends CI_Model
         $result['block6']['image_orig'] = $row->clp_block6_image;
 
         // БЛОК 7
+	    // Скрыть блок 7
+	    $result['block7']['hide'] = ($row->clp_block7_hide == 1) ? true : false;
+
         // Фон блока
         if (!empty($row->clp_block7_background) and $row->clp_block7_background != 'default')
         {
@@ -10642,6 +10700,9 @@ class Course_model extends CI_Model
         }
 
         // БЛОК 8
+	    // Скрыть блок 8
+	    $result['block8']['hide'] = ($row->clp_block8_hide == 1) ? true : false;
+
         // Фон блока
         if (!empty($row->clp_block8_background) and $row->clp_block8_background != 'default')
         {

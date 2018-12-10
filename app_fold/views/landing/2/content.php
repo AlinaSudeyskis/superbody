@@ -34,7 +34,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_header_wrap -->
 
-<div class="lp_block1_wrap" style="<?php echo $landing['block2']['bg']; ?>">
+<?php if($landing['block2']['hide'] === false): ?>
+    <div class="lp_block1_wrap" style="<?php echo $landing['block2']['bg']; ?>">
     <div class="lp_block1 container">
         <div class="lp_block1_img"><img src="<?php echo $landing['block2']['image']; ?>" alt=""></div>
         <div class="lp_block1_cont">
@@ -48,7 +49,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_block1_wrap -->
 
-<div class="lp_block2_wrap">
+<?php endif; ?>
+
+<?php if($landing['block3']['hide'] === false): ?>
+    <div class="lp_block2_wrap">
     <div class="lp_block_bg" style="<?php echo $landing['block3']['bg']; ?>"></div>
     <div class="lp_block2 container">
         <h2 class="lp_block2_h"><?php echo $landing['block3']['title']; ?></h2>
@@ -56,8 +60,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="lp_block2_cont_l">
                 <div class="lp_block2_cont_h"><?php echo $landing['block3']['subtitle']; ?></div>
                 <div class="lp_block2_cont_row parent">
-                    <div class="lp_block2_cont_col"><img src="<?php echo $landing['block3']['images'][0]; ?>" alt=""><span>до</span></div>
-                    <div class="lp_block2_cont_col"><img src="<?php echo $landing['block3']['images'][1]; ?>" alt=""><span>после</span></div>
+                    <div class="lp_block2_cont_col"><img src="<?php echo $landing['block3']['images'][0]; ?>" alt=""></div>
+                    <div class="lp_block2_cont_col"><img src="<?php echo $landing['block3']['images'][1]; ?>" alt=""></div>
                 </div>
             </div>
             <div class="lp_block2_cont_r">
@@ -69,7 +73,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_block2_wrap -->
 
-<div class="lp_block3_wrap" style="<?php echo $landing['block4']['bg']; ?>">
+<?php endif; ?>
+
+<?php if($landing['block4']['hide'] === false): ?>
+    <div class="lp_block3_wrap" style="<?php echo $landing['block4']['bg']; ?>">
     <div class="lp_block3 container parent">
         <div class="lp_block3_cont">
             <h2 class="lp_block3_h"><?php echo $landing['block4']['title']; ?></h2>
@@ -87,7 +94,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_block3_wrap -->
 
-<div class="lp_block4_wrap">
+<?php endif; ?>
+
+<?php if($landing['block5']['hide'] === false): ?>
+    <div class="lp_block4_wrap">
     <div class="lp_block4 container">
         <div class="lp_block4_cont">
             <h2 class="lp_block4_h"><?php echo $landing['block5']['title']; ?></h2>
@@ -112,7 +122,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_block4_wrap -->
 
-<div class="lp_block5_wrap">
+<?php endif; ?>
+
+<?php if($landing['block6']['hide'] === false): ?>
+    <div class="lp_block5_wrap">
     <div class="lp_block_bg" style="<?php echo $landing['block6']['bg']; ?>"></div>
     <div class="lp_block5 container">
         <h2 class="lp_block5_h"><?php echo $landing['block6']['title']; ?></h2>
@@ -137,7 +150,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_block5_wrap -->
 
-<div class="lp_block6_wrap">
+<?php endif; ?>
+
+<?php if($landing['block7']['hide'] === false): ?>
+    <div class="lp_block6_wrap">
     <div class="lp_block6 container">
         <h2 class="lp_block6_h"><?php echo $landing['block7']['title']; ?></h2>
         <div class="lp_block6_cont row">
@@ -161,7 +177,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_block6_wrap -->
 
-<div class="lp_block7_wrap">
+<?php endif; ?>
+
+<?php if($landing['block8']['hide'] === false): ?>
+    <div class="lp_block7_wrap">
     <div class="lp_block_bg" style="<?php echo $landing['block8']['bg']; ?>"></div>
     <div class="lp_block7 container">
         <h2 class="lp_block7_h"><?php echo $landing['block8']['title']; ?></h2>
@@ -179,4 +198,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php endif;?>
     </div>
 </div><!-- lp_block7_wrap -->
-<?php include_once('./app_fold/views/course/payment_form_up.php');?>
+<?php endif;
+include_once('./app_fold/views/course/payment_form_up.php');
+?>

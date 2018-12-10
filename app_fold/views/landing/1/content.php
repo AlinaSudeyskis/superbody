@@ -1,75 +1,82 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-?>
-<div class="lp_header_wrap">
-    <div class="lp_header_bg">
-        <?php if (!empty($landing['slider_images'])) :
-            foreach ($landing['slider_images'] as $slider_image) : ?>
-                <div class="lp_header_slide"><img src="<?php echo $slider_image;?>" alt=""></div>
-            <?php endforeach;
-            unset($slider_image);
-        endif;?>
-    </div>
-    <script>
-        $('.lp_header_bg').slick({
-            dots: true,
-            infinite: true,
-            autoplaySpeed: 5000,
-            speed: 500,
-            autoplay: true,
-            arrows: false
-        });
-    </script>
-    <div class="lp_top_head_wrap">
-        <div class="lp_top_head container">
-            <a href="/" class="lp_top_head_logo"><img src="/img/logo.png" alt=""></a>
-        </div>
-    </div>
-    <div class="lp_header_cont">
-        <div class="lp_header container">
-            <h1 class="lp_h1"><?php echo $landing['main_title']; ?></h1>
-            <div class="lp_scroll_ico"><img src="/landing/default/1/lp_ico1.png" alt=""></div>
-        </div>
-    </div>
-    <div class="lp_header_mask"></div>
-</div><!-- lp_header_wrap -->
 
-<div class="lp_block1_wrap" style="<?php echo $landing['block2']['bg']; ?>">
-    <div class="lp_block1 container">
-        <div class="lp_block1_img"><img src="<?php echo $landing['block2']['image']; ?>" alt=""></div>
-        <div class="lp_block1_cont">
-            <h2 class="lp_block1_h"><?php echo $landing['block2']['title']; ?></h2>
-            <div class="lp_block1_desk"><?php echo $landing['block2']['subtitle']; ?></div>
-            <div class="lp_block1_txt"><?php echo $landing['block2']['text']; ?></div>
-            <?php if (!empty($landing['block2']['button'])):?>
-                <a href="#" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
-            <?php endif;?>
+if($landing['hide'] === false): ?>
+    <div class="lp_header_wrap">
+        <div class="lp_header_bg">
+            <?php if (!empty($landing['slider_images'])) :
+                foreach ($landing['slider_images'] as $slider_image) : ?>
+                    <div class="lp_header_slide"><img src="<?php echo $slider_image;?>" alt=""></div>
+                <?php endforeach;
+                unset($slider_image);
+            endif;?>
         </div>
-    </div>
-</div><!-- lp_block1_wrap -->
+        <script>
+            $('.lp_header_bg').slick({
+                dots: true,
+                infinite: true,
+                autoplaySpeed: 5000,
+                speed: 500,
+                autoplay: true,
+                arrows: false
+            });
+        </script>
+        <div class="lp_top_head_wrap">
+            <div class="lp_top_head container">
+                <a href="/" class="lp_top_head_logo"><img src="/img/logo.png" alt=""></a>
+            </div>
+        </div>
+        <div class="lp_header_cont">
+            <div class="lp_header container">
+                <h1 class="lp_h1"><?php echo $landing['main_title']; ?></h1>
+                <div class="lp_scroll_ico"><img src="/landing/default/1/lp_ico1.png" alt=""></div>
+            </div>
+        </div>
+        <div class="lp_header_mask" style="<?php echo $landing['block2']['bg_top']; ?>"></div>
+    </div><!-- lp_header_wrap -->
+<?php endif; ?>
+<?php if($landing['block2']['hide'] === false): ?>
+    <div class="lp_block1_wrap" style="<?php echo $landing['block2']['bg']; ?>">
+        <div class="lp_block1 container">
+            <div class="lp_block1_img"><img src="<?php echo $landing['block2']['image']; ?>" alt=""></div>
+            <div class="lp_block1_cont">
+                <h2 class="lp_block1_h"><?php echo $landing['block2']['title']; ?></h2>
+                <div class="lp_block1_desk"><?php echo $landing['block2']['subtitle']; ?></div>
+                <div class="lp_block1_txt"><?php echo $landing['block2']['text']; ?></div>
+                <?php if (!empty($landing['block2']['button'])):?>
+                    <a href="#" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
+                <?php endif;?>
+            </div>
+        </div>
+    </div><!-- lp_block1_wrap -->
+<?php endif; ?>
 
-<div class="lp_block2_wrap">
-    <div class="lp_block_bg" style="<?php echo $landing['block3']['bg']; ?>"></div>
-    <div class="lp_block2 container">
-        <h2 class="lp_block2_h"><?php echo $landing['block3']['title']; ?></h2>
-        <div class="lp_block2_cont parent">
-            <div class="lp_block2_cont_l">
-                <div class="lp_block2_cont_h"><?php echo $landing['block3']['subtitle']; ?></div>
-                <div class="lp_block2_cont_row parent">
-                    <div class="lp_block2_cont_col"><img src="<?php echo $landing['block3']['images'][0]; ?>" alt=""><span>до</span></div>
-                    <div class="lp_block2_cont_col"><img src="<?php echo $landing['block3']['images'][1]; ?>" alt=""><span>после</span></div>
+<?php if($landing['block3']['hide'] === false): ?>
+    <div class="lp_block2_wrap">
+        <div class="lp_block_bg" style="<?php echo $landing['block3']['bg']; ?>"></div>
+        <div class="lp_block2 container">
+            <h2 class="lp_block2_h"><?php echo $landing['block3']['title']; ?></h2>
+            <div class="lp_block2_cont parent">
+                <div class="lp_block2_cont_l">
+                    <div class="lp_block2_cont_h"><?php echo $landing['block3']['subtitle']; ?></div>
+                    <div class="lp_block2_cont_row parent">
+                        <div class="lp_block2_cont_col"><img src="<?php echo $landing['block3']['images'][0]; ?>" alt=""></div>
+                        <div class="lp_block2_cont_col"><img src="<?php echo $landing['block3']['images'][1]; ?>" alt=""></div>
+                    </div>
+                </div>
+                <div class="lp_block2_cont_r">
+                    <div class="lp_block2_cont_name"><?php echo $landing['block3']['r_title']; ?></div>
+                    <div class="lp_block2_cont_desk"><?php echo $landing['block3']['r_subtitle']; ?></div>
+                    <div class="lp_block2_cont_txt"><?php echo $landing['block3']['r_reviews']; ?></div>
                 </div>
             </div>
-            <div class="lp_block2_cont_r">
-                <div class="lp_block2_cont_name"><?php echo $landing['block3']['r_title']; ?></div>
-                <div class="lp_block2_cont_desk"><?php echo $landing['block3']['r_subtitle']; ?></div>
-                <div class="lp_block2_cont_txt"><?php echo $landing['block3']['r_reviews']; ?></div>
-            </div>
         </div>
-    </div>
-</div><!-- lp_block2_wrap -->
+    </div><!-- lp_block2_wrap -->
+<?php endif; ?>
 
-<div class="lp_block3_wrap">
+<?php if($landing['block4']['hide'] === false): ?>
+
+    <div class="lp_block3_wrap">
     <div class="lp_block_bg" style="<?php echo $landing['block4']['bg']; ?>"></div>
     <div class="lp_block3 container parent">
         <div class="lp_block3_cont">
@@ -87,8 +94,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
 </div><!-- lp_block3_wrap -->
+<?php endif; ?>
 
-<div class="lp_block4_wrap" style="<?php echo $landing['block5']['bg']; ?>">
+<?php if($landing['block5']['hide'] === false): ?>
+
+    <div class="lp_block4_wrap" style="<?php echo $landing['block5']['bg']; ?>">
     <div class="lp_block4 container">
         <div class="lp_block4_cont">
             <h2 class="lp_block4_h"><?php echo $landing['block5']['title']; ?></h2>
@@ -122,32 +132,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_block4_wrap -->
 
-<div class="lp_block5_wrap">
-    <div class="lp_block_bg" style="<?php echo $landing['block6']['bg']; ?>"></div>
-    <div class="lp_block5 container">
-        <h2 class="lp_block5_h"><?php echo $landing['block6']['title']; ?></h2>
-        <div class="lp_block5_cont parent">
-            <div class="lp_block5_img"><img src="<?php echo $landing['block6']['image']; ?>" alt=""></div>
-            <div class="lp_block5_info">
-                <div class="lp_block5_desk"><?php echo $landing['block6']['desc']; ?></div>
-                <div class="lp_block5_line"><?php echo $landing['block6']['subtitle']; ?></div>
-                <ul class="lp_block5_ul">
-                    <?php if (!empty($landing['block6']['advantages'])) :
-                        foreach ($landing['block6']['advantages'] as $advantage) : ?>
-                            <li><?php echo $advantage; ?></li>
-                        <?php endforeach;
-                        unset($advantage);
-                    endif;?>
-                </ul>
-                <?php if (!empty($landing['block6']['button'])):?>
-                    <a href="#" class="lp_block_but lp_block5_but parent"><?php echo $landing['block6']['button']; ?></a>
-                <?php endif;?>
+<?php endif; ?>
+
+<?php if($landing['block6']['hide'] === false): ?>
+
+    <div class="lp_block5_wrap">
+        <div class="lp_block_bg" style="<?php echo $landing['block6']['bg']; ?>"></div>
+        <div class="lp_block5 container">
+            <h2 class="lp_block5_h"><?php echo $landing['block6']['title']; ?></h2>
+            <div class="lp_block5_cont parent">
+                <div class="lp_block5_img"><img src="<?php echo $landing['block6']['image']; ?>" alt=""></div>
+                <div class="lp_block5_info">
+                    <div class="lp_block5_desk"><?php echo $landing['block6']['desc']; ?></div>
+                    <div class="lp_block5_line"><?php echo $landing['block6']['subtitle']; ?></div>
+                    <ul class="lp_block5_ul">
+                        <?php if (!empty($landing['block6']['advantages'])) :
+                            foreach ($landing['block6']['advantages'] as $advantage) : ?>
+                                <li><?php echo $advantage; ?></li>
+                            <?php endforeach;
+                            unset($advantage);
+                        endif;?>
+                    </ul>
+                    <?php if (!empty($landing['block6']['button'])):?>
+                        <a href="#" class="lp_block_but lp_block5_but parent"><?php echo $landing['block6']['button']; ?></a>
+                    <?php endif;?>
+                </div>
             </div>
         </div>
-    </div>
-</div><!-- lp_block5_wrap -->
+    </div><!-- lp_block5_wrap -->
 
-<div class="lp_block6_wrap" style="<?php echo $landing['block7']['bg']; ?>">
+<?php endif; ?>
+
+<?php if($landing['block7']['hide'] === false): ?>
+
+    <div class="lp_block6_wrap" style="<?php echo $landing['block7']['bg']; ?>">
     <div class="lp_block6 container">
         <h2 class="lp_block6_h"><?php echo $landing['block7']['title']; ?></h2>
         <div class="lp_block6_cont row">
@@ -175,7 +193,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- lp_block6_wrap -->
 
-<div class="lp_block7_wrap">
+<?php endif; ?>
+
+<?php if($landing['block8']['hide'] === false): ?>
+
+    <div class="lp_block7_wrap">
     <div class="lp_block_bg" style="<?php echo $landing['block8']['bg']; ?>"></div>
     <div class="lp_block7 container">
         <h2 class="lp_block7_h"><?php echo $landing['block8']['title']; ?></h2>
@@ -193,4 +215,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php endif;?>
     </div>
 </div><!-- lp_block7_wrap -->
-<?php include_once('./app_fold/views/course/payment_form_up.php');?>
+
+<?php endif;
+include_once('./app_fold/views/course/payment_form_up.php');
+?>

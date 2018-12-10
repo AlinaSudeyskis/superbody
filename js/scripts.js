@@ -652,25 +652,39 @@ $(document).ready(function() {
                     }
                 }
             });
-            $(document).on('click', '#bt-save-user-meal', function(){
+            $(document).on('click', '#bt-save-user-meal', function(event){
+                //event.preventDefault();
                 var um_block = $(this).parents('.user_meal_form'),
                     um_s_datetime = um_block.find('#u-meal-time').val(),
                     um_datetime = um_block.find('#um-datetimepicker').val(),
-                    ingr_weights = um_block.find('input.ingr_weight').serialize();
-                $.ajax({
-                    url: '/saveUserMeal',
-                    type: 'post',
-                    data: {s_datetime: um_s_datetime, i_datetime: um_datetime, ingr_weights: ingr_weights},
-                    dataType: 'json',
-                    complete: function(result){
-                        var data = jQuery.parseJSON(result.responseText);
-                        if(data === true)
-                        {
-                            $(document).find('.user_meals').find('.add_tov_val').html('');
-                            $(document).find('#u-meal-time').val('now').change();
-                        }
+                    bl_ingr_weights = um_block.find('input.ingr_weight'),
+                    ingr_weights = um_block.find('input.ingr_weight').serialize(),
+                    empty_weight = false;
+
+                bl_ingr_weights.each(function(){
+                    if($(this).val() === '')
+                    {
+                        empty_weight = true;
                     }
                 });
+
+                if(empty_weight === false)
+                {
+                    $.ajax({
+                        url: '/saveUserMeal',
+                        type: 'post',
+                        data: {s_datetime: um_s_datetime, i_datetime: um_datetime, ingr_weights: ingr_weights},
+                        dataType: 'json',
+                        complete: function(result){
+                            var data = jQuery.parseJSON(result.responseText);
+                            if(data === true)
+                            {
+                                $(document).find('.user_meals').find('.add_tov_val').html('');
+                                $(document).find('#u-meal-time').val('now').change();
+                            }
+                        }
+                    });
+                }
             });
             function calcUserMealsWCPFC()
             {
