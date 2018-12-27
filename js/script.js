@@ -519,11 +519,17 @@ $(document).ready(function() {
         }
     });
 
-    $(".price_slide").click(function() {
-        if($(this).hasClass("hide_chart")){
+    $(".meta_slide, .price_slide").on('click', function() {
+        if($(this).hasClass("hide_chart"))
+        {
+            $(".meta_slide").addClass("hide_chart");
+            $(".price_slide").addClass("hide_chart");
+            $(".content_block_internal").find(".kurs_block_val").slideUp(200);
             $(this).removeClass("hide_chart");
             $(this).parents(".content_block_internal").find(".kurs_block_val").slideDown(200);
-        } else{
+        }
+        else
+        {
             $(this).addClass("hide_chart");
             $(this).parents(".content_block_internal").find(".kurs_block_val").slideUp(200);
         }

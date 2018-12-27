@@ -664,8 +664,9 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_product = $this->db->query('
-            SELECT `p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_price`, `p_fitcoin_price`, 
-              `p_quantity`, `p_discount`, `p_discount_type`, `p_images`, `p_union_flag`, `p_date_add`, `p_blocked`, `pc_cat_id` 
+            SELECT `p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_meta_description`, 
+                   `p_meta_keywords`, `p_price`, `p_fitcoin_price`, `p_quantity`, `p_discount`, `p_discount_type`, 
+                   `p_images`, `p_union_flag`, `p_date_add`, `p_blocked`, `pc_cat_id` 
             FROM `products`
             LEFT JOIN `products_categories`
               ON `pc_p_id`=`p_id`
@@ -724,6 +725,8 @@ class Store_model extends CI_Model
      * @param string $name Наименование товара
      * @param string $short_desc Краткое описание
      * @param string $full_desc Полное описание
+     * @param string $meta_description Metadata
+     * @param string $meta_keywords Metadata
      * @param int $price Цена в рублях
      * @param int $quantity Кол-во
      * @param int $discount Скидка на товар
@@ -734,14 +737,16 @@ class Store_model extends CI_Model
      * @param int $admin_id Id админа
      * @return bool
      */
-    public function setNewProduct($name, $short_desc, $full_desc, $price, $quantity, $discount, $discount_type,
-                                  $category_id, $attached_products, $date, $admin_id)
+    public function setNewProduct($name, $short_desc, $full_desc, $meta_description, $meta_keywords, $price, $quantity,
+                                  $discount, $discount_type, $category_id, $attached_products, $date, $admin_id)
     {
         $in_data = $this->db->query('
-            INSERT INTO `products` (`p_name`, `p_short_description`, `p_full_description`, `p_price`, 
-              `p_quantity`, `p_discount`, `p_discount_type`, `p_date_add`, `p_date_update`, `p_admin_id`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($name, $short_desc, $full_desc, $price, $quantity, $discount, $discount_type, $date, $date, $admin_id));
+            INSERT INTO `products` (`p_name`, `p_short_description`, `p_full_description`, `p_meta_description`, 
+                                    `p_meta_keywords`, `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, 
+                                    `p_date_add`, `p_date_update`, `p_admin_id`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($name, $short_desc, $full_desc, $meta_description, $meta_keywords, $price, $quantity, $discount,
+                    $discount_type, $date, $date, $admin_id));
 
         if ($in_data !== false and 1 == $this->db->affected_rows())
         {
@@ -825,8 +830,9 @@ class Store_model extends CI_Model
      * @param string $name
      * @param string$short_desc
      * @param string $full_desc
+     * @param string $meta_description
+     * @param string $meta_keywords
      * @param float $price
-     * @param float $fitcoin_price
      * @param int $quantity
      * @param float $discount
      * @param int $discount_type
@@ -835,14 +841,17 @@ class Store_model extends CI_Model
      * @param int $user_id
      * @return bool
      */
-    public function updateProductSettings($product_id, $category_id, $name, $short_desc, $full_desc, $price, $quantity,
-                                          $discount, $discount_type, $attached_products, $date, $user_id)
+    public function updateProductSettings($product_id, $category_id, $name, $short_desc, $full_desc, $meta_description,
+                                          $meta_keywords, $price, $quantity, $discount, $discount_type, $attached_products,
+                                          $date, $user_id)
     {
         $up_data = $this->db->query('
             UPDATE `products` 
-            SET `p_name`=?, `p_short_description`=?, `p_full_description`=?, `p_price`=?, 
-              `p_quantity`=?, `p_discount`=?, `p_date_update`=? 
-            WHERE `p_id`=? LIMIT 1', array($name, $short_desc, $full_desc, $price, $quantity, $discount, $date, $product_id));
+            SET `p_name`=?, `p_short_description`=?, `p_full_description`=?, `p_meta_description`=?, `p_meta_keywords`=?, 
+                `p_price`=?, `p_quantity`=?, `p_discount`=?, `p_date_update`=? 
+            WHERE `p_id`=? LIMIT 1',
+                array($name, $short_desc, $full_desc, $meta_description, $meta_keywords, $price, $quantity, $discount,
+                    $date, $product_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -1577,8 +1586,9 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_product = $this->db->query('
-            SELECT `p_id`, `p_name`, `p_short_description`, `p_full_description`, `p_price`, `p_fitcoin_price`, 
-              `p_quantity`, `p_discount`, `p_discount_type`, `p_images`, `p_union_flag`, `p_date_add`, `p_blocked` 
+            SELECT `p_id`, `p_name`, `p_short_description`, `p_full_description`, `p_meta_description`, `p_meta_keywords`, 
+                   `p_price`, `p_fitcoin_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_images`, `p_union_flag`, 
+                   `p_date_add`, `p_blocked` 
             FROM `products`
             WHERE `p_id`=? and `p_blocked`=0 and `p_course_id`=0 LIMIT 1', $product_id);
 
@@ -3480,24 +3490,25 @@ class Store_model extends CI_Model
     {
         $result = array();
 
-        $result['id']           = $row->p_id;
-        $result['course_id']    = $row->p_course_id;
-        $result['name']         = !empty($row->p_name) ? $row->p_name : 'Товар №'.$row->p_id;
-        $result['desc']         = !empty($row->p_short_description) ? mb_substr($row->p_short_description, 0, 30) . '...' : null;
-        $result['short_desc']   = !empty($row->p_short_description) ? $row->p_short_description : null;
-        $result['full_desc']    = !empty($row->p_full_description) ? $row->p_full_description : null;
-        $result['quantity']     = !empty($row->p_quantity) ? $row->p_quantity : null;
-        $result['image']        = '';
-        $result['images']       = array();
-        $result['images_id']    = array();
-        $result['count_images'] = 0;
-        $result['discount']     = (!empty($row->p_discount) and $row->p_discount != '0.00') ? $row->p_discount : null;
-        $result['blocked']      = !empty($row->p_blocked) ? $row->p_blocked : null;
-        $result['attached']     = array();
-        $result['date']         = '';
-        $result['cat_id']       = !empty($row->pc_cat_id) ? $row->pc_cat_id : null;
-
-        $result['discount_type']  = !empty($row->p_discount_type) ? $row->p_discount_type : null;
+        $result['id']               = $row->p_id;
+        $result['course_id']        = $row->p_course_id;
+        $result['name']             = !empty($row->p_name) ? $row->p_name : 'Товар №'.$row->p_id;
+        $result['desc']             = !empty($row->p_short_description) ? mb_substr($row->p_short_description, 0, 30) . '...' : null;
+        $result['short_desc']       = !empty($row->p_short_description) ? $row->p_short_description : null;
+        $result['full_desc']        = !empty($row->p_full_description) ? $row->p_full_description : null;
+        $result['meta_description'] = !empty($row->p_meta_description) ? $row->p_meta_description : null;
+        $result['meta_keywords']    = !empty($row->p_meta_keywords) ? $row->p_meta_keywords : null;
+        $result['quantity']         = !empty($row->p_quantity) ? $row->p_quantity : null;
+        $result['image']            = '';
+        $result['images']           = array();
+        $result['images_id']        = array();
+        $result['count_images']     = 0;
+        $result['discount']         = (!empty($row->p_discount) and $row->p_discount != '0.00') ? $row->p_discount : null;
+        $result['blocked']          = !empty($row->p_blocked) ? $row->p_blocked : null;
+        $result['attached']         = array();
+        $result['date']             = '';
+        $result['cat_id']           = !empty($row->pc_cat_id) ? $row->pc_cat_id : null;
+        $result['discount_type']    = !empty($row->p_discount_type) ? $row->p_discount_type : null;
 
         $discount = (!empty($row->p_discount) and $row->p_discount != '0.00') ? $row->p_discount : null;
         $price    = (!empty($row->p_price) and $row->p_price != '0.00') ? $row->p_price : null;

@@ -57,7 +57,9 @@ class Couch extends CI_Controller
         $result = $this->Couch_model->getCouches();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Тренеры';
+        $this->page_data['title']       = $this->page_data['metadata'][4]['title'];
+        $this->page_data['keywords']    = $this->page_data['metadata'][4]['keywords'];
+        $this->page_data['description'] = $this->page_data['metadata'][4]['description'];
         $this->page_data['page_menu'] = 'couches';
 
         $this->load->view('header/header', $this->page_data);

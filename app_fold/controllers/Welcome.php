@@ -96,8 +96,10 @@ class Welcome extends CI_Controller
         //print_r($couches);
         
         // Объединенные данные страница
-        $this->page_data['title'] = 'Welcome!';
-        $this->page_data['page_menu'] = 'index';
+        $this->page_data['title']       = $this->page_data['metadata'][2]['title'];
+        $this->page_data['keywords']    = $this->page_data['metadata'][2]['keywords'];
+        $this->page_data['description'] = $this->page_data['metadata'][2]['description'];
+        $this->page_data['page_menu']   = 'index';
 
 		$this->load->view('header/header', $this->page_data);
 		$this->load->view('header/main');
@@ -116,7 +118,9 @@ class Welcome extends CI_Controller
         $result = $this->Couch_model->getCouches();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'О нашем проекте';
+        $this->page_data['title']       = $this->page_data['metadata'][3]['title'];
+        $this->page_data['keywords']    = $this->page_data['metadata'][3]['keywords'];
+        $this->page_data['description'] = $this->page_data['metadata'][3]['description'];
         $this->page_data['page_menu'] = 'about';
 
         $this->load->view('header/header', $this->page_data);
@@ -194,7 +198,9 @@ class Welcome extends CI_Controller
         $result = array_merge($gallery, $couches, $reviews);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Контакты';
+        $this->page_data['title']       = $this->page_data['metadata'][7]['title'];
+        $this->page_data['keywords']    = $this->page_data['metadata'][7]['keywords'];
+        $this->page_data['description'] = $this->page_data['metadata'][7]['description'];
         $this->page_data['page_menu'] = 'contacts';
 
         $this->load->view('header/header', $this->page_data);

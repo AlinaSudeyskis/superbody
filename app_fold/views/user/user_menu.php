@@ -42,11 +42,13 @@ if (!empty($user_session)) :
                 <span><img src="/img/menu_ico6.png" alt=""></span><span>Мои курсы</span>
             </a>
         </li>
-        <li <?php echo $user_blocked; ?> >
-            <a href="/profile/meals" <?php if ($page_menu == 'u_meals') { echo 'class="active"'; } ?>>
-                <span><img src="/img/menu_ico24.png" alt=""></span><span>Питание</span>
-            </a>
-        </li>
+        <?php if($user_session['type'] == 3): ?>
+            <li <?php echo $user_blocked; ?> >
+                <a href="/profile/meals" <?php if ($page_menu == 'u_meals') { echo 'class="active"'; } ?>>
+                    <span><img src="/img/menu_ico24.png" alt=""></span><span>Питание</span>
+                </a>
+            </li>
+        <?php endif; ?>
         <li <?php echo $user_blocked; ?> >
             <a href="/progress" <?php if ($page_menu == 'progress') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico7.png" alt=""></span><span>Прогресс</span>
@@ -61,6 +63,11 @@ if (!empty($user_session)) :
         <li><a href="/orders" <?php if ($page_menu == 'orders') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico10.png" alt=""></span><span>Покупки</span></a>
         </li>
+        <?php if($user_session['type'] == 3): ?>
+            <li><a href="/administration">
+                    <span><img src="/img/menu_ico25.png" alt=""></span><span>Админ. панель</span></a>
+            </li>
+        <?php endif; ?>
         <!--<li><a href="#"><span><img src="/img/menu_ico11.png" alt=""></span><span>FitCoin</span></a></li>-->
     </ul>
 <?php endif;?>

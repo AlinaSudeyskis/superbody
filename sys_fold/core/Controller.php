@@ -501,10 +501,16 @@ class CI_Controller {
         // Данные сайта (контактные данные, о нас, соц. сети и т.д.)
         $site_info = $this->Welcome_model->getSiteInfo();
 
+        // Данные сайта (контактные данные, о нас, соц. сети и т.д.)
+        $site_metadata = $this->Welcome_model->getSiteMetaData();
+
         // Данные страницы
         $this->page_data = array(
             "title" => '',
+            "keywords" => '',
+            "description" => '',
             "site_info" => !empty($site_info) ? $site_info : '',
+            "metadata" => !empty($site_metadata) ? $site_metadata : '',
             "user_session" => !empty($this->session->user) ? $this->session->user : '',
             "new_messages" => !empty($this->session->new_messages) ? $this->session->new_messages : 0,
             "new_fb_messages" => !empty($this->session->new_fb_messages) ? $this->session->new_fb_messages : 0,

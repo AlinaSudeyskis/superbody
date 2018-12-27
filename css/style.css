@@ -707,6 +707,12 @@ audio, canvas, progress, video{
     padding: 0 15px 20px;
     float: left;
 }
+.col_4 .cat_item_wrap{
+    width: 25%;
+}
+.col_5 .cat_item_wrap{
+    width: 20%;
+}
 .cat_item{
     background: #fff;
     border-bottom: 3px solid #cdcdcd;
@@ -4059,6 +4065,7 @@ tr:first-child > td > .fc-day-grid-event{
 	float: left;
 	border-right: 1px solid #cccccc;
     border-bottom: 1px solid #cccccc;
+    flex-grow: 1;
 }
 .anketa_block_nav li:first-child {
     border-left: 1px solid #cccccc;
@@ -4705,7 +4712,7 @@ textarea.journal_post_comm_in{
     font-size: 30px;
     font-weight: 300;
     line-height: 36px;
-    margin: 0 0 20px;
+    /*margin: 0 0 20px;*/
     text-align: center;
     text-transform: uppercase;
     color: #505961;
@@ -6194,6 +6201,8 @@ textarea.journal_post_comm_in{
 
     margin: 9px 10px 9px 0;
     overflow: hidden;
+
+    position: relative;
 }
 .new_content_block_h h3{
 	/*padding-right: 220px;*/
@@ -6834,6 +6843,7 @@ textarea.journal_post_comm_in{
 .tren_set_form_img {
     overflow: hidden;
     position: relative;
+    background-color: #f3f3f3;
 }
 .tren_set_form_img img{
     display: block;
@@ -7524,7 +7534,7 @@ textarea.anketa_form_in{
     background: #00bff0;
 }
 .lp_block1_wrap{
-    /*background: url(/img/lp_block_bg1_1.png) top center repeat;*/
+    position: relative;
 }
 .lp_block1{
     position: relative;
@@ -7701,7 +7711,7 @@ textarea.anketa_form_in{
 .lp_block3_wrap{
     position: relative;
 }
-.lp_block3_wrap .lp_block_bg{
+.lp_block1_wrap .lp_block_bg, .lp_block3_wrap .lp_block_bg{
     opacity: 1;
 }
 .lp_block3{
@@ -7768,6 +7778,7 @@ textarea.anketa_form_in{
 }
 .lp_block4_wrap{
     padding: 40px 0;
+    position: relative;
 }
 .lp_block4{
     position: relative;
@@ -7958,6 +7969,7 @@ textarea.anketa_form_in{
 }
 .lp_block6_wrap{
     padding-bottom: 40px;
+    position: relative;
 }
 .lp_block6_h{
     font-size: 36px;
@@ -8904,6 +8916,9 @@ textarea.anketa_form_in{
     display: block !important;
     text-align: left;
 }
+.landing_admin_form .journal_form_select{
+    width: calc(100% - 180px);
+}
 .video_admin_form .journal_form_select.long{
     width: 100%;
 }
@@ -9089,6 +9104,21 @@ textarea.anketa_form_in{
 .kurs_cur_wrap input{
     float: left;
     margin-right: 30px;
+}
+.land_block_opacity{
+    height: 35px;
+    width: calc(100% - 250px);
+    max-width: 250px;
+}
+.land_block_opacity_val{
+    position: absolute;
+    height: 40px;
+    line-height: 40px;
+    width: 30px;
+    text-align: center;
+    font-size: 12px;
+    color: #a0a0a0;
+    border: none;
 }
 .kurs_cur_wrap input#generated-code{
     text-transform: uppercase;
@@ -10892,6 +10922,12 @@ input.tren_form_block_check{
     .cat_item_wrap{
         width: 50%; /* 33.3333% */
     }
+    .col_4 .cat_item_wrap{
+        width: 25%;
+    }
+    .col_5 .cat_item_wrap{
+        width: 33.3333%;
+    }
     #legend{
         position: relative;
         padding: 0 15px;
@@ -11047,11 +11083,16 @@ input.tren_form_block_check{
 }
 
 @media (max-width: 925px){
-    .landing_blocks{
+    .landing_block_table .landing_blocks{
         font-size: 17px;
+        width: calc(100% / 4);
+        padding: 5px 0;
     }
     h3.landing{
         font-size: 21px;
+    }
+    .landing_block .landing_title span{
+        font-size: 19px;
     }
 }
 
@@ -11073,6 +11114,12 @@ input.tren_form_block_check{
         margin-left: 180px;
         width: calc(100% - 180px);
         max-width: calc(100% - 180px);
+    }
+}
+
+@media (max-width: 830px){
+    .col_4 .cat_item_wrap{
+        width: 50%;
     }
 }
 
@@ -11885,6 +11932,19 @@ input.tren_form_block_check{
     .progressbar_wrap{
         margin-top: 10px;
     }
+    .landing_admin_form .video_down_line_name{
+        clear: none;
+        padding-left: 20px;
+        margin-top: 0;
+    }
+    .tren_set_form_l{
+        float: none;
+        width: 100%;
+    }
+    .tren_set_form_r{
+        margin-left: 0;
+        margin-top: 17px;
+    }
     .anketa_form_info_cont .video_down_line_name{
         width: 150px;
         clear: none;
@@ -12301,14 +12361,6 @@ input.tren_form_block_check{
 		padding-top: 15px;
 	}
 
-    .tren_set_form_l{
-        float: none;
-        width: 100%;
-    }
-    .tren_set_form_r{
-        margin-left: 0;
-        margin-top: 17px;
-    }
     .tren_set_form_pop_up{
         width: 320px;
         margin-left: -160px;
@@ -12628,6 +12680,12 @@ input.tren_form_block_check{
     .cat_item_wrap{
         width: 50%;
     }
+    .col_4 .cat_item_wrap{
+        width: 50%;
+    }
+    .col_5 .cat_item_wrap{
+        width: 50%;
+    }
     .fc-toolbar>.fc-left, .fc-toolbar>.fc-right{
         float: none;
     }
@@ -12705,10 +12763,20 @@ input.tren_form_block_check{
 }
 
 @media (max-width: 600px){
+    .landing_block_table .landing_blocks{
+        font-size: 15px;
+        padding: 4px 0;
+    }
     .kurs_block_h{
         width: 100%;
         float: none;
         margin: 0;
+    }
+    .landing_admin_form .kurs_block_h .h_subtitle{
+        margin: -34px 0 0 80px;
+    }
+    .lend_form_option .kurs_cur_wrap{
+        max-height: none;
     }
     .add_tov_in.meal {
         float: none;
@@ -12729,6 +12797,22 @@ input.tren_form_block_check{
     }
     .journal_form_select{
         width: calc(100% - 90px) !important;
+    }
+    .landing_admin_form .journal_form_select{
+        width: 100% !important;
+        max-width: none;
+    }
+    .land_block_opacity{
+        width: calc(100% - 70px);
+        max-width: none;
+    }
+    .landing_admin_form .video_down_line{
+        width: 100%;
+    }
+    .landing_admin_form .video_down_line_name{
+        clear: none;
+        margin-top: 0;
+        padding-left: 20px;
     }
 }
 
@@ -13569,6 +13653,12 @@ input.tren_form_block_check{
     .cat_item_wrap{
         width: 100%;
     }
+    .col_4 .cat_item_wrap{
+        width: 100%;
+    }
+    .col_5 .cat_item_wrap{
+        width: 100%;
+    }
     .fc-toolbar>.fc-right button{
         margin-left: 0;
         margin-bottom: 5px;
@@ -13760,6 +13850,9 @@ input.tren_form_block_check{
 }
 
 @media (max-width: 375px){
+    .landing_block_table .landing_blocks{
+        font-size: 15px;
+    }
     .admin_form_buts_wrap .video_admin_form_block,
     .admin_form_buts_wrap .video_admin_form_send{
         font-size: 12px;

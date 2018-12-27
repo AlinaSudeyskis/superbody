@@ -33,6 +33,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             include_once('./app_fold/views/site/settings/auth.php');
                         elseif ($page_submenu == 'a_spec') :
                             include_once('./app_fold/views/site/settings/courses_spec.php');
+                        elseif ($page_submenu == 'a_meta') :
+                            include_once('./app_fold/views/site/settings/meta_data.php');
                         else:?>
                             <h3 class="info">Информация не найдена</h3>
                         <?php endif;?>

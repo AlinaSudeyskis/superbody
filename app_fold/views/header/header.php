@@ -4,9 +4,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <title><?php echo $title; ?><?php echo $metadata[1]['title']; ?></title>
+    <meta name="keywords" content="<?php echo $keywords; ?>">
+    <meta name="description" content="<?php echo $description; ?>">
     <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title><?php echo $title; ?> - Super Body</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/favicon.ico" />
 
     <link rel="stylesheet" href="/css/google_fonts.css">

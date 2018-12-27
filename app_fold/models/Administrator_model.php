@@ -536,6 +536,42 @@ class Administrator_model extends CI_Model
     }
 
     /**
+     * Выборка метаданных сайта
+     *
+     * @return bool
+     */
+    public function getSiteMetaData()
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('
+            SELECT `smt_id`, `smt_page`, `smt_title`, `smt_keywords`, `smt_description` 
+            FROM `site_meta_tags`');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['meta'][$i]['id']          = $row->smt_id;
+                $result['meta'][$i]['page']        = $row->smt_page;
+                $result['meta'][$i]['title']       = $row->smt_title;
+                $result['meta'][$i]['keywords']    = $row->smt_keywords;
+                $result['meta'][$i]['description'] = $row->smt_description;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Сохранение данных о сайте
      *
      * @param $logotype
@@ -803,6 +839,40 @@ class Administrator_model extends CI_Model
         else {
             return false;
         }
+    }
+
+    /**
+     * Сохранение метаданных сайта
+     *
+     * @param $meta_titles
+     * @param $meta_keywords
+     * @param $meta_descriptions
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setSiteMetaData($meta_titles, $meta_keywords, $meta_descriptions, $admin_id, $date)
+    {
+        $result = true;
+
+        foreach($meta_titles as $meta_id => $title)
+        {
+            $up_data = $this->db->query('UPDATE `site_meta_tags` 
+                SET `smt_title`=?, `smt_keywords`=?, `smt_description`=?, `smt_admin_id`=?, `smt_update`=? 
+                WHERE `smt_id`=? LIMIT 1',
+                    array($title, $meta_keywords[$meta_id], $meta_descriptions[$meta_id], $admin_id, $date, $meta_id));
+
+            if($up_data !== false and 0 == $this->db->affected_rows())
+            {
+                $result = false;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
     }
 
     /**

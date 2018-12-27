@@ -582,6 +582,11 @@ class Administrator extends CI_Controller
             $result = $this->Administrator_model->getSiteCoursesBlock();
             $this->page_data['page_submenu'] = 'a_spec';
         }
+        elseif($page == 'meta')
+        {
+            $result = $this->Administrator_model->getSiteMetaData();
+            $this->page_data['page_submenu'] = 'a_meta';
+        }
 
         // Сохранение изменений
         if ($this->input->post('bt_save_index', true))
@@ -750,6 +755,40 @@ class Administrator extends CI_Controller
             }
 
             header('Location: /administration/site/spec');
+        }
+        elseif($this->input->post('bt_save_meta', true))
+        {
+            $meta_titles       = array();
+            $meta_keywords     = array();
+            $meta_descriptions = array();
+
+            $ta_meta_titles       = $this->input->post('ta_meta_title', true);
+            $ta_meta_keywords     = $this->input->post('ta_meta_keywords', true);
+            $ta_meta_descriptions = $this->input->post('ta_meta_description', true);
+
+            foreach($ta_meta_titles as $key => $m_title)
+            {
+                $meta_titles[$key]       = mb_substr(strip_tags($m_title), 0, 255);
+                $meta_keywords[$key]     = mb_substr(strip_tags($ta_meta_keywords[$key]), 0, 1000);
+                $meta_descriptions[$key] = mb_substr(strip_tags($ta_meta_descriptions[$key]), 0, 255);
+            }
+            unset($m_title);
+
+            $result = $this->Administrator_model->setSiteMetaData($meta_titles, $meta_keywords, $meta_descriptions,
+                $this->user_id, $this->date);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 176, 60);
+            }
+
+            header('Location: /administration/site/meta');
         }
 
         // Объединенные данные страница

@@ -4,9 +4,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+    <title><?php echo $title; ?><?php echo $metadata[1]['title']; ?></title>
+    <meta name="robots" content="none">
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title><?php echo $title; ?> - Super Body</title>
     <link rel="icon" type="image/png" href="/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
 

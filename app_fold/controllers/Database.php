@@ -15,6 +15,11 @@ class Database extends CI_Controller
     {
         parent::__construct();
 
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $this->load->model('Database_model');
     }
 

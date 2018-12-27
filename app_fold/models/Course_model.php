@@ -1890,8 +1890,9 @@ class Course_model extends CI_Model
         $result['course'] = NULL;
 
         $sel_course = $this->db->query('
-            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, `crs_count_days`, 
-              `crs_price`, `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
+            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, 
+              `crs_count_days`, `crs_meta_description`, `crs_meta_keywords`, `crs_price`, `crs_recurrent_price`, 
+              `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
               `crs_fitcoin_price`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`, `p_id`
             FROM `courses`
             LEFT JOIN `products` ON `p_course_id`=`crs_id`
@@ -2079,9 +2080,10 @@ class Course_model extends CI_Model
         $result['course'] = array();
 
         $sel_course = $this->db->query('
-            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, `crs_count_days`, 
-              `crs_price`, `crs_fitcoin_price`, `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, 
-              `crs_recurrent_subsequent`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`
+            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`,
+              `crs_meta_keywords`, `crs_meta_description`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, 
+              `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
+              `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`
             FROM `courses`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
             WHERE `crs_id`=? LIMIT 1', $course_id);
@@ -2365,6 +2367,8 @@ class Course_model extends CI_Model
      * @param string $course_category Категория курса (тренировки, питание)
      * @param string $name Наименование курса
      * @param string $description Описание курса
+     * @param string $meta_description Metadata
+     * @param string $meta_keywords Metadata
      * @param float $price Стоимость курса
      * @param float $fc_price Стоимость курса
      * @param int $course_type Тип курса
@@ -2375,16 +2379,16 @@ class Course_model extends CI_Model
      * @param string $date
      * @return bool
      */
-    public function setNewCourse($course_category, $name, $description, $price, $fc_price, $course_type, $count_weeks,
-                                 $count_days, $count_rest, $user_id, $date)
+    public function setNewCourse($course_category, $name, $description, $meta_description, $meta_keywords, $price,
+                                 $fc_price, $course_type, $count_weeks, $count_days, $count_rest, $user_id, $date)
     {
         $up_data = $this->db->query('
-            INSERT INTO `courses` (`crs_category`, `crs_type_id`, `crs_name`, `crs_description`, `crs_price`, 
-              `crs_fitcoin_price`, `crs_count_weeks`, `crs_count_days`, `crs_count_rest`, `crs_admin_add`, 
-              `crs_date_add`, `crs_date_update`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($course_category, $course_type, $name, $description, $price, $fc_price, $count_weeks, $count_days,
-                    $count_rest, $user_id, $date, $date));
+            INSERT INTO `courses` (`crs_category`, `crs_type_id`, `crs_name`, `crs_description`, `crs_meta_description`, 
+                                   `crs_meta_keywords`, `crs_price`, `crs_fitcoin_price`, `crs_count_weeks`, 
+                                   `crs_count_days`, `crs_count_rest`, `crs_admin_add`, `crs_date_add`, `crs_date_update`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($course_category, $course_type, $name, $description, $meta_description, $meta_keywords, $price,
+                    $fc_price, $count_weeks, $count_days, $count_rest, $user_id, $date, $date));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -2416,13 +2420,8 @@ class Course_model extends CI_Model
 
             // Создание Landing page курса
             $up_data3 = $this->db->query('INSERT INTO `courses_landing_pages`
-              (`clp_course_id`, `clp_lp_id`, `clp_slider_images`, `clp_block2_background`, `clp_block2_image`,  
-              `clp_block3_background`, `clp_block3_images`, `clp_block4_background`, `clp_block4_image`,  
-              `clp_block5_background`, `clp_block5_images`, `clp_block6_background`, `clp_block6_image`, 
-              `clp_block7_background`, `clp_block8_background`, `clp_admin_id`, `clp_date_add`, `clp_date_update`) 
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($course_id, 1, 'default', 'default', 'default', 'default', 'default;default;', 'default', 'default',
-                    'default', 'default;default;default;', 'default', 'default', 'default', 'default', $user_id, $date, $date));
+              (`clp_course_id`, `clp_lp_id`, `clp_admin_id`, `clp_date_add`, `clp_date_update`) 
+              VALUES (?, ?, ?, ?, ?)', array($course_id, 1, $user_id, $date, $date));
 
             if ($up_data3 === false)
             {
@@ -2472,11 +2471,13 @@ class Course_model extends CI_Model
      * Сохранение изменений данных курса
      *
      * @param int $course_id
-     * @param string|null $image
+     * @param string $image
      * @param string $name
      * @param string $description
+     * @param string $meta_description
+     * @param string $meta_keywords
      * @param float $price
-     * @param float|null $fc_price
+     * @param float $fc_price
      * @param int $course_type
      * @param int $count_weeks
      * @param int $count_days
@@ -2484,14 +2485,16 @@ class Course_model extends CI_Model
      * @param datetime $date
      * @return bool
      */
-    public function setCourseSettings($course_id, $image = null, $name, $description, $price, $fc_price = null, $course_type, $count_weeks, $count_days,
-                                      $count_rest, $date)
+    public function setCourseSettings($course_id, $image, $name, $description, $meta_description, $meta_keywords,
+                                      $price, $fc_price, $course_type, $count_weeks, $count_days, $count_rest, $date)
     {
         $up_data = $this->db->query('
-          UPDATE `courses` SET `crs_type_id`=?, `crs_image`=?, `crs_name`=?, `crs_description`=?, `crs_price`=?, `crs_fitcoin_price`=?,
-            `crs_count_weeks`=?, `crs_count_days`=?, `crs_count_rest`=?, `crs_date_update`=? 
-          WHERE `crs_id`=? LIMIT 1', array($course_type, $image, $name, $description, $price, $fc_price, $count_weeks, $count_days,
-            $count_rest, $date, $course_id));
+          UPDATE `courses` 
+          SET `crs_type_id`=?, `crs_image`=?, `crs_name`=?, `crs_description`=?, `crs_meta_description`=?, `crs_meta_keywords`=?, 
+            `crs_price`=?, `crs_fitcoin_price`=?, `crs_count_weeks`=?, `crs_count_days`=?, `crs_count_rest`=?, `crs_date_update`=? 
+          WHERE `crs_id`=? LIMIT 1',
+            array($course_type, $image, $name, $description, $meta_description, $meta_keywords, $price, $fc_price,
+                $count_weeks, $count_days, $count_rest, $date, $course_id));
         
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3491,37 +3494,36 @@ class Course_model extends CI_Model
      */
     public function getCourseLandingPage($course_id)
     {
-        $result = array(
-            'landing' => array('html_page' => '', 'lp_id' => '', 'hide' => false, 'bg' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
-                'block2' => array('hide' => false, 'bg_top' => '', 'bg' => '', 'bg_top_orig' => '', 'bg_orig' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_top_default' => true, 'bg_default' => true, 'image_default' => true, 'button' => ''),
-                'block3' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
-                'block4' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-                'block5' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'button' => ''),
-                'block6' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => array(), 'image' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-                'block7' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'images' => array(), 'texts' => array(), 'bg_default' => true, 'images_default' => true, 'button' => ''),
-                'block8' => array('hide' => false, 'bg' => '', 'bg_orig' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'bg_default' => true, 'button' => '')
-            )
-        );
+        $result = array('landing' => array());
 
         $sel_landing = $this->db->query('
-            SELECT `clp_lp_id`, `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, 
-              `clp_block2_hide`, `clp_block2_background`, `clp_block2_background_top`, `clp_block2_image`, 
-              `clp_block2_title`, `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, 
-              `clp_block3_hide`, `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, 
-              `clp_block3_images`, `clp_block3_r_title`, `clp_block3_r_subtitle`, `clp_block3_r_reviews`, 
-              `clp_block4_hide`, `clp_block4_background`, `clp_block4_title`, `clp_block4_subtitle`, 
-              `clp_block4_image`, `clp_block4_r_title`, `clp_block4_r_subtitle`, `clp_block4_button`, 
-              `clp_block5_hide`, `clp_block5_background`, `clp_block5_title`, `clp_block5_subtitle`, `clp_block5_text`, `clp_block5_images`, 
+            SELECT `clp_lp_id`, `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, `clp_block1_bg_color`, `clp_slider_opacity`, 
+              `clp_block2_hide`, `clp_block2_background`, `clp_block2_background_top`, `clp_block2_image`, `clp_block2_bg_color`, 
+              `clp_block2_title`, `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, `clp_block2_bg_opacity`, 
+              `clp_block3_hide`, `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, `clp_block3_image_1`,
+              `clp_block3_image_2`, `clp_block3_r_title`, `clp_block3_r_subtitle`, `clp_block3_r_reviews`, `clp_block3_bg_color`, 
+              `clp_block3_bg_opacity`, 
+              `clp_block4_hide`, `clp_block4_background`, `clp_block4_title`, `clp_block4_subtitle`, `clp_block4_bg_color`, 
+              `clp_block4_image`, `clp_block4_r_title`, `clp_block4_r_subtitle`, `clp_block4_button`, `clp_block4_bg_opacity`, 
+              `clp_block5_hide`, `clp_block5_background`, `clp_block5_title`, `clp_block5_subtitle`, `clp_block5_text`, 
+              `clp_block5_image_1`, `clp_block5_image_2`, `clp_block5_image_3`, `clp_block5_bg_color`, `clp_block5_bg_opacity`, 
               `clp_block5_r_title`, `clp_block5_r_subtitle`, `clp_block5_r_text`, `clp_block5_button`, 
-              `clp_block6_hide`, `clp_block6_background`, `clp_block6_title`, `clp_block6_description`, 
-              `clp_block6_subtitle`, `clp_block6_advantages`, `clp_block6_image`, `clp_block6_button`,
-              `clp_block7_hide`, `clp_block7_background`, `clp_block7_title`, `clp_block7_images`, `clp_block7_text`, 
-              `clp_block8_hide`, `clp_block8_background`, `clp_block7_button`, `clp_block8_title`, 
-              `clp_block8_description1`, `clp_block8_subtitle`, `clp_block8_description2`, 
+              `clp_block6_hide`, `clp_block6_background`, `clp_block6_title`, `clp_block6_description`, `clp_block6_bg_color`, 
+              `clp_block6_subtitle`, `clp_block6_advantages`, `clp_block6_image`, `clp_block6_button`, `clp_block6_bg_opacity`,
+              `clp_block7_hide`, `clp_block7_background`, `clp_block7_title`, `clp_block7_image_1`, `clp_block7_image_2`, 
+              `clp_block7_image_3`, `clp_block7_image_4`, `clp_block7_text`, `clp_block7_bg_color`, `clp_block7_bg_opacity`, 
+              `clp_block8_hide`, `clp_block8_background`, `clp_block7_button`, `clp_block8_title`, `clp_block8_bg_color`, 
+              `clp_block8_bg_opacity`, `clp_block8_description1`, `clp_block8_subtitle`, `clp_block8_description2`, 
               `clp_block8_old_price`, `clp_block8_new_price`, `clp_block8_button`,
               `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_block2_background_top`, `lp_block2_background`, `lp_block2_image`, `lp_block3_background`, 
-              `lp_block3_images`, `lp_block4_background`, `lp_block4_image`, `lp_block5_background`, `lp_block5_images`, 
-              `lp_block6_background`, `lp_block6_image`, `lp_block7_background`, `lp_block7_images`, `lp_block8_background`
+              `lp_block3_image_1`, `lp_block3_image_2`, `lp_block4_background`, `lp_block4_image`, `lp_block5_background`, 
+              `lp_block5_image_1`, `lp_block5_image_2`, `lp_block5_image_3`, `lp_block6_background`, `lp_block6_image`, 
+              `lp_block7_background`, `lp_block7_image_1`, `lp_block7_image_2`, `lp_block7_image_3`, `lp_block7_image_4`, 
+              `lp_block8_background`,
+              `lp_block1_bg_color`, `lp_slider_opacity`, `lp_block2_bg_color`, `lp_block2_bg_opacity`, `lp_block3_bg_color`, 
+              `lp_block3_bg_opacity`, `lp_block4_bg_color`, `lp_block4_bg_opacity`, `lp_block5_bg_color`, `lp_block5_bg_opacity`, 
+              `lp_block6_bg_color`, `lp_block6_bg_opacity`, `lp_block7_bg_color`, `lp_block7_bg_opacity`, `lp_block8_bg_color`, 
+              `lp_block8_bg_opacity`
             FROM `courses_landing_pages`
             LEFT JOIN `landing_pages`
               ON `lp_id`=`clp_lp_id`
@@ -3532,7 +3534,6 @@ class Course_model extends CI_Model
             $row = $sel_landing->row();
 
             // Путь к HTML странице landing page
-	        log_message('debug', print_r($row, true));
             $result['landing'] = self::parseLandingData($row);
         }
         elseif ($sel_landing === false)
@@ -3547,130 +3548,24 @@ class Course_model extends CI_Model
      * Сохранение/изменение Landing page курса
      *
      * @param $course_id
-     * @param $landing_style
-     * @param $slider_images
-     * @param $main_title_bbcode
-     * @param $b2_bg
-     * @param $b2_image
-     * @param $b2_title
-     * @param $b2_subtitle
-     * @param $b2_text
-     * @param $b2_button
-     * @param $b3_bg
-     * @param $b3_images
-     * @param $b3_title
-     * @param $b3_subtitle
-     * @param $b3_r_title
-     * @param $b3_r_subtitle
-     * @param $b3_r_reviews
-     * @param $b4_bg
-     * @param $b4_image
-     * @param $b4_title
-     * @param $b4_subtitle
-     * @param $b4_r_title
-     * @param $b4_r_desc
-     * @param $b4_button
-     * @param $b5_bg
-     * @param $b5_images
-     * @param $b5_title
-     * @param $b5_subtitle
-     * @param $b5_text
-     * @param $b5_r_title
-     * @param $b5_r_subtitle
-     * @param $b5_r_text
-     * @param $b5_button
-     * @param $b6_bg
-     * @param $b6_image
-     * @param $b6_title
-     * @param $b6_desc
-     * @param $b6_subtitle
-     * @param $b6_advantages
-     * @param $b6_button
-     * @param $b7_bg
-     * @param $b7_title
-     * @param $b7_images
-     * @param $b7_texts
-     * @param $b7_button
-     * @param $b8_bg
-     * @param $b8_title
-     * @param $b8_desc1
-     * @param $b8_subtitle
-     * @param $b8_desc2
-     * @param $b8_old_price
-     * @param $b8_new_price
-     * @param $b8_button
-     * @param $date
-     * @return bool
-     */
-    public function setCourseLandingPage($course_id, $landing_style, $slider_images, $main_title_bbcode,
-                                         $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button,
-                                         $b3_bg, $b3_images, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews,
-                                         $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button,
-                                         $b5_bg, $b5_images, $b5_title, $b5_subtitle, $b5_text, $b5_r_title, $b5_r_subtitle, $b5_r_text, $b5_button,
-                                         $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button,
-                                         $b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button,
-                                         $b8_bg, $b8_title, $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price, $b8_button, $date)
-    {
-        $up_data = $this->db->query('
-            UPDATE `courses_landing_pages` 
-            SET `clp_lp_id`=?, `clp_slider_images`=?, `clp_main_title`=?, `clp_block2_background`=?, `clp_block2_background_top`=?, 
-            `clp_block2_image`=?, `clp_block2_title`=?, `clp_block2_subtitle`=?, `clp_block2_text`=?, `clp_block2_button`=?, 
-            `clp_block3_background`=?, `clp_block3_images`=?, `clp_block3_title`=?, `clp_block3_subtitle`=?, `clp_block3_r_title`=?, 
-            `clp_block3_r_subtitle`=?, `clp_block3_r_reviews`=?, 
-            `clp_block4_background`=?, `clp_block4_image`=?, `clp_block4_title`=?, `clp_block4_subtitle`=?, `clp_block4_r_title`=?, 
-            `clp_block4_r_subtitle`=?, `clp_block4_button`=?, 
-            `clp_block5_background`=?, `clp_block5_images`=?, `clp_block5_title`=?, `clp_block5_subtitle`=?, `clp_block5_text`=?, 
-            `clp_block5_r_title`=?, `clp_block5_r_subtitle`=?, `clp_block5_r_text`=?, `clp_block5_button`=?, 
-            `clp_block6_background`=?, `clp_block6_image`=?, `clp_block6_title`=?, `clp_block6_description`=?, `clp_block6_subtitle`=?, 
-            `clp_block6_advantages`=?, `clp_block6_button`=?, 
-            `clp_block7_background`=?, `clp_block7_title`=?, `clp_block7_images`=?, `clp_block7_text`=?, `clp_block7_button`=?, 
-            `clp_block8_background`=?, `clp_block8_title`=?, `clp_block8_description1`=?, `clp_block8_subtitle`=?, 
-            `clp_block8_description2`=?, `clp_block8_old_price`=?, `clp_block8_new_price`=?, `clp_block8_button`=?, 
-            `clp_date_update`=? 
-            WHERE `clp_course_id`=? LIMIT 1',
-                array($landing_style, $slider_images, $main_title_bbcode,
-                        $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button,
-                        $b3_bg, $b3_images, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews,
-                        $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button,
-                        $b5_bg, $b5_images, $b5_title, $b5_subtitle, $b5_text, $b5_r_title, $b5_r_subtitle, $b5_r_text, $b5_button,
-                        $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button,
-                        $b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button,
-                        $b8_bg, $b8_title, $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price, $b8_button,
-                        $date, $course_id));
-
-        if ($up_data !== false and 1 == $this->db->affected_rows())
-        {
-            return true;
-        }
-        elseif ($up_data === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
-        }
-        else
-            {
-                return false;
-            }
-    }
-
-    /**
-     * Сохранение/изменение Landing page курса
-     *
-     * @param $course_id
      * @param $hide_block
      * @param $landing_style
+     * @param $b1_bg_color
+     * @param $b1_bg_opacity
      * @param $slider_images
      * @param $main_title_bbcode
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock1($course_id, $hide_block, $landing_style, $slider_images, $main_title_bbcode, $date)
+    public function setCourseLandingBlock1($course_id, $hide_block, $landing_style, $b1_bg_color, $b1_bg_opacity,
+                                           $slider_images, $main_title_bbcode, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block1_hide`=?, `clp_lp_id`=?, `clp_slider_images`=?, `clp_main_title`=?, `clp_date_update`=? 
+            SET `clp_block1_hide`=?, `clp_block1_bg_color`=?, `clp_slider_opacity`=?, `clp_lp_id`=?, `clp_slider_images`=?, 
+                `clp_main_title`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $landing_style, $slider_images, $main_title_bbcode, $date, $course_id));
+                array($hide_block, $b1_bg_color, $b1_bg_opacity, $landing_style, $slider_images, $main_title_bbcode, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3694,6 +3589,8 @@ class Course_model extends CI_Model
      * @param $course_id
      * @param $hide_block
      * @param $b2_bg_top
+     * @param $b2_bg_color
+     * @param $b2_bg_opacity
      * @param $b2_bg
      * @param $b2_image
      * @param $b2_title
@@ -3703,16 +3600,17 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock2($course_id, $hide_block, $b2_bg_top, $b2_bg, $b2_image, $b2_title, $b2_subtitle,
-                                           $b2_text, $b2_button, $date)
+    public function setCourseLandingBlock2($course_id, $hide_block, $b2_bg_top, $b2_bg_color, $b2_bg_opacity, $b2_bg,
+                                           $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block2_hide`=?, `clp_block2_background_top`=?, `clp_block2_background`=?, 
-                `clp_block2_image`=?, `clp_block2_title`=?, `clp_block2_subtitle`=?, `clp_block2_text`=?, 
-                `clp_block2_button`=?, `clp_date_update`=? 
+            SET `clp_block2_hide`=?, `clp_block2_background_top`=?, `clp_block2_bg_color`=?, `clp_block2_bg_opacity`=?, 
+                `clp_block2_background`=?, `clp_block2_image`=?, `clp_block2_title`=?, `clp_block2_subtitle`=?, 
+                `clp_block2_text`=?, `clp_block2_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $b2_bg_top, $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button, $date, $course_id));
+                array($hide_block, $b2_bg_top, $b2_bg_color, $b2_bg_opacity, $b2_bg, $b2_image, $b2_title, $b2_subtitle,
+                    $b2_text, $b2_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3734,8 +3632,11 @@ class Course_model extends CI_Model
      *
      * @param $course_id
      * @param $hide_block
+     * @param $b3_bg_color
+     * @param $b3_bg_opacity
      * @param $b3_bg
-     * @param $b3_images
+     * @param $b3_image_1
+     * @param $b3_image_2
      * @param $b3_title
      * @param $b3_subtitle
      * @param $b3_r_title
@@ -3744,16 +3645,18 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock3($course_id, $hide_block, $b3_bg, $b3_images, $b3_title, $b3_subtitle,
-                                           $b3_r_title, $b3_r_subtitle, $b3_r_reviews, $date)
+    public function setCourseLandingBlock3($course_id, $hide_block, $b3_bg_color, $b3_bg_opacity, $b3_bg, $b3_image_1,
+                                           $b3_image_2, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle,
+                                           $b3_r_reviews, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block3_hide`=?, `clp_block3_background`=?, `clp_block3_images`=?, `clp_block3_title`=?, `clp_block3_subtitle`=?, `clp_block3_r_title`=?, 
-            `clp_block3_r_subtitle`=?, `clp_block3_r_reviews`=?, `clp_date_update`=? 
+            SET `clp_block3_hide`=?, `clp_block3_bg_color`=?, `clp_block3_bg_opacity`=?, `clp_block3_background`=?, 
+                `clp_block3_image_1`=?, `clp_block3_image_2`=?, `clp_block3_title`=?, `clp_block3_subtitle`=?, 
+                `clp_block3_r_title`=?, `clp_block3_r_subtitle`=?, `clp_block3_r_reviews`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $b3_bg, $b3_images, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews,
-                $date, $course_id));
+                array($hide_block, $b3_bg_color, $b3_bg_opacity, $b3_bg, $b3_image_1, $b3_image_2, $b3_title,
+                    $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3775,6 +3678,8 @@ class Course_model extends CI_Model
      *
      * @param $course_id
      * @param $hide_block
+     * @param $b4_bg_color
+     * @param $b4_bg_opacity
      * @param $b4_bg
      * @param $b4_image
      * @param $b4_title
@@ -3785,16 +3690,17 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock4($course_id, $hide_block, $b4_bg, $b4_image, $b4_title, $b4_subtitle,
-                                           $b4_r_title, $b4_r_desc, $b4_button, $date)
+    public function setCourseLandingBlock4($course_id, $hide_block, $b4_bg_color, $b4_bg_opacity, $b4_bg, $b4_image,
+                                           $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block4_hide`=?, `clp_block4_background`=?, `clp_block4_image`=?, `clp_block4_title`=?, 
-            `clp_block4_subtitle`=?, `clp_block4_r_title`=?, `clp_block4_r_subtitle`=?, `clp_block4_button`=?, `clp_date_update`=? 
+            SET `clp_block4_hide`=?, `clp_block4_bg_color`=?, `clp_block4_bg_opacity`=?, `clp_block4_background`=?, 
+                `clp_block4_image`=?, `clp_block4_title`=?, `clp_block4_subtitle`=?, `clp_block4_r_title`=?, 
+                `clp_block4_r_subtitle`=?, `clp_block4_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button,
-                    $date, $course_id));
+                array($hide_block, $b4_bg_color, $b4_bg_opacity, $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title,
+                    $b4_r_desc, $b4_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3816,8 +3722,12 @@ class Course_model extends CI_Model
      *
      * @param $course_id
      * @param $hide_block
+     * @param $b5_bg_color
+     * @param $b5_bg_opacity
      * @param $b5_bg
-     * @param $b5_images
+     * @param $b5_image_1
+     * @param $b5_image_2
+     * @param $b5_image_3
      * @param $b5_title
      * @param $b5_subtitle
      * @param $b5_text
@@ -3828,17 +3738,19 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock5($course_id, $hide_block, $b5_bg, $b5_images, $b5_title, $b5_subtitle,
-                                           $b5_text, $b5_r_title, $b5_r_subtitle, $b5_r_text, $b5_button, $date)
+    public function setCourseLandingBlock5($course_id, $hide_block, $b5_bg_color, $b5_bg_opacity, $b5_bg, $b5_image_1,
+                                           $b5_image_2, $b5_image_3, $b5_title, $b5_subtitle, $b5_text, $b5_r_title,
+                                           $b5_r_subtitle, $b5_r_text, $b5_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block5_hide`=?, `clp_block5_background`=?, `clp_block5_images`=?, `clp_block5_title`=?, 
-            `clp_block5_subtitle`=?, `clp_block5_text`=?, `clp_block5_r_title`=?, `clp_block5_r_subtitle`=?, 
-            `clp_block5_r_text`=?, `clp_block5_button`=?, `clp_date_update`=? 
+            SET `clp_block5_hide`=?, `clp_block5_bg_color`=?, `clp_block5_bg_opacity`=?, `clp_block5_background`=?, 
+                `clp_block5_image_1`=?, `clp_block5_image_2`=?, `clp_block5_image_3`=?, `clp_block5_title`=?, `clp_block5_subtitle`=?, `clp_block5_text`=?, 
+                `clp_block5_r_title`=?, `clp_block5_r_subtitle`=?, `clp_block5_r_text`=?, `clp_block5_button`=?, 
+                `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $b5_bg, $b5_images, $b5_title, $b5_subtitle, $b5_text, $b5_r_title,
-                    $b5_r_subtitle, $b5_r_text, $b5_button, $date, $course_id));
+                array($hide_block, $b5_bg_color, $b5_bg_opacity, $b5_bg, $b5_image_1, $b5_image_2, $b5_image_3, $b5_title,
+                    $b5_subtitle, $b5_text, $b5_r_title, $b5_r_subtitle, $b5_r_text, $b5_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3860,6 +3772,8 @@ class Course_model extends CI_Model
      *
      * @param $course_id
      * @param $hide_block
+     * @param $b6_bg_color
+     * @param $b6_bg_opacity
      * @param $b6_bg
      * @param $b6_image
      * @param $b6_title
@@ -3870,15 +3784,16 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock6($course_id, $hide_block, $b6_bg, $b6_image, $b6_title, $b6_desc,
-                                           $b6_subtitle, $b6_advantages, $b6_button, $date)
+    public function setCourseLandingBlock6($course_id, $hide_block, $b6_bg_color, $b6_bg_opacity, $b6_bg, $b6_image,
+                                           $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block6_hide`=?, `clp_block6_background`=?, `clp_block6_image`=?, `clp_block6_title`=?, 
-            `clp_block6_description`=?, `clp_block6_subtitle`=?, `clp_block6_advantages`=?, `clp_block6_button`=?, `clp_date_update`=? 
+            SET `clp_block6_hide`=?, `clp_block6_bg_color`=?, `clp_block6_bg_opacity`=?, `clp_block6_background`=?, 
+                `clp_block6_image`=?, `clp_block6_title`=?, `clp_block6_description`=?, `clp_block6_subtitle`=?, 
+                `clp_block6_advantages`=?, `clp_block6_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button,
+                array($hide_block, $b6_bg_color, $b6_bg_opacity, $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button,
                     $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -3901,23 +3816,30 @@ class Course_model extends CI_Model
      *
      * @param $course_id
      * @param $hide_block
+     * @param $b7_bg_color
+     * @param $b7_bg_opacity
      * @param $b7_bg
      * @param $b7_title
-     * @param $b7_images
+     * @param $b7_image_1
+     * @param $b7_image_2
+     * @param $b7_image_3
+     * @param $b7_image_4
      * @param $b7_texts
      * @param $b7_button
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock7($course_id, $hide_block, $b7_bg, $b7_title, $b7_images, $b7_texts,
-                                           $b7_button, $date)
+    public function setCourseLandingBlock7($course_id, $hide_block, $b7_bg_color, $b7_bg_opacity, $b7_bg, $b7_title,
+                                           $b7_image_1, $b7_image_2, $b7_image_3, $b7_image_4, $b7_texts, $b7_button, $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block7_hide`=?, `clp_block7_background`=?, `clp_block7_title`=?, `clp_block7_images`=?, `clp_block7_text`=?, 
-            `clp_block7_button`=?, `clp_date_update`=? 
+            SET `clp_block7_hide`=?, `clp_block7_bg_color`=?, `clp_block7_bg_opacity`=?, `clp_block7_background`=?, 
+                `clp_block7_title`=?, `clp_block7_image_1`=?, `clp_block7_image_2`=?, `clp_block7_image_3`=?, 
+                `clp_block7_image_4`=?, `clp_block7_text`=?, `clp_block7_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $b7_bg, $b7_title, $b7_images, $b7_texts, $b7_button, $date, $course_id));
+                array($hide_block, $b7_bg_color, $b7_bg_opacity, $b7_bg, $b7_title, $b7_image_1, $b7_image_2, $b7_image_3,
+                    $b7_image_4, $b7_texts, $b7_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -3939,6 +3861,8 @@ class Course_model extends CI_Model
      *
      * @param $course_id
      * @param $hide_block
+     * @param $b8_bg_color
+     * @param $b8_bg_opacity
      * @param $b8_bg
      * @param $b8_title
      * @param $b8_desc1
@@ -3950,16 +3874,18 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCourseLandingBlock8($course_id, $hide_block, $b8_bg, $b8_title, $b8_desc1, $b8_subtitle,
-                                           $b8_desc2, $b8_old_price, $b8_new_price, $b8_button, $date)
+    public function setCourseLandingBlock8($course_id, $hide_block, $b8_bg_color, $b8_bg_opacity, $b8_bg, $b8_title,
+                                           $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price, $b8_button,
+                                           $date)
     {
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
-            SET `clp_block8_hide`=?, `clp_block8_background`=?, `clp_block8_title`=?, `clp_block8_description1`=?, `clp_block8_subtitle`=?, 
-            `clp_block8_description2`=?, `clp_block8_old_price`=?, `clp_block8_new_price`=?, `clp_block8_button`=?, 
-            `clp_date_update`=? 
+            SET `clp_block8_hide`=?, `clp_block8_bg_color`=?, `clp_block8_bg_opacity`=?, `clp_block8_background`=?, 
+                `clp_block8_title`=?, `clp_block8_description1`=?, `clp_block8_subtitle`=?, `clp_block8_description2`=?, 
+                `clp_block8_old_price`=?, `clp_block8_new_price`=?, `clp_block8_button`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $b8_bg, $b8_title, $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price,
+                array($hide_block, $b8_bg_color, $b8_bg_opacity, $b8_bg, $b8_title, $b8_desc1, $b8_subtitle,
+                    $b8_desc2, $b8_old_price, $b8_new_price,
                     $b8_button, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -3983,18 +3909,19 @@ class Course_model extends CI_Model
      * @param $course_id
      * @param $block_id
      * @param $img_type
+     * @param $img_id
      * @param $img_path
      * @return bool
      */
-    public function deleteLandingImage($course_id, $block_id, $img_type, $img_path)
+    public function deleteLandingImage($course_id, $block_id, $img_type, $img_id, $img_path)
     {
         $result = false;
 
-        if($img_type == 'background' or $img_type == 'image')
+        if($img_type == 'background' or $img_type == 'background_top' or $img_type == 'image')
         {
-            $col_name = 'clp_block'.$block_id.'_'.$img_type;
+            $col_name = 'clp_block'.$block_id.'_'.$img_type.$img_id;
 
-            $up_data = $this->db->query('UPDATE `courses_landing_pages` SET `'.$col_name.'`="default" WHERE `clp_course_id`=? LIMIT 1', $course_id);
+            $up_data = $this->db->query('UPDATE `courses_landing_pages` SET `'.$col_name.'`="not_default" WHERE `clp_course_id`=? LIMIT 1', $course_id);
             if($up_data !== false and 1 == $this->db->affected_rows())
             {
                 $result = true;
@@ -4004,11 +3931,9 @@ class Course_model extends CI_Model
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
-        elseif($img_type == 'images' or $img_type == 'slider')
+        elseif($img_type == 'slider')
         {
-            $col_name = ($img_type == 'slider') ? 'clp_slider_images' : 'clp_block'.$block_id.'_'.$img_type;
-
-            $sel_data = $this->db->query('SELECT `'.$col_name.'` as `col_images` FROM `courses_landing_pages` WHERE `clp_course_id`=? LIMIT 1', $course_id);
+            $sel_data = $this->db->query('SELECT `clp_slider_images` as `col_images` FROM `courses_landing_pages` WHERE `clp_course_id`=? LIMIT 1', $course_id);
 
             if($sel_data !== false and 1 == $sel_data->num_rows())
             {
@@ -4027,43 +3952,21 @@ class Course_model extends CI_Model
                             $save_images[$i] = $image;
                             $i++;
                         }
-                        elseif($image == $img_path and $img_type != 'slider')
-                        {
-                            $save_images[$i] = 'default';
-                            $i++;
-                        }
                     }
                     unset($image);
-                    $default_block3 = 'default;default;';
-                    $default_block5 = 'default;default;default;';
-                    $default_block7 = 'default;default;default;default;';
+
                     if(!empty($save_images))
                     {
                         $save_images = implode(';', $save_images);
                     }
                     else
                     {
-                        if($block_id == 3)
-                        {
-                            $save_images = $default_block3;
-                        }
-                        elseif($block_id == 5)
-                        {
-                            $save_images = $default_block5;
-                        }
-                        elseif($block_id == 7)
-                        {
-                            $save_images = $default_block7;
-                        }
-                        else
-                        {
-                            $save_images = 'default';
-                        }
+                        $save_images = 'default';
                     }
 
                     if($save_images != $row->col_images)
                     {
-                        $up_data = $this->db->query('UPDATE `courses_landing_pages` SET `'.$col_name.'`=? WHERE `clp_course_id`=? LIMIT 1',
+                        $up_data = $this->db->query('UPDATE `courses_landing_pages` SET `clp_slider_images`=? WHERE `clp_course_id`=? LIMIT 1',
                             array($save_images, $course_id));
                         if($up_data !== false and 1 == $this->db->affected_rows())
                         {
@@ -4095,31 +3998,25 @@ class Course_model extends CI_Model
      */
     public function getDefaultLandingPage($lp_id)
     {
-        $result = array(
-            'landing' => array('html_page' => '', 'hide' => false, 'bg' => '', 'slider_images' => '', 'main_title' => '',
-                'block2' => array('hide' => false, 'bg_top' => '', 'bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'button' => ''),
-                'block3' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => ''),
-                'block4' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'button' => ''),
-                'block5' => array('hide' => false, 'title' => '', 'subtitle' => '', 'text' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'button' => ''),
-                'block6' => array('hide' => false, 'bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => '', 'image' => '', 'button' => ''),
-                'block7' => array('hide' => false, 'title' => '', 'images' => '', 'text' => '', 'button' => ''),
-                'block8' => array('hide' => false, 'bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'button' => '')
-            )
-        );
+        $result = array('landing' => array());
 
         $sel_landing = $this->db->query('
             SELECT `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_main_title`, `lp_block2_background`, `lp_block2_background_top`, 
               `lp_block2_image`, `lp_block2_title`, `lp_block2_subtitle`, `lp_block2_text`, `lp_block2_button`,
-              `lp_block3_background`, `lp_block3_title`, `lp_block3_subtitle`, `lp_block3_images`, `lp_block3_r_title`, `lp_block3_r_subtitle`, 
-              `lp_block3_r_reviews`, `lp_block4_background`, `lp_block4_title`, `lp_block4_subtitle`, `lp_block4_image`, 
-              `lp_block4_r_title`, `lp_block4_r_subtitle`, `lp_block4_button`,  
-              `lp_block5_background`, `lp_block5_title`, `lp_block5_subtitle`,`lp_block5_text`, `lp_block5_images`, 
+              `lp_block3_background`, `lp_block3_title`, `lp_block3_subtitle`, `lp_block3_image_1`, `lp_block3_image_2`, 
+              `lp_block3_r_title`, `lp_block3_r_subtitle`, `lp_block3_r_reviews`, `lp_block4_background`, `lp_block4_title`, 
+              `lp_block4_subtitle`, `lp_block4_image`, `lp_block4_r_title`, `lp_block4_r_subtitle`, `lp_block4_button`,  
+              `lp_block5_background`, `lp_block5_title`, `lp_block5_subtitle`,`lp_block5_text`, `lp_block5_image_1`, `lp_block5_image_2`, `lp_block5_image_3`, 
               `lp_block5_r_title`, `lp_block5_r_subtitle`, `lp_block5_r_text`, `lp_block5_button`,  
               `lp_block6_background`, `lp_block6_title`, `lp_block6_description`, `lp_block6_subtitle`, `lp_block6_advantages`, 
               `lp_block6_image`, `lp_block6_button`,  
-              `lp_block7_background`, `lp_block7_title`, `lp_block7_images`, `lp_block7_text`, `lp_block7_button`,  
+              `lp_block7_background`, `lp_block7_title`, `lp_block7_image_1`, `lp_block7_image_2`, `lp_block7_image_3`, `lp_block7_image_4`, `lp_block7_text`, `lp_block7_button`,  
               `lp_block8_background`, `lp_block8_title`, `lp_block8_description1`, `lp_block8_subtitle`, 
-              `lp_block8_description2`, `lp_block8_old_price`, `lp_block8_new_price`, `lp_block8_button`
+              `lp_block8_description2`, `lp_block8_old_price`, `lp_block8_new_price`, `lp_block8_button`,
+              `lp_block1_bg_color`, `lp_slider_opacity`, `lp_block2_bg_color`, `lp_block2_bg_opacity`, `lp_block3_bg_color`, 
+              `lp_block3_bg_opacity`, `lp_block4_bg_color`, `lp_block4_bg_opacity`, `lp_block5_bg_color`, `lp_block5_bg_opacity`, 
+              `lp_block6_bg_color`, `lp_block6_bg_opacity`, `lp_block7_bg_color`, `lp_block7_bg_opacity`, `lp_block8_bg_color`, 
+              `lp_block8_bg_opacity`
             FROM `landing_pages`
             WHERE `lp_id`=? LIMIT 1', $lp_id);
 
@@ -4130,20 +4027,30 @@ class Course_model extends CI_Model
             // Путь к HTML странице landing page
             $result['landing']['html_page'] = $row->lp_html_page;
 
+            // Вывод блоков
+            $result['landing']['hide'] = false;
+            $result['landing']['block2']['hide'] = false;
+            $result['landing']['block3']['hide'] = false;
+            $result['landing']['block4']['hide'] = false;
+            $result['landing']['block5']['hide'] = false;
+            $result['landing']['block6']['hide'] = false;
+            $result['landing']['block7']['hide'] = false;
+            $result['landing']['block8']['hide'] = false;
+
             // Фон страницы
-            $lp_background = '';
-            if (!empty($row->lp_background))
+            $result['landing']['bg'] = (is_file($row->lp_background))
+                ? 'url(' . mb_substr($row->lp_background, 1) . ') top center repeat' : '';
+
+            // Цвет фона блока
+            $block1_bg_color = '';
+            if(!empty($row->lp_block1_bg_color))
             {
-                if (is_file($row->lp_background))
-                {
-                    $lp_background = 'background: url(' . mb_substr($row->lp_background, 1) . ') top center repeat;';
-                }
-                elseif (mb_substr($row->lp_background, 0, 1) == '#')
-                {
-                    $lp_background = 'background: ' . $row->lp_background . ';';
-                }
+                $f_l = mb_substr($row->lp_block1_bg_color, 0, 1);
+                $rest_l = mb_substr($row->lp_block1_bg_color, 1, 6);
+
+                $block1_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block1_bg_color : '';
             }
-            $result['landing']['bg'] = $lp_background;
+            $result['landing']['bg_color'] = $block1_bg_color;
 
             // Изображения для слайдера страницы
             $result['landing']['slider_images'] = '';
@@ -4156,7 +4063,7 @@ class Course_model extends CI_Model
                 {
                     if (!empty($s_image))
                     {
-                        $result['landing']['slider_images'][$i] = is_file($s_image) ? mb_substr($s_image, 1) : '';
+                        $result['landing']['slider_images'][$i] = (is_file($s_image)) ? mb_substr($s_image, 1) : '';
 
                         if (empty($result['landing']['slider_images'][$i]))
                         {
@@ -4169,46 +4076,39 @@ class Course_model extends CI_Model
                 unset($s_image);
             }
 
+            // Прозрачность изображений слайдера
+            $result['landing']['slider_opacity'] = (is_numeric($row->lp_slider_opacity) and $row->lp_slider_opacity > 0)
+                ? $row->lp_slider_opacity : '';
+
             $result['landing']['main_title'] = $row->lp_main_title;
 
             // БЛОК 2
-            // Шапка фона блока
-            $block_background_top = '';
-            if (!empty($row->lp_block2_background_top) and is_file($row->lp_block2_background_top))
+            // Цвет фона блока
+            $block2_bg_color = '';
+            if(!empty($row->lp_block2_bg_color))
             {
-                $block_background_top = 'background: url(' . mb_substr($row->lp_block2_background_top, 1) . ') top center no-repeat;';
+                $f_l = mb_substr($row->lp_block2_bg_color, 0, 1);
+                $rest_l = mb_substr($row->lp_block2_bg_color, 1, 6);
+
+                $block2_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block2_bg_color : '';
             }
-            $result['landing']['block2']['bg_top'] = $block_background_top;
+            $result['landing']['block2']['bg_color'] = $block2_bg_color;
+
+            // Шапка фона блока
+            $result['landing']['block2']['bg_top'] = (is_file($row->lp_block2_background_top))
+                    ? 'url(' . mb_substr($row->lp_block2_background_top, 1) . ') top center no-repeat' : '';
 
             // Фон блока
-            $block_background = '';
-            if (!empty($row->lp_block2_background))
-            {
-                if (is_file($row->lp_block2_background))
-                {
-                    $block_background = 'background: url(' . mb_substr($row->lp_block2_background, 1) . ') top center repeat;';
-                }
-                elseif (mb_substr($row->lp_block2_background, 0, 1) == '#')
-                {
-                    $block_background = 'background: ' . $row->lp_block2_background . ';';
-                }
-            }
-            $result['landing']['block2']['bg'] = $block_background;
+            $result['landing']['block2']['bg'] = (is_file($row->lp_block2_background)) ?
+                    'url(' . mb_substr($row->lp_block2_background, 1) . ') top center repeat' : '';
+
+            // Прозрачность изображения фона
+            $result['landing']['block2']['bg_opacity'] = (is_numeric($row->lp_block2_bg_opacity) and $row->lp_block2_bg_opacity > 0)
+                ? $row->lp_block2_bg_opacity : '' ;
 
             // Изображение блока
-            $block_image = '';
-            if (!empty($row->lp_block2_image))
-            {
-                if (is_file($row->lp_block2_image))
-                {
-                    $block_image = mb_substr($row->lp_block2_image, 1);
-                }
-                elseif (mb_substr($row->lp_block2_image, 0, 1) == '#')
-                {
-                    $block_image = $row->lp_block2_image;
-                }
-            }
-            $result['landing']['block2']['image'] = $block_image;
+            $result['landing']['block2']['image'] = (is_file($row->lp_block2_image))
+                ? mb_substr($row->lp_block2_image, 1) : '';
 
             $result['landing']['block2']['title']    = $row->lp_block2_title;
             $result['landing']['block2']['subtitle'] = $row->lp_block2_subtitle;
@@ -4216,20 +4116,25 @@ class Course_model extends CI_Model
             $result['landing']['block2']['button']   = strip_tags($row->lp_block2_button);
 
             // БЛОК 3
-            // Фон блока
-            $block_background = '';
-            if (!empty($row->lp_block3_background))
+            // Цвет фона блока
+            $block3_bg_color = '';
+            if (!empty($row->lp_block3_bg_color))
             {
-                if (is_file($row->lp_block3_background))
-                {
-                    $block_background = 'background-image: url(' . mb_substr($row->lp_block3_background, 1) . ')';
-                }
-                elseif (mb_substr($row->lp_block3_background, 0, 1) == '#')
-                {
-                    $block_background = 'background: ' . $row->lp_block3_background . ';';
-                }
+                $f_l = mb_substr($row->lp_block3_bg_color, 0, 1);
+                $rest_l = mb_substr($row->lp_block3_bg_color, 1, 6);
+
+                $block3_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block3_bg_color : '';
             }
-            $result['landing']['block3']['bg'] = $block_background;
+            $result['landing']['block3']['bg_color'] = $block3_bg_color;
+
+            // Фон блока
+            $result['landing']['block3']['bg'] = (is_file($row->lp_block3_background))
+                ? 'url(' . mb_substr($row->lp_block3_background, 1) . ')' : '';
+
+            // Прозрачность изображения фона
+            $result['landing']['block3']['bg_opacity'] = (is_numeric($row->lp_block3_bg_opacity) and $row->lp_block3_bg_opacity > 0)
+                ? $row->lp_block3_bg_opacity : '' ;
+
 
             $result['landing']['block3']['title']      = $row->lp_block3_title;
             $result['landing']['block3']['subtitle']   = $row->lp_block3_subtitle;
@@ -4238,82 +4143,58 @@ class Course_model extends CI_Model
             $result['landing']['block3']['r_reviews']  = $row->lp_block3_r_reviews;
 
             // Изображения блока
-            $result['landing']['block3']['images'] = '';
-            if (!empty($row->lp_block3_images))
-            {
-                $s_images = explode(';', $row->lp_block3_images);
-
-                $i = 0;
-                foreach ($s_images as $s_image)
-                {
-                    if (!empty($s_image))
-                    {
-                        $result['landing']['block3']['images'][$i] = is_file($s_image) ? mb_substr($s_image, 1) : '';
-
-                        if (empty($result['landing']['block3']['images'][$i]))
-                        {
-                            unset($result['landing']['block3']['images'][$i]);
-                        }
-
-                        $i++;
-                    }
-                }
-                unset($s_image);
-            }
+            $result['landing']['block3']['image1'] = (is_file($row->lp_block3_image_1)) ? mb_substr($row->lp_block3_image_1, 1) : '';
+            $result['landing']['block3']['image2'] = (is_file($row->lp_block3_image_2)) ? mb_substr($row->lp_block3_image_2, 1) : '';
 
             // БЛОК 4
-            // Фон блока
-            $block_background = '';
-            if (!empty($row->lp_block4_background))
+            // Цвет фона блока
+            $block4_bg_color = '';
+            if(!empty($row->lp_block4_bg_color))
             {
-                if (is_file($row->lp_block4_background))
-                {
-                    $block_background = 'background-image: url(' . mb_substr($row->lp_block4_background, 1) . ');';
-                }
-                elseif (mb_substr($row->lp_block4_background, 0, 1) == '#')
-                {
-                    $block_background = 'background: ' . $row->lp_block4_background . ';';
-                }
+                $f_l = mb_substr($row->lp_block4_bg_color, 0, 1);
+                $rest_l = mb_substr($row->lp_block4_bg_color, 1, 6);
+
+                $block4_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block4_bg_color : '';
             }
-            $result['landing']['block4']['bg'] = $block_background;
+            $result['landing']['block4']['bg_color'] = $block4_bg_color;
+
+            // Фон блока
+            $result['landing']['block4']['bg'] = (is_file($row->lp_block4_background))
+                ? 'url(' . mb_substr($row->lp_block4_background, 1) . ')' : '';
 
             $result['landing']['block4']['title']    = $row->lp_block4_title;
             $result['landing']['block4']['subtitle'] = $row->lp_block4_subtitle;
 
+            // Прозрачность изображения фона
+            $result['landing']['block4']['bg_opacity'] = (is_numeric($row->lp_block4_bg_opacity) and $row->lp_block4_bg_opacity > 0)
+                ? $row->lp_block4_bg_opacity : '' ;
+
             // Изображение блока
-            $block_image = '';
-            if (!empty($row->lp_block4_image))
-            {
-                if (is_file($row->lp_block4_image))
-                {
-                    $block_image = mb_substr($row->lp_block4_image, 1);
-                }
-                elseif (mb_substr($row->lp_block4_image, 0, 1) == '#')
-                {
-                    $block_image = $row->lp_block4_image;
-                }
-            }
-            $result['landing']['block4']['image'] = $block_image;
+            $result['landing']['block4']['image'] = (is_file($row->lp_block4_image)) ? mb_substr($row->lp_block4_image, 1) : '';
 
             $result['landing']['block4']['r_title']    = $row->lp_block4_r_title;
             $result['landing']['block4']['r_subtitle'] = $row->lp_block4_r_subtitle;
             $result['landing']['block4']['button']     = strip_tags($row->lp_block4_button);
 
             // БЛОК 5
-            // Фон блока
-            $block_background = '';
-            if (!empty($row->lp_block5_background))
+            // Цвет фона блока
+            $block5_bg_color = '';
+            if(!empty($row->lp_block5_bg_color))
             {
-                if (is_file($row->lp_block5_background))
-                {
-                    $block_background = 'background-image: url(' . mb_substr($row->lp_block5_background, 1) . ')';
-                }
-                elseif (mb_substr($row->lp_block5_background, 0, 1) == '#')
-                {
-                    $block_background = 'background: ' . $row->lp_block5_background . ';';
-                }
+                $f_l = mb_substr($row->lp_block5_bg_color, 0, 1);
+                $rest_l = mb_substr($row->lp_block5_bg_color, 1, 6);
+
+                $block5_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block5_bg_color : '';
             }
-            $result['landing']['block5']['bg'] = $block_background;
+            $result['landing']['block5']['bg_color'] = $block5_bg_color;
+
+            // Фон блока
+            $result['landing']['block5']['bg'] = (is_file($row->lp_block5_background))
+                ? 'url(' . mb_substr($row->lp_block5_background, 1) . ')' : '';
+
+            // Прозрачность изображения фона
+            $result['landing']['block5']['bg_opacity'] = (is_numeric($row->lp_block5_bg_opacity) and $row->lp_block5_bg_opacity > 0)
+                ? $row->lp_block5_bg_opacity : '' ;
 
             $result['landing']['block5']['title']    = $row->lp_block5_title;
             $result['landing']['block5']['subtitle'] = $row->lp_block5_subtitle;
@@ -4321,48 +4202,33 @@ class Course_model extends CI_Model
             $result['landing']['block5']['button']   = strip_tags($row->lp_block5_button);
 
             // Изображения блока
-            $result['landing']['block5']['images'] = '';
-            if (!empty($row->lp_block5_images))
-            {
-                $s_images = explode(';', $row->lp_block5_images);
-
-                $i = 0;
-                foreach ($s_images as $s_image)
-                {
-                    if (!empty($s_image))
-                    {
-                        $result['landing']['block5']['images'][$i] = is_file($s_image) ? mb_substr($s_image, 1) : '';
-
-                        if (empty($result['landing']['block5']['images'][$i]))
-                        {
-                            unset($result['landing']['block5']['images'][$i]);
-                        }
-
-                        $i++;
-                    }
-                }
-                unset($s_image);
-            }
+            $result['landing']['block5']['image1'] = is_file($row->lp_block5_image_1) ? mb_substr($row->lp_block5_image_1, 1) : '';
+            $result['landing']['block5']['image2'] = is_file($row->lp_block5_image_2) ? mb_substr($row->lp_block5_image_2, 1) : '';
+            $result['landing']['block5']['image3'] = is_file($row->lp_block5_image_3) ? mb_substr($row->lp_block5_image_3, 1) : '';
 
             $result['landing']['block5']['r_title']    = $row->lp_block5_r_title;
             $result['landing']['block5']['r_subtitle'] = $row->lp_block5_r_subtitle;
             $result['landing']['block5']['r_text']     = $row->lp_block5_r_text;
 
             // БЛОК 6
-            // Фон блока
-            $block_background = '';
-            if (!empty($row->lp_block6_background))
+            // Цвет фона блока
+            $block6_bg_color = '';
+            if(!empty($row->lp_block6_bg_color))
             {
-                if (is_file($row->lp_block6_background))
-                {
-                    $block_background = 'background-image: url(' . mb_substr($row->lp_block6_background, 1) . ')';
-                }
-                elseif (mb_substr($row->lp_block6_background, 0, 1) == '#')
-                {
-                    $block_background = 'background: ' . $row->lp_block6_background . ';';
-                }
+                $f_l = mb_substr($row->lp_block6_bg_color, 0, 1);
+                $rest_l = mb_substr($row->lp_block6_bg_color, 1, 6);
+
+                $block6_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block6_bg_color : '';
             }
-            $result['landing']['block6']['bg'] = $block_background;
+            $result['landing']['block6']['bg_color'] = $block6_bg_color;
+
+            // Фон блока
+            $result['landing']['block6']['bg'] = (is_file($row->lp_block6_background))
+                ? 'url(' . mb_substr($row->lp_block6_background, 1) . ')' : '';
+
+            // Прозрачность изображения фона
+            $result['landing']['block6']['bg_opacity'] = (is_numeric($row->lp_block6_bg_opacity) and $row->lp_block6_bg_opacity > 0)
+                ? $row->lp_block6_bg_opacity : '' ;
 
             $result['landing']['block6']['title']    = $row->lp_block6_title;
             $result['landing']['block6']['desc']     = $row->lp_block6_description;
@@ -4389,61 +4255,36 @@ class Course_model extends CI_Model
             }
 
             // Изображение блока
-            $block_image = '';
-            if (!empty($row->lp_block6_image))
-            {
-                if (is_file($row->lp_block6_image))
-                {
-                    $block_image = mb_substr($row->lp_block6_image, 1);
-                }
-                elseif (mb_substr($row->lp_block6_image, 0, 1) == '#')
-                {
-                    $block_image = $row->lp_block6_image;
-                }
-            }
-            $result['landing']['block6']['image'] = $block_image;
+            $result['landing']['block6']['image'] = (is_file($row->lp_block6_image)) ? mb_substr($row->lp_block6_image, 1) : '';
 
             // БЛОК 7
-            // Фон блока
-            $block_background = '';
-            if (!empty($row->lp_block7_background))
+            // Цвет фона блока
+            $block7_bg_color = '';
+            if(!empty($row->lp_block7_bg_color))
             {
-                if (is_file($row->lp_block7_background))
-                {
-                    $block_background = 'background-image: url(' . mb_substr($row->lp_block7_background, 1) . ')';
-                }
-                elseif (mb_substr($row->lp_block7_background, 0, 1) == '#')
-                {
-                    $block_background = 'background: ' . $row->lp_block7_background . ';';
-                }
+                $f_l = mb_substr($row->lp_block7_bg_color, 0, 1);
+                $rest_l = mb_substr($row->lp_block7_bg_color, 1, 6);
+
+                $block7_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block7_bg_color : '';
             }
-            $result['landing']['block7']['bg']     = $block_background;
+            $result['landing']['block7']['bg_color'] = $block7_bg_color;
+
+            // Фон блока
+            $result['landing']['block7']['bg'] = (is_file($row->lp_block7_background))
+                ? 'url(' . mb_substr($row->lp_block7_background, 1) . ')' : '';
+
+            // Прозрачность изображения фона
+            $result['landing']['block7']['bg_opacity'] = (is_numeric($row->lp_block7_bg_opacity) and $row->lp_block7_bg_opacity > 0)
+                ? $row->lp_block7_bg_opacity : '';
+
             $result['landing']['block7']['title']  = $row->lp_block7_title;
             $result['landing']['block7']['button'] = strip_tags($row->lp_block7_button);
 
             // Изображения блока
-            $result['landing']['block7']['images'] = '';
-            if (!empty($row->lp_block7_images))
-            {
-                $s_images = explode(';', $row->lp_block7_images);
-
-                $i = 0;
-                foreach ($s_images as $s_image)
-                {
-                    if (!empty($s_image))
-                    {
-                        $result['landing']['block7']['images'][$i] = is_file($s_image) ? mb_substr($s_image, 1) : '';
-
-                        if (empty($result['landing']['block7']['images'][$i]))
-                        {
-                            unset($result['landing']['block7']['images'][$i]);
-                        }
-
-                        $i++;
-                    }
-                }
-                unset($s_image);
-            }
+            $result['landing']['block7']['image1'] = is_file($row->lp_block7_image_1) ? mb_substr($row->lp_block7_image_1, 1) : '';
+            $result['landing']['block7']['image2'] = is_file($row->lp_block7_image_2) ? mb_substr($row->lp_block7_image_2, 1) : '';
+            $result['landing']['block7']['image3'] = is_file($row->lp_block7_image_3) ? mb_substr($row->lp_block7_image_3, 1) : '';
+            $result['landing']['block7']['image4'] = is_file($row->lp_block7_image_4) ? mb_substr($row->lp_block7_image_4, 1) : '';
 
             // Изображения блока
             $result['landing']['block7']['texts'] = '';
@@ -4451,17 +4292,12 @@ class Course_model extends CI_Model
             {
                 $texts = explode(';', $row->lp_block7_text);
 
-                $i = 0;
+                $i = 1;
                 foreach ($texts as $text)
                 {
                     if (!empty($text))
                     {
                         $result['landing']['block7']['texts'][$i] = $text;
-
-                        if (empty($result['landing']['block7']['images'][$i]))
-                        {
-                            unset($result['landing']['block7']['texts'][$i]);
-                        }
 
                         $i++;
                     }
@@ -4470,20 +4306,20 @@ class Course_model extends CI_Model
             }
 
             // БЛОК 8
-            // Фон блока
-            $block_background = '';
-            if (!empty($row->lp_block8_background))
+            // Цвет фона блока
+            $block8_bg_color = '';
+            if(!empty($row->lp_block8_bg_color))
             {
-                if (is_file($row->lp_block8_background))
-                {
-                    $block_background = 'background-image: url(' . mb_substr($row->lp_block8_background, 1) . ');';
-                }
-                elseif (mb_substr($row->lp_block8_background, 0, 1) == '#')
-                {
-                    $block_background = 'background: ' . $row->lp_block8_background . ';';
-                }
+                $f_l = mb_substr($row->lp_block8_bg_color, 0, 1);
+                $rest_l = mb_substr($row->lp_block8_bg_color, 1, 6);
+
+                $block8_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block8_bg_color : '';
             }
-            $result['landing']['block8']['bg'] = $block_background;
+            $result['landing']['block8']['bg_color'] = $block8_bg_color;
+
+            // Фон блока
+            $result['landing']['block8']['bg'] = (is_file($row->lp_block8_background))
+                ? 'url(' . mb_substr($row->lp_block8_background, 1) . ')' : '';
 
             $result['landing']['block8']['title']     = $row->lp_block8_title;
             $result['landing']['block8']['desc1']     = $row->lp_block8_description1;
@@ -4509,37 +4345,37 @@ class Course_model extends CI_Model
      */
     public function getLandingPage($course_id)
     {
-        $result = array(
-            'landing' => array('html_page' => '', 'hide' => false, 'bg' => '', 'slider_images' => '', 'main_title' => '',
-                'block2' => array('hide' => false, 'bg_top' => '', 'bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'button' => ''),
-                'block3' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => ''),
-                'block4' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'button' => ''),
-                'block5' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => '', 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'button' => ''),
-                'block6' => array('hide' => false, 'bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => '', 'image' => '', 'button' => ''),
-                'block7' => array('hide' => false, 'bg' => '', 'title' => '', 'images' => '', 'text' => '', 'button' => ''),
-                'block8' => array('hide' => false, 'bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'button' => '')
-            )
-        );
+        $result = array('landing' => array());
 
         $sel_landing = $this->db->query('
 			SELECT `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, 
               `clp_block2_hide`, `clp_block2_background_top`, `clp_block2_background`, `clp_block2_image`, `clp_block2_title`, 
               `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, 
-              `clp_block3_hide`, `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, 
-              `clp_block3_images`, `clp_block3_r_title`, `clp_block3_r_subtitle`, `clp_block3_r_reviews`, 
+              `clp_block3_hide`, `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, `clp_block3_image_1`, 
+              `clp_block3_image_2`, `clp_block3_r_title`, `clp_block3_r_subtitle`, `clp_block3_r_reviews`, 
               `clp_block4_hide`, `clp_block4_background`, `clp_block4_title`, `clp_block4_subtitle`, 
               `clp_block4_image`, `clp_block4_r_title`, `clp_block4_r_subtitle`, `clp_block4_button`, 
-              `clp_block5_hide`, `clp_block5_background`, `clp_block5_title`, `clp_block5_subtitle`, `clp_block5_text`, `clp_block5_images`, 
-              `clp_block5_r_title`, `clp_block5_r_subtitle`, `clp_block5_r_text`, `clp_block5_button`, 
+              `clp_block5_hide`, `clp_block5_background`, `clp_block5_title`, `clp_block5_subtitle`, `clp_block5_text`, `clp_block5_image_1`, 
+              `clp_block5_image_2`, `clp_block5_image_3`, `clp_block5_r_title`, `clp_block5_r_subtitle`, `clp_block5_r_text`, `clp_block5_button`, 
               `clp_block6_hide`, `clp_block6_background`, `clp_block6_title`, `clp_block6_description`, 
               `clp_block6_subtitle`, `clp_block6_advantages`, `clp_block6_image`, `clp_block6_button`,
-              `clp_block7_hide`, `clp_block7_background`, `clp_block7_title`, `clp_block7_images`, `clp_block7_text`, 
-              `clp_block8_hide`, `clp_block8_background`, `clp_block7_button`, `clp_block8_title`, 
-              `clp_block8_description1`, `clp_block8_subtitle`, `clp_block8_description2`, 
-              `clp_block8_old_price`, `clp_block8_new_price`, `clp_block8_button`,
+              `clp_block7_hide`, `clp_block7_background`, `clp_block7_title`, `clp_block7_image_1`, `clp_block7_image_2`, 
+              `clp_block7_image_3`, `clp_block7_image_4`, `clp_block7_text`, `clp_block7_button`,
+              `clp_block8_hide`, `clp_block8_background`, `clp_block8_title`, `clp_block8_description1`, `clp_block8_subtitle`, 
+              `clp_block8_description2`, `clp_block8_old_price`, `clp_block8_new_price`, `clp_block8_button`,
               `lp_html_page`, `lp_background`, `lp_slider_images`, `lp_block2_background_top`, `lp_block2_background`, `lp_block2_image`, `lp_block3_background`, 
-              `lp_block3_images`, `lp_block4_background`, `lp_block4_image`, `lp_block5_background`, `lp_block5_images`, 
-              `lp_block6_background`, `lp_block6_image`, `lp_block7_background`, `lp_block7_images`, `lp_block8_background`
+              `lp_block3_image_1`, `lp_block3_image_2`, `lp_block4_background`, `lp_block4_image`, `lp_block5_background`, 
+              `lp_block5_image_1`, `lp_block5_image_2`, `lp_block5_image_3`, 
+              `lp_block6_background`, `lp_block6_image`, `lp_block7_background`, `lp_block7_image_1`, `lp_block7_image_2`, 
+              `lp_block7_image_3`, `lp_block7_image_4`, `lp_block8_background`,
+              `lp_block1_bg_color`, `lp_slider_opacity`, `lp_block2_bg_color`, `lp_block2_bg_opacity`, `lp_block3_bg_color`, 
+              `lp_block3_bg_opacity`, `lp_block4_bg_color`, `lp_block4_bg_opacity`, `lp_block5_bg_color`, `lp_block5_bg_opacity`, 
+              `lp_block6_bg_color`, `lp_block6_bg_opacity`, `lp_block7_bg_color`, `lp_block7_bg_opacity`, `lp_block8_bg_color`, 
+              `lp_block8_bg_opacity`,                   
+              `clp_block1_bg_color`, `clp_slider_opacity`, `clp_block2_bg_color`, `clp_block2_bg_opacity`, `clp_block3_bg_color`, 
+              `clp_block3_bg_opacity`, `clp_block4_bg_color`, `clp_block4_bg_opacity`, `clp_block5_bg_color`, `clp_block5_bg_opacity`, 
+              `clp_block6_bg_color`, `clp_block6_bg_opacity`, `clp_block7_bg_color`, `clp_block7_bg_opacity`, `clp_block8_bg_color`, 
+              `clp_block8_bg_opacity`
             FROM `courses_landing_pages`
             LEFT JOIN `landing_pages` ON `lp_id`=`clp_lp_id`
             WHERE `clp_course_id`=? and `clp_activated`="activate" LIMIT 1', $course_id);
@@ -4787,8 +4623,10 @@ class Course_model extends CI_Model
     {
         $sel_landing = $this->db->query('
             SELECT `clp_id`, `clp_slider_images`, `clp_block2_background`, `clp_block2_image`, `clp_block3_background`, 
-              `clp_block3_images`, `clp_block4_background`, `clp_block4_image`, `clp_block5_background`, `clp_block5_images`, 
-              `clp_block6_background`, `clp_block6_image`, `clp_block7_background`, `clp_block7_images`, `clp_block8_background` 
+              `clp_block3_image_1`, `clp_block3_image_2`, `clp_block4_background`, `clp_block4_image`, 
+              `clp_block5_background`, `clp_block5_image_1`, `clp_block5_image_2`, `clp_block5_image_3`, `clp_block6_background`, 
+              `clp_block6_image`, `clp_block7_background`, `clp_block7_image_1`, `clp_block7_image_2`, `clp_block7_image_3`, 
+              `clp_block7_image_4`, `clp_block8_background` 
             FROM `courses_landing_pages` 
             WHERE `clp_course_id`=? LIMIT 1', $course_id);
 
@@ -4813,6 +4651,9 @@ class Course_model extends CI_Model
                 }
 
                 // Удаление фоновых изображений блоков
+                if (!empty($row->clp_block2_background_top) and $row->clp_block2_background_top != 'default' and is_file($row->clp_block2_background_top)) {
+                    unlink($row->clp_block2_background_top);
+                }
                 if (!empty($row->clp_block2_background) and $row->clp_block2_background != 'default' and is_file($row->clp_block2_background)) {
                     unlink($row->clp_block2_background);
                 }
@@ -4839,41 +4680,38 @@ class Course_model extends CI_Model
                 if (!empty($row->clp_block2_image) and $row->clp_block2_image != 'default' and is_file($row->clp_block2_image)) {
                     unlink($row->clp_block2_image);
                 }
-                if (!empty($row->clp_block3_images)) {
-                    $s_images = explode(';', $row->clp_block3_images);
-
-                    foreach ($s_images as $image) {
-                        if ($image != 'default' and is_file($image)) {
-                            unlink($image);
-                        }
-                    }
-                    unset($image);
+                if (!empty($row->clp_block3_image_1) and $row->clp_block3_image_1 != 'default' and is_file($row->clp_block3_image_1)) {
+                    unlink($row->clp_block3_image_1);
+                }
+                if (!empty($row->clp_block3_image_2) and $row->clp_block3_image_2 != 'default' and is_file($row->clp_block3_image_2)) {
+                    unlink($row->clp_block3_image_2);
                 }
                 if (!empty($row->clp_block4_image) and $row->clp_block4_image != 'default' and is_file($row->clp_block4_image)) {
                     unlink($row->clp_block4_image);
                 }
-                if (!empty($row->clp_block5_images)) {
-                    $s_images = explode(';', $row->clp_block5_images);
-
-                    foreach ($s_images as $image) {
-                        if ($image != 'default' and is_file($image)) {
-                            unlink($image);
-                        }
-                    }
-                    unset($image);
+                if (!empty($row->clp_block5_image_1) and $row->clp_block5_image_1 != 'default' and is_file($row->clp_block5_image_1)) {
+                    unlink($row->clp_block5_image_1);
+                }
+                if (!empty($row->clp_block5_image_2) and $row->clp_block5_image_2 != 'default' and is_file($row->clp_block5_image_2)) {
+                    unlink($row->clp_block5_image_2);
+                }
+                if (!empty($row->clp_block5_image_3) and $row->clp_block5_image_3 != 'default' and is_file($row->clp_block5_image_3)) {
+                    unlink($row->clp_block5_image_3);
                 }
                 if (!empty($row->clp_block6_image) and $row->clp_block6_image != 'default' and is_file($row->clp_block6_image)) {
                     unlink($row->clp_block6_image);
                 }
-                if (!empty($row->clp_block7_images)) {
-                    $s_images = explode(';', $row->clp_block7_images);
-
-                    foreach ($s_images as $image) {
-                        if ($image != 'default' and is_file($image)) {
-                            unlink($image);
-                        }
-                    }
-                    unset($image);
+                if (!empty($row->clp_block7_image_1) and $row->clp_block7_image_1 != 'default' and is_file($row->clp_block7_image_1)) {
+                    unlink($row->clp_block7_image_1);
+                }
+                if (!empty($row->clp_block7_image_2) and $row->clp_block7_image_2 != 'default' and is_file($row->clp_block7_image_2)) {
+                    unlink($row->clp_block7_image_2);
+                }
+                if (!empty($row->clp_block7_image_3) and $row->clp_block7_image_3 != 'default' and is_file($row->clp_block7_image_3)) {
+                    unlink($row->clp_block7_image_3);
+                }
+                if (!empty($row->clp_block7_image_4) and $row->clp_block7_image_4 != 'default' and is_file($row->clp_block7_image_4)) {
+                    unlink($row->clp_block7_image_4);
                 }
 
                 return true;
@@ -9503,7 +9341,27 @@ class Course_model extends CI_Model
 
         if(is_numeric($course_id))
         {
-            $sel_data = $this->db->query('SELECT `crs_id`, `crs_name` FROM `courses` WHERE `crs_id`<>?', $course_id);
+            $i = 0;
+            $ext_in[$i] = $course_id;
+
+            $sel_ext = $this->db->query('SELECT `ce_extend_crs_id` FROM `courses_extends` WHERE `ce_crs_id`=?', $course_id);
+            if($sel_ext !== false and 0 < $sel_ext->num_rows())
+            {
+                foreach($sel_ext->result() as $row)
+                {
+                    $i++;
+                    $ext_in[$i] = $row->ce_extend_crs_id;
+                }
+                unset($row);
+            }
+            elseif($sel_ext === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            $ext_in = implode(',', $ext_in);
+
+            $sel_data = $this->db->query('SELECT `crs_id`, `crs_name` FROM `courses` WHERE `crs_id` NOT IN ('.$ext_in.')');
         }
         else
         {
@@ -10188,6 +10046,8 @@ class Course_model extends CI_Model
         $result['image']            = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : null;
         $result['name']             = !empty($row->crs_name) ? $row->crs_name : null;
         $result['description']      = !empty($row->crs_description) ? $row->crs_description : null;
+        $result['meta_description'] = !empty($row->crs_meta_description) ? $row->crs_meta_description : null;
+        $result['meta_keywords']    = !empty($row->crs_meta_keywords) ? $row->crs_meta_keywords : null;
         $result['type']             = !empty($row->crs_type_id) ? $row->crs_type_id : null;
         $result['count_weeks']      = !empty($row->crs_count_weeks) ? $row->crs_count_weeks : null;
         $result['count_days']       = !empty($row->crs_count_days) ? $row->crs_count_days : null;
@@ -10226,14 +10086,14 @@ class Course_model extends CI_Model
     protected function parseLandingData($row)
     {
         $result = array(
-            'html_page' => '', 'lp_id' => '', 'hide' => false, 'bg' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
-            'block2' => array('hide' => false, 'bg_top' => '', 'bg' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_top_default' => true, 'bg_default' => true, 'image_default' => true, 'button' => ''),
-            'block3' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
-            'block4' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-            'block5' => array('hide' => false, 'bg' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'images' => array(), 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'button' => ''),
-            'block6' => array('hide' => false, 'bg' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => array(), 'image' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
-            'block7' => array('hide' => false, 'bg' => '', 'images' => array(), 'texts' => array(), 'bg_default' => true, 'images_default' => array(), 'button' => ''),
-            'block8' => array('hide' => false, 'bg' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'bg_default' => true, 'button' => '')
+            'html_page' => '', 'lp_id' => '', 'hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'slider_opacity' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
+            'block2' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg_top' => '', 'bg' => '', 'bg_opacity' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_top_default' => true, 'bg_default' => true, 'image_default' => true, 'button' => ''),
+            'block3' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'bg_opacity' => '', 'title' => '', 'subtitle' => '', 'image1' => '', 'image2' => '', 'image1_orig' => '', 'image2_orig' => '', 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
+            'block4' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'bg_opacity' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
+            'block5' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'bg_opacity' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'image1' => '', 'image2' => '', 'image3' => '', 'image1_orig' => '', 'image2_orig' => '', 'image3_orig' => '', 'r_title' => '', 'r_subtitle' => '', 'r_text' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'button' => ''),
+            'block6' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'bg_opacity' => '', 'title' => '', 'desc' => '', 'subtitle' => '', 'advantages' => array(), 'image' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
+            'block7' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'bg_opacity' => '', 'image1' => '', 'image2' => '', 'image3' => '', 'image4' => '', 'texts' => array(), 'bg_default' => true, 'image1_default' => true, 'image2_default' => true, 'image3_default' => true, 'image4_default' => true, 'button' => ''),
+            'block8' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'bg_opacity' => '', 'title' => '', 'desc1' => '', 'subtitle' => '', 'desc2' => '', 'old_price' => '', 'new_price' => '', 'bg_default' => true, 'button' => '')
         );
 
         // Путь к HTML странице landing page
@@ -10247,13 +10107,32 @@ class Course_model extends CI_Model
         $clp_background = '';
         if (!empty($row->lp_background)) {
             if (is_file($row->lp_background)) {
-                $clp_background = 'background: url(' . mb_substr($row->lp_background, 1) . ') top center repeat;';
+                $clp_background = 'url(' . mb_substr($row->lp_background, 1) . ') top center repeat';
             }
             elseif (mb_substr($row->lp_background, 0, 1) == '#') {
-                $clp_background = 'background: ' . $row->lp_background . ';';
+                $clp_background = $row->lp_background;
             }
         }
         $result['bg'] = $clp_background;
+
+        // Цвет фона блока
+        $block1_bg_color = '';
+        if(!empty($row->clp_block1_bg_color))
+        {
+            $f_l = mb_substr($row->clp_block1_bg_color, 0, 1);
+            $rest_l = mb_substr($row->clp_block1_bg_color, 1, 6);
+
+            $block1_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->clp_block1_bg_color : '';
+        }
+        elseif(!empty($row->lp_block1_bg_color))
+        {
+            $f_l = mb_substr($row->lp_block1_bg_color, 0, 1);
+            $rest_l = mb_substr($row->lp_block1_bg_color, 1, 6);
+
+            $block1_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block1_bg_color : '';
+        }
+        $result['bg_color']      = $block1_bg_color;
+        $result['bg_color_orig'] = $row->clp_block1_bg_color;
 
         // Изображения для слайдера страницы
         $result['slider_images'] = '';
@@ -10283,6 +10162,9 @@ class Course_model extends CI_Model
             unset($s_image);
         }
 
+        // Прозрачность изображений слайдера
+        $result['slider_opacity'] = (is_numeric($row->clp_slider_opacity) and $row->clp_slider_opacity > 0) ? $row->clp_slider_opacity : '';
+
         $result['main_title']     = parent::showBBcodes($row->clp_main_title);
         $result['bbc_main_title'] = $row->clp_main_title;
 
@@ -10290,47 +10172,60 @@ class Course_model extends CI_Model
 	    // Скрыть блок 2
 	    $result['block2']['hide'] = ($row->clp_block2_hide == 1) ? true : false;
 
-        // Шапка фона блока
+        // Цвет фона блока
+        $block2_bg_color = '';
+        if(!empty($row->clp_block2_bg_color))
+        {
+            $f_l = mb_substr($row->clp_block2_bg_color, 0, 1);
+            $rest_l = mb_substr($row->clp_block2_bg_color, 1, 6);
+
+            $block2_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->clp_block2_bg_color : '';
+        }
+        elseif(!empty($row->lp_block2_bg_color))
+        {
+            $f_l = mb_substr($row->lp_block2_bg_color, 0, 1);
+            $rest_l = mb_substr($row->lp_block2_bg_color, 1, 6);
+
+            $block2_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block2_bg_color : '';
+        }
+        $result['block2']['bg_color']      = $block2_bg_color;
+        $result['block2']['bg_color_orig'] = $row->clp_block2_bg_color;
+
+        // Изображение шапки фона блока
         if (!empty($row->clp_block2_background_top) and $row->clp_block2_background_top != 'default')
         {
             $result['block2']['bg_top_default'] = false;
-            $block2_background_top = $row->clp_block2_background_top;
+            $block2_background_top = (is_file($row->clp_block2_background_top))
+                ? 'url(' . mb_substr($row->clp_block2_background_top, 1) . ') top center no-repeat' : '';
         }
         else
         {
-            $block2_background_top = $row->lp_block2_background_top;
-        }
-
-        if (!empty($block2_background_top) and is_file($block2_background_top)) {
-            $block2_background_top = 'background: url(' . mb_substr($block2_background_top, 1) . ') top center no-repeat;';
+            $block2_background_top = (is_file($row->lp_block2_background_top))
+                ? 'url(' . mb_substr($row->lp_block2_background_top, 1) . ') top center no-repeat' : '';
         }
         $result['block2']['bg_top']      = $block2_background_top;
         $result['block2']['bg_top_orig'] = $row->clp_block2_background_top;
 
-        // Фон блока
-        if (!empty($row->clp_block2_background) and $row->clp_block2_background != 'default')
+        // Изображение фона блока
+        if ($row->clp_block2_background != 'default')
         {
             $result['block2']['bg_default'] = false;
-            $block2_background = $row->clp_block2_background;
+            $block2_background = (is_file($row->clp_block2_background))
+                ? 'url(' . mb_substr($row->clp_block2_background, 1) . ') top center repeat' : '';
         }
         else
         {
-            $block2_background = $row->lp_block2_background;
-        }
-
-        if (!empty($block2_background)) {
-            if (is_file($block2_background)) {
-                $block2_background = 'background: url(' . mb_substr($block2_background, 1) . ') top center repeat;';
-            }
-            elseif (mb_substr($block2_background, 0, 1) == '#') {
-                $block2_background = 'background: ' . $block2_background . ';';
-            }
+            $block2_background = (is_file($row->lp_block2_background))
+                ? 'url(' . mb_substr($row->lp_block2_background, 1) . ') top center repeat' : '';
         }
         $result['block2']['bg']      = $block2_background;
         $result['block2']['bg_orig'] = $row->clp_block2_background;
 
+        // Прозрачность изображения фона
+        $result['block2']['bg_opacity'] = (is_numeric($row->clp_block2_bg_opacity) and $row->clp_block2_bg_opacity > 0) ? $row->clp_block2_bg_opacity : '' ;
+
         // Изображение блока
-        if (!empty($row->clp_block2_image) and $row->clp_block2_image != 'default')
+        if ($row->clp_block2_image != 'default')
         {
             $result['block2']['image_default'] = false;
             $block2_image = $row->clp_block2_image;
@@ -10339,7 +10234,6 @@ class Course_model extends CI_Model
         {
             $block2_image = $row->lp_block2_image;
         }
-
         $block2_image = (!empty($block2_image) and is_file($block2_image)) ? mb_substr($block2_image, 1) : '';
         $result['block2']['image']      = $block2_image;
         $result['block2']['image_orig'] = $row->clp_block2_image;
@@ -10353,111 +10247,139 @@ class Course_model extends CI_Model
 	    // Скрыть блок 3
 	    $result['block3']['hide'] = ($row->clp_block3_hide == 1) ? true : false;
 
-        // Фон блока
-        if (!empty($row->clp_block3_background) and $row->clp_block3_background != 'default')
+        // Цвет фона блока
+        $block3_bg_color = '';
+        if (!empty($row->clp_block3_bg_color))
+        {
+            $f_l = mb_substr($row->clp_block3_bg_color, 0, 1);
+            $rest_l = mb_substr($row->clp_block3_bg_color, 1, 6);
+
+            $block3_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->clp_block3_bg_color : '';
+        }
+        elseif (!empty($row->lp_block3_bg_color))
+        {
+            $f_l = mb_substr($row->lp_block3_bg_color, 0, 1);
+            $rest_l = mb_substr($row->lp_block3_bg_color, 1, 6);
+
+            $block3_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block3_bg_color : '';
+        }
+        $result['block3']['bg_color']      = $block3_bg_color;
+        $result['block3']['bg_color_orig'] = $row->clp_block3_bg_color;
+
+        // Изображение фона блока
+        if ($row->clp_block3_background != 'default')
         {
             $result['block3']['bg_default'] = false;
-            $block3_background = $row->clp_block3_background;
+            $block3_background = (is_file($row->clp_block3_background))
+                ? 'url(' . mb_substr($row->clp_block3_background, 1) . ')' : '';
         }
         else
         {
-            $block3_background = $row->lp_block3_background;
-        }
-
-        if (!empty($block3_background))
-        {
-            if (is_file($block3_background))
-            {
-                $block3_background = 'background-image: url(' . mb_substr($block3_background, 1) . ');';
-            }
-            elseif (mb_substr($block3_background, 0, 1) == '#')
-            {
-                $block3_background = 'background: ' . $block3_background . ';';
-            }
+            $block3_background = (is_file($row->lp_block3_background))
+                ? 'url(' . mb_substr($row->lp_block3_background, 1) . ')' : '';
         }
         $result['block3']['bg']      = $block3_background;
         $result['block3']['bg_orig'] = $row->clp_block3_background;
 
-        $result['block3']['title']      = $row->clp_block3_title;
-        $result['block3']['subtitle']   = $row->clp_block3_subtitle;
-        $result['block3']['r_title']    = $row->clp_block3_r_title;
-        $result['block3']['r_subtitle'] = $row->clp_block3_r_subtitle;
-        $result['block3']['r_reviews']  = $row->clp_block3_r_reviews;
+        // Прозрачность изображения фона
+        $result['block3']['bg_opacity'] = (is_numeric($row->clp_block3_bg_opacity) and $row->clp_block3_bg_opacity > 0) ? $row->clp_block3_bg_opacity : '' ;
+
+        $result['block3']['title']      = parent::showBBcodes($row->clp_block3_title);
+        $result['block3']['subtitle']   = parent::showBBcodes($row->clp_block3_subtitle);
+        $result['block3']['r_title']    = parent::showBBcodes($row->clp_block3_r_title);
+        $result['block3']['r_subtitle'] = parent::showBBcodes($row->clp_block3_r_subtitle);
+        $result['block3']['r_reviews']  = parent::showBBcodes($row->clp_block3_r_reviews);
+
+        $result['block3']['bbc_title']      = $row->clp_block3_title;
+        $result['block3']['bbc_subtitle']   = $row->clp_block3_subtitle;
+        $result['block3']['bbc_r_title']    = $row->clp_block3_r_title;
+        $result['block3']['bbc_r_subtitle'] = $row->clp_block3_r_subtitle;
+        $result['block3']['bbc_r_reviews']  = $row->clp_block3_r_reviews;
 
         // Изображения блока
-        $result['block3']['images'] = '';
-        if (!empty($row->clp_block3_images))
+        $db_bl3_img1    = $row->clp_block3_image_1;
+        $db_lp_bl3_img1 = $row->lp_block3_image_1;
+        if ($db_bl3_img1 != 'default')
         {
-            $clp_images = explode(';', $row->clp_block3_images);
-            $lp_images = explode(';', $row->lp_block3_images);
-
-            $i = 0;
-            foreach ($clp_images as $key => $s_image)
-            {
-                $result['block3']['images_orig'][$i]    = $s_image;
-                $result['block3']['images_default'][$i] = true;
-
-                if (!empty($s_image) and $s_image != 'default')
-                {
-                    $result['block3']['images'][$i]         = is_file($s_image) ? mb_substr($s_image, 1) : '';
-                    $result['block3']['images_default'][$i] = false;
-
-                    if (empty($result['block3']['images'][$i]))
-                    {
-                        unset($result['block3']['images'][$i]);
-                        $result['block3']['images_default'][$i] = true;
-                    }
-
-                    $i++;
-                }
-                elseif($s_image == 'default')
-                {
-                    $result['block3']['images'][$i] = is_file($lp_images[$key]) ? mb_substr($lp_images[$key], 1) : '';
-
-                    $i++;
-                }
-            }
-            unset($s_images);
-            unset($clp_images);
-            unset($lp_images);
+            $block3_image_1_default = false;
+            $block3_image_1 = (is_file($db_bl3_img1)) ? mb_substr($db_bl3_img1, 1) : '';
         }
+        else
+        {
+            $block3_image_1_default = true;
+            $block3_image_1 = (is_file($db_lp_bl3_img1)) ? mb_substr($db_lp_bl3_img1, 1) : '';
+        }
+        $result['block3']['image1']         = $block3_image_1;
+        $result['block3']['image1_default'] = $block3_image_1_default;
+        $result['block3']['image1_orig']    = $db_bl3_img1;
+
+        $db_bl3_img2    = $row->clp_block3_image_2;
+        $db_lp_bl3_img2 = $row->lp_block3_image_2;
+        if ($db_bl3_img2 != 'default')
+        {
+            $block3_image_2_default = false;
+            $block3_image_2 = (is_file($db_bl3_img2)) ? mb_substr($db_bl3_img2, 1) : '';
+        }
+        else
+        {
+            $block3_image_2_default = true;
+            $block3_image_2 = (is_file($db_lp_bl3_img2)) ? mb_substr($db_lp_bl3_img2, 1) : '';
+        }
+        $result['block3']['image2']         = $block3_image_2;
+        $result['block3']['image2_default'] = $block3_image_2_default;
+        $result['block3']['image2_orig']    = $db_bl3_img2;
+
 
         // БЛОК 4
 	    // Скрыть блок 4
 	    $result['block4']['hide'] = ($row->clp_block4_hide == 1) ? true : false;
 
-        // Фон блока
-        if (!empty($row->clp_block4_background) and $row->clp_block4_background != 'default')
+        // Цвет фона блока
+        $block4_bg_color = '';
+        if(!empty($row->clp_block4_bg_color))
+        {
+            $f_l = mb_substr($row->clp_block4_bg_color, 0, 1);
+            $rest_l = mb_substr($row->clp_block4_bg_color, 1, 6);
+
+            $block4_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->clp_block4_bg_color : '';
+        }
+        elseif(!empty($row->lp_block4_bg_color))
+        {
+            $f_l = mb_substr($row->lp_block4_bg_color, 0, 1);
+            $rest_l = mb_substr($row->lp_block4_bg_color, 1, 6);
+
+            $block4_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block4_bg_color : '';
+        }
+        $result['block4']['bg_color']      = $block4_bg_color;
+        $result['block4']['bg_color_orig'] = $row->clp_block4_bg_color;
+
+        // Изображение фона блока
+        if ($row->clp_block4_background != 'default')
         {
             $result['block4']['bg_default'] = false;
-            $block4_background = $row->clp_block4_background;
+            $block4_background = (is_file($row->clp_block4_background))
+                ? 'url(' . mb_substr($row->clp_block4_background, 1) . ')' : '';
         }
         else
         {
-            $block4_background = $row->lp_block4_background;
-        }
-
-        if (!empty($block4_background))
-        {
-            if (is_file($block4_background))
-            {
-                $block4_background = 'background-image: url(' . mb_substr($block4_background, 1) . ');';
-            }
-            elseif (mb_substr($block4_background, 0, 1) == '#')
-            {
-                $block4_background = 'background: ' . $block4_background . ';';
-            }
+            $block4_background = (is_file($row->lp_block4_background))
+                ? 'url(' . mb_substr($row->lp_block4_background, 1) . ')' : '';
         }
         $result['block4']['bg']      = $block4_background;
         $result['block4']['bg_orig'] = $row->clp_block4_background;
 
-        $result['block4']['title']    = $row->clp_block4_title;
-        $result['block4']['subtitle'] = $row->clp_block4_subtitle;
+        // Прозрачность изображения фона
+        $result['block4']['bg_opacity'] = (is_numeric($row->clp_block4_bg_opacity) and $row->clp_block4_bg_opacity > 0) ? $row->clp_block4_bg_opacity : '' ;
+
+        $result['block4']['bbc_title']    = $row->clp_block4_title;
+        $result['block4']['bbc_subtitle'] = $row->clp_block4_subtitle;
+
+        $result['block4']['title']    = parent::showBBcodes($row->clp_block4_title);
+        $result['block4']['subtitle'] = parent::showBBcodes($row->clp_block4_subtitle);
         $result['block4']['button']   = strip_tags($row->clp_block4_button);
 
         // Изображение блока
-        $block4_image = '';
-        if (!empty($row->clp_block4_image) and $row->clp_block4_image != 'default')
+        if ($row->clp_block4_image != 'default')
         {
             $result['block4']['image_default'] = false;
             $block4_image = is_file($row->clp_block4_image) ? mb_substr($row->clp_block4_image, 1) : '';
@@ -10469,81 +10391,105 @@ class Course_model extends CI_Model
         $result['block4']['image']      = $block4_image;
         $result['block4']['image_orig'] = $row->clp_block4_image;
 
-        $result['block4']['r_title']    = $row->clp_block4_r_title;
-        $result['block4']['r_subtitle'] = $row->clp_block4_r_subtitle;
+        $result['block4']['bbc_r_title']    = $row->clp_block4_r_title;
+        $result['block4']['bbc_r_subtitle'] = $row->clp_block4_r_subtitle;
+
+        $result['block4']['r_title']    = parent::showBBcodes($row->clp_block4_r_title);
+        $result['block4']['r_subtitle'] = parent::showBBcodes($row->clp_block4_r_subtitle);
 
         // БЛОК 5
 	    // Скрыть блок 5
 	    $result['block5']['hide'] = ($row->clp_block5_hide == 1) ? true : false;
 
-        // Фон блока
-        if (!empty($row->clp_block5_background) and $row->clp_block5_background != 'default')
+        // Цвет фона блока
+        $block5_bg_color = '';
+        if(!empty($row->clp_block5_bg_color))
+        {
+            $f_l = mb_substr($row->clp_block5_bg_color, 0, 1);
+            $rest_l = mb_substr($row->clp_block5_bg_color, 1, 6);
+
+            $block5_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->clp_block5_bg_color : '';
+        }
+        elseif(!empty($row->lp_block5_bg_color))
+        {
+            $f_l = mb_substr($row->lp_block5_bg_color, 0, 1);
+            $rest_l = mb_substr($row->lp_block5_bg_color, 1, 6);
+
+            $block5_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block5_bg_color : '';
+        }
+        $result['block5']['bg_color']      = $block5_bg_color;
+        $result['block5']['bg_color_orig'] = $row->clp_block5_bg_color;
+
+        // Изображение фона блока
+        if ($row->clp_block5_background != 'default')
         {
             $result['block5']['bg_default'] = false;
-            $block5_background = $row->clp_block5_background;
+            $block5_background = (is_file($row->clp_block5_background))
+                ? 'url(' . mb_substr($row->clp_block5_background, 1) . ')' : '';
         }
         else
         {
-            $block5_background = $row->lp_block5_background;
-        }
-
-        if (!empty($block5_background))
-        {
-            if (is_file($block5_background))
-            {
-                $block5_background  = 'background-image: url(' . mb_substr($block5_background, 1) . ')';
-            }
-            elseif (mb_substr($block5_background, 0, 1) == '#')
-            {
-                $block5_background  = 'background: ' . $block5_background . ';';
-            }
+            $block5_background = (is_file($row->lp_block5_background))
+                ? 'url(' . mb_substr($row->lp_block5_background, 1) . ')' : '';
         }
         $result['block5']['bg']      = $block5_background;
         $result['block5']['bg_orig'] = $row->clp_block5_background;
+
+        // Прозрачность изображения фона
+        $result['block5']['bg_opacity'] = (is_numeric($row->clp_block5_bg_opacity) and $row->clp_block5_bg_opacity > 0) ? $row->clp_block5_bg_opacity : '' ;
 
         $result['block5']['title']    = $row->clp_block5_title;
         $result['block5']['subtitle'] = $row->clp_block5_subtitle;
         $result['block5']['text']     = $row->clp_block5_text;
 
         // Изображения блока
-        if (!empty($row->clp_block5_images))
+        $db_bl5_img1    = $row->clp_block5_image_1;
+        $db_lp_bl5_img1 = $row->lp_block5_image_1;
+        if ($db_bl5_img1 != 'default')
         {
-            $clp_images = explode(';', $row->clp_block5_images);
-            $lp_images = explode(';', $row->lp_block5_images);
-
-            if (!empty($clp_images))
-            {
-                $i = 0;
-                foreach ($clp_images as $key => $s_image)
-                {
-                    if (!empty($s_image) and $s_image != 'default')
-                    {
-                        $result['block5']['images'][$i]         = is_file($s_image) ? mb_substr($s_image, 1) : '';
-                        $result['block5']['images_default'][$i] = false;
-                        $result['block5']['images_orig'][$i]    = $s_image;
-
-                        if (empty($result['block5']['images'][$i]))
-                        {
-                            unset($result['block5']['images'][$i]);
-                            $result['block5']['images_default'][$i] = true;
-                        }
-
-                        $i++;
-                    }
-                    elseif($s_image == 'default')
-                    {
-                        $result['block5']['images'][$i]         = is_file($lp_images[$key]) ? mb_substr($lp_images[$key], 1) : '';
-                        $result['block5']['images_default'][$i] = true;
-                        $result['block5']['images_orig'][$i]    = $s_image;
-
-                        $i++;
-                    }
-                }
-                unset($s_image);
-            }
-	        unset($clp_images);
-	        unset($lp_images);
+            $block5_image_1_default = false;
+            $block5_image_1 = (is_file($db_bl5_img1)) ? mb_substr($db_bl5_img1, 1) : '';
         }
+        else
+        {
+            $block5_image_1_default = true;
+            $block5_image_1 = (is_file($db_lp_bl5_img1)) ? mb_substr($db_lp_bl5_img1, 1) : '';
+        }
+        $result['block5']['image1']         = $block5_image_1;
+        $result['block5']['image1_default'] = $block5_image_1_default;
+        $result['block5']['image1_orig']    = $db_bl5_img1;
+
+        $db_bl5_img2    = $row->clp_block5_image_2;
+        $db_lp_bl5_img2 = $row->lp_block5_image_2;
+        if ($db_bl5_img2 != 'default')
+        {
+            $block5_image_2_default = false;
+            $block5_image_2 = (is_file($db_bl5_img2)) ? mb_substr($db_bl5_img2, 1) : '';
+        }
+        else
+        {
+            $block5_image_2_default = true;
+            $block5_image_2 = (is_file($db_lp_bl5_img2)) ? mb_substr($db_lp_bl5_img2, 1) : '';
+        }
+        $result['block5']['image2']         = $block5_image_2;
+        $result['block5']['image2_default'] = $block5_image_2_default;
+        $result['block5']['image2_orig']    = $db_bl5_img2;
+
+        $db_bl5_img3    = $row->clp_block5_image_3;
+        $db_lp_bl5_img3 = $row->lp_block5_image_3;
+        if ($db_bl5_img3 != 'default')
+        {
+            $block5_image_3_default = false;
+            $block5_image_3 = (is_file($db_bl5_img3)) ? mb_substr($db_bl5_img3, 1) : '';
+        }
+        else
+        {
+            $block5_image_3_default = true;
+            $block5_image_3 = (is_file($db_lp_bl5_img3)) ? mb_substr($db_lp_bl5_img3, 1) : '';
+        }
+        $result['block5']['image3']        = $block5_image_3;
+        $result['block5']['image3_default'] = $block5_image_3_default;
+        $result['block5']['image3_orig']    = $db_bl5_img3;
 
         $result['block5']['r_title']    = $row->clp_block5_r_title;
         $result['block5']['r_subtitle'] = $row->clp_block5_r_subtitle;
@@ -10554,30 +10500,42 @@ class Course_model extends CI_Model
 	    // Скрыть блок 6
 	    $result['block6']['hide'] = ($row->clp_block6_hide == 1) ? true : false;
 
-        // Фон блока
-        if (!empty($row->clp_block6_background) and $row->clp_block6_background != 'default')
+        // Цвет фона блока
+        $block6_bg_color = '';
+        if(!empty($row->clp_block6_bg_color))
+        {
+            $f_l = mb_substr($row->clp_block6_bg_color, 0, 1);
+            $rest_l = mb_substr($row->clp_block6_bg_color, 1, 6);
+
+            $block6_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->clp_block6_bg_color : '';
+        }
+        elseif(!empty($row->lp_block6_bg_color))
+        {
+            $f_l = mb_substr($row->lp_block6_bg_color, 0, 1);
+            $rest_l = mb_substr($row->lp_block6_bg_color, 1, 6);
+
+            $block6_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block6_bg_color : '';
+        }
+        $result['block6']['bg_color']      = $block6_bg_color;
+        $result['block6']['bg_color_orig'] = $row->clp_block6_bg_color;
+
+        // Изображение фона блока
+        if ($row->clp_block6_background != 'default')
         {
             $result['block6']['bg_default'] = false;
-            $block6_background = $row->clp_block6_background;
+            $block6_background = (is_file($row->clp_block6_background))
+                ? 'url(' . mb_substr($row->clp_block6_background, 1) . ')' : '';
         }
         else
         {
-            $block6_background = $row->lp_block6_background;
-        }
-
-        if (!empty($block6_background))
-        {
-            if (is_file($block6_background))
-            {
-                $block6_background = 'background-image: url(' . mb_substr($block6_background, 1) . ')';
-            }
-            elseif (mb_substr($block6_background, 0, 1) == '#')
-            {
-                $block6_background = 'background: ' . $block6_background . ';';
-            }
+            $block6_background = (is_file($row->lp_block6_background))
+                ? 'url(' . mb_substr($row->lp_block6_background, 1) . ')' : '';
         }
         $result['block6']['bg'] = $block6_background;
         $result['block6']['bg_orig'] = $row->clp_block6_background;
+
+        // Прозрачность изображения фона
+        $result['block6']['bg_opacity'] = (is_numeric($row->clp_block6_bg_opacity) and $row->clp_block6_bg_opacity > 0) ? $row->clp_block6_bg_opacity : '' ;
 
         $result['block6']['title']    = $row->clp_block6_title;
         $result['block6']['desc']     = $row->clp_block6_description;
@@ -10604,7 +10562,7 @@ class Course_model extends CI_Model
         }
 
         // Изображение блока
-        if (!empty($row->clp_block6_image) and $row->clp_block6_image != 'default')
+        if ($row->clp_block6_image != 'default')
         {
             $result['block6']['image_default'] = false;
             $block6_image = is_file($row->clp_block6_image) ? mb_substr($row->clp_block6_image, 1) : '';
@@ -10620,65 +10578,102 @@ class Course_model extends CI_Model
 	    // Скрыть блок 7
 	    $result['block7']['hide'] = ($row->clp_block7_hide == 1) ? true : false;
 
-        // Фон блока
-        if (!empty($row->clp_block7_background) and $row->clp_block7_background != 'default')
+        // Цвет фона блока
+        $block7_bg_color = '';
+        if(!empty($row->clp_block7_bg_color))
+        {
+            $f_l = mb_substr($row->clp_block7_bg_color, 0, 1);
+            $rest_l = mb_substr($row->clp_block7_bg_color, 1, 6);
+
+            $block7_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->clp_block7_bg_color : '';
+        }
+        elseif(!empty($row->lp_block7_bg_color))
+        {
+            $f_l = mb_substr($row->lp_block7_bg_color, 0, 1);
+            $rest_l = mb_substr($row->lp_block7_bg_color, 1, 6);
+
+            $block7_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block7_bg_color : '';
+        }
+        $result['block7']['bg_color']      = $block7_bg_color;
+        $result['block7']['bg_color_orig'] = $row->clp_block7_bg_color;
+
+        // Изображение фона блока
+        if ($row->clp_block7_background != 'default')
         {
             $result['block7']['bg_default'] = false;
-            $block7_background = $row->clp_block7_background;
+            $block7_background = (is_file($row->clp_block7_background))
+                ? 'url(' . mb_substr($row->clp_block7_background, 1) . ')' : '';
         }
         else
         {
-            $block7_background = $row->lp_block7_background;
-        }
-
-        if (!empty($block7_background))
-        {
-            if (is_file($block7_background))
-            {
-                $block7_background = 'background-image: url(' . mb_substr($block7_background, 1) . ');';
-            }
-            elseif (mb_substr($block7_background, 0, 1) == '#')
-            {
-                $block7_background = 'background: ' . $block7_background . ';';
-            }
+            $block7_background = (is_file($row->lp_block7_background))
+                ? 'url(' . mb_substr($row->lp_block7_background, 1) . ')' : '';
         }
         $result['block7']['bg']      = $block7_background;
         $result['block7']['bg_orig'] = $row->clp_block7_background;
+
+        // Прозрачность изображения фона
+        $result['block7']['bg_opacity'] = (is_numeric($row->clp_block7_bg_opacity) and $row->clp_block7_bg_opacity > 0) ? $row->clp_block7_bg_opacity : '' ;
 
         $result['block7']['title']  = $row->clp_block7_title;
         $result['block7']['button'] = strip_tags($row->clp_block7_button);
 
         // Изображения блока
-        if (!empty($row->clp_block7_images))
+        if ($row->clp_block7_image_1 != 'default')
         {
-            $clp_images = explode(';', $row->clp_block7_images);
-            $lp_images  = explode(';', $row->lp_block7_images);
-
-            $i = 0;
-            foreach ($clp_images as $key => $s_image)
-            {
-                if (!empty($s_image))
-                {
-                    $result['block7']['images_orig'][$i]    = $s_image;
-                    $result['block7']['images_default'][$i] = false;
-
-                    if ($s_image == 'default' and $i <= 3)
-                    {
-                        $result['block7']['images'][$i] = is_file($lp_images[$key]) ? mb_substr($lp_images[$key], 1) : '';
-                        $result['block7']['images_default'][$i] = true;
-                    }
-                    else
-                    {
-                        $result['block7']['images'][$i] = is_file($s_image) ? mb_substr($s_image, 1) : 'default';
-                    }
-
-                    $i++;
-                }
-            }
-            unset($s_image);
-	        unset($clp_images);
-	        unset($lp_images);
+            $block7_image_1_default = false;
+            $block7_image_1 = (is_file($row->clp_block7_image_1)) ? mb_substr($row->clp_block7_image_1, 1) : '';
         }
+        else
+        {
+            $block7_image_1_default = true;
+            $block7_image_1 = (is_file($row->lp_block7_image_1)) ? mb_substr($row->lp_block7_image_1, 1) : '';
+        }
+        $result['block7']['image1']        = $block7_image_1;
+        $result['block7']['image1_default'] = $block7_image_1_default;
+        $result['block7']['image1_orig']    = $row->clp_block7_image_1;
+
+        if ($row->clp_block7_image_2 != 'default')
+        {
+            $block7_image_2_default = false;
+            $block7_image_2 = (is_file($row->clp_block7_image_2)) ? mb_substr($row->clp_block7_image_2, 1) : '';
+        }
+        else
+        {
+            $block7_image_2_default = true;
+            $block7_image_2 = (is_file($row->lp_block7_image_2)) ? mb_substr($row->lp_block7_image_2, 1) : '';
+        }
+        $result['block7']['image2']        = $block7_image_2;
+        $result['block7']['image2_default'] = $block7_image_2_default;
+        $result['block7']['image2_orig']    = $row->clp_block7_image_2;
+
+        if ($row->clp_block7_image_3 != 'default')
+        {
+            $block7_image_3_default = false;
+            $block7_image_3 = (is_file($row->clp_block7_image_3)) ? mb_substr($row->clp_block7_image_3, 1) : '';
+        }
+        else
+        {
+            $block7_image_3_default = true;
+            $block7_image_3 = (is_file($row->lp_block7_image_3)) ? mb_substr($row->lp_block7_image_3, 1) : '';
+        }
+        $result['block7']['image3']        = $block7_image_3;
+        $result['block7']['image3_default'] = $block7_image_3_default;
+        $result['block7']['image3_orig']    = $row->clp_block7_image_3;
+
+        if ($row->clp_block7_image_4 != 'default')
+        {
+            $block7_image_4_default = false;
+            $block7_image_4 = (is_file($row->clp_block7_image_4)) ? mb_substr($row->clp_block7_image_4, 1) : '';
+        }
+        else
+        {
+            $block7_image_4_default = true;
+            $block7_image_4 = (is_file($row->lp_block7_image_4)) ? mb_substr($row->lp_block7_image_4, 1) : '';
+        }
+        $result['block7']['image4']        = $block7_image_4;
+        $result['block7']['image4_default'] = $block7_image_4_default;
+        $result['block7']['image4_orig']    = $row->clp_block7_image_4;
 
         // Текст блока
         $result['block7']['texts'] = '';
@@ -10686,15 +10681,12 @@ class Course_model extends CI_Model
         {
             $texts = explode(';', $row->clp_block7_text);
 
-            $i = 0;
+            $i = 1;
             foreach ($texts as $text)
             {
-                if (!empty($text))
-                {
-                    $result['block7']['texts'][$i] = $text;
+                $result['block7']['texts'][$i] = $text;
 
-                    $i++;
-                }
+                $i++;
             }
             unset($text);
         }
@@ -10703,30 +10695,40 @@ class Course_model extends CI_Model
 	    // Скрыть блок 8
 	    $result['block8']['hide'] = ($row->clp_block8_hide == 1) ? true : false;
 
-        // Фон блока
-        if (!empty($row->clp_block8_background) and $row->clp_block8_background != 'default')
+        // Цвет фона блока
+        $block8_bg_color = '';
+        if(!empty($row->clp_block8_bg_color))
+        {
+            $f_l = mb_substr($row->clp_block8_bg_color, 0, 1);
+            $rest_l = mb_substr($row->clp_block8_bg_color, 1, 6);
+
+            $block8_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->clp_block8_bg_color : '';
+        }
+        elseif(!empty($row->lp_block8_bg_color))
+        {
+            $f_l = mb_substr($row->lp_block8_bg_color, 0, 1);
+            $rest_l = mb_substr($row->lp_block8_bg_color, 1, 6);
+
+            $block8_bg_color = ($f_l == '#' and ctype_xdigit($rest_l)) ? $row->lp_block8_bg_color : '';
+        }
+        $result['block8']['bg_color']      = $block8_bg_color;
+        $result['block8']['bg_color_orig'] = $row->clp_block8_bg_color;
+
+        // Изображение фона блока
+        if ($row->clp_block8_background != 'default')
         {
             $result['block8']['bg_default'] = false;
-            $block8_background = $row->clp_block8_background;
+            $block8_background = (is_file($row->clp_block8_background)) ? 'url(' . mb_substr($row->clp_block8_background, 1) . ')' : '';
         }
         else
         {
-            $block8_background = $row->lp_block8_background;
-        }
-
-        if (!empty($block8_background))
-        {
-            if (is_file($block8_background))
-            {
-                $block8_background = 'background-image: url(' . mb_substr($block8_background, 1) . ')';
-            }
-            elseif (mb_substr($block8_background, 0, 1) == '#')
-            {
-                $block8_background = 'background: ' . $block8_background . ';';
-            }
+            $block8_background = (is_file($row->lp_block8_background)) ? 'url(' . mb_substr($row->lp_block8_background, 1) . ')' : '';
         }
         $result['block8']['bg'] = $block8_background;
         $result['block8']['bg_orig'] = $row->clp_block8_background;
+
+        // Прозрачность изображения фона
+        $result['block8']['bg_opacity'] = (is_numeric($row->clp_block8_bg_opacity) and $row->clp_block8_bg_opacity > 0) ? $row->clp_block8_bg_opacity : '' ;
 
         $result['block8']['title']     = $row->clp_block8_title;
         $result['block8']['desc1']     = $row->clp_block8_description1;

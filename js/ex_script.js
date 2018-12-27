@@ -1,8 +1,9 @@
 $(document).ready(function(){
     tinymce.init({
         selector: "textarea.formatted_textarea",
-        menubar:false,
-        theme: "modern",
+        menubar: false,
+        statusbar: false,
+        theme: 'modern',
         language_url : '/js/tinymce/langs/ru.js',
         plugins: "textcolor colorpicker bbcode",
         toolbar: "undo redo | bold italic | forecolor",
@@ -71,6 +72,18 @@ $(document).ready(function(){
         }
     });
 
+    // Скрыть/отобразить блок добавления промокода
+    $('#extends-promocode').on('change', function(){
+        var bl_pc_sett = $('#bl-pc-sett');
+        if($(this).val() === 'new')
+        {
+            bl_pc_sett.show();
+        }
+        else {
+            bl_pc_sett.hide();
+        }
+    });
+
     /* Добавление опции */
 
     $(".add_new_options_but.add_form_advantage").click(function() {
@@ -127,6 +140,17 @@ $(document).ready(function(){
     {
         addInfoOfRemainingCharacters();
     }
+
+    // Значение прозрачности landing блока
+    $('.land_block_opacity').on('input change', function(){
+        var i_this = $(this),
+            val_span = i_this.next('.land_block_opacity_val');
+        if(val_span.length === 1)
+        {
+            var value_length = i_this.val();
+            val_span.val(value_length);
+        }
+    });
 
     // Выбор фонового цвета блока landing page
     var colorselector = $('.colorselector');

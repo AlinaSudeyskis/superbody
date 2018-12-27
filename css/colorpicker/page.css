@@ -76,13 +76,14 @@ body {
 	display: none;
 	top: 32px;
 	left: 0;
-	width: 293px;
-	height: 173px;
+	width: 260px;
+	height: 170px;
 	overflow: hidden;
 	position: absolute;
 }
 .colorpickerholder2 .colorpicker input {
 	/*color: #778398;*/
+	margin: 0;
 }
 #customWidget {
 	position: relative;

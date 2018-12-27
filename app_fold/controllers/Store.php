@@ -376,6 +376,10 @@ class Store extends CI_Controller
             $short_desc = mb_substr(strip_tags($this->input->post('short_desc', true)), 0, 255);
             $full_desc  = mb_substr(strip_tags($this->input->post('full_desc', true)), 0, 1000);
 
+            // Metadata
+            $meta_description = mb_substr(strip_tags($this->input->post('ta_meta_description', true)), 0, 255);
+            $meta_keywords    = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
+
             $price         = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
             //$fitcoin_price = is_numeric($this->input->post('fitcoin_price', true)) ? $this->input->post('fitcoin_price', true) : '';
             $quantity      = is_numeric($this->input->post('quantity', true)) ? $this->input->post('quantity', true) : 0;
@@ -420,8 +424,9 @@ class Store extends CI_Controller
 
             if (!empty($name) and !empty($price)) {
 
-                $product_id = $this->Store_model->setNewProduct($name, $short_desc, $full_desc, $price, $quantity,
-                    $discount, $discount_type, $category_id, $attached_products, $this->date, $this->user_id);
+                $product_id = $this->Store_model->setNewProduct($name, $short_desc, $full_desc, $meta_description,
+                    $meta_keywords, $price, $quantity, $discount, $discount_type, $category_id, $attached_products,
+                    $this->date, $this->user_id);
 
                 if (is_numeric($product_id)) {
                     $path = './product_files/' . $product_id . '/';
@@ -583,6 +588,10 @@ class Store extends CI_Controller
             $short_desc = mb_substr(strip_tags($this->input->post('short_desc', true)), 0, 255);
             $full_desc  = mb_substr(strip_tags($this->input->post('full_desc', true)), 0, 1000);
 
+            // Metadata
+            $meta_description = mb_substr(strip_tags($this->input->post('ta_meta_description', true)), 0, 255);
+            $meta_keywords    = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
+
             $price         = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
             //$fitcoin_price = is_numeric($this->input->post('fitcoin_price', true)) ? $this->input->post('fitcoin_price', true) : '';
             $quantity      = is_numeric($this->input->post('quantity', true)) ? $this->input->post('quantity', true) : 0;
@@ -630,8 +639,9 @@ class Store extends CI_Controller
             // Сохранение данных в БД
             if (!empty($name) and !empty($price)) {
 
-                $result_data = $this->Store_model->updateProductSettings($product_id, $category_id, $name, $short_desc, $full_desc,
-                    $price, $quantity, $discount, $discount_type, $attached_products, $this->date, $this->user_id);
+                $result_data = $this->Store_model->updateProductSettings($product_id, $category_id, $name, $short_desc,
+                    $full_desc, $meta_description, $meta_keywords, $price, $quantity, $discount, $discount_type,
+                    $attached_products, $this->date, $this->user_id);
                 
                 if ($result_data === true) {
                     // Сохранено
@@ -891,6 +901,11 @@ class Store extends CI_Controller
      */
     public function store($category_id = null, $subcategory_id = null)
     {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
         $this->load->model('Course_model');
 
         $category_id = (is_numeric($category_id)) ? $category_id : null;
@@ -915,7 +930,9 @@ class Store extends CI_Controller
         $categories   = $this->Store_model->getCategories();
 
         // Объединенные данные страница
-        $this->page_data['title']          = 'Интернет-магазин';
+        $this->page_data['title']          = $this->page_data['metadata'][6]['title'];
+        $this->page_data['keywords']       = $this->page_data['metadata'][6]['keywords'];
+        $this->page_data['description']    = $this->page_data['metadata'][6]['description'];
         $this->page_data['page_menu']      = 'store';
         $this->page_data['sort_checked']   = $sort;
         $this->page_data['search']         = $search;
@@ -950,6 +967,11 @@ class Store extends CI_Controller
      */
     public function storeProduct($product_id, $category_id = null, $subcategory_id = null)
     {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
         $categories = $this->Store_model->getCategories();
         $products   = $this->Store_model->getStoreProduct($product_id);
 
@@ -1014,7 +1036,9 @@ class Store extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Интернет-магазин - Товар';
+        $this->page_data['title']       = (!empty($products['product']['name'])) ? $products['product']['name'] : 'Товар №' . $product_id;
+        $this->page_data['description'] = $products['product']['meta_description'];
+        $this->page_data['keywords']    = $products['product']['meta_keywords'];
         $this->page_data['page_menu'] = 'store';
         $this->page_data['categories'] = $categories;
         $this->page_data['category_id'] = $category_id;
@@ -1104,9 +1128,11 @@ class Store extends CI_Controller
             : $this->Store_model->getSessionCartProducts($this->session->cart['products']);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Корзина';
-        $this->page_data['page_menu'] = 'cart';
-        $this->page_data['categories'] = $categories;
+        $this->page_data['title']       = $this->page_data['metadata'][11]['title'];
+        $this->page_data['keywords']    = $this->page_data['metadata'][11]['keywords'];
+        $this->page_data['description'] = $this->page_data['metadata'][11]['description'];
+        $this->page_data['page_menu']   = 'cart';
+        $this->page_data['categories']  = $categories;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/store');
@@ -1256,9 +1282,11 @@ class Store extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Оформление заказа';
-        $this->page_data['page_menu'] = 'cart';
-        $this->page_data['categories'] = $categories;
+        $this->page_data['title']       = $this->page_data['metadata'][10]['title'];
+        $this->page_data['keywords']    = $this->page_data['metadata'][10]['keywords'];
+        $this->page_data['description'] = $this->page_data['metadata'][10]['description'];
+        $this->page_data['page_menu']   = 'cart';
+        $this->page_data['categories']  = $categories;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/store');

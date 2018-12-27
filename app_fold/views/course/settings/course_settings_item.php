@@ -44,15 +44,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Наименование:</div>
-            <textarea name="name" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите наименование" required="required"><?php if (!empty($course['name'])) : echo $course['name']; endif;?></textarea>
+            <textarea name="name" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите наименование"
+                      required="required"><?php if (!empty($course['name'])) : echo $course['name']; endif;?></textarea>
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Описание:</div>
-            <textarea name="description" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите описание" required="required"><?php if (!empty($course['description'])) : echo $course['description']; endif;?></textarea>
+            <textarea name="description" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите описание"
+                      required="required"><?php if (!empty($course['description'])) : echo $course['description']; endif;?></textarea>
+        </div>
+        <div class="content_block new_content_block ovv content_block_internal meta">
+            <div class="content_block_h parent">
+                <h3>Метаданные</h3>
+                <div class="content_block_h_buts">
+                    <div class="content_block_h_slide meta_slide hide_chart"></div>
+                </div>
+            </div>
+            <div class="kurs_block_val">
+                <div class="anketa_block_cont">
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Keywords:</div>
+                        <textarea name="ta_meta_keywords" class="journal_form_textarea admin_form_txt_middle"
+                                  placeholder=""><?php echo $course['meta_keywords']; ?></textarea>
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Description:</div>
+                        <textarea name="ta_meta_description" class="journal_form_textarea admin_form_txt_middle"
+                                  placeholder=""><?php echo $course['meta_description']; ?></textarea>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Длительность курса:</div>
-            <input type="text" name="count_weeks" class="admin_form_txt kurs_time_in kurs_form_txt_short" placeholder="Введите длительность курса" value="<?php if (!empty($course['count_weeks'])) : echo $course['count_weeks']; endif;?>" />
+            <input type="text" name="count_weeks" class="admin_form_txt kurs_time_in kurs_form_txt_short" placeholder="Введите длительность курса"
+                   value="<?php if (!empty($course['count_weeks'])) : echo $course['count_weeks']; endif;?>" />
             <div class="kurs_cur">(нед.)</div>
         </div>
         <div class="parent kurs_cur_wrap">
@@ -126,7 +151,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="content_block_h parent">
                 <h3>Рекуррентный платеж</h3>
                 <div class="content_block_h_buts">
-                    <div class="content_block_h_slide price_slide"></div>
+                    <div class="content_block_h_slide price_slide hide_chart"></div>
                 </div>
             </div>
             <div class="kurs_block_val">
@@ -169,11 +194,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php if (!empty($course['couches'])) :
                     foreach($course['couches'] as $key => $couch) :?>
                         <div id="<?php echo $couch['id']; ?>tov" class="add_tov_val_item parent">
-                            <a href="/profile/<?php echo $couch['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $couch['name']; ?></span></a>
+                            <a href="/profile/<?php echo $couch['id']; ?>" class="add_tov_val_cont parent">
+                                <span class="add_tov_val_h"><?php echo $couch['name']; ?></span>
+                            </a>
                             <div class="add_tov_val_sale">
                                 <div class="admin_form_h">Процент, %</div>
                                 <input type="hidden" name="couches[<?php echo $couch['id']; ?>]" value="<?php echo $couch['id']?>"/>
-                                <input type="text" name="couches_percent[<?php echo $couch['id']; ?>]" class="admin_form_txt" placeholder="20" value="<?php echo $couch['percent']; ?>"/>
+                                <input type="text" name="couches_percent[<?php echo $couch['id']; ?>]" class="admin_form_txt"
+                                       placeholder="20" value="<?php echo $couch['percent']; ?>"/>
                             </div>
                             <div class="del_tov"></div>
                         </div>
@@ -182,29 +210,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 endif;?>
             </div>
         </div>
-        <!--<div class="parent instruction_block">
-            <div class="practice_block_h">Инструктаж курса:</div>
-            <div class="add_tov_in_total">
-                <div class="add_tov_in video">
-                    <input type="text" name="video_instruction" class="admin_form_txt admin_form_txt_short" placeholder="Введите наименование или ID видео" autocomplete="off" />
-                    <div class="add_tov_list"></div>
-                </div>
-                <div class="add_tov_val">
-                    <div class="add_tov_val_item parent">
-                        <?php /*if (!empty($course['instruction']['video_id'])) : */?>
-                            <div id="<?php /*echo $course['instruction']['video_id']; */?>video" class="add_tov_val_item parent">
-                                <div class="add_kurs_val_video_wrap parent">
-                                    <a href="/administration/video/<?php /*echo $course['instruction']['video_id']; */?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php /*echo $course['instruction']['video_name']; */?></span></a>
-                                    <div class="del_tov"></div>
-                                </div>
-                            </div>
-                        <?php /*endif;*/?>
-                    </div>
-                </div>
-                <input type="hidden" name="video_instruction" value="<?php /*echo $course['instruction']['video_id'];*/?>" id="id-video-instruction"/>
-            </div>
-        </div>-->
-
         <div class="parent block_wrap">
             <div class="practice_block_h">Тренировки:</div>
             <div class="practice_block_table">
@@ -220,14 +225,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="practice_block_h">Тренировка №<?php echo $num_workout; ?></div>
                         <div class="add_tov_in_total">
                             <div class="add_tov_in video">
-                                <input type="text" name="name_video[<?php echo $num_workout; ?>]" class="admin_form_txt admin_form_txt_short" placeholder="Введите наименование или ID видео" autocomplete="off" />
+                                <input type="text" name="name_video[<?php echo $num_workout; ?>]" class="admin_form_txt admin_form_txt_short"
+                                       placeholder="Введите наименование или ID видео" autocomplete="off" />
                                 <div class="add_tov_list"></div>
                             </div>
                             <div class="add_tov_val">
                                 <?php if ($workout['video_id'] > 0 and $workout['repeat_workout'] == 0) : ?>
                                     <div id="<?php echo $num_workout; ?>video" class="add_tov_val_item parent">
                                         <div class="add_kurs_val_video_wrap parent">
-                                            <a href="/administration/video/<?php echo $workout['video_id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $workout['video_name']; ?></span></a>
+                                            <a href="/administration/video/<?php echo $workout['video_id']; ?>" class="add_tov_val_cont parent">
+                                                <span class="add_tov_val_h"><?php echo $workout['video_name']; ?></span>
+                                            </a>
                                             <div class="del_tov"></div>
                                         </div>
                                     </div>

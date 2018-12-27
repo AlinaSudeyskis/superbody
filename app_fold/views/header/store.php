@@ -7,4 +7,4 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php include_once('./app_fold/views/header/menu.php');?>
     </div>
 </div><!-- header -->
-<?php include_once('./app_fold/views/store/category/categories_menu.php');?>
+<?php include_once('./app_fold/views/store/category/categories_menu.php'); ?>

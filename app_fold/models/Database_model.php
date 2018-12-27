@@ -1105,6 +1105,345 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2018-12-12 14:24:45';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `landing_pages` SET `lp_block2_background_top`='./landing/default/1/lp_block_bg1.png' WHERE `lp_id`=1 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-14 12:09:13';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block1_bg_color` VARCHAR(10) NOT NULL AFTER `clp_block1_hide`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block2_bg_color` VARCHAR(10) NOT NULL AFTER `clp_block2_hide`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block3_bg_color` VARCHAR(10) NOT NULL AFTER `clp_block3_hide`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block4_bg_color` VARCHAR(10) NOT NULL AFTER `clp_block4_hide`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block5_bg_color` VARCHAR(10) NOT NULL AFTER `clp_block5_hide`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block6_bg_color` VARCHAR(10) NOT NULL AFTER `clp_block6_hide`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block7_bg_color` VARCHAR(10) NOT NULL AFTER `clp_block7_hide`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block8_bg_color` VARCHAR(10) NOT NULL AFTER `clp_block8_hide`");
+
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_slider_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `clp_slider_images`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block2_bg_opacity` TINYINT(3) UNSIGNED NOT NULL DEFAULT '1' AFTER `clp_block2_background_top`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block3_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `clp_block3_background`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block4_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `clp_block4_background`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block5_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `clp_block5_background`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block6_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `clp_block6_background`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block7_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `clp_block7_background`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block8_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `clp_block8_background`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-14 13:01:27';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block1_bg_color` VARCHAR(10) NOT NULL AFTER `lp_background`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block2_bg_color` VARCHAR(10) NOT NULL AFTER `lp_main_title`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block3_bg_color` VARCHAR(10) NOT NULL AFTER `lp_block2_button`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block4_bg_color` VARCHAR(10) NOT NULL AFTER `lp_block3_r_reviews`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block5_bg_color` VARCHAR(10) NOT NULL AFTER `lp_block4_button`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block6_bg_color` VARCHAR(10) NOT NULL AFTER `lp_block5_button`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block7_bg_color` VARCHAR(10) NOT NULL AFTER `lp_block6_button`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block8_bg_color` VARCHAR(10) NOT NULL AFTER `lp_block7_button`");
+
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_slider_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `lp_slider_images`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block2_bg_opacity` TINYINT(3) UNSIGNED NOT NULL DEFAULT '1' AFTER `lp_block2_background_top`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block3_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `lp_block3_background`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block4_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `lp_block4_background`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block5_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `lp_block5_background`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block6_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `lp_block6_background`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block7_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `lp_block7_background`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block8_bg_opacity` TINYINT(3) UNSIGNED NOT NULL AFTER `lp_block8_background`");
+
+            self::setDbUpdate($date);
+        }
+
+
+        $date = '2018-12-18 14:39:27';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `courses_landing_pages` SET `clp_block2_bg_color`=`clp_block2_background` WHERE LEFT(`clp_block2_background`, 1) = '#'");
+            $this->db->query("UPDATE `courses_landing_pages` SET `clp_block3_bg_color`=`clp_block3_background` WHERE LEFT(`clp_block3_background`, 1) = '#'");
+            $this->db->query("UPDATE `courses_landing_pages` SET `clp_block4_bg_color`=`clp_block4_background` WHERE LEFT(`clp_block4_background`, 1) = '#'");
+            $this->db->query("UPDATE `courses_landing_pages` SET `clp_block5_bg_color`=`clp_block5_background` WHERE LEFT(`clp_block5_background`, 1) = '#'");
+            $this->db->query("UPDATE `courses_landing_pages` SET `clp_block6_bg_color`=`clp_block6_background` WHERE LEFT(`clp_block6_background`, 1) = '#'");
+            $this->db->query("UPDATE `courses_landing_pages` SET `clp_block7_bg_color`=`clp_block7_background` WHERE LEFT(`clp_block7_background`, 1) = '#'");
+            $this->db->query("UPDATE `courses_landing_pages` SET `clp_block8_bg_color`=`clp_block8_background` WHERE LEFT(`clp_block8_background`, 1) = '#'");
+
+            $this->db->query("UPDATE `landing_pages` SET `lp_block2_bg_color`=`lp_block2_background` WHERE LEFT(`lp_block2_background`, 1) = '#'");
+            $this->db->query("UPDATE `landing_pages` SET `lp_block3_bg_color`=`lp_block3_background` WHERE LEFT(`lp_block3_background`, 1) = '#'");
+            $this->db->query("UPDATE `landing_pages` SET `lp_block4_bg_color`=`lp_block4_background` WHERE LEFT(`lp_block4_background`, 1) = '#'");
+            $this->db->query("UPDATE `landing_pages` SET `lp_block5_bg_color`=`lp_block5_background` WHERE LEFT(`lp_block5_background`, 1) = '#'");
+            $this->db->query("UPDATE `landing_pages` SET `lp_block6_bg_color`=`lp_block6_background` WHERE LEFT(`lp_block6_background`, 1) = '#'");
+            $this->db->query("UPDATE `landing_pages` SET `lp_block7_bg_color`=`lp_block7_background` WHERE LEFT(`lp_block7_background`, 1) = '#'");
+            $this->db->query("UPDATE `landing_pages` SET `lp_block8_bg_color`=`lp_block8_background` WHERE LEFT(`lp_block8_background`, 1) = '#'");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-18 17:35:13';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` CHANGE `clp_slider_opacity` `clp_slider_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `clp_block2_bg_opacity` `clp_block2_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `clp_block3_bg_opacity` `clp_block3_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `clp_block4_bg_opacity` `clp_block4_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `clp_block5_bg_opacity` `clp_block5_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `clp_block6_bg_opacity` `clp_block6_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `clp_block7_bg_opacity` `clp_block7_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `clp_block8_bg_opacity` `clp_block8_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL;");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-20 15:24:06';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` CHANGE `clp_block3_images` `clp_block3_image_1` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default'");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block3_image_2` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `clp_block3_image_1`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` CHANGE `clp_block5_images` `clp_block5_image_1` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default'");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block5_image_2` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `clp_block5_image_1`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block5_image_3` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `clp_block5_image_2`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` CHANGE `clp_block7_images` `clp_block7_image_1` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default'");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block7_image_2` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `clp_block7_image_1`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block7_image_3` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `clp_block7_image_2`");
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_block7_image_4` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `clp_block7_image_3`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-20 15:41:27';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `landing_pages` CHANGE `lp_block3_images` `lp_block3_image_1` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default'");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block3_image_2` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `lp_block3_image_1`");
+            $this->db->query("ALTER TABLE `landing_pages` CHANGE `lp_block5_images` `lp_block5_image_1` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default'");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block5_image_2` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `lp_block5_image_1`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block5_image_3` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `lp_block5_image_2`");
+            $this->db->query("ALTER TABLE `landing_pages` CHANGE `lp_block7_images` `lp_block7_image_1` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'default'");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block7_image_2` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `lp_block7_image_1`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block7_image_3` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `lp_block7_image_2`");
+            $this->db->query("ALTER TABLE `landing_pages` ADD `lp_block7_image_4` VARCHAR(255) NOT NULL DEFAULT 'default' AFTER `lp_block7_image_3`");
+
+            $sel_data = $this->db->query('SELECT `clp_block3_image_1`, `clp_block5_image_1`, `clp_block7_image_1` FROM `courses_landing_pages`');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $s_images_3 = explode(';', $row->clp_block3_image_1);
+                    $s_images_5 = explode(';', $row->clp_block5_image_1);
+                    $s_images_7 = explode(';', $row->clp_block7_image_1);
+
+                    $this->db->query("UPDATE `courses_landing_pages` 
+                        SET `clp_block3_image_1`=?, `clp_block3_image_2`=?, `clp_block5_image_1`=?, `clp_block5_image_2`=?, 
+                            `clp_block5_image_3`=?, `clp_block7_image_1`=?, `clp_block7_image_2`=?, `clp_block7_image_3`=?, 
+                            `clp_block7_image_4`=? 
+                            WHERE `clp_id`=? LIMIT 1",
+                        array($s_images_3[0], $s_images_3[1], $s_images_5[0], $s_images_5[1], $s_images_5[2],
+                            $s_images_7[0], $s_images_7[1], $s_images_7[2], $s_images_7[3], $row->clp_id));
+
+                }
+                unset($row);
+            }
+
+            $sel_data = $this->db->query('SELECT `lp_block3_image_1`, `lp_block5_image_1`, `lp_block7_image_1` FROM `landing_pages`');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $s_images_3 = explode(';', $row->lp_block3_image_1);
+                    $s_images_5 = explode(';', $row->lp_block5_image_1);
+                    $s_images_7 = explode(';', $row->lp_block7_image_1);
+
+                    $this->db->query("UPDATE `landing_pages` 
+                        SET `lp_block3_image_1`=?, `lp_block3_image_2`=?, `lp_block5_image_1`=?, `lp_block5_image_2`=?, 
+                            `lp_block5_image_3`=?, `lp_block7_image_1`=?, `lp_block7_image_2`=?, `lp_block7_image_3`=?, 
+                            `lp_block7_image_4`=? 
+                            WHERE `lp_id`=? LIMIT 1",
+                        array($s_images_3[0], $s_images_3[1], $s_images_5[0], $s_images_5[1], $s_images_5[2],
+                            $s_images_7[0], $s_images_7[1], $s_images_7[2], $s_images_7[3], $row->clp_id));
+
+                }
+                unset($row);
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-20 19:53:15';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_data = $this->db->query('SELECT `clp_id`, `clp_block3_image_1`, `clp_block5_image_1`, `clp_block7_image_1` FROM `courses_landing_pages`');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $s_images_3 = explode(';', $row->clp_block3_image_1);
+                    $s_images_5 = explode(';', $row->clp_block5_image_1);
+                    $s_images_7 = explode(';', $row->clp_block7_image_1);
+
+                    $this->db->query("UPDATE `courses_landing_pages` 
+                        SET `clp_block3_image_1`=?, `clp_block3_image_2`=?, `clp_block5_image_1`=?, `clp_block5_image_2`=?, 
+                            `clp_block5_image_3`=?, `clp_block7_image_1`=?, `clp_block7_image_2`=?, `clp_block7_image_3`=?, 
+                            `clp_block7_image_4`=? 
+                            WHERE `clp_id`=? LIMIT 1",
+                        array($s_images_3[0], $s_images_3[1], $s_images_5[0], $s_images_5[1], $s_images_5[2],
+                            $s_images_7[0], $s_images_7[1], $s_images_7[2], $s_images_7[3], $row->clp_id));
+
+                }
+                unset($row);
+            }
+
+            $sel_data = $this->db->query('SELECT `lp_id`, `lp_block3_image_1`, `lp_block5_image_1`, `lp_block7_image_1` FROM `landing_pages`');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $s_images_3 = explode(';', $row->lp_block3_image_1);
+                    $s_images_5 = explode(';', $row->lp_block5_image_1);
+                    $s_images_7 = explode(';', $row->lp_block7_image_1);
+
+                    $this->db->query("UPDATE `landing_pages` 
+                        SET `lp_block3_image_1`=?, `lp_block3_image_2`=?, `lp_block5_image_1`=?, `lp_block5_image_2`=?, 
+                            `lp_block5_image_3`=?, `lp_block7_image_1`=?, `lp_block7_image_2`=?, `lp_block7_image_3`=?, 
+                            `lp_block7_image_4`=? 
+                            WHERE `lp_id`=? LIMIT 1",
+                        array($s_images_3[0], $s_images_3[1], $s_images_5[0], $s_images_5[1], $s_images_5[2],
+                            $s_images_7[0], $s_images_7[1], $s_images_7[2], $s_images_7[3], $row->lp_id));
+
+                }
+                unset($row);
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-20 21:31:13';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `landing_pages` CHANGE `lp_slider_opacity` `lp_slider_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `lp_block2_bg_opacity` `lp_block2_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `lp_block3_bg_opacity` `lp_block3_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `lp_block4_bg_opacity` `lp_block4_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `lp_block5_bg_opacity` `lp_block5_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `lp_block6_bg_opacity` `lp_block6_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `lp_block7_bg_opacity` `lp_block7_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL, 
+              CHANGE `lp_block8_bg_opacity` `lp_block8_bg_opacity` DECIMAL(3,2) UNSIGNED NOT NULL;");
+
+            $this->db->query("
+                UPDATE `landing_pages` 
+                SET `lp_block1_bg_color` = '#000', `lp_slider_opacity` = 0.4, `lp_block2_bg_color` = '#000', 
+                    `lp_block2_bg_opacity` = 1, `lp_block3_bg_color` = '#000', `lp_block3_bg_opacity` = 0.4, 
+                    `lp_block4_bg_color` = '#000', `lp_block4_bg_opacity` = 1, `lp_block5_bg_color` = '#fff', 
+                    `lp_block5_bg_opacity` = 1, `lp_block6_bg_color` = '#000', `lp_block6_bg_opacity` = 0.4, 
+                    `lp_block7_bg_color` = '#f3f3f3', `lp_block7_bg_opacity` = 1, `lp_block8_bg_color` = '#000', 
+                    `lp_block8_bg_opacity` = 0.4 
+                WHERE `landing_pages`.`lp_id` = 1");
+
+            $this->db->query("
+                UPDATE `landing_pages` 
+                SET `lp_block1_bg_color` = '#000', `lp_slider_opacity` = 1, `lp_block2_bg_color` = '#181a1f', 
+                    `lp_block2_bg_opacity` = 1, `lp_block3_bg_color` = '#000', `lp_block3_bg_opacity` = 0.4, 
+                    `lp_block4_bg_color` = '#181a1f', `lp_block4_bg_opacity` = 1, `lp_block5_bg_color` = '#292d35', 
+                    `lp_block5_bg_opacity` = 1, `lp_block6_bg_color` = '#000', `lp_block6_bg_opacity` = 0.2, 
+                    `lp_block7_bg_color` = '#181a1f', `lp_block7_bg_opacity` = 1, `lp_block8_bg_color` = '#000', 
+                    `lp_block8_bg_opacity` = 0.4 
+                WHERE `landing_pages`.`lp_id` = 2");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-21 17:48:24';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` CHANGE `clp_block3_title` `clp_block3_title` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `clp_block3_subtitle` `clp_block3_subtitle` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `clp_block3_r_title` `clp_block3_r_title` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `clp_block3_r_subtitle` `clp_block3_r_subtitle` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `clp_block3_r_reviews` `clp_block3_r_reviews` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-21 18:17:47';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` CHANGE `clp_block4_title` `clp_block4_title` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `clp_block4_subtitle` `clp_block4_subtitle` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `clp_block4_r_title` `clp_block4_r_title` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `clp_block4_r_subtitle` `clp_block4_r_subtitle` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-25 17:19:14';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `site_meta_tags` ( 
+                `smt_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `smt_page` VARCHAR(255) NOT NULL , 
+                `smt_title` VARCHAR(255) NOT NULL , 
+                `smt_keywords` VARCHAR(1000) NOT NULL , 
+                `smt_description` VARCHAR(255) NOT NULL , 
+                `smt_admin_id` INT UNSIGNED NOT NULL , 
+                `smt_update` DATETIME NOT NULL , 
+                PRIMARY KEY (`smt_id`)) ENGINE = MyISAM");
+
+            $this->db->query("ALTER TABLE `products` 
+                ADD `p_meta_description` VARCHAR(255) NOT NULL AFTER `p_full_description`, 
+                ADD `p_meta_keywords` VARCHAR(1000) NOT NULL AFTER `p_meta_description`");
+
+            $this->db->query("ALTER TABLE `courses` 
+                ADD `crs_meta_description` VARCHAR(255) NOT NULL AFTER `crs_description`, 
+                ADD `crs_meta_keywords` VARCHAR(1000) NOT NULL AFTER `crs_meta_description`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-25 17:33:19';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (1, 'Для всех', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (2, 'Главная', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (3, 'О нас', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (4, 'Тренеры', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (5, 'Курсы', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (6, 'Магазин', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (7, 'Контакты', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (8, 'Страница товаров', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (9, 'Страница категорий товаров', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (10, 'Страница оформления заказа', 4, '2018-12-25 17:33:19')");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_admin_id`, `smt_update`) VALUES (11, 'Корзина', 4, '2018-12-25 17:33:19')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2018-12-26 13:13:27';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES ('176', 'Ошибка! Метаданные сайта не сохранены.', 'Ошибка! Метаданные сайта не сохранены.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+
         return $result;
     }
 

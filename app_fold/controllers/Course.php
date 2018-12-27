@@ -787,6 +787,10 @@ class Course extends CI_Controller
             // Описание
             $description = mb_substr(strip_tags($this->input->post('description', true)), 0, 1000);
 
+            // Metadata
+            $meta_description = mb_substr(strip_tags($this->input->post('ta_meta_description', true)), 0, 255);
+            $meta_keywords = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
+
             // Стоиомсть курса
             $price = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
             $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
@@ -921,8 +925,9 @@ class Course extends CI_Controller
             {
                 $course_category = 'workout';
 
-                $course_id = $this->Course_model->setNewCourse($course_category, $name, $description, $price, $fc_price,
-                    $course_type, $count_weeks, $count_days, $count_rest, $this->user_id, $this->date);
+                $course_id = $this->Course_model->setNewCourse($course_category, $name, $description, $meta_description,
+                    $meta_keywords, $price, $fc_price, $course_type, $count_weeks, $count_days, $count_rest,
+                    $this->user_id, $this->date);
             }
 
             if (!empty($course_id) and is_numeric($course_id))
@@ -1137,6 +1142,10 @@ class Course extends CI_Controller
             // Описание
             $description = mb_substr(strip_tags($this->input->post('description', true)), 0, 1000);
 
+            // Metadata
+            $meta_description = mb_substr(strip_tags($this->input->post('ta_meta_description', true)), 0, 255);
+            $meta_keywords = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
+
             // Стоиомсть курса
             $price    = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
             $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
@@ -1277,12 +1286,15 @@ class Course extends CI_Controller
             $result_couches   = null;
 
             // Сохранение основных данных курса
-            if ($name != $course['name'] or $description != $course['description'] or $price != $course['price'] or $course_type != $course['type']
-                or $count_weeks != $course['count_weeks'] or $count_days != $course['count_days'] or $count_rest != $course['count_rest']
+            if ($name != $course['name'] or $description != $course['description'] or $price != $course['price']
+                or $course_type != $course['type'] or $meta_description != $course['meta_description']
+                or $meta_keywords != $course['meta_keywords'] or $count_weeks != $course['count_weeks']
+                or $count_days != $course['count_days'] or $count_rest != $course['count_rest']
                 or $course_image != ('.' . $course['image'])) {
 
-                $result_settings = $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description, $price, $fc_price,
-                    $course_type, $count_weeks, $count_days, $count_rest, $this->date);
+                $result_settings = $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description,
+                    $meta_description, $meta_keywords, $price, $fc_price, $course_type, $count_weeks, $count_days,
+                    $count_rest, $this->date);
             }
 
             // Сохранение данных рекуррентной цены
@@ -1317,13 +1329,13 @@ class Course extends CI_Controller
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 73, 60);
             }
-            elseif($result_settings === false or $result_schedule === false or $result_recurrent === false
+            /*elseif($result_settings === false or $result_schedule === false or $result_recurrent === false
                 or $result_couches === false)
             {
                 // Основные данные не сохранены
                 $this->session->set_tempdata('message', 130, 60);
                 log_message('debug', 'Не все данные курса сохранены. POST data: ' . print_r($this->input->post(), true));
-            }
+            }*/
 
             header('Location: /administration/course/'.$course_id);
         }
@@ -1424,8 +1436,15 @@ class Course extends CI_Controller
             $landing_style = in_array($this->input->post('s_land_type', true), $landing_list['landings_id'])
                 ? $this->input->post('s_land_type', true) : 1;
 
+            // Цвет фона блока
+            $color = $this->input->post('i_bg_color_block1', true);
+            $b1_bg_color = (!empty($color) and preg_match($regexp_color, $color)) ? $color : '';
+
+            // Прозрачность фонового изображения блока
+            $b1_bg_opacity = is_numeric($this->input->post('r_opacity_block1', true)) ? $this->input->post('r_opacity_block1', true) : 0;
+
             // Слайдер (max 7 images)
-            $slider_images = explode(';', $landing['full_slider_images']);
+            $slider_images = (!empty($landing['full_slider_images'])) ? explode(';', $landing['full_slider_images']) : array();
             $input_files   = $_FILES;
             if(is_uploaded_file($input_files['slider_files']['tmp_name'][0]))
             {
@@ -1482,12 +1501,10 @@ class Course extends CI_Controller
             }
             elseif ($this->input->post('cb_slider_block1', true))
             {
-                $slider_images = 'default';
                 // Удаление изображений
-                if(!empty($landing['full_slider_images']))
+                if(!empty($slider_images))
                 {
-                    $s_images = explode(';', $landing['full_slider_images']);
-                    foreach($s_images as $s_image)
+                    foreach($slider_images as $s_image)
                     {
                         if(is_file($s_image))
                         {
@@ -1496,13 +1513,20 @@ class Course extends CI_Controller
                     }
                     unset($s_image);
                 }
+                $slider_images = 'default';
             }
+            elseif(empty($slider_images) and !$this->input->post('cb_slider_block1', true))
+            {
+                $slider_images = 'not_default';
+            }
+
             $slider_images = (empty($slider_images)) ? 'default' : implode(';', $slider_images);
 
             // Заголовк страницы
             $main_title_bbcode = mb_substr(strip_tags($this->input->post('ta_main_title'), '<span><br/><b><i><p>'), 0, 255);
 
-            $up_res = $this->Course_model->setCourseLandingBlock1($course_id, $hide_block, $landing_style, $slider_images, $main_title_bbcode, $this->date);
+            $up_res = $this->Course_model->setCourseLandingBlock1($course_id, $hide_block, $landing_style,
+                $b1_bg_color, $b1_bg_opacity, $slider_images, $main_title_bbcode, $this->date);
 
             if ($up_res === true) {
                 // Изменения сохранены
@@ -1522,9 +1546,9 @@ class Course extends CI_Controller
 	        $hide_block = (!empty($this->input->post('cb_hide_block2', true))) ? 1 : 0;
 
             // Шапка фона
-            $b2_bg_top = (!empty($landing['block2']['bg_top_orig']) and $landing['block2']['bg_top_default'] === false)
+            $b2_bg_top = (!empty($landing['block2']['bg_top_orig']) and is_file($landing['block2']['bg_top_orig']))
                 ? $landing['block2']['bg_top_orig']
-                : 'default'; // Фон по умолчанию
+                : 'not_default';
             if (is_uploaded_file($_FILES['bg_top_file_block2']['tmp_name']))
             {
                 $image = parent::uploadImage('bg_top_file_block2', $_FILES['bg_top_file_block2']['type'], $img_path);
@@ -1555,20 +1579,11 @@ class Course extends CI_Controller
             }
 
             // Фон
-            $b2_bg = (!empty($landing['block2']['bg_orig']) and $landing['block2']['bg_default'] === false)
+            $b2_bg = (!empty($landing['block2']['bg_orig']) and is_file($landing['block2']['bg_orig']))
                 ? $landing['block2']['bg_orig']
-                : 'default'; // Фон по умолчанию
-            // Фон либо цвет, либо файл изображения
-            $color = $this->input->post('i_bg_color_block2', true);
-            if (!empty($color) and preg_match($regexp_color, $color))
-            {
-                if(is_file($b2_bg))
-                {
-                    unlink($b2_bg);
-                }
-                $b2_bg = $color;
-            }
-            elseif (is_uploaded_file($_FILES['bg_file_block2']['tmp_name']))
+                : 'not_default';
+            // Файл фона
+            if (is_uploaded_file($_FILES['bg_file_block2']['tmp_name']))
             {
                 $image = parent::uploadImage('bg_file_block2', $_FILES['bg_file_block2']['type'], $img_path);
                 $full_path_img = $img_path . $image;
@@ -1597,10 +1612,17 @@ class Course extends CI_Controller
                 $b2_bg = 'default';
             }
 
+            // Цвет фона блока
+            $color = $this->input->post('i_bg_color_block2', true);
+            $b2_bg_color = (!empty($color) and preg_match($regexp_color, $color)) ? $color : '';
+
+            // Прозрачность фонового изображения блока
+            $b2_bg_opacity = is_numeric($this->input->post('r_opacity_block2', true)) ? $this->input->post('r_opacity_block2', true) : 0;
+
             // Изображение тренера
-            $b2_image = (!empty($landing['block2']['image_orig']) and $landing['block2']['image_default'] === false)
+            $b2_image = (!empty($landing['block2']['image_orig']) and is_file($landing['block2']['image_orig']))
                 ? $landing['block2']['image_orig']
-                : 'default';
+                : 'not_default';
             if (is_uploaded_file($_FILES['couch_file_block2']['tmp_name']))
             {
                 $image = parent::uploadImage('couch_file_block2', $_FILES['couch_file_block2']['type'], $img_path);
@@ -1636,8 +1658,8 @@ class Course extends CI_Controller
             $b2_text     = mb_substr(strip_tags($this->input->post('i_text_block2', true)), 0, 60);
             $b2_button   = mb_substr(strip_tags($this->input->post('i_button_block2', true)), 0, 40);
 
-            $up_res = $this->Course_model->setCourseLandingBlock2($course_id, $hide_block, $b2_bg_top,
-	            $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button, $this->date);
+            $up_res = $this->Course_model->setCourseLandingBlock2($course_id, $hide_block, $b2_bg_top, $b2_bg_color,
+                $b2_bg_opacity, $b2_bg, $b2_image, $b2_title, $b2_subtitle, $b2_text, $b2_button, $this->date);
 
 
             if ($up_res === true) {
@@ -1657,20 +1679,11 @@ class Course extends CI_Controller
 	        $hide_block = (!empty($this->input->post('cb_hide_block3', true))) ? 1 : 0;
 
             // Фон
-            $b3_bg = (!empty($landing['block3']['bg_orig']) and $landing['block3']['bg_default'] === false)
+            $b3_bg = (!empty($landing['block3']['bg_orig']) and is_file($landing['block3']['bg_orig']))
                 ? $landing['block3']['bg_orig']
-                : 'default'; // Фон по умолчанию
-            // Фон либо цвет, либо файл изображения
-            $color = $this->input->post('i_bg_color_block3', true);
-            if (!empty($color) and preg_match($regexp_color, $color))
-            {
-                if(is_file($b3_bg))
-                {
-                    unlink($b3_bg);
-                }
-                $b3_bg = $color;
-            }
-            elseif (is_uploaded_file($_FILES['bg_file_block3']['tmp_name']))
+                : 'not_default';
+            // Файл фона
+            if (is_uploaded_file($_FILES['bg_file_block3']['tmp_name']))
             {
                 $image = parent::uploadImage('bg_file_block3', $_FILES['bg_file_block3']['type'], $img_path);
                 $full_path_img = $img_path . $image;
@@ -1699,9 +1712,17 @@ class Course extends CI_Controller
                 $b3_bg = 'default';
             }
 
-            $b3_images = (!empty($landing['block3']['images_orig'][0]) and $landing['block3']['images_default'][0] === false)
-                ? $landing['block3']['images_orig'][0] . ';'
-                : 'default;';
+            // Цвет фона блока
+            $color = $this->input->post('i_bg_color_block3', true);
+            $b3_bg_color = (!empty($color) and preg_match($regexp_color, $color)) ? $color : '';
+
+            // Прозрачность фонового изображения блока
+            $b3_bg_opacity = is_numeric($this->input->post('r_opacity_block3', true)) ? $this->input->post('r_opacity_block3', true) : 0;
+
+            // Изображение 1
+            $b3_image1 = (!empty($landing['block3']['image1_orig']) and is_file($landing['block3']['image1_orig']))
+                ? $landing['block3']['image1_orig']
+                : 'not_default';
             // Изображение 1
             if (is_uploaded_file($_FILES['result_file1_block3']['tmp_name']))
             {
@@ -1711,11 +1732,11 @@ class Course extends CI_Controller
                 {
                     if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
                     {
-                        if(is_file($landing['block3']['images_orig'][0]))
+                        if(is_file($b3_image1))
                         {
-                            unlink($landing['block3']['images_orig'][0]);
+                            unlink($b3_image1);
                         }
-                        $b3_images = $full_path_img . ';';
+                        $b3_image1 = $full_path_img;
                     }
                     else
                     {
@@ -1725,17 +1746,17 @@ class Course extends CI_Controller
             }
             elseif ($this->input->post('cb_photo1_block3', true))
             {
-                if(is_file($landing['block3']['images_orig'][0]))
+                if(is_file($b3_image1))
                 {
-                    unlink($landing['block3']['images_orig'][0]);
+                    unlink($b3_image1);
                 }
-                $b3_images = 'default;';
+                $b3_image1 = 'default';
             }
 
             // Изображение 2
-            $img1 = (!empty($landing['block3']['images_orig'][1]) and $landing['block3']['images_default'][1] === false)
-                ? $landing['block3']['images_orig'][1] . ';'
-                : 'default;';
+            $b3_image2 = (!empty($landing['block3']['image2_orig']) and is_file($landing['block3']['image2_orig']))
+                ? $landing['block3']['image2_orig']
+                : 'not_default';
             if (is_uploaded_file($_FILES['result_file2_block3']['tmp_name']))
             {
                 $image = parent::uploadImage('result_file2_block3', $_FILES['result_file2_block3']['type'], $img_path);
@@ -1744,48 +1765,44 @@ class Course extends CI_Controller
                 {
                     if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
                     {
-                        if(is_file($landing['block3']['images_orig'][1]))
+                        if(is_file($b3_image2))
                         {
-                            unlink($landing['block3']['images_orig'][1]);
+                            unlink($b3_image2);
                         }
-                        $full_path_img = $full_path_img . ';';
+                        $b3_image2 = $full_path_img;
                     }
                     else
                     {
                         unlink($full_path_img);
-                        $full_path_img = $img1;
                     }
                 }
-                else
-                {
-                    $full_path_img = $img1;
-                }
-                $b3_images .= $full_path_img;
             }
-            elseif (empty($this->input->post('cb_photo2_block3', true)))
+            elseif ($this->input->post('cb_photo2_block3', true))
             {
-                if(is_file($landing['block3']['images_orig'][1]))
+                if(is_file($b3_image2))
                 {
-                    unlink($landing['block3']['images_orig'][1]);
+                    unlink($b3_image2);
                 }
-                $b3_images .= 'default;';
-            }
-            else
-            {
-                $b3_images .= $img1;
+                $b3_image2 = 'default';
             }
 
             // Информация
-            $b3_title    = mb_substr(strip_tags($this->input->post('i_title_block3', true)), 0, 60);
-            $b3_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block3', true)), 0, 60);
+            //$b3_title    = mb_substr(strip_tags($this->input->post('i_title_block3', true)), 0, 60);
+            $b3_title = mb_substr(strip_tags($this->input->post('i_title_block3'), '<span><br/><b><i><p>'), 0, 255);
+
+            //$b3_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block3', true)), 0, 60);
+            $b3_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block3'), '<span><br/><b><i><p>'), 0, 255);
 
             // Результаты
-            $b3_r_title    = mb_substr(strip_tags($this->input->post('i_result_title_block3', true)), 0, 60);
-            $b3_r_subtitle = mb_substr(strip_tags($this->input->post('i_result_subtitle_block3', true)), 0, 60);
-            $b3_r_reviews  = mb_substr(strip_tags($this->input->post('i_result_reviews_block3', true)), 0, 80);
+            //$b3_r_title    = mb_substr(strip_tags($this->input->post('i_result_title_block3', true)), 0, 60);
+            $b3_r_title = mb_substr(strip_tags($this->input->post('i_result_title_block3'), '<span><br/><b><i><p>'), 0, 255);
+            //$b3_r_subtitle = mb_substr(strip_tags($this->input->post('i_result_subtitle_block3', true)), 0, 60);
+            $b3_r_subtitle = mb_substr(strip_tags($this->input->post('i_result_subtitle_block3'), '<span><br/><b><i><p>'), 0, 255);
+            //$b3_r_reviews  = mb_substr(strip_tags($this->input->post('i_result_reviews_block3', true)), 0, 80);
+            $b3_r_reviews = mb_substr(strip_tags($this->input->post('i_result_reviews_block3'), '<span><br/><b><i><p>'), 0, 255);
 
-            $up_res = $this->Course_model->setCourseLandingBlock3($course_id, $hide_block,
-                $b3_bg, $b3_images, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews, $this->date);
+            $up_res = $this->Course_model->setCourseLandingBlock3($course_id, $hide_block, $b3_bg_color, $b3_bg_opacity,
+                $b3_bg, $b3_image1, $b3_image2, $b3_title, $b3_subtitle, $b3_r_title, $b3_r_subtitle, $b3_r_reviews, $this->date);
 
             if ($up_res === true) {
                 // Изменения сохранены
@@ -1804,20 +1821,12 @@ class Course extends CI_Controller
 	        $hide_block = (!empty($this->input->post('cb_hide_block4', true))) ? 1 : 0;
 
             // Фон
-            $b4_bg = (!empty($landing['block4']['bg_orig']) and $landing['block4']['bg_default'] === false)
+            $b4_bg = (!empty($landing['block4']['bg_orig']) and is_file($landing['block4']['bg_orig']))
                 ? $landing['block4']['bg_orig']
-                : 'default'; // Фон по умолчанию
-            // Фон либо цвет, либо файл изображения
-            $color = $this->input->post('i_bg_color_block4', true);
-            if (!empty($color) and preg_match($regexp_color, $color))
-            {
-                if(is_file($b4_bg))
-                {
-                    unlink($b4_bg);
-                }
-                $b4_bg = $color;
-            }
-            elseif (is_uploaded_file($_FILES['bg_file_block4']['tmp_name']))
+                : 'not_default';
+
+            // Файл изображения
+            if (is_uploaded_file($_FILES['bg_file_block4']['tmp_name']))
             {
                 $image = parent::uploadImage('bg_file_block4', $_FILES['bg_file_block4']['type'], $img_path);
                 $full_path_img = $img_path . $image;
@@ -1846,10 +1855,17 @@ class Course extends CI_Controller
                 $b4_bg = 'default';
             }
 
+            // Цвет фона блока
+            $color = $this->input->post('i_bg_color_block4', true);
+            $b4_bg_color = (!empty($color) and preg_match($regexp_color, $color)) ? $color : '';
+
+            // Прозрачность фонового изображения блока
+            $b4_bg_opacity = is_numeric($this->input->post('r_opacity_block4', true)) ? $this->input->post('r_opacity_block4', true) : 0;
+
             // Изображение
-            $b4_image = (!empty($landing['block4']['image_orig']) and $landing['block4']['image_default'] === false)
+            $b4_image = (!empty($landing['block4']['image_orig']) and is_file($landing['block4']['image_orig']))
                 ? $landing['block4']['image_orig']
-                : 'default';
+                : 'not_default';
             if (is_uploaded_file($_FILES['result_file_block4']['tmp_name'])) {
                 $image = parent::uploadImage('result_file_block4', $_FILES['result_file_block4']['type'], $img_path);
                 $full_path_img = $img_path . $image;
@@ -1879,15 +1895,19 @@ class Course extends CI_Controller
             }
 
             // Информация
-            $b4_title    = mb_substr(strip_tags($this->input->post('i_title_block4', true)), 0, 60);
-            $b4_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block4', true)), 0, 80);
+            //$b4_title    = mb_substr(strip_tags($this->input->post('i_title_block4', true)), 0, 60);
+            $b4_title = mb_substr(strip_tags($this->input->post('i_title_block4'), '<span><br/><b><i><p>'), 0, 255);
+            //$b4_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block4', true)), 0, 80);
+            $b4_subtitle = mb_substr(strip_tags($this->input->post('i_subtitle_block4'), '<span><br/><b><i><p>'), 0, 255);
             $b4_button   = mb_substr(strip_tags($this->input->post('i_button_block4', true)), 0, 40);
 
             // Результат
-            $b4_r_title = mb_substr(strip_tags($this->input->post('i_result_title_block4', true)), 0, 60);
-            $b4_r_desc  = mb_substr(strip_tags($this->input->post('i_result_desc_block4', true)), 0, 60);
+            //$b4_r_title = mb_substr(strip_tags($this->input->post('i_result_title_block4', true)), 0, 60);
+            $b4_r_title = mb_substr(strip_tags($this->input->post('i_result_title_block4'), '<span><br/><b><i><p>'), 0, 255);
+            //$b4_r_desc  = mb_substr(strip_tags($this->input->post('i_result_desc_block4', true)), 0, 60);
+            $b4_r_desc = mb_substr(strip_tags($this->input->post('i_result_desc_block4'), '<span><br/><b><i><p>'), 0, 255);
 
-            $up_res = $this->Course_model->setCourseLandingBlock4($course_id, $hide_block,
+            $up_res = $this->Course_model->setCourseLandingBlock4($course_id, $hide_block, $b4_bg_color, $b4_bg_opacity,
                 $b4_bg, $b4_image, $b4_title, $b4_subtitle, $b4_r_title, $b4_r_desc, $b4_button, $this->date);
 
             if ($up_res === true) {
@@ -1907,20 +1927,12 @@ class Course extends CI_Controller
 	        $hide_block = (!empty($this->input->post('cb_hide_block5', true))) ? 1 : 0;
 
             // Фон
-            $b5_bg = (!empty($landing['block5']['bg_orig']) and $landing['block5']['bg_default'] === false)
+            $b5_bg = (!empty($landing['block5']['bg_orig']) and is_file($landing['block5']['bg_orig']))
                 ? $landing['block5']['bg_orig']
-                : 'default'; // Фон по умолчанию
-            // Фон либо цвет, либо файл изображения
-            $color = $this->input->post('i_bg_color_block5', true);
-            if (!empty($color) and preg_match($regexp_color, $color))
-            {
-                if(is_file($b5_bg))
-                {
-                    unlink($b5_bg);
-                }
-                $b5_bg = $color;
-            }
-            elseif (is_uploaded_file($_FILES['bg_file_block5']['tmp_name']))
+                : 'not_default'; // Фон по умолчанию
+
+            // Файл изображения
+            if (is_uploaded_file($_FILES['bg_file_block5']['tmp_name']))
             {
                 $image = parent::uploadImage('bg_file_block5', $_FILES['bg_file_block5']['type'], $img_path);
                 $full_path_img = $img_path . $image;
@@ -1949,10 +1961,17 @@ class Course extends CI_Controller
                 $b5_bg = 'default';
             }
 
-            $b5_images = (!empty($landing['block5']['images_orig'][0]) and $landing['block5']['images_default'][0] === false)
-                ? $landing['block5']['images_orig'][0] . ';'
-                : 'default;';
+            // Цвет фона блока
+            $color = $this->input->post('i_bg_color_block5', true);
+            $b5_bg_color = (!empty($color) and preg_match($regexp_color, $color)) ? $color : '';
+
+            // Прозрачность фонового изображения блока
+            $b5_bg_opacity = is_numeric($this->input->post('r_opacity_block5', true)) ? $this->input->post('r_opacity_block5', true) : 0;
+
             // Боковое фото 1
+            $b5_image1 = (!empty($landing['block5']['image1_orig']) and is_file($landing['block5']['image1_orig']))
+                ? $landing['block5']['image1_orig']
+                : 'not_default';
             if (is_uploaded_file($_FILES['couch_file1_block5']['tmp_name']))
             {
                 $image = parent::uploadImage('couch_file1_block5', $_FILES['couch_file1_block5']['type'], $img_path);
@@ -1961,11 +1980,11 @@ class Course extends CI_Controller
                 {
                     if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
                     {
-                        if(is_file($landing['block5']['images_orig'][0]))
+                        if(is_file($b5_image1))
                         {
-                            unlink($landing['block5']['images_orig'][0]);
+                            unlink($b5_image1);
                         }
-                        $b5_images = $full_path_img . ';';
+                        $b5_image1 = $full_path_img;
                     }
                     else
                     {
@@ -1975,17 +1994,17 @@ class Course extends CI_Controller
             }
             elseif ($this->input->post('cb_photo1_block5', true))
             {
-                if(is_file($landing['block5']['images_orig'][0]))
+                if(is_file($b5_image1))
                 {
-                    unlink($landing['block5']['images_orig'][0]);
+                    unlink($b5_image1);
                 }
-                $b5_images = 'default;';
+                $b5_image1 = 'default';
             }
 
             // Боковое фото 2
-            $img1 = (!empty($landing['block5']['images_orig'][1]) and $landing['block5']['images_default'][1] === false)
-                ? $landing['block5']['images_orig'][1] . ';'
-                : 'default;';
+            $b5_image2 = (!empty($landing['block5']['image2_orig']) and is_file($landing['block5']['image2_orig']))
+                ? $landing['block5']['image2_orig']
+                : 'not_default';
             if (is_uploaded_file($_FILES['couch_file2_block5']['tmp_name']))
             {
                 $image = parent::uploadImage('couch_file2_block5', $_FILES['couch_file2_block5']['type'], $img_path);
@@ -1994,41 +2013,31 @@ class Course extends CI_Controller
                 {
                     if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
                     {
-                        if(is_file($landing['block5']['images_orig'][1]))
+                        if(is_file($b5_image2))
                         {
-                            unlink($landing['block5']['images_orig'][1]);
+                            unlink($b5_image2);
                         }
-                        $full_path_img = $full_path_img . ';';
+                        $b5_image2 = $full_path_img;
                     }
                     else
                     {
                         unlink($full_path_img);
-                        $full_path_img = $img1;
                     }
                 }
-                else
-                {
-                    $full_path_img = $img1;
-                }
-                $b5_images .= $full_path_img;
             }
             elseif ($this->input->post('cb_photo2_block5', true))
             {
-                if(is_file($landing['block5']['images_orig'][1]))
+                if($b5_image2)
                 {
-                    unlink($landing['block5']['images_orig'][1]);
+                    unlink($b5_image2);
                 }
-                $b5_images .= 'default;';
-            }
-            else
-            {
-                $b5_images .= $img1;
+                $b5_image2 = 'default';
             }
 
             // Аватар
-            $img2 = (!empty($landing['block5']['images_orig'][2]) and $landing['block5']['images_default'][2] === false)
-                ? $landing['block5']['images_orig'][2] . ';'
-                : 'default;';
+            $b5_image3 = (!empty($landing['block5']['image3_orig']) and is_file($landing['block5']['image3_orig']))
+                ? $landing['block5']['image3_orig']
+                : 'not_default';
             if (is_uploaded_file($_FILES['couch_avatar_block5']['tmp_name']))
             {
                 $image = parent::uploadImage('couch_avatar_block5', $_FILES['couch_avatar_block5']['type'], $img_path);
@@ -2037,35 +2046,25 @@ class Course extends CI_Controller
                 {
                     if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
                     {
-                        if(is_file($landing['block5']['images_orig'][2]))
+                        if(is_file($b5_image3))
                         {
-                            unlink($landing['block5']['images_orig'][2]);
+                            unlink($b5_image3);
                         }
-                        $full_path_img = $full_path_img . ';';
+                        $b5_image3 = $full_path_img;
                     }
                     else
                     {
                         unlink($full_path_img);
-                        $full_path_img = $img2;
                     }
                 }
-                else
-                {
-                    $full_path_img = $img2;
-                }
-                $b5_images .= $full_path_img;
             }
             elseif ($this->input->post('cb_photo3_block5', true))
             {
-                if(is_file($landing['block5']['images_orig'][2]))
+                if(is_file($b5_image3))
                 {
-                    unlink($landing['block5']['images_orig'][2]);
+                    unlink($b5_image3);
                 }
-                $b5_images .= 'default;';
-            }
-            else
-            {
-                $b5_images .= $img2;
+                $b5_image3 = 'default';
             }
 
             // Информация
@@ -2079,9 +2078,9 @@ class Course extends CI_Controller
             $b5_r_subtitle = mb_substr(strip_tags($this->input->post('i_couch_subtitle_block5', true)), 0, 50);
             $b5_r_text     = mb_substr(strip_tags($this->input->post('i_couch_text_block5', true)), 0, 120);
 
-            $up_res = $this->Course_model->setCourseLandingBlock5($course_id, $hide_block,
-                $b5_bg, $b5_images, $b5_title, $b5_subtitle, $b5_text, $b5_r_title, $b5_r_subtitle, $b5_r_text, $b5_button,
-                $this->date);
+            $up_res = $this->Course_model->setCourseLandingBlock5($course_id, $hide_block, $b5_bg_color, $b5_bg_opacity,
+                $b5_bg, $b5_image1, $b5_image2, $b5_image3, $b5_title, $b5_subtitle, $b5_text, $b5_r_title, $b5_r_subtitle,
+                $b5_r_text, $b5_button, $this->date);
 
             if ($up_res === true) {
                 // Изменения сохранены
@@ -2100,20 +2099,11 @@ class Course extends CI_Controller
 	        $hide_block = (!empty($this->input->post('cb_hide_block6', true))) ? 1 : 0;
 
             // Фон
-            $b6_bg = (!empty($landing['block6']['bg_orig']) and $landing['block6']['bg_default'] === false)
+            $b6_bg = (!empty($landing['block6']['bg_orig']) and is_file($landing['block6']['bg_orig']))
                 ? $landing['block6']['bg_orig']
-                : 'default'; // Фон по умолчанию
-            // Фон либо цвет, либо файл изображения
-            $color = $this->input->post('i_bg_color_block6', true);
-            if (!empty($color) and preg_match($regexp_color, $color))
-            {
-                if(is_file($b6_bg))
-                {
-                    unlink($b6_bg);
-                }
-                $b6_bg = $color;
-            }
-            elseif (is_uploaded_file($_FILES['bg_file_block6']['tmp_name']))
+                : 'not_default';
+            // Файл изображения
+            if (is_uploaded_file($_FILES['bg_file_block6']['tmp_name']))
             {
                 $image = parent::uploadImage('bg_file_block6', $_FILES['bg_file_block6']['type'], $img_path);
                 $full_path_img = $img_path . $image;
@@ -2142,10 +2132,17 @@ class Course extends CI_Controller
                 $b6_bg = 'default';
             }
 
+            // Цвет фона блока
+            $color = $this->input->post('i_bg_color_block6', true);
+            $b6_bg_color = (!empty($color) and preg_match($regexp_color, $color)) ? $color : '';
+
+            // Прозрачность фонового изображения блока
+            $b6_bg_opacity = is_numeric($this->input->post('r_opacity_block6', true)) ? $this->input->post('r_opacity_block6', true) : 0;
+
             // Боковое фото
-            $b6_image = (!empty($landing['block6']['image_orig']) and $landing['block6']['image_default'] === false)
+            $b6_image = (!empty($landing['block6']['image_orig']) and is_file($landing['block6']['image_orig']))
                 ? $landing['block6']['image_orig']
-                : 'default';
+                : 'not_default';
             if (is_uploaded_file($_FILES['file_block6']['tmp_name']))
             {
                 $image = parent::uploadImage('file_block6', $_FILES['file_block6']['type'], $img_path);
@@ -2189,7 +2186,7 @@ class Course extends CI_Controller
             }
             unset($advantage);
 
-            $up_res = $this->Course_model->setCourseLandingBlock6($course_id, $hide_block,
+            $up_res = $this->Course_model->setCourseLandingBlock6($course_id, $hide_block, $b6_bg_color, $b6_bg_opacity,
                 $b6_bg, $b6_image, $b6_title, $b6_desc, $b6_subtitle, $b6_advantages, $b6_button, $this->date);
 
             if ($up_res === true) {
@@ -2209,20 +2206,12 @@ class Course extends CI_Controller
 	        $hide_block = (!empty($this->input->post('cb_hide_block7', true))) ? 1 : 0;
 
             // Фон
-            $b7_bg = (!empty($landing['block7']['bg_orig']) and $landing['block7']['bg_default'] === false)
+            $b7_bg = (!empty($landing['block7']['bg_orig']) and is_file($landing['block7']['bg_orig']))
                 ? $landing['block7']['bg_orig']
-                : 'default'; // Фон по умолчанию
-            // Фон либо цвет, либо файл изображения
-            $color = $this->input->post('i_bg_color_block7', true);
-            if (!empty($color) and preg_match($regexp_color, $color))
-            {
-                if(is_file($b7_bg))
-                {
-                    unlink($b7_bg);
-                }
-                $b7_bg = $color;
-            }
-            elseif (is_uploaded_file($_FILES['bg_file_block7']['tmp_name']))
+                : 'not_default';
+
+            // Файл изображения
+            if (is_uploaded_file($_FILES['bg_file_block7']['tmp_name']))
             {
                 $image = parent::uploadImage('bg_file_block7', $_FILES['bg_file_block7']['type'], $img_path);
                 $full_path_img = $img_path . $image;
@@ -2251,84 +2240,162 @@ class Course extends CI_Controller
                 $b7_bg = 'default';
             }
 
+            // Цвет фона блока
+            $color = $this->input->post('i_bg_color_block7', true);
+            $b7_bg_color = (!empty($color) and preg_match($regexp_color, $color)) ? $color : '';
+
+            // Прозрачность фонового изображения блока
+            $b7_bg_opacity = is_numeric($this->input->post('r_opacity_block7', true)) ? $this->input->post('r_opacity_block7', true) : 0;
+
             // Информация
             $b7_title  = mb_substr(strip_tags($this->input->post('i_title_block7', true)), 0, 50);
             $b7_button = mb_substr(strip_tags($this->input->post('i_button_block7', true)), 0, 40);
 
-            // Изображения и текст блока
-            $b7_images = '';
-            $b7_texts = '';
+            // Изображение 1
+            $b7_image1 = (!empty($landing['block7']['image1_orig']) and is_file($landing['block7']['image1_orig']))
+                ? $landing['block7']['image1_orig']
+                : 'not_default';
+            if (is_uploaded_file($_FILES['file1_block7']['tmp_name']))
+            {
+                $image = parent::uploadImage('file1_block7', $_FILES['file1_block7']['type'], $img_path);
+                $full_path_img = $img_path . $image;
+                if (file_exists($full_path_img))
+                {
+                    if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                    {
+                        if(is_file($b7_image1))
+                        {
+                            unlink($b7_image1);
+                        }
+                        $b7_image1 = $full_path_img;
+                    }
+                    else
+                    {
+                        unlink($full_path_img);
+                    }
+                }
+            }
+            elseif ($this->input->post('cb_image1_block7', true))
+            {
+                if(is_file($b7_image1))
+                {
+                    unlink($b7_image1);
+                }
+                $b7_image1 = 'default';
+            }
 
-            $input_files  = $_FILES['files_block7'];
+            // Изображение 2
+            $b7_image2 = (!empty($landing['block7']['image2_orig']) and is_file($landing['block7']['image2_orig']))
+                ? $landing['block7']['image2_orig']
+                : 'not_default';
+            if (is_uploaded_file($_FILES['file2_block7']['tmp_name']))
+            {
+                $image = parent::uploadImage('file2_block7', $_FILES['file2_block7']['type'], $img_path);
+                $full_path_img = $img_path . $image;
+                if (file_exists($full_path_img))
+                {
+                    if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                    {
+                        if(is_file($b7_image2))
+                        {
+                            unlink($b7_image2);
+                        }
+                        $b7_image2 = $full_path_img;
+                    }
+                    else
+                    {
+                        unlink($full_path_img);
+                    }
+                }
+            }
+            elseif ($this->input->post('cb_image2_block7', true))
+            {
+                if(is_file($b7_image2))
+                {
+                    unlink($b7_image2);
+                }
+                $b7_image2 = 'default';
+            }
+
+            // Изображение 3
+            $b7_image3 = (!empty($landing['block7']['image3_orig']) and is_file($landing['block7']['image3_orig']))
+                ? $landing['block7']['image3_orig']
+                : 'not_default';
+            if (is_uploaded_file($_FILES['file3_block7']['tmp_name']))
+            {
+                $image = parent::uploadImage('file3_block7', $_FILES['file3_block7']['type'], $img_path);
+                $full_path_img = $img_path . $image;
+                if (file_exists($full_path_img))
+                {
+                    if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                    {
+                        if(is_file($b7_image3))
+                        {
+                            unlink($b7_image3);
+                        }
+                        $b7_image3 = $full_path_img;
+                    }
+                    else
+                    {
+                        unlink($full_path_img);
+                    }
+                }
+            }
+            elseif ($this->input->post('cb_image3_block7', true))
+            {
+                if(is_file($b7_image3))
+                {
+                    unlink($b7_image3);
+                }
+                $b7_image3 = 'default';
+            }
+
+            // Изображение 4
+            $b7_image4 = (!empty($landing['block7']['image4_orig']) and is_file($landing['block7']['image4_orig']))
+                ? $landing['block7']['image4_orig']
+                : 'not_default';
+            if (is_uploaded_file($_FILES['file4_block7']['tmp_name']))
+            {
+                $image = parent::uploadImage('file4_block7', $_FILES['file4_block7']['type'], $img_path);
+                $full_path_img = $img_path . $image;
+                if (file_exists($full_path_img))
+                {
+                    if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                    {
+                        if(is_file($b7_image4))
+                        {
+                            unlink($b7_image4);
+                        }
+                        $b7_image4 = $full_path_img;
+                    }
+                    else
+                    {
+                        unlink($full_path_img);
+                    }
+                }
+            }
+            elseif ($this->input->post('cb_image4_block7', true))
+            {
+                if(is_file($b7_image4))
+                {
+                    unlink($b7_image4);
+                }
+                $b7_image4 = 'default';
+            }
+
+            // Тексты планов
+            $b7_texts     = '';
             $input_texts  = $this->input->post('i_text_block7', TRUE);
-            $input_cb_def = $this->input->post('cb_images_block7', TRUE);
-
-            $i = 0;
             foreach ($input_texts as $text)
             {
                 $text = mb_substr(strip_tags($text), 0, 160);
 
-                $img = (!empty($landing['block7']['images_orig'][$i]) and $landing['block7']['images_default'][$i] === false)
-                    ? $landing['block7']['images_orig'][$i] . ';'
-                    : 'default;';
-
-                $_FILES['files_block7'] = array(
-                    'name' => $input_files['name'][$i],
-                    'type' => $input_files['type'][$i],
-                    'tmp_name' => $input_files['tmp_name'][$i],
-                    'error' => $input_files['error'][$i],
-                    'size' => $input_files['size'][$i]);
-
-                if(is_uploaded_file($_FILES['files_block7']['tmp_name']))
-                {
-                    $image = parent::uploadImage('files_block7', $_FILES['files_block7']['type'], $img_path);
-                    $full_path_img = $img_path . $image;
-                    if (is_file($full_path_img))
-                    {
-                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
-                        {
-                            if(is_file($landing['block7']['images_orig'][$i]))
-                            {
-                                unlink($landing['block7']['images_orig'][$i]);
-                            }
-                            $b7_image = $full_path_img . ';';
-                        }
-                        else
-                        {
-                            unlink($full_path_img);
-                            $b7_image = $img;
-                        }
-                    }
-                    else
-                    {
-                        $b7_image = $img;
-                    }
-
-                    $b7_images .= $b7_image;
-                    $b7_texts  .= $text . ';';
-
-                }
-                elseif ($input_cb_def[$i] and $i <= 3)
-                {
-                    if(is_file($landing['block7']['images_orig'][$i]))
-                    {
-                        unlink($landing['block7']['images_orig'][$i]);
-                    }
-                    $b7_images .= 'default;';
-                    $b7_texts  .= $text . ';';
-                }
-                else
-                {
-                    $b7_images .= $img;
-                    $b7_texts  .= $text . ';';
-                }
-
-                $i++;
+                $b7_texts  .= $text . ';';
             }
             unset($text);
 
-            $up_res = $this->Course_model->setCourseLandingBlock7($course_id, $hide_block, $b7_bg, $b7_title,
-	            $b7_images, $b7_texts, $b7_button, $this->date);
+            $up_res = $this->Course_model->setCourseLandingBlock7($course_id, $hide_block, $b7_bg_color, $b7_bg_opacity,
+                $b7_bg, $b7_title, $b7_image1, $b7_image2, $b7_image3, $b7_image4, $b7_texts, $b7_button, $this->date);
 
             if ($up_res === true) {
                 // Изменения сохранены
@@ -2347,42 +2414,45 @@ class Course extends CI_Controller
 	        $hide_block = (!empty($this->input->post('cb_hide_block8', true))) ? 1 : 0;
 
             // Фон
-            $b8_bg = (!empty($landing['block8']['bg_orig']) and $landing['block8']['bg_default'] === false)
+            $b8_bg = (!empty($landing['block8']['bg_orig']) and is_file($landing['block8']['bg_orig']))
                 ? $landing['block8']['bg_orig']
-                : 'default'; // Фон по умолчанию
-            if (empty($this->input->post('cb_default_bg_block8', true)))
+                : 'not_default';
+            // Файл изображения
+            if (is_uploaded_file($_FILES['bg_file_block8']['tmp_name']))
             {
-                // Фон либо цвет, либо файл изображения
-                $color = $this->input->post('i_bg_color_block8', true);
-                if (!empty($color) and preg_match($regexp_color, $color))
+                $image = parent::uploadImage('bg_file_block8', $_FILES['bg_file_block8']['type'], $img_path);
+                $full_path_img = $img_path . $image;
+                if(file_exists($full_path_img))
                 {
-	                if(is_file($b8_bg))
-	                {
-		                unlink($b8_bg);
-	                }
-                    $b8_bg = $color;
-                }
-                elseif (is_uploaded_file($_FILES['bg_file_block8']['tmp_name']))
-                {
-                    $image = parent::uploadImage('bg_file_block8', $_FILES['bg_file_block8']['type'], $img_path);
-                    $full_path_img = $img_path . $image;
-                    if(file_exists($full_path_img))
+                    if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
                     {
-                        if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE)
+                        if(is_file($b8_bg))
                         {
-	                        if(is_file($b8_bg))
-	                        {
-		                        unlink($b8_bg);
-	                        }
-                            $b8_bg = $full_path_img;
+                            unlink($b8_bg);
                         }
-                        else
-                        {
-                            unlink($full_path_img);
-                        }
+                        $b8_bg = $full_path_img;
+                    }
+                    else
+                    {
+                        unlink($full_path_img);
                     }
                 }
             }
+            elseif ($this->input->post('cb_default_bg_block8', true))
+            {
+                if(is_file($b8_bg))
+                {
+                    unlink($b8_bg);
+                }
+                $b8_bg = 'default';
+            }
+
+            // Цвет фона блока
+            $color = $this->input->post('i_bg_color_block8', true);
+            $b8_bg_color = (!empty($color) and preg_match($regexp_color, $color)) ? $color : '';
+
+            // Прозрачность фонового изображения блока
+            $b8_bg_opacity = is_numeric($this->input->post('r_opacity_block8', true)) ? $this->input->post('r_opacity_block8', true) : 0;
 
             // Информация
             $b8_title    = mb_substr(strip_tags($this->input->post('i_title_block8', true)), 0, 60);
@@ -2395,7 +2465,7 @@ class Course extends CI_Controller
             $b8_old_price = is_numeric($this->input->post('i_old_price_block8', true)) ? $this->input->post('i_old_price_block8', true) : '';
             $b8_new_price = is_numeric($this->input->post('i_new_price_block8', true)) ? $this->input->post('i_new_price_block8', true) : '';
 
-            $up_res = $this->Course_model->setCourseLandingBlock8($course_id, $hide_block,
+            $up_res = $this->Course_model->setCourseLandingBlock8($course_id, $hide_block, $b8_bg_color, $b8_bg_opacity,
                 $b8_bg, $b8_title, $b8_desc1, $b8_subtitle, $b8_desc2, $b8_old_price, $b8_new_price, $b8_button, $this->date);
 
             if ($up_res === true) {
@@ -2410,30 +2480,29 @@ class Course extends CI_Controller
         }
         elseif ($this->input->post('bt_delete_landing_img', true))
         {
-            foreach($this->input->post('bt_delete_landing_img', true) as $img_block_id => $bt)
+            $img_types = array('background', 'background_top', 'image', 'slider');
+
+            $bt = $this->input->post('bt_delete_landing_img', true);
+            reset($bt);
+            $img_block_id = (is_numeric(key($bt))) ? key($bt) : null;
+            reset($bt[$img_block_id]);
+            $img_type_id = (is_numeric(key($bt[$img_block_id]))) ? key($bt[$img_block_id]) : null;
+            $img_type = (array_key_exists($img_type_id, $img_types)) ? $img_types[$img_type_id] : null;
+            reset($bt[$img_block_id][$img_type_id]);
+            $img_id = (is_numeric(key($bt[$img_block_id][$img_type_id]))) ? '_'.key($bt[$img_block_id][$img_type_id]) : null;
+            $img_path = (!empty($this->input->post('img_path_'.$img_block_id.'_'.$img_type_id.$img_id, true)))
+                ? '.'.$this->input->post('img_path_'.$img_block_id.'_'.$img_type_id.$img_id, true) : null;
+
+            // Удаление изображения и сохранение данных в БД
+            if(is_file($img_path) and !empty($img_type))
             {
-                if(is_numeric($img_block_id) and is_numeric(key($bt)))
+                $res_del = unlink($img_path);
+
+                if($res_del === true)
                 {
-	                $img_types = array('background', 'images', 'image', 'slider');
-
-	                $img_id   = key($bt);
-                    $img_path = '.'.$this->input->post('img_path_'.$img_block_id.'_'.$img_id, true);
-                    $img_type = $this->input->post('img_path_'.$img_block_id.'_'.$img_id.'_type', true);
-                    $img_type = (in_array($img_type, $img_types)) ? $img_type : null;
-
-                    if(is_file($img_path) and !empty($img_type))
-                    {
-                        // Удаление файлов изображений landing страницы курса из папки хранения
-                        $res_del = unlink($img_path);
-
-                        if($res_del === true)
-                        {
-                            $del_img = $this->Course_model->deleteLandingImage($course_id, $img_block_id, $img_type, $img_path);
-                        }
-                    }
+                    $del_img = $this->Course_model->deleteLandingImage($course_id, $img_block_id, $img_type, $img_id, $img_path);
                 }
             }
-            unset($bt);
 
             if (!empty($del_img) and $del_img === true)
             {
@@ -2514,6 +2583,8 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']       = (!empty($course['course']['name'])) ? $course['course']['name'] : 'Курс №' . $course_id;
+        $this->page_data['description'] = $course['course']['meta_description'];
+        $this->page_data['keywords']    = $course['course']['meta_keywords'];
         $this->page_data['page_menu']   = 'courses';
         $this->page_data['course_id']   = $course_id;
         $this->page_data['purchase_up'] = ($this->input->get('ref', true)) ? true : false;
@@ -5893,45 +5964,30 @@ class Course extends CI_Controller
         {
             $path = ($course_type == 'workout') ? 'course' : 'nutrition';
 
-            $category = ($this->input->post('s_category', true) == 'extend') ? 'extend' : 'course';
-            $name     = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
-            $desc     = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
-            $discount = (is_numeric($this->input->post('i_code_discount', true))) ? $this->input->post('i_code_discount', true) : null;
+            $category      = $this->input->post('s_category', true);
+            $name          = $this->input->post('i_code_name', true);
+            $desc          = $this->input->post('i_code_desc', true);
+            $discount      = $this->input->post('i_code_discount', true);
+            $validity_type = $this->input->post('s_pv_type', true);
+            $date_start    = $this->input->post('i_validity_date_start', true);
+            $date_end      = $this->input->post('i_validity_date_end', true);
+            $use_type      = $this->input->post('s_ua_type', true);
+            $ua_number     = $this->input->post('i_ua_number', true);
+            $promocode     = $this->input->post('i_promocode', true);
 
-            $validity_type = ($this->input->post('s_pv_type', true) == 'unlimited') ? 'unlimited' : 'date_range';
-            $tmp_ds        = new DateTime($this->input->post('i_validity_date_start', true));
-            $tmp_de        = new DateTime($this->input->post('i_validity_date_end', true));
-            $pv_date_start = ($tmp_ds !== false and $validity_type == 'date_range') ? $tmp_ds->format('Y-m-d') : '';
-            $pv_date_end   = ($tmp_de !== false and $validity_type == 'date_range') ? $tmp_de->format('Y-m-d') : '';
+            $res_ins = self::saveNewCoursePromocode($course_id, $category, $name, $desc, $discount, $validity_type,
+                $date_start, $date_end, $use_type, $ua_number, $promocode);
 
-            $use_type  = ($this->input->post('s_ua_type', true) == 'unlimited') ? 'unlimited' : 'number';
-            $ua_number = (is_numeric($this->input->post('i_ua_number', true)) and $use_type == 'number')
-                ? $this->input->post('i_ua_number', true) : '';
-
-            $promocode = strtoupper(mb_substr(strip_tags($this->input->post('i_promocode', true)), 0, 25));
-
-            if(!empty($discount) and !empty($promocode))
+            if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
             {
-                $res_ins = $this->Course_model->setNewPromocode($course_id, $category, $name, $desc, $discount, $validity_type,
-                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $promocode, $this->user_id, $this->date);
-
-                if (is_numeric($res_ins))
-                {
-                    // Изменения сохранены
-                    $this->session->set_tempdata('message', 10, 60);
-                    header('Location: /administration/' . $path . '/' . $course_id . '/promocode/' . $res_ins);
-                }
-                else
-                {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 145, 60);
-                    header('Location: /administration/' . $path . '/' . $course_id . '/promocode/new');
-                }
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+                header('Location: /administration/' . $path . '/' . $course_id . '/promocode/' . $res_ins['promocode_id']);
             }
             else
             {
                 // Изменения не сохранены
-                $this->session->set_tempdata('message', 146, 60);
+                $this->session->set_tempdata('message', $res_ins['error'], 60);
                 header('Location: /administration/' . $path . '/' . $course_id . '/promocode/new');
             }
         }
@@ -6013,6 +6069,7 @@ class Course extends CI_Controller
                     $this->session->set_tempdata('message', 145, 60);
                 }
             }
+
             header('Location: /administration/' . $path . '/' . $course_id . '/promocode/' . $promocode_id);
         }
         elseif($this->input->post('bt_block_promocode', true))
@@ -6071,6 +6128,66 @@ class Course extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /**
+     * Сохранение нового промокода
+     *
+     * @param $course_id
+     * @param $s_category
+     * @param $i_code_name
+     * @param $i_code_desc
+     * @param $i_code_discount
+     * @param $s_pv_type
+     * @param $i_validity_date_start
+     * @param $i_validity_date_end
+     * @param $s_ua_type
+     * @param $i_ua_number
+     * @param $i_promocode
+     * @return array
+     */
+    protected function saveNewCoursePromocode($course_id, $s_category, $i_code_name, $i_code_desc, $i_code_discount,
+                                           $s_pv_type, $i_validity_date_start, $i_validity_date_end, $s_ua_type,
+                                           $i_ua_number, $i_promocode)
+    {
+        $result = array('error' => false, 'promocode_id' => null);
+
+        $category = ($s_category == 'extend') ? 'extend' : 'course';
+        $name     = mb_substr(strip_tags($i_code_name), 0, 255);
+        $desc     = mb_substr(strip_tags($i_code_desc), 0, 255);
+        $discount = (is_numeric($i_code_discount)) ? $i_code_discount : null;
+
+        $validity_type = ($s_pv_type == 'unlimited') ? 'unlimited' : 'date_range';
+        $tmp_ds        = new DateTime($i_validity_date_start);
+        $tmp_de        = new DateTime($i_validity_date_end);
+        $pv_date_start = ($tmp_ds !== false and $validity_type == 'date_range') ? $tmp_ds->format('Y-m-d') : '';
+        $pv_date_end   = ($tmp_de !== false and $validity_type == 'date_range') ? $tmp_de->format('Y-m-d') : '';
+
+        $use_type  = ($s_ua_type == 'unlimited') ? 'unlimited' : 'number';
+        $ua_number = (is_numeric($i_ua_number) and $use_type == 'number') ? $i_ua_number : '';
+
+        $promocode = strtoupper(mb_substr(strip_tags($i_promocode), 0, 25));
+
+        if(!empty($discount) and !empty($promocode))
+        {
+            $res_ins = $this->Course_model->setNewPromocode($course_id, $category, $name, $desc, $discount, $validity_type,
+                $pv_date_start, $pv_date_end, $use_type, $ua_number, $promocode, $this->user_id, $this->date);
+
+            if (is_numeric($res_ins))
+            {
+                $result['promocode_id'] = $res_ins;
+            }
+            else
+            {
+                $result['error'] = 145;
+            }
+        }
+        else
+        {
+            $result['error'] = 146;
+        }
+
+        return $result;
+    }
+
 
     /* БЛОК ФУНКЦИЙ КУРСОВ ПРОДЛЕНИЯ */
 
@@ -6110,9 +6227,36 @@ class Course extends CI_Controller
 
         if($this->input->post('bt_save_new_extend', true))
         {
-            $extend_crs_id = is_numeric($this->input->post('s_extend_course', true)) ? $this->input->post('s_extend_course', true) : null;
-            $promocode_id  = is_numeric($this->input->post('s_promocode', true)) ? $this->input->post('s_promocode', true) : 0;
-            $weeks_after   = is_numeric($this->input->post('i_weeks_after', true)) ? $this->input->post('i_weeks_after', true) : null;
+            $extend_crs_id = (is_numeric($this->input->post('s_extend_course', true))) ? $this->input->post('s_extend_course', true) : null;
+            $weeks_after   = (is_numeric($this->input->post('i_weeks_after', true))) ? $this->input->post('i_weeks_after', true) : null;
+            $promocode_id  = 0;
+
+            $s_promocode = $this->input->post('s_promocode', true);
+            if($s_promocode > 0)
+            {
+                $promocode_id  = $s_promocode;
+            }
+            elseif($s_promocode == 'new')
+            {
+                $category      = 'extend';
+                $name          = $this->input->post('i_code_name', true);
+                $desc          = $this->input->post('i_code_desc', true);
+                $discount      = $this->input->post('i_code_discount', true);
+                $validity_type = $this->input->post('s_pv_type', true);
+                $date_start    = $this->input->post('i_validity_date_start', true);
+                $date_end      = $this->input->post('i_validity_date_end', true);
+                $use_type      = $this->input->post('s_ua_type', true);
+                $ua_number     = $this->input->post('i_ua_number', true);
+                $promocode     = $this->input->post('i_promocode', true);
+
+                $res_ins = self::saveNewCoursePromocode($course_id, $category, $name, $desc, $discount, $validity_type,
+                    $date_start, $date_end, $use_type, $ua_number, $promocode);
+
+                if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
+                {
+                    $promocode_id = $res_ins['promocode_id'];
+                }
+            }
 
             if(is_numeric($course_id) and !empty($extend_crs_id) and !empty($weeks_after))
             {
@@ -6172,8 +6316,35 @@ class Course extends CI_Controller
         {
             $db_data = $extend['extend'];
 
-            $promocode_id  = is_numeric($this->input->post('s_promocode', true)) ? $this->input->post('s_promocode', true) : $db_data['promocode_id'];
             $weeks_after   = is_numeric($this->input->post('i_weeks_after', true)) ? $this->input->post('i_weeks_after', true) : $db_data['weeks_after'];
+            $promocode_id  = $db_data['promocode_id'];
+
+            $s_promocode = $this->input->post('s_promocode', true);
+            if($s_promocode > 0)
+            {
+                $promocode_id  = $s_promocode;
+            }
+            elseif($s_promocode == 'new')
+            {
+                $category      = 'extend';
+                $name          = $this->input->post('i_code_name', true);
+                $desc          = $this->input->post('i_code_desc', true);
+                $discount      = $this->input->post('i_code_discount', true);
+                $validity_type = $this->input->post('s_pv_type', true);
+                $date_start    = $this->input->post('i_validity_date_start', true);
+                $date_end      = $this->input->post('i_validity_date_end', true);
+                $use_type      = $this->input->post('s_ua_type', true);
+                $ua_number     = $this->input->post('i_ua_number', true);
+                $promocode     = $this->input->post('i_promocode', true);
+
+                $res_ins = self::saveNewCoursePromocode($course_id, $category, $name, $desc, $discount, $validity_type,
+                    $date_start, $date_end, $use_type, $ua_number, $promocode);
+
+                if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
+                {
+                    $promocode_id = $res_ins['promocode_id'];
+                }
+            }
 
             if(is_numeric($course_id) and is_numeric($extend_id) and (($promocode_id != $db_data['promocode_id'])
                 or (!empty($weeks_after) and $weeks_after != $db_data['weeks_after'])))
@@ -6385,7 +6556,9 @@ class Course extends CI_Controller
         $result = array_merge($courses, $gallery, $reviews);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Курсы';
+        $this->page_data['title']       = $this->page_data['metadata'][5]['title'];
+        $this->page_data['keywords']    = $this->page_data['metadata'][5]['keywords'];
+        $this->page_data['description'] = $this->page_data['metadata'][5]['description'];
         $this->page_data['page_menu'] = 'courses';
 
         $this->load->view('header/header', $this->page_data);
@@ -7892,6 +8065,8 @@ class Course extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']       = (!empty($course['course']['name'])) ? $course['course']['name'] : 'Курс №' . $course_id;
+        $this->page_data['description'] = $course['course']['meta_description'];
+        $this->page_data['keywords']    = $course['course']['meta_keywords'];
         $this->page_data['page_menu']   = 'courses';
         $this->page_data['course_id']   = $course_id;
         $this->page_data['purchase_up'] = ($this->input->get('ref', true)) ? true : false;
@@ -7973,7 +8148,8 @@ class Course extends CI_Controller
 
     public function userMeals()
     {
-        if (!is_numeric($this->user_id)) {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 

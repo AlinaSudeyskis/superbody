@@ -37,4 +37,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'a_spec'): ?> class="anketa_active" <?php endif;?>>Курсы/Спец.</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/site/meta">
+            <span <?php if ($page_submenu == 'a_meta'): ?> class="anketa_active" <?php endif;?>>Метаданные</span>
+        </a>
+    </li>
 </ul>

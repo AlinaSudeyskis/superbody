@@ -61,6 +61,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <textarea name="full_desc" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите описание"><?php if(!empty($product['full_desc'])): echo $product['full_desc']; endif; ?></textarea>
 </div>
 <div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h">Metadata Keywords:</div>
+    <textarea name="ta_meta_keywords" class="journal_form_textarea admin_form_txt_middle" placeholder=""><?php echo $product['meta_keywords']; ?></textarea>
+</div>
+<div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h">Metadata Description:</div>
+    <textarea name="ta_meta_description" class="journal_form_textarea admin_form_txt_middle" placeholder=""><?php echo $product['meta_description']; ?></textarea>
+</div>
+<div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Цена:</div>
     <div class="parent kurs_cur_wrap">
         <input type="text" name="price" class="admin_form_txt admin_form_txt_short" placeholder="20 000.00" value="<?php if(!empty($product['price'])): echo $product['price']; endif; ?>" />

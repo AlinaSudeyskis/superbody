@@ -170,4 +170,29 @@ class Welcome_model extends CI_Model
 
         return $result;
     }
+
+    public function getSiteMetaData()
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `smt_id`, `smt_title`, `smt_keywords`, `smt_description` 
+            FROM `site_meta_tags`');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach ($sel_data->result() as $row)
+            {
+                $result[$row->smt_id]['title']       = $row->smt_title;
+                $result[$row->smt_id]['keywords']    = $row->smt_keywords;
+                $result[$row->smt_id]['description'] = $row->smt_description;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
 }

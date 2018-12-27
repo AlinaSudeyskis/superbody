@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-?>
-<?php if($page_menu == 'a_courses_w'): ?>
+
+if($page_menu == 'a_courses_w' and $extend_new_promocode !== true): ?>
     <div class="parent kurs_cur_wrap">
         <div class="kurs_block_h">Категория:</div>
         <select name="s_category" class="journal_form_select">

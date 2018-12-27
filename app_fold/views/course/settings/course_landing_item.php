@@ -18,7 +18,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 unset($i);?>
             </div>
             <div class="landing_block_wrap">
-                <?php if($lend_block_id == 1): ?>
+                <?php $lend_block_id = (is_numeric($lend_block_id)) ? $lend_block_id : 1;
+                if($lend_block_id == 1): ?>
                     <div class="landing_block" style="display:block;" id="l-block-1">
                         <div class="landing_title">
                             <span>Блок №1</span>
@@ -46,30 +47,41 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </select>
                             </div>
                         <?php endif; ?>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Цвет блока:</div>
+                            <div class="bg_color">
+                                <?php $h_color = (mb_substr($landing['bg_color_orig'], 0, 1) == '#') ? $landing['bg_color_orig'] : '';
+                                $v_color = (mb_substr($landing['bg_color_orig'], 0, 1) == '#') ? $landing['bg_color_orig'] : '';?>
+                                <input type="hidden" name="i_bg_color_block1" value="<?php echo $h_color;?>" id="block_bg_color"/>
+                                <div id="customWidget">
+                                    <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
+                                    <div class="colorpickerholder2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Прозрачность:</div>
+                            <?php $b1_opacity = (is_numeric($landing['slider_opacity'])) ? $landing['slider_opacity'] : ''; ?>
+                            <input type="range" min="0" max="1" step="0.05" value="<?php echo $b1_opacity; ?>" class="land_block_opacity">
+                            <input type="text" name="r_opacity_block1" value="<?php echo $b1_opacity; ?>" class="land_block_opacity_val" readonly>
+                        </div>
                         <div class="lend_form_h">Слайдер (максимум 7 изображений; 1920х600)</div>
                         <div class="tren_form_block_check_wrap">
                             <input type="checkbox" name="cb_slider_block1"
                                 <?php if ($landing['slider_images_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                    class="tren_form_block_check" id="tren_form_block_check1bg" />
-                            <label for="tren_form_block_check1bg">Слайдер по умолчанию</label>
+                            <label for="tren_form_block_check1bg">Изображения слайдера по умолчанию</label>
                         </div>
-                        <div class="add_foto_block_wrap">
-                            <div class="add_foto_block">
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Изображения:</div>
-                                    <div class="video_down_line parent">
-                                        <div class="video_down_line_but_wrap">
-                                            <label for="video_down_line_but1s" class="video_down_line_but">
-                                                <input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" multiple="multiple"/>
-                                                <span>Выберите файл</span>
-                                            </label>
-                                        </div>
-                                        <div class="video_down_line_name">Файл не выбран</div>
-                                        <div class="progressbar_wrap">
-                                            <progress class="progressbar" id="progressbar1" value="50" max="100"></progress>
-                                        </div>
-                                    </div>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Изображения:</div>
+                            <div class="video_down_line parent">
+                                <div class="video_down_line_but_wrap">
+                                    <label for="video_down_line_but1s" class="video_down_line_but">
+                                        <input type="file" name="slider_files[]" class="admin_form_videofile" id="video_down_line_but1s" accept="image/jpeg,image/png" multiple="multiple"/>
+                                        <span>Выберите файл</span>
+                                    </label>
                                 </div>
+                                <div class="video_down_line_name">Файл не выбран</div>
                             </div>
                         </div>
                         <?php if ($landing['slider_images_default'] === false): ?>
@@ -78,9 +90,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="landing_image">
                                         <img src="<?php echo $s_image; ?>" alt=""/>
                                         <div class="admin_form_buts parent">
-                                            <input type="hidden" name="img_path_1_<?php echo $key; ?>" value="<?php echo $s_image; ?>">
-                                            <input type="hidden" name="img_path_1_<?php echo $key; ?>_type" value="slider">
-                                            <input type="submit" name="bt_delete_landing_img[1][<?php echo $key; ?>]" class="admin_form_del" value="Удалить">
+                                            <input type="hidden" name="img_path_1_3_<?php echo $key; ?>" value="<?php echo $s_image; ?>">
+                                            <input type="submit" name="bt_delete_landing_img[1][3][<?php echo $key; ?>]" class="admin_form_del" value="Удалить">
                                         </div>
                                     </div>
                                 <?php endforeach;
@@ -116,9 +127,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php if ($landing['block2']['bg_top_default'] === false and is_file($landing['block2']['bg_top_orig'])) :?>
                                         <img src="<?php echo mb_substr($landing['block2']['bg_top_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
-                                            <input type="hidden" name="img_path_2_0" value="<?php echo mb_substr($landing['block2']['bg_top_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_2_0_type" value="background">
-                                            <input type="submit" name="bt_delete_landing_img[2][0]" class="admin_form_del" value="Удалить">
+                                            <input type="hidden" name="img_path_2_1" value="<?php echo mb_substr($landing['block2']['bg_top_orig'], 1); ?>">
+                                            <input type="submit" name="bt_delete_landing_img[2][1]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
                                         <img src="/img/no_img.png" alt="">
@@ -155,9 +165,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php if ($landing['block2']['bg_default'] === false and is_file($landing['block2']['bg_orig'])) :?>
                                         <img src="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
-                                            <input type="hidden" name="img_path_2_1" value="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_2_1_type" value="background">
-                                            <input type="submit" name="bt_delete_landing_img[2][1]" class="admin_form_del" value="Удалить">
+                                            <input type="hidden" name="img_path_2_0" value="<?php echo mb_substr($landing['block2']['bg_orig'], 1); ?>">
+                                            <input type="submit" name="bt_delete_landing_img[2][0]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
                                         <img src="/img/no_img.png" alt="">
@@ -165,23 +174,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                             <div class="tren_set_form_r">
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Цвет блока:</div>
+                                    <div class="bg_color">
+                                        <?php $b2_color = $landing['block2']['bg_color_orig'];?>
+                                        <input type="hidden" name="i_bg_color_block2" value="<?php echo $b2_color;?>" id="block_bg_color"/>
+                                        <div id="customWidget">
+                                            <div class="colorselector"><div style="background-color: <?php echo $b2_color;?>"></div></div>
+                                            <div class="colorpickerholder2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Прозрачность:</div>
+                                    <?php $b2_opacity = $landing['block2']['bg_opacity']; ?>
+                                    <input type="range" min="0.05" max="1" step="0.05" value="<?php echo $b2_opacity; ?>" class="land_block_opacity">
+                                    <input type="text" name="r_opacity_block2" value="<?php echo $b2_opacity; ?>" class="land_block_opacity_val" readonly>
+                                </div>
                                 <div class="tren_form_block_check_wrap">
                                     <input type="checkbox" name="cb_default_bg_block2"
                                         <?php if ($landing['block2']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                            class="tren_form_block_check" id="tren_form_block_check2bg">
                                     <label for="tren_form_block_check2bg">Фон по умолчанию</label>
-                                </div>
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Цвет фона:</div>
-                                    <div class="bg_color">
-                                        <?php $h_color = (mb_substr($landing['block2']['bg_orig'], 0, 1) == '#') ? $landing['block2']['bg_orig'] : '';
-                                        $v_color = (mb_substr($landing['block2']['bg_orig'], 0, 1) == '#') ? $landing['block2']['bg_orig'] : '';?>
-                                        <input type="hidden" name="i_bg_color_block2" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                                        <div id="customWidget">
-                                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                                            <div class="colorpickerholder2"></div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="parent kurs_cur_wrap">
                                     <div class="kurs_block_h">Файл фона:
@@ -225,7 +239,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <img src="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
                                             <input type="hidden" name="img_path_2_2" value="<?php echo mb_substr($landing['block2']['image_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_2_2_type" value="image">
                                             <input type="submit" name="bt_delete_landing_img[2][2]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
@@ -274,15 +287,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                         <img src="/img/landing parts/3.PNG" alt="" class="land_template"/>
                         <div class="lend_form_h">Фон</div>
-
                         <div class="lend_form_option">
                             <div class="tren_set_form_l">
                                 <div class="tren_set_form_img">
-                                    <?php if ($landing['block3']['bg_default'] === false and is_file($landing['block3']['bg_orig'])) :?>
-                                        <img src="<?php echo mb_substr($landing['block3']['bg_orig'], 1); ?>" alt=""/>
+                                    <?php if ($landing['block3']['bg_default'] === false and is_file($landing['block3']['bg_orig'])) :
+                                        $b3_bg = mb_substr($landing['block3']['bg_orig'], 1); ?>
+                                        <img src="<?php echo $b3_bg; ?>" alt=""/>
                                         <div class="admin_form_buts parent">
-                                            <input type="hidden" name="img_path_3_0" value="<?php echo mb_substr($landing['block3']['bg_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_3_0_type" value="background">
+                                            <input type="hidden" name="img_path_3_0" value="<?php echo $b3_bg; ?>">
                                             <input type="submit" name="bt_delete_landing_img[3][0]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
@@ -291,23 +303,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                             <div class="tren_set_form_r">
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Цвет блока:</div>
+                                    <div class="bg_color">
+                                        <?php $b3_color = $landing['block3']['bg_color_orig'];?>
+                                        <input type="hidden" name="i_bg_color_block3" value="<?php echo $b3_color;?>" id="block_bg_color"/>
+                                        <div id="customWidget">
+                                            <div class="colorselector"><div style="background-color: <?php echo $b3_color;?>"></div></div>
+                                            <div class="colorpickerholder2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Прозрачность:</div>
+                                    <?php $b3_opacity = $landing['block3']['bg_opacity']; ?>
+                                    <input type="range" min="0.05" max="1" step="0.05" value="<?php echo $b3_opacity; ?>" class="land_block_opacity">
+                                    <input type="text" name="r_opacity_block3" value="<?php echo $b3_opacity; ?>" class="land_block_opacity_val" readonly>
+                                </div>
                                 <div class="tren_form_block_check_wrap">
                                     <input type="checkbox" name="cb_default_bg_block3"
                                         <?php if ($landing['block3']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                            class="tren_form_block_check" id="tren_form_block_check3bg">
                                     <label for="tren_form_block_check3bg">Фон по умолчанию</label>
-                                </div>
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Цвет фона:</div>
-                                    <div class="bg_color">
-                                        <?php $h_color = (mb_substr($landing['block3']['bg_orig'], 0, 1) == '#') ? $landing['block3']['bg_orig'] : '';
-                                        $v_color = (mb_substr($landing['block3']['bg_orig'], 0, 1) == '#') ? $landing['block3']['bg_orig'] : '';?>
-                                        <input type="hidden" name="i_bg_color_block3" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                                        <div id="customWidget">
-                                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                                            <div class="colorpickerholder2"></div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="parent kurs_cur_wrap">
                                     <div class="kurs_block_h">Файл фона:
@@ -324,27 +341,36 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                         </div>
+
                         <div class="lend_form_h">Информация</div>
-                        <div class="parent kurs_cur_wrap">
+                        <div class="lend_form_h">Заголовок</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_title_block3" class="journal_form_textarea formatted_textarea" placeholder="Заголовок" maxlength="60"><?php echo $landing['block3']['bbc_title']; ?></textarea>
+                        </div>
+                        <div class="lend_form_h">Подзаголовок</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_subtitle_block3" class="journal_form_textarea formatted_textarea" placeholder="Подзаголовок" maxlength="60"><?php echo $landing['block3']['bbc_subtitle']; ?></textarea>
+                        </div>
+                        <!--<div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Заголовок:</div>
-                            <input type="text" name="i_title_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block3']['title']; ?>" />
+                            <input type="text" name="i_title_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php /*echo $landing['block3']['title']; */?>" />
                         </div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Подзаголовок:</div>
-                            <input type="text" name="i_subtitle_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block3']['subtitle']; ?>" />
-                        </div>
+                            <input type="text" name="i_subtitle_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php /*echo $landing['block3']['subtitle']; */?>" />
+                        </div>-->
                         <div class="lend_form_h">Результаты</div>
                         <div class="lend_form_options">
                             <div class="lend_form_option">
                                 <div class="tren_set_form_l">
                                     <div class="tren_set_form_img">
-                                        <?php if ($landing['block3']['images_default'][0] === false and is_file($landing['block3']['images_orig'][0])) :?>
-                                            <img src="<?php echo mb_substr($landing['block3']['images_orig'][0], 1); ?>" alt=""/>
+                                        <?php if ($landing['block3']['image1_default'] === false and is_file($landing['block3']['image1_orig'])) :
+                                            $bl3_img1 = mb_substr($landing['block3']['image1_orig'], 1); ?>
+                                            <img src="<?php echo $bl3_img1; ?>" alt=""/>
                                             <div class="admin_form_buts parent">
-                                                        <input type="hidden" name="img_path_3_1" value="<?php echo mb_substr($landing['block3']['images_orig'][0], 1); ?>">
-                                                        <input type="hidden" name="img_path_3_1_type" value="images">
-                                                        <input type="submit" name="bt_delete_landing_img[3][1]" class="admin_form_del" value="Удалить">
-                                                    </div>
+                                                <input type="hidden" name="img_path_3_2_1" value="<?php echo $bl3_img1; ?>">
+                                                <input type="submit" name="bt_delete_landing_img[3][2][1]" class="admin_form_del" value="Удалить">
+                                            </div>
                                         <?php else: ?>
                                             <img src="/img/no_img.png" alt="">
                                         <?php endif;?>
@@ -353,7 +379,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="tren_set_form_r">
                                     <div class="tren_form_block_check_wrap">
                                         <input type="checkbox" name="cb_photo1_block3"
-                                            <?php if ($landing['block3']['images_default'][0] === true) : ?> checked="checked" <?php endif ; ?>
+                                            <?php if ($landing['block3']['image1_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                                class="tren_form_block_check" id="tren_form_block_check2bi" />
                                         <label for="tren_form_block_check2bi">Фото №1 по умолчанию</label>
                                     </div>
@@ -375,12 +401,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="lend_form_option">
                                 <div class="tren_set_form_l">
                                     <div class="tren_set_form_img">
-                                        <?php if ($landing['block3']['images_default'][1] === false and is_file($landing['block3']['images_orig'][1])) :?>
-                                            <img src="<?php echo mb_substr($landing['block3']['images_orig'][1], 1); ?>" alt=""/>
+                                        <?php if ($landing['block3']['image2_default'] === false and is_file($landing['block3']['image2_orig'])) :
+                                            $bl3_img2 = mb_substr($landing['block3']['image2_orig'], 1); ?>
+                                            <img src="<?php echo $bl3_img2; ?>" alt=""/>
                                             <div class="admin_form_buts parent">
-                                                <input type="hidden" name="img_path_3_2" value="<?php echo mb_substr($landing['block3']['images_orig'][1], 1); ?>">
-                                                <input type="hidden" name="img_path_3_2_type" value="images">
-                                                <input type="submit" name="bt_delete_landing_img[3][2]" class="admin_form_del" value="Удалить">
+                                                <input type="hidden" name="img_path_3_2_2" value="<?php echo $bl3_img2; ?>">
+                                                <input type="submit" name="bt_delete_landing_img[3][2][2]" class="admin_form_del" value="Удалить">
                                             </div>
                                         <?php else: ?>
                                             <img src="/img/no_img.png" alt="">
@@ -390,7 +416,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="tren_set_form_r">
                                     <div class="tren_form_block_check_wrap">
                                         <input type="checkbox" name="cb_photo2_block3"
-                                            <?php if ($landing['block3']['images_default'][1] === true) : ?> checked="checked" <?php endif ; ?>
+                                            <?php if ($landing['block3']['image2_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                                class="tren_form_block_check" id="tren_form_block_check3bi" />
                                         <label for="tren_form_block_check3bi">Фото №2 по умолчанию</label>
                                     </div>
@@ -410,18 +436,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                         </div>
-                        <div class="parent kurs_cur_wrap">
+
+                        <div class="lend_form_h">Заголовок</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_result_title_block3" class="journal_form_textarea formatted_textarea" maxlength="60"><?php echo $landing['block3']['bbc_r_title']; ?></textarea>
+                        </div>
+                        <!--<div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Заголовок:</div>
-                            <input type="text" name="i_result_title_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block3']['r_title']; ?>" />
+                            <input type="text" name="i_result_title_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php /*echo $landing['block3']['r_title']; */?>" />
+                        </div>-->
+                        <div class="lend_form_h">Подзаголовок</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_result_subtitle_block3" class="journal_form_textarea formatted_textarea" maxlength="60"><?php echo $landing['block3']['bbc_r_subtitle']; ?></textarea>
                         </div>
-                        <div class="parent kurs_cur_wrap">
+                        <!--<div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Подзаголовок:</div>
-                            <input type="text" name="i_result_subtitle_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block3']['r_subtitle']; ?>" />
+                            <input type="text" name="i_result_subtitle_block3" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php /*echo $landing['block3']['r_subtitle']; */?>" />
+                        </div>-->
+                        <div class="lend_form_h">Отзыв пользователя:</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_result_reviews_block3" class="journal_form_textarea formatted_textarea" maxlength="80"><?php echo $landing['block3']['bbc_r_reviews']; ?></textarea>
                         </div>
-                        <div class="parent kurs_cur_wrap">
+                        <!--<div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Отзыв пользователя:</div>
-                            <input type="text" name="i_result_reviews_block3" class="admin_form_txt admin_form_txt_middle" maxlength="80" value="<?php echo $landing['block3']['r_reviews']; ?>" />
-                        </div>
+                            <input type="text" name="i_result_reviews_block3" class="admin_form_txt admin_form_txt_middle" maxlength="80" value="<?php /*echo $landing['block3']['r_reviews']; */?>" />
+                        </div>-->
 
                         <div class="video_admin_form_buts parent">
                             <input type="submit" name="bt_save_block_3" value="Сохранить блок 3" class="video_admin_form_send" />
@@ -448,7 +487,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <img src="<?php echo mb_substr($landing['block4']['bg_orig'], 1); ?>" alt=""/>
                                             <div class="admin_form_buts parent">
                                                 <input type="hidden" name="img_path_4_0" value="<?php echo mb_substr($landing['block4']['bg_orig'], 1); ?>">
-                                                <input type="hidden" name="img_path_4_0_type" value="background">
                                                 <input type="submit" name="bt_delete_landing_img[4][0]" class="admin_form_del" value="Удалить">
                                             </div>
                                     <?php else: ?>
@@ -457,23 +495,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                             <div class="tren_set_form_r">
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Цвет блока:</div>
+                                    <div class="bg_color">
+                                        <?php $b4_color = $landing['block4']['bg_color_orig'];?>
+                                        <input type="hidden" name="i_bg_color_block4" value="<?php echo $b4_color;?>" id="block_bg_color"/>
+                                        <div id="customWidget">
+                                            <div class="colorselector"><div style="background-color: <?php echo $b4_color;?>"></div></div>
+                                            <div class="colorpickerholder2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Прозрачность:</div>
+                                    <?php $b4_opacity = $landing['block4']['bg_opacity']; ?>
+                                    <input type="range" min="0.05" max="1" step="0.05" value="<?php echo $b4_opacity; ?>" class="land_block_opacity">
+                                    <input type="text" name="r_opacity_block4" value="<?php echo $b4_opacity; ?>" class="land_block_opacity_val" readonly>
+                                </div>
                                 <div class="tren_form_block_check_wrap">
                                     <input type="checkbox" name="cb_default_bg_block4"
                                         <?php if ($landing['block4']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                            class="tren_form_block_check" id="tren_form_block_check4bg">
                                     <label for="tren_form_block_check4bg">Фон по умолчанию</label>
-                                </div>
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Цвет фона:</div>
-                                    <div class="bg_color">
-                                        <?php $h_color = (mb_substr($landing['block4']['bg_orig'], 0, 1) == '#') ? $landing['block4']['bg_orig'] : '';
-                                        $v_color = (mb_substr($landing['block4']['bg_orig'], 0, 1) == '#') ? $landing['block4']['bg_orig'] : '';?>
-                                        <input type="hidden" name="i_bg_color_block4" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                                        <div id="customWidget">
-                                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                                            <div class="colorpickerholder2"></div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="parent kurs_cur_wrap">
                                     <div class="kurs_block_h">Файл фона:
@@ -491,13 +534,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </div>
                         <div class="lend_form_h">Информация</div>
-                        <div class="parent kurs_cur_wrap">
+                        <!--<div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Заголовок:</div>
-                            <input type="text" name="i_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['title']; ?>" />
+                            <input type="text" name="i_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php /*echo $landing['block4']['title']; */?>" />
+                        </div>-->
+                        <div class="lend_form_h">Заголовок</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_title_block4" class="journal_form_textarea formatted_textarea" maxlength="60"><?php echo $landing['block4']['bbc_title']; ?></textarea>
                         </div>
-                        <div class="parent kurs_cur_wrap">
+                        <!--<div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Подзаголовок:</div>
-                            <input type="text" name="i_subtitle_block4" class="admin_form_txt admin_form_txt_middle" maxlength="80" value="<?php echo $landing['block4']['subtitle']; ?>" />
+                            <input type="text" name="i_subtitle_block4" class="admin_form_txt admin_form_txt_middle" maxlength="80" value="<?php /*echo $landing['block4']['subtitle']; */?>" />
+                        </div>-->
+                        <div class="lend_form_h">Подзаголовок</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_subtitle_block4" class="journal_form_textarea formatted_textarea" maxlength="80"><?php echo $landing['block4']['bbc_subtitle']; ?></textarea>
                         </div>
                         <div class="lend_form_h">Изображение справа</div>
                         <div class="lend_form_option">
@@ -506,9 +557,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php if ($landing['block4']['image_default'] === false and is_file($landing['block4']['image_orig'])) :?>
                                         <img src="<?php echo mb_substr($landing['block4']['image_orig'], 1); ?>" alt=""/>
                                             <div class="admin_form_buts parent">
-                                                <input type="hidden" name="img_path_4_1" value="<?php echo mb_substr($landing['block4']['image_orig'], 1); ?>">
-                                                <input type="hidden" name="img_path_4_1_type" value="background">
-                                                <input type="submit" name="bt_delete_landing_img[4][1]" class="admin_form_del" value="Удалить">
+                                                <input type="hidden" name="img_path_4_2" value="<?php echo mb_substr($landing['block4']['image_orig'], 1); ?>">
+                                                <input type="submit" name="bt_delete_landing_img[4][2]" class="admin_form_del" value="Удалить">
                                             </div>
                                     <?php else: ?>
                                         <img src="/img/no_img.png" alt="">
@@ -537,13 +587,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                         </div>
-                        <div class="parent kurs_cur_wrap">
+                        <!--<div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Заголовок:</div>
-                            <input type="text" name="i_result_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['r_title']; ?>" />
+                            <input type="text" name="i_result_title_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php /*echo $landing['block4']['r_title']; */?>" />
+                        </div>-->
+                        <div class="lend_form_h">Заголовок</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_result_title_block4" class="journal_form_textarea formatted_textarea" maxlength="60"><?php echo $landing['block4']['bbc_r_title']; ?></textarea>
                         </div>
-                        <div class="parent kurs_cur_wrap">
+                        <!--<div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Описание:</div>
-                            <input type="text" name="i_result_desc_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php echo $landing['block4']['r_subtitle']; ?>" />
+                            <input type="text" name="i_result_desc_block4" class="admin_form_txt admin_form_txt_middle" maxlength="60" value="<?php /*echo $landing['block4']['r_subtitle']; */?>" />
+                        </div>-->
+                        <div class="lend_form_h">Описание</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea name="i_result_desc_block4" class="journal_form_textarea formatted_textarea" maxlength="60"><?php echo $landing['block4']['bbc_r_subtitle']; ?></textarea>
                         </div>
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">
@@ -577,7 +635,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <img src="<?php echo mb_substr($landing['block5']['bg_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
                                             <input type="hidden" name="img_path_5_0" value="<?php echo mb_substr($landing['block5']['bg_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_5_0_type" value="background">
                                             <input type="submit" name="bt_delete_landing_img[5][0]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else:?>
@@ -586,23 +643,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                             <div class="tren_set_form_r">
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Цвет блока:</div>
+                                    <div class="bg_color">
+                                        <?php $b5_color = $landing['block5']['bg_color_orig'];?>
+                                        <input type="hidden" name="i_bg_color_block5" value="<?php echo $b5_color;?>" id="block_bg_color"/>
+                                        <div id="customWidget">
+                                            <div class="colorselector"><div style="background-color: <?php echo $b5_color;?>"></div></div>
+                                            <div class="colorpickerholder2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Прозрачность:</div>
+                                    <?php $b5_opacity = $landing['block5']['bg_opacity']; ?>
+                                    <input type="range" min="0.05" max="1" step="0.05" value="<?php echo $b5_opacity; ?>" class="land_block_opacity">
+                                    <input type="text" name="r_opacity_block5" value="<?php echo $b5_opacity; ?>" class="land_block_opacity_val" readonly>
+                                </div>
                                 <div class="tren_form_block_check_wrap">
                                     <input type="checkbox" name="cb_default_bg_block5"
                                         <?php if ($landing['block5']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                            class="tren_form_block_check" id="tren_form_block_check5bg">
                                     <label for="tren_form_block_check5bg">Фон по умолчанию</label>
-                                </div>
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Цвет фона:</div>
-                                    <div class="bg_color">
-                                        <?php $h_color = (mb_substr($landing['block5']['bg_orig'], 0, 1) == '#') ? $landing['block5']['bg_orig'] : '';
-                                        $v_color = (mb_substr($landing['block5']['bg_orig'], 0, 1) == '#') ? $landing['block5']['bg_orig'] : '';?>
-                                        <input type="hidden" name="i_bg_color_block5" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                                        <div id="customWidget">
-                                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                                            <div class="colorpickerholder2"></div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="parent kurs_cur_wrap">
                                     <div class="kurs_block_h">Файл фона:</div>
@@ -636,12 +698,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="lend_form_option">
                                 <div class="tren_set_form_l">
                                     <div class="tren_set_form_img">
-                                        <?php if ($landing['block5']['images_default'][0] === false and is_file($landing['block5']['images_orig'][0])) :?>
-                                            <img src="<?php echo mb_substr($landing['block5']['images_orig'][0], 1); ?>" alt=""/>
+                                        <?php if ($landing['block5']['image1_default'] === false and is_file($landing['block5']['image1_orig'])) :
+                                            $bl5_img1 = mb_substr($landing['block5']['image1_orig'], 1);?>
+                                            <img src="<?php echo $bl5_img1; ?>" alt=""/>
                                             <div class="admin_form_buts parent">
-                                                <input type="hidden" name="img_path_5_1" value="<?php echo mb_substr($landing['block5']['images_orig'][0], 1); ?>">
-                                                <input type="hidden" name="img_path_5_1_type" value="images">
-                                                <input type="submit" name="bt_delete_landing_img[5][1]" class="admin_form_del" value="Удалить">
+                                                <input type="hidden" name="img_path_5_2_1" value="<?php echo $bl5_img1; ?>">
+                                                <input type="submit" name="bt_delete_landing_img[5][2][1]" class="admin_form_del" value="Удалить">
                                             </div>
                                         <?php else: ?>
                                             <img src="/img/no_img.png" alt="">
@@ -651,7 +713,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="tren_set_form_r">
                                     <div class="tren_form_block_check_wrap">
                                         <input type="checkbox" name="cb_photo1_block5"
-                                            <?php if ($landing['block5']['images_default'][0] === true) : ?> checked="checked" <?php endif ; ?>
+                                            <?php if ($landing['block5']['image1_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                                class="tren_form_block_check" id="tren_form_block_check5bi" />
                                         <label for="tren_form_block_check5bi">Боковое фото №1 по умолчанию</label>
                                     </div>
@@ -674,12 +736,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="lend_form_option">
                                 <div class="tren_set_form_l">
                                     <div class="tren_set_form_img">
-                                        <?php if ($landing['block5']['images_default'][1] === false and is_file($landing['block5']['images_orig'][1])) :?>
-                                            <img src="<?php echo mb_substr($landing['block5']['images_orig'][1], 1); ?>" alt=""/>
+                                        <?php if ($landing['block5']['image2_default'] === false and is_file($landing['block5']['image2_orig'])) :
+                                            $bl5_img2 = mb_substr($landing['block5']['image2_orig'], 1);?>
+                                            <img src="<?php echo $bl5_img2 ?>" alt=""/>
                                             <div class="admin_form_buts parent">
-                                                <input type="hidden" name="img_path_5_2" value="<?php echo mb_substr($landing['block5']['images_orig'][1], 1); ?>">
-                                                <input type="hidden" name="img_path_5_2_type" value="images">
-                                                <input type="submit" name="bt_delete_landing_img[5][2]" class="admin_form_del" value="Удалить">
+                                                <input type="hidden" name="img_path_5_2_2" value="<?php echo $bl5_img2; ?>">
+                                                <input type="submit" name="bt_delete_landing_img[5][2][2]" class="admin_form_del" value="Удалить">
                                             </div>
                                         <?php else: ?>
                                             <img src="/img/no_img.png" alt="">
@@ -689,7 +751,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="tren_set_form_r">
                                     <div class="tren_form_block_check_wrap">
                                         <input type="checkbox" name="cb_photo2_block5"
-                                            <?php if ($landing['block5']['images_default'][1] === true) : ?> checked="checked" <?php endif ; ?>
+                                            <?php if ($landing['block5']['image2_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                                class="tren_form_block_check" id="tren_form_block_check6bi" />
                                         <label for="tren_form_block_check6bi">Боковое фото №2 по умолчанию</label>
                                     </div>
@@ -711,12 +773,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="lend_form_option">
                                 <div class="tren_set_form_l">
                                     <div class="tren_set_form_img">
-                                        <?php if ($landing['block5']['images_default'][2] === false and is_file($landing['block5']['images_orig'][2])) :?>
-                                            <img src="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>" alt="" style="height:120px;"/>
+                                        <?php if ($landing['block5']['image3_default'] === false and is_file($landing['block5']['image3_orig'])) :
+                                            $bl5_img3 = mb_substr($landing['block5']['image3_orig'], 1);?>
+                                            <img src="<?php echo $bl5_img3; ?>" alt="" style="height:120px;"/>
                                             <div class="admin_form_buts parent">
-                                                <input type="hidden" name="img_path_5_3" value="<?php echo mb_substr($landing['block5']['images_orig'][2], 1); ?>">
-                                                <input type="hidden" name="img_path_5_3_type" value="images">
-                                                <input type="submit" name="bt_delete_landing_img[5][3]" class="admin_form_del" value="Удалить">
+                                                <input type="hidden" name="img_path_5_2_3" value="<?php echo $bl5_img3; ?>">
+                                                <input type="submit" name="bt_delete_landing_img[5][2][3]" class="admin_form_del" value="Удалить">
                                             </div>
                                         <?php else: ?>
                                             <img src="/img/no_img.png" alt="">
@@ -726,7 +788,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="tren_set_form_r">
                                     <div class="tren_form_block_check_wrap">
                                         <input type="checkbox" name="cb_photo3_block5"
-                                            <?php if ($landing['block5']['images_default'][2] === true) : ?> checked="checked" <?php endif ; ?>
+                                            <?php if ($landing['block5']['image3_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                                class="tren_form_block_check" id="tren_form_block_check7bi" />
                                         <label for="tren_form_block_check7bi">Аватар по умолчанию</label>
                                     </div>
@@ -791,7 +853,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <img src="<?php echo mb_substr($landing['block6']['bg_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
                                             <input type="hidden" name="img_path_6_0" value="<?php echo mb_substr($landing['block6']['bg_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_6_0_type" value="background">
                                             <input type="submit" name="bt_delete_landing_img[6][0]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
@@ -800,23 +861,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                             <div class="tren_set_form_r">
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Цвет блока:</div>
+                                    <div class="bg_color">
+                                        <?php $b6_color = $landing['block6']['bg_color_orig'];?>
+                                        <input type="hidden" name="i_bg_color_block6" value="<?php echo $b6_color;?>" id="block_bg_color"/>
+                                        <div id="customWidget">
+                                            <div class="colorselector"><div style="background-color: <?php echo $b6_color;?>"></div></div>
+                                            <div class="colorpickerholder2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Прозрачность:</div>
+                                    <?php $b6_opacity = $landing['block6']['bg_opacity']; ?>
+                                    <input type="range" min="0.05" max="1" step="0.05" value="<?php echo $b6_opacity; ?>" class="land_block_opacity">
+                                    <input type="text" name="r_opacity_block6" value="<?php echo $b6_opacity; ?>" class="land_block_opacity_val" readonly>
+                                </div>
                                 <div class="tren_form_block_check_wrap">
                                     <input type="checkbox" name="cb_default_bg_block6"
                                         <?php if ($landing['block6']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                            class="tren_form_block_check" id="tren_form_block_check6bg">
                                     <label for="tren_form_block_check6bg">Фон по умолчанию</label>
-                                </div>
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Цвет фона:</div>
-                                    <div class="bg_color">
-                                        <?php $h_color = (mb_substr($landing['block6']['bg_orig'], 0, 1) == '#') ? $landing['block6']['bg_orig'] : '';
-                                        $v_color = (mb_substr($landing['block6']['bg_orig'], 0, 1) == '#') ? $landing['block6']['bg_orig'] : '';?>
-                                        <input type="hidden" name="i_bg_color_block6" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                                        <div id="customWidget">
-                                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                                            <div class="colorpickerholder2"></div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="parent kurs_cur_wrap">
                                     <div class="kurs_block_h">Файл фона:
@@ -853,9 +919,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php if ($landing['block6']['image_default'] === false and is_file($landing['block6']['image_orig'])) :?>
                                         <img src="<?php echo mb_substr($landing['block6']['image_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
-                                            <input type="hidden" name="img_path_6_1" value="<?php echo mb_substr($landing['block6']['image_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_6_1_type" value="image">
-                                            <input type="submit" name="bt_delete_landing_img[6][1]" class="admin_form_del" value="Удалить">
+                                            <input type="hidden" name="img_path_6_2" value="<?php echo mb_substr($landing['block6']['image_orig'], 1); ?>">
+                                            <input type="submit" name="bt_delete_landing_img[6][2]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
                                         <img src="/img/no_img.png" alt="">
@@ -928,144 +993,240 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                         <img src="/img/landing parts/7.PNG" alt="" class="land_template"/>
                         <div class="lend_form_h">Фон</div>
-                        <div class="tren_form_block_check_wrap">
-                            <input type="checkbox" name="cb_default_bg_block7"
-                                <?php if ($landing['block7']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
-                                   class="tren_form_block_check" id="tren_form_block_check7bg">
-                            <label for="tren_form_block_check7bg">Фон по умолчанию</label>
-                        </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Цвет фона:</div>
-                            <div class="bg_color">
-                                <?php $h_color = (mb_substr($landing['block7']['bg_orig'], 0, 1) == '#') ? $landing['block7']['bg_orig'] : '';
-                                $v_color = (mb_substr($landing['block7']['bg_orig'], 0, 1) == '#') ? $landing['block7']['bg_orig'] : '';?>
-                                <input type="hidden" name="i_bg_color_block7" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                                <div id="customWidget">
-                                    <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                                    <div class="colorpickerholder2"></div>
+                        <div class="lend_form_option">
+                            <div class="tren_set_form_l">
+                                <div class="tren_set_form_img">
+                                    <?php if ($landing['block7']['bg_default'] === false and is_file($landing['block7']['bg_orig'])) :?>
+                                        <img src="<?php echo mb_substr($landing['block7']['bg_orig'], 1); ?>" alt=""/>
+                                        <div class="admin_form_buts parent">
+                                            <input type="hidden" name="img_path_7_0" value="<?php echo mb_substr($landing['block7']['bg_orig'], 1); ?>">
+                                            <input type="submit" name="bt_delete_landing_img[7][0]" class="admin_form_del" value="Удалить">
+                                        </div>
+                                    <?php else: ?>
+                                        <img src="/img/no_img.png" alt="">
+                                    <?php endif;?>
                                 </div>
                             </div>
-                        </div>
-                        <div class="parent kurs_cur_wrap">
-                            <div class="kurs_block_h">Файл фона:</div>
-                            <div class="video_down_line parent">
-                                <div class="video_down_line_but_wrap">
-                                    <label for="video_down_line_but7fbg" class="video_down_line_but">
-                                        <input type="file" name="bg_file_block7" class="admin_form_videofile" id="video_down_line_but7fbg" accept="image/jpeg,image/png" />
-                                        <span>Выберите файл</span>
-                                    </label>
+                            <div class="tren_set_form_r">
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Цвет блока:</div>
+                                    <div class="bg_color">
+                                        <?php $b7_color = $landing['block7']['bg_color_orig'];?>
+                                        <input type="hidden" name="i_bg_color_block7" value="<?php echo $b7_color;?>" id="block_bg_color"/>
+                                        <div id="customWidget">
+                                            <div class="colorselector"><div style="background-color: <?php echo $b7_color;?>"></div></div>
+                                            <div class="colorpickerholder2"></div>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="video_down_line_name">Файл не выбран</div>
-                                <div class="progressbar_wrap">
-                                    <progress class="progressbar" id="progressbar17" value="50" max="100"></progress>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Прозрачность:</div>
+                                    <?php $b7_opacity = $landing['block7']['bg_opacity']; ?>
+                                    <input type="range" min="0.05" max="1" step="0.05" value="<?php echo $b7_opacity; ?>" class="land_block_opacity">
+                                    <input type="text" name="r_opacity_block7" value="<?php echo $b7_opacity; ?>" class="land_block_opacity_val" readonly>
                                 </div>
-                            </div>
-                        </div>
-                        <?php if ($landing['block7']['bg_default'] === false and is_file($landing['block7']['bg_orig'])) :?>
-                            <div class="landing_images">
-                                <div class="landing_image">
-                                    <img src="<?php echo mb_substr($landing['block7']['bg_orig'], 1); ?>" alt=""/>
-                                    <div class="admin_form_buts parent">
-                                        <input type="hidden" name="img_path_7_0" value="<?php echo mb_substr($landing['block7']['bg_orig'], 1); ?>">
-                                        <input type="hidden" name="img_path_7_0_type" value="background">
-                                        <input type="submit" name="bt_delete_landing_img[7][0]" class="admin_form_del" value="Удалить">
+                                <div class="tren_form_block_check_wrap">
+                                    <input type="checkbox" name="cb_default_bg_block7"
+                                        <?php if ($landing['block7']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
+                                           class="tren_form_block_check" id="tren_form_block_check7bg">
+                                    <label for="tren_form_block_check7bg">Фон по умолчанию</label>
+                                </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Файл фона:</div>
+                                    <div class="video_down_line parent">
+                                        <div class="video_down_line_but_wrap">
+                                            <label for="video_down_line_but7fbg" class="video_down_line_but">
+                                                <input type="file" name="bg_file_block7" class="admin_form_videofile" id="video_down_line_but7fbg" accept="image/jpeg,image/png" />
+                                                <span>Выберите файл</span>
+                                            </label>
+                                        </div>
+                                        <div class="video_down_line_name">Файл не выбран</div>
                                     </div>
                                 </div>
                             </div>
-                        <?php endif;?>
+                        </div>
+                        <div class="lend_form_h">Информация</div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Заголовок:</div>
                             <input type="text" name="i_title_block7" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block7']['title']; ?>" />
                         </div>
-                        <div class="lend_form_h">Изображения и текст (рекомендация: кол-во планов кратно 2; максимальное кол-во планов 4)</div>
+                        <div class="lend_form_h">Изображения и текст</div>
                         <div class="lend_form_options_wrap">
                             <div class="lend_form_options">
-                                <?php $num_plan = 0;
-                                if (!empty($landing['block7']['texts'])):
-                                    foreach ($landing['block7']['texts'] as $key => $b7_text) :
-                                        $num_plan = $key+1; ?>
-                                        <div class="lend_form_option">
-                                            <div class="tren_set_form_l">
-                                                <div class="tren_set_form_img">
-                                                    <?php if (($landing['block7']['images_default'][$key] === false or $key > 3) and is_file($landing['block7']['images_orig'][$key])) :?>
-                                                        <img src="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>" alt=""/>
-                                                        <div class="admin_form_buts parent">
-                                                            <input type="hidden" name="img_path_7_<?php echo $key; ?>" value="<?php echo mb_substr($landing['block7']['images_orig'][$key], 1); ?>">
-                                                            <input type="hidden" name="img_path_7_<?php echo $key; ?>_type" value="images">
-                                                            <input type="submit" name="bt_delete_landing_img[7][<?php echo $key; ?>]" class="admin_form_del" value="Удалить">
-                                                        </div>
-                                                    <?php else: ?>
-                                                        <img src="/img/no_img.png" alt="">
-                                                    <?php endif; ?>
+                                <div class="lend_form_option">
+                                    <div class="tren_set_form_l">
+                                        <div class="tren_set_form_img">
+                                            <?php if ($landing['block7']['image1_default'] === false and is_file($landing['block7']['image1_orig'])) :
+                                                $bl7_img1 = mb_substr($landing['block7']['image1_orig'], 1);?>
+                                                <img src="<?php echo $bl7_img1; ?>" alt=""/>
+                                                <div class="admin_form_buts parent">
+                                                    <input type="hidden" name="img_path_7_2_1" value="<?php echo $bl7_img1; ?>">
+                                                    <input type="submit" name="bt_delete_landing_img[7][2][1]" class="admin_form_del" value="Удалить">
                                                 </div>
-                                            </div>
-                                            <div class="tren_set_form_r">
-                                                <div class="tren_form_block_check_wrap">
-                                                    <input type="checkbox" name="cb_images_block7[<?php echo $key; ?>]"
-                                                        <?php if ($landing['block7']['images_default'][$key] === true) : ?> checked="checked" <?php endif ; ?>
-                                                           class="tren_form_block_check" id="tren_form_block_check15e<?php echo $key+1; ?>" />
-                                                    <label for="tren_form_block_check15e<?php echo $key+1; ?>">Изображение по умолчанию</label>
-                                                </div>
-                                                <div class="parent kurs_cur_wrap" style="max-height: 72px;">
-                                                    <div class="kurs_block_h">
-                                                        Изображение:
-                                                        <div class="h_subtitle">(285х285)</div>
-                                                    </div>
-                                                    <div class="video_down_line parent">
-                                                        <div class="video_down_line_but_wrap">
-                                                            <label for="video_down_line_but<?php echo $key+1;?>p" class="video_down_line_but">
-                                                                <input type="file" name="files_block7[<?php echo $key; ?>]" class="admin_form_videofile" id="video_down_line_but<?php echo $key+1;?>p" accept="image/jpeg,image/png" />
-                                                                <span>Выберите файл</span>
-                                                            </label>
-                                                        </div>
-                                                        <div class="video_down_line_name">Файл не выбран</div>
-                                                    </div>
-                                                </div>
-                                                <div class="parent kurs_cur_wrap">
-                                                    <div class="kurs_block_h">Текст плана:</div>
-                                                    <input type="text" name="i_text_block7[<?php echo $key; ?>]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $b7_text;?>" maxlength="160"/>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php endforeach;
-                                    unset($b7_text);
-                                else: ?>
-                                    <div class="lend_form_option">
-                                        <div class="tren_set_form_l">
-                                            <div class="tren_set_form_img"><img src="/img/no_img.png" alt=""></div>
-                                        </div>
-                                        <div class="tren_set_form_r">
-                                            <div class="tren_form_block_check_wrap">
-                                                <input type="checkbox" name="cb_images_block7[]" checked="checked"
-                                                       class="tren_form_block_check" id="tren_form_block_check15e1" />
-                                                <label for="tren_form_block_check15e1">Изображение по умолчанию</label>
-                                            </div>
-                                            <div class="parent kurs_cur_wrap" style="max-height: 72px;">
-                                                <div class="kurs_block_h">
-                                                    Изображение:
-                                                    <div class="h_subtitle">(285х285)</div>
-                                                </div>
-                                                <div class="video_down_line parent">
-                                                    <div class="video_down_line_but_wrap">
-                                                        <label for="video_down_line_but1p" class="video_down_line_but">
-                                                            <input type="file" name="files_block7[]" class="admin_form_videofile" id="video_down_line_but1p" accept="image/jpeg,image/png" />
-                                                            <span>Выберите файл</span>
-                                                        </label>
-                                                    </div>
-                                                    <div class="video_down_line_name">Файл не выбран</div>
-                                                </div>
-                                            </div>
-                                            <div class="parent kurs_cur_wrap">
-                                                <div class="kurs_block_h">Текст плана:</div>
-                                                <input type="text" name="i_text_block7[]" class="admin_form_txt admin_form_txt_middle" maxlength="160" value=""/>
-                                            </div>
+                                            <?php else: ?>
+                                                <img src="/img/no_img.png" alt="">
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                <?php endif;?>
+                                    <div class="tren_set_form_r">
+                                        <div class="tren_form_block_check_wrap">
+                                            <input type="checkbox" name="cb_image1_block7"
+                                                <?php if ($landing['block7']['image1_default'] === true) : ?> checked="checked" <?php endif ; ?>
+                                                   class="tren_form_block_check" id="tren_form_block_check15e1" />
+                                            <label for="tren_form_block_check15e1">Изображение по умолчанию</label>
+                                        </div>
+                                        <div class="parent kurs_cur_wrap" style="max-height: 72px;">
+                                            <div class="kurs_block_h">
+                                                Изображение:
+                                                <div class="h_subtitle">(285х285)</div>
+                                            </div>
+                                            <div class="video_down_line parent">
+                                                <div class="video_down_line_but_wrap">
+                                                    <label for="video_down_line_but1p" class="video_down_line_but">
+                                                        <input type="file" name="file1_block7" class="admin_form_videofile" id="video_down_line_but1p" accept="image/jpeg,image/png" />
+                                                        <span>Выберите файл</span>
+                                                    </label>
+                                                </div>
+                                                <div class="video_down_line_name">Файл не выбран</div>
+                                            </div>
+                                        </div>
+                                        <div class="parent kurs_cur_wrap">
+                                            <div class="kurs_block_h">Текст плана:</div>
+                                            <input type="text" name="i_text_block7[1]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $landing['block7']['texts'][1];?>" maxlength="160"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lend_form_option">
+                                    <div class="tren_set_form_l">
+                                        <div class="tren_set_form_img">
+                                            <?php if ($landing['block7']['image2_default'] === false and is_file($landing['block7']['image2_orig'])) :
+                                                $bl7_img2 = mb_substr($landing['block7']['image2_orig'], 1);?>
+                                                <img src="<?php echo $bl7_img2; ?>" alt=""/>
+                                                <div class="admin_form_buts parent">
+                                                    <input type="hidden" name="img_path_7_2_2" value="<?php echo $bl7_img2; ?>">
+                                                    <input type="submit" name="bt_delete_landing_img[7][2][2]" class="admin_form_del" value="Удалить">
+                                                </div>
+                                            <?php else: ?>
+                                                <img src="/img/no_img.png" alt="">
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <div class="tren_set_form_r">
+                                        <div class="tren_form_block_check_wrap">
+                                            <input type="checkbox" name="cb_image2_block7"
+                                                <?php if ($landing['block7']['image2_default'] === true) : ?> checked="checked" <?php endif ; ?>
+                                                   class="tren_form_block_check" id="tren_form_block_check15e2" />
+                                            <label for="tren_form_block_check15e2">Изображение по умолчанию</label>
+                                        </div>
+                                        <div class="parent kurs_cur_wrap" style="max-height: 72px;">
+                                            <div class="kurs_block_h">
+                                                Изображение:
+                                                <div class="h_subtitle">(285х285)</div>
+                                            </div>
+                                            <div class="video_down_line parent">
+                                                <div class="video_down_line_but_wrap">
+                                                    <label for="video_down_line_but2p" class="video_down_line_but">
+                                                        <input type="file" name="file2_block7" class="admin_form_videofile" id="video_down_line_but2p" accept="image/jpeg,image/png" />
+                                                        <span>Выберите файл</span>
+                                                    </label>
+                                                </div>
+                                                <div class="video_down_line_name">Файл не выбран</div>
+                                            </div>
+                                        </div>
+                                        <div class="parent kurs_cur_wrap">
+                                            <div class="kurs_block_h">Текст плана:</div>
+                                            <input type="text" name="i_text_block7[2]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $landing['block7']['texts'][2];?>" maxlength="160"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lend_form_option">
+                                    <div class="tren_set_form_l">
+                                        <div class="tren_set_form_img">
+                                            <?php if ($landing['block7']['image3_default'] === false and is_file($landing['block7']['image3_orig'])) :
+                                                $bl7_img3 = mb_substr($landing['block7']['image3_orig'], 1);?>
+                                                <img src="<?php echo $bl7_img3; ?>" alt=""/>
+                                                <div class="admin_form_buts parent">
+                                                    <input type="hidden" name="img_path_7_2_3" value="<?php echo $bl7_img3; ?>">
+                                                    <input type="submit" name="bt_delete_landing_img[7][2][3]" class="admin_form_del" value="Удалить">
+                                                </div>
+                                            <?php else: ?>
+                                                <img src="/img/no_img.png" alt="">
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <div class="tren_set_form_r">
+                                        <div class="tren_form_block_check_wrap">
+                                            <input type="checkbox" name="cb_image3_block7"
+                                                <?php if ($landing['block7']['image3_default'] === true) : ?> checked="checked" <?php endif ; ?>
+                                                   class="tren_form_block_check" id="tren_form_block_check15e3" />
+                                            <label for="tren_form_block_check15e3">Изображение по умолчанию</label>
+                                        </div>
+                                        <div class="parent kurs_cur_wrap" style="max-height: 72px;">
+                                            <div class="kurs_block_h">
+                                                Изображение:
+                                                <div class="h_subtitle">(285х285)</div>
+                                            </div>
+                                            <div class="video_down_line parent">
+                                                <div class="video_down_line_but_wrap">
+                                                    <label for="video_down_line_but3p" class="video_down_line_but">
+                                                        <input type="file" name="file3_block7" class="admin_form_videofile" id="video_down_line_but3p" accept="image/jpeg,image/png" />
+                                                        <span>Выберите файл</span>
+                                                    </label>
+                                                </div>
+                                                <div class="video_down_line_name">Файл не выбран</div>
+                                            </div>
+                                        </div>
+                                        <div class="parent kurs_cur_wrap">
+                                            <div class="kurs_block_h">Текст плана:</div>
+                                            <input type="text" name="i_text_block7[3]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $landing['block7']['texts'][3];?>" maxlength="160"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lend_form_option">
+                                    <div class="tren_set_form_l">
+                                        <div class="tren_set_form_img">
+                                            <?php if ($landing['block7']['image4_default'] === false and is_file($landing['block7']['image4_orig'])) :
+                                                $bl7_img4 = mb_substr($landing['block7']['image4_orig'], 1);?>
+                                                <img src="<?php echo $bl7_img4; ?>" alt=""/>
+                                                <div class="admin_form_buts parent">
+                                                    <input type="hidden" name="img_path_7_2_4" value="<?php echo $bl7_img4; ?>">
+                                                    <input type="submit" name="bt_delete_landing_img[7][2][4]" class="admin_form_del" value="Удалить">
+                                                </div>
+                                            <?php else: ?>
+                                                <img src="/img/no_img.png" alt="">
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    <div class="tren_set_form_r">
+                                        <div class="tren_form_block_check_wrap">
+                                            <input type="checkbox" name="cb_image4_block7"
+                                                <?php if ($landing['block7']['image4_default'] === true) : ?> checked="checked" <?php endif ; ?>
+                                                   class="tren_form_block_check" id="tren_form_block_check15e4" />
+                                            <label for="tren_form_block_check15e4">Изображение по умолчанию</label>
+                                        </div>
+                                        <div class="parent kurs_cur_wrap" style="max-height: 72px;">
+                                            <div class="kurs_block_h">
+                                                Изображение:
+                                                <div class="h_subtitle">(285х285)</div>
+                                            </div>
+                                            <div class="video_down_line parent">
+                                                <div class="video_down_line_but_wrap">
+                                                    <label for="video_down_line_but4p" class="video_down_line_but">
+                                                        <input type="file" name="file4_block7" class="admin_form_videofile" id="video_down_line_but4p" accept="image/jpeg,image/png" />
+                                                        <span>Выберите файл</span>
+                                                    </label>
+                                                </div>
+                                                <div class="video_down_line_name">Файл не выбран</div>
+                                            </div>
+                                        </div>
+                                        <div class="parent kurs_cur_wrap">
+                                            <div class="kurs_block_h">Текст плана:</div>
+                                            <input type="text" name="i_text_block7[4]" class="admin_form_txt admin_form_txt_middle" value="<?php echo $landing['block7']['texts'][4];?>" maxlength="160"/>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                            <?php if($num_plan < 4): ?>
-                                <div class="add_new_options_but add_form_plan">+ добавить план (изображение и текст)</div>
-                            <?php endif; ?>
+                            <!--<div class="add_new_options_but add_form_plan">+ добавить план (изображение и текст)</div>-->
                         </div>
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">
@@ -1099,7 +1260,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <img src="<?php echo mb_substr($landing['block8']['bg_orig'], 1); ?>" alt=""/>
                                         <div class="admin_form_buts parent">
                                             <input type="hidden" name="img_path_8_0" value="<?php echo mb_substr($landing['block8']['bg_orig'], 1); ?>">
-                                            <input type="hidden" name="img_path_8_0_type" value="background">
                                             <input type="submit" name="bt_delete_landing_img[8][0]" class="admin_form_del" value="Удалить">
                                         </div>
                                     <?php else: ?>
@@ -1108,23 +1268,28 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                             <div class="tren_set_form_r">
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Цвет блока:</div>
+                                    <div class="bg_color">
+                                        <?php $b8_color = $landing['block8']['bg_color_orig'];?>
+                                        <input type="hidden" name="i_bg_color_block8" value="<?php echo $b8_color;?>" id="block_bg_color"/>
+                                        <div id="customWidget">
+                                            <div class="colorselector"><div style="background-color: <?php echo $b8_color;?>"></div></div>
+                                            <div class="colorpickerholder2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Прозрачность:</div>
+                                    <?php $b8_opacity = $landing['block8']['bg_opacity']; ?>
+                                    <input type="range" min="0.05" max="1" step="0.05" value="<?php echo $b8_opacity; ?>" class="land_block_opacity">
+                                    <input type="text" name="r_opacity_block8" value="<?php echo $b8_opacity; ?>" class="land_block_opacity_val" readonly>
+                                </div>
                                 <div class="tren_form_block_check_wrap">
                                     <input type="checkbox" name="cb_default_bg_block8"
                                         <?php if ($landing['block8']['bg_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                            class="tren_form_block_check" id="tren_form_block_check8bg">
                                     <label for="tren_form_block_check8bg">Фон по умолчанию</label>
-                                </div>
-                                <div class="parent kurs_cur_wrap">
-                                    <div class="kurs_block_h">Цвет фона:</div>
-                                    <div class="bg_color">
-                                        <?php $h_color = (mb_substr($landing['block8']['bg_orig'], 0, 1) == '#') ? $landing['block8']['bg_orig'] : '';
-                                        $v_color = (mb_substr($landing['block8']['bg_orig'], 0, 1) == '#') ? $landing['block8']['bg_orig'] : '';?>
-                                        <input type="hidden" name="i_bg_color_block8" value="<?php echo $h_color;?>" id="block_bg_color"/>
-                                        <div id="customWidget">
-                                            <div class="colorselector"><div style="background-color: <?php echo $v_color;?>"></div></div>
-                                            <div class="colorpickerholder2"></div>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div class="parent kurs_cur_wrap">
                                     <div class="kurs_block_h">Файл фона:

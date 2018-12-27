@@ -367,6 +367,9 @@ span.mess_block_full_time {
     float: left;
     margin-right: 30px;
 }
+.landing_admin_form .kurs_cur_wrap .jq-selectbox {
+    margin-right: 0;
+}
 
 .prezent_head.hide_chart {
     margin-top: 1px;
@@ -626,7 +629,8 @@ span.mess_block_full_time {
     font-size: 18px;
     color: #cccccc;
     background-color: #f3f3f3;
-    padding: 10px 15px;
+    padding: 10px 0;
+    text-align: center;
     cursor: pointer;
     text-decoration: none;
 }
@@ -652,14 +656,15 @@ span.mess_block_full_time {
     display: none;
 }
 .landing_images{
-    display: block;
+    display: flex;
+    flex-wrap: wrap;
     position: relative;
     overflow: hidden;
 }
 .landing_image{
     display: block;
     position: relative;
-    width: 30%;
+    width: 33%;
     float: left;
     padding: 0 5px;
 }
@@ -715,13 +720,20 @@ span.mess_block_full_time {
 }
 .anketa_block_item_cont.site_info{
     float: left;
+    min-width: 300px;
 }
 
 .content_block_internal{
     border: 1px solid #cdcdcd;
+    margin-top: 10px;
+}
+.content_block_internal:first-child{
+    margin-top: 0;
 }
 .content_block_internal .kurs_block_val{
     padding: 20px;
+    display: none;
+    border-top: 1px solid #cdcdcd;
 }
 .content_block_internal h3 {
     font-size: 13px;
@@ -729,6 +741,13 @@ span.mess_block_full_time {
     font-weight: bold;
     color: #33363f;
     padding: 10px 60px 10px 15px;
+}
+.site_info .content_block_internal{
+    margin-bottom: 0;
+    margin-top: 10px;
+}
+.content_block_internal .content_block_h{
+    border-bottom: none;
 }
 .line_parent .anketa_form_line{
     margin-bottom: 0;
@@ -781,6 +800,39 @@ span.mess_block_full_time {
     color: #a0a0a0;
 }
 
+#bl-pc-sett{
+    display: none;
+}
+
+@media (max-width: 900px){
+    .landing_image{
+        width: 50%;
+    }
+}
+@media (max-width: 750px){
+    /*.add_tab_but{
+        visibility: hidden;
+        width: 50px;
+        min-width: 0;
+    }
+    .add_tab_but:after {
+        content: attr(short);
+        visibility: visible;
+        text-align: center;
+        font-size: 31px;
+        color: #ffffff;
+        width: 50px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 30px;
+        border-radius: 3px;
+        background: #2acaf2;
+        text-decoration: none;
+        overflow: hidden;
+    }*/
+}
+
 @media (max-width: 710px){
     .nutrition_block_table .nutrition_weeks:first-child .nutrition_days{
         border-top: 1px solid #cccccc;
@@ -810,5 +862,11 @@ span.mess_block_full_time {
         position: absolute;
         top: 0;
         left: 0;
+    }
+}
+
+@media (max-width: 600px){
+    .landing_image{
+        width: 100%;
     }
 }

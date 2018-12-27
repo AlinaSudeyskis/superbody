@@ -1,7 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+$col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col_4';
 ?>
-<div class="row cat_item_block">
+<div class="row cat_item_block <?php echo $col_x; ?>">
     <!--<div class="cat_item_wrap">
         <a href="" class="cat_item">
             <div class="cat_img"><img src="/img/cat1.png" alt=""></div>
@@ -28,12 +29,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     </div>
-    <div class="cat_item_wrap" id="s-adding-meal">
-        <div class="cat_item">
-            <div class="cat_img"><img src="/img/cat10.png" alt=""></div>
-            <div class="cat_desk">Добавить прием пищи</div>
+    <?php if(!empty($user_session) and $user_session['type'] == 3): ?>
+        <div class="cat_item_wrap" id="s-adding-meal">
+            <div class="cat_item">
+                <div class="cat_img"><img src="/img/cat10.png" alt=""></div>
+                <div class="cat_desk">Добавить прием пищи</div>
+            </div>
         </div>
-    </div>
+    <?php endif; ?>
     <div class="cat_item_wrap">
         <a href="/anthropometric" class="cat_item">
             <div class="cat_img"><img src="/img/cat4.png" alt=""></div>
