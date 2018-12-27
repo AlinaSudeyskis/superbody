@@ -11,9 +11,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 , информация будет сохранена по умолчанию.
             </div>-->
             <div class="landing_block_table">
-                <?php for($i = 1; $i <= 8; $i++) :
+                <?php $course_type = ($page_menu == 'a_courses_n') ? 'nutrition' : 'course';
+                for($i = 1; $i <= 8; $i++) :
                     $active = ($i == $lend_block_id) ? 'active' : '';?>
-                    <a href="/administration/course/<?php echo $course_id; ?>/landing/<?php echo $i; ?>" class="landing_blocks <?php echo $active; ?>" id="block-<?php echo $i; ?>">Блок <?php echo $i; ?></a>
+                    <a href="/administration/<?php echo $course_type; ?>/<?php echo $course_id; ?>/landing/<?php echo $i; ?>" class="landing_blocks <?php echo $active; ?>" id="block-<?php echo $i; ?>">Блок <?php echo $i; ?></a>
                 <?php endfor;
                 unset($i);?>
             </div>

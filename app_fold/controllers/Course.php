@@ -3703,8 +3703,9 @@ class Course extends CI_Controller
      * Редактирование и сохранение Landing page курса
      *
      * @param $course_id
+     * @param $block_id
      */
-    protected function nutritionLanding($course_id)
+    protected function nutritionLanding($course_id, $block_id = 1)
     {
         $course_landing  = $this->Course_model->getCourseLandingPage($course_id);
         $landing_list    = $this->Course_model->getLandingPagesList();
@@ -4957,6 +4958,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']     = 'a_courses_n';
         $this->page_data['page_submenu']  = 'landing';
         $this->page_data['course_id']     = $course_id;
+        $this->page_data['lend_block_id'] = $block_id;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
