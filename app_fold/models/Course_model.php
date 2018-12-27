@@ -5750,40 +5750,44 @@ class Course_model extends CI_Model
                         $array_training_days = $course['days'];
                         // Флаг начала отсчета дат после заморозки
                         $set_start_date = true;
+                        //log_message('debug', 'Array training days: ' . print_r($array_training_days, true));
 
                         if($course['blocked'] == 0)
                         {
                             // Определение даты первой тренировки, которая уже будет считаться пропущенной
                             // Добавление пропущенный тренировок в БД
                             $sel_f_workout = $this->db->query('
-                            SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
-                            FROM `users_training_weeks`
-                            WHERE `utw_uc_id`=? and `utw_date`<? and `utw_done`=0 and `utw_duplicate`=0
-                            ORDER BY `utw_date` ASC
-                            LIMIT 1', array($course['id'], $today));
+                                SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
+                                FROM `users_training_weeks`
+                                WHERE `utw_uc_id`=? and `utw_date`<? and `utw_done`=0 and `utw_duplicate`=0
+                                ORDER BY `utw_date` ASC
+                                LIMIT 1', array($course['id'], $today));
                             if ($sel_f_workout !== false and 1 == $sel_f_workout->num_rows())
                             {
                                 $row = $sel_f_workout->row();
 
                                 $start_missed_date = $row->utw_date;
                                 $missed_dates = array(); // Массив дат пропущенных дней тренировок
+                                //log_message('debug', 'Start missed date: ' . print_r($start_missed_date, true));
 
                                 // Разница между датами
                                 $datetime1   = new DateTime($today);
                                 $datetime2   = new DateTime($start_missed_date);
                                 $interval    = $datetime1->diff($datetime2);
                                 $days_missed = $interval->format('%a');
+                                //log_message('debug', 'Days missed: ' . print_r($days_missed, true));
 
                                 $training_date = $start_missed_date;
                                 for ($i = 0; $i <= $days_missed; $i++)
                                 {
-                                    // Если дата пропущенной тренировки меньше текущей, иначе прерываем цикл
+                                    // Если дата тренировки меньше текущей, заносим как пропущенная. Иначе прерываем цикл
                                     if ($training_date < $today)
                                     {
                                         // Сравнения номера дня недели с днями недели тренировок. Номер дня недели текущей тренировки
                                         $current_num_day = date("N", strtotime($training_date));
                                         // Новая дата пропущенной тренировки
                                         $new_training_date = $training_date;
+                                        //log_message('debug', 'New training date: ' . print_r($new_training_date, true));
 
                                         // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
                                         // то вычисляем дату следующего дня недели тренировки.
@@ -5806,7 +5810,7 @@ class Course_model extends CI_Model
 
                                             // Если дата тренировки осталась не измененной, выбираем первый день недели тренировки
                                             // пользователя и вычисляем её дату
-                                            if ($new_training_date >= $training_date)
+                                            if ($new_training_date == $training_date)
                                             {
                                                 // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
                                                 $diff_days = 7 - $current_num_day + $array_training_days[0];
@@ -5820,11 +5824,13 @@ class Course_model extends CI_Model
                                                 $new_training_date = $tem_date->format('Y-m-d');
                                             }
                                         }
+                                        //log_message('debug', 'New training date2: ' . print_r($new_training_date, true));
 
                                         // Следующая дата
                                         $tmp_date = new DateTime($new_training_date);
                                         $tmp_date->add(new DateInterval('P1D'));
                                         $training_date = $tmp_date->format('Y-m-d');
+                                        //log_message('debug', 'Next training date: ' . print_r($training_date, true));
 
                                         if ($new_training_date < $today)
                                         {
@@ -5842,7 +5848,7 @@ class Course_model extends CI_Model
                                 }
 
                                 // Добавляем пропущенные тренировки курса
-                                /*print_r($missed_dates); echo '<br/>';*/
+                                //log_message('debug', 'Missed dates: ' . print_r($missed_dates, true));
                                 if (!empty($missed_dates)) {
                                     $value = '';
                                     foreach ($missed_dates as $missed_date) {
@@ -5999,8 +6005,8 @@ class Course_model extends CI_Model
                                 $last_w_date = $row->utw_date;
 
                                 $up_data = $this->db->query('
-                            UPDATE `users_courses` SET `uc_date_end`=? 
-                            WHERE `uc_id`=? and `uc_date_end`<? LIMIT 1', array($last_w_date, $course['id'], $last_w_date));
+                                UPDATE `users_courses` SET `uc_date_end`=?
+                                WHERE `uc_id`=? and `uc_date_end`<? LIMIT 1', array($last_w_date, $course['id'], $last_w_date));
                                 if ($up_data === false)
                                 {
                                     parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -6012,7 +6018,6 @@ class Course_model extends CI_Model
                             {
                                 parent::logDbMessages(__METHOD__.':'.__LINE__);
                             }
-
                         }
 
                         // Выборка расписания тренировок
