@@ -3371,7 +3371,8 @@ class Course extends CI_Controller
         }
         elseif ($page_type == 'landing')
         {
-            self::nutritionLanding($course_id);
+            $block_id = is_numeric($page_id) ? $page_id : 1;
+            self::nutritionLanding($course_id, $block_id);
         }
         elseif ($page_type == 'statistics')
         {

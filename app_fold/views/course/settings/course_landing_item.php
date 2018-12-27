@@ -108,8 +108,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="submit" name="bt_save_block_1" value="Сохранить блок 1" class="video_admin_form_send" />
                         </div>
                     </div>
-                <?php endif;
-                if($lend_block_id == 2): ?>
+                <?php
+                elseif($lend_block_id == 2): ?>
                     <div class="landing_block" style="display:block;" id="l-block-2">
                         <div class="landing_title">
                             <span>Блок №2</span>
@@ -274,8 +274,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="submit" name="bt_save_block_2" value="Сохранить блок 2" class="video_admin_form_send" />
                         </div>
                     </div>
-                <?php endif;
-                if($lend_block_id == 3): ?>
+                <?php
+                elseif($lend_block_id == 3): ?>
                     <div class="landing_block" style="display:block;" id="l-block-3">
                         <div class="landing_title">
                             <span>Блок №3</span>
@@ -467,8 +467,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="submit" name="bt_save_block_3" value="Сохранить блок 3" class="video_admin_form_send" />
                         </div>
                     </div>
-                <?php endif;
-                if($lend_block_id == 4): ?>
+                <?php
+                elseif($lend_block_id == 4): ?>
                     <div class="landing_block" style="display:block;" id="l-block-4">
                         <div class="landing_title">
                             <span>Блок №4</span>
@@ -615,8 +615,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="submit" name="bt_save_block_4" value="Сохранить блок 4" class="video_admin_form_send" />
                         </div>
                     </div>
-                <?php endif;
-                if($lend_block_id == 5): ?>
+                <?php
+                elseif($lend_block_id == 5): ?>
                     <div class="landing_block" style="display:block;" id="l-block-5">
                         <div class="landing_title">
                             <span>Блок №5</span>
@@ -833,8 +833,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="submit" name="bt_save_block_5" value="Сохранить блок 5" class="video_admin_form_send" />
                         </div>
                     </div>
-                <?php endif;
-                if($lend_block_id == 6): ?>
+                <?php
+                elseif($lend_block_id == 6): ?>
                     <div class="landing_block" style="display:block;" id="l-block-6">
                         <div class="landing_title">
                             <span>Блок №6</span>
@@ -980,8 +980,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="submit" name="bt_save_block_6" value="Сохранить блок 6" class="video_admin_form_send" />
                         </div>
                     </div>
-                <?php endif;
-                if($lend_block_id == 7): ?>
+                <?php
+                elseif($lend_block_id == 7): ?>
                     <div class="landing_block" style="display:block;" id="l-block-7">
                         <div class="landing_title">
                             <span>Блок №7</span>
@@ -1240,8 +1240,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="submit" name="bt_save_block_7" value="Сохранить блок 7" class="video_admin_form_send" />
                         </div>
                     </div>
-                <?php endif;
-                if($lend_block_id == 8): ?>
+                <?php
+                elseif($lend_block_id == 8): ?>
                     <div class="landing_block" style="display:block;" id="l-block-8">
                         <div class="landing_title">
                             <span>Блок №8</span>
