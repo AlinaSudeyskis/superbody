@@ -215,7 +215,7 @@ $route['administration/nutrition/(:num)']          = 'Course/nutrition/$1/settin
 $route['administration/nutrition/(:num)/preview']  = 'Course/coursePreview/$1';
 $route['administration/nutrition/(:num)/settings'] = 'Course/nutrition/$1/settings';
 // Landing настройки
-$route['administration/nutrition/(:num)/landing'] = 'Course/nutrition/$1/landing';
+$route['administration/nutrition/(:num)/landing(/(:num))?'] = 'Course/nutrition/$1/landing/$3';
 // Статистика
 $route['administration/nutrition/(:num)/statistics'] = 'Course/nutrition/$1/statistics';
 // Отзывы
