@@ -40,6 +40,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <input type="submit" name="bt_unblock_user" class="video_admin_form_block" value="Разблокировать"/>
                                         <?php endif;?>
                                         <input type="submit" name="bt_delete_user" class="video_admin_form_block" value="Удалить"/>
+                                        <input type="submit" name="bt_change_user_type" class="admin_form_reset" value="В пользователи"/>
                                         <input type="submit" name="bt_reset_password" class="admin_form_reset" value="Сбос пароля"/>
                                         <input type="submit" name="bt_save_user_settings" class="video_admin_form_send" value="Сохранить">
                                     </div>

@@ -185,6 +185,25 @@ class Store extends CI_Controller
             }
             header('Location: /administration/category/'.$category_id);
         }
+        elseif ($this->input->post('bt_delete_category', true))
+        {
+            $res_del = $this->Store_model->deleteCategory($category_id);
+
+            if($res_del === true)
+            {
+                // атегория удалена
+                $this->session->set_tempdata('message', 177, 60);
+
+                header('Location: /administration/categories/');
+            }
+            else
+            {
+                // Категория не удалена
+                $this->session->set_tempdata('message', 178, 60);
+
+                header('Location: /administration/category/'.$category_id);
+            }
+        }
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Категория';
@@ -1037,8 +1056,8 @@ class Store extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']       = (!empty($products['product']['name'])) ? $products['product']['name'] : 'Товар №' . $product_id;
-        $this->page_data['description'] = $products['product']['meta_description'];
-        $this->page_data['keywords']    = $products['product']['meta_keywords'];
+        $this->page_data['description'] = $products['product']['meta']['description'];
+        $this->page_data['keywords']    = $products['product']['meta']['keywords'];
         $this->page_data['page_menu'] = 'store';
         $this->page_data['categories'] = $categories;
         $this->page_data['category_id'] = $category_id;
@@ -1059,6 +1078,11 @@ class Store extends CI_Controller
      */
     public function cart()
     {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
         if ($this->input->post('bt_update_cart', true))
         {
             $result_cart = true;

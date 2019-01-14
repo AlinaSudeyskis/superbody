@@ -369,6 +369,8 @@ class Couch extends CI_Controller
                 // Не сохранено
                 $this->session->set_tempdata('message', 17, 60);
             }
+
+            header('Location: /administration/couch/'.$user_id);
         }
         elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id)) {
             $result = $this->Couch_model->unblockCouch($user_id, $this->date);
@@ -380,8 +382,30 @@ class Couch extends CI_Controller
                 // Не сохранено
                 $this->session->set_tempdata('message', 19, 60);
             }
+
+            header('Location: /administration/couch/'.$user_id);
         }
         elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id))
+        {
+            $this->load->model('User_model');
+            $result = $this->User_model->deleteUser($user_id);
+
+            if ($result === true)
+            {
+                // Пользователь удален
+                $this->session->set_tempdata('message', 179, 60);
+
+                header('Location: /administration/couches');
+            }
+            else
+            {
+                // Пользователь не удален
+                $this->session->set_tempdata('message', 180, 60);
+
+                header('Location: /administration/couch/'.$user_id);
+            }
+        }
+        elseif ($this->input->post('bt_change_user_type', true) and is_numeric($user_id))
         {
             $type = 1;
             $this->load->model('Administrator_model');
@@ -407,6 +431,8 @@ class Couch extends CI_Controller
             {
                 // Не сохранено
                 $this->session->set_tempdata('message', 86, 60);
+
+                header('Location: /administration/couch/'.$user_id);
             }
         }
         elseif ($this->input->post('bt_delete_avatar', true)) {

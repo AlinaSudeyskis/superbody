@@ -15,7 +15,7 @@ if(!empty($user_session) and $user_session['type'] == 3): ?>
                 </li>
                 <?php if (!empty($categories['categories'])) :
                     foreach ($categories['categories'] as $category) :
-                        if($category['id'] > 2):
+                        if($category['id'] > 2 and $category['id'] != 6):
                             $bg = (!empty($category_id) and $category['id'] == $category_id) ? 'class="active"' : '';?>
                             <li><a href="/store/<?php echo $category['id'];?>" <?php echo $bg;?>><?php echo $category['name'];?></a></li>
                         <?php endif;

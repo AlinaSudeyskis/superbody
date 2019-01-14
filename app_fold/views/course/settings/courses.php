@@ -19,9 +19,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="admin_list kurs_list">
-                        <?php if (!empty($courses)) :
-                            foreach ($courses as $course) :?>
+                    <?php if (!empty($courses)): ?>
+                        <div class="admin_list kurs_list">
+                            <?php foreach ($courses as $course) :?>
                                 <div class="admin_item parent">
                                     <div class="admin_ava">
                                         <?php if (!empty($course['image'])):?>
@@ -58,9 +58,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php endif; ?>
                                 </div>
                             <?php endforeach;
-                            unset($course);
-                        endif;?>
-                    </div>
+                            unset($course); ?>
+                        </div>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif; ?>
                     <?php include_once('./app_fold/views/pagination.php');?>
                 </div>
             </div>

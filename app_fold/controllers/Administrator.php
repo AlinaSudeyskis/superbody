@@ -350,6 +350,8 @@ class Administrator extends CI_Controller
                 // Не сохранено
                 $this->session->set_tempdata('message', 17, 60);
             }
+
+            header('Location: /administration/admin/'.$user_id);
         }
         elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id))
         {
@@ -361,9 +363,31 @@ class Administrator extends CI_Controller
             } else {
                 // Не сохранено
                 $this->session->set_tempdata('message', 19, 60);
-            }            
+            }
+
+            header('Location: /administration/admin/'.$user_id);
         }
         elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id))
+        {
+            $this->load->model('User_model');
+            $result = $this->User_model->deleteUser($user_id);
+
+            if ($result === true)
+            {
+                // Пользователь удален
+                $this->session->set_tempdata('message', 179, 60);
+
+                header('Location: /administration/admins');
+            }
+            else
+            {
+                // Пользователь не удален
+                $this->session->set_tempdata('message', 180, 60);
+
+                header('Location: /administration/admin/'.$user_id);
+            }
+        }
+        elseif ($this->input->post('bt_change_user_type', true) and is_numeric($user_id))
         {
             $type = 1;
             $result = $this->Administrator_model->changeUserType($user_id, $type, $this->date);
@@ -387,6 +411,8 @@ class Administrator extends CI_Controller
             {
                 // Не сохранено
                 $this->session->set_tempdata('message', 86, 60);
+
+                header('Location: /administration/admin/'.$user_id);
             }
         }
         elseif ($this->input->post('bt_delete_avatar', true))
@@ -440,7 +466,7 @@ class Administrator extends CI_Controller
                 $this->session->set_tempdata('message', 10, 60);
             }
 
-            header('Location: /administration/couch/'.$user_id);
+            header('Location: /administration/admin/'.$user_id);
         }
         elseif($this->input->post('bt_reset_password', true))
         {

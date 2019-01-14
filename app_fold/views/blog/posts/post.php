@@ -34,10 +34,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                             <?php if (!empty($post['comments'])) :?>
                                 <div class="full_photo_block_comm_wrap">
-                                    <?php foreach ($post['comments'] as $comment) :?>
-                                        <div class="full_photo_block_comm parent">
+                                    <?php foreach ($post['comments'] as $comment) :
+                                        $user_removed = ($comment['u_name'] == 'Пользователь удален') ? 'translucent' : ''; ?>
+                                        <div class="full_photo_block_comm parent <?php echo $user_removed; ?>">
                                             <div class="full_photo_block_comm_img">
-                                                <?php if (!empty($comment['u_image'])):?><img src="<?php echo $comment['u_image'];?>" alt=""><?php endif;?>
+                                                <?php $comment_u_image = (!empty($comment['u_image'])) ? $comment['u_image'] : '/img/no_img.png'; ?>
+                                                <img src="<?php echo $comment_u_image;?>" alt="">
                                             </div>
                                             <div class="full_photo_block_comm_cont">
                                                 <div class="full_photo_block_comm_name"><?php echo $comment['u_name'];?></div>

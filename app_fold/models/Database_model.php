@@ -1448,6 +1448,62 @@ class Database_model extends CI_Model
     }
 
     /**
+     * Обновление базы данных август 2018
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseJanuary2019($date)
+    {
+        $result = false;
+
+        $date = '2019-01-10 16:39:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (177, 'Категория удалена.', 'Категория удалена.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (178, 'Ошибка! Категория не удалена.', 'Ошибка! Категория не удалена.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `categories`(`cat_id`, `cat_name`, `cat_description`, `cat_blocked`, `cat_date_add`, `cat_date_update`, `cat_admin_id`) VALUES (6, 'Без категории', '', 0, '2019-01-10', '2019-01-10', 4)");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-01-10 19:39:23';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (179, 'Пользователь удален.', 'Пользователь удален.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (180, 'Ошибка! Пользователь не удален.', 'Ошибка! Пользователь не удален.', '4', '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-01-11 10:44:17';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses` ADD `crs_archive` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `crs_blocked`, ADD INDEX `ix_crs_archive` (`crs_archive`)");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-01-11 10:53:41';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (181, 'Курс перенесен в архив.', 'Курс перенесен в архив.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (182, 'Ошибка! Курс не перенесен в архив.', 'Ошибка! Курс не перенесен в архив.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (183, 'Курс перенесен из архива в активные курсы.', 'Курс перенесен из архива в активные курсы.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (184, 'Ошибка! Курс не перенесен из архива в активные курсы.', 'Ошибка! Курс не перенесен из архива в активные курсы.', '4', '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+
+    /**
      * Поиск даты обновления в БД
      *
      * @param $date

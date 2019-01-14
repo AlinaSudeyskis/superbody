@@ -23,21 +23,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Промокод:</div>
-        <select name="s_promocode" class="journal_form_select" id="extends-promocode">
-            <option value="0">Без промокода</option>
-            <option value="new">Добавить промокод</option>
-            <?php  if(!empty($promocodes)):
-                foreach($promocodes as $code): ?>
-                    <option value="<?php echo $code['id']; ?>"
-                        <?php if(!empty($extend) and $extend['promocode_id'] == $code['id']): ?>selected="selected"<?php endif; ?>>
-                        <?php echo '[' . $code['code'] . '] ' . $code['discount']. '% ' . $code['name'] . ' (' . $code['active_string'] . ')'; ?>
-                    </option>
-                <?php endforeach;
-                unset($code);
-            endif; ?>
-        </select>
+    <select name="s_promocode" class="journal_form_select" id="extends-promocode">
+        <option value="0">Без промокода</option>
+        <option value="new">Добавить промокод</option>
+        <?php  if(!empty($promocodes)):
+            foreach($promocodes as $code): ?>
+                <option value="<?php echo $code['id']; ?>"
+                    <?php if(!empty($extend) and $extend['promocode_id'] == $code['id']): ?>selected="selected"<?php endif; ?>>
+                    <?php echo '[' . $code['code'] . '] ' . $code['discount']. '% ' . $code['name'] . ' (' . $code['active_string'] . ')'; ?>
+                </option>
+            <?php endforeach;
+            unset($code);
+        endif; ?>
+    </select>
     <?php if(empty($promocodes)): ?>
-        <div class="subscription_block_link"><a href="/administration/course/<?php echo $course_id; ?>/promocode/new" >Добавить промокод</a></div>
+        <!--<div class="subscription_block_link"><a href="/administration/course/<?php /*echo $course_id; */?>/promocode/new" >Добавить промокод</a></div>-->
     <?php endif; ?>
 </div>
 <div id="bl-pc-sett">

@@ -22,4 +22,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'ingestions'): ?> class="anketa_active" <?php endif; ?>>Прием пищи</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/nutritions/archive">
+            <span <?php if ($page_submenu == 'courses_archive'): ?> class="anketa_active" <?php endif; ?>>Архив</span>
+        </a>
+    </li>
 </ul>

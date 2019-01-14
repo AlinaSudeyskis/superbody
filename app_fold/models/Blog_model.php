@@ -226,15 +226,14 @@ class Blog_model extends CI_Model
 
             $result['post'] = self::parseBlogPostData($row);
             $result['post']['user']['id']    = $row->cb_u_id;
-            $result['post']['user']['name']  = !empty($row->user_name) ? $row->user_name : 'Пользователь №'.$row->cb_u_id;
+            $result['post']['user']['name']  = (!empty($row->user_name)) ? $row->user_name : 'Пользователь №'.$row->cb_u_id;
             $result['post']['comments']   = array();
 
             // Выборка комментариев к записи блога тренера
             $sel_comments = $this->db->query('
-                SELECT `bc_id`, `bc_text`, `bc_u_id`, `user_name`, `user_email`, `user_image`
+                SELECT `bc_id`, `bc_text`, `user_id`, `user_name`, `user_email`, `user_image`
                 FROM `blog_comments`
-                LEFT JOIN `users` 
-                  ON `bc_u_id`=`user_id`
+                LEFT JOIN `users` ON `bc_u_id`=`user_id`
                 WHERE `bc_blog_id`=? and `bc_approval`=1', $row->cb_id);
 
             if ($sel_comments !== false and 0 < $sel_comments->num_rows())
@@ -243,9 +242,11 @@ class Blog_model extends CI_Model
                 foreach ($sel_comments->result() as $row) {
                     $result['post']['comments'][$i]['id']      = $row->bc_id;
                     $result['post']['comments'][$i]['text']    = $row->bc_text;
-                    $result['post']['comments'][$i]['u_id']    = $row->bc_u_id;
-                    $result['post']['comments'][$i]['u_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                    $result['post']['comments'][$i]['u_image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                    $result['post']['comments'][$i]['u_id']    = $row->user_id;
+
+                    $u_name  = (!empty($row->user_name)) ? $row->user_name : 'Пользователь №'.$row->user_id;
+                    $result['post']['comments'][$i]['u_name']  = (!empty($u_name) and is_numeric($row->user_id)) ? $u_name : 'Пользователь удален';
+                    $result['post']['comments'][$i]['u_image'] = (!empty($row->user_image)) ? mb_substr($row->user_image, 1) : '';
 
                     $i++;
                 }

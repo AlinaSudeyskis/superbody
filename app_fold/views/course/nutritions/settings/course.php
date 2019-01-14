@@ -33,6 +33,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 <input type="submit" name="bt_unblock_course" value="Разблокировать" class="video_admin_form_block"/>
                                             <?php endif;?>
                                             <input type="submit" name="bt_delete_course" value="Удалить" class="video_admin_form_block<?php if ($course['bought'] === true):?> disabled<?php endif;?>"/>
+                                            <?php if ($course['archive'] == 0) :?>
+                                                <input type="submit" name="bt_archive_course" value="В архив" class="admin_form_reset"/>
+                                            <?php elseif ($course['archive'] == 1) :?>
+                                                <input type="submit" name="bt_from_archive_course" value="Из архива" class="admin_form_reset"/>
+                                            <?php endif;?>
                                             <input type="submit" name="bt_save_course" value="Сохранить" class="video_admin_form_send" />
                                         </div>
                                     </div>

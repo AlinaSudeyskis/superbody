@@ -377,8 +377,20 @@ class CI_Controller {
         if (!empty($this->session->user) and is_numeric($this->session->user['id']) and
             (empty($this->session->user['email']) or filter_var($this->session->user['email'], FILTER_VALIDATE_EMAIL)))
         {
-            // Проверка авторизации пользователя (способ авторизации - соц. сети)
+            $this->load->model('Message_model');
+            $this->load->model('User_model');
+            $this->load->model('Store_model');
+
+            // Проверка авторизации пользователя (social)
             self::checkUserSession();
+
+            $user = $this->User_model->getUser($this->session->user['id']);
+
+            // Если пользователь не найден в БД, завершить сессию
+            if(empty($user['user_data']))
+            {
+                header('Location: /logout');
+            }
 
             // Уничтожение сессии, для повтороной авторизации, если дата авторизации меньше метки,
             // заданной для обновления сессий пользователя
@@ -391,12 +403,6 @@ class CI_Controller {
 
             // ID пользователя
             $this->user_id = $this->session->user['id'];
-
-            // Проверка пользовательских данных сессии
-            $this->load->model('Message_model');
-            $this->load->model('User_model');
-            $this->load->model('Store_model');
-
             // Проверка новых сообщений
             $new_messages    = $this->Message_model->getCountNewMessages($this->user_id);
             $new_fb_messages = $this->Message_model->getCountNewFeedbackMessages($this->user_id, $this->session->user['email']);

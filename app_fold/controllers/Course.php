@@ -663,11 +663,13 @@ class Course extends CI_Controller
      * Вывод списка курсов в админ. панели
      *
      * @param $courses_category
+     * @param $archive
      */
-    public function courses($courses_category = 'workout')
+    public function courses($courses_category = 'workout', $archive = 0)
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
+        {
             parent::pageNotFound($this->page_url);
         }
 
@@ -726,14 +728,24 @@ class Course extends CI_Controller
         }
 
         // Курсы тренировок
-        if($courses_category == 'workout')
+        if($courses_category == 'workout' and $archive == 0)
         {
             self::workoutCourses();
         }
         // Курсы питания
-        elseif($courses_category == 'nutrition')
+        elseif($courses_category == 'nutrition' and $archive == 0)
         {
             self::nutritionCourses();
+        }
+        // Архив курсов тренировок
+        elseif($courses_category == 'workout' and $archive == 1)
+        {
+            self::workoutCoursesArchive();
+        }
+        // Архив курсов питания
+        elseif($courses_category == 'nutrition' and $archive == 1)
+        {
+            self::nutritionCoursesArchive();
         }
         else
         {
@@ -747,12 +759,31 @@ class Course extends CI_Controller
     protected function workoutCourses()
     {
         // Получение списка добавленных курсов
-        $result = $this->Course_model->getWorkoutCourses();
+        $result = $this->Course_model->getCourses('workout', 0);
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Курсы тренировок';
         $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'a_courses_w';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/courses', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Архив курсов тренировок
+     */
+    protected function workoutCoursesArchive()
+    {
+        // Получение списка курсов
+        $result = $this->Course_model->getCourses('workout', 1);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Архив курсов тренировок';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'courses_archive';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -1339,51 +1370,100 @@ class Course extends CI_Controller
 
             header('Location: /administration/course/'.$course_id);
         }
-        elseif ($this->input->post('bt_block_course', true)) {
+        elseif ($this->input->post('bt_block_course', true))
+        {
             $result = $this->Course_model->blockCourse($course_id, $this->date);
 
-            if ($result === true) {
+            if ($result === true)
+            {
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
-            } else {
+            }
+            else
+            {
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 33, 60);
             }
+
             header('Location: /administration/course/' . $course_id);
         }
-        elseif ($this->input->post('bt_unblock_course', true)) {
+        elseif ($this->input->post('bt_unblock_course', true))
+        {
             $result = $this->Course_model->unblockCourse($course_id, $this->date);
 
-            if ($result === true) {
+            if ($result === true)
+            {
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
-            } else {
+            }
+            else
+            {
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 34, 60);
             }
+
             header('Location: /administration/course/' . $course_id);
         }
-        elseif ($this->input->post('bt_delete_course', true)) {
-            if ($course['course']['bought'] === false) {
+        elseif ($this->input->post('bt_delete_course', true))
+        {
+            if ($course['course']['bought'] === false)
+            {
                 // Удалить курс
                 $del_course = $this->Course_model->deleteCourse($course_id);
 
-                if ($del_course === true) {
+                if ($del_course === true)
+                {
                     // Курс удален
                     $this->session->set_tempdata('message', 108, 60);
                     header('Location: /administration/courses/');
                 }
-                else {
+                else
+                {
                     // Не удалось удалить курс
                     $this->session->set_tempdata('message', 107, 60);
                     header('Location: /administration/course/' . $course_id);
                 }
             }
-            else {
+            else
+            {
                 // Не возможно удалить курс (куплен пользователем)
                 $this->session->set_tempdata('message', 106, 60);
                 header('Location: /administration/course/' . $course_id);
             }
+        }
+        elseif ($this->input->post('bt_archive_course', true))
+        {
+            $res_data = $this->Course_model->archiveCourse($course_id, 1, $this->user_id, $this->date);
+
+            if ($res_data === true)
+            {
+                // Курс добавлен в архив
+                $this->session->set_tempdata('message', 181, 60);
+            }
+            else
+            {
+                // Не удалось добавить курс в архив
+                $this->session->set_tempdata('message', 182, 60);
+            }
+
+            header('Location: /administration/course/' . $course_id);
+        }
+        elseif ($this->input->post('bt_from_archive_course', true))
+        {
+            $res_data = $this->Course_model->archiveCourse($course_id, 0, $this->user_id, $this->date);
+
+            if ($res_data === true)
+            {
+                // Курс добавлен в архив
+                $this->session->set_tempdata('message', 183, 60);
+            }
+            else
+            {
+                // Не удалось добавить курс в архив
+                $this->session->set_tempdata('message', 184, 60);
+            }
+
+            header('Location: /administration/course/' . $course_id);
         }
 
         $result = array_merge($course_types, $course);
@@ -3159,12 +3239,31 @@ class Course extends CI_Controller
     protected function nutritionCourses()
     {
         // Получение списка добавленных курсов
-        $result = $this->Course_model->getNutritionCourses();
+        $result = $this->Course_model->getCourses('nutrition', 0);
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Курсы питания';
         $this->page_data['page_menu']    = 'a_courses_n';
         $this->page_data['page_submenu'] = 'a_courses_n';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/nutritions/courses', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Архив курсов питания
+     */
+    protected function nutritionCoursesArchive()
+    {
+        // Получение списка курсов
+        $result = $this->Course_model->getCourses('nutrition', 1);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Архив курсов питания';
+        $this->page_data['page_menu']    = 'a_courses_n';
+        $this->page_data['page_submenu'] = 'courses_archive';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -3684,6 +3783,40 @@ class Course extends CI_Controller
                 $this->session->set_tempdata('message', 106, 60);
                 header('Location: /administration/nutrition/' . $course_id);
             }
+        }
+        elseif ($this->input->post('bt_archive_course', true))
+        {
+            $res_data = $this->Course_model->archiveCourse($course_id, 1, $this->user_id, $this->date);
+
+            if ($res_data === true)
+            {
+                // Курс добавлен в архив
+                $this->session->set_tempdata('message', 181, 60);
+            }
+            else
+            {
+                // Не удалось добавить курс в архив
+                $this->session->set_tempdata('message', 182, 60);
+            }
+
+            header('Location: /administration/nutrition/' . $course_id);
+        }
+        elseif ($this->input->post('bt_from_archive_course', true))
+        {
+            $res_data = $this->Course_model->archiveCourse($course_id, 0, $this->user_id, $this->date);
+
+            if ($res_data === true)
+            {
+                // Курс добавлен в архив
+                $this->session->set_tempdata('message', 183, 60);
+            }
+            else
+            {
+                // Не удалось добавить курс в архив
+                $this->session->set_tempdata('message', 184, 60);
+            }
+
+            header('Location: /administration/nutrition/' . $course_id);
         }
 
         $result = array_merge($ingestions, $course, $course_ingestions, $course_ml_types, $course_schedule);

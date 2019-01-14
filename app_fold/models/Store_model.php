@@ -229,6 +229,36 @@ class Store_model extends CI_Model
         }
     }
 
+    /**
+     * Удаление категории и присвоение товарам этой категории значения "Без категории"
+     *
+     * @param $category_id
+     * @return bool
+     */
+    public function deleteCategory($category_id)
+    {
+        $result = false;
+
+        $del_data = $this->db->query('DELETE FROM `categories` WHERE `cat_id`=? LIMIT 1', $category_id);
+
+        if($del_data !== false and 1 == $this->db->affected_rows())
+        {
+            $up_data = $this->db->query('UPDATE `products_categories` SET `pc_cat_id`=6 WHERE `pc_cat_id`=?', $category_id);
+            if($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            $result = true;
+        }
+        elseif($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Выборка данных для подкатегории
@@ -1513,7 +1543,7 @@ class Store_model extends CI_Model
             FROM ' . $table . '
             LEFT JOIN `products_categories` ON `p_id`=`pc_p_id`
             LEFT JOIN `courses` ON `p_course_id`=`crs_id`
-            WHERE `p_blocked`=0 and `crs_blocked`=0 and `pc_cat_id`=? ' . $and_where
+            WHERE `p_blocked`=0 and `pc_cat_id`=? ' . $and_where
             . ' GROUP BY `p_id`'
             . ' ORDER BY ' . $order_by
             . ' LIMIT ?';
@@ -1544,14 +1574,11 @@ class Store_model extends CI_Model
                     foreach ($elements as $key => $row)
                     {
                         // Данные
-                        if ($row->p_course_id > 0)
+                        if ($row->p_course_id > 0 and $row->crs_blocked == 0)
                         {
-                            if ($row->crs_blocked == 0)
-                            {
-                                $result['products'][$cat_id][$i] = self::parseProductCourseData($row);
-                            }
+                            $result['products'][$cat_id][$i] = self::parseProductCourseData($row);
                         }
-                        else
+                        elseif($row->p_course_id == 0)
                         {
                             $result['products'][$cat_id][$i] = self::parseProductData($row);
                         }
@@ -3518,6 +3545,10 @@ class Store_model extends CI_Model
         $result['fc_price']          = $fc_price;
         $result['discount_price']    = (!empty($discount) and !empty($price)) ? (float)($price - ($price * $discount / 100)) : '';
         $result['discount_fc_price'] = (!empty($discount) and !empty($fc_price)) ? (float)($fc_price - ($fc_price * $discount / 100)) : '';
+
+        $meta_description = !empty($row->p_meta_description) ? $row->p_meta_description : null;
+        $result['meta']['keywords']    = !empty($row->p_meta_keywords) ? $row->p_meta_keywords : '';
+        $result['meta']['description'] = !empty($meta_description) ? $meta_description : $row->p_short_description;
 
         // Изображения
         if (!empty($row->p_images))

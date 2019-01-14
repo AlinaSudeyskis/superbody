@@ -1471,6 +1471,8 @@ class User extends CI_Controller
                 // Не сохранено
                 $this->session->set_tempdata('message', 17, 60);
             }
+
+            header('Location: /administration/user/'.$user_id);
         }
         elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id))
         {
@@ -1483,6 +1485,8 @@ class User extends CI_Controller
                 // Не сохранено
                 $this->session->set_tempdata('message', 19, 60);
             }
+
+            header('Location: /administration/user/'.$user_id);
         }
         elseif ($this->input->post('bt_delete_avatar', true))
         {
@@ -1537,7 +1541,7 @@ class User extends CI_Controller
 
             header('Location: /administration/user/'.$user_id);
         }
-        elseif($this->input->post('bt_reset_password', true))
+        elseif ($this->input->post('bt_reset_password', true))
         {
             $email      = null;
             $email_hash = null;
@@ -1595,6 +1599,25 @@ class User extends CI_Controller
             }
 
             header('Location: /administration/user/'.$user_id);
+        }
+        elseif ($this->input->post('bt_delete_user', true))
+        {
+            $result = $this->User_model->deleteUser($user_id);
+
+            if ($result === true)
+            {
+                // Пользователь удален
+                $this->session->set_tempdata('message', 179, 60);
+
+                header('Location: /administration/users');
+            }
+            else
+            {
+                // Пользователь не удален
+                $this->session->set_tempdata('message', 180, 60);
+
+                header('Location: /administration/user/'.$user_id);
+            }
         }
 
         // Объединенные данные страница

@@ -1773,11 +1773,14 @@ class Course_model extends CI_Model
     /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА */
 
     /**
-     * Выборка всех курсов тренировок
+     * Выборка курсов.
+     * Курсы тренировок, питания или архив.
      *
+     * @param $category
+     * @param $archive
      * @return array
      */
-    public function getWorkoutCourses()
+    public function getCourses($category = 'workout', $archive = 0)
     {
         $result['courses'] = array();
         
@@ -1785,7 +1788,7 @@ class Course_model extends CI_Model
             SELECT `crs_id`, `crs_image`, `crs_name`, `clp_id`, `clp_activated` 
             FROM `courses`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-            WHERE `crs_category`="workout"');
+            WHERE `crs_category`=? and `crs_archive`=?', array($category, $archive));
         
         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
         {
@@ -1803,40 +1806,6 @@ class Course_model extends CI_Model
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
-        return $result;
-    }
-
-    /**
-     * Выборка всех курсов питания
-     *
-     * @return array
-     */
-    public function getNutritionCourses()
-    {
-        $result['courses'] = array();
-
-        $sel_courses = $this->db->query('
-            SELECT `crs_id`, `crs_image`, `crs_name`, `clp_id`, `clp_activated` 
-            FROM `courses`
-            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-            WHERE `crs_category`="nutrition"');
-
-        if ($sel_courses !== false and 0 < $sel_courses->num_rows())
-        {
-            $i = 0;
-            foreach ($sel_courses->result() as $row)
-            {
-                $result['courses'][$i] = self::parseCourseData($row);
-
-                $i++;
-            }
-            unset($row);
-        }
-        elseif ($sel_courses === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
-
         return $result;
     }
 
@@ -1853,7 +1822,7 @@ class Course_model extends CI_Model
             SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
             FROM `courses` 
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-            WHERE `crs_blocked`=0 LIMIT 12');
+            WHERE `crs_blocked`=0 and `crs_archive`=0 LIMIT 12');
 
         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
         {
@@ -1897,7 +1866,7 @@ class Course_model extends CI_Model
             FROM `courses`
             LEFT JOIN `products` ON `p_course_id`=`crs_id`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-            WHERE `crs_id`=? and `crs_blocked`=0 LIMIT 1', $course_id);
+            WHERE `crs_id`=? and `crs_blocked`=0 and `crs_archive`=0 LIMIT 1', $course_id);
 
         if ($sel_course !== false and 1 == $sel_course->num_rows())
         {
@@ -2083,7 +2052,7 @@ class Course_model extends CI_Model
             SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`,
               `crs_meta_keywords`, `crs_meta_description`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, 
               `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
-              `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`
+              `crs_count_rest`, `crs_blocked`, `crs_archive`, `clp_id`, `clp_activated`
             FROM `courses`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
             WHERE `crs_id`=? LIMIT 1', $course_id);
@@ -2683,6 +2652,36 @@ class Course_model extends CI_Model
         }
 
         return $result;
+    }
+
+    /**
+     * Перенос курса в архив
+     *
+     * @param $course_id
+     * @param $archive
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function archiveCourse($course_id, $archive = 1, $admin_id, $date)
+    {
+        $up_data = $this->db->query('
+            UPDATE `courses` SET `crs_archive`=?, `crs_date_update`=? WHERE `crs_id`=? LIMIT 1',
+                array($archive, $date, $course_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ КУРСА */
@@ -9499,10 +9498,11 @@ class Course_model extends CI_Model
         $result = array('extends' => array());
 
         $sel_extends = $this->db->query('
-            SELECT `ce_extend_crs_id`, `ce_weeks_after`, `ce_pc_id`, `crs_name`, `crs_price` 
+            SELECT `ce_extend_crs_id`, `ce_weeks_after`, `ce_pc_id`, `crs_name`, `crs_price`, 
+                   `crs_blocked`, `crs_archive` 
             FROM `courses_extends`
-              LEFT JOIN `courses` ON `crs_id`=`ce_extend_crs_id`
-            WHERE `ce_crs_id`=?', $course_id);
+            LEFT JOIN `courses` ON `crs_id`=`ce_extend_crs_id`
+            WHERE `ce_crs_id`=? and `crs_blocked`=0 and `crs_archive`=0', $course_id);
 
         if($sel_extends !== false and 0 < $sel_extends->num_rows())
         {
@@ -10058,6 +10058,7 @@ class Course_model extends CI_Model
         $result['count_days']       = !empty($row->crs_count_days) ? $row->crs_count_days : null;
         $result['count_rest']       = !empty($row->crs_count_rest) ? $row->crs_count_rest : null;
         $result['blocked']          = !empty($row->crs_blocked) ? $row->crs_blocked : null;
+        $result['archive']          = !empty($row->crs_archive) ? $row->crs_archive : null;
         $result['price']            = (!empty($row->crs_price) and $row->crs_price != '0.00') ? money_format('%!.2n', $row->crs_price) : null;
         $result['fc_price']         = (!empty($row->crs_fitcoin_price) and $row->crs_fitcoin_price != '0.00') ? money_format('%!.2n', $row->crs_fitcoin_price) : null;
         $result['recur_price']      = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? money_format('%!.2n', $row->crs_recurrent_price) : null;

@@ -171,8 +171,9 @@ $route['administration/courses/type']        = 'Course/courseTypes';
 $route['administration/courses/type/new']    = 'Course/newCourseTypes';
 $route['administration/courses/type/(:num)'] = 'Course/courseType/$1';
 // Курс тренировок
-$route['administration/courses']    = 'Course/courses/workout';
-$route['administration/course/new'] = 'Course/newCourse';
+$route['administration/courses']         = 'Course/courses/workout';
+$route['administration/courses/archive'] = 'Course/courses/workout/1';
+$route['administration/course/new']      = 'Course/newCourse';
 // Настройки
 $route['administration/course/(:num)']          = 'Course/course/$1';
 $route['administration/course/(:num)/preview']  = 'Course/coursePreview/$1';
@@ -209,6 +210,7 @@ $route['administration/course/(:num)/client/(:num)'] = 'Course/courseUserActivit
 
 // Курс питания
 $route['administration/nutritions']                = 'Course/courses/nutrition';
+$route['administration/nutritions/archive']        = 'Course/courses/nutrition/1';
 $route['administration/nutrition/new']             = 'Course/newNutrition';
 // Настройки
 $route['administration/nutrition/(:num)']          = 'Course/nutrition/$1/settings';

@@ -20,21 +20,24 @@ class User_model extends CI_Model
     public function getUser($user_id)
     {
         $result = array('user_data' => array());
-        
-        $sel_user = $this->db->query('
+
+        if(is_numeric($user_id))
+        {
+            $sel_user = $this->db->query('
             SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`
             FROM `users`
             WHERE `user_id`=? LIMIT 1', $user_id);
-        
-        if ($sel_user !== false and 1 == $sel_user->num_rows())
-        {
-            $row = $sel_user->row();
-            
-            $result['user_data'] = self::parseUserData($row);
-        }
-        elseif ($sel_user === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
+
+            if ($sel_user !== false and 1 == $sel_user->num_rows())
+            {
+                $row = $sel_user->row();
+
+                $result['user_data'] = self::parseUserData($row);
+            }
+            elseif ($sel_user === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
         
         return $result;
@@ -474,6 +477,105 @@ class User_model extends CI_Model
         {
             return false;
         }
+    }
+
+    /**
+     * Удаление польвазователя из БД.
+     * Удаление всех данных связанных с пользователем.
+     *
+     * @param $user_id
+     * @return bool
+     */
+    public function deleteUser($user_id)
+    {
+        $result = false;
+
+        if(is_numeric($user_id))
+        {
+            $sel_data = $this->db->query('SELECT `user_email` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+
+            if($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
+                $user_email = $row->user_email;
+
+                $del_data = $this->db->query('DELETE FROM `anthropometric` WHERE `user_id`=?', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `blog_comments` WHERE `bc_u_id`=?', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `cart` WHERE `c_user_id`=?', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `couch_blog` WHERE `cb_u_id`=?', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `couch_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `couch_portfolio` WHERE `cp_u_id`=?', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `questionnaire` WHERE `user_id`=? LIMIT 1', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `subscription` WHERE `s_email`=? LIMIT 1', $user_email);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `users_courses` WHERE `uc_user_id`=?', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `users_day_meals` WHERE `udm_u_id`=?', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $del_data = $this->db->query('DELETE FROM `users_social` WHERE `us_u_id`=?', $user_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $result = true;
+            }
+        }
+
+        return $result;
     }
 
     /**

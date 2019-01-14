@@ -26,6 +26,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php else: ?>
                                     <input type="submit" name="bt_unblock_category" value="Разблокировать" class="video_admin_form_block"/>
                                 <?php endif;?>
+                                <?php if ($category['id'] != 1 and $category['id'] != 2 and $category['id'] != 6) : ?>
+                                    <input type="submit" name="bt_delete_category" value="Удалить" class="video_admin_form_block"/>
+                                <?php endif;?>
                             </div>
                         </div>
 
