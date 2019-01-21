@@ -3298,7 +3298,25 @@ class Store_model extends CI_Model
             $client = new Client();
             $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
-            $payment = $client->getPaymentInfo($payment_id);
+            try {
+                $payment = $client->getPaymentInfo($payment_id);
+            } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+                log_message('error', $e->getMessage());
+            } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+                log_message('error', $e->getMessage());
+            } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+                log_message('error', $e->getMessage());
+            } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+                log_message('error', $e->getMessage());
+            } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+                log_message('error', $e->getMessage());
+            } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+                log_message('error', $e->getMessage());
+            } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+                log_message('error', $e->getMessage());
+            } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+                log_message('error', $e->getMessage());
+            }
         }
 
         return $payment;

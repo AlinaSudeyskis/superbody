@@ -828,6 +828,8 @@ class Store extends CI_Controller
             {
                 $payment = $this->Store_model->getPaymentInfo($payment_id);
 
+                log_message('debug', 'Payment info: ' . print_r($payment, true));
+
                 if ($payment->_status == 'waiting_for_capture')
                 {
                     $this->Store_model->capturePayment($payment->_id, $payment->_amount->_value, $payment->_amount->_currency);
