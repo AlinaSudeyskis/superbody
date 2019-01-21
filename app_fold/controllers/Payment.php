@@ -268,16 +268,44 @@ class Payment extends CI_Controller
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         // Подтверждение платежа
-        $client->capturePayment(
-            array(
-                'amount' => array(
-                    'value' => $value,
-                    'currency' => $currency,
+        try {
+            $client->capturePayment(
+                array(
+                    'amount' => array(
+                        'value' => $value,
+                        'currency' => $currency,
+                    ),
                 ),
-            ),
-            $payment_id,
-            $idempotenceKey
-        );
+                $payment_id,
+                $idempotenceKey
+            );
+        }
+        catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+            log_message('error', $e->getMessage());
+        }
+        catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+            log_message('error', $e->getMessage());
+        }
+        catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+            log_message('error', $e->getMessage());
+        }
+        catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+            log_message('error', $e->getMessage());
+        }
+        catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+            log_message('error', $e->getMessage());
+        }
+        catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+            log_message('error', $e->getMessage());
+        }
+        catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+            log_message('error', $e->getMessage());
+        }
+        catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+            log_message('error', $e->getMessage());
+        } catch (Exception $e) {
+            log_message('error', $e->getMessage());
+        }
     }
 
     /**
@@ -290,14 +318,35 @@ class Payment extends CI_Controller
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
-        $client->cancelPayment(
-            $payment_id,
-            uniqid('', true)
-        );
+        try {
+            $client->cancelPayment(
+                $payment_id,
+                uniqid('', true)
+            );
+        } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+            log_message('error', $e->getMessage());
+        } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+            log_message('error', $e->getMessage());
+        } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+            log_message('error', $e->getMessage());
+        } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+            log_message('error', $e->getMessage());
+        } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+            log_message('error', $e->getMessage());
+        } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+            log_message('error', $e->getMessage());
+        } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+            log_message('error', $e->getMessage());
+        } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+            log_message('error', $e->getMessage());
+        } catch (Exception $e) {
+            log_message('error', $e->getMessage());
+        }
     }
 
     /**
      * Проверка наличия платежей на выполнение
+     * @throws Exception
      */
     public function verificationSubsequentPayments()
     {
@@ -320,7 +369,7 @@ class Payment extends CI_Controller
                 $response = self::createPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['type'],
                     '', $payment['method_id']);
 
-                if (!empty($response->_id))
+                if(!empty($response->_id))
                 {
                     $created_at     = $response->_createdAt->_date . $response->_createdAt->_timezone;
                     $payment_method = $response->_payment_method;

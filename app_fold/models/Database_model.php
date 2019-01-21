@@ -1499,6 +1499,61 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-01-15 12:07:11';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_deleted` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `user_idempotent`, 
+                ADD `user_delete_date` DATE NOT NULL AFTER `user_deleted`, 
+                ADD `user_delete_by` INT(10) UNSIGNED NOT NULL AFTER `user_delete_date`, 
+                ADD INDEX `ix_user_deleted` (`user_deleted`), 
+                ADD INDEX `ixs_user_deleted_date` (`user_deleted`, `user_delete_date`);");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-01-17 10:23:34';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (185, 'Пользователь восстановлен.', 'Пользователь восстановлен.', '4', '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (186, 'Ошибка! Пользователь не восстановлен из удаленных.', 'Ошибка! Пользователь не восстановлен из удаленных.', '4', '2018-04-19 14:23:42')");
+
+            $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (13, 'Аккаунт удален', 1, 'Аккаунт удален с сайта SuperBody', 'Ваш аккаунт удален.В течении 30 дней Вы можете обратиться к администрации сайта, что бы восстановить аккаунт.', '', 4, '2018-04-25 11:41:46')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-01-17 13:00:41';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (14, 'Аккаунт восстановлен', 1, 'Аккаунт восстановлен на сайте SuperBody', 'Ваш аккаунт восстановлен.', '', 4, '2018-04-25 11:41:46')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-01-18 11:36:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `notifications` SET `n_name` = 'Ошибка! Информация о тренере не сохранена. Пожалуйста, повторите попытку.', `n_text` = 'Ошибка! Информация о тренере не сохранена. Пожалуйста, повторите попытку.' WHERE `notifications`.`n_id` = 78");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (187, 'Ошибка! Личные данные не сохранены. Пожалуйста, повторите попытку.', 'Ошибка! Личные данные не сохранены. Пожалуйста, повторите попытку.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-01-21 10:51:12';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes_used` ADD `pcu_o_id` INT UNSIGNED NOT NULL AFTER `pcu_code`,
+                ADD `pcu_p_id` INT UNSIGNED NOT NULL AFTER `pcu_o_id`,
+                ADD `pcu_u_id` INT UNSIGNED NOT NULL AFTER `pcu_p_id`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
