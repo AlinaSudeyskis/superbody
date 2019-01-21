@@ -845,7 +845,7 @@ class Store extends CI_Controller
                 }
                 else
                 {
-                    // Не удалось подтвердить заказ
+                    // Статус платежа не ожидает подтверждения
                     $this->session->set_tempdata('message', 188, 60);
                 }
             }
