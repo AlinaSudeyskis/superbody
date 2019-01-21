@@ -116,13 +116,35 @@ class Payment extends CI_Controller
             $handle = fopen($url, "r");
             fclose($handle);
 
-            // Подтверждение платежа или отмена
+            // Подтверждение платежа
             if ($payment->status == 'waiting_for_capture')
             {
                 if ($payment->paid === true)
                 {
                     // Подтверждение платежа
-                    self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
+                    $result = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
+
+                    if($result !== false and $result->status == 'succeeded')
+                    {
+                        $payment_saved = ($result->payment_method->saved === true) ? 'true' : 'false';
+                        $payment_paid  = ($result->paid === true) ? 'true' : 'false';
+
+                        $payment_data = array(
+                            'pid' => $result->id,
+                            'ps' => $result->status,
+                            'pp' => $payment_paid,
+                            'pcr' => $result->created_at,
+                            'pe' => $result->expires_at,
+                            'pc' => $result->captured_at,
+                            'pmid' => $result->payment_method->id,
+                            'pms' => $payment_saved
+                        );
+
+                        $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
+
+                        $handle = fopen($url, "r");
+                        fclose($handle);
+                    }
                 }
             }
         }
@@ -284,16 +306,18 @@ class Payment extends CI_Controller
      * @param string $payment_id
      * @param float $value
      * @param string $currency
+     * @return bool|\YandexCheckout\Request\Payments\Payment\CreateCaptureResponse
      */
     public function capturePayment($payment_id, $value, $currency)
     {
+        $response = false;
         $idempotenceKey = uniqid('', true);
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         // Подтверждение платежа
         try {
-            $client->capturePayment(
+            $response = $client->capturePayment(
                 array(
                     'amount' => array(
                         'value' => $value,
@@ -330,6 +354,8 @@ class Payment extends CI_Controller
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
         }
+
+        return $response;
     }
 
     /**

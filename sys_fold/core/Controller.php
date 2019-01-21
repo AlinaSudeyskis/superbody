@@ -1369,7 +1369,7 @@ class CI_Controller {
      * @param $system_message
      * @return bool
      */
-    public function sendEmail($email_id, $recipient_email, $system_message)
+    public function sendEmail($email_id, $recipient_email, $system_message = '')
     {
         if(filter_var($recipient_email, FILTER_VALIDATE_EMAIL) !== false and is_numeric($email_id))
         {
