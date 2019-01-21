@@ -1554,6 +1554,16 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-01-21 11:29:41';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (188, 'Ошибка! Статут платежа не соответствует статусу ожидания подтвержения.', 'Ошибка! Статут платежа не соответствует статусу ожидания подтвержения.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (189, 'Ошибка! Платеж не подтвержен.', 'Ошибка! Платеж не подтвержден.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

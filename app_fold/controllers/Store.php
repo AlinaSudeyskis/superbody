@@ -828,11 +828,25 @@ class Store extends CI_Controller
             {
                 $payment = $this->Store_model->getPaymentInfo($payment_id);
 
-                log_message('debug', 'Payment info: ' . print_r($payment, true));
+                //log_message('debug', 'Payment info: ' . print_r($payment, true));
 
                 if ($payment->_status == 'waiting_for_capture')
                 {
-                    $this->Store_model->capturePayment($payment->_id, $payment->_amount->_value, $payment->_amount->_currency);
+                    $response = $this->Store_model->capturePayment($payment->_id, $payment->_amount->_value, $payment->_amount->_currency);
+                    if($response !== false)
+                    {
+                        log_message('debug', 'Response capturePayment' . print_r($response, true));
+                    }
+                    else
+                    {
+                        // Не удалось подтвердить заказ
+                        $this->session->set_tempdata('message', 189, 60);
+                    }
+                }
+                else
+                {
+                    // Не удалось подтвердить заказ
+                    $this->session->set_tempdata('message', 188, 60);
                 }
             }
             header('Location: /administration/order/' . $order_id);

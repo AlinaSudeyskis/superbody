@@ -3328,16 +3328,18 @@ class Store_model extends CI_Model
      * @param string $payment_id
      * @param float $value
      * @param string $currency
+     * @return bool|\YandexCheckout\Request\Payments\Payment\CreateCaptureResponse
      */
     public function capturePayment($payment_id, $value, $currency)
     {
+        $response = false;
         $idempotenceKey = uniqid('', true);
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         // Подтверждение платежа
         try {
-            $client->capturePayment(
+            $response = $client->capturePayment(
                 array(
                     'amount' => array(
                         'value' => $value,
@@ -3366,6 +3368,8 @@ class Store_model extends CI_Model
         } catch (Exception $e) {
             log_message('error', $e->getMessage());
         }
+
+        return $response;
     }
 
     /**
