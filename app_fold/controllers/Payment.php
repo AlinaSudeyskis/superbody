@@ -97,16 +97,6 @@ class Payment extends CI_Controller
         {
             $payment = $response->object;
 
-            // Подтверждение платежа или отмена
-            if ($payment->status == 'waiting_for_capture')
-            {
-                if ($payment->paid === true)
-                {
-                    // Подтверждение платежа
-                    self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
-                }
-            }
-
             $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
             $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
 
@@ -125,6 +115,16 @@ class Payment extends CI_Controller
 
             $handle = fopen($url, "r");
             fclose($handle);
+
+            // Подтверждение платежа или отмена
+            if ($payment->status == 'waiting_for_capture')
+            {
+                if ($payment->paid === true)
+                {
+                    // Подтверждение платежа
+                    self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
+                }
+            }
         }
 
         header("HTTP/1.0 200 OK");
