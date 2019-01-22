@@ -33,10 +33,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_block_item_h">Личные данные</div>
                                 <div class="anketa_block_item_cont">
                                     <form action="" class="anketa_form" method="post">
-                                        <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?>
-                                        <div class="anketa_form_buts_wrap parent">
-                                            <!--<input type="reset" value="Отмена" class="anketa_form_reset">-->
-                                            <input type="submit" name="bt_save_data" value="Сохранить" class="anketa_form_but">
+                                        <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?><div class="anketa_form_line parent">
+                                            <div class="video_admin_form_buts parent">
+                                                <input type="submit" name="bt_save_data" value="Сохранить" class="video_admin_form_send">
+                                            </div>
                                         </div>
                                     </form>
                                 </div>

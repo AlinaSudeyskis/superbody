@@ -67,13 +67,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
             <input type="submit" name="bt_delete_avatar" value="Удалить" class="full_photo_comm_reset settings"/>
-            <div class="tren_set_form_img" id="settings_img">
+            <div class="tren_set_form_img settings_img">
                     <img src="<?php echo $user_data['user_image'];?>" alt="">
             </div>
         </div>
     <?php endif;?>
 
-    <div class="anketa_form_buts_wrap parent">
-        <input type="submit" name="bt_save_settings" value="Сохранить" class="anketa_form_but">
+    <div class="anketa_form_line parent">
+        <div class="video_admin_form_buts parent">
+            <input type="submit" name="bt_save_settings" value="Сохранить" class="video_admin_form_send">
+            <input type="submit" name="bt_delete_account" value="Удалить аккаунт" class="video_admin_form_block">
+        </div>
     </div>
 </form>

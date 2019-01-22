@@ -50,7 +50,7 @@ class Administrator extends CI_Controller
      */
     public function admins()
     {
-        $result['admins'] = $this->Administrator_model->getAdmins();
+        $result = $this->Administrator_model->getAdmins();
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Администраторы';
@@ -262,6 +262,7 @@ class Administrator extends CI_Controller
      * @param $user_id
      * @param $page_type
      * @return void
+     * @throws Exception
      */
     public function adminSettings($user_id, $page_type = 'settings')
     {
@@ -366,26 +367,6 @@ class Administrator extends CI_Controller
             }
 
             header('Location: /administration/admin/'.$user_id);
-        }
-        elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id))
-        {
-            $this->load->model('User_model');
-            $result = $this->User_model->deleteUser($user_id);
-
-            if ($result === true)
-            {
-                // Пользователь удален
-                $this->session->set_tempdata('message', 179, 60);
-
-                header('Location: /administration/admins');
-            }
-            else
-            {
-                // Пользователь не удален
-                $this->session->set_tempdata('message', 180, 60);
-
-                header('Location: /administration/admin/'.$user_id);
-            }
         }
         elseif ($this->input->post('bt_change_user_type', true) and is_numeric($user_id))
         {
@@ -527,16 +508,49 @@ class Administrator extends CI_Controller
 
             header('Location: /administration/admin/'.$user_id);
         }
+        elseif ($this->input->post('bt_delete_user', true))
+        {
+            $tmp_date = new DateTime($this->date);
+            $in_a_month = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P30D')) : false;
+            $delete_date = ($in_a_month !== false) ? $in_a_month->format('Y-m-d') : '';
+
+            $up_d = $this->User_model->temporarilyDeleteUser($user_id, $this->user_id, $delete_date);
+
+            if ($up_d['result'] === true)
+            {
+                // Отправка уведомления на почту пользователя
+                parent::sendEmail(13, $up_d['user_email']);
+
+                // Пользователь удален
+                $this->session->set_tempdata('message', 179, 60);
+
+                header('Location: /administration/users/archive/'.$user_id);
+            }
+            else
+            {
+                // Пользователь не удален
+                $this->session->set_tempdata('message', 180, 60);
+
+                header('Location: /administration/admin/'.$user_id);
+            }
+        }
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Редактирование данных администратора';
         $this->page_data['page_menu']     = 'users';
-        $this->page_data['page_submenu']  = 'a_admins';
+        $this->page_data['page_submenu']  = ($user_data['user_deleted'] == 1) ? 'a_users_archive' : 'a_admins';
         $this->page_data['page_2submenu'] = ($page_type ==  'settings') ? 'settings' : 'personal_data';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/admin_settings', $user);
+        if($user_data['user_deleted'] == 0)
+        {
+            $this->load->view('admin/admin_settings', $user);
+        }
+        else
+        {
+            $this->load->view('user/settings/user_settings_view', $user);
+        }
         $this->load->view('footer/footer');
     }
 

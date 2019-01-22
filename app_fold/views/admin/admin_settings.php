@@ -14,23 +14,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <h3>Настройки администратора</h3>
                         </div>
                         <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
-                        <ul class="anketa_block_nav parent">
-                            <li>
-                                <a href="/administration/admin/<?php echo $user_data['user_id']; ?>">
-                                    <span <?php if($page_2submenu == 'settings'): ?>class="anketa_active"<?php endif;?>>Настройки</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/administration/admin/<?php echo $user_data['user_id']; ?>/personal">
-                                    <span <?php if($page_2submenu == 'personal_data'): ?>class="anketa_active"<?php endif;?>>Личные данные</span>
-                                </a>
-                            </li>
-                        </ul>
                     </div>
                 </div>
                 <div class="kurs_block_val">
                     <div class="anketa_block_cont">
-                        <?php if($page_2submenu == 'settings'): ?>
+                        <?php if(!empty($user_data) and $page_2submenu == 'settings'): ?>
                             <form action="" method="post" enctype="multipart/form-data">
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
@@ -51,7 +39,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php include_once('./app_fold/views/admin/user_settings_item.php'); ?>
                                 </div>
                             </form>
-                        <?php elseif($page_2submenu == 'personal_data'): ?>
+                        <?php elseif(!empty($user_data) and $page_2submenu == 'personal_data'): ?>
                             <form action="" method="post">
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
@@ -64,6 +52,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?>
                                 </div>
                             </form>
+                        <?php else: ?>
+                            <h3 class="info">Информация не найдена</h3>
                         <?php endif; ?>
                     </div>
                 </div>

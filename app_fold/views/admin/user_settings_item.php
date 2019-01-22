@@ -2,15 +2,15 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="anketa_form_line parent">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell">Польное имя</div></div>
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Польное имя:</div></div>
     <input type="text" class="anketa_form_in anketa_form_in_long" placeholder="Полное имя" name="name" value="<?php if (!empty($user_data['user_name'])) { echo $user_data['user_name']; }?>" maxlength="255"/>
 </div>
 <div class="anketa_form_line parent">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell">Email</div></div>
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Email:</div></div>
     <input type="text" class="anketa_form_in anketa_form_in_long valid_email" placeholder="Email" name="email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255"/>
 </div>
 <div class="anketa_form_line parent">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото</div></div>
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото:</div></div>
     <div class="video_down_line parent">
         <div class="video_down_line_but_wrap">
             <label for="video_down_line_but1cs" class="video_down_line_but">
@@ -26,7 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
         <input type="submit" name="bt_delete_avatar" value="Удалить" class="full_photo_comm_reset settings"/>
-        <div class="tren_set_form_img" id="settings_img">
+        <div class="tren_set_form_img settings_img">
             <img src="<?php echo $user_data['user_image'];?>" alt="">
         </div>
     </div>

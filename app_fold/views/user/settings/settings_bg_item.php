@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="anketa_form_line parent">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell">Пол</div></div>
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Пол:</div></div>
     <div class="anketa_form_radio_all parent">
         <div class="anketa_form_radio_wrap">
             <input type="radio" name="gender" class="anketa_form_radio" value="0"
@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div>
 <div class="anketa_form_line parent">
-    <div class="anketa_form_h"><div class="anketa_form_h_cell">Дата рождения</div></div>
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Дата рождения:</div></div>
     <div class="anketa_form_three_all parent">
         <div class="anketa_form_three_wrap">
             <input type="hidden" name="birthday" id="birthday" value="<?php if(!empty($user_data['user_birthday'])){echo $user_data['user_birthday'];}?>"/>

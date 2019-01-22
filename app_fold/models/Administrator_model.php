@@ -119,17 +119,14 @@ class Administrator_model extends CI_Model
         $result = array('user_data' => array());
 
         $sel_admin = $this->db->query('
-            SELECT `user_email`, `user_name`, `user_image`, `user_blocked` 
+            SELECT `user_email`, `user_name`, `user_image`, `user_blocked`, `user_deleted`, `user_delete_date` 
             FROM `users` 
-            WHERE `user_id`=? and `user_type`=3 LIMIT 1', $user_id);
+            WHERE `user_id`=? and `user_type`=3 and `user_deleted`=0 LIMIT 1', $user_id);
 
         if (1 == $sel_admin->num_rows()) {
             $row = $sel_admin->row();
 
-            $result['user_data']['user_email']   = $row->user_email;
-            $result['user_data']['user_name']    = $row->user_name;
-            $result['user_data']['user_image']   = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
-            $result['user_data']['user_blocked'] = $row->user_blocked;
+            $result['user_data'] = self::parseAdminData($row);
         }
 
         return $result;
@@ -166,17 +163,16 @@ class Administrator_model extends CI_Model
      */
     public function getAdmins()
     {
-        $result = array();
+        $result = array('admins' => array());
+
         $sel_couches = $this->db->query('
           SELECT `user_name`, `user_email`, `user_id`, `user_image` 
-          FROM `users` WHERE `user_type`=3');
+          FROM `users` WHERE `user_type`=3 and `user_deleted`=0');
 
         if ($sel_couches->num_rows() > 0) {
             $i = 0;
             foreach ($sel_couches->result() as $row) {
-                $result[$i]['id']    = $row->user_id;
-                $result[$i]['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                $result[$i]['image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                $result['admins'][$i] = self::parseAdminData($row);
 
                 $i++;
             }
@@ -990,5 +986,36 @@ class Administrator_model extends CI_Model
         {
             return false;
         }
+    }
+
+    /**
+     * Обработка данных администратора
+     *
+     * @param $row
+     * @return array
+     */
+    public function parseAdminData($row)
+    {
+        $result['user_id']          = (!empty($row->user_id)) ? $row->user_id : '';
+        $result['user_email']       = (!empty($row->user_email)) ? $row->user_email : '';
+        $result['user_name']        = (!empty($row->user_name)) ? $row->user_name : '';
+        $result['user_image']       = (is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+        $result['user_blocked']     = (!empty($row->user_blocked)) ? $row->user_blocked : 0;
+        $result['user_deleted']     = (!empty($row->user_deleted)) ? $row->user_deleted : '';
+        $result['user_delete_date'] = '';
+        $result['user_delete_by']   = (!empty($row->user_delete_by)) ? $row->user_delete_by : 0;
+
+        if(!empty($row->user_delete_date) and $row->user_delete_date != '0000-00-00')
+        {
+            setlocale(LC_ALL, 'ru_RU.UTF-8');
+            $tmp_dd = DateTime::createFromFormat('Y-m-d', $row->user_delete_date);
+            $tmp_dd = ($tmp_dd !== false)
+                ? strftime('%d %b %G', strtotime($row->user_delete_date))
+                : '';
+
+            $result['user_delete_date'] = $tmp_dd;
+        }
+
+        return $result;
     }
 }

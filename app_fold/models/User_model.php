@@ -42,6 +42,38 @@ class User_model extends CI_Model
         
         return $result;
     }
+
+    /**
+     * Получение данных пользователя для определения его типа и соответствуещего вывода страницы
+     *
+     * @param $user_id
+     * @return array
+     */
+    public function getAvailableUser($user_id)
+    {
+        $result = array('user_data' => array());
+
+        if(is_numeric($user_id))
+        {
+            $sel_user = $this->db->query('
+            SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`
+            FROM `users`
+            WHERE `user_id`=? and `user_deleted`=0 LIMIT 1', $user_id);
+
+            if ($sel_user !== false and 1 == $sel_user->num_rows())
+            {
+                $row = $sel_user->row();
+
+                $result['user_data'] = self::parseUserData($row);
+            }
+            elseif ($sel_user === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
     
     /**
      * Получение данных пользователей
@@ -55,7 +87,7 @@ class User_model extends CI_Model
         $sel_data = $this->db->query('
             SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked` 
             FROM `users` 
-            WHERE `user_type`=1');
+            WHERE `user_type`=1 and `user_deleted`=0');
 
         if ($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -75,6 +107,63 @@ class User_model extends CI_Model
     }
 
     /**
+     * Получение данных пользователя
+     *
+     * @param $user_id
+     * @return array
+     */
+    public function getAUser($user_id)
+    {
+        // Результат
+        $result = array('user_data' => array());
+
+        $sel_admin = $this->db->query('
+            SELECT `user_email`, `user_name`, `user_image`, `user_blocked`, `user_deleted`, `user_delete_date` 
+            FROM `users` 
+            WHERE `user_id`=? and `user_type`=1 and `user_deleted`=0 LIMIT 1', $user_id);
+
+        if (1 == $sel_admin->num_rows()) {
+            $row = $sel_admin->row();
+
+            $result['user_data'] = self::parseUserData($row);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Получение списка удаленных пользователей
+     *
+     * @return array
+     */
+    public function getUsersArchive()
+    {
+        $result = array('users' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, 
+                   `user_blocked`, `user_deleted`, `user_delete_date` 
+            FROM `users` 
+            WHERE `user_deleted`=1 ORDER BY `user_delete_date` ASC');
+
+        if ($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['users'][$i] = self::parseUserData($row);
+
+                $i++;
+            }
+        }
+        elseif ($sel_data === false) {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Получение данных настроек пользователя
      *
      * @param $user_id
@@ -83,32 +172,14 @@ class User_model extends CI_Model
     public function getUserSettingsData($user_id)
     {
         // Массив возвращаемых значений
-        $result = array ( 'user_data' => array(
-            'user_id' => '',
-            'user_email' => '',
-            'user_name' => '',
-            'user_country_code' => '',
-            'user_phone' => '',
-            'user_image' => '',
-            'user_soc_image' => '',
-            'user_blocked' => '',
-            'user_type' => '',
-            'user_password_hash' => '',
-            'user_b_day' => '',
-            'user_b_mon' => '',
-            'user_b_year' => '',
-            'user_birthday' => '',
-            'user_gender' => '',
-            'user_gender_eng' => '',
-            'user_weight' => ''
-        ));
+        $result = array ( 'user_data' => array());
 
         $sel_data = $this->db->query('
             SELECT `users`.`user_id`, `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, 
-              `user_image`, `user_soc_image`, `user_blocked`, `user_type`, `user_gender`, `user_birthday`
+              `user_image`, `user_soc_image`, `user_blocked`, `user_type`, `user_gender`, `user_birthday`,
+              `user_deleted`, `user_delete_date`, `user_delete_by`
             FROM `users` 
-            LEFT JOIN `questionnaire`
-              ON `questionnaire`.`user_id`=`users`.`user_id`
+            LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
             WHERE `users`.`user_id`=? LIMIT 1', $user_id);
 
         if ($sel_data !== false and 1 == $sel_data->num_rows())
@@ -133,6 +204,7 @@ class User_model extends CI_Model
             $result['user_data']['user_birthday']   = $birthday;
             $result['user_data']['user_gender']     = ($row->user_gender == 'female') ? 'Женщина' : 'Мужчина';
             $result['user_data']['user_gender_eng'] = ($row->user_gender == 'female') ? 'female' : 'male';
+            $result['user_data']['user_gender_rus'] = ($row->user_gender == 'female') ? 'Женский' : 'Мужской';
 
             $sel_weight = $this->db->query('
                 SELECT `user_weight` FROM `anthropometric` WHERE `user_id`=? ORDER BY `user_date_add` DESC LIMIT 1', $user_id);
@@ -205,6 +277,8 @@ class User_model extends CI_Model
      */
     public function setUserGenderBd($user_id, $gender, $birthday, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
             UPDATE `questionnaire` 
             SET `user_gender`=?, `user_birthday`=?, `user_date_update`=?
@@ -212,17 +286,14 @@ class User_model extends CI_Model
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -480,98 +551,203 @@ class User_model extends CI_Model
     }
 
     /**
+     * Временное удаление польвазователя.
+     * Пользователь помечается как удаленный, но из БД не удаляется.
+     * Удаление происходит автоматически через 30 дней.
+     *
+     * @param $user_id
+     * @param $delete_by
+     * @param $date
+     * @return bool
+     */
+    public function temporarilyDeleteUser($user_id, $delete_by, $date)
+    {
+        $result['result']     = false;
+        $result['user_email'] = false;
+
+        if(is_numeric($user_id) and is_numeric($delete_by))
+        {
+            $up_data = $this->db->query('
+                UPDATE `users` 
+                SET `user_deleted`=1, `user_delete_date`=?, `user_delete_by`=? 
+                WHERE `user_id`=? LIMIT 1', array($date, $delete_by, $user_id));
+
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $sel_data = $this->db->query('SELECT `user_email` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+                if($sel_data !== false and 1 == $sel_data->num_rows())
+                {
+                    $row = $sel_data->row();
+
+                    $result['user_email'] = $row->user_email;
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $result['result'] = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Удаление польвазователя из БД.
      * Удаление всех данных связанных с пользователем.
      *
-     * @param $user_id
+     * @param $today
      * @return bool
      */
-    public function deleteUser($user_id)
+    public function deleteUsers($today)
     {
-        $result = false;
+        $result = true;
 
-        if(is_numeric($user_id))
+        $sel_data = $this->db->query('SELECT `user_id`, `user_email` FROM `users` WHERE `user_delete_date`=?', $today);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
         {
-            $sel_data = $this->db->query('SELECT `user_email` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
-
-            if($sel_data !== false and 1 == $sel_data->num_rows())
+            foreach($sel_data->result() as $row)
             {
-                $row = $sel_data->row();
                 $user_email = $row->user_email;
+                $user_id    = $row->user_id;
 
+                // Удаление антропометрических данных
                 $del_data = $this->db->query('DELETE FROM `anthropometric` WHERE `user_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление комментариев блога
                 $del_data = $this->db->query('DELETE FROM `blog_comments` WHERE `bc_u_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных корзины
                 $del_data = $this->db->query('DELETE FROM `cart` WHERE `c_user_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных блога тренера
                 $del_data = $this->db->query('DELETE FROM `couch_blog` WHERE `cb_u_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных тренера
                 $del_data = $this->db->query('DELETE FROM `couch_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных портфолио тренера
                 $del_data = $this->db->query('DELETE FROM `couch_portfolio` WHERE `cp_u_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных анкеты
                 $del_data = $this->db->query('DELETE FROM `questionnaire` WHERE `user_id`=? LIMIT 1', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных подписки
                 $del_data = $this->db->query('DELETE FROM `subscription` WHERE `s_email`=? LIMIT 1', $user_email);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление регистрационных данных
                 $del_data = $this->db->query('DELETE FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных курсов пользователя
                 $del_data = $this->db->query('DELETE FROM `users_courses` WHERE `uc_user_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных питания
                 $del_data = $this->db->query('DELETE FROM `users_day_meals` WHERE `udm_u_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
+                // Удаление данных соц. сетей
                 $del_data = $this->db->query('DELETE FROM `users_social` WHERE `us_u_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
 
-                $result = true;
+        return $result;
+    }
+
+    /**
+     * Восстановление пользователя из удаленных
+     *
+     * @param $user_id
+     * @return bool
+     */
+    public function restoreUserAccount($user_id)
+    {
+        $result['result']     = false;
+        $result['user_email'] = false;
+
+        if(is_numeric($user_id))
+        {
+            $up_data = $this->db->query('
+                UPDATE `users` 
+                SET `user_deleted`=0, `user_delete_date`="0000-00-00", `user_delete_by`=0
+                WHERE `user_id`=? LIMIT 1', $user_id);
+
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $sel_data = $this->db->query('SELECT `user_email`, `user_type` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+                if($sel_data !== false and 1 == $sel_data->num_rows())
+                {
+                    $row = $sel_data->row();
+                    $result['user_email'] = $row->user_email;
+                    $result['user_type']  = $row->user_type;
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $result['result'] = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
@@ -1324,6 +1500,9 @@ class User_model extends CI_Model
         $result['user_type']          = (!empty($row->user_type)) ? $row->user_type : '';
         $result['user_image']         = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
         $result['user_soc_image']     = '';
+        $result['user_deleted']       = (!empty($row->user_deleted)) ? 1 : null;
+        $result['user_delete_date']   = (!empty($row->user_delete_date)) ? $row->user_delete_date : null;
+        $result['user_delete_by']     = (!empty($row->user_delete_by)) ? $row->user_delete_by : null;
 
         if(!empty($row->user_soc_image))
         {
@@ -1337,6 +1516,17 @@ class User_model extends CI_Model
         $split_name = !empty($row->user_name) ? explode(" ", $row->user_name) : '';
         $result['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Пользователь';
         $result['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
+
+        if($row->user_delete_date != '0000-00-00')
+        {
+            setlocale(LC_ALL, 'ru_RU.UTF-8');
+            $tmp_dd = DateTime::createFromFormat('Y-m-d', $row->user_delete_date);
+            $tmp_dd = ($tmp_dd !== false)
+                ? strftime('%d %b %G', strtotime($row->user_delete_date))
+                : '';
+
+            $result['user_delete_date'] = $tmp_dd;
+        }
 
         return $result;
     }

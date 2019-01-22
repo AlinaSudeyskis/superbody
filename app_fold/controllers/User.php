@@ -290,7 +290,7 @@ class User extends CI_Controller
     private function outsiderProfile($user_id)
     {
         // Данные пользователя
-        $user_data   = $this->User_model->getUser($user_id);
+        $user_data   = $this->User_model->getAvailableUser($user_id);
         $user_social = $this->User_model->getUserSocial($this->user_id);
         $result = array_merge($user_data, $user_social);
 
@@ -311,7 +311,16 @@ class User extends CI_Controller
         }
         else
         {
-            parent::pageNotFound($this->page_url);
+            // Объединенные данные страница
+            $this->page_data['title']     = 'Пользователь';
+            $this->page_data['page_menu'] = 'user_page';
+            $this->page_data['outsider']  = true;
+
+            $this->load->view('header/header', $this->page_data);
+            $this->load->view('header/profile');
+            $this->load->view('user/profile_line');
+            $this->load->view('user/outsider_profile');
+            $this->load->view('footer/footer');
         }
 
     }
@@ -436,6 +445,7 @@ class User extends CI_Controller
 
     /**
      * Перенаправление на страницы редактирования личных данных пользователей, тренеров
+     * @throws Exception
      */
     public function settings()
     {
@@ -670,6 +680,32 @@ class User extends CI_Controller
             }
 
             header('Location: /settings');
+        }
+        elseif ($this->input->post('bt_delete_account', true))
+        {
+            $tmp_date = new DateTime($this->date);
+            $in_a_month = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P30D')) : false;
+            $delete_date = ($in_a_month !== false) ? $in_a_month->format('Y-m-d') : '';
+
+            $up_d = $this->User_model->temporarilyDeleteUser($this->user_id, $this->user_id, $delete_date);
+
+            if ($up_d['result'] === true)
+            {
+                // Отправка уведомления на почту пользователя
+                parent::sendEmail(13, $up_d['user_email']);
+
+                // Пользователь удален
+                $this->session->set_tempdata('message', 179, 60);
+
+                header('Location: /logout');
+            }
+            else
+            {
+                // Пользователь не удален
+                $this->session->set_tempdata('message', 180, 60);
+
+                header('Location: /settings');
+            }
         }
 
 
@@ -1386,6 +1422,7 @@ class User extends CI_Controller
      * @param $user_id
      * @param $page_type
      * @return void
+     * @throws Exception
      */
     public function userASettings($user_id, $page_type = 'settings')
     {
@@ -1394,7 +1431,11 @@ class User extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $user = $this->User_model->getUserSettingsData($user_id);
+        $user = $this->User_model->getAUser($user_id);
+        if (!empty($user['user_data']))
+        {
+            $user = $this->User_model->getUserSettingsData($user_id);
+        }
         $user_data = $user['user_data'];
 
         if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))
@@ -1602,14 +1643,21 @@ class User extends CI_Controller
         }
         elseif ($this->input->post('bt_delete_user', true))
         {
-            $result = $this->User_model->deleteUser($user_id);
+            $tmp_date = new DateTime($this->date);
+            $in_a_month = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P30D')) : false;
+            $delete_date = ($in_a_month !== false) ? $in_a_month->format('Y-m-d') : '';
 
-            if ($result === true)
+            $up_d = $this->User_model->temporarilyDeleteUser($user_id, $this->user_id, $delete_date);
+
+            if ($up_d['result'] === true)
             {
+                // Отправка уведомления на почту пользователя
+                parent::sendEmail(13, $up_d['user_email']);
+
                 // Пользователь удален
                 $this->session->set_tempdata('message', 179, 60);
 
-                header('Location: /administration/users');
+                header('Location: /administration/users/archive/'.$user_id);
             }
             else
             {
@@ -1630,6 +1678,106 @@ class User extends CI_Controller
         $this->load->view('header/admin');
         $this->load->view('user/settings/user_settings', $user);
         $this->load->view('footer/footer');
+    }
+
+    /**
+     * Архив удаленных пользователей.
+     *
+     * @param null $user_id
+     */
+    public function archive($user_id = null)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if(empty($user_id) or !is_numeric($user_id))
+        {
+            self::usersArchive();
+        }
+        elseif(is_numeric($user_id))
+        {
+            self::userArchive($user_id);
+        }
+    }
+
+    /**
+     * Список удаленных пользователей
+     */
+    protected function usersArchive()
+    {
+        $result = $this->User_model->getUsersArchive();
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Удаленные пользователи';
+        $this->page_data['page_menu']    = 'users';
+        $this->page_data['page_submenu'] = 'a_users_archive';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('user/users', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Просмотр данных, удаленных пользователей
+     *
+     * @param $user_id
+     */
+    protected function userArchive($user_id)
+    {
+        $user = $this->User_model->getUserSettingsData($user_id);
+
+        if ($this->input->post('bt_restore_user', true))
+        {
+            $up_d = $this->User_model->restoreUserAccount($user_id);
+
+            if ($up_d['result'] === true)
+            {
+                // Отправка уведомления на почту пользователя
+                //parent::sendEmail(14, $up_d['user_email']);
+
+                // Пользователь восстановлен
+                $this->session->set_tempdata('message', 185, 60);
+
+                $user_types    = array('user' => 1, 'couch' => 2, 'admin' => 3);
+                $user_type     = array_search($up_d['user_type'], $user_types);
+
+                header('Location: /administration/'.$user_type.'/'.$user_id);
+            }
+            else
+            {
+                // Пользователь не восстановлен
+                $this->session->set_tempdata('message', 186, 60);
+
+                header('Location: /administration/users/archive/'.$user_id);
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']         = 'АП - Редактирование данных пользователя';
+        $this->page_data['page_menu']     = 'users';
+        $this->page_data['page_submenu']  = 'a_users_archive';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('user/settings/user_settings_view', $user);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Удаление пользователей и их данных из БД
+     */
+    public function deleteUsers()
+    {
+        $tmp_date = new DateTime($this->date);
+        $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+        if(!empty($today))
+        {
+            $this->User_model->deleteUsers($today);
+        }
     }
 
     /**

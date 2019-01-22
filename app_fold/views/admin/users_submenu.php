@@ -17,4 +17,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'a_admins') { echo 'class="anketa_active"'; } ?>>Администраторы</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/users/archive">
+            <span <?php if ($page_submenu == 'a_users_archive') { echo 'class="anketa_active"'; } ?>>Архив</span>
+        </a>
+    </li>
 </ul>
+<?php if(!empty($user_data) and $page_submenu !== 'a_users_archive'):
+    $user_types = array('user' => 1, 'couch' => 2, 'admin' => 3);
+    $user_type  = array_search($user_data['user_type'], $user_types); ?>
+    <ul class="anketa_block_nav parent">
+        <li>
+            <a href="/administration/<?php echo $user_type; ?>/<?php echo $user_data['user_id']; ?>">
+                <span <?php if($page_2submenu == 'settings'): ?>class="anketa_active"<?php endif;?>>Настройки</span>
+            </a>
+        </li>
+        <li>
+            <a href="/administration/<?php echo $user_type; ?>/<?php echo $user_data['user_id']; ?>/personal">
+                <span <?php if($page_2submenu == 'personal_data'): ?>class="anketa_active"<?php endif;?>>Личные данные</span>
+            </a>
+        </li>
+    </ul>
+<?php endif; ?>

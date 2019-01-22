@@ -150,6 +150,9 @@ $route['administration/couches/portfolio/(:num)'] = 'Couch/couchesPortfolioPost/
 $route['administration/users']                 = 'User/users';
 $route['administration/user/(:num)/personal']  = 'User/userASettings/$1/personal';
 $route['administration/user/(:num)']           = 'User/userASettings/$1';
+// Архив
+$route['administration/users/archive(/(:num))?'] = 'User/archive/$2';
+$route['users/delete'] = 'User/deleteUsers';
 // Видео
 $route['administration/video']                = 'Course/video/promo';
 $route['administration/video/promo']          = 'Course/video/promo';

@@ -1624,7 +1624,8 @@ $(document).ready(function() {
                     $("#method-login").hide();
                 }
             });
-    });
+    }
+    );
 
     /**
      * Подсчет рекуррентной стоимости
@@ -1955,57 +1956,83 @@ $(document).ready(function() {
      * Подсчет ИМТ и показателя базального метаболизма
      */
     function calcBmiBmr() {
-        var weight = $('#weight').val().replace(",", "."),
-            height = $('#height').val().replace(",", "."),
-            birthday = $('#birthday').val().split('.');
+        var e_weight = $('#weight'),
+            e_height = $('#height'),
+            e_birthday = $('#birthday');
 
-        if (height.length == 3 && weight.length >= 2) {
-            if (weight != '' && height != '') {
-                var bmi, round_bmi;
-                bmi = weight / Math.pow((height / 100), 2);
-                round_bmi = bmi.toFixed(2);
-                $('#bmi').val(round_bmi);
-                $('#span_bmi').html(round_bmi);
-                if (round_bmi <= 18.8) {
-                    $('#span_bmi_txt').html('(дефицит массы тела)');
-                }
-                else if (round_bmi <= 25) {
-                    $('#span_bmi_txt').html('(норма веса)');
-                }
-                else if (round_bmi <= 30) {
-                    $('#span_bmi_txt').html('(излишек массы тела)');
-                }
-                else if (round_bmi <= 34.5) {
-                    $('#span_bmi_txt').html('(начальная степень ожирения)');
-                }
-                else if (round_bmi <= 40) {
-                    $('#span_bmi_txt').html('(средняя степень ожирения)');
-                }
-                else if (round_bmi > 40) {
-                    $('#span_bmi_txt').html('(ожирение высокой степени)');
-                }
-            }
+        if(e_weight.length === 1 && e_height.length === 1 && e_birthday.length === 1)
+        {
+            var weight = e_weight.val().replace(",", "."),
+                height = e_height.val().replace(",", "."),
+                birthday = e_birthday.val().split('.');
 
-            if (weight != '' && height != '' && birthday != '') {
-                var bmr,
-                    age = birthDateToAge(birthday);
+            if (height.length === 3 && weight.length >= 2)
+            {
+                if (weight !== '' && height !== '')
+                {
+                    var bmi, round_bmi;
+                    bmi = weight / Math.pow((height / 100), 2);
+                    round_bmi = bmi.toFixed(2);
+                    $('#bmi').val(round_bmi);
+                    $('#span_bmi').html(round_bmi);
 
-                if ($('input[id=gender_female]').is(':checked')) {
-                    if (round_bmi < 30) {
-                        bmr = 655 + 9.6 * weight + 1.8 * height - 4.7 * age;
-                    } else {
-                        bmr = 2.4 * weight + 9 * height - 4.7 * age - 65;
+                    if (round_bmi <= 18.8)
+                    {
+                        $('#span_bmi_txt').html('(дефицит массы тела)');
                     }
-                } else {
-                    if (round_bmi < 30) {
-                        bmr = 66.5 + 13.7 * weight + 5 * height - 6.8 * age;
-                    } else {
-                        bmr = 3.4 * weight + 15.3 * height - 6.8 * age - 691;
+                    else if (round_bmi <= 25)
+                    {
+                        $('#span_bmi_txt').html('(норма веса)');
+                    }
+                    else if (round_bmi <= 30)
+                    {
+                        $('#span_bmi_txt').html('(излишек массы тела)');
+                    }
+                    else if (round_bmi <= 34.5)
+                    {
+                        $('#span_bmi_txt').html('(начальная степень ожирения)');
+                    }
+                    else if (round_bmi <= 40)
+                    {
+                        $('#span_bmi_txt').html('(средняя степень ожирения)');
+                    }
+                    else if (round_bmi > 40)
+                    {
+                        $('#span_bmi_txt').html('(ожирение высокой степени)');
                     }
                 }
 
-                $('#bmr').val(Math.round(bmr));
-                $('#span_bmr').html(Math.round(bmr));
+                if (weight !== '' && height !== '' && birthday !== '')
+                {
+                    var bmr,
+                        age = birthDateToAge(birthday);
+
+                    if ($('input[id=gender_female]').is(':checked'))
+                    {
+                        if (round_bmi < 30)
+                        {
+                            bmr = 655 + 9.6 * weight + 1.8 * height - 4.7 * age;
+                        }
+                        else
+                        {
+                            bmr = 2.4 * weight + 9 * height - 4.7 * age - 65;
+                        }
+                    }
+                    else
+                    {
+                        if (round_bmi < 30)
+                        {
+                            bmr = 66.5 + 13.7 * weight + 5 * height - 6.8 * age;
+                        }
+                        else
+                        {
+                            bmr = 3.4 * weight + 15.3 * height - 6.8 * age - 691;
+                        }
+                    }
+
+                    $('#bmr').val(Math.round(bmr));
+                    $('#span_bmr').html(Math.round(bmr));
+                }
             }
         }
     }

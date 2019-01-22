@@ -17,9 +17,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="admin_list">
-                        <?php if (!empty($users)):
-                            foreach ($users as $u): ?>
+                    <?php if (!empty($users)):?>
+                        <div class="admin_list">
+                            <?php foreach ($users as $u): ?>
                                 <div class="admin_item parent">
                                     <?php if(!empty($u['user_image'])): ?>
                                         <div class="admin_ava"><img src="<?php echo $u['user_image']; ?>" alt=""></div>
@@ -28,19 +28,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php endif; ?>
                                     <div class="admin_cont">
                                         <div class="admin_name">
-                                            <?php $u_name = (!empty($u['user_name'])) ? $u['user_name'] : 'Пользователь №' . $u['user_id']; ?>
-                                            <a href="/profile/<?php echo $u['user_id']; ?>"><?php echo $u_name; ?></a>
+                                            <?php $u_name = (!empty($u['user_name'])) ? $u['user_name'] : 'Пользователь №' . $u['user_id'];
+                                            $profile_link = ($page_submenu == 'a_users_archive') ? '/administration/users/archive/' . $u['user_id'] : '/profile/' . $u['user_id']; ?>
+                                            <a href="<?php echo $profile_link; ?>"><?php echo $u_name; ?></a>
                                         </div>
-                                        <div class="admin_set">
-                                            <a href="/administration/user/<?php echo $u['user_id']; ?>">Редактировать</a>
-                                        </div>
+                                        <?php if($u['user_deleted'] == 1): ?>
+                                            <div class="admin_info">
+                                                <?php echo $u['user_delete_date']; ?>
+                                            </div>
+                                        <?php endif; ?>
+                                        <?php if($page_submenu != 'a_users_archive'): ?>
+                                            <div class="admin_set">
+                                                <?php $path = ($page_submenu == 'a_users_archive') ? '/administration/users/archive/' : '/administration/user/'; ?>
+                                                <a href="<?php echo $path.$u['user_id']; ?>">Редактировать</a>
+                                            </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             <?php endforeach;
-                            unset($u);
-                        endif; ?>
-                    </div>
-                    <?php include_once('./app_fold/views/pagination.php'); ?>
+                            unset($u);?>
+                            <?php include_once('./app_fold/views/pagination.php'); ?>
+                        </div>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif; ?>
                 </div>
             </div>
         </div><!-- content_col -->

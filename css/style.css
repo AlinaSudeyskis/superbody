@@ -5541,7 +5541,7 @@ textarea.journal_post_comm_in{
 }
 .busket_block_col_img img{
     width: 120px;
-    height: 120px;
+    /*height: 120px;*/
     display: block;
 }
 .busket_block_col_param{
@@ -6848,6 +6848,9 @@ textarea.journal_post_comm_in{
     position: relative;
     background-color: #f3f3f3;
 }
+.tren_set_form_img.settings_img {
+    width: 160px;
+}
 .tren_set_form_img img{
     display: block;
     /*width: 160px;*/
@@ -7012,6 +7015,9 @@ textarea.journal_post_comm_in{
 	border: none;
 	background: #f3f3f3;
 }
+span.anketa_form_in{
+    background: none;
+}
 .in_tiny
 {
     margin-left: 10px;
@@ -7079,6 +7085,18 @@ textarea.journal_post_comm_in{
 	background: #e25050;
 	font-size: 13px;
 	cursor: pointer;
+}
+.anketa_form_send{
+    display: block;
+    float: left;
+    min-width: 115px;
+    height: 35px;
+    color: #fff;
+    border-radius: 5px;
+    border: none;
+    background: #2acaf2;
+    font-size: 13px;
+    cursor: pointer;
 }
 .anketa_form_reset{
 	display: block;
@@ -8469,6 +8487,11 @@ textarea.anketa_form_in{
     color: #9a9a9a;
     font-size: 14px;
     font-weight: 100;
+}
+.admin_info{
+    font-style: italic;
+    font-size: 14px;
+    color: #7f8c8c;
 }
 .admin_set{
     margin: 15px 10px 0 0;

@@ -21,16 +21,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php if (!empty($admins)) :
                             foreach ($admins as $admin) : ?>
                                 <div class="admin_item parent">
-                                    <?php if(!empty($admin['image'])): ?>
-                                        <div class="admin_ava"><img src="<?php echo $admin['image']; ?>" alt=""></div>
+                                    <?php if(!empty($admin['user_image'])): ?>
+                                        <div class="admin_ava"><img src="<?php echo $admin['user_image']; ?>" alt=""></div>
                                     <?php endif; ?>
                                     <div class="admin_cont">
                                         <div class="admin_name">
-                                            <?php $u_name = (!empty($admin['name'])) ? $admin['name'] : 'Пользователь №' . $admin['id']; ?>
-                                            <a href="/profile/<?php echo $admin['id']; ?>"><?php echo $u_name; ?></a>
+                                            <?php $u_name = (!empty($admin['user_name'])) ? $admin['user_name'] : 'Пользователь №' . $admin['user_id']; ?>
+                                            <a href="/profile/<?php echo $admin['user_id']; ?>"><?php echo $u_name; ?></a>
                                         </div>
                                         <div class="admin_set">
-                                            <a href="/administration/admin/<?php echo $admin['id']; ?>">Редактировать</a>
+                                            <a href="/administration/admin/<?php echo $admin['user_id']; ?>">Редактировать</a>
                                         </div>
                                     </div>
                                 </div>

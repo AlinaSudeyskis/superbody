@@ -19,6 +19,7 @@ class Couch extends CI_Controller
         parent::__construct();
         
         $this->load->model('Couch_model');
+        $this->load->model('User_model');
     }
 
     /**
@@ -281,6 +282,7 @@ class Couch extends CI_Controller
      * @param $user_id
      * @param $page_type
      * @return void
+     * @throws Exception
      */
     public function couchSettings($user_id, $page_type = 'settings')
     {
@@ -385,26 +387,6 @@ class Couch extends CI_Controller
 
             header('Location: /administration/couch/'.$user_id);
         }
-        elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id))
-        {
-            $this->load->model('User_model');
-            $result = $this->User_model->deleteUser($user_id);
-
-            if ($result === true)
-            {
-                // Пользователь удален
-                $this->session->set_tempdata('message', 179, 60);
-
-                header('Location: /administration/couches');
-            }
-            else
-            {
-                // Пользователь не удален
-                $this->session->set_tempdata('message', 180, 60);
-
-                header('Location: /administration/couch/'.$user_id);
-            }
-        }
         elseif ($this->input->post('bt_change_user_type', true) and is_numeric($user_id))
         {
             $type = 1;
@@ -459,20 +441,20 @@ class Couch extends CI_Controller
             // Дата рождения
             $b_day  = is_numeric($this->input->post('b_day', true)) ? $this->input->post('b_day', true) : '';
             $b_mon  = is_numeric($this->input->post('b_mon', true)) ? $this->input->post('b_mon', true) : '';
-            $b_year = is_numeric($this->input->post('b_year', true)) ? $this->input->post('b_year', true) : 0000;
+            $b_year = is_numeric($this->input->post('b_year', true)) ? $this->input->post('b_year', true) : '';
             $birthday = $b_day . '.' . $b_mon . '.' . $b_year;
             $date = DateTime::createFromFormat('d.m.Y', $birthday);
             $birthday = ($date !== false) ? $date->format('Y-m-d') : '';
 
-            $db_birthday = $user_data['user_b_day'] . '.' . $user_data['user_b_mon'] . '.' . $user_data['user_b_year'];
-            $date = DateTime::createFromFormat('d.m.Y', $db_birthday);
-            $db_birthday = ($date !== false) ? $date->format('Y-m-d') : '';
-
             // Сохранение пола и даты рождения
-            if ($gender != $user_data['user_gender'] or $birthday != $db_birthday) {
+            if ($gender != $user_data['user_gender'] or $birthday != $user_data['user_birthday'])
+            {
+                log_message('debug', $gender.' '.$birthday);
                 $res_gb = $this->User_model->setUserGenderBd($user_id, $gender, $birthday, $this->date);
+                log_message('debug', $res_gb);
 
-                if ($res_gb === true and !empty($user_data['weight'])) {
+                if ($res_gb === true and !empty($user_data['weight']))
+                {
                     parent::calcBmiBmr($user_id, $user_data['weight']);
                 }
             }
@@ -497,16 +479,28 @@ class Couch extends CI_Controller
                 $res_cd = $this->Couch_model->setCouchData($user_id, $special, $experience, $title_awards, $about, $this->date);
             }
 
-            if ($res_gb === false) {
+            if ($res_gb === false and $res_cd === true)
+            {
                 // Дата рождения и пол не сохранены
-                $this->session->set_tempdata('message', 96, 60);
+                $this->session->set_tempdata('message', 95, 60);
             }
-            elseif ($res_gb === true) {
+            elseif ($res_gb === true and $res_cd === false)
+            {
+                // Информация о тренере не сохранена
+                $this->session->set_tempdata('message', 78, 60);
+            }
+            elseif ($res_gb === true and $res_cd === true)
+            {
                 // Сохранено
                 $this->session->set_tempdata('message', 10, 60);
             }
+            elseif ($res_gb === false and $res_cd === false)
+            {
+                // Все личные данные не сохранены
+                $this->session->set_tempdata('message', 187, 60);
+            }
 
-            header('Location: /administration/couch/'.$user_id);
+            header('Location: /administration/couch/'.$user_id.'/personal');
         }
         elseif ($this->input->post('bt_reset_password', true))
         {
@@ -599,11 +593,37 @@ class Couch extends CI_Controller
                 header('Location: /administration/couch/'.$user_id);
             }
         }
+        elseif ($this->input->post('bt_delete_user', true))
+        {
+            $tmp_date = new DateTime($this->date);
+            $in_a_month = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P30D')) : false;
+            $delete_date = ($in_a_month !== false) ? $in_a_month->format('Y-m-d') : '';
+
+            $up_d = $this->User_model->temporarilyDeleteUser($user_id, $this->user_id, $delete_date);
+
+            if ($up_d['result'] === true)
+            {
+                // Отправка уведомления на почту пользователя
+                parent::sendEmail(13, $up_d['user_email']);
+
+                // Пользователь удален
+                $this->session->set_tempdata('message', 179, 60);
+
+                header('Location: /administration/users/archive/'.$user_id);
+            }
+            else
+            {
+                // Пользователь не удален
+                $this->session->set_tempdata('message', 180, 60);
+
+                header('Location: /administration/couch/'.$user_id);
+            }
+        }
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Редактирование данных тренера';
         $this->page_data['page_menu']     = 'users';
-        $this->page_data['page_submenu']  = 'a_couches';
+        $this->page_data['page_submenu']  = ($user_data['user_deleted'] == 1) ? 'a_users_archive' : 'a_couches';
         $this->page_data['page_2submenu'] = ($page_type == 'settings') ? 'settings' : 'personal_data';
 
         $this->load->view('header/header_admin', $this->page_data);

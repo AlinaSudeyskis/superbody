@@ -153,7 +153,7 @@ class Authorization_model extends CI_Model
      * @param datetime $date Текущая дата и время
      * @return bool | int
      */
-    public function loginViaFacebook($social_id, $email = '', $name = '', $date)
+    public function loginViaFacebook($social_id, $email = '', $name = '', $date = '')
     {
         $sel_user = $this->db->query('
             SELECT `user_id`, `user_email`, `user_name`, `user_type`, `user_auth_via` 
@@ -243,7 +243,7 @@ class Authorization_model extends CI_Model
     public function validSocLoginId($soc, $date, $access_token, $user_soc_id, $expires_at, $issued_at, $expires_in, $user_soc_email = '',
                                     $user_soc_name = '', $user_soc_image = '', $user_soc_bd = '', $user_soc_gender = '')
     {
-        $result = true;
+        $result['registration'] = false;
 
         // Поиск пользователя по соц. сети и его ID в соц. сети
         $sel_user = $this->db->query('
@@ -256,7 +256,6 @@ class Authorization_model extends CI_Model
             $row = $sel_user->row();
 
             $result = self::userSocialAuthorization($row->us_u_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id, $date);
-            $result['registration'] = false;
         }
         else
         {
@@ -279,7 +278,6 @@ class Authorization_model extends CI_Model
 
                     // Авторизуем пользователя
                     $result = self::userSocialAuthorization($row->user_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id, $date);
-                    $result['registration'] = false;
                 }
                 // Регистрируем и авторизуем
                 else {
@@ -379,45 +377,60 @@ class Authorization_model extends CI_Model
     {
         $result = array();
 
-        // Сохраняем состояние авторизации в БД
-        $this->db->query('UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_id`=? LIMIT 1', array($date, $user_id));
-        // Обновление данных соц. сети
-        $this->db->query('UPDATE `users_social` SET `us_token`=?, `us_expires_at`=?, `us_issued_at`=?, `us_expires_in`=? 
-            WHERE `us_u_id`=? and `us_social`=? and `us_social_id`=? LIMIT 1',
-                array($access_token, $expires_at, $issued_at, $expires_in, $user_id, $user_soc_via, $user_soc_id));
-
-        // Выборка данных пользователя
-        $sel_user = $this->db->query('
-            SELECT `user_email`, `user_type`, `user_blocked`, `user_name`, `user_phone`, `user_image`, `user_soc_image` 
-            FROM `users`
-            WHERE `user_id`=? LIMIT 1', $user_id);
-
-        if ($sel_user !== false and 1 == $sel_user->num_rows())
+        $sel_data = $this->db->query('SELECT `user_deleted` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
         {
-            $row = $sel_user->row();
+            $row = $sel_data->row();
+            $user_deleted = $row->user_deleted;
+            unset($row);
 
-            $result['user']['id']           = $user_id;
-            $result['user']['email']        = $row->user_email;
-            $result['user']['type']         = $row->user_type;
-            $result['user']['blocked']      = $row->user_blocked;
-            $result['user']['name']         = $row->user_name;
-            $result['user']['phone']        = $row->user_phone;
-            $result['user']['image']        = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
-            $result['user']['soc_image']    = '';
-            $result['user']['access_token'] = $access_token;
-            $result['user']['soc_via']      = $user_soc_via;
-            $result['user']['soc_id']       = $user_soc_id;
-
-            if(!empty($row->user_soc_image))
+            if($user_deleted == 0)
             {
-                $Headers = @get_headers($row->user_soc_image);
-                if(strpos($Headers[0], '200'))
+                // Сохраняем состояние авторизации в БД
+                $this->db->query('UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_id`=? LIMIT 1', array($date, $user_id));
+                // Обновление данных соц. сети
+                $this->db->query('UPDATE `users_social` SET `us_token`=?, `us_expires_at`=?, `us_issued_at`=?, `us_expires_in`=? 
+                  WHERE `us_u_id`=? and `us_social`=? and `us_social_id`=? LIMIT 1',
+                    array($access_token, $expires_at, $issued_at, $expires_in, $user_id, $user_soc_via, $user_soc_id));
+
+                // Выборка данных пользователя
+                $sel_user = $this->db->query('
+                    SELECT `user_email`, `user_type`, `user_blocked`, `user_name`, `user_phone`, `user_image`, `user_soc_image` 
+                    FROM `users`
+                    WHERE `user_id`=? LIMIT 1', $user_id);
+
+                if ($sel_user !== false and 1 == $sel_user->num_rows())
                 {
-                    $result['user']['soc_image'] = $row->user_soc_image;
+                    $row = $sel_user->row();
+
+                    $result['user']['id']           = $user_id;
+                    $result['user']['email']        = $row->user_email;
+                    $result['user']['type']         = $row->user_type;
+                    $result['user']['blocked']      = $row->user_blocked;
+                    $result['user']['name']         = $row->user_name;
+                    $result['user']['phone']        = $row->user_phone;
+                    $result['user']['image']        = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                    $result['user']['soc_image']    = '';
+                    $result['user']['access_token'] = $access_token;
+                    $result['user']['soc_via']      = $user_soc_via;
+                    $result['user']['soc_id']       = $user_soc_id;
+
+                    if(!empty($row->user_soc_image))
+                    {
+                        $Headers = @get_headers($row->user_soc_image);
+                        if(strpos($Headers[0], '200'))
+                        {
+                            $result['user']['soc_image'] = $row->user_soc_image;
+                        }
+                    }
+                }
+                elseif($sel_user === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
         }
-        elseif($sel_user === false)
+        elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -441,7 +454,7 @@ class Authorization_model extends CI_Model
             SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
               `user_image`, `user_soc_image` 
             FROM `users` 
-            WHERE `user_email`=? LIMIT 1', $email);
+            WHERE `user_email`=? and `user_deleted`=0 LIMIT 1', $email);
 
         if ($sel_user !== false and 1 == $sel_user->num_rows())
         {
