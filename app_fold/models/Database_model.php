@@ -491,8 +491,6 @@ class Database_model extends CI_Model
         $this->db->query("ALTER TABLE `promocodes_used` ADD `pcu_code` VARCHAR(25) NOT NULL AFTER `pcu_pc_id`");
         $this->db->query("ALTER TABLE `orders_users_cart` ADD `ouc_promocode_id` INT UNSIGNED NOT NULL AFTER `ouc_p_fitcoin_price`");*/
 
-        // 10.05.2018
-        /*$this->db->query('ALTER TABLE `promocodes_used` CHANGE `pcu_id` `pcu_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT');*/
 
         // ------------------------------------------------------------------------------------------------------------
 
@@ -1570,6 +1568,15 @@ class Database_model extends CI_Model
         {
             $this->db->query("ALTER TABLE `promocodes_used` ADD `pcu_discount` INT(11) UNSIGNED NOT NULL AFTER `pcu_code`");
             $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (14, 'Курс куплен', 1, 'Курс куплен', 'Вы купили курс на сайте Superbody.pro. Настроить курс можно в личном кабинете.', '', 4, '2018-04-25 11:41:46')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-01-22 10:51:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query('ALTER TABLE `promocodes_used` CHANGE `pcu_id` `pcu_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT');
 
             self::setDbUpdate($date);
         }
