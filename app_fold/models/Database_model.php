@@ -1567,7 +1567,6 @@ class Database_model extends CI_Model
         if($fl_up_db === false)
         {
             $this->db->query("ALTER TABLE `promocodes_used` ADD `pcu_discount` INT(11) UNSIGNED NOT NULL AFTER `pcu_code`");
-            $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (14, 'Курс куплен', 1, 'Курс куплен', 'Вы купили курс на сайте Superbody.pro. Настроить курс можно в личном кабинете.', '', 4, '2018-04-25 11:41:46')");
 
             self::setDbUpdate($date);
         }
@@ -1590,6 +1589,9 @@ class Database_model extends CI_Model
 
             self::setDbUpdate($date);
         }
+
+        //$this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (15, 'Курс куплен', 1, 'Курс куплен', 'Вы купили курс на сайте Superbody.pro. Настроить курс можно в личном кабинете.', '', 4, '2018-04-25 11:41:46')");
+
 
         return $result;
     }

@@ -75,10 +75,9 @@ if($course['new_price'] != 0 or $course['price'] != 0):?>
 <div class="anketa_form_buts_wrap parent">
     <?php if (!empty($courses_id) and in_array($course['id'], $courses_id)): ?>
         <input type="submit" name="bought" value="Куплен" class="anketa_form_but disabled"/>
-    <?php elseif ($course['new_price'] != 0 or $course['price'] != 0): ?>
-        <input type="submit" name="bt_buy_course" value="Купить" class="anketa_form_but"/>
     <?php else: ?>
-        <input type="submit" name="bt_buy_course" value='Добавить в "Мои курсы"' class="anketa_form_but"/>
+        <?php $but_text = ($course['new_price'] != 0 or $course['price'] != 0) ? 'Купить' : 'Добавить в "Мои курсы"'; ?>
+        <input type="submit" name="bt_buy_course" value='<?php echo $but_text; ?>' class="anketa_form_but"/>
     <?php endif; ?>
 </div>
 

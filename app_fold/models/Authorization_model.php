@@ -113,6 +113,8 @@ class Authorization_model extends CI_Model
      */
     public function getUserAccountData($email, $activate_code)
     {
+        $result = false;
+
         if (!empty($email) and !empty($activate_code))
         {
             $sel_account = $this->db->query('SELECT `user_activated` FROM `users` 
@@ -124,24 +126,17 @@ class Authorization_model extends CI_Model
 
                 $account['activated'] = ($row->user_activated == 1) ? true : false;
 
-                log_message('debug', __METHOD__ . ' ' . print_r($account, true));
+                //log_message('debug', __METHOD__ . ' ' . print_r($account, true));
 
-                return $account;
+                $result = $account;
             }
             elseif ($sel_account === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
-                return false;
-            }
-            else
-            {
-                return false;
             }
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**

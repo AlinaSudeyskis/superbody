@@ -7464,7 +7464,7 @@ class Course_model extends CI_Model
         {
             $sel_user_course = $this->db->query('
                 SELECT `uc_id` FROM `users_courses` 
-                WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1', array($order_id, $user_id, $course_id));
+                WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1', array($user_id, $order_id, $course_id));
 
             if($sel_user_course !== false and 0 == $sel_user_course->num_rows())
             {
@@ -10048,28 +10048,36 @@ class Course_model extends CI_Model
         $result = array();
 
         $result['id']               = $row->crs_id;
-        $result['category']         = !empty($row->crs_category) ? $row->crs_category : null;
-        $result['image']            = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : null;
-        $result['name']             = !empty($row->crs_name) ? $row->crs_name : null;
-        $result['description']      = !empty($row->crs_description) ? $row->crs_description : null;
-        $result['meta_description'] = !empty($row->crs_meta_description) ? $row->crs_meta_description : null;
-        $result['meta_keywords']    = !empty($row->crs_meta_keywords) ? $row->crs_meta_keywords : null;
-        $result['type']             = !empty($row->crs_type_id) ? $row->crs_type_id : null;
-        $result['count_weeks']      = !empty($row->crs_count_weeks) ? $row->crs_count_weeks : null;
-        $result['count_days']       = !empty($row->crs_count_days) ? $row->crs_count_days : null;
-        $result['count_rest']       = !empty($row->crs_count_rest) ? $row->crs_count_rest : null;
-        $result['blocked']          = !empty($row->crs_blocked) ? $row->crs_blocked : null;
-        $result['archive']          = !empty($row->crs_archive) ? $row->crs_archive : null;
+        $result['category']         = (!empty($row->crs_category)) ? $row->crs_category : null;
+        $result['image']            = (!empty($row->crs_image)) ? mb_substr($row->crs_image, 1) : null;
+        $result['name']             = (!empty($row->crs_name)) ? $row->crs_name : null;
+        $result['description']      = (!empty($row->crs_description)) ? $row->crs_description : null;
+        $result['meta_description'] = (!empty($row->crs_meta_description)) ? $row->crs_meta_description : null;
+        $result['meta_keywords']    = (!empty($row->crs_meta_keywords)) ? $row->crs_meta_keywords : null;
+        $result['type']             = (!empty($row->crs_type_id)) ? $row->crs_type_id : null;
+        $result['count_weeks']      = (!empty($row->crs_count_weeks)) ? $row->crs_count_weeks : null;
+        $result['count_days']       = (!empty($row->crs_count_days)) ? $row->crs_count_days : null;
+        $result['count_rest']       = (!empty($row->crs_count_rest)) ? $row->crs_count_rest : null;
+        $result['blocked']          = (!empty($row->crs_blocked)) ? $row->crs_blocked : null;
+        $result['archive']          = (!empty($row->crs_archive)) ? $row->crs_archive : null;
+
         $result['price']            = (!empty($row->crs_price) and $row->crs_price != '0.00') ? money_format('%!.2n', $row->crs_price) : null;
         $result['fc_price']         = (!empty($row->crs_fitcoin_price) and $row->crs_fitcoin_price != '0.00') ? money_format('%!.2n', $row->crs_fitcoin_price) : null;
-        $result['recur_price']      = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? money_format('%!.2n', $row->crs_recurrent_price) : null;
-        $result['recur_months']     = (!empty($row->crs_recurrent_months) and $row->crs_recurrent_months != 0) ? $row->crs_recurrent_months : null;
-        $result['recur_first']      = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? money_format('%!.2n', $row->crs_recurrent_first) : null;
-        $result['recur_subsequent'] = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? money_format('%!.2n', $row->crs_recurrent_subsequent) : null;
+        $result['db_price']         = (!empty($row->crs_price) and $row->crs_price != '0.00') ? $row->crs_price : null;
+        $result['db_fc_price']      = (!empty($row->crs_fitcoin_price) and $row->crs_fitcoin_price != '0.00') ? $row->crs_fitcoin_price : null;
+
+        $result['recur_months']        = (!empty($row->crs_recurrent_months) and $row->crs_recurrent_months != 0) ? $row->crs_recurrent_months : null;
+        $result['recur_price']         = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? money_format('%!.2n', $row->crs_recurrent_price) : null;
+        $result['recur_first']         = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? money_format('%!.2n', $row->crs_recurrent_first) : null;
+        $result['recur_subsequent']    = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? money_format('%!.2n', $row->crs_recurrent_subsequent) : null;
+        $result['db_recur_price']      = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? $row->crs_recurrent_price : null;
+        $result['db_recur_first']      = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? $row->crs_recurrent_first : null;
+        $result['db_recur_subsequent'] = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? $row->crs_recurrent_subsequent : null;
+
         $result['new_price']        = null;
         $result['new_fc_price']     = null;
         $result['bought']           = false;
-        $result['p_id']             = !empty($row->p_id) ? $row->p_id : null;
+        $result['p_id']             = (!empty($row->p_id)) ? $row->p_id : null;
         $result['recurrent']        = false;
 
         if (!empty($result['recur_months']) and !empty($result['recur_first'])
@@ -10079,7 +10087,7 @@ class Course_model extends CI_Model
         }
 
         $result['landing']['id']        = (!empty($row->clp_id) and $row->clp_activated == 'activate') ? $row->clp_id : null;
-        $result['landing']['activated'] = !empty($row->clp_activated) ? $row->clp_activated : false;
+        $result['landing']['activated'] = (!empty($row->clp_activated)) ? $row->clp_activated : false;
 
         return $result;
     }

@@ -2626,8 +2626,8 @@ class Store_model extends CI_Model
             {
                 foreach ($products['products'] as $product)
                 {
-                    $price    = !empty($product['discount_price']) ? $product['discount_price'] : $product['price'];
-                    $fc_price = !empty($product['discount_fc_price']) ? $product['discount_fc_price'] : $product['fc_price'];
+                    $price    = (is_numeric($product['discount_price']) and $product['discount_price'] > 0) ? $product['discount_price'] : $product['price'];
+                    $fc_price = (is_numeric($product['discount_fc_price']) and $product['discount_fc_price'] > 0) ? $product['discount_fc_price'] : $product['fc_price'];
                     $pcu_id   = '';
 
                     // Добавление промокода как использованный

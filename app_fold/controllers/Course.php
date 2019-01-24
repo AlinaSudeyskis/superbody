@@ -7738,6 +7738,7 @@ class Course extends CI_Controller
      *
      * @param $course_id
      * @return void
+     * @throws Exception
      */
     public function publicCourse($course_id)
     {
@@ -7858,11 +7859,11 @@ class Course extends CI_Controller
             // Стоимость курса в зависимости от варианта оплаты и доступности такой оплаты в настройка курса
             if($payment_option == 'installments' and $db_data['recurrent'] === true)
             {
-                $course_price = $db_data['recur_first'];
+                $course_price = $db_data['db_recur_first'];
             }
             else
             {
-                $course_price = $db_data['price'];
+                $course_price = $db_data['db_price'];
             }
 
             // Проверка данных пользователя
@@ -7902,7 +7903,7 @@ class Course extends CI_Controller
                     // Вычислеие цены со скидкой
                     if($promocode['discount'] !== false and !empty($promocode['id']))
                     {
-                        $course_price = $db_data['price'] - ($db_data['price']*$promocode['discount']/100);
+                        $course_price = $db_data['db_price'] - ($db_data['db_price']*$promocode['discount']/100);
                         $promocode_id = $promocode['id'];
                     }
                 }
