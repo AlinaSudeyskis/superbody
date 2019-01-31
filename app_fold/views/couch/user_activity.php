@@ -16,22 +16,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="tren_prof_page_block parent">
-                        <div class="tren_prof_page_img_wrap">
-                            <div class="tren_prof_page_img"><?php if (!empty($user_data['user_image'])) :?><img src="<?php echo $user_data['user_image'];?>" alt=""><?php endif;?></div>
-                            <div class="tren_prof_page_name"><?php echo $user_data['split_name']['name'];?></div>
-                            <div class="tren_prof_page_surname"><?php echo $user_data['split_name']['surname'];?></div>
-                            <div class="tren_prof_page_soc">
-                                <a href=""><i class="fa fa-vk" aria-hidden="true"></i></a>
-                                <a href=""><i class="fa fa-facebook" aria-hidden="true"></i></a>
-                                <a href=""><i class="fa fa-instagram" aria-hidden="true"></i></a>
+                    <?php if(!empty($user_data)):?>
+                        <div class="tren_prof_page_block parent">
+                            <div class="tren_prof_page_img_wrap">
+                                <div class="tren_prof_page_img"><?php if (!empty($user_data['user_image'])) :?><img src="<?php echo $user_data['user_image'];?>" alt=""><?php endif;?></div>
+                                <div class="tren_prof_page_name"><?php echo $user_data['split_name']['name'];?></div>
+                                <div class="tren_prof_page_surname"><?php echo $user_data['split_name']['surname'];?></div>
+                                <div class="tren_prof_page_soc">
+                                    <a href=""><i class="fa fa-vk" aria-hidden="true"></i></a>
+                                    <a href=""><i class="fa fa-facebook" aria-hidden="true"></i></a>
+                                    <a href=""><i class="fa fa-instagram" aria-hidden="true"></i></a>
+                                </div>
+                            </div>
+                            <div class="tren_prof_page_cont">
+                                <div class="tren_prof_page_stat">Антропометрические данные</div>
+                                <div class="tren_prof_page_txt"><?php include_once('./app_fold/views/user/questionnaire/anthropometric_info.php'); ?></div>
                             </div>
                         </div>
-                        <div class="tren_prof_page_cont">
-                            <div class="tren_prof_page_stat">Антропометрические данные</div>
-                            <div class="tren_prof_page_txt"><?php include_once('./app_fold/views/user/questionnaire/anthropometric_info.php'); ?></div>
-                        </div>
-                    </div>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif;?>
                 </div>
             </div>
 

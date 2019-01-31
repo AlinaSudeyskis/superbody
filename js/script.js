@@ -18,6 +18,16 @@ function getInternetExplorerVersion() {
     return rv;
 }
 $(document).ready(function() {
+    tinymce.init({
+        selector: "textarea.formatted_textarea",
+        menubar: false,
+        statusbar: false,
+        theme: 'modern',
+        language_url : '/js/tinymce/langs/ru.js',
+        plugins: "textcolor colorpicker bbcode",
+        toolbar: "undo redo | bold italic | forecolor",
+        max_chars_indicator: "pageLength"
+    });
 	/* Видео превью */
     function secondsToTime(time){
         var h = Math.floor(time / (60 * 60)),
@@ -63,6 +73,55 @@ $(document).ready(function() {
             if(!!video_id && !!time_id) {
                 getVideoTime(video_id, time_id);
             }
+        });
+    }
+
+    // Форма оплаты
+    var opacity  = 0.8,
+        purchase = $("#purchase_pop-up"),
+        shadow2 = $("#shadow2");
+
+    if(purchase.length > 0){
+        if(purchase.hasClass("ref_pop-up")){
+            purchase_up();
+        }
+
+        $(".buy_course").on('click', function(event){
+            event.preventDefault();
+            var cid = $(this).data('cid');
+
+            $.ajax({
+                url: '/dataCourse',
+                type: 'post',
+                dataType: 'json',
+                data: {
+                    cid: cid
+                },
+                complete: function (result) {
+                    var data = result.responseJSON;
+                    if (data.crs) {
+                        $('.purchase_form').html(data.crsd);
+
+                        purchase_up();
+                        $('.anketa_form_select, .journal_form_select').styler();
+                    }
+                }
+            });
+        });
+    }
+    function purchase_up()
+    {
+        if (shadow2.length === 0)
+        {
+            $("body").append("<div id='shadow2'></div>");
+            shadow2 = $("#shadow2");
+        }
+
+        purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2}).fadeIn(600);
+
+        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
+            shadow2.fadeOut(600);
+            purchase.fadeOut(600);
         });
     }
       /*function setVideoList(){

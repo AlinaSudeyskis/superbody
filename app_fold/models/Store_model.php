@@ -2610,8 +2610,7 @@ class Store_model extends CI_Model
 
         // Создание заказа
         $in_data = $this->db->query('
-            INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`, 
-              `o_oud_id`, `o_delivery`, `o_date_add`) 
+            INSERT INTO `orders` (`o_u_id`refundPayment) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 array($user_id, $name, $surname, $email, $code, $phone, $address_id, $delivery, $date));
 
@@ -2875,7 +2874,7 @@ class Store_model extends CI_Model
      */
     public function getUserOrder($user_id, $order_id)
     {
-        $result['order']['id'] = '';
+        $result['order'] = '';
 
         $sel_order = $this->db->query('
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            

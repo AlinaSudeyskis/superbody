@@ -59,8 +59,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php endif;?>
                             <li><a href="/contacts">Контакты</a></li>
                         </ul>
-                        <a href="<?php if (!empty($site_info['agreement'])): echo $site_info['agreement']; endif;?>" class="agreement <?php if (empty($site_info['agreement'])): echo 'disabled'; endif;?>">Пользовательское соглашение</a>
-                        <a href="<?php if (!empty($site_info['private_policy'])): echo $site_info['private_policy']; endif;?>" class="agreement <?php if (empty($site_info['private_policy'])): echo 'disabled'; endif;?>">Политика конфиденциальности</a>
+                        <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
                     </div>
                     <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                         <div class="footer_h">СООБЩЕСТВО</div>
@@ -88,11 +87,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <div id="pop-up_meal">
     <div class="close_meal"></div>
-</div><!-- pop-up_video -->
+</div><!-- pop-up_meal -->
 
 <div id="pop-up_user_meal">
     <div class="close_user_meal"></div>
-</div><!-- pop-up_video -->
+</div><!-- pop-up_user_meal -->
+
+<?php include_once('./app_fold/views/course/payment_form_up.php'); ?>
 
 <script src="/js/lightbox.js"></script>
 

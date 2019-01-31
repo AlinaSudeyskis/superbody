@@ -474,7 +474,7 @@ class User extends CI_Controller
         if ($this->input->post('bt_save_settings', true))
         {
             // Валидация E-mail
-            $email = (!empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+            $email = ($user_data['user_activate'] == 1 and !empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
                     ? $this->input->post('email', true)
                     : $user_data['user_email'];
 

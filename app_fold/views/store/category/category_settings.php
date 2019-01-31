@@ -17,25 +17,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" method="post">
-                        <div class="admin_form_buts_wrap_container">
-                            <div class="admin_form_buts_wrap parent">
-                                <input type="submit" name="bt_save_category" value="Сохранить" class="video_admin_form_send" />
-                                <?php if ($category['blocked'] == 0) : ?>
-                                    <input type="submit" name="bt_block_category" value="Заблокировать" class="video_admin_form_block"/>
-                                <?php else: ?>
-                                    <input type="submit" name="bt_unblock_category" value="Разблокировать" class="video_admin_form_block"/>
-                                <?php endif;?>
-                                <?php if ($category['id'] != 1 and $category['id'] != 2 and $category['id'] != 6) : ?>
-                                    <input type="submit" name="bt_delete_category" value="Удалить" class="video_admin_form_block"/>
-                                <?php endif;?>
+                    <?php if(!empty($category)): ?>
+                        <form action="" method="post">
+                            <div class="admin_form_buts_wrap_container">
+                                <div class="admin_form_buts_wrap parent">
+                                    <input type="submit" name="bt_save_category" value="Сохранить" class="video_admin_form_send" />
+                                    <?php if ($category['blocked'] == 0) : ?>
+                                        <input type="submit" name="bt_block_category" value="Заблокировать" class="video_admin_form_block"/>
+                                    <?php else: ?>
+                                        <input type="submit" name="bt_unblock_category" value="Разблокировать" class="video_admin_form_block"/>
+                                    <?php endif;?>
+                                    <?php if ($category['id'] != 1 and $category['id'] != 2 and $category['id'] != 6) : ?>
+                                        <input type="submit" name="bt_delete_category" value="Удалить" class="video_admin_form_block"/>
+                                    <?php endif;?>
+                                </div>
                             </div>
-                        </div>
 
-                        <div class="video_admin_form">
-                            <?php include_once('./app_fold/views/store/category/settings_item.php'); ?>
-                        </div>
-                    </form>
+                            <div class="video_admin_form">
+                                <?php include_once('./app_fold/views/store/category/settings_item.php'); ?>
+                            </div>
+                        </form>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif; ?>
                 </div>
             </div>
         </div><!-- content_col -->

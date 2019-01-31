@@ -18,18 +18,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val tov">
-                    <div class="admin_list tov_list">
-                        <?php if (!empty($products)) :
-                            foreach ($products as $product) :
+                    <?php if (!empty($products)) :?>
+                        <div class="admin_list tov_list">
+                            <?php foreach ($products as $product) :
                                 $discount = (!empty($product['discount_price']) or !empty($product['discount_fc_price'])) ? 'Скидка' : '';
                                 $bonus    = (!empty($product['attached']) or !empty($product['attached'])) ? 'Акция' : '';
                                 $label    = (empty($bonus)) ? $discount: $bonus;
                                 include('./app_fold/views/store/product/product_item.php');
                             endforeach;
                             unset($product);
-                        endif;?>
-                    </div>
-                    <?php include('./app_fold/views/pagination.php');?>
+                            include_once('./app_fold/views/pagination.php');?>
+                        </div>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif;?>
                 </div>
             </div>
         </div><!-- content_col -->

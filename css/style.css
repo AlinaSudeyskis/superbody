@@ -108,6 +108,7 @@ audio, canvas, progress, video{
     top: 0;
     z-index: 100;
 }
+
 .sing-in_h{
     font-size: 12px;
     line-height: 14px;
@@ -1473,6 +1474,12 @@ tr:first-child > td > .fc-day-grid-event{
 .agreement:last-child {
     margin-top: 5px;
 }
+.purchase_policy{
+    text-align: center;
+}
+.purchase_policy .agreement{
+    color: #33363f;
+}
 .dark_agreement{
     clear: both;
     width: 100%;
@@ -1618,7 +1625,8 @@ tr:first-child > td > .fc-day-grid-event{
     display: none;
 }
 .purchase_pop-up_cont{
-    padding: 0 40px;
+    /*padding: 0 40px;*/
+    padding: 30px 40px;
     max-height: 900px;
 }
 .purchase_pop-up_h{
@@ -1810,6 +1818,35 @@ tr:first-child > td > .fc-day-grid-event{
     background: #72d0f4;
     display: flex;
 }
+.video_col_but{
+    width: 100%;
+    height: 35px;
+    background: #72d0f4;
+    display: flex;
+}
+.video_col_but_right{
+    width: 50%;
+    text-align: center;
+    line-height: 35px;
+    background: #e25050;
+}
+.video_col_but_left{
+    float: left;
+    width: 50%;
+    text-align: center;
+    line-height: 35px;
+}
+.video_col_but_right a, .video_col_but_left a {
+     width: 100%;
+     color: #fff;
+     text-transform: uppercase;
+     font-size: 14px;
+     line-height: 21px;
+     padding: 5px 13px;
+     margin: auto;
+     text-decoration: none;
+     font-weight: 500;
+ }
 .video_col_h .video_title{
     width: 100%;
     color: #fff;
@@ -7018,6 +7055,14 @@ textarea.journal_post_comm_in{
 span.anketa_form_in{
     background: none;
 }
+.tip{
+    font-size: 11px;
+    color: #949393;
+    width: 100%;
+    display: block;
+    clear: both;
+    margin-left: 180px;
+}
 .in_tiny
 {
     margin-left: 10px;
@@ -8809,6 +8854,9 @@ textarea.anketa_form_in{
     max-width: 930px;
     margin: 0 auto;
 }
+.purchase_form .video_admin_form{
+    padding: 0;
+}
 .video_down_line_h,
 .admin_form_file_line_h{
     width: 120px;
@@ -9111,6 +9159,11 @@ textarea.anketa_form_in{
 }
 .kurs_cur_wrap{
     position: relative;
+}
+.kurs_cur_h{
+    text-align: center;
+    padding: 5px 0 10px;
+    text-transform: uppercase;
 }
 .lend_form_option .kurs_cur_wrap, .tren_set_form_r .kurs_cur_wrap{
     position: relative;
@@ -11290,6 +11343,9 @@ input.tren_form_block_check{
 	.anketa_form_line .anketa_form_in, .anketa_form_two_all{
 		clear: left;
 	}
+    .tip{
+        margin-left: 0;
+    }
 	.anketa_form_info_cont{
 		float: none;
 	}
@@ -11297,7 +11353,7 @@ input.tren_form_block_check{
 		padding-top: 22px;
 	}
 	.anketa_form_buts_wrap{
-		padding-left: 0;
+		/*padding-left: 0;*/
 	}
 	.anketa_form_info_line_h, .anketa_form_info_txt{
 		/*display: block;*/

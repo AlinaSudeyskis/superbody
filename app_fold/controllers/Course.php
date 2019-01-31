@@ -6540,9 +6540,13 @@ class Course extends CI_Controller
 
     /**
      * Вывод списка курсов, доступных всем пользователям
+     * @throws Exception
      */
     public function publicCourses()
     {
+        // Исходная страница
+        $return_url = '/courses/';
+
         $this->load->model('Couch_model');
 
         // Получение списка добавленных курсов
@@ -6551,6 +6555,63 @@ class Course extends CI_Controller
         $reviews = $this->Course_model->getAvaliableReviews();
 
         $result = array_merge($courses, $gallery, $reviews);
+
+        // Покупка курса
+        if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
+        {
+            $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+
+            if(!empty($course_id))
+            {
+                // Данные курса
+                $course = $this->Course_model->getAvailableCourse($course_id, $this->date);
+                $course_couches = $this->Course_model->getCourseCouchesId($course_id);
+                $db_data = $course['course'];
+                // Выбранный тренер
+                $id_couch = $this->input->post('user_couch', true);
+                // Вариант оплаты (полный, разделить на месяцы)
+                $s_payment_options = $this->input->post('s_payment_options', true);
+                // Способ оплаты
+                $s_payment_method = $this->input->post('s_payment_method', true);
+                // Данные для способа оплаты
+                $i_phone = $this->input->post('i_phone', true);
+                $i_login = $this->input->post('i_login', true);
+                $i_email = $this->input->post('email', true);
+                // Введенный промокод
+                $i_promocode = $this->input->post('promocode', true);
+
+                parent::buyCourse($course_id, $db_data, $course_couches, $id_couch, $s_payment_options,
+                    $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
+            }
+        }
+        elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_facebook_login = $this->input->post('bt_facebook_login');
+
+            parent::ctrlFacebookLogin($i_email, $return_url, $bt_facebook_login);
+        }
+        elseif($this->input->post('bt_ok_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_ok_login = $this->input->post('bt_ok_login');
+
+            parent::ctrlOkLogin($i_email, $return_url, $bt_ok_login);
+        }
+        elseif($this->input->post('bt_vk_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_vk_login = $this->input->post('bt_vk_login');
+
+            parent::ctrlVkLogin($i_email, $return_url, $bt_vk_login);
+        }
+        elseif($this->input->post('bt_insta_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_insta_login = $this->input->post('bt_insta_login');
+
+            parent::ctrlInstagramLogin($i_email, $return_url, $bt_insta_login);
+        }
 
         // Объединенные данные страница
         $this->page_data['title']       = $this->page_data['metadata'][5]['title'];
@@ -7747,318 +7808,62 @@ class Course extends CI_Controller
         $course_couches = $this->Course_model->getCourseCouchesId($course_id);
         $user_courses   = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
         $landing        = array();
+        // Исходная страница
+        $return_url = '/course/'.$course_id;
 
         if (!empty($course['course']) and !empty($course['course']['landing']['id']))
         {
             $landing = $this->Course_model->getLandingPage($course_id);
         }
 
-        // Сохранение купленного курса пользователем в БД
-        if ($this->input->post('bt_buy_course', true))
+        // Покупка курса
+        if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
         {
             // Данные курса
             $db_data = $course['course'];
-
-            // Количество тренировок за курс
-            $count_workouts = $db_data['count_weeks'] * $db_data['count_days'];
-
             // Выбранный тренер
             $id_couch   = $this->input->post('user_couch', true);
-            $user_couch = (is_numeric($id_couch) and in_array($id_couch, $course_couches['id'])) ? $id_couch : '';
-
-            // Тренировочные дни
-            $training_days = '';
-            /*if (!empty($this->input->post('cb_day'))) {
-                $days = $this->input->post('cb_day');
-                $i = 1;
-                foreach ($days as $day) {
-                    if ($i <= $db_data['count_days']) {
-                        $training_days .= $day;
-                    }
-
-                    $i++;
-                }
-                unset($day);
-            }*/
-
-            // Даты начала и окончания курса
-            $start_date = '';
-            $end_date   = '';
-            if($db_data['category'] == 'nutrition')
-            {
-                $start_date = $this->date;
-
-                $tmp_date = new DateTime($this->date);
-                $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
-                $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
-            }
-            /*$array_training_days = str_split($training_days);
-            $tem_date            = new DateTime($this->date);
-            $start_date          = $tem_date->format('Y-m-d');
-            $end_date            = null;
-            $set_start_date      = true; // Флаг начала отсчета дат
-
-            // Текущий номер дня недели
-            $current_num_day = date("N", strtotime($this->date));
-            // Вычисление даты начала курса
-            // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
-            // то вычисляем дату следующего дня недели тренировки.
-            if (!in_array($current_num_day, $array_training_days)) {
-                // Поиск большего номера дня недели
-                foreach ($array_training_days as $key => $training_day) {
-                    if ($training_day > $current_num_day and $set_start_date === true) {
-                        $diff_days = $training_day - $current_num_day;
-
-                        $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
-                        $date->add(new DateInterval('P' . $diff_days . 'D'));
-                        $start_date = ($date !== false) ? $date->format('Y-m-d') : $start_date;
-
-                        $set_start_date = false;
-                    }
-                }
-                unset($training_day);
-
-                // Если дата начала курса не изменилась, то берем первый выбранный номер дня недели тренировки
-                if ($start_date == $this->date) {
-                    $diff_days = 7 - $current_num_day + $array_training_days[0];
-
-                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
-                    $date->add(new DateInterval('P' . $diff_days . 'D'));
-                    $start_date = $date !== false ? $date->format('Y-m-d') : null;
-                }
-            }
-
-            // Изначальная дата окончания курса
-            if (!empty($start_date)) {
-                $count_days = ($course['count_weeks']*7) - 1;
-                $date = DateTime::createFromFormat('Y-m-d', $start_date);
-                $date->add(new DateInterval('P' . $count_days . 'D'));
-                $end_date = $date !== false ? $date->format('Y-m-d') : null;
-            }*/
-
             // Вариант оплаты (полный, разделить на месяцы)
-            $options = array('full_payment', 'installments');
-            $payment_option = (in_array($this->input->post('s_payment_options', true), $options))
-                ? $this->input->post('s_payment_options', true)
-                : 'full_payment';
-
+            $s_payment_options = $this->input->post('s_payment_options', true);
             // Способ оплаты
-            $methods      = array('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank');
-            $payment_type = (in_array($this->input->post('s_payment_method', true), $methods) and $payment_option == 'full_payment')
-                ? $this->input->post('s_payment_method', true)
-                : 'bank_card';
-
+            $s_payment_method = $this->input->post('s_payment_method', true);
             // Данные для способа оплаты
-            $phone_methods = array('qiwi', 'sberbank');
-            $login_methods = array('alfabank');
-            $phone        = is_numeric($this->input->post('i_phone', true)) ? $this->input->post('i_phone', true) : null;
-            $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : null;
-            $login        = strip_tags($this->input->post('i_login', true));
-            $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            // Введенный промокод
+            $i_promocode = $this->input->post('promocode', true);
 
-            // Стоимость курса в зависимости от варианта оплаты и доступности такой оплаты в настройка курса
-            if($payment_option == 'installments' and $db_data['recurrent'] === true)
-            {
-                $course_price = $db_data['db_recur_first'];
-            }
-            else
-            {
-                $course_price = $db_data['db_price'];
-            }
-
-            // Проверка данных пользователя
-            $user_id = null;
-            $email   = null;
-            if(is_numeric($this->user_id))
-            {
-                $user_id = $this->user_id;
-                $email   = $this->session->user['email'];
-            }
-            else
-            {
-                $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : null;
-            }
-
-            // Если пользователь не авторизован, проверяем введенный им email (нет в БД - регистрация)
-            if (empty($user_id) and !empty($email))
-            {
-                $user_id = parent::checkEmail($email);
-            }
-            elseif(empty($user_id) and empty($email))
-            {
-                // Некорректный email
-                $this->session->set_tempdata('message', 6, 60);
-            }
-
-            if(!empty($user_id))
-            {
-                // Введенный промокод
-                $i_promocode  = mb_substr(strip_tags($this->input->post('promocode', true)), 0, 25);
-                $promocode_id = '';
-                // Проверка промокода
-                if(!empty($i_promocode) and $payment_option == 'full_payment')
-                {
-                    $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $user_id, $this->date);
-
-                    // Вычислеие цены со скидкой
-                    if($promocode['discount'] !== false and !empty($promocode['id']))
-                    {
-                        $course_price = $db_data['db_price'] - ($db_data['db_price']*$promocode['discount']/100);
-                        $promocode_id = $promocode['id'];
-                    }
-                }
-
-                // Добавление товара в заказы пользователя
-                $this->load->model('Store_model');
-
-                $products['products'] = array( 0 => array(
-                    'id' => $db_data['p_id'],
-                    'cart_quantity' => 1,
-                    'price' => $course_price,
-                    'fc_price' => '',
-                    'discount_price' => '',
-                    'discount_fc_price' => '',
-                    'promo_id' => $promocode_id,
-                    'promo_code' => $i_promocode)
-                );
-
-                $prev_address = '';
-                $name = '';
-                $surname = '';
-                $code = '';
-                $phone = '';
-                $country = '';
-                $city = '';
-                $street = '';
-                $building = '';
-                $house = '';
-                $postcode = '';
-                $delivery = '';
-
-                $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $code, $phone,
-                    $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
-
-                if ($res_order !== false and is_numeric($res_order['order_id']))
-                {
-                    // Кол-во товаров в корзине
-                    parent::updateSessionCart(0);
-
-                    $payment_data = array(
-                        'oid' => $res_order['order_id'],
-                        'amount' => $res_order['total_amount'],
-                        'type' => $payment_type,
-                        'option' => $payment_option,
-                        'phone' => $method_phone,
-                        'login' => $method_login,
-                    );
-
-                    header('Location: /payment?' .http_build_query($payment_data));
-
-                    /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
-
-                    if (is_numeric($res_buy))
-                    {
-                        $uc_id = $res_buy;
-
-                        if (!empty($training_days)) {
-                            $this->Course_model->setUserTrainingWeeks($uc_id, $start_date, $training_days, $count_workouts, $course['count_days'], $this->date);
-                        }
-                    }
-
-                    // Сохранено
-                    $this->session->set_tempdata('message', 10, 60);*/
-                }
-                else
-                {
-                    // Не сохранено
-                    $this->session->set_tempdata('message', 101, 60);
-                    header('Location: /course/' . $course_id . '?ref=1');
-                }
-
-            }
-            else
-            {
-                // Пользователь не авторизован
-                $this->session->set_tempdata('message', 5, 60);
-                header('Location: /course/' . $course_id . '?ref=1');
-            }
-
-            /*// Курс куплен (добавлен)
-            $this->session->set_tempdata('message', 109, 60);
-            header('Location: /profile/course/'.$course_id);*/
-
+            parent::buyCourse($course_id, $db_data, $course_couches, $id_couch, $s_payment_options,
+                $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
         }
         elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
         {
-            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
-            $return = $this->input->post('hi_return', true);
+            $i_email = $this->input->post('email', true);
+            $bt_facebook_login = $this->input->post('bt_facebook_login');
 
-            $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_URL, "https://superbody.pro/facebook_login");
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-                'bt_facebook_login' => $this->input->post('bt_facebook_login', true),
-                'email' => $email,
-                'hi_return' => $return));
-
-            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_exec ($ch);
-            curl_close ($ch);
+            parent::ctrlFacebookLogin($i_email, $return_url, $bt_facebook_login);
         }
         elseif($this->input->post('bt_ok_login', true) and $this->input->post('cb_politics', true))
         {
-            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
-            $return = $this->input->post('hi_return', true);
+            $i_email = $this->input->post('email', true);
+            $bt_ok_login = $this->input->post('bt_ok_login');
 
-            $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_URL, "https://superbody.pro/ok_login");
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-                'bt_ok_login' => $this->input->post('bt_ok_login', true),
-                'email' => $email,
-                'hi_return' => $return));
-
-            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_exec ($ch);
-            curl_close ($ch);
+            parent::ctrlOkLogin($i_email, $return_url, $bt_ok_login);
         }
         elseif($this->input->post('bt_vk_login', true) and $this->input->post('cb_politics', true))
         {
-            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
-            $return = $this->input->post('hi_return', true);
+            $i_email = $this->input->post('email', true);
+            $bt_vk_login = $this->input->post('bt_vk_login');
 
-            $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_URL, "https://superbody.pro/vk_login");
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-                'bt_vk_login' => $this->input->post('bt_vk_login', true),
-                'email' => $email,
-                'hi_return' => $return));
-
-            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_exec ($ch);
-            curl_close ($ch);
+            parent::ctrlVkLogin($i_email, $return_url, $bt_vk_login);
         }
         elseif($this->input->post('bt_insta_login', true) and $this->input->post('cb_politics', true))
         {
-            $email = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('email', true) : '';
-            $return = $this->input->post('hi_return', true);
+            $i_email = $this->input->post('email', true);
+            $bt_insta_login = $this->input->post('bt_insta_login');
 
-            $ch = curl_init();
-
-            curl_setopt($ch, CURLOPT_URL, "https://superbody.pro/instagram_login");
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, array(
-                'bt_insta_login' => $this->input->post('bt_insta_login', true),
-                'email' => $email,
-                'hi_return' => $return));
-
-            //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_exec ($ch);
-            curl_close ($ch);
+            parent::ctrlInstagramLogin($i_email, $return_url, $bt_insta_login);
         }
 
         // Объединенные данные страница
@@ -8922,5 +8727,46 @@ class Course extends CI_Controller
                 unset($user_wm);
             }
         }
+    }
+
+    /**
+     * AJAX. Данные доступного курса
+     */
+    public function getAvailableDataCourse()
+    {
+        $result = array('crs' => false);
+
+        $course_id  = (!empty($this->input->post('cid', true)) and is_numeric($this->input->post('cid', true)))
+            ? $this->input->post('cid', true)
+            : null;
+
+        if(!empty($course_id))
+        {
+            $course_data  = $this->Course_model->getAvailableCourse($course_id);
+            $user_courses = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
+
+            if(!empty($course_data))
+            {
+                $user_session = $this->page_data['user_session'];
+                $site_info = $this->page_data['site_info'];
+                $course = $course_data['course'];
+                $courses_id = $user_courses['courses_id'];
+
+                $result['crsd'] = '<div class="parent kurs_cur_wrap">
+                        <div class="kurs_cur_h">'.$course['name'].'</div>
+                    </div>
+                    <div class="parent kurs_cur_wrap separator"></div>';
+
+                ob_start();
+                include('./app_fold/views/authorization/short_auth.php');
+                include('./app_fold/views/course/course_payment_item.php');
+                $result['crsd'] .= ob_get_contents();
+                ob_end_clean();
+
+                $result['crs'] = true;
+            }
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 }

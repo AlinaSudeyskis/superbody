@@ -1133,7 +1133,7 @@ $(document).ready(function() {
             });
 
             // Добавление товара в корзину
-            $('.buy_course').on('click', function (event) {
+            /*$('.buy_course').on('click', function (event) {
                 event.preventDefault();
                 var cid = $(this).data('cid'),
                     butt = $(this);
@@ -1161,7 +1161,7 @@ $(document).ready(function() {
                         }
                     }
                 });
-            });
+            });*/
 
             $('#delete_product').on('click', function (event) {
                 event.preventDefault();

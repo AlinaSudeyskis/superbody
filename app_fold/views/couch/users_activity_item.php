@@ -43,9 +43,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                 <?php endforeach;
-                unset($client);
-            endif;?>
+                unset($client);?>
+            <?php else: ?>
+                <h3 class="info">Информация не найдена</h3>
+            <?php endif;?>
         </div>
-        <div class="tren_client_count"><?php echo $number_clients;?></div>
+        <?php if(!empty($number_clients)):?>
+            <div class="tren_client_count"><?php echo $number_clients;?></div>
+        <?php endif; ?>
     </div>
 </div>

@@ -17,9 +17,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="admin_list">
-                        <?php if (!empty($posts)) :
-                            foreach ($posts as $post) :?>
+                    <?php if (!empty($posts)): ?>
+                        <div class="admin_list">
+                            <?php foreach ($posts as $post): ?>
                                 <div class="subscription_block_item">
                                     <div class="subscription_block_h"><a href="/administration/blog/post/<?php echo $post['id'];?>"><?php echo $post['title'];?></a></div>
                                     <div class="subscription_block_txt">Краткое описание: <?php echo $post['short_desc'];?>...</div>
@@ -29,9 +29,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             <?php endforeach;
                             unset($article);
-                        endif;?>
-                    </div>
-                    <?php include_once('./app_fold/views/pagination.php'); ?>
+                            include_once('./app_fold/views/pagination.php'); ?>
+                        </div>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif;?>
                 </div>
             </div>
         </div><!-- content_col -->

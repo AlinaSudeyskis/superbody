@@ -35,6 +35,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
                         </div>
                     <?php endif;?>
+                    <div class="video_col_but">
+                        <div class="video_col_but_left">
+                            <a href="/course/<?php echo $vd['course_id']; ?>">Подробнее</a>
+                        </div>
+                        <div class="video_col_but_right">
+                            <a href="#" class="buy_course" data-cid="<?php echo $vd['course_id']; ?>">Купить</a>
+                        </div>
+                    </div>
                 </div>
             <?php endforeach;
             unset($vd);

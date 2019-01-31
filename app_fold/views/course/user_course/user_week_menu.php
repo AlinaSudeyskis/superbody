@@ -1,12 +1,12 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 include_once('./app_fold/views/course/user_course/page_part/header.php');?>
-<div class="anketa_block">
-    <div class="anketa_block_cont">
-        <div class="anketa_block_item">
-            <div class="anketa_block_item_cont">
-                <?php if(!empty($course_menu)):
-                    $days = array(1 => 'Понедельник', 2 => 'Вторник', 3 => 'Среда', 4 => 'Четверг', 5 => 'Пятница', 6 => 'Суббота', 7 => 'Воскресенье');
+<?php if(!empty($course_menu)):?>
+    <div class="anketa_block">
+        <div class="anketa_block_cont">
+            <div class="anketa_block_item">
+                <div class="anketa_block_item_cont">
+                    <?php $days = array(1 => 'Понедельник', 2 => 'Вторник', 3 => 'Среда', 4 => 'Четверг', 5 => 'Пятница', 6 => 'Суббота', 7 => 'Воскресенье');
                     foreach($course_menu as $cm_date => $cm):
                         $weight = 0;
                         $proteins = 0;
@@ -91,12 +91,12 @@ include_once('./app_fold/views/course/user_course/page_part/header.php');?>
                             </div>
                         <?php endif;
                     endforeach;
-                    unset($cm);
-                else: ?>
-                    <h3 class="info">Информация не найдена</h3>
-                <?php endif; ?>
+                    unset($cm);?>
+                </div>
             </div>
         </div>
     </div>
-</div>
+<?php else: ?>
+    <h3 class="info">Информация не найдена</h3>
+<?php endif; ?>
 <?php include_once('./app_fold/views/course/user_course/page_part/footer.php');?>

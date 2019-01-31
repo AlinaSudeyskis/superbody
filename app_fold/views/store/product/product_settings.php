@@ -17,21 +17,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" method="post" enctype="multipart/form-data">
-                        <div class="admin_form_buts_wrap_container">
-                            <div class="admin_form_buts_wrap parent">
-                                <?php if ($product['blocked'] == 0) : ?>
-                                    <input type="submit" name="bt_block_product" class="admin_form_block" value="Заблокировать"/>
-                                <?php else: ?>
-                                    <input type="submit" name="bt_unblock_product" class="admin_form_block" value="Разблокировать"/>
-                                <?php endif;?>
-                                <input type="submit" name="bt_save_product" value="Сохранить" class="video_admin_form_send" />
+                    <?php if(!empty($product)): ?>
+                        <form action="" method="post" enctype="multipart/form-data">
+                            <div class="admin_form_buts_wrap_container">
+                                <div class="admin_form_buts_wrap parent">
+                                    <?php if ($product['blocked'] == 0) : ?>
+                                        <input type="submit" name="bt_block_product" class="admin_form_block" value="Заблокировать"/>
+                                    <?php else: ?>
+                                        <input type="submit" name="bt_unblock_product" class="admin_form_block" value="Разблокировать"/>
+                                    <?php endif;?>
+                                    <input type="submit" name="bt_save_product" value="Сохранить" class="video_admin_form_send" />
+                                </div>
                             </div>
-                        </div>
-                        <div class="video_admin_form">
-                            <?php include_once('./app_fold/views/store/product/product_settings_item.php'); ?>
-                        </div>
-                    </form>
+                            <div class="video_admin_form">
+                                <?php include_once('./app_fold/views/store/product/product_settings_item.php'); ?>
+                            </div>
+                        </form>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif;?>
                 </div>
             </div>
         </div><!-- content_col -->

@@ -445,24 +445,23 @@ class Blog_model extends CI_Model
      * @param $post_id
      * @return bool
      */
-    /*public function deleteBlogPost($post_id)
+    public function deleteBlogPost($post_id)
     {
+        $result = false;
+
         $up_data = $this->db->query('DELETE FROM `couch_blog` WHERE `cb_id`=? LIMIT 1', $post_id);
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
-    }*/
+
+        return $result;
+    }
 
     /**
      * Одобрение записи блога
@@ -680,16 +679,19 @@ class Blog_model extends CI_Model
         $result = array();
 
         $result['id']         = $row->cb_id;
-        $result['title']      = !empty($row->cb_post_title) ? $row->cb_post_title : null;
-        $result['short_desc'] = !empty($row->cb_post_short_description) ? $row->cb_post_short_description : null;
-        $result['text']       = !empty($row->cb_post_text) ? $row->cb_post_text : null;
-        $result['approval']   = !empty($row->cb_post_approval) ? $row->cb_post_approval : null;
+        $result['title']      = (!empty($row->cb_post_title)) ? $row->cb_post_title : null;
+        $result['short_desc'] = (!empty($row->cb_post_short_description)) ? $row->cb_post_short_description : null;
+        $result['text']       = (!empty($row->cb_post_text))
+            ? nl2br(parent::showBBcodes($row->cb_post_text))
+            : null;
+        $result['bbc_text']   = (!empty($row->cb_post_text)) ? $row->cb_post_text : null;
+        $result['approval']   = (!empty($row->cb_post_approval)) ? $row->cb_post_approval : null;
 
         if (!empty($row->cb_post_date_add))
         {
             setlocale(LC_ALL, 'ru_RU.UTF-8');
             $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->cb_post_date_add);
-            $message_date = ($row->cb_post_date_add != '0000-00-00 00:00:00' or $date !== false)
+            $message_date = ($row->cb_post_date_add != '0000-00-00 00:00:00' and $date !== false)
                 ? strftime('%d %B %G, %H:%M', strtotime($row->cb_post_date_add))
                 : '';
 
@@ -702,7 +704,7 @@ class Blog_model extends CI_Model
         {
             setlocale(LC_ALL, 'ru_RU.UTF-8');
             $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->cb_post_date_update);
-            $message_date = ($row->cb_post_date_update != '0000-00-00 00:00:00' or $date !== false)
+            $message_date = ($row->cb_post_date_update != '0000-00-00 00:00:00' and $date !== false)
                 ? strftime('%d %B %G, %H:%M', strtotime($row->cb_post_date_update))
                 : '';
 

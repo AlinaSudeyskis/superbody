@@ -21,23 +21,26 @@ class Welcome extends CI_Controller
 		$this->load->model('Welcome_model');
 	}
 
-	/**
-	 * Index Page for this controller.
-	 *
-	 * Maps to the following URL
-	 * 		http://example.com/index.php/welcome
-	 *	- or -
-	 * 		http://example.com/index.php/welcome/index
-	 *	- or -
-	 * Since this controller is set as the default controller in
-	 * config/routes.php, it's displayed at http://example.com/
-	 *
-	 * So any other public methods not prefixed with an underscore will
-	 * map to /index.php/welcome/<method_name>
-	 * @see https://codeigniter.com/user_guide/general/urls.html
-	 */
+    /**
+     * Index Page for this controller.
+     *
+     * Maps to the following URL
+     *        http://example.com/index.php/welcome
+     *    - or -
+     *        http://example.com/index.php/welcome/index
+     *    - or -
+     * Since this controller is set as the default controller in
+     * config/routes.php, it's displayed at http://example.com/
+     *
+     * So any other public methods not prefixed with an underscore will
+     * map to /index.php/welcome/<method_name>
+     * @see https://codeigniter.com/user_guide/general/urls.html
+     * @throws Exception
+     */
 	public function index()
 	{
+	    $return_url = '/';
+
         // Добавление подписчика
         if ($this->input->post('bt_subscribe', true) and $this->input->post('cb_politics', true))
         {
@@ -80,6 +83,62 @@ class Welcome extends CI_Controller
             $this->session->set_tempdata('message', 128, 60);
 
             header('Location: /');
+        }
+        // Покупка курса
+        elseif ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
+        {
+            // Данные курса
+            $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+            if(!empty($course_id))
+            {
+                $course         = $this->Course_model->getAvailableCourse($course_id, $this->date);
+                $course_couches = $this->Course_model->getCourseCouchesId($course_id);
+                $db_data = $course['course'];
+
+                // Выбранный тренер
+                $id_couch   = $this->input->post('user_couch', true);
+                // Вариант оплаты (полный, разделить на месяцы)
+                $s_payment_options = $this->input->post('s_payment_options', true);
+                // Способ оплаты
+                $s_payment_method = $this->input->post('s_payment_method', true);
+                // Данные для способа оплаты
+                $i_phone = $this->input->post('i_phone', true);
+                $i_login = $this->input->post('i_login', true);
+                $i_email = $this->input->post('email', true);
+                // Введенный промокод
+                $i_promocode = $this->input->post('promocode', true);
+
+                parent::buyCourse($course_id, $db_data, $course_couches, $id_couch, $s_payment_options,
+                    $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
+            }
+        }
+        elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_facebook_login = $this->input->post('bt_facebook_login');
+
+            parent::ctrlFacebookLogin($i_email, $return_url, $bt_facebook_login);
+        }
+        elseif($this->input->post('bt_ok_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_ok_login = $this->input->post('bt_ok_login');
+
+            parent::ctrlOkLogin($i_email, $return_url, $bt_ok_login);
+        }
+        elseif($this->input->post('bt_vk_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_vk_login = $this->input->post('bt_vk_login');
+
+            parent::ctrlVkLogin($i_email, $return_url, $bt_vk_login);
+        }
+        elseif($this->input->post('bt_insta_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_insta_login = $this->input->post('bt_insta_login');
+
+            parent::ctrlInstagramLogin($i_email, $return_url, $bt_insta_login);
         }
 
         $this->load->model('Course_model');

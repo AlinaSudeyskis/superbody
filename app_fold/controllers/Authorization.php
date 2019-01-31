@@ -413,10 +413,11 @@ class Authorization extends CI_Controller
 
     /**
      * Восставновление пароля.
-     * 
+     *
      * Отправка письма пользователю с новым паролем
      *
      * @return void
+     * @throws Exception
      */
     public function restorePassword()
     {

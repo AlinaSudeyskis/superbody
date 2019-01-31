@@ -357,6 +357,7 @@ $route['store/(:num)/product/(:num)'] = 'Store/storeProduct/$2/$1';
 
 $route['addProductToCart']   = 'Store/productToCart';
 $route['addCourseToCart']    = 'Store/courseToCart';
+$route['dataCourse']         = 'Course/getAvailableDataCourse';
 $route['deleteCartProduct']  = 'Store/deleteCartProduct';
 $route['detachCartProducts'] = 'Store/detachCartProducts';
 $route['updateCartProduct']  = 'Store/updateCartProduct';

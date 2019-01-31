@@ -13,10 +13,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Портфолио тренера</h3>
                         </div>
-                        <?php if (!empty($portfolio)):?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <?php if (!empty($portfolio)):?>
                         <div class="tren_gal_row parent">
                             <?php foreach ($portfolio as $image) :?>
                                 <div class="tren_gal_col">
@@ -44,11 +44,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             <?php endforeach;
                             unset($image);?>
+                            <?php include_once('./app_fold/views/pagination.php');?>
                         </div>
                     <?php else: ?>
-                        <div class="center_txt">Нет записей</div>
+                        <h3 class="info">Информация не найдена</h3>
                     <?php endif; ?>
-                    <?php include_once('./app_fold/views/pagination.php');?>
                 </div>
             </div>
         </div><!-- content_col -->

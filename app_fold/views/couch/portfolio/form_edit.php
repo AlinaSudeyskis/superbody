@@ -16,17 +16,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" class="tren_set_form" method="post" enctype="multipart/form-data">
-                        <div class="parent">
-                            <?php include_once('./app_fold/views/couch/portfolio/settings_item.php');?>
-                            <div class="anketa_form_buts_wrap parent">
-                                <?php if($post['approval'] == 0): ?>
-                                    <input type="submit" name="bt_save_image" value="Сохранить" class="video_admin_form_send" />
-                                <?php endif; ?>
-                                <input type="submit" name="bt_del_post" value="Удалить" class="video_admin_form_block" />
+                    <?php if(!empty($post)): ?>
+                        <form action="" class="tren_set_form" method="post" enctype="multipart/form-data">
+                            <div class="parent">
+                                <?php include_once('./app_fold/views/couch/portfolio/settings_item.php');?>
+                                <div class="anketa_form_buts_wrap parent">
+                                    <?php if($post['approval'] == 0): ?>
+                                        <input type="submit" name="bt_save_image" value="Сохранить" class="video_admin_form_send" />
+                                    <?php endif; ?>
+                                    <input type="submit" name="bt_del_post" value="Удалить" class="video_admin_form_block" />
+                                </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif; ?>
                 </div>
             </div>
         </div><!-- content_col -->

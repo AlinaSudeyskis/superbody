@@ -45,7 +45,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 unset($image);?>
             </div>
         <?php else: ?>
-            <div class="center_txt">Нет записей</div>
+            <h3 class="info">Информация не найдена</h3>
         <?php endif; ?>
         <?php include_once('./app_fold/views/pagination.php');?>
     </div>

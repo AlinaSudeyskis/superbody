@@ -16,9 +16,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="my_kurs_block">
-                        <?php if (!empty($courses)) :
-                            foreach ($courses as $course) :?>
+                    <?php if (!empty($courses)) :?>
+                        <div class="my_kurs_block">
+                            <?php foreach ($courses as $course) :?>
                                 <div class="my_kurs_item parent">
                                     <div class="my_kurs_img">
                                         <a href="">
@@ -52,12 +52,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                 </div>
                             <?php endforeach;
-                            unset($course);
-                        else:?>
-                            <div>У Вас нет добавленных курсов</div>
-                        <?php endif;?>
-                    </div>
-                    <?php include_once('./app_fold/views/pagination.php');?>
+                            unset($course);?>
+                        </div>
+                        <?php include_once('./app_fold/views/pagination.php');?>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif;?>
                 </div>
             </div>
         </div><!-- content_col -->

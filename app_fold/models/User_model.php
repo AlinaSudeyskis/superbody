@@ -176,7 +176,7 @@ class User_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `users`.`user_id`, `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, 
-              `user_image`, `user_soc_image`, `user_blocked`, `user_type`, `user_gender`, `user_birthday`,
+              `user_image`, `user_soc_image`, `user_blocked`, `user_activated`, `user_type`, `user_gender`, `user_birthday`,
               `user_deleted`, `user_delete_date`, `user_delete_by`
             FROM `users` 
             LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
@@ -1497,6 +1497,7 @@ class User_model extends CI_Model
         $result['user_phone']         = (!empty($row->user_phone)) ? $row->user_phone : '';
         $result['user_password_hash'] = (!empty($row->user_password)) ? $row->user_password : '';
         $result['user_blocked']       = (!empty($row->user_blocked)) ? $row->user_blocked : '';
+        $result['user_activated']     = (!empty($row->user_activated)) ? $row->user_activated : '';
         $result['user_type']          = (!empty($row->user_type)) ? $row->user_type : '';
         $result['user_image']         = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
         $result['user_soc_image']     = '';

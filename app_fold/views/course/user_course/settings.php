@@ -2,6 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <?php include_once('./app_fold/views/course/user_course/page_part/header.php');?>
+<?php if(!empty($course)):?>
     <div class="anketa_block">
         <div class="anketa_block_cont">
             <div class="anketa_block_item">
@@ -180,4 +181,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     </div>
+<?php else: ?>
+    <h3 class="info">Информация не найдена</h3>
+<?php endif; ?>
 <?php include_once('./app_fold/views/course/user_course/page_part/footer.php');?>
