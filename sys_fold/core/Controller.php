@@ -1300,7 +1300,7 @@ class CI_Controller {
         {
             $this->load->model('Authorization_model');
 
-            $res_check = $this->Authorization_model->checkEmail($email, $name, $surname, $this->date);
+            $res_check = $this->Authorization_model->checkRegEmail($email, $name, $surname, $this->date);
 
             // Возвращаем ID пользователя
             if (is_numeric($res_check['user_id']))

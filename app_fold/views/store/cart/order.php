@@ -84,8 +84,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="ordering_block_side_cont_h">адрес доставки</div>
                                     <div class="ordering_block_side_cont_txt">
                                         <div class="ordering_block_side_cont_line">
-                                            <span class="info_ordering_t_name"><?php echo $order['user_surname']; ?></span>
-                                            <span class="info_ordering_name"><?php echo $order['user_name']; ?></span>
+                                            <span class="info_ordering_t_name"><?php echo $order['o_user_surname']; ?></span>
+                                            <span class="info_ordering_name"><?php echo $order['o_user_name']; ?></span>
                                             <span class="info_ordering_s_name"></span>
                                         </div>
                                         <div class="ordering_block_side_cont_line">
@@ -197,7 +197,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                             <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
                                                             <div class="parent kurs_cur_wrap">
                                                                 <!--min="1.01" max="<?php /*echo $max_refund; */?>" value="<?php /*echo $current_refund; */?>"-->
-                                                                <input type="number" name="i_refund_amount" class="admin_form_txt admin_form_txt_short" step="0.1"
+                                                                <input type="number" name="i_refund_amount" class="admin_form_txt admin_form_txt_short" step="0.01"
                                                                        min="0" max="<?php echo $amount; ?>" placeholder="Сумма возврата" required="required"/>
                                                                 <div class="kurs_cur">Руб.</div>
                                                             </div>

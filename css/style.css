@@ -4754,6 +4754,15 @@ textarea.journal_post_comm_in{
     text-transform: uppercase;
     color: #505961;
 }
+.block_subtitle {
+    text-align: center;
+    color: #01bff0;
+    font-size: 20px;
+    margin-bottom: 0;
+}
+.block_subtitle:first-of-type{
+    margin-bottom: 70px;
+}
 
 
 
@@ -6399,6 +6408,7 @@ textarea.journal_post_comm_in{
 }
 .tren_gal_row{
 	padding: 15px 15px 0;
+    min-height: 350px;
 }
 .tren_gal_row:last-child{
 	padding-bottom: 15px;
@@ -6885,6 +6895,9 @@ textarea.journal_post_comm_in{
     position: relative;
     background-color: #f3f3f3;
 }
+.tren_set_form .tren_set_form_img {
+    background-color: unset;
+}
 .tren_set_form_img.settings_img {
     width: 160px;
 }
@@ -6893,6 +6906,11 @@ textarea.journal_post_comm_in{
     /*width: 160px;*/
     height: 160px;
     margin: 0 auto;
+}
+.tren_set_form .tren_set_form_img img{
+    display: block;
+    height: 260px;
+    margin: 0 auto 10px;
 }
 .tren_set_form_add {
     margin-top: 20px;
@@ -7063,6 +7081,22 @@ span.anketa_form_in{
     clear: both;
     margin-left: 180px;
 }
+h3.tip{
+    font-size: 13px;
+    color: #949393;
+    width: 100%;
+    display: block;
+    clear: both;
+    text-align: center;
+    padding: 0;
+    margin-left: 0;
+    font-weight: normal;
+}
+.confirm_form .tip{
+    margin-left: 0;
+    text-align: center;
+    margin-bottom: 50px;
+}
 .in_tiny
 {
     margin-left: 10px;
@@ -7130,6 +7164,21 @@ span.anketa_form_in{
 	background: #e25050;
 	font-size: 13px;
 	cursor: pointer;
+}
+.form_send_big_but{
+    min-width: 120px;
+    height: 35px;
+    border: none;
+    display: block;
+    padding: 0 20px;
+    background: #e25050;
+    color: #fff;
+    font-size: 17px;
+    line-height: 35px;
+    cursor: pointer;
+    margin: 0 auto;
+    text-decoration: none;
+    text-transform: uppercase;
 }
 .anketa_form_send{
     display: block;
@@ -9065,6 +9114,7 @@ textarea.anketa_form_in{
 .journal_block_item_edit{
     font-size: 14px;
     line-height: 16px;
+    margin-top: 5px;
 }
 .journal_block_item_edit a{
     color: #7f8c8c;

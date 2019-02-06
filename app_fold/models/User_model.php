@@ -167,20 +167,23 @@ class User_model extends CI_Model
      * Получение данных настроек пользователя
      *
      * @param $user_id
+     * @param int $archive_user
      * @return bool|array
      */
-    public function getUserSettingsData($user_id)
+    public function getUserSettingsData($user_id, $archive_user = 0)
     {
         // Массив возвращаемых значений
-        $result = array ( 'user_data' => array());
+        $result = array ('user_data' => array());
 
         $sel_data = $this->db->query('
             SELECT `users`.`user_id`, `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, 
-              `user_image`, `user_soc_image`, `user_blocked`, `user_activated`, `user_type`, `user_gender`, `user_birthday`,
-              `user_deleted`, `user_delete_date`, `user_delete_by`
+               `user_image`, `user_soc_image`, `user_blocked`, `user_activated`, `user_activate_code`, `user_type`, 
+               `user_gender`, `user_birthday`, `user_deleted`, `user_delete_date`, `user_delete_by`, `user_new_email`, 
+               `user_new_email_idempotent`, `user_restore_account_idempotent`
             FROM `users` 
             LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
-            WHERE `users`.`user_id`=? LIMIT 1', $user_id);
+            WHERE `users`.`user_id`=? and CASE WHEN ?=1 THEN `user_deleted`=1 ELSE TRUE END 
+            LIMIT 1', array($user_id, $archive_user));
 
         if ($sel_data !== false and 1 == $sel_data->num_rows())
         {
@@ -234,7 +237,6 @@ class User_model extends CI_Model
      * Сохранение изменений регистрационных данных пользователя
      *
      * @param int $user_id ID пользователя
-     * @param string $email E-mail пользователя
      * @param string $name Ф.И.О. пользователя
      * @param string $password_hash Хэш пароля
      * @param string $code Код страны
@@ -243,13 +245,13 @@ class User_model extends CI_Model
      * @param datetime $date Текущая дата
      * @return bool
      */
-    public function setUserSettingsData($user_id, $email, $name, $password_hash, $code, $phone, $path_avatar, $date)
+    public function setUserSettingsData($user_id, $name, $password_hash, $code, $phone, $path_avatar, $date)
     {
         $up_data = $this->db->query('
             UPDATE `users` 
-            SET `user_email`=?, `user_name`=?, `user_password`=?, `user_country_code`=?, `user_phone`=?, `user_image`=?, `user_date_update`=?
+            SET `user_name`=?, `user_password`=?, `user_country_code`=?, `user_phone`=?, `user_image`=?, `user_date_update`=?
             WHERE `user_id`=? LIMIT 1', 
-                array($email, $name, $password_hash, $code, $phone, $path_avatar, $date, $user_id));
+                array($name, $password_hash, $code, $phone, $path_avatar, $date, $user_id));
         
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -667,7 +669,7 @@ class User_model extends CI_Model
                 }
 
                 // Удаление данных подписки
-                $del_data = $this->db->query('DELETE FROM `subscription` WHERE `s_email`=? LIMIT 1', $user_email);
+                $del_data = $this->db->query('UPDATE `subscription` SET `s_unsubscribe`=1 WHERE `s_email`=? LIMIT 1', $user_email);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -712,43 +714,24 @@ class User_model extends CI_Model
     }
 
     /**
-     * Восстановление пользователя из удаленных
+     * Добавление данных для восстановления аккаунта
      *
      * @param $user_id
+     * @param $idempotent
      * @return bool
      */
-    public function restoreUserAccount($user_id)
+    public function setRestoreUserAccount($user_id, $idempotent)
     {
-        $result['result']     = false;
-        $result['user_email'] = false;
+        $result = false;
 
-        if(is_numeric($user_id))
+        $up_data = $this->db->query('UPDATE `users` SET `user_restore_account_idempotent`=? WHERE `user_id`=? LIMIT 1', array($idempotent, $user_id));
+        if($up_data !== false and 1 == $this->db->affected_rows())
         {
-            $up_data = $this->db->query('
-                UPDATE `users` 
-                SET `user_deleted`=0, `user_delete_date`="0000-00-00", `user_delete_by`=0
-                WHERE `user_id`=? LIMIT 1', $user_id);
-
-            if($up_data !== false and 1 == $this->db->affected_rows())
-            {
-                $sel_data = $this->db->query('SELECT `user_email`, `user_type` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
-                if($sel_data !== false and 1 == $sel_data->num_rows())
-                {
-                    $row = $sel_data->row();
-                    $result['user_email'] = $row->user_email;
-                    $result['user_type']  = $row->user_type;
-                }
-                elseif($sel_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                $result['result'] = true;
-            }
-            elseif($up_data === false)
-            {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
-            }
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -1490,20 +1473,25 @@ class User_model extends CI_Model
     {
         $result = array();
 
-        $result['user_id']            = (!empty($row->user_id)) ? $row->user_id : '';
-        $result['user_name']          = (!empty($row->user_name)) ? $row->user_name : '';
-        $result['user_email']         = (!empty($row->user_email)) ? $row->user_email : '';
-        $result['user_country_code']  = (!empty($row->user_country_code)) ? $row->user_country_code : '';
-        $result['user_phone']         = (!empty($row->user_phone)) ? $row->user_phone : '';
-        $result['user_password_hash'] = (!empty($row->user_password)) ? $row->user_password : '';
-        $result['user_blocked']       = (!empty($row->user_blocked)) ? $row->user_blocked : '';
-        $result['user_activated']     = (!empty($row->user_activated)) ? $row->user_activated : '';
-        $result['user_type']          = (!empty($row->user_type)) ? $row->user_type : '';
-        $result['user_image']         = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
-        $result['user_soc_image']     = '';
-        $result['user_deleted']       = (!empty($row->user_deleted)) ? 1 : null;
-        $result['user_delete_date']   = (!empty($row->user_delete_date)) ? $row->user_delete_date : null;
-        $result['user_delete_by']     = (!empty($row->user_delete_by)) ? $row->user_delete_by : null;
+        $result['user_id']                = (!empty($row->user_id)) ? $row->user_id : '';
+        $result['user_name']              = (!empty($row->user_name)) ? $row->user_name : '';
+        $result['user_email']             = (!empty($row->user_email)) ? $row->user_email : '';
+        $result['user_country_code']      = (!empty($row->user_country_code)) ? $row->user_country_code : '';
+        $result['user_phone']             = (!empty($row->user_phone)) ? $row->user_phone : '';
+        $result['user_password_hash']     = (!empty($row->user_password)) ? $row->user_password : '';
+        $result['user_blocked']           = (!empty($row->user_blocked)) ? $row->user_blocked : '';
+        $result['user_activated']         = (!empty($row->user_activated)) ? $row->user_activated : '';
+        $result['user_activate_code']     = (!empty($row->user_activate_code)) ? $row->user_activate_code : '';
+        $result['user_type']              = (!empty($row->user_type)) ? $row->user_type : '';
+        $result['user_image']             = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+        $result['user_soc_image']         = '';
+        $result['user_deleted']           = (!empty($row->user_deleted)) ? 1 : null;
+        $result['user_delete_date']       = (!empty($row->user_delete_date)) ? $row->user_delete_date : null;
+        $result['user_delete_by']         = (!empty($row->user_delete_by)) ? $row->user_delete_by : null;
+        $result['user_new_email']         = (!empty($row->user_new_email)) ? $row->user_new_email : null;
+        $result['user_ne_idempotent']     = (!empty($row->user_new_email_idempotent)) ? $row->user_new_email_idempotent : null;
+        $result['user_changing_email']    = false;
+        $result['user_restoring_account'] = false;
 
         if(!empty($row->user_soc_image))
         {
@@ -1527,6 +1515,18 @@ class User_model extends CI_Model
                 : '';
 
             $result['user_delete_date'] = $tmp_dd;
+        }
+
+        // Изменение email
+        if(!empty($row->user_new_email) and !empty($row->user_new_email_idempotent))
+        {
+            $result['user_changing_email'] = true;
+        }
+
+        // Восстановление аккаунта
+        if(!empty($row->user_restore_account_idempotent))
+        {
+            $result['user_restoring_account'] = true;
         }
 
         return $result;

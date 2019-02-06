@@ -119,7 +119,8 @@ class Notification_model extends CI_Model
         $sel_data = $this->db->query('
             SELECT `e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_admin_id`, `e_date`, `ea_name`, `ea_email` 
             FROM `emails`
-            LEFT JOIN `emails_addresses` ON `ea_id`=`e_ea_id`');
+            LEFT JOIN `emails_addresses` ON `ea_id`=`e_ea_id`
+            ORDER BY `e_id`');
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {

@@ -1358,4 +1358,116 @@ $(document).ready(function(){
             '<input name="ta_videos_block[]" class="anketa_form_in anketa_form_in_long" placeholder="URL видео" />' +
             '</div>');
     });
+
+
+    var tov = $('.tov');
+    tov.on('click', '.shop_block_nav #prev_page', function (event) {
+        event.preventDefault();
+
+        var first_id = $('#i_first_id').val(),
+            first_price = $('#i_first_price').val(),
+            first_discount = $('#i_first_discount').val();
+
+        searchAProducts(first_id, first_price, first_discount, null, null, null);
+    });
+    tov.on('click', '.shop_block_nav #next_page', function (event) {
+        event.preventDefault();
+
+        var last_id = $('#i_last_id').val(),
+            last_price = $('#i_last_price').val(),
+            last_discount = $('#i_last_discount').val();
+
+        searchAProducts(null, null, null, last_id, last_price, last_discount);
+    });
+
+    var notif_block = $('.notif_block');
+    notif_block.on('click', '.shop_block_nav #prev_page', function (event)
+    {
+        event.preventDefault();
+
+        var first_id = $('#i_first_id').val();
+
+        searchNotifications(first_id, null);
+    });
+    notif_block.on('click', '.shop_block_nav #next_page', function (event)
+    {
+        event.preventDefault();
+
+        var last_id = $('#i_last_id').val();
+
+        searchNotifications(null, last_id);
+    });
+
+    /**
+     * Поиск товаров
+     * @param first_id
+     * @param first_price
+     * @param first_discount
+     * @param last_id
+     * @param last_price
+     * @param last_discount
+     */
+    function searchAProducts(first_id, first_price, first_discount, last_id, last_price, last_discount)
+    {
+        var tov_block = $(".admin_list.tov_list");
+        $.ajax({
+            url: '/getSearchProducts',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                first_id: first_id,
+                first_price: first_price,
+                first_discount: first_discount,
+                last_id: last_id,
+                last_price: last_price,
+                last_discount: last_discount},
+            complete: function (result) {
+                var data = result.responseJSON;
+                if (data.products != "false")
+                {
+                    tov_block.html(data.products);
+                    tov_block.next("#pagination").remove();
+                    tov_block.after(data.pagination);
+                }
+                else
+                {
+                    tov_block.html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
+                }
+            }
+        });
+    }
+
+    /**
+     * Поиск уведомлений
+     * @param first_id
+     * @param first_price
+     * @param first_discount
+     * @param last_id
+     * @param last_price
+     * @param last_discount
+     */
+    function searchNotifications(first_id, last_id)
+    {
+        var notif_block = notif_block.find(".admin_list");
+        $.ajax({
+            url: '/getSearchNotifications',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                first_id: first_id,
+                last_id: last_id},
+            complete: function (result) {
+                var data = result.responseJSON;
+                if (data.notif != "false")
+                {
+                    notif_block.html(data.notif);
+                    notif_block.next("#pagination").remove();
+                    notif_block.after(data.pagination);
+                }
+                else {
+                    notif_block.html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
+                }
+            }
+        });
+    }
 });

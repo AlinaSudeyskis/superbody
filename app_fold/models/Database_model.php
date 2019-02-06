@@ -1054,7 +1054,7 @@ class Database_model extends CI_Model
     }
 
     /**
-     * Обновление базы данных ноябрь 2018
+     * Обновление базы данных декабрь 2018
      *
      * @param $date
      * @return bool
@@ -1446,7 +1446,7 @@ class Database_model extends CI_Model
     }
 
     /**
-     * Обновление базы данных август 2018
+     * Обновление базы данных январь 2019
      *
      * @param $date
      * @return bool
@@ -1590,8 +1590,108 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        //$this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (15, 'Курс куплен', 1, 'Курс куплен', 'Вы купили курс на сайте Superbody.pro. Настроить курс можно в личном кабинете.', '', 4, '2018-04-25 11:41:46')");
 
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных февраль 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseFebruary2019($date)
+    {
+        $result = false;
+
+        $date = '2019-02-01 13:39:58';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_new_email` VARCHAR(255) NOT NULL AFTER `user_restore_date`, 
+                ADD `user_new_email_idempotent` VARCHAR(255) NOT NULL AFTER `user_new_email`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-02-01 13:52:29';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (15, 'Смена email', 1, 'Подтверждение смены email', 'Вы пытаетесь сменить email на сайте Superbody.pro. Для подтверждения перейдите по ссылке ниже.', '', 4, '2018-04-25 11:41:46')");
+            $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (16, 'Курс куплен', 1, 'Курс куплен', 'Вы купили курс на сайте Superbody.pro. Настроить курс можно в личном кабинете.', '', 4, '2018-04-25 11:41:46')");
+            $this->db->query("UPDATE `emails` SET `e_date` = '2018-04-25 11:41:46' WHERE `emails`.`e_id` = 13");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-02-04 12:48:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (190, 'Ошибка! Данные для изменения email не сохранены.', 'Ошибка! Данные для изменения email не сохранены.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-02-04 13:23:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (191, 'Письмо с подтверждением изменения email отравлено на текущую почту.', 'Письмо с подтверждением изменения email отравлено на текущую почту.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-02-05 11:11:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (17, 'Подтверждение email', 1, 'Активация нового email', 'Подтвердите новый email, перейдя по ссылке ниже.', '', 4, '2018-04-25 11:41:46')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (192, 'Ошибка! Не удалось изменить email.', 'Ошибка! Не удалось изменить email.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (193, 'Ошибка! Не корректные данные для смены email.', 'Ошибка! Не корректные данные для смены email.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-02-05 12:35:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) VALUES (18, 'Подтверждение восстановления аккаунта', 1, 'Потвержение восстановления аккаунта.', 'Подтвердите восстановления аккаунта на сайте SuperBody.pro, перейдя по ссылке ниже.', '', 4, '2018-04-25 11:41:46')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (194, 'Письмо с подтвержднием восстановления аккаунта отправлено на почту пользователя.', 'Письмо с подтвержднием восстановления аккаунта отправлено на почту пользователя.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-02-05 14:55:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_restore_account_idempotent` VARCHAR(255) NOT NULL AFTER `user_delete_by`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-02-05 15:28:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (195, 'Ваш аккаунт восстановлен.', 'Ваш аккаунт восстановлен.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-02-06 12:27:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE FROM `users_courses` WHERE `uc_id`=11 LIMIT 1");
+            $this->db->query("DELETE FROM `users_training_days` WHERE `utd_uc_id`=11");
+            $this->db->query("DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=11");
+
+            self::setDbUpdate($date);
+        }
 
         return $result;
     }

@@ -647,60 +647,10 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        if ($this->input->post('bt_save_images', true)) {
-            $path = './user_files/'.$this->user_id.'/portfolio/';
-            $files_data = array();
-            $temp_files = $_FILES;
-
-            if(!file_exists('./user_files/'.$this->user_id.'/portfolio/')){
-                chdir('user_files');
-                if(!is_dir($this->user_id)){
-                    mkdir($this->user_id);
-                }
-                chmod($this->user_id, 0777);
-                chdir($this->user_id);
-                if(!is_dir('portfolio')){
-                    mkdir('portfolio');
-                }
-                chmod('portfolio', 0777);
-                chdir('portfolio');
-                chdir('../../../');
-            }
-
-            $i = 0;
-            foreach ($temp_files['portfolio_images']['name'] as $name){
-
-                $_FILES['portfolio_images'] = array (
-                    'name'=>$temp_files['portfolio_images']['name'][$i],
-                    'type'=>$temp_files['portfolio_images']['type'][$i],
-                    'tmp_name'=>$temp_files['portfolio_images']['tmp_name'][$i],
-                    'error'=>$temp_files['portfolio_images']['error'][$i],
-                    'size'=>$temp_files['portfolio_images']['size'][$i]);
-
-                $path_image = parent::uploadImage('portfolio_images', $_FILES['portfolio_images']['type'], $path);
-
-                if(file_exists('./user_files/'.$this->user_id.'/portfolio/'.$path_image)){
-                    if ($this->security->xss_clean('./user_files/'.$this->user_id.'/portfolio/'.$path_image, TRUE) !== FALSE) {
-                        // файл прошел XSS тест
-                        $files_data[] = './user_files/'.$this->user_id.'/portfolio/'.$path_image;
-
-                    } else{
-                        unlink('./user_files/'.$this->user_id.'/portfolio/'.$path_image);
-                        /*$image = pathinfo($path_image);
-                        $mini_image = $image['filename'].'_thumb.'.$image['extension'];
-                        if(file_exists('./user_files/'.$this->user_id.'/portfolio/'.$mini_image)){
-                            unlink('./user_files/'.$this->user_id.'/portfolio/'.$mini_image);
-                        }*/
-                    }
-                }
-                $i++;
-            }
-            if(!empty($files_data)){
-                $this->Couch_model->setCouchPortfolio($this->user_id, $files_data, $this->date);
-            }
-        }
-        elseif ($this->input->post('bt_delete_portfolio_img')) {
-            if (is_numeric($this->input->post('img_id', true))) {
+        if ($this->input->post('bt_delete_portfolio_img'))
+        {
+            if (is_numeric($this->input->post('img_id', true)))
+            {
                 $path = '.' . strip_tags($this->input->post('img_path', true));
 
                 $this->Couch_model->deletePortfolioImage($this->user_id, $this->input->post('img_id', true), $path);
@@ -753,7 +703,8 @@ class Couch extends CI_Controller
     public function editPortfolioPost($post_id)
     {
         // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id) or $this->session->user['type'] != 2) {
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
+        {
             parent::pageNotFound($this->page_url);
         }
 
@@ -767,20 +718,24 @@ class Couch extends CI_Controller
         {
             $files_data = $db_image;
 
-            if (is_uploaded_file($_FILES['portfolio_image']['tmp_name'])) {
+            if (is_uploaded_file($_FILES['portfolio_image']['tmp_name']))
+            {
                 $path = './user_files/'.$this->user_id.'/portfolio/';
 
                 $path_image = parent::uploadImage('portfolio_image', $_FILES['portfolio_image']['type'], $path);
 
-                if(file_exists('./user_files/'.$this->user_id.'/portfolio/'.$path_image)){
-                    if ($this->security->xss_clean('./user_files/'.$this->user_id.'/portfolio/'.$path_image, TRUE) !== FALSE) {
+                if(file_exists($path.$path_image))
+                {
+                    if ($this->security->xss_clean($path.$path_image, TRUE) !== FALSE)
+                    {
                         // файл прошел XSS тест
-                        $files_data = './user_files/'.$this->user_id.'/portfolio/'.$path_image;
+                        $files_data = $path.$path_image;
 
                         unlink($db_image);
-
-                    } else{
-                        unlink('./user_files/'.$this->user_id.'/portfolio/'.$path_image);
+                    }
+                    else
+                    {
+                        unlink($path.$path_image);
                     }
                 }
             }
@@ -813,14 +768,18 @@ class Couch extends CI_Controller
 
             header('Location: /portfolio/post/' . $post_id);
         }
-        elseif ($this->input->post('bt_del_post', true)) {
+        elseif ($this->input->post('bt_del_post', true))
+        {
             $res_del = $this->Couch_model->deleteCouchPortfolioPost($this->user_id, $post_id);
 
-            if ($res_del === true) {
+            if ($res_del === true)
+            {
                 unlink($db_image);
 
                 $this->session->set_tempdata('message', 91, 60);
-            } else {
+            }
+            else
+            {
                 $this->session->set_tempdata('message', 92, 60);
             }
 
@@ -846,22 +805,27 @@ class Couch extends CI_Controller
     public function newPortfolioPost()
     {
         // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id) or $this->session->user['type'] != 2) {
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
+        {
             parent::pageNotFound($this->page_url);
         }
 
-        if ($this->input->post('bt_save_post', true)) {
+        if ($this->input->post('bt_save_post', true))
+        {
             $path = './user_files/'.$this->user_id.'/portfolio/';
-            $files_data = array();
+            $files_data = '';
 
-            if(!file_exists('./user_files/'.$this->user_id.'/portfolio/')){
+            if(!file_exists('./user_files/'.$this->user_id.'/portfolio/'))
+            {
                 chdir('user_files');
-                if(!is_dir($this->user_id)){
+                if(!is_dir($this->user_id))
+                {
                     mkdir($this->user_id);
                 }
                 chmod($this->user_id, 0777);
                 chdir($this->user_id);
-                if(!is_dir('portfolio')){
+                if(!is_dir('portfolio'))
+                {
                     mkdir('portfolio');
                 }
                 chmod('portfolio', 0777);
@@ -871,35 +835,43 @@ class Couch extends CI_Controller
 
             $path_image = parent::uploadImage('portfolio_image', $_FILES['portfolio_image']['type'], $path);
 
-            if(file_exists('./user_files/'.$this->user_id.'/portfolio/'.$path_image)){
-                if ($this->security->xss_clean('./user_files/'.$this->user_id.'/portfolio/'.$path_image, TRUE) !== FALSE) {
+            if(file_exists($path.$path_image))
+            {
+                if ($this->security->xss_clean($path.$path_image, TRUE) !== FALSE)
+                {
                     // файл прошел XSS тест
-                    $files_data = './user_files/'.$this->user_id.'/portfolio/'.$path_image;
+                    $files_data = $path.$path_image;
                     $name = strip_tags(mb_substr($this->input->post('image_title', true), 0, 100));
                     $description = strip_tags(mb_substr($this->input->post('image_description', true), 0, 255));
-
-                } else{
-                    unlink('./user_files/'.$this->user_id.'/portfolio/'.$path_image);
-                    /*$image = pathinfo($path_image);
-                    $mini_image = $image['filename'].'_thumb.'.$image['extension'];
-                    if(file_exists('./user_files/'.$this->user_id.'/portfolio/'.$mini_image)){
-                        unlink('./user_files/'.$this->user_id.'/portfolio/'.$mini_image);
-                    }*/
+                }
+                else
+                {
+                    unlink($path.$path_image);
                 }
             }
 
-            if(!empty($files_data)){
+            if(!empty($files_data))
+            {
                 $res_ins = $this->Couch_model->setCouchPortfolioPost($this->user_id, $files_data, $name, $description, $this->date);
 
-                if (is_numeric($res_ins)) {
-                    $this->session->set_tempdata('message', 93, 60);
+                if (is_numeric($res_ins))
+                {
+                    $this->session->set_tempdata('message', 10, 60);
 
                     header('Location: /portfolio/post/' . $res_ins);
-                } else {
+                }
+                else
+                {
                     $this->session->set_tempdata('message', 94, 60);
 
-                    header('Location: /portfolio/');
+                    header('Location: /portfolio/post/new');
                 }
+            }
+            else
+            {
+                $this->session->set_tempdata('message', 94, 60);
+
+                header('Location: /portfolio/post/new');
             }
         }
 
@@ -914,6 +886,9 @@ class Couch extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /**
+     * АП. Портфолио тренера
+     */
     public function couchesPortfolioPosts()
     {
         // Если пользователь не авторизован, вывод страницы 404
@@ -935,7 +910,7 @@ class Couch extends CI_Controller
     }
 
     /**
-     * Страница редактирования/одобрения данных изображения портфолио тренера
+     * АП. Страница редактирования/одобрения данных изображения портфолио тренера
      *
      * @param $post_id
      */

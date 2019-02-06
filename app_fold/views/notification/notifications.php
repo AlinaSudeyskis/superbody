@@ -15,10 +15,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                     </div>
                 </div>
-                <div class="kurs_block_val">
-                    <div class="admin_list">
-                        <?php if (!empty($notifications)) :
-                            foreach ($notifications as $key => $notification) :
+                <div class="kurs_block_val notif_block">
+                    <?php if (!empty($notifications)): ?>
+                        <div class="admin_list">
+                            <?php foreach ($notifications as $key => $notification) :
                                 if(!empty($notification)): ?>
                                     <div class="admin_item parent">
                                         <div class="admin_ava"></div>
@@ -30,9 +30,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                 <?php endif;
                             endforeach;
-                            unset($notification);
-                        endif;?>
-                    </div>
+                            unset($notification); ?>
+                            <?php include('./app_fold/views/pagination.php');?>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div><!-- content_col -->

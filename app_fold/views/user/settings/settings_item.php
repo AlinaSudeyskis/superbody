@@ -9,9 +9,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Email:</div></div>
         <?php $activate = (empty($user_data['user_activated'])) ? 'disabled' : ''; ?>
-        <input type="text" name="email" class="anketa_form_in anketa_form_in_long valid_email <?php echo $activate; ?>" placeholder="Email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255" required="required"/>
+        <input type="text" name="email" class="anketa_form_in anketa_form_in_long valid_email <?php echo $activate; ?>" placeholder="Email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255" required="required" autocomplete="off"/>
         <?php if(!empty($activate)): ?>
             <span class="tip">* Активируйте email. Письмо с активацией отправлено Вам на почту.</span>
+        <?php endif; ?>
+        <?php if($user_data['user_changing_email'] === true): ?>
+            <span class="tip">* Письмо с подтверждением изменения email отправлено Вам на текущую почту.</span>
         <?php endif; ?>
     </div>
     <?php if (!empty($user_session) and $user_session['auth_via'] == 'native') :?>

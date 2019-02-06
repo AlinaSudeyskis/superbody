@@ -309,18 +309,17 @@ class Authorization extends CI_Controller
             if ($result !== false)
             {
                 $user_id            = $result['user_id'];
+                $user_password      = $result['user_password'];
                 $user_activate_code = $result['user_activate_code'];
                 $password           = $this->input->post('i_password', true);
                 $confirm_password   = $this->input->post('i_confirm_password', true);
 
                 if (password_verify($email, $user_activate_code) and $activate_code == $user_activate_code)
                 {
-                    if ($password === $confirm_password)
+                    if ($password === $confirm_password and password_verify($password, $user_password))
                     {
-                        $password_hash = password_hash($this->input->post('i_password', true), PASSWORD_DEFAULT);
-
                         // Активация пользователя
-                        $res_activate = $this->Authorization_model->activateUser($user_id, $password_hash);
+                        $res_activate = $this->Authorization_model->activateUser($user_id, $this->date);
 
                         if ($res_activate === true)
                         {
@@ -432,7 +431,6 @@ class Authorization extends CI_Controller
         if($this->input->post('bt_restore', true))
         {
             $email      = null;
-            $email_hash = null;
             $idempotent = null;
             $today      = $this->date;
             $date_in_an_hour = null;
@@ -442,7 +440,6 @@ class Authorization extends CI_Controller
                 && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
             {
                 $email      = $this->input->post('email', true);
-                $email_hash = password_hash($this->input->post('email', true), PASSWORD_DEFAULT);
                 $idempotent = password_hash($today, PASSWORD_DEFAULT);
 
                 // Дата и время через час после сохранения данных о восстановлении пароля
@@ -474,13 +471,16 @@ class Authorization extends CI_Controller
             // Сохранение данных в БД, отправка письма
             if (!empty($email))
             {
-                $result_restore = $this->Authorization_model->setRestore($email, $email_hash, $idempotent, $today);
+                $result_restore = $this->Authorization_model->setRestore($email, $idempotent, $today);
 
                 if ($result_restore === true)
                 {
+                    $user = $this->Authorization_model->getActivateCode($email);
+                    $user_hash = $user['user_activate_code'];
+
                     // Отправление письма с указаниями по восстановлению пароля
                     $system_message['text']  = '<p>Обновить пароль Вы можете до ' . $date_in_an_hour . '</p> </br>';
-                    $system_message['text']  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $email_hash . '&i=' . $idempotent
+                    $system_message['text']  .= '<b><a href="https://superbody.pro/restore?e=' . $email . '&ac=' . $user_hash . '&i=' . $idempotent
                         . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
                     $system_message['text']  .= 'Восстановить пароль';
                     $system_message['text']  .= '</a></b>';
@@ -511,7 +511,7 @@ class Authorization extends CI_Controller
             $code       = mb_substr(strip_tags($this->input->get('ac', true)), 0, 255);
             $idempotent = mb_substr(strip_tags($this->input->get('i', true)), 0, 255);
 
-            if(!empty($email) and !empty($code) and !empty($idempotent))
+            if(!empty($email) and !empty($code) and !empty($idempotent) and password_verify($email, $code))
             {
                 $result_restore = $this->Authorization_model->checkRestore($email, $code, $idempotent, $this->date);
 
@@ -536,7 +536,7 @@ class Authorization extends CI_Controller
             $code       = mb_substr(strip_tags($this->input->get('ac', true)), 0, 255);
             $idempotent = mb_substr(strip_tags($this->input->get('i', true)), 0, 255);
 
-            if(!empty($email) and !empty($code) and !empty($idempotent))
+            if(!empty($email) and !empty($code) and !empty($idempotent) and password_verify($email, $code))
             {
                 $result_restore = $this->Authorization_model->checkRestore($email, $code, $idempotent, $this->date);
 
@@ -624,6 +624,244 @@ class Authorization extends CI_Controller
             // Не корректный E-mail
             $this->session->set_tempdata('message', 6, 60);
         }*/
+    }
+
+    /**
+     * Подтверждение смены email
+     * @param int $email_changed
+     */
+    public function confirmChangeEmail($email_changed = 0)
+    {
+        if (empty($this->user_id) or !is_numeric($this->user_id))
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if(!empty($this->input->get('e', true)) and !empty($this->input->get('ac', true)) and $email_changed == 0
+            and !empty($this->input->get('i', true)) and empty($this->input->post('bt_confirm_change_email', true)))
+        {
+            $email      = filter_var($this->input->get('e', true), FILTER_VALIDATE_EMAIL) ? $this->input->get('e', true) : null;
+            $code       = mb_substr(strip_tags($this->input->get('ac', true)), 0, 255);
+            $idempotent = mb_substr(strip_tags($this->input->get('i', true)), 0, 255);
+
+            if(!empty($email) and !empty($code) and !empty($idempotent) and password_verify($email, $code))
+            {
+                // Проверка наличия пользователя с такими данными
+                $result_change = $this->Authorization_model->checkChangeEmail($email, $code, $idempotent);
+
+                // Доступ к странице подтвердения изменения email
+                if($result_change !== false)
+                {
+                    $result['current_email'] = $this->session->user['email'];
+                    $result['new_email'] = $result_change;
+
+                    // Объединенные данные страница
+                    $this->page_data['title']     = 'Подтверждение изменения email';
+                    $this->page_data['page_menu'] = '';
+
+                    $this->load->view('header/header', $this->page_data);
+                    $this->load->view('header/secondary');
+                    $this->load->view('authorization/confirm_email', $result);
+                    $this->load->view('footer/footer');
+                }
+            }
+            else
+            {
+                parent::pageNotFound(__METHOD__ . ':' . __LINE__ . ' ' . $this->page_url);
+            }
+        }
+        elseif(!empty($this->input->get('e', true)) and !empty($this->input->get('ac', true)) and $email_changed == 0
+            and !empty($this->input->get('i', true)) and !empty($this->input->post('bt_confirm_change_email', true)))
+        {
+            $email      = filter_var($this->input->get('e', true), FILTER_VALIDATE_EMAIL) ? $this->input->get('e', true) : null;
+            $code       = mb_substr(strip_tags($this->input->get('ac', true)), 0, 255);
+            $idempotent = mb_substr(strip_tags($this->input->get('i', true)), 0, 255);
+
+            if(!empty($email) and !empty($code) and !empty($idempotent))
+            {
+                // Проверка наличия пользователя с такими данными
+                $result_change = $this->Authorization_model->checkChangeEmail($email, $code, $idempotent);
+
+                // Смена email
+                if($result_change !== false)
+                {
+                    $res_up = $this->Authorization_model->changeEmail($email, $this->date);
+                    if($res_up !== false)
+                    {
+                        // Отправка письма с активацией новой почты
+                        $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $res_up['new_email'] . '&ac=' . $res_up['email_code']
+                            . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                        $system_message['text']  .= 'Активировать';
+                        $system_message['text']  .= '</a></b>';
+
+                        parent::sendEmail(17, $res_up['new_email'], $system_message);
+
+                        // Обновление данных сессии
+                        $user_data = array('user' => $this->session->user);
+
+                        $user_data['user']['email'] = $res_up['new_email'];
+                        $user_data['user']['date']  = $this->date;
+
+                        $this->session->set_userdata($user_data);
+
+                        header('Location: /email/changed');
+                    }
+                    else
+                    {
+                        // Email не изменен
+                        $this->session->set_tempdata('message', 192, 60);
+
+                        $url_data = array(
+                            'e' => $this->input->get('e'),
+                            'ac' => $this->input->get('ac'),
+                            'i' => $this->input->get('i')
+                        );
+                        header('Location: /email/change?' . http_build_query($url_data));
+                    }
+                }
+                else
+                {
+                    // Не корректные данные
+                    $this->session->set_tempdata('message', 193, 60);
+
+                    $url_data = array(
+                        'e' => $this->input->get('e'),
+                        'ac' => $this->input->get('ac'),
+                        'i' => $this->input->get('i')
+                    );
+                    header('Location: /email/change?' . http_build_query($url_data));
+                }
+            }
+            else
+            {
+                parent::pageNotFound(__METHOD__ . ':' . __LINE__ . ' ' . $this->page_url);
+            }
+        }
+        elseif($email_changed == 1)
+        {
+            // Объединенные данные страница
+            $this->page_data['title'] = 'Изменение email';
+            $this->page_data['page_menu'] = '';
+
+            $this->load->view('header/header', $this->page_data);
+            $this->load->view('header/secondary');
+            $this->load->view('authorization/email_changed');
+            $this->load->view('footer/footer');
+        }
+        else
+        {
+            parent::pageNotFound(__METHOD__ . ':' . __LINE__ . ' ' . $this->page_url);
+        }
+    }
+
+    /**
+     * Подтверждение восстановление аккаунта
+     * @param int $account_restored
+     */
+    public function restoreAccount($account_restored = 0)
+    {
+        if(!empty($this->input->get('e', true)) and !empty($this->input->get('ac', true)) and $account_restored == 0
+            and !empty($this->input->get('i', true)) and empty($this->input->post('bt_confirm_restore_account', true)))
+        {
+            $email      = filter_var($this->input->get('e', true), FILTER_VALIDATE_EMAIL) ? $this->input->get('e', true) : null;
+            $code       = mb_substr(strip_tags($this->input->get('ac', true)), 0, 255);
+            $idempotent = mb_substr(strip_tags($this->input->get('i', true)), 0, 255);
+
+            if(!empty($email) and !empty($code) and !empty($idempotent) and password_verify($email, $code))
+            {
+                // Проверка наличия пользователя с такими данными
+                $result_change = $this->Authorization_model->checkRestoreAccount($email, $code, $idempotent);
+
+                // Доступ к странице подтверждения
+                if($result_change !== false)
+                {
+                    // Объединенные данные страница
+                    $this->page_data['title']     = 'Подтверждение восстановление аккаунта';
+                    $this->page_data['page_menu'] = '';
+
+                    $this->load->view('header/header', $this->page_data);
+                    $this->load->view('header/secondary');
+                    $this->load->view('authorization/restore_account');
+                    $this->load->view('footer/footer');
+                }
+            }
+            else
+            {
+                parent::pageNotFound(__METHOD__ . ':' . __LINE__ . ' ' . $this->page_url);
+            }
+        }
+        elseif(!empty($this->input->get('e', true)) and !empty($this->input->get('ac', true)) and $account_restored == 0
+            and !empty($this->input->get('i', true)) and !empty($this->input->post('bt_confirm_restore_account', true)))
+        {
+            $email      = filter_var($this->input->get('e', true), FILTER_VALIDATE_EMAIL) ? $this->input->get('e', true) : null;
+            $code       = mb_substr(strip_tags($this->input->get('ac', true)), 0, 255);
+            $idempotent = mb_substr(strip_tags($this->input->get('i', true)), 0, 255);
+
+            if(!empty($email) and !empty($code) and !empty($idempotent))
+            {
+                // Проверка наличия пользователя с такими данными
+                $result_change = $this->Authorization_model->checkRestoreAccount($email, $code, $idempotent);
+
+                // Смена email
+                if($result_change === true)
+                {
+                    $res_up = $this->Authorization_model->restoreUserAccount($email, $this->date);
+                    if($res_up === true)
+                    {
+                        // Отправка письма
+                        parent::sendEmail(14, $email);
+
+                        // Email не изменен
+                        $this->session->set_tempdata('message', 195, 60);
+
+                        header('Location: /account/restored');
+                    }
+                    else
+                    {
+                        // Email не изменен
+                        $this->session->set_tempdata('message', 186, 60);
+
+                        $url_data = array(
+                            'e' => $this->input->get('e'),
+                            'ac' => $this->input->get('ac'),
+                            'i' => $this->input->get('i')
+                        );
+                        header('Location: /account/restore?' . http_build_query($url_data));
+                    }
+                }
+                else
+                {
+                    // Не корректные данные
+                    $this->session->set_tempdata('message', 115, 60);
+
+                    $url_data = array(
+                        'e' => $this->input->get('e'),
+                        'ac' => $this->input->get('ac'),
+                        'i' => $this->input->get('i')
+                    );
+                    header('Location: /account/restore?' . http_build_query($url_data));
+                }
+            }
+            else
+            {
+                parent::pageNotFound(__METHOD__ . ':' . __LINE__ . ' ' . $this->page_url);
+            }
+        }
+        elseif($account_restored == 1)
+        {
+            // Объединенные данные страница
+            $this->page_data['title'] = 'Восстановление аккаунта';
+            $this->page_data['page_menu'] = '';
+
+            $this->load->view('header/header', $this->page_data);
+            $this->load->view('header/secondary');
+            $this->load->view('authorization/restored_account');
+            $this->load->view('footer/footer');
+        }
+        else
+        {
+            parent::pageNotFound(__METHOD__ . ':' . __LINE__ . ' ' . $this->page_url);
+        }
     }
 
     /**

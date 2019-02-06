@@ -1264,8 +1264,8 @@ $(document).ready(function() {
                     setTimeout(searchProducts, 1000, sort, category_id, subcategory_id, search, null, null, null, null, null, null, null, null);
                 }
             });
-
-            $('.shop_block').on('click', '.shop_block_nav #prev_page', function (event) {
+            var shop_block = $('.shop_block');
+            shop_block.on('click', '.shop_block_nav #prev_page', function (event) {
                 event.preventDefault();
 
                 var sort = $('#i_sort').val(),
@@ -1278,7 +1278,7 @@ $(document).ready(function() {
 
                 searchProducts(sort, category_id, subcategory_id, search, first_id, first_price, first_discount, null, null, null);
             });
-            $('.shop_block').on('click', '.shop_block_nav #next_page', function (event) {
+            shop_block.on('click', '.shop_block_nav #next_page', function (event) {
                 event.preventDefault();
 
                 var sort = $('#i_sort').val(),
@@ -1292,25 +1292,6 @@ $(document).ready(function() {
                 searchProducts(sort, category_id, subcategory_id, search, null, null, null, last_id, last_price, last_discount);
             });
 
-            $('.tov').on('click', '.shop_block_nav #prev_page', function (event) {
-                event.preventDefault();
-
-                var first_id = $('#i_first_id').val(),
-                    first_price = $('#i_first_price').val(),
-                    first_discount = $('#i_first_discount').val();
-
-                searchAProducts(first_id, first_price, first_discount, null, null, null);
-            });
-            $('.tov').on('click', '.shop_block_nav #next_page', function (event) {
-                event.preventDefault();
-
-                var last_id = $('#i_last_id').val(),
-                    last_price = $('#i_last_price').val(),
-                    last_discount = $('#i_last_discount').val();
-
-                searchAProducts(null, null, null, last_id, last_price, last_discount);
-            });
-
             // Поиск товара по ID
             $('#product-id').on('keyup', function () {
                 var product_search = $(this).val();
@@ -1319,7 +1300,7 @@ $(document).ready(function() {
                     type: 'post',
                     data: {product: product_search},
                     complete: function (result) {
-                        if (result.responseText != "error") {
+                        if (result.responseText !== "error") {
                             $("#search-result").fadeIn(); // Показываем блок с результатом.
                             $("#search-result #list-search-result").html(result.responseText); // Добавляем в список результат поиска.
                         }
@@ -1338,7 +1319,7 @@ $(document).ready(function() {
                     product_price = $(this).find("#res-product-price").val(),
                     input = $(".select_product .select_input input[type=hidden][value=" + product_id + "]");
 
-                if (input.length == 0) {
+                if (input.length === 0) {
                     $("#select-product .select_product").append("<div class='select_input'>" +
                         "<input type='hidden' name='attached_products[]' value='" + product_id + "'/>" +
                         "<div class='input_name selected'>" + product_name + " [ " + product_price + " руб. ]</div>" +
@@ -1711,43 +1692,6 @@ $(document).ready(function() {
                 }
                 else {
                     $(".shop_block_tov.parent").html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
-                }
-            }
-        });
-    }
-
-    /**
-     * Поиск товаров
-     * @param first_id
-     * @param first_price
-     * @param first_discount
-     * @param last_id
-     * @param last_price
-     * @param last_discount
-     */
-    function searchAProducts(first_id, first_price, first_discount, last_id, last_price, last_discount)
-    {
-        var tov_block = $(".admin_list.tov_list");
-        $.ajax({
-            url: '/getSearchProducts',
-            type: 'post',
-            dataType: 'json',
-            data: {
-                first_id: first_id,
-                first_price: first_price,
-                first_discount: first_discount,
-                last_id: last_id,
-                last_price: last_price,
-                last_discount: last_discount},
-            complete: function (result) {
-                var data = result.responseJSON;
-                if (data.products != "false") {
-                    tov_block.html(data.products);
-                    tov_block.next("#pagination").remove();
-                    tov_block.after(data.pagination);
-                }
-                else {
-                    tov_block.html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
                 }
             }
         });

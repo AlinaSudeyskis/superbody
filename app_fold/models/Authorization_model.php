@@ -37,7 +37,7 @@ class Authorization_model extends CI_Model
                 $this->db->query('INSERT INTO `questionnaire` (`user_id`) VALUES (?)', $user_id);
 
                 // Добавляем данные пользователя в таблицу подписчиков
-                $this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($email, $date));
+                //$this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($email, $date));
                 
                 return $user_id;
             }
@@ -66,18 +66,22 @@ class Authorization_model extends CI_Model
     public function getActivateCode($email)
     {
         $sel_act_code = $this->db->query('
-            SELECT `user_id`, `user_activate_code` 
+            SELECT `user_id`, `user_password`, `user_activate_code` 
             FROM `users` 
             WHERE `user_email`=? LIMIT 1', $email);
 
-        if ($sel_act_code->num_rows() == 1) {
+        if ($sel_act_code->num_rows() == 1)
+        {
             $row = $sel_act_code->row();
 
             $result['user_id']            = $row->user_id;
+            $result['user_password']      = $row->user_password;
             $result['user_activate_code'] = $row->user_activate_code;
 
             return $result;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -86,22 +90,39 @@ class Authorization_model extends CI_Model
      * Активация пользователя
      *
      * @param $user_id
-     * @param $password
+     * @param $date
      * @return bool
      */
-    public function activateUser($user_id, $password)
+    public function activateUser($user_id, $date)
     {
-        $this->db->query('UPDATE `users` SET `user_activated`=1, `user_password`=? WHERE `user_id`=? LIMIT 1',
-            array($password, $user_id));
+        $result = false;
 
-        if ($this->db->affected_rows() == 1)
+        $up_data = $this->db->query('UPDATE `users` SET `user_activated`=1 WHERE `user_id`=? LIMIT 1', $user_id);
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $sel_data = $this->db->query('SELECT `user_email` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+            if($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
+                $email = $row->user_email;
+
+                // Добавляем данные пользователя в таблицу подписчиков
+                $this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($email, $date));
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            $result = true;
         }
-        else
+        elseif($up_data === false)
         {
-            return false;
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
+
+        return $result;
     }
 
     /**
@@ -555,12 +576,15 @@ class Authorization_model extends CI_Model
     {
         $this->db->query('
             UPDATE `users` 
-            SET `user_password`=?, `user_date_update`=? 
+            SET `user_password`=?, `user_date_update`=?, `user_idempotent`="", `user_restore_date`="0000-00-00" 
             WHERE `user_email`=? LIMIT 1', array($password, $date, $email));
 
-        if (1 == $this->db->affected_rows()) {
+        if (1 == $this->db->affected_rows())
+        {
             return true;
-        } else {
+        }
+        else
+        {
             return false;
         }
     }
@@ -569,15 +593,14 @@ class Authorization_model extends CI_Model
      * Добавление данных восстановления пароля
      *
      * @param $email
-     * @param $email_hash
      * @param $idempotent
      * @param $today
      * @return bool
      */
-    public function setRestore($email, $email_hash, $idempotent, $today)
+    public function setRestore($email, $idempotent, $today)
     {
-        $up_data = $this->db->query('UPDATE `users` SET `user_activate_code`=?, `user_idempotent`=?, `user_restore_date`=? 
-            WHERE `user_email`=? LIMIT 1', array($email_hash, $idempotent, $today, $email));
+        $up_data = $this->db->query('UPDATE `users` SET `user_idempotent`=?, `user_restore_date`=? 
+            WHERE `user_email`=? LIMIT 1', array($idempotent, $today, $email));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -807,7 +830,7 @@ class Authorization_model extends CI_Model
      * @param $date
      * @return array
      */
-    public function checkEmail($email, $name, $surname, $date)
+    public function checkRegEmail($email, $name, $surname, $date)
     {
         $result = array('user_id' => null, 'new_user' => false);
 
@@ -841,6 +864,211 @@ class Authorization_model extends CI_Model
             $result['user_id']  = is_numeric($user_id) ? $user_id : null;
             $result['new_user'] = is_numeric($user_id) ? $user_id : false;
             $result['auth_via'] = is_numeric($user_id) ? 'native' : null;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение данныз для смены email
+     *
+     * @param $user_id
+     * @param $new_email
+     * @param $idempotent
+     * @param $date
+     * @return bool
+     */
+    public function setUserChangeEmailData($user_id, $new_email, $idempotent, $date)
+    {
+        $result = false;
+
+        if(is_numeric($user_id))
+        {
+            $res_check = self::checkEmail($new_email);
+            if($res_check === false)
+            {
+                $up_data = $this->db->query('
+                    UPDATE `users` 
+                    SET `user_new_email`=?, `user_new_email_idempotent`=?, `user_date_update`=? 
+                    WHERE `user_id`=? LIMIT 1', array($new_email, $idempotent, $date, $user_id));
+
+                if($up_data !== false and 1 == $this->db->affected_rows())
+                {
+                    $result = true;
+                }
+                elseif($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка наличия пользователя с указанными данными для изменения email.
+     *
+     * @param $email
+     * @param $code
+     * @param $idempotent
+     * @return bool|string
+     */
+    public function checkChangeEmail($email, $code, $idempotent)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `user_new_email` FROM `users` 
+            WHERE `user_email`=? and `user_activate_code`=? and `user_new_email_idempotent`=? LIMIT 1',
+            array($email, $code, $idempotent));
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $check_email = self::checkEmail($row->user_new_email);
+            if($check_email === false)
+            {
+                $result = $row->user_new_email;
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка наличия зарегистрированного пользователя с таким email в БД
+     *
+     * @param $email
+     * @return bool
+     */
+    public function checkEmail($email)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `user_id` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $result = true;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Изменение email пользователя
+     *
+     * @param $email
+     * @param $date
+     * @return bool
+     */
+    public function changeEmail($email, $date)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `user_id`, `user_new_email` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row        = $sel_data->row();
+            $user_id    = $row->user_id;
+            $new_email  = filter_var($row->user_new_email, FILTER_VALIDATE_EMAIL) ? $row->user_new_email : null;
+            $email_hash = password_hash($new_email, PASSWORD_DEFAULT);
+
+            if(!empty($new_email))
+            {
+                $up_data = $this->db->query('
+                    UPDATE `users` 
+                    SET `user_email`=?, `user_activate_code`=?, `user_date_update`=?, `user_activated`=0, `user_new_email`="", `user_new_email_idempotent`="" 
+                    WHERE `user_id`=? LIMIT 1', array($new_email, $email_hash, $date, $user_id));
+
+                if($up_data !== false and 1 == $this->db->affected_rows())
+                {
+                    // Отметка, что пользователь отписался для этой почты
+                    $unsub = $this->db->query('UPDATE `subscription` SET `s_unsubscribe`=1 WHERE `s_email`=? LIMIT 1', $email);
+                    if($unsub === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
+                    $result['new_email']  = $new_email;
+                    $result['email_code'] = $email_hash;
+                }
+                elseif($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка наличия пользователя с указанными данными для восстановление аккаунта.
+     *
+     * @param $email
+     * @param $code
+     * @param $idempotent
+     * @return bool|string
+     */
+    public function checkRestoreAccount($email, $code, $idempotent)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `user_id` FROM `users` 
+            WHERE `user_email`=? and `user_activate_code`=? and `user_restore_account_idempotent`=? LIMIT 1',
+            array($email, $code, $idempotent));
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $result = true;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Восстановление пользователя из удаленных
+     *
+     * @param $user_email
+     * @param $date
+     * @return bool
+     */
+    public function restoreUserAccount($user_email, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('
+            UPDATE `users` 
+            SET `user_date_update`=?, `user_deleted`=0, `user_delete_date`="0000-00-00", `user_delete_by`=0, 
+                `user_restore_account_idempotent`=""
+            WHERE `user_email`=? LIMIT 1', array($date, $user_email));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;

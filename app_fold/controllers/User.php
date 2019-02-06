@@ -474,9 +474,47 @@ class User extends CI_Controller
         if ($this->input->post('bt_save_settings', true))
         {
             // Валидация E-mail
-            $email = ($user_data['user_activate'] == 1 and !empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+            $new_email = ($user_data['user_activated'] == 1 and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
                     ? $this->input->post('email', true)
-                    : $user_data['user_email'];
+                    : null;
+            // Смена email
+            if(!empty($new_email) and $new_email != $user_data['user_email'])
+            {
+                $this->load->model('Authorization_model');
+
+                $idempotent = password_hash($this->date, PASSWORD_DEFAULT);
+
+                $res_check = $this->Authorization_model->checkEmail($new_email);
+                if($res_check === false)
+                {
+                    // Сохранение данных по смене email в БД
+                    $set_change = $this->Authorization_model->setUserChangeEmailData($this->user_id, $new_email, $idempotent, $this->date);
+
+                    if($set_change === true)
+                    {
+                        $system_message['text']  = '<b><a href="https://superbody.pro/email/change?e=' . $user_data['user_email'] . '&ac=' . $user_data['user_activate_code'] . '&i=' . $idempotent
+                            . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                        $system_message['text']  .= 'Сменить email';
+                        $system_message['text']  .= '</a></b>';
+
+                        // Отправка письма с подтверждением смены email на текущий email.
+                        parent::sendEmail(15, $user_data['user_email'], $system_message);
+
+                        // Данные о смене не были сохранены
+                        $this->session->set_tempdata('message', 191, 60);
+                    }
+                    else
+                    {
+                        // Данные о смене не были сохранены
+                        $this->session->set_tempdata('message', 190, 60);
+                    }
+                }
+                else
+                {
+                    // Пользователь с таким email уже зарегистрирован
+                    $this->session->set_tempdata('message', 1, 60);
+                }
+            }
 
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
@@ -508,18 +546,21 @@ class User extends CI_Controller
 
             // Загрузка изображения на сервер
             $path_avatar = '.' . $user_data['user_image'];
-            $avatar      = '';
-            if(is_uploaded_file($_FILES['avatar_file']['tmp_name'])){
+            $avatar      = $user_data['user_image'];
+            if(is_uploaded_file($_FILES['avatar_file']['tmp_name']))
+            {
                 $path = './user_files/'.$this->user_id.'/avatar/';
 
                 if(!file_exists($path)){
                     chdir('user_files');
-                    if(!is_dir($this->user_id)){
+                    if(!is_dir($this->user_id))
+                    {
                         mkdir($this->user_id);
                     }
                     chmod($this->user_id, 0777);
                     chdir($this->user_id);
-                    if(!is_dir('avatar')){
+                    if(!is_dir('avatar'))
+                    {
                         mkdir('avatar');
                     }
                     chmod('avatar', 0777);
@@ -529,27 +570,32 @@ class User extends CI_Controller
                 $this->load->helper('file');
 
                 $path_image = parent::uploadImage('avatar_file',$_FILES['avatar_file']['type'], $path);
-                if(file_exists($path.$path_image)){
-                    if ($this->security->xss_clean($path.$path_image, TRUE) !== FALSE) {
+                if(file_exists($path.$path_image))
+                {
+                    if ($this->security->xss_clean($path.$path_image, TRUE) !== FALSE)
+                    {
                         // файл прошел XSS тест
                         $path_avatar = $path.$path_image;
                         $avatar = '/user_files/'.$this->user_id.'/avatar/'.$path_image;
 
-                        if (!empty($user_data['user_image']) and is_file($user_data['user_image'])) {
+                        if (!empty($user_data['user_image']) and is_file($user_data['user_image']))
+                        {
                             unlink('.' . $user_data['user_image']);
                         }
-                    } else{
+                    }
+                    else
+                    {
                         unlink($path);
                     }
                 }
             }
 
             // Сохранение данных в БД
-            if (!empty($email) and ($email != $user_data['user_email'] or $name != $user_data['user_name'] or $phone != $user_data['user_phone']
+            if (!empty($user_data['user_email']) and ($name != $user_data['user_name'] or $phone != $user_data['user_phone']
                 or $code != $user_data['user_country_code'] or $password_hash != $user_data['user_password_hash']
                 or $avatar != $user_data['user_image']))
             {
-                $result = $this->User_model->setUserSettingsData($this->user_id, $email, $name, $password_hash, $code, $phone, $path_avatar, $this->date);
+                $result = $this->User_model->setUserSettingsData($this->user_id, $name, $password_hash, $code, $phone, $path_avatar, $this->date);
 
                 if ($result === false)
                 {
@@ -561,7 +607,6 @@ class User extends CI_Controller
                     // Обновление данных сессии
                     $user_data = array('user' => $this->session->user);
 
-                    $user_data['user']['email'] = $email;
                     $user_data['user']['name']  = $name;
                     $user_data['user']['phone'] = $phone;
                     $user_data['user']['image'] = $avatar;
@@ -572,11 +617,6 @@ class User extends CI_Controller
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
                 }
-            }
-            elseif(empty($email))
-            {
-                // Не корректный email
-                $this->session->set_tempdata('message', 6, 60);
             }
 
             header('Location: /settings');
@@ -1727,24 +1767,35 @@ class User extends CI_Controller
      */
     protected function userArchive($user_id)
     {
-        $user = $this->User_model->getUserSettingsData($user_id);
+        $user = $this->User_model->getUserSettingsData($user_id, 1);
+        $user_data = (!empty($user['user_data'])) ? $user['user_data'] : null;
 
         if ($this->input->post('bt_restore_user', true))
         {
-            $up_d = $this->User_model->restoreUserAccount($user_id);
+            $idempotent = password_hash($this->date, PASSWORD_DEFAULT);
 
-            if ($up_d['result'] === true)
+            $set_restore = $this->User_model->setRestoreUserAccount($user_id, $idempotent);
+
+            if ($set_restore === true)
             {
                 // Отправка уведомления на почту пользователя
-                //parent::sendEmail(14, $up_d['user_email']);
+                $system_message['text']  = '<b><a href="https://superbody.pro/account/restore?e=' . $user_data['user_email'] . '&ac=' . $user_data['user_activate_code'] . '&i=' . $idempotent
+                    . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                $system_message['text']  .= 'Восстановить аккаунт';
+                $system_message['text']  .= '</a></b>';
+
+                parent::sendEmail(18, $user_data['user_email'], $system_message);
+
+                // Письмо отправлено
+                $this->session->set_tempdata('message', 194, 60);
 
                 // Пользователь восстановлен
-                $this->session->set_tempdata('message', 185, 60);
+                //$this->session->set_tempdata('message', 185, 60);
 
                 $user_types    = array('user' => 1, 'couch' => 2, 'admin' => 3);
-                $user_type     = array_search($up_d['user_type'], $user_types);
+                $user_type     = array_search($user_data['user_type'], $user_types);
 
-                header('Location: /administration/'.$user_type.'/'.$user_id);
+                header('Location: /administration/users/archive/'.$user_id);
             }
             else
             {

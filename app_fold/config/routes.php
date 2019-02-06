@@ -73,6 +73,10 @@ $route['activate']               = 'Authorization/userActivate';
 $route['activated']              = 'Authorization/userActivated';
 $route['restore']                = 'Authorization/restorePassword';
 $route['block']                  = 'Authorization/blockAccount';
+$route['email/change']           = 'Authorization/confirmChangeEmail';
+$route['email/changed']          = 'Authorization/confirmChangeEmail/1';
+$route['account/restore']        = 'Authorization/restoreAccount';
+$route['account/restored']       = 'Authorization/restoreAccount/1';
 
 // Страницы пользователя
 $route['profile/meals']                       = 'Course/userMeals';
@@ -309,7 +313,8 @@ $route['administration/category/(:num)/(:num)'] = 'Store/subcategory/$1/$2';
 $route['administration/store']                = 'Store/products';
 $route['administration/store/product/new']    = 'Store/newProduct';
 $route['administration/store/product/(:num)'] = 'Store/product/$1';
-$route['administration/orders']               = 'Store/orders/';
+$route['administration/orders(/(capture|succeeded|canceled|pending))?'] = 'Store/orders/$2';
+$route['administration/orders/succeeded/(done|uncompleted)'] = 'Store/orders/succeeded/$1';
 $route['administration/order/(:num)']         = 'Store/order/$1';
 $route['orders']                              = 'Store/userOrders';
 $route['order/(:num)']                        = 'Store/userOrder/$1';
@@ -355,13 +360,14 @@ $route['store/(:num)']                = 'Store/store/$1';
 $route['store/product/(:num)']        = 'Store/storeProduct/$1';
 $route['store/(:num)/product/(:num)'] = 'Store/storeProduct/$2/$1';
 
-$route['addProductToCart']   = 'Store/productToCart';
-$route['addCourseToCart']    = 'Store/courseToCart';
-$route['dataCourse']         = 'Course/getAvailableDataCourse';
-$route['deleteCartProduct']  = 'Store/deleteCartProduct';
-$route['detachCartProducts'] = 'Store/detachCartProducts';
-$route['updateCartProduct']  = 'Store/updateCartProduct';
-$route['getSortProducts']    = 'Store/getSortProducts';
-$route['getSearchProducts']  = 'Store/getSearchProducts';
+$route['addProductToCart']       = 'Store/productToCart';
+$route['addCourseToCart']        = 'Store/courseToCart';
+$route['dataCourse']             = 'Course/getAvailableDataCourse';
+$route['deleteCartProduct']      = 'Store/deleteCartProduct';
+$route['detachCartProducts']     = 'Store/detachCartProducts';
+$route['updateCartProduct']      = 'Store/updateCartProduct';
+$route['getSortProducts']        = 'Store/getSortProducts';
+$route['getSearchProducts']      = 'Store/getSearchProducts';
+$route['getSearchNotifications'] = 'Notification/getSearchNotifications';
 
 

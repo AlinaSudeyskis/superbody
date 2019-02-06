@@ -99,6 +99,7 @@ class Couch_model extends CI_Model
         $sel_data = $this->db->query('
             SELECT `users`.`user_id`, `user_email`, `user_type`, `user_name`, `user_image`, `user_blocked`, 
               `user_password`, `user_deleted`, `user_delete_date`, `user_delete_by`, 
+              `user_new_email`, `user_new_email_idempotent`, `user_activated`, `user_activate_code`, 
               `user_gender`, `user_birthday`, `user_country_code`, `user_phone`,
               `cd_specialization`, `cd_experience`, `cd_titles_awards`, `cd_about` 
             FROM `users` 
@@ -1103,22 +1104,33 @@ class Couch_model extends CI_Model
      */
     public function parseCouchData($row, $today = '')
     {
-        $result['user_id']           = (!empty($row->user_id)) ? $row->user_id : '';
-        $result['user_email']        = (!empty($row->user_email)) ? $row->user_email : '';
-        $result['user_type']         = (!empty($row->user_type)) ? $row->user_type : '';
-        $result['user_name']         = (!empty($row->user_name)) ? $row->user_name : '';
-        $result['user_country_code'] = (!empty($row->user_country_code)) ? $row->user_country_code : '';
-        $result['user_phone']        = (!empty($row->user_phone)) ? $row->user_phone : '';
-        $result['user_image']        = (is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
-        $result['user_blocked']      = (!empty($row->user_blocked)) ? $row->user_blocked : '';
-        $result['user_password']     = (!empty($row->user_password)) ? $row->user_password : '';
-        $result['user_deleted']      = (!empty($row->user_deleted)) ? $row->user_deleted: 0;
-        $result['user_delete_date']  = '';
-        $result['user_delete_by']    = (!empty($row->user_delete_by)) ? $row->user_delete_by : 0;
+        $result['user_id']             = (!empty($row->user_id)) ? $row->user_id : '';
+        $result['user_email']          = (!empty($row->user_email)) ? $row->user_email : '';
+        $result['user_type']           = (!empty($row->user_type)) ? $row->user_type : '';
+        $result['user_name']           = (!empty($row->user_name)) ? $row->user_name : '';
+        $result['user_country_code']   = (!empty($row->user_country_code)) ? $row->user_country_code : '';
+        $result['user_phone']          = (!empty($row->user_phone)) ? $row->user_phone : '';
+        $result['user_image']          = (is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+        $result['user_activated']      = (!empty($row->user_activated)) ? $row->user_activated : '';
+        $result['user_activate_code']  = (!empty($row->user_activate_code)) ? $row->user_activate_code : '';
+        $result['user_blocked']        = (!empty($row->user_blocked)) ? $row->user_blocked : '';
+        $result['user_password']       = (!empty($row->user_password)) ? $row->user_password : '';
+        $result['user_deleted']        = (!empty($row->user_deleted)) ? $row->user_deleted: 0;
+        $result['user_delete_date']    = '';
+        $result['user_delete_by']      = (!empty($row->user_delete_by)) ? $row->user_delete_by : 0;
+        $result['user_new_email']      = (!empty($row->user_new_email)) ? $row->user_new_email : null;
+        $result['user_ne_idempotent']  = (!empty($row->user_new_email_idempotent)) ? $row->user_new_email_idempotent : null;
+        $result['user_changing_email'] = false;
 
         $split_name = (!empty($row->user_name)) ? explode(" ", $row->user_name) : '';
         $result['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : '';
         $result['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
+
+        // Изменение email
+        if(!empty($row->user_new_email) and !empty($row->user_new_email_idempotent))
+        {
+            $result['user_chaging_email'] = true;
+        }
 
         $result['user_age']      = '';
         $result['user_b_day']    = '';

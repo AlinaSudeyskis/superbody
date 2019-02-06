@@ -784,20 +784,34 @@ class Store extends CI_Controller
     /**
      * АП. Список заказов пользователей
      *
+     * @param string $payment_type
+     * @param string $order_type
      * @return void
      */
-    public function orders()
+    public function orders($payment_type = 'capture', $order_type = 'uncompleted')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Store_model->getOrders();
+        $payment_type  = (empty($payment_type)) ? 'capture' : $payment_type;
+        $order_status  = '';
+        if($payment_type == 'succeeded')
+        {
+            $order_type    = (empty($order_type)) ? 'uncompleted' : $order_type;
+            $order_status  = ($order_type == 'uncompleted') ? 0 : 1;
+        }
+        $payment_types = array('capture', 'succeeded', 'canceled', 'pending');
+        $order_types   = array('uncompleted', 'done');
+
+        $result = $this->Store_model->getOrders($payment_type, $order_status);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Заказы';
-        $this->page_data['page_menu'] = 'a_orders';
+        $this->page_data['title']         = 'АП - Заказы';
+        $this->page_data['page_menu']     = 'a_orders';
+        $this->page_data['page_submenu']  = (in_array($payment_type, $payment_types)) ? $payment_type : '';
+        $this->page_data['page_submenu2'] = (in_array($order_type, $order_types)) ? $order_type : '';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -1713,12 +1727,14 @@ class Store extends CI_Controller
         $result_products = $this->Store_model->getStoreProducts($category_id, $subcategory_id, $sort, $search, 9, $first_id,
             $first_price, $first_discount, $last_id, $last_price, $last_discount);
 
-        if (!empty($result_products['products'])) {
+        if (!empty($result_products['products']))
+        {
             $category_path = !empty($category_id) ? '/' . $category_id : '';
             //$category_path .= !empty($subcategory_id) ? '/' . $subcategory_id : '';
             $path = '/store'.$category_path.'/product/';
 
-            foreach ($result_products['products'][$category_id] as $product) {
+            foreach ($result_products['products'][$category_id] as $product)
+            {
                 $discount = (!empty($product['discount_price']) or !empty($product['discount_fc_price'])) ? 'shop_tov_promo' : '';
                 $bonus    = (!empty($product['attached']) or !empty($product['attached'])) ? 'shop_tov_bonus' : '';
                 $label    = (empty($bonus)) ? $discount: $bonus;
@@ -1746,7 +1762,9 @@ class Store extends CI_Controller
             ob_end_clean();
 
             $result['pagination'] = $pagination;
-        } else {
+        }
+        else
+        {
             $result['products'] = "false";
         }
         

@@ -2610,7 +2610,7 @@ class Store_model extends CI_Model
 
         // Создание заказа
         $in_data = $this->db->query('
-            INSERT INTO `orders` (`o_u_id`refundPayment) 
+            INSERT INTO `orders` (`o_u_id`) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 array($user_id, $name, $surname, $email, $code, $phone, $address_id, $delivery, $date));
 
@@ -2742,19 +2742,33 @@ class Store_model extends CI_Model
     /**
      * Выборка списка заказов пользователей
      *
+     * @param string $payment_status
+     * @param int $order_status
      * @return array
      */
-    public function getOrders()
+    public function getOrders($payment_status = 'capture', $order_status = 0)
     {
         $result = array();
+
+        $and_where = '';
+        $payment_status = ($payment_status == 'capture') ? 'waiting_for_capture' : $payment_status;
+        if($payment_status == 'succeeded')
+        {
+            $and_where = ' and `o_status`='.$order_status;
+        }
 
         $sel_orders = $this->db->query('
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
                 `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
-                `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
+                `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`,
+                `user_name`, `op_number`, `op_status`
             FROM `orders`
             LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
-            ORDER BY `o_id` ASC');
+            LEFT JOIN `orders_payment` ON `op_o_id`=`o_id`
+            LEFT JOIN `users` ON `o_u_id`=`user_id`
+            WHERE `op_number`=0 and `op_status`=? '.$and_where.'
+            GROUP BY `o_id`
+            ORDER BY `o_id` ASC', $payment_status);
 
         if ($sel_orders !== false and 0 < $sel_orders->num_rows())
         {
@@ -2771,17 +2785,23 @@ class Store_model extends CI_Model
                 {
                     $waiting_status = true;
                 }
-                $order['waiting_status'] = $waiting_status;
+                //$order['waiting_status'] = $waiting_status;
+
+                $order['payment_status'] = $row->op_status;
+
+                // Данные товаров. Сумма заказа
+                $order_amount = self::getOrderAmount($row->o_id);
+                $order['order_amount'] = $order_amount;
 
                 // Если есть платежи, требующие обработки, помещаем данные в начало массива, иначе в конец
-                if($waiting_status === true)
+                /*if($waiting_status === true)
                 {
                     array_unshift($result['orders'], $order);
                 }
                 else
                 {
-                    $result['orders'][$i] = $order;
-                }
+                }*/
+                $result['orders'][$i] = $order;
 
                 $i++;
             }
@@ -2790,6 +2810,36 @@ class Store_model extends CI_Model
         elseif ($sel_orders === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Вычисление общей суммы заказа
+     *
+     * @param $order_id
+     * @return bool|float|int
+     */
+    protected function getOrderAmount($order_id)
+    {
+        $result = false;
+
+        if(is_numeric($order_id))
+        {
+            $sel_data = $this->db->query('SELECT `ouc_p_quantity`, `ouc_p_price` FROM `orders_users_cart` WHERE `ouc_o_id`=?', $order_id);
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach($sel_data->result() as $row)
+                {
+                    $result += ($row->ouc_p_quantity * $row->ouc_p_price);
+                }
+                unset($row);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
 
         return $result;
@@ -3770,12 +3820,13 @@ class Store_model extends CI_Model
     protected function parseOrderData($row)
     {
         $result['id']                = $row->o_id;
-        $result['user_id']           = $row->o_u_id;
-        $result['user_name']         = $row->o_user_name;
-        $result['user_surname']      = $row->o_user_surname;
-        $result['user_email']        = $row->o_user_email;
-        $result['user_country_code'] = $row->o_user_country_code;
-        $result['user_phone']        = $row->o_user_phone;
+        $result['user_id']           = (!empty($row->o_u_id)) ? $row->o_u_id : '';
+        $result['o_user_name']       = (!empty($row->o_user_name)) ? $row->o_user_name : '';
+        $result['o_user_surname']    = (!empty($row->o_user_surname)) ? $row->o_user_surname : '';
+        $result['user_name']         = (!empty($row->user_name)) ? $row->user_name : '';
+        $result['user_email']        = (!empty($row->o_user_email)) ? $row->o_user_email : '';
+        $result['user_country_code'] = (!empty($row->o_user_country_code)) ? $row->o_user_country_code : '';
+        $result['user_phone']        = (!empty($row->o_user_phone)) ? $row->o_user_phone : '';
 
         $delivery = 'Курьер';
         $delivery = $row->o_delivery == 2 ? 'Почта' : $row->o_delivery == 3 ? 'Самовывоз' : $delivery;
@@ -3797,19 +3848,19 @@ class Store_model extends CI_Model
             : '';
         $result['date'] = $date_add;
 
-        $result['country']  = $row->oud_country;
-        $result['city']     = $row->oud_city;
-        $result['street']   = $row->oud_street;
-        $result['building'] = $row->oud_building;
-        $result['house']    = $row->oud_house;
-        $result['postcode'] = ($row->oud_postcode != 0) ? $row->oud_postcode : '';
+        $result['country']  = (!empty($row->oud_country)) ? $row->oud_country : '';
+        $result['city']     = (!empty($row->oud_city)) ? $row->oud_city : '';
+        $result['street']   = (!empty($row->oud_street)) ? $row->oud_street : '';
+        $result['building'] = (!empty($row->oud_building)) ? $row->oud_building : '';
+        $result['house']    = (!empty($row->oud_house)) ? $row->oud_house : '';
+        $result['postcode'] = (!empty($row->oud_postcode) and $row->oud_postcode != 0) ? $row->oud_postcode : '';
 
-        $postcode = ($row->oud_postcode != 0) ? $row->oud_postcode . ' ' : '';
-        $country  = !empty($row->oud_country) ? $row->oud_country . ', ' : '';
-        $city     = !empty($row->oud_city) ? $row->oud_city . ', ' : '';
-        $street   = !empty($row->oud_street) ? $row->oud_street . ', ' : '';
-        $building = !empty($row->oud_building) ? $row->oud_building . ' ' : '';
-        $house    = !empty($row->oud_house) ? $row->oud_house : '';
+        $postcode = (!empty($row->oud_postcode) and $row->oud_postcode != 0) ? $row->oud_postcode . ' ' : '';
+        $country  = (!empty($row->oud_country)) ? $row->oud_country . ', ' : '';
+        $city     = (!empty($row->oud_city)) ? $row->oud_city . ', ' : '';
+        $street   = (!empty($row->oud_street)) ? $row->oud_street . ', ' : '';
+        $building = (!empty($row->oud_building)) ? $row->oud_building . ' ' : '';
+        $house    = (!empty($row->oud_house)) ? $row->oud_house : '';
 
         $result['address'] = $postcode . $country . $city . $street . $building . $house;
 
