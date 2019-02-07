@@ -9668,6 +9668,26 @@ input.tren_form_block_check{
 .form_video_list{
     display: none;
 }
+
+.practice_block_container{
+    display: flex;
+    position: relative;
+}
+.practice_block_container .block_wrap, .practice_block_container .practice_block_wrap{
+    flex: 1;
+}
+.practice_block_container .practice_block_wrap{
+    padding-left: 20px;
+}
+.practice_block_container .journal_form_select{
+    width: 100%;
+    max-width: unset;
+}
+.practice_block_container .add_kurs_val_video_wrap,
+.practice_block_container .add_tov_val_cont,
+.practice_block_container .add_tov_list{
+    max-width: unset;
+}
 .practice_block, .instruction_block, .nutrition_block{
     padding-top: 5px;
 }

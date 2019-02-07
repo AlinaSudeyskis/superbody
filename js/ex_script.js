@@ -520,11 +520,12 @@ $(document).ready(function(){
 
     // Формирование блока тренировок
     $(".practice_block_table").on('click', '.practice_day', function(){
-        var pr_bl_w  = $('.practice_block_wrap'),
-            pr_bl    = $('.practice_block'),
-            pr_d     = $('.practice_day'),
-            pr_id    = $(this).attr('id').substr(8),
-            pr_block = $('#' + $(this).attr('id') + '_block');
+        var pr_bl_w   = $('.practice_block_wrap'),
+            pr_bl     = $('.practice_block'),
+            pr_d      = $('.practice_day'),
+            this_pr_d = $(this),
+            pr_id     = $(this).attr('id').substr(8),
+            pr_block  = $('#' + $(this).attr('id') + '_block');
 
         if ($(this).hasClass("active"))
         {
@@ -542,7 +543,9 @@ $(document).ready(function(){
             if(pr_bl_w.length === 1)
             {
                 pr_bl.hide();
-                pr_block.show();
+                pr_bl.css("margin-top", $(this).position().top+'px');
+                //pr_block.show();
+                pr_block.fadeIn(200);
             }
         }
     });

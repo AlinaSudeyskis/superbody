@@ -1178,13 +1178,13 @@ class Course extends CI_Controller
             $meta_keywords = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
 
             // Стоиомсть курса
-            $price    = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
-            $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
+            $price    = (is_numeric($this->input->post('price', true))) ? $this->input->post('price', true) : '';
+            $fc_price = (is_numeric($this->input->post('fc_price', true))) ? $this->input->post('fc_price', true) : '';
 
             // Рекуррентная стоимость
             $recur_price      = $price;
-            $recur_months     = is_numeric($this->input->post('s_recurrent_months', true)) ? $this->input->post('s_recurrent_months', true) : '';
-            $recur_first      = is_numeric($this->input->post('i_recurrent_first', true)) ? $this->input->post('i_recurrent_first', true) : '';
+            $recur_months     = (is_numeric($this->input->post('s_recurrent_months', true))) ? $this->input->post('s_recurrent_months', true) : '';
+            $recur_first      = (is_numeric($this->input->post('i_recurrent_first', true))) ? $this->input->post('i_recurrent_first', true) : '';
             $recur_subsequent = '';
             if (!empty($recur_price) and !empty($recur_months) and !empty($recur_first))
             {
@@ -1211,21 +1211,26 @@ class Course extends CI_Controller
 
             // Тренеры курса
             $couches = array();
-            if (!empty($this->input->post('couches', true))) {
+            if (!empty($this->input->post('couches', true)))
+            {
                 $input_couches = $this->input->post('couches', true);
                 $percent       = $this->input->post('couches_percent', true);
 
                 // Добавление или изменение данных тренера
-                foreach ($input_couches as $key => $couch) {
-                    if (is_numeric($couch)) {
+                foreach ($input_couches as $key => $couch)
+                {
+                    if (is_numeric($couch))
+                    {
                         // Поиск в массиве сохраненных тренеров
-                        $search_key = !empty($course_couches) ? array_search($couch, $course_couches['id']) : false;
+                        $search_key = (!empty($course_couches)) ? array_search($couch, $course_couches['id']) : false;
                         // Если нашел тренера и значения процента отличаются, обновить данные
-                        if (is_numeric($search_key) and $course_couches['percent'][$search_key] != $percent[$key]) {
+                        if (is_numeric($search_key) and $course_couches['percent'][$search_key] != $percent[$key])
+                        {
                             $couches['update'][$couch] = $percent[$key];
                         }
                         // Если не нашел тренера, добавить данные
-                        elseif ($search_key === false) {
+                        elseif ($search_key === false)
+                        {
                             $couches['insert'][$couch] = $percent[$key];
                         }
                     }
@@ -1233,16 +1238,16 @@ class Course extends CI_Controller
                 unset($couch);
 
                 // Удаление тренеров
-                $couches['delete'] = !empty($course_couches['id']) ? array_diff($course_couches['id'], $input_couches) : '';
+                $couches['delete'] = (!empty($course_couches['id'])) ? array_diff($course_couches['id'], $input_couches) : '';
             }
             else {
                 // Удаление тренеров
-                $couches['delete'] = !empty($course_couches['id']) ? $course_couches['id'] : '';
+                $couches['delete'] = (!empty($course_couches['id'])) ? $course_couches['id'] : '';
             }
 
             // Инструктаж
             $db_instruction = (!empty($course['instruction']) and $course['instruction']['video_id'] > 0) ? $course['instruction']['video_id'] : false;
-            $instruction = is_numeric($this->input->post('video_instruction', true)) ? $this->input->post('video_instruction', true) : 0;
+            $instruction    = (is_numeric($this->input->post('video_instruction', true))) ? $this->input->post('video_instruction', true) : 0;
             $schedule['workouts'][0]['video_id'] = $instruction;
             $schedule['workouts'][0]['repeat_workout'] = 0;
             $schedule['workouts'][0]['description'] = '';
@@ -1278,7 +1283,7 @@ class Course extends CI_Controller
                 else
                 {
                     $schedule['workouts'][$workout]['repeat_workout'] = 0;
-                    $schedule['workouts'][$workout]['video_id'] = is_numeric($id_video[$workout]) ? $id_video[$workout] : 0;
+                    $schedule['workouts'][$workout]['video_id'] = (is_numeric($id_video[$workout])) ? $id_video[$workout] : 0;
                 }
 
                 $schedule['workouts'][$workout]['description'] = mb_substr(strip_tags($ta_workout_desc[$workout]), 0, 255);
@@ -1286,7 +1291,7 @@ class Course extends CI_Controller
                 $sw = $schedule['workouts'][$workout];
 
                 // Поиск в массиве сохраненных тренировок
-                $search_key = !empty($course_schedule) ? array_search($workout, $course_schedule['num_workout']) : false;
+                $search_key = (!empty($course_schedule)) ? array_search($workout, $course_schedule['num_workout']) : false;
 
                 // Если нашел тренировку и хотя бы одно значение данных отличается, обновить данные
                 if (is_numeric($search_key) and ($course_schedule['repeat_workout'][$search_key] != $sw['repeat_workout']
@@ -1307,7 +1312,7 @@ class Course extends CI_Controller
                 $workout++;
             }
             // Удаление тренировок
-            $schedule['delete'] = !empty($course_schedule['num_workout']) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
+            $schedule['delete'] = (!empty($course_schedule['num_workout'])) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
 
 
             /* СОХРАНЕНИЕ ИЗМНЕНИЙ */
@@ -1317,7 +1322,7 @@ class Course extends CI_Controller
             $result_couches   = null;
 
             // Сохранение основных данных курса
-            if ($name != $course['name'] or $description != $course['description'] or $price != $course['price']
+            if ($name != $course['name'] or $description != $course['description'] or $price != $course['db_price']
                 or $course_type != $course['type'] or $meta_description != $course['meta_description']
                 or $meta_keywords != $course['meta_keywords'] or $count_weeks != $course['count_weeks']
                 or $count_days != $course['count_days'] or $count_rest != $course['count_rest']
@@ -1329,8 +1334,8 @@ class Course extends CI_Controller
             }
 
             // Сохранение данных рекуррентной цены
-            if ($recur_months != $course['recur_months'] or $recur_first != $course['recur_first']
-                or $recur_subsequent != $course['recur_subsequent'])
+            if ($recur_months != $course['recur_months'] or $recur_first != $course['db_recur_first']
+                or $recur_subsequent != $course['db_recur_subsequent'])
             {
                 $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->user_id, $this->date);
             }
@@ -3553,13 +3558,13 @@ class Course extends CI_Controller
             $description = mb_substr(strip_tags($this->input->post('description', true)), 0, 1000);
 
             // Стоиомсть курса
-            $price    = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
-            $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
+            $price    = (is_numeric($this->input->post('price', true))) ? $this->input->post('price', true) : '';
+            $fc_price = (is_numeric($this->input->post('fc_price', true))) ? $this->input->post('fc_price', true) : '';
 
             // Рекуррентная стоимость
             $recur_price      = $price;
-            $recur_months     = is_numeric($this->input->post('s_recurrent_months', true)) ? $this->input->post('s_recurrent_months', true) : '';
-            $recur_first      = is_numeric($this->input->post('i_recurrent_first', true)) ? $this->input->post('i_recurrent_first', true) : '';
+            $recur_months     = (is_numeric($this->input->post('s_recurrent_months', true))) ? $this->input->post('s_recurrent_months', true) : '';
+            $recur_first      = (is_numeric($this->input->post('i_recurrent_first', true))) ? $this->input->post('i_recurrent_first', true) : '';
             $recur_subsequent = '';
             if (!empty($recur_price) and !empty($recur_months) and !empty($recur_first))
             {
@@ -3692,7 +3697,7 @@ class Course extends CI_Controller
             $result_couches   = null;
 
             // Сохранение основных данных курса
-            if ($name != $course['name'] or $description != $course['description'] or $price != $course['price']
+            if ($name != $course['name'] or $description != $course['description'] or $price != $course['db_price']
                 or $count_weeks != $course['count_weeks'] or $course_image != ('.' . $course['image'])) {
 
                 $result_settings = $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description, $price, $fc_price,
@@ -3700,8 +3705,8 @@ class Course extends CI_Controller
             }
 
             // Сохранение данных рекуррентной цены
-            if ($recur_months != $course['recur_months'] or $recur_first != $course['recur_first']
-                or $recur_subsequent != $course['recur_subsequent'])
+            if ($recur_months != $course['recur_months'] or $recur_first != $course['db_recur_first']
+                or $recur_subsequent != $course['db_recur_subsequent'])
             {
                 $result_recurrent = $this->Course_model->setCourseRecurrentPrice($course_id, $recur_price, $recur_months, $recur_first, $recur_subsequent, $this->user_id, $this->date);
             }

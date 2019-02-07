@@ -15,8 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="ordering_block ordering_block3 parent admin">
-                    <?php if(!empty($order)):
-                        print_r($order);?>
+                    <?php if(!empty($order)):?>
                         <div class="ordering_block_cont">
                             <div class="ordering_block_head parent">
                                 <div class="ordering_block_head_item ordering_block_head_item_active">

@@ -1,18 +1,17 @@
-
 function getInternetExplorerVersion() {
-    var rv = -1;
-    if (navigator.appName == 'Microsoft Internet Explorer')
+    var rv = -1, ua, re;
+    if (navigator.appName === 'Microsoft Internet Explorer')
     {
-        var ua = navigator.userAgent;
-        var re  = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
-        if (re.exec(ua) != null)
+        ua = navigator.userAgent;
+        re = new RegExp("MSIE ([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) !== null)
             rv = parseFloat( RegExp.$1 );
     }
-    else if (navigator.appName == 'Netscape')
+    else if (navigator.appName === 'Netscape')
     {
-        var ua = navigator.userAgent;
-        var re  = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
-        if (re.exec(ua) != null)
+        ua = navigator.userAgent;
+        re = new RegExp("Trident/.*rv:([0-9]{1,}[\.0-9]{0,})");
+        if (re.exec(ua) !== null)
             rv = parseFloat( RegExp.$1 );
     }
     return rv;
@@ -34,7 +33,8 @@ $(document).ready(function() {
             dm = time % (60 * 60),
             m = Math.floor(dm / 60),
             ds = dm % 60,
-            s = Math.ceil(ds);
+            s = Math.ceil(ds),
+            full_time;
         if (s === 60) {
             s = 0;
             m = m + 1;
@@ -50,11 +50,11 @@ $(document).ready(function() {
             m = '0' + m;
         }
         if (h === 0) {
-            fulltime = m + ':' + s;
+            full_time = m + ':' + s;
         } else {
-            fulltime = h + ':' + m + ':' + s;
+            full_time = h + ':' + m + ':' + s;
         }
-        return fulltime;
+        return full_time;
     }
     function getVideoTime(vid_id, time_block_id){
         var vid = document.getElementById(vid_id),
@@ -66,8 +66,9 @@ $(document).ready(function() {
         }
     }
 
-    if($(".practice_block .add_tov_val_item").length > 0){
-        $(".practice_block .add_tov_val_item").each(function() {
+    var pr_bl_add_tov_val_item = $(".practice_block .add_tov_val_item");
+    if(pr_bl_add_tov_val_item.length > 0){
+        pr_bl_add_tov_val_item.each(function() {
             var video_id = $(this).find("video").attr("id"),
                 time_id  = $(this).find(".add_kurs_val_video").find("div").attr("id");
             if(!!video_id && !!time_id) {
@@ -119,7 +120,7 @@ $(document).ready(function() {
 
         purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2}).fadeIn(600);
 
-        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
+        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).on('click', function() {
             shadow2.fadeOut(600);
             purchase.fadeOut(600);
         });
@@ -140,7 +141,7 @@ $(document).ready(function() {
             var countDownDateBlock = $(this).parent().find('.date_countdown'),
                 countDownDate = countDownDateBlock.val();
 
-            if (countDownDateBlock.val() != "") {
+            if (countDownDateBlock.val() !== "") {
                 // Get todays date and time
                 var now = new Date().getTime();
 
@@ -148,18 +149,18 @@ $(document).ready(function() {
                 var distance = countDownDate - now;
 
                 // Time calculations for days, hours, minutes and seconds
-                var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-                var hours = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)));
-                var minutes = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)));
-                var seconds = String(Math.floor((distance % (1000 * 60)) / 1000));
+                var days    = Math.floor(distance / (1000 * 60 * 60 * 24)),
+                    hours   = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),
+                    minutes = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))),
+                    seconds = String(Math.floor((distance % (1000 * 60)) / 1000));
 
-                if (hours.length == 1) {
+                if (hours.length === 1) {
                     hours = "0" + hours;
                 }
-                if (minutes.length == 1) {
+                if (minutes.length === 1) {
                     minutes = "0" + minutes;
                 }
-                if (seconds.length == 1) {
+                if (seconds.length === 1) {
                     seconds = "0" + seconds;
                 }
 
@@ -185,7 +186,7 @@ $(document).ready(function() {
     $(".promo_line").on('click', function(){
         $(this).hide();
         $(this).parent('.promo_block').find('.kurs_block_h').html('Промокод:');
-        if($('#i-promocode').length == 1)
+        if($('#i-promocode').length === 1)
         {
             $('#i-promocode').show();
         }
@@ -217,7 +218,7 @@ $(document).ready(function() {
                         var new_price = course_price - (course_price*data.discount/100);
 
                         price_block.addClass('strikeout');
-                        if(price_block.next('#course-new-price').length == 0)
+                        if(price_block.next('#course-new-price').length === 0)
                         {
                             price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
                             new_price_block = $('#course-new-price');
@@ -246,17 +247,17 @@ $(document).ready(function() {
 
 	/* Добавление опции */
 
-    $(".add_new_options_but").click(function() {
+    $(".add_new_options_but").on('click', function() {
         $(this).parents(".lend_form_options_wrap").find(".new_form_option_wrap").show();
     });
-    $(".add_form_option").click(function() {
+    $(".add_form_option").on('click', function() {
         var val = $(this).parents(".new_form_option_wrap").find(".new_form_option").val(),
             num = $(this).parents(".lend_form_options_wrap").find(".tren_form_block_radio_wrap").length + 1,
             param = "";
         if($(this).parents("form").hasClass("edit_lend_form")){
             param = "e";
         }
-        if(val != ''){
+        if(val !== ''){
             $(this).parents(".lend_form_options_wrap").find(".lend_form_options").append('<div class="tren_form_block_radio_wrap"><input type="radio" name="radio1a'+param+'" class="tren_form_block_radio" id="tren_form_block_radio'+num+'a'+param+'" value="'+val+'"><label for="tren_form_block_radio'+num+'a'+param+'">'+val+'</label></div>');
             $(this).parents(".new_form_option_wrap").find(".new_form_option").val('');
             $(this).parents(".new_form_option_wrap").hide();
@@ -283,7 +284,7 @@ $(document).ready(function() {
         } else{
             index = "o";
         }
-        if(kurs_time_in != 0 && kurs_length_in != 0)
+        if(kurs_time_in !== 0 && kurs_length_in !== 0)
         {
             rez = kurs_time_in * kurs_length_in;
             while (tr_week <= kurs_time_in) {
@@ -293,7 +294,7 @@ $(document).ready(function() {
                 while(tr_day <= kurs_length_in){
                     block_id = 'practice' + i;
                     active_class = "";
-                    if (active_practice_block == block_id)
+                    if (active_practice_block === block_id)
                     {
                         active_class = "active";
                     }
@@ -307,7 +308,7 @@ $(document).ready(function() {
             $(".practice_block_table").html(html_table);
         }
 
-        if(kurs_time_in != 0 && kurs_length_in != 0 && kurs_length_out < 1){
+        if(kurs_time_in !== 0 && kurs_length_in !== 0 && kurs_length_out < 1){
             rez = kurs_time_in * kurs_length_in;
             i = 1;
             html = '<div class="practice_block" id="practice'+i+'_block"><div class="practice_block_h">Тренировка №'+i+'</div><div class="add_tov_in_total"><div class="add_tov_in video"><input type="text" name="name_video['+i+']" class="admin_form_txt admin_form_txt_short" placeholder="Введите наименование или ID видео"><div class="add_tov_list">'+video_list+'</div></div><div class="add_tov_val"></div><input type="hidden" name="id_video['+i+']" value="" id="id-video'+i+'"/></div><textarea name="ta_workout_desc['+i+']" class="tov_form_textarea" placeholder="Введите описание тренировки"></textarea></div>';
@@ -320,7 +321,7 @@ $(document).ready(function() {
             $(this).parents("form").find(".practice_block_wrap").html(html);
             $(this).parents("form").find(".practice_block_wrap").find(".journal_form_select").styler();
         }
-        else if(kurs_time_in != 0 && kurs_length_in != 0 && kurs_length_out >= 1){
+        else if(kurs_time_in !== 0 && kurs_length_in !== 0 && kurs_length_out >= 1){
             rez = kurs_time_in * kurs_length_in - kurs_length_out;
             //$(this).parents("form").find(".practice_block").show();
             if(rez>0){
@@ -411,7 +412,7 @@ $(document).ready(function() {
         new nicEditor({iconsPath : 'img/nicEditorIcons.gif', fullPanel : true}).panelInstance('area4');
     }*/
 
-    /*$(document).click(function(event) {
+    /*$(document).on('click', function(event) {
         if ($(event.target).closest(".add_tov_in input:text").length) return;
         $(".add_tov_list").hide();
         event.stopPropagation();
@@ -420,10 +421,12 @@ $(document).ready(function() {
 
 	/* видео */
 
-    if(getInternetExplorerVersion()==-1){
-
-        if($(".video_cont").length > 0){
-            $(".video_cont").each(function() {
+    if(getInternetExplorerVersion() === -1)
+    {
+        var video_cont = $('.video_cont');
+        if(video_cont.length > 0){
+            video_cont.each(function()
+            {
                 new InitPxVideo({
                     "videoId": this,
                     "captionsOnDefault": false,
@@ -436,14 +439,14 @@ $(document).ready(function() {
 
     }
 
-    $(".px-video-controls button").click(function() {
+    $(".px-video-controls button").on('click', function() {
         return false;
     });
 
 
 	/* оформление input file */
 
-    var file_api = ( window.File && window.FileReader && window.FileList && window.Blob ) ? true : false;
+    var file_api = !!(window.File && window.FileReader && window.FileList && window.Blob);
     $(document).on('change', '.admin_form_videofile', function () {
         var inp = $(this);
         var lbl = inp.parents(".video_down_line").find(".video_down_line_name");
@@ -451,7 +454,7 @@ $(document).ready(function() {
 
         if( file_api )
             $.each(inp[0].files, function(index, value){
-                if (index == 0) {
+                if (index === 0) {
                     file_name = value.name;
                 }
                 else {
@@ -484,7 +487,7 @@ $(document).ready(function() {
 
 	/* моб. меню */
 
-    $(".mob_menu_but").click(function() {
+    $(".mob_menu_but").on('click', function() {
         if($(this).hasClass("mob_open")){
             $(this).removeClass("mob_open");
             $(".header_menu").fadeOut(200);
@@ -496,17 +499,17 @@ $(document).ready(function() {
         }
     });
 
-    $(".mob_side_menu_but").click(function() {
+    $(".mob_side_menu_but").on('click', function() {
         $(".profile_menu, .mob_side_menu_close").fadeIn(200);
         $("body").addClass("side_mob_body");
     });
-    $(".mob_side_menu_close span").click(function() {
+    $(".mob_side_menu_close span").on('click', function() {
         $(".profile_menu, .mob_side_menu_close").fadeOut(200);
         $("body").removeClass("side_mob_body");
     });
 
     if ($(window).width() <= 991) {
-        $(document).click(function(event) {
+        $(document).on('click', function(event) {
             if ($(event.target).closest(".header_mid").length) return;
             $(".mob_menu_but").removeClass("mob_open");
             $("body").removeClass("mob_body");
@@ -515,7 +518,7 @@ $(document).ready(function() {
         });
     }
     if ($(window).width() < 480) {
-        $(document).click(function(event) {
+        $(document).on('click', function(event) {
             if ($(event.target).closest(".left_sidebar").length) return;
             $(".mob_side_menu_but").removeClass("mob_open");
             $("body").removeClass("side_mob_body");
@@ -526,7 +529,7 @@ $(document).ready(function() {
 
     /* скрытие блоков */
 
-    $(".up_but_main").click(function() {
+    $(".up_but_main").on('click', function() {
         if($(this).hasClass("hide_chart")){
             $(this).removeClass("hide_chart");
             $('.header_bg').slick("slickPlay");
@@ -540,7 +543,7 @@ $(document).ready(function() {
 
     /* скрытие и удаление блоков в профиле */
 
-    $(".up_but_bot").click(function() {
+    $(".up_but_bot").on('click', function() {
         if($(this).hasClass("hide_chart")){
             $(this).removeClass("hide_chart");
             $('.prezent_head').removeClass("hide_chart");
@@ -554,7 +557,7 @@ $(document).ready(function() {
         }
     });
 
-    $(".up_but_top").click(function() {
+    $(".up_but_top").on('click', function() {
         if($(this).hasClass("hide_chart")){
             $(this).removeClass("hide_chart");
             $(".hid_header").slideDown(200);
@@ -564,7 +567,7 @@ $(document).ready(function() {
         }
     });
 
-    $(".kurs_slide").click(function() {
+    $(".kurs_slide").on('click', function() {
         var block_h_buts = $(this).parent('.content_block_h_buts'),
             content_block_h = block_h_buts.parent('.content_block_h'),
             content_block = content_block_h.parent(".content_block"),
@@ -594,7 +597,7 @@ $(document).ready(function() {
         }
     });
 
-    $(".content_block_h_close").click(function() {
+    $(".content_block_h_close").on('click', function() {
         $(this).parents(".content_block").slideUp(200);
     });
 
@@ -606,7 +609,7 @@ $(document).ready(function() {
 function pop_up_def(popup) {
   var shadow = $("#shadow");
   popup.css({marginLeft:-popup.width()/2-15,marginTop:-popup.height()/2-15}).fadeIn(600); /*+$(window).scrollTop()*/
-  $("#shadow, #shadow2, .close_video").fadeTo(600,0.8).click(function() {
+  $("#shadow, #shadow2, .close_video").fadeTo(600,0.8).on('click', function() {
     shadow.fadeOut(600);
     popup.fadeOut(600);
       if(typeof(playerTwoPlayer) !== "undefined")
@@ -628,7 +631,7 @@ function pop_up_home(popup) {
         returnScroll();
     });
 
-    $("#shadow2, .home_pop-up_close").fadeTo(600,0.8).click(function() {
+    $("#shadow2, .home_pop-up_close").fadeTo(600,0.8).on('click', function() {
         shadow.fadeOut(600);
         popup.fadeOut(600);
         if(typeof(playerTwoPlayer) !== "undefined")
@@ -636,7 +639,7 @@ function pop_up_home(popup) {
             playerTwoPlayer.destroy();
         }
     });
-    $("#shadow2, .close_meal").fadeTo(600,0.8).click(function() {
+    $("#shadow2, .close_meal").fadeTo(600,0.8).on('click', function() {
         shadow.fadeOut(600);
         popup.fadeOut(600);
         if(typeof(playerTwoPlayer) !== "undefined")
@@ -644,7 +647,7 @@ function pop_up_home(popup) {
             playerTwoPlayer.destroy();
         }
     });
-    $("#shadow2, .close_user_meal").fadeTo(600,0.8).click(function() {
+    $("#shadow2, .close_user_meal").fadeTo(600,0.8).on('click', function() {
         shadow.fadeOut(600);
         popup.fadeOut(600);
     });
@@ -733,21 +736,21 @@ function onYouTubeIframeAPIReady() {
     }
 }
 function handleVideo(playerStatus) {
-    if (playerStatus == -1) {
+    if (playerStatus === -1) {
         // unstarted
         $('.meal_block_img').slick('slickPlay');
-    } else if (playerStatus == 0) {
+    } else if (playerStatus === 0) {
         // ended
         $('.meal_block_img').slick('slickPlay');
-    } else if (playerStatus == 1) {
+    } else if (playerStatus === 1) {
         // playing = green
         $('.meal_block_img').slick('slickPause');
-    } else if (playerStatus == 2) {
+    } else if (playerStatus === 2) {
         // paused = red
         $('.meal_block_img').slick('slickPlay');
-    } else if (playerStatus == 3) {
+    } else if (playerStatus === 3) {
         // buffering = purple
-    } else if (playerStatus == 5) {
+    } else if (playerStatus === 5) {
         // video cued
     }
 }
@@ -999,12 +1002,12 @@ $(document).ready(function(){
 
 	var tov_slider_scale = 0;
 
-	$('.tov_slider_bot a').click(function() {
+	$('.tov_slider_bot a').on('click', function() {
 		$('.tov_slider_active').removeClass('scale1_5').removeClass('scale2').removeClass('scale2_5').removeClass('scale3');
 		tov_slider_scale = 0;
 		val = $(this).attr('href');
 		$('.tov_slider_top a').each(function() {
-			if($(this).attr('href') == val){
+			if($(this).attr('href') === val){
 				$('.tov_slider_top a').removeClass('tov_slider_active');
 				$(this).addClass('tov_slider_active');
 				return false;
@@ -1013,32 +1016,32 @@ $(document).ready(function(){
 		return false;
 	});
 
-	$('.tov_slider_full').click(function() {
+	$('.tov_slider_full').on('click', function() {
 		$('.tov_slider_active').trigger('click');
 	});
 
 	function slide_scale(tov_slider_scale) {
 		if(tov_slider_scale < 1){
 			$('.tov_slider_active').removeClass('scale1_5').removeClass('scale2').removeClass('scale2_5').removeClass('scale3');
-		} else if(tov_slider_scale == 1){
+		} else if(tov_slider_scale === 1){
 			$('.tov_slider_active').removeClass('scale2').removeClass('scale2_5').removeClass('scale3').addClass('scale1_5');
-		}else if(tov_slider_scale == 2){
+		}else if(tov_slider_scale === 2){
 			$('.tov_slider_active').removeClass('scale1_5').removeClass('scale2_5').removeClass('scale3').addClass('scale2');
-		}else if(tov_slider_scale == 3){
+		}else if(tov_slider_scale === 3){
 			$('.tov_slider_active').removeClass('scale1_5').removeClass('scale2').removeClass('scale3').addClass('scale2_5');
 		}else{
 			$('.tov_slider_active').removeClass('scale1_5').removeClass('scale2').removeClass('scale2_5').addClass('scale3');
 		}
 	}
 
-	$('.tov_slider_plus').click(function() {
+	$('.tov_slider_plus').on('click', function() {
 		if(tov_slider_scale < 4){
 			tov_slider_scale ++;
 			slide_scale(tov_slider_scale);
 		}
 	});
 
-	$('.tov_slider_minus').click(function() {
+	$('.tov_slider_minus').on('click', function() {
 		if(tov_slider_scale > 0){
 			tov_slider_scale --;
 			slide_scale(tov_slider_scale);
@@ -1368,143 +1371,143 @@ $(document).ready(function() {
 		eventLimit: true, // allow "more" link when too many events
 		events: [
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
 				start: '2016-08-29'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
 				start: '2016-08-30'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
 				start: '2016-08-31'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
 				start: '2016-09-01'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
 				start: '2016-09-02'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
 				start: '2016-09-03'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
 				start: '2016-09-04'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
 				start: '2016-09-05'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
 				start: '2016-09-06'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
 				start: '2016-09-07'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
 				start: '2016-09-08'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">30%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">30%</span></div></div>',
 				start: '2016-09-09'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
 				start: '2016-09-10'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
 				start: '2016-09-11'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
 				start: '2016-09-12'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
 				start: '2016-09-13'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
 				start: '2016-09-14'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
 				start: '2016-09-15'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
 				start: '2016-09-16'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
 				start: '2016-09-17'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
 				start: '2016-09-18'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
 				start: '2016-09-19'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
 				start: '2016-09-20'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
 				start: '2016-09-21'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
 				start: '2016-09-22'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">30%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">30%</span></div></div>',
 				start: '2016-09-23'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
 				start: '2016-09-24'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
 				start: '2016-09-25'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
 				start: '2016-09-26'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
 				start: '2016-09-27'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
 				start: '2016-09-28'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
 				start: '2016-09-29'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
 				start: '2016-09-30'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
 				start: '2016-10-01'
 			},
 			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
+				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
 				start: '2016-10-02'
 			}
 		],
@@ -1527,25 +1530,25 @@ $(document).ready(function() {
 	$('.anketa_block_item').hide();
 	$('.anketa_block_item:nth-child(' + (a_id + 1) + ')').show();*/
 
-$('.anketa_block_nav li:first-child').click(function(){
+$('.anketa_block_nav li:first-child').on('click', function(){
 	$('.anketa_block_nav li span').removeClass('anketa_active');
 	$(this).find('span').addClass('anketa_active');
 	$('.anketa_block_item').hide();
 	$('.anketa_block_item:first-child').show();
 });
-$('.anketa_block_nav li:nth-child(2)').click(function(){
+$('.anketa_block_nav li:nth-child(2)').on('click', function(){
 	$('.anketa_block_nav li span').removeClass('anketa_active');
 	$(this).find('span').addClass('anketa_active');
 	$('.anketa_block_item').hide();
 	$('.anketa_block_item:nth-child(2)').show();
 });
-$('.anketa_block_nav li:nth-child(3)').click(function(){
+$('.anketa_block_nav li:nth-child(3)').on('click', function(){
 	$('.anketa_block_nav li span').removeClass('anketa_active');
 	$(this).find('span').addClass('anketa_active');
 	$('.anketa_block_item').hide();
 	$('.anketa_block_item:nth-child(3)').show();
 });
-$('.anketa_block_nav li:nth-child(4)').click(function(){
+$('.anketa_block_nav li:nth-child(4)').on('click', function(){
 	$('.anketa_block_nav li span').removeClass('anketa_active');
 	$(this).find('span').addClass('anketa_active');
 	$('.anketa_block_item').hide();
@@ -1555,31 +1558,31 @@ $('.anketa_block_nav li:nth-child(4)').click(function(){
 
 /* tren set */
 
-/*$(".tren_set_form_add").click(function(){
+/*$(".tren_set_form_add").on('click', function(){
 	$(".tren_set_form_pop_up").fadeIn(200);
 });
-$(".tren_set_form_pop_up_close").click(function(){
+$(".tren_set_form_pop_up_close").on('click', function(){
 	$(".tren_set_form_pop_up").fadeOut(200);
 });*/
 
 
 /* чат */
 
-/*$(".chat_contact").click(function(){
+/*$(".chat_contact").on('click', function(){
 	$(".chat_contact").removeClass("chat_contact_active");
 	$(this).addClass("chat_contact_active");
 	$(".chat_prof_block").hide();
 	$(".chat_mess_block").show();
 });
-$(".chat_contact_img").click(function(event){
-	if($(".chat_contact_cont").css("display") != "none"){
+$(".chat_contact_img").on('click', function(event){
+	if($(".chat_contact_cont").css("display") !== "none"){
 		event.stopPropagation();
 		$(".chat_mess_block").hide();
 		$(".chat_prof_block").show();
 	}
 });*/
-$(".chat_block_h_slide").click(function() {
-	if($(".chat_contact_block_h .chat_block_h_buts").css("display") == "none"){
+$(".chat_block_h_slide").on('click', function() {
+	if($(".chat_contact_block_h .chat_block_h_buts").css("display") === "none"){
 		if($(this).hasClass("hide_chat")){
 			$(this).removeClass("hide_chat");
 			$(this).parents(".chat_content_block_wrap").find(".chat_block_val, .chat_prof_block_val, .mess_block_val").slideDown(200);
@@ -1607,8 +1610,8 @@ $(".chat_block_h_slide").click(function() {
 		}
 	}
 });
-$(".chat_block_h_close").click(function() {
-	if($(".chat_contact_block_h .chat_block_h_buts").css("display") == "none"){
+$(".chat_block_h_close").on('click', function() {
+	if($(".chat_contact_block_h .chat_block_h_buts").css("display") === "none"){
 		$(this).parents(".chat_content_block_wrap").slideUp(200);
 	} else{
 		if($(this).parents(".chat_contact_block").length > 0){
@@ -1618,7 +1621,7 @@ $(".chat_block_h_close").click(function() {
 		}
 	}
 });
-$(".chat_mob_but").click(function() {
+$(".chat_mob_but").on('click', function() {
 	if($(this).hasClass("chat_mob_act")){
 		$(this).removeClass("chat_mob_act");
 		$(this).parents(".chat_content_block_wrap").removeClass("chat_content_block_wrap_active");
@@ -1627,7 +1630,7 @@ $(".chat_mob_but").click(function() {
 		$(this).parents(".chat_content_block_wrap").addClass("chat_content_block_wrap_active");
 	}
 });
-$(".chat_search_mob_but").click(function() {
+$(".chat_search_mob_but").on('click', function() {
 	$(this).parents(".chat_content_block_wrap").find(".chat_mob_but").addClass("chat_mob_act");
 	$(this).parents(".chat_content_block_wrap").addClass("chat_content_block_wrap_active");
 	$(this).parents(".chat_content_block_wrap").find(".chat_search_in").focus();
@@ -1647,14 +1650,14 @@ if($("#policy_pop-up").length > 0){
         var popup = $("#policy_pop-up"),
             shadow = $("#shadow");
 
-        if (shadow.length == 0)
+        if (shadow.length === 0)
         {
             $("body").append("<div id='shadow'></div>");
             shadow = $("#shadow");
         }
 
         popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
-        $("#shadow, .policy_pop-up_close").fadeTo(600,0.8).click(function() {
+        $("#shadow, .policy_pop-up_close").fadeTo(600,0.8).on('click', function() {
             shadow.fadeOut(600);
             popup.fadeOut(600);
         });
@@ -1685,7 +1688,7 @@ function(){
 
 /* оформление заказа */
 
-$(".ordering_next1").click(function(){
+$(".ordering_next1").on('click', function(){
 	$(".ordering_block1").css('display','none');
 	$(".ordering_block2").css('display','block');
 
@@ -1695,12 +1698,12 @@ $(".ordering_next1").click(function(){
     $(".edit_email input[name=e_email]").val($("input[name=i_o_email]").val());
     $(".info_ordering_type").text($("input[name=i_o_delivery]:checked").val());
 
-    if($("input[name=i_o_email]").val() == '')
+    if($("input[name=i_o_email]").val() === '')
     {
         $(".info_ordering_email").text('Введите Email');
     }
 
-	if ($("select[name=s_o_address] option:selected").val() != '') {
+	if ($("select[name=s_o_address] option:selected").val() !== '') {
         $(".info_ordering_country").text($("select[name=s_o_address] option:selected").text());
     }
     else {
@@ -1726,7 +1729,7 @@ $(".ordering_next1").click(function(){
     var destination = $("h2.ordering_block_title").offset().top;
     $("html, body").animate({scrollTop: destination },"slow");
 });
-$(".ordering_next2").click(function(){
+$(".ordering_next2").on('click', function(){
 	$(".ordering_block2").css('display','none');
 	$(".ordering_block3").css('display','block');
 	$(".info_ordering_pay").text($("input[name=i_o_payment]:checked").val());
@@ -1739,46 +1742,47 @@ $(".ordering_next2").click(function(){
     var destination = $("h2.ordering_block_title").offset().top;
     $("html, body").animate({scrollTop: destination },"slow");
 });
-$(".ordering_prev1").click(function(){
+$(".ordering_prev1").on('click', function(){
 	$(".ordering_block2").css('display','none');
 	$(".ordering_block1").css('display','block');
 
     var destination = $("h2.ordering_block_title").offset().top;
     $("html, body").animate({scrollTop: destination },"slow");
 });
-$(".ordering_prev2").click(function(){
+$(".ordering_prev2").on('click', function(){
 	$(".ordering_block3").css('display','none');
 	$(".ordering_block2").css('display','block');
 
     var destination = $("h2.ordering_block_title").offset().top;
     $("html, body").animate({scrollTop: destination },"slow");
 });
-$(".ordering_block_side_info_edit").click(function(){
+$(".ordering_block_side_info_edit").on('click', function(){
 	$(".ordering_block").css('display','none');
 	$(".ordering_block1").css('display','block');
 
     var destination = $("h2.ordering_block_title").offset().top;
     $("html, body").animate({scrollTop: destination },"slow");
 });
-$(".ordering_block_side_email_edit").click(function(){
+$(".ordering_block_side_email_edit").on('click', function(){
     $(".info_edit_email").toggle();
     $(".info_ordering_email").toggle();
     $(".email_errors").hide();
 });
-$(".edit_email_save").click(function(){
+$(".edit_email_save").on('click', function(){
     var edit_email   = $(".edit_email input[name=e_email]").val(),
-        confirm      = $(".edit_email_confirm input[name=e_email_confirm]").val(),
+        confirm      = $(".edit_email_confirm input[name=e_email_confirm]"),
+        info_order   = $(".info_ordering_email"),
         errors_block = $(".email_errors");
-    if(edit_email != '')
+    if(edit_email !== '')
     {
-        if(edit_email == confirm)
+        if(edit_email === confirm.val())
         {
-            $(".info_ordering_email").text(edit_email);
+            info_order.text(edit_email);
             $("input[name=i_o_email]").val(edit_email);
-            $(".edit_email_confirm input[name=e_email_confirm]").val('');
+            confirm.val('');
 
             $(".info_edit_email").css('display','none');
-            $(".info_ordering_email").css('display','block');
+            info_order.css('display','block');
         }
         else
         {
@@ -1829,22 +1833,22 @@ $("input.tov_number").change(function(){
             sum_fc = 0;
 
         $(".ordering_tov_summ").each(function(){
-            if ($(this).children('#product_currency').text() == " руб.") {
+            if ($(this).children('#product_currency').text() === " руб.") {
                 sum_price += parseFloat($(this).children('#product_sum').text());
             }
-            else if ($(this).children('#product_currency').text() == " FitCoin") {
+            else if ($(this).children('#product_currency').text() === " FitCoin") {
                 sum_fc += parseFloat($(this).children('#product_sum').text());
             }
         });
 
-        if (sum_price == NaN || sum_price == 0) {
+        if (sum_price === NaN || sum_price === 0) {
             $(".info_ordering_price").text("");
             $(".info_ordering_currency").text("");
         } else {
             $(".info_ordering_price").text(String(parseFloat(sum_price).toFixed(2)).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
             $(".info_ordering_currency").text(" руб.");
         }
-        if (sum_fc == NaN || sum_fc == 0) {
+        if (sum_fc === NaN || sum_fc === 0) {
             $(".info_ordering_fc_price").text("");
             $("#info_ordering_fc_currency").text("");
         } else {
@@ -1929,7 +1933,7 @@ if(getInternetExplorerVersion()==-1){
 
 /* Поиск в магазине */
 
-$(".open_search_form").click(function() {
+$(".open_search_form").on('click', function() {
 	if($(this).hasClass("open_search")){
 		$(this).removeClass("open_search");
 		$(".shop_search_form").slideUp(200);
@@ -1950,7 +1954,7 @@ $(".open_search_form").click(function() {
 
 /*$( "#calendar" ).on( "click", ".fc-event-container a", function() {
 	video_url = $(this).attr("href");
-	$("#myvid").html('<div class="px-video-img-captions-container"><div class="px-video-captions hide"></div><video poster="img/video_img.png" controls><source src="'+video_url+'" type="video/mp4"><div><a href="'+video_url+'"><img src="img/video_img.png" alt="download video"></a></div></video></div><div class="px-video-controls"></div>')
+	$("#myvid").html('<div class="px-video-img-captions-container"><div class="px-video-captions hide"></div><video poster="/img/video_img.png" controls><source src="'+video_url+'" type="video/mp4"><div><a href="'+video_url+'"><img src="/img/video_img.png" alt="download video"></a></div></video></div><div class="px-video-controls"></div>')
     if(getInternetExplorerVersion()==-1){
         $("#myvid").each(function() {
             new InitPxVideo({
@@ -1969,7 +1973,7 @@ $(".open_search_form").click(function() {
 
 /* скрытие и удаление блоков в профиле */
 
-$(".chart_wrap_slide").click(function() {
+$(".chart_wrap_slide").on('click', function() {
 	if($(this).hasClass("hide_chart")){
 		$(this).removeClass("hide_chart");
 		$(".chart_wrap").slideDown(200);
@@ -1979,7 +1983,7 @@ $(".chart_wrap_slide").click(function() {
 	}
 });
 
-$(".calendar_slide").click(function() {
+$(".calendar_slide").on('click', function() {
 	if($(this).hasClass("hide_chart")){
 		$(this).removeClass("hide_chart");
 		$(".fc-view-container").slideDown(200);
@@ -1989,7 +1993,7 @@ $(".calendar_slide").click(function() {
 	}
 });
 
-$(".close_video, #shadow").click(function() {
+$(".close_video, #shadow").on('click', function() {
 	setTimeout(function(){
 		$(".px-video-img-captions-container, .px-video-controls").remove();
 	},200);

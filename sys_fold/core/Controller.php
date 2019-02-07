@@ -372,6 +372,7 @@ class CI_Controller {
 
         $admin_new_fbs    = null;
         $admin_new_orders = null;
+        //$urls = array('/administration/update/database');
 
 		// Проверка данных авторизованного пользователя
         if (!empty($this->session->user) and is_numeric($this->session->user['id']) and

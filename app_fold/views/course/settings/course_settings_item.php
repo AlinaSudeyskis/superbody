@@ -144,7 +144,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Стоимость курса:</div>
-            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" id="course-price"/>
+            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['db_price'])) : echo $course['db_price']; endif;?>" required="required" id="course-price"/>
             <div class="kurs_cur">Руб.</div>
         </div>
         <div class="content_block new_content_block ovv content_block_internal">
@@ -171,14 +171,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="kurs_block_h">Первый платеж:</div>
                         <input type="text" name="i_recurrent_first" class="admin_form_txt kurs_form_txt_short"
                                placeholder="Стоимость первого платежа" id="recurrent-first"
-                               value="<?php if (!empty($course['recur_first'])) : echo $course['recur_first']; endif;?>" />
+                               value="<?php if (!empty($course['db_recur_first'])) : echo $course['db_recur_first']; endif;?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Последующие платежи:</div>
                         <input type="text" name="i_subsequent_payments" class="admin_form_txt kurs_form_txt_short"
                                placeholder="Стоимость последующих платежей" id="recurrent-subsequent" disabled="disabled"
-                               value="<?php if (!empty($course['recur_subsequent'])) : echo $course['recur_subsequent']; endif;?>" />
+                               value="<?php if (!empty($course['db_recur_subsequent'])) : echo $course['db_recur_subsequent']; endif;?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
                 </div>
@@ -210,62 +210,64 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 endif;?>
             </div>
         </div>
-        <div class="parent block_wrap">
-            <div class="practice_block_h">Тренировки:</div>
-            <div class="practice_block_table">
-                <?php include_once('./app_fold/views/course/settings/course_length_item.php'); ?>
+        <div class="practice_block_container">
+            <div class="block_wrap">
+                <div class="practice_block_h">Тренировки:</div>
+                <div class="practice_block_table">
+                    <?php include_once('./app_fold/views/course/settings/course_length_item.php'); ?>
+                </div>
             </div>
-        </div>
 
-        <div class="practice_block_wrap">
-            <?php if (!empty($course['workouts'])) :
-                foreach ($course['workouts'] as $num_workout => $workout) :
-                    $workout2 = 1;?>
-                    <div class="practice_block" id="practice<?php echo $num_workout; ?>_block">
-                        <div class="practice_block_h">Тренировка №<?php echo $num_workout; ?></div>
-                        <div class="add_tov_in_total">
-                            <div class="add_tov_in video">
-                                <input type="text" name="name_video[<?php echo $num_workout; ?>]" class="admin_form_txt admin_form_txt_short"
-                                       placeholder="Введите наименование или ID видео" autocomplete="off" />
-                                <div class="add_tov_list"></div>
-                            </div>
-                            <div class="add_tov_val">
-                                <?php if ($workout['video_id'] > 0 and $workout['repeat_workout'] == 0) : ?>
-                                    <div id="<?php echo $num_workout; ?>video" class="add_tov_val_item parent">
-                                        <div class="add_kurs_val_video_wrap parent">
-                                            <a href="/administration/video/<?php echo $workout['video_id']; ?>" class="add_tov_val_cont parent">
-                                                <span class="add_tov_val_h"><?php echo $workout['video_name']; ?></span>
-                                            </a>
-                                            <div class="del_tov"></div>
-                                        </div>
-                                    </div>
-                                <?php endif;?>
-                            </div>
-                            <input type="hidden" name="id_video[<?php echo $num_workout;?>]" value="<?php echo $workout['video_id'];?>" id="id-video<?php echo $num_workout;?>"/>
-                        </div>
-                        <textarea name="ta_workout_desc[<?php echo $num_workout; ?>]" class="tov_form_textarea" placeholder="Введите описание тренировки"><?php echo $workout['description'];?></textarea>
-                        <?php if ($num_workout > 1) :?>
-                            <div class="tren_repeat_total">
-                                <div class="tren_form_block_check_wrap">
-                                    <input type="checkbox" name="cb_repeat_workout[<?php echo $num_workout; ?>]" class="tren_form_block_check" id="tren_form_block_check<?php echo $num_workout; ?>e"
-                                           <?php if (0 < $workout['repeat_workout']) : ?>checked="checked"<?php endif; ?>
-                                           value="<?php echo $num_workout; ?>" />
-                                    <label for="tren_form_block_check<?php echo $num_workout; ?>e">Повтор тренировок</label>
+            <div class="practice_block_wrap">
+                <?php if (!empty($course['workouts'])) :
+                    foreach ($course['workouts'] as $num_workout => $workout) :
+                        $workout2 = 1;?>
+                        <div class="practice_block" id="practice<?php echo $num_workout; ?>_block">
+                            <div class="practice_block_h">Тренировка №<?php echo $num_workout; ?></div>
+                            <div class="add_tov_in_total">
+                                <div class="add_tov_in video">
+                                    <input type="text" name="name_video[<?php echo $num_workout; ?>]" class="admin_form_txt"
+                                           placeholder="Введите наименование или ID видео" autocomplete="off" />
+                                    <div class="add_tov_list"></div>
                                 </div>
-                                <select name="s_repeat_workout[<?php echo $num_workout; ?>]" class="journal_form_select">
-                                    <?php for ($w = 0; $w < $num_workout-1; $w++) :?>
-                                        <option value="<?php echo $workout2; ?>"
-                                                <?php if ($workout['repeat_workout'] == $workout2) :?>selected="selected"<?php endif; ?>
-                                        >Тренировка №<?php echo $workout2; ?></option>
-                                        <?php $workout2++;
-                                    endfor;?>
-                                </select>
+                                <div class="add_tov_val">
+                                    <?php if ($workout['video_id'] > 0 and $workout['repeat_workout'] == 0) : ?>
+                                        <div id="<?php echo $num_workout; ?>video" class="add_tov_val_item parent">
+                                            <div class="add_kurs_val_video_wrap parent">
+                                                <a href="/administration/video/<?php echo $workout['video_id']; ?>" class="add_tov_val_cont parent">
+                                                    <span class="add_tov_val_h"><?php echo $workout['video_name']; ?></span>
+                                                </a>
+                                                <div class="del_tov"></div>
+                                            </div>
+                                        </div>
+                                    <?php endif;?>
+                                </div>
+                                <input type="hidden" name="id_video[<?php echo $num_workout;?>]" value="<?php echo $workout['video_id'];?>" id="id-video<?php echo $num_workout;?>"/>
                             </div>
-                        <?php endif;?>
-                    </div>
-                <?php endforeach;
-                unset($workout);
-            endif;?>
+                            <textarea name="ta_workout_desc[<?php echo $num_workout; ?>]" class="tov_form_textarea" placeholder="Введите описание тренировки"><?php echo $workout['description'];?></textarea>
+                            <?php if ($num_workout > 1) :?>
+                                <div class="tren_repeat_total">
+                                    <div class="tren_form_block_check_wrap">
+                                        <input type="checkbox" name="cb_repeat_workout[<?php echo $num_workout; ?>]" class="tren_form_block_check" id="tren_form_block_check<?php echo $num_workout; ?>e"
+                                               <?php if (0 < $workout['repeat_workout']) : ?>checked="checked"<?php endif; ?>
+                                               value="<?php echo $num_workout; ?>" />
+                                        <label for="tren_form_block_check<?php echo $num_workout; ?>e">Повтор тренировок</label>
+                                    </div>
+                                    <select name="s_repeat_workout[<?php echo $num_workout; ?>]" class="journal_form_select">
+                                        <?php for ($w = 0; $w < $num_workout-1; $w++) :?>
+                                            <option value="<?php echo $workout2; ?>"
+                                                    <?php if ($workout['repeat_workout'] == $workout2) :?>selected="selected"<?php endif; ?>
+                                            >Тренировка №<?php echo $workout2; ?></option>
+                                            <?php $workout2++;
+                                        endfor;?>
+                                    </select>
+                                </div>
+                            <?php endif;?>
+                        </div>
+                    <?php endforeach;
+                    unset($workout);
+                endif;?>
+            </div>
         </div>
     </div>
 </div>

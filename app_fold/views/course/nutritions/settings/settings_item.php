@@ -51,7 +51,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Стоимость курса:</div>
             <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса"
-                   value="<?php if (!empty($course['price'])) : echo $course['price']; endif;?>" required="required" id="course-price"/>
+                   value="<?php if (!empty($course['db_price'])) : echo $course['db_price']; endif;?>" required="required" id="course-price"/>
             <div class="kurs_cur">Руб.</div>
         </div>
         <div class="content_block new_content_block ovv content_block_internal" style="max-width: 600px;">
@@ -78,14 +78,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="kurs_block_h">Первый платеж:</div>
                         <input type="text" name="i_recurrent_first" class="admin_form_txt kurs_form_txt_short"
                                placeholder="Стоимость первого платежа" id="recurrent-first"
-                               value="<?php if (!empty($course['recur_first'])) : echo $course['recur_first']; endif;?>" />
+                               value="<?php if (!empty($course['db_recur_first'])) : echo $course['db_recur_first']; endif;?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
                     <div class="parent kurs_cur_wrap">
                         <div class="kurs_block_h">Последующие платежи:</div>
                         <input type="text" name="i_subsequent_payments" class="admin_form_txt kurs_form_txt_short"
                                placeholder="Стоимость последующих платежей" id="recurrent-subsequent" disabled="disabled"
-                               value="<?php if (!empty($course['recur_subsequent'])) : echo $course['recur_subsequent']; endif;?>" />
+                               value="<?php if (!empty($course['db_recur_subsequent'])) : echo $course['db_recur_subsequent']; endif;?>" />
                         <div class="kurs_cur">Руб.</div>
                     </div>
                 </div>
