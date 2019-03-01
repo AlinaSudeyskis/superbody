@@ -63,8 +63,6 @@ class Payment_model extends CI_Model
     {
         $result = false;
 
-        log_message('debug', __METHOD__.':'.__LINE__);
-
         $sel_payment = $this->db->query('
             SELECT `op_status`, `op_paid`, `op_created_at`, `op_captured_at`, `op_expires_at`, `op_payment_method_id`,
                 `op_payment_method_saved`
@@ -74,7 +72,6 @@ class Payment_model extends CI_Model
         if($sel_payment !== false and 1 == $sel_payment->num_rows())
         {
             $row = $sel_payment->row();
-            log_message('debug', 'Select payment:'.print_r($row, true));
 
             $created_at  = (!empty($payment_created_at) and $payment_created_at != $row->op_created_at)
                 ? $payment_created_at : $row->op_created_at;
@@ -93,7 +90,6 @@ class Payment_model extends CI_Model
 
             if ($up_data !== false and 1 == $this->db->affected_rows())
             {
-                log_message('debug', ' Update payment: true');
                 $result = true;
             }
             elseif ($up_data === false)

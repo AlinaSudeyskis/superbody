@@ -271,11 +271,12 @@ $(document).ready(function() {
         var kurs_time_in = $(this).parents("form").find("input.kurs_time_in").val(),
             kurs_length_in = $(this).parents("form").find("select.kurs_length_in").val(),
             kurs_length_out = $(this).parents("form").find(".practice_block").length,
+            kurs_length_weeks = $(this).parents("form").find(".practice_weeks").length,
             active_practice_block = $('.practice_day.active').attr('id'),
             video_list = $(".form_video_list").html(),
             index, rez, html_table = '', html = '', option, num,
             i = 1, tr_week = 1, tr_day = 1,
-            block_id, active_class = "";
+            block_id, active_class = "", a;
 
         if($(this).parents("form").hasClass("edit_kurs_form")){
             index = "e";
@@ -284,7 +285,7 @@ $(document).ready(function() {
         } else{
             index = "o";
         }
-        if(kurs_time_in !== 0 && kurs_length_in !== 0)
+        if(kurs_time_in !== 0 && kurs_length_in !== 0 && kurs_length_weeks < 1)
         {
             rez = kurs_time_in * kurs_length_in;
             while (tr_week <= kurs_time_in) {
@@ -307,16 +308,46 @@ $(document).ready(function() {
             }
             $(".practice_block_table").html(html_table);
         }
+        else if(kurs_time_in !== 0 && kurs_length_in !== 0 && kurs_length_weeks >= 1)
+        {
+            rez = kurs_time_in - kurs_length_weeks;
+            if(rez>0){
+                tr_week = kurs_length_weeks + 1;
+                i = kurs_length_weeks * kurs_length_in + 1;
+                while (tr_week <= kurs_time_in)
+                {
+                    html_table = html_table + '<div class="practice_weeks"><div class="practice_week"><span>Неделя</span> '+tr_week+'</div>' +
+                        '<div class="practice_days">';
+                    tr_day = 1;
+                    while(tr_day <= kurs_length_in)
+                    {
+                        html_table = html_table + '<div class="practice_day" id="practice'+i+'">Т '+tr_day+'</div>';
+                        tr_day++;
+                        i++;
+                    }
+                    html_table = html_table + '</div></div>';
+                    tr_week++;
+                }
+                $(".practice_block_table").append(html_table);
+            }
+            else if(rez<0){
+                i = 0;
+                while (i > rez) {
+                    $(this).parents("form").find(".practice_weeks:nth-of-type("+(kurs_length_weeks + i)+")").remove();
+                    i--;
+                }
+            }
+        }
 
         if(kurs_time_in !== 0 && kurs_length_in !== 0 && kurs_length_out < 1){
             rez = kurs_time_in * kurs_length_in;
             i = 1;
-            html = '<div class="practice_block" id="practice'+i+'_block"><div class="practice_block_h">Тренировка №'+i+'</div><div class="add_tov_in_total"><div class="add_tov_in video"><input type="text" name="name_video['+i+']" class="admin_form_txt admin_form_txt_short" placeholder="Введите наименование или ID видео"><div class="add_tov_list">'+video_list+'</div></div><div class="add_tov_val"></div><input type="hidden" name="id_video['+i+']" value="" id="id-video'+i+'"/></div><textarea name="ta_workout_desc['+i+']" class="tov_form_textarea" placeholder="Введите описание тренировки"></textarea></div>';
-            option = '<option>Тренировка №'+i+'</option>';
+            html = '<div class="practice_block" id="practice'+i+'_block"><div class="practice_block_h">Тренировка №'+i+'</div><div class="add_tov_in_total"><div class="add_tov_in video"><input type="text" name="name_video['+i+']" class="admin_form_txt" placeholder="Введите наименование или ID видео"><div class="add_tov_list">'+video_list+'</div></div><div class="add_tov_val"></div><input type="hidden" name="id_video['+i+']" value="" id="id-video'+i+'"/></div><textarea name="ta_workout_desc['+i+']" class="tov_form_textarea" placeholder="Введите описание тренировки"></textarea></div>';
+            option = '<option value="'+i+'">Тренировка №'+i+'</option>';
             while (i < rez) {
                 i++;
-                html = html + '<div class="practice_block" id="practice'+i+'_block"><div class="practice_block_h">Тренировка №'+i+'</div><div class="add_tov_in_total"><div class="add_tov_in video"><input type="text" name="name_video['+i+']" class="admin_form_txt admin_form_txt_short" placeholder="Введите наименование или ID видео"><div class="add_tov_list">'+video_list+'</div></div><div class="add_tov_val"></div><input type="hidden" name="id_video['+i+']" value="" id="id-video'+i+'"/></div><textarea name="ta_workout_desc['+i+']" class="tov_form_textarea" placeholder="Введите описание тренировки"></textarea><div class="tren_repeat_total"><div class="tren_form_block_check_wrap"><input type="checkbox" name="cb_repeat_workout['+i+']" class="tren_form_block_check" id="tren_form_block_check'+i+index+'"><label for="tren_form_block_check'+i+index+'">Повтор тренировок</label></div><select name="s_repeat_workout['+i+']" class="journal_form_select">'+option+'</select></div></div>';
-                option = option + '<option>Тренировка №'+i+'</option>';
+                html = html + '<div class="practice_block" id="practice'+i+'_block"><div class="practice_block_h">Тренировка №'+i+'</div><div class="add_tov_in_total"><div class="add_tov_in video"><input type="text" name="name_video['+i+']" class="admin_form_txt" placeholder="Введите наименование или ID видео"><div class="add_tov_list">'+video_list+'</div></div><div class="add_tov_val"></div><input type="hidden" name="id_video['+i+']" value="" id="id-video'+i+'"/></div><textarea name="ta_workout_desc['+i+']" class="tov_form_textarea" placeholder="Введите описание тренировки"></textarea><div class="tren_repeat_total"><div class="tren_form_block_check_wrap"><input type="checkbox" name="cb_repeat_workout['+i+']" class="tren_form_block_check" id="tren_form_block_check'+i+index+'"><label for="tren_form_block_check'+i+index+'">Повтор тренировок</label></div><select name="s_repeat_workout['+i+']" class="journal_form_select">'+option+'</select></div></div>';
+                option = option + '<option value="'+i+'">Тренировка №'+i+'</option>';
             }
             $(this).parents("form").find(".practice_block_wrap").html(html);
             $(this).parents("form").find(".practice_block_wrap").find(".journal_form_select").styler();
@@ -331,12 +362,12 @@ $(document).ready(function() {
                 html = '';
                 option = '';
                 while (a <= kurs_length_out) {
-                    option = option + '<option>Тренировка №'+a+'</option>';
+                    option = option + '<option value="'+a+'">Тренировка №'+a+'</option>';
                     a++;
                 }
                 while (i < rez) {
-                    html = html + '<div class="practice_block" id="practice'+num+'_block"><div class="practice_block_h">Тренировка №'+num+'</div><div class="add_tov_in_total"><div class="add_tov_in video"><input type="text" name="name_video['+num+']" class="admin_form_txt admin_form_txt_short" placeholder="Введите наименование или ID видео"><div class="add_tov_list">'+video_list+'</div></div><div class="add_tov_val"></div><input type="hidden" name="id_video['+num+']" value="" id="id-video'+num+'"/></div><textarea name="ta_workout_desc['+num+']" class="tov_form_textarea" placeholder="Введите описание тренировки"></textarea><div class="tren_repeat_total"><div class="tren_form_block_check_wrap"><input type="checkbox" name="cb_repeat_workout['+num+']" class="tren_form_block_check" id="tren_form_block_check'+num+index+'"><label for="tren_form_block_check'+num+index+'">Повтор тренировок</label></div><select name="s_repeat_workout['+num+']" class="journal_form_select">'+option+'</select></div></div>';
-                    option = option + '<option>Тренировка №'+num+'</option>';
+                    html = html + '<div class="practice_block" id="practice'+num+'_block"><div class="practice_block_h">Тренировка №'+num+'</div><div class="add_tov_in_total"><div class="add_tov_in video"><input type="text" name="name_video['+num+']" class="admin_form_txt" placeholder="Введите наименование или ID видео"><div class="add_tov_list">'+video_list+'</div></div><div class="add_tov_val"></div><input type="hidden" name="id_video['+num+']" value="" id="id-video'+num+'"/></div><textarea name="ta_workout_desc['+num+']" class="tov_form_textarea" placeholder="Введите описание тренировки"></textarea><div class="tren_repeat_total"><div class="tren_form_block_check_wrap"><input type="checkbox" name="cb_repeat_workout['+num+']" class="tren_form_block_check" id="tren_form_block_check'+num+index+'"><label for="tren_form_block_check'+num+index+'">Повтор тренировок</label></div><select name="s_repeat_workout['+num+']" class="journal_form_select">'+option+'</select></div></div>';
+                    option = option + '<option value="'+num+'">Тренировка №'+num+'</option>';
                     i++;
                     num++;
                 }
@@ -350,6 +381,27 @@ $(document).ready(function() {
                     i--;
                 }
             }
+        }
+    });
+    $(".practice_block_wrap").on('click', '.tren_form_block_check', function()
+    {
+        var practice_block_id = $(this).val();
+
+        if($(this).is(':checked'))
+        {
+            $(".journal_form_select option[value='"+practice_block_id+"']").hide();
+            $(".jq-selectbox__dropdown").each(function(){
+                var ul = $(this).find('ul');
+                ul.find('li:contains("Тренировка №'+practice_block_id+'")').hide();
+            });
+        }
+        else
+        {
+            $(".journal_form_select option[value='"+practice_block_id+"']").show();
+            $(".jq-selectbox__dropdown").each(function(){
+                var ul = $(this).find('ul');
+                ul.find('li:contains("Тренировка №'+practice_block_id+'")').show();
+            });
         }
     });
 

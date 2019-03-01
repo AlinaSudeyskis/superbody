@@ -98,7 +98,8 @@ audio, canvas, progress, video{
 .sing-in.page_form{
     width: 100%;
     max-width: 620px;
-    background: rgba(114,208,244,.61);
+    /*background: rgba(114,208,244,.61);*/
+    background: #00bff0;
     color: #fff;
     padding: 10px 0;
     border-bottom: 4px solid #72d0f4;
@@ -1038,6 +1039,9 @@ div.info{
     padding-top: 22px;
     overflow: hidden;
 }
+.content_block_val.chart_wrap{
+    padding: 22px 0;
+}
 #legend{
     position: absolute;
     width: 100%;
@@ -1400,7 +1404,7 @@ tr:first-child > td > .fc-day-grid-event{
     border: 1px solid #39bff0;
     font-size: 12px;
     padding: 0 12px;
-    text-transform: uppercase;
+    /*text-transform: uppercase;*/
 }
 .subscribe_form_in:first-child{
     margin-right: 10px;
@@ -7015,6 +7019,12 @@ textarea.journal_post_comm_in{
 
 /* Анкета */
 
+.progress_form .anketa_form{
+    /*float: left;
+    width: 320px;*/
+    margin-top: 50px;
+}
+
 .anketa_block_item:nth-of-type(2),
 .anketa_block_item:nth-of-type(3),
 .anketa_block_item:nth-of-type(4){
@@ -7041,6 +7051,9 @@ textarea.journal_post_comm_in{
     min-width: 42px;
     max-width: 180px;
 }
+/*.progress_form .anketa_form_h {
+    max-width: 140px;
+}*/
 .anketa_form_h_cell{
 	display: table-cell;
 	height: 35px;
@@ -7070,6 +7083,9 @@ textarea.journal_post_comm_in{
 	border: none;
 	background: #f3f3f3;
 }
+/*.progress_form .anketa_form_in{*/
+    /*width: 100px;*/
+/*}*/
 span.anketa_form_in{
     background: none;
 }
@@ -7145,6 +7161,11 @@ h3.tip{
 	padding-top: 10px;
 	padding-bottom: 40px;
 }
+/*.progress_form .anketa_form_buts_wrap{
+	padding: 0;
+    width: 50%;
+    margin: 0 auto;
+}*/
 .user_meal_form .anketa_form_buts_wrap{
     margin: 0 auto;
     width: 120px;
@@ -8902,6 +8923,7 @@ textarea.anketa_form_in{
     padding: 30px; /*30px 100px*/
     max-width: 930px;
     margin: 0 auto;
+    /*overflow: hidden;*/
 }
 .purchase_form .video_admin_form{
     padding: 0;
@@ -11084,7 +11106,10 @@ input.tren_form_block_check{
         padding: 0 15px;
     }
     .amChartsPeriodSelector>div{
-        float: left !important;
+        /*float: left !important;*/
+        float: unset !important;
+        width: 200px;
+        margin: 0 auto;
     }
     .prezent_r{
         padding-top: 30px;

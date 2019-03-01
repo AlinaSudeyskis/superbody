@@ -1693,6 +1693,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-02-07 19:30:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `anthropometric` CHANGE `user_date_add` `user_date_add` DATE NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

@@ -871,23 +871,26 @@ class User_model extends CI_Model
     public function getUserTrainingTime($user_id)
     {
         // Массив возвращаемых значений
-        $result = array ();
+        $result = array();
 
-        $sel_data = $this->db->query('
-            SELECT `user_training_time_from`, `user_training_time_to`
-            FROM `questionnaire` 
-            WHERE `user_id`=? LIMIT 1', $user_id);
+        if(is_numeric($user_id))
+        {
+            $sel_data = $this->db->query('
+                SELECT `user_training_time_from`, `user_training_time_to`
+                FROM `questionnaire` 
+                WHERE `user_id`=? LIMIT 1', $user_id);
 
-        if ($sel_data !== false and 1 == $sel_data->num_rows())
-        {
-            $row = $sel_data->row();
-            
-            $result['from'] = $row->user_training_time_from;
-            $result['to']   = $row->user_training_time_to;
-        }
-        elseif ($sel_data === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            if ($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
+
+                $result['from'] = $row->user_training_time_from;
+                $result['to']   = $row->user_training_time_to;
+            }
+            elseif ($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
         
         return $result;
@@ -904,7 +907,9 @@ class User_model extends CI_Model
         // Массив возвращаемых значений
         $result = array ('user_anthrop_data' => array());
 
-        $sel_anth_data = $this->db->query('
+        if(is_numeric($user_id))
+        {
+            $sel_anth_data = $this->db->query('
             SELECT `user_weight`, `user_circumference_chest`, `user_circumference_waist`, `user_circumference_buttocks`, 
                 `user_circumference_waist_sides`, `user_circumference_right_hip`, `user_circumference_left_hip`, 
                 `user_circumference_right_biceps`, `user_circumference_left_biceps`
@@ -913,23 +918,24 @@ class User_model extends CI_Model
             ORDER BY `id` DESC
             LIMIT 1', $user_id);
 
-        if ($sel_anth_data !== false and 1 == $sel_anth_data->num_rows())
-        {
-            $row = $sel_anth_data->row();
+            if ($sel_anth_data !== false and 1 == $sel_anth_data->num_rows())
+            {
+                $row = $sel_anth_data->row();
 
-            $result['user_anthrop_data']['user_weight']       = $row->user_weight;
-            $result['user_anthrop_data']['user_chest']        = $row->user_circumference_chest;
-            $result['user_anthrop_data']['user_waist']        = $row->user_circumference_waist;
-            $result['user_anthrop_data']['user_buttocks']     = $row->user_circumference_buttocks;
-            $result['user_anthrop_data']['user_waist_sides']  = $row->user_circumference_waist_sides;
-            $result['user_anthrop_data']['user_right_hip']    = $row->user_circumference_right_hip;
-            $result['user_anthrop_data']['user_left_hip']     = $row->user_circumference_left_hip;
-            $result['user_anthrop_data']['user_right_biceps'] = $row->user_circumference_right_biceps;
-            $result['user_anthrop_data']['user_left_biceps']  = $row->user_circumference_left_biceps;
-        }
-        elseif ($sel_anth_data === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                $result['user_anthrop_data']['user_weight']       = $row->user_weight;
+                $result['user_anthrop_data']['user_chest']        = $row->user_circumference_chest;
+                $result['user_anthrop_data']['user_waist']        = $row->user_circumference_waist;
+                $result['user_anthrop_data']['user_buttocks']     = $row->user_circumference_buttocks;
+                $result['user_anthrop_data']['user_waist_sides']  = $row->user_circumference_waist_sides;
+                $result['user_anthrop_data']['user_right_hip']    = $row->user_circumference_right_hip;
+                $result['user_anthrop_data']['user_left_hip']     = $row->user_circumference_left_hip;
+                $result['user_anthrop_data']['user_right_biceps'] = $row->user_circumference_right_biceps;
+                $result['user_anthrop_data']['user_left_biceps']  = $row->user_circumference_left_biceps;
+            }
+            elseif ($sel_anth_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
         
         return $result;
@@ -951,7 +957,8 @@ class User_model extends CI_Model
         $sel_anth_data = $this->db->query('
             SELECT `user_weight`, `user_circumference_chest`, `user_circumference_waist`, `user_circumference_buttocks`, `user_date_add`
             FROM `anthropometric` 
-            WHERE `user_id`=?', $user_id);
+            WHERE `user_id`=?
+            ORDER BY `user_date_add` ASC', $user_id);
 
         if ($sel_anth_data !== false and 0 < $sel_anth_data->num_rows())
         {
@@ -988,7 +995,7 @@ class User_model extends CI_Model
                 $result['anthropometric'][$i]['chest']    = $chest;
                 $result['anthropometric'][$i]['waist']    = $waist;
                 $result['anthropometric'][$i]['buttocks'] = $buttocks;
-                $result['anthropometric'][$i]['date'] = $date;
+                $result['anthropometric'][$i]['date']     = $date;
 
                 if ($min == 0 or ($date < $min)) {
                     $min = $date;
@@ -1020,20 +1027,20 @@ class User_model extends CI_Model
             }
             unset($row);
 
-            $min_date = DateTime::createFromFormat('Y-m-d H:i:s', $min);
-            $min_date->sub(new DateInterval('P5D'));
-            $max_date = DateTime::createFromFormat('Y-m-d H:i:s', $max);
-            $max_date->add(new DateInterval('P5D'));
+            $min_date = DateTime::createFromFormat('Y-m-d', $min);
+            $min_date = ($min_date !== false) ? $min_date->sub(new DateInterval('P5D')) : '';
+            $max_date = DateTime::createFromFormat('Y-m-d', $max);
+            $max_date = ($max_date !== false) ? $max_date->add(new DateInterval('P5D')) : '';
 
-            $result['min'] = $min_date->format('Y-m-d H:i:s');
-            $result['max'] = $max_date->format('Y-m-d H:i:s');
+            $result['min'] = (!empty($min_date)) ? $min_date->format('Y-m-d') : '';
+            $result['max'] = (!empty($max_date)) ? $max_date->format('Y-m-d') : '';
 
             if(!empty($today))
             {
                 // Уведомление пользователю если последний ввод данных был более 2х недель назад
                 $tmp_date = new DateTime($today);
                 $tmp_date->sub(new DateInterval('P14D'));
-                if($result['max'] < $tmp_date->format('Y-m-d H:i:s'))
+                if($result['max'] < $tmp_date->format('Y-m-d'))
                 {
                     $result['anthrop_notif'] = true;
                 }
@@ -1060,6 +1067,8 @@ class User_model extends CI_Model
      */
     public function setPhysicalParam($user_id, $gender, $birthday, $height, $weight, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
             UPDATE `questionnaire` 
             SET `user_gender`=?, `user_birthday`=?, `user_height`=?, `user_date_update`=?
@@ -1068,6 +1077,8 @@ class User_model extends CI_Model
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
+            $result = true;
+
             $sel_last_anthrop = $this->db->query('
                 SELECT `user_weight`, `user_circumference_chest`, `user_circumference_waist`, `user_circumference_buttocks`, 
                 `user_circumference_waist_sides`, `user_circumference_right_hip`, `user_circumference_left_hip`, 
@@ -1083,21 +1094,20 @@ class User_model extends CI_Model
 
                 if ($db_weight != $weight)
                 {
-                    $ins_data = $this->db->query('
-                        INSERT INTO `anthropometric` (`user_id`, `user_weight`, `user_circumference_chest`, `user_circumference_waist`, 
-                        `user_circumference_buttocks`, `user_circumference_waist_sides`, `user_circumference_right_hip`, 
-                        `user_circumference_left_hip`, `user_circumference_right_biceps`, `user_circumference_left_biceps`, 
-                        `user_date_add`)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        array($user_id, $weight, $row->user_circumference_chest, $row->user_circumference_waist,
-                            $row->user_circumference_buttocks, $row->user_circumference_waist_sides, $row->user_circumference_right_hip,
-                            $row->user_circumference_left_hip, $row->user_circumference_right_biceps,
-                            $row->user_circumference_left_biceps, $date));
+                    $chest = $row->user_circumference_chest;
+                    $waist = $row->user_circumference_waist;
+                    $buttocks = $row->user_circumference_buttocks;
+                    $waist_sides = $row->user_circumference_waist_sides;
+                    $left_hip = $row->user_circumference_left_hip;
+                    $right_hip = $row->user_circumference_right_hip;
+                    $left_biceps = $row->user_circumference_left_biceps;
+                    $right_biceps = $row->user_circumference_right_biceps;
 
-                    if($ins_data === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
+                    $tmp_date = new DateTime($date);
+                    $today = $tmp_date->format('Y-m-d');
+
+                    $result = self::setAnthropometricData($user_id, $weight, $chest, $waist, $buttocks, $waist_sides,
+                        $left_hip, $right_hip, $left_biceps, $right_biceps, $today);
                 }
 
                 unset($row);
@@ -1112,23 +1122,22 @@ class User_model extends CI_Model
                     INSERT INTO `anthropometric` (`user_id`, `user_weight`, `user_date_add`)
                     VALUES (?, ?, ?)',
                         array($user_id, $weight, $date));
-                if($ins_data === false)
+                if($ins_data !== false and 1 == $this->db->affected_rows())
+                {
+                    $result = true;
+                }
+                elseif($ins_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
-
-            return true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -1147,26 +1156,26 @@ class User_model extends CI_Model
     public function setPhysicalCondition($user_id, $physical_condition, $pulse, $sports_history, $injuries_diseases,
                                          $training_goal, $bad_habits, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
             UPDATE `questionnaire` 
             SET `user_physical_condition`=?, `user_pulse`=?, `user_sports_history`=?, `user_injuries_diseases`=?, 
                 `user_training_goal`=?, `user_bad_habits`=?, `user_date_update`=?
             WHERE `user_id`=? LIMIT 1',
-                array($physical_condition, $pulse, $sports_history, $injuries_diseases, $training_goal, $bad_habits, $date, $user_id));
+                array($physical_condition, $pulse, $sports_history, $injuries_diseases, $training_goal, $bad_habits,
+                    $date, $user_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -1258,28 +1267,56 @@ class User_model extends CI_Model
     public function setAnthropometricData($user_id, $weight, $chest, $waist, $buttocks, $waist_sides, $left_hip, $right_hip,
                                                $left_biceps, $right_biceps, $date)
     {
-        $up_data = $this->db->query('
-            INSERT INTO `anthropometric` (`user_id`, `user_weight`, `user_circumference_chest`, `user_circumference_waist`, 
-                `user_circumference_buttocks`, `user_circumference_waist_sides`, `user_circumference_left_hip`, 
-                `user_circumference_right_hip`, `user_circumference_left_biceps`, `user_circumference_right_biceps`, 
-                `user_date_add`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($user_id, $weight, $chest, $waist, $buttocks, $waist_sides, $left_hip, $right_hip, $left_biceps,
-                    $right_biceps, $date));
+        $result = false;
 
-        if ($up_data !== false and 1 == $this->db->affected_rows())
+        $sel_data = $this->db->query('SELECT `user_id` FROM `anthropometric` WHERE `user_id`=? and `user_date_add`=? LIMIT 1',
+            array($user_id, $date));
+        if($sel_data !== false and 1 == $sel_data->num_rows())
         {
-            return true;
+            $up_data = $this->db->query('
+                UPDATE `anthropometric` 
+                SET `user_weight`=?, `user_circumference_chest`=?, `user_circumference_waist`=?, 
+                    `user_circumference_buttocks`=?, `user_circumference_waist_sides`=?, `user_circumference_left_hip`=?, 
+                    `user_circumference_right_hip`=?, `user_circumference_left_biceps`=?, `user_circumference_right_biceps`=?
+                WHERE `user_id`=? and `user_date_add`=? LIMIT 1',
+                    array($weight, $chest, $waist, $buttocks, $waist_sides, $left_hip, $right_hip, $left_biceps,
+                        $right_biceps, $user_id, $date));
+
+            if ($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif ($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
-        elseif ($up_data === false)
+        elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
         else
         {
-            return false;
+            $ins_data = $this->db->query('
+                INSERT INTO `anthropometric` (`user_id`, `user_weight`, `user_circumference_chest`, `user_circumference_waist`, 
+                    `user_circumference_buttocks`, `user_circumference_waist_sides`, `user_circumference_left_hip`, 
+                    `user_circumference_right_hip`, `user_circumference_left_biceps`, `user_circumference_right_biceps`, 
+                    `user_date_add`) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                    array($user_id, $weight, $chest, $waist, $buttocks, $waist_sides, $left_hip, $right_hip, $left_biceps,
+                        $right_biceps, $date));
+
+            if ($ins_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif ($ins_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
+
+        return $result;
     }
 
     /**

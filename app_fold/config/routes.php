@@ -91,7 +91,7 @@ $route['profile']                             = 'User/profile';
 
 $route['settings']               = 'User/settings';
 $route['questionnaire']          = 'User/userQuestionnaire';
-$route['anthropometric']         = 'User/userAnthropometric';
+//$route['anthropometric']         = 'User/userAnthropometric';
 $route['registry/questionnaire'] = 'User/registrationQuestionnaire';
 $route['getAnthropometricData']  = 'User/getAnthropometricData';
 $route['calendar']               = 'Calendar/getUserCalendar';
@@ -101,6 +101,7 @@ $route['ordering']               = 'Store/ordering';
 $route['ordering/(:num)']        = 'Store/ordering/$1';
 $route['viewed/video']           = 'Course/viewedVideo';
 $route['show/video']             = 'Course/showVideo';
+$route['show/instruction']       = 'Course/showInstructionVideo';
 $route['showMeal']               = 'Course/showMeal';
 $route['showMeals']              = 'Course/showMeals';
 $route['selectMeal']             = 'Course/selectMeal';

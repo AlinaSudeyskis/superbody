@@ -3034,7 +3034,7 @@ class Course extends CI_Controller
         $video_id  = (is_numeric($video_id)) ? $video_id : '';
 
         $video    = $this->Course_model->getCourseVideoData($course_id, $video_id);
-        $courses  = $this->Course_model->getWorkoutCourses();
+        $courses  = $this->Course_model->getCourses('workout');
         $course   = $this->Course_model->getShortCourse($course_id);
         $schedule = $this->Course_model->getCourseSchedules($course_id);
         $result   = array_merge($video, $courses, $course, $schedule);
@@ -8152,15 +8152,21 @@ class Course extends CI_Controller
         $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
         $today = $date !== false ? $date->format('Y-m-d') : null;
         
-        if (!empty($workout_id) and !empty($this->user_id)) {
+        if (!empty($workout_id) and !empty($this->user_id))
+        {
             $result = $this->Course_model->setWorkoutDone($this->user_id, $workout_id, $today);
             
-            if ($result === true) {
+            if ($result === true)
+            {
                 echo "true";
-            } else {
+            }
+            else
+            {
                 echo "false";
             }
-        } else {
+        }
+        else
+        {
             echo "false";
         }
     }
@@ -8215,6 +8221,72 @@ class Course extends CI_Controller
                         "i_a" => $workout_instruction_a,
                         "i_video" => $workout_instruction,
                         "i_player" => $i_player
+                    );
+
+                    echo json_encode($display_result, JSON_NUMERIC_CHECK);
+                }
+                else
+                {
+                    $display_result['error'] = 'Video data error';
+                    echo json_encode($display_result, JSON_NUMERIC_CHECK);
+                }
+            }
+            else
+            {
+                $display_result['error'] = 'User course data error';
+                echo json_encode($display_result, JSON_NUMERIC_CHECK);
+            }
+        }
+        else
+        {
+            $display_result['error'] = 'Video ID empty';
+            echo json_encode($display_result, JSON_NUMERIC_CHECK);
+        }
+    }
+
+    /**
+     * AJAX Отображение видео тренировки поверх календаря
+     *
+     * @return void
+     */
+    public function showInstructionVideo()
+    {
+        $video_id   = is_numeric($this->input->post('start_param', true)) ? $this->input->post('start_param', true) : null;
+        $workout_id = is_numeric($this->input->post('end_param', true)) ? $this->input->post('end_param', true) : null;
+
+        if (!empty($video_id))
+        {
+            // Проверка соответствия номера видео тренировке, курсу и пользователя
+            $result = $this->Course_model->matchWorkoutInstructionVideo($this->user_id, $workout_id, $video_id);
+
+            if ($result !== false)
+            {
+                // Данные видео
+                $video_data = $this->Course_model->getVideo($video_id);
+
+                if ($video_data !== false)
+                {
+                    $workout_done = '';
+                    $workout_description = '';
+                    $workout_video = '';
+                    $v_player = '';
+                    $workout_instruction_a = '';
+                    $workout_instruction = '';
+                    $i_player = '';
+
+                    $v_remove_url = $video_data['video']['remove_url'];
+                    $v_poster = $video_data["video"]["poster"];
+                    $v_video = $video_data["video"]["video"];
+                    $w_done = $result['workout']['done'];
+                    $w_description = $result['workout']['description'];
+
+                    include_once('./app_fold/views/video/player/video_player.php');
+
+                    $display_result = array(
+                        "done" => $workout_done,
+                        "description" => $workout_description,
+                        "video" => $workout_video,
+                        "player" => $v_player
                     );
 
                     echo json_encode($display_result, JSON_NUMERIC_CHECK);

@@ -20,6 +20,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <ul class="anketa_block_nav parent">
                             <li><span class="anketa_active">Настройки</span></li>
                             <li><span>Личные данные</span></li>
+                            <li><span>Соц. сети</span></li>
                         </ul>
                         <div class="anketa_block_cont">
                             <div class="anketa_block_item">
@@ -34,12 +35,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <form action="" class="anketa_form" method="post">
                                         <?php include_once('./app_fold/views/user/settings/settings_bg_item.php');?>
                                         <?php include_once('./app_fold/views/couch/settings/couch_data_item.php');?>
-                                        <div class="anketa_form_buts_wrap parent">
-                                            <!--<input type="reset" value="Отмена" class="anketa_form_reset">-->
-                                            <input type="submit" name="bt_save_data" value="Сохранить" class="anketa_form_but">
+                                        <div class="anketa_form_line parent">
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
+                                        </div>
+                                        <div class="anketa_form_line parent">
+                                            <div class="video_admin_form_buts parent">
+                                                <input type="submit" name="bt_save_data" value="Сохранить" class="video_admin_form_send">
+                                            </div>
                                         </div>
                                     </form>
                                 </div>
+                            </div>
+                            <div class="anketa_block_item">
+                                <div class="anketa_block_item_h">Привязать соц. сети к аккаунту</div>
+                                <?php include_once('./app_fold/views/user/settings/settings_soc_item.php');?>
                             </div>
                         </div>
                     </div>

@@ -60,10 +60,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php else: ?>
                         color: '<?php echo $event['color']; ?>'
                     <?php endif; ?>
-                }<?php if ($last_element != $key) :?>,<?php endif;
-                endforeach;
+                }<?php if ($last_element != $key) :?>,<?php endif; ?>
+                <?php if($event['missed'] == 'not_missed'): // and !empty($event['instruction_id'])?>
+                {
+                    start      : '<?php echo $event['start'];?>',
+                    end        : '<?php echo $event['end'];?>',
+                    constraint : 'instruction',
+                    title      : 'Инструктаж',
+                    startParam : '<?php echo $event['instruction_id']; ?>',
+                    endParam   : '<?php echo $event['workout_id']; ?>',
+                    color      : 'rgba(187, 187, 187, .7)'
+                }<?php if ($last_element != $key) :?>,<?php endif; ?>
+                <?php endif; ?>
+                <?php endforeach;
                 endif;?>
-
             ],
             eventClick: function(calEvent, jsEvent, view) {
                 if (calEvent.constraint == "workout" && calEvent.startParam != "")
@@ -76,14 +86,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             start_param: calEvent.startParam,
                             end_param: calEvent.endParam
                         },
-                        complete: function (result) {
+                        complete: function (result)
+                        {
                             var data = jQuery.parseJSON(result.responseText);
-                            if (!data.error) {
+                            if (!data.error)
+                            {
                                 $("#pop-up_video").html(data.video);
                                 $("#pop-up_video").append(data.i_video);
-                                $("#pop-up_video").append(data.i_a);
+                                //$("#pop-up_video").append(data.i_a);
                                 $("#pop-up_video").append(data.description);
-                                $("#pop-up_video").append(data.done);
+                                //$("#pop-up_video").append(data.done);
                                 if(getInternetExplorerVersion()==-1) {
                                     if (data.player == 1) {
                                         $("#myvid").each(function () {
@@ -158,8 +170,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                                 }
                                 pop_up_home($("#pop-up_video"));
+                                $.ajax({
+                                    url: '/viewed/video',
+                                    type: 'post',
+                                    data: {
+                                        woid: calEvent.endParam
+                                    },
+                                    complete: function(result){
+                                        if (result.responseText == 'true')
+                                        {
+                                             calEvent.backgroundColor = 'rgba(159, 220, 39, .7)';
+                                             $('#calendar').fullCalendar('updateEvent', calEvent);
+                                        }
+                                    }
+                                });
 
-                                $('#bt-workout-done').on('click', function(){
+                                /*$('#bt-workout-done').on('click', function()
+                                {
                                     $.ajax({
                                         url: '/viewed/video',
                                         type: 'post',
@@ -172,7 +199,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             }
                                         }
                                     });
-                                });
+                                });*/
                             }
                         }
                     });
@@ -327,6 +354,117 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     popup.fadeOut(600);
                                 });
                             });
+                        }
+                    });
+                }
+                else if(calEvent.constraint == "instruction")
+                {
+                    $.ajax({
+                        url: '/show/instruction',
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            start_param: calEvent.startParam,
+                            end_param: calEvent.endParam
+                        },
+                        complete: function (result) {
+                            var data = jQuery.parseJSON(result.responseText);
+                            if (!data.error) {
+                                $("#pop-up_video").html(data.video);
+                                $("#pop-up_video").append(data.i_video);
+                                //$("#pop-up_video").append(data.i_a);
+                                $("#pop-up_video").append(data.description);
+                                //$("#pop-up_video").append(data.done);
+                                if(getInternetExplorerVersion()==-1) {
+                                    if (data.player == 1) {
+                                        $("#myvid").each(function () {
+                                            new InitPxVideo({
+                                                "videoId": this,
+                                                "captionsOnDefault": false,
+                                                "seekInterval": 20,
+                                                "videoTitle": "Promo",
+                                                "debug": true,
+                                                "woid": $("#wo-id").val()
+                                            });
+                                        });
+                                    }
+                                    var options = {
+                                            width: 640,
+                                            loop: false
+                                        },
+                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+
+                                    if ($('#vimeo-player-1').length == 1)
+                                    {
+                                        if (data.i_player == 1) {
+                                            $("#ivid").each(function () {
+                                                new InitPxVideo({
+                                                    "videoId": this,
+                                                    "captionsOnDefault": false,
+                                                    "seekInterval": 20,
+                                                    "videoTitle": "Promo",
+                                                    "debug": true,
+                                                    "woid": $("#wo-id").val()
+                                                });
+                                            });
+                                        }
+                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
+                                    }
+
+                                    playerTwoPlayer.ready().then(function() {
+                                        console.log('Ready');
+
+                                        playerTwoPlayer.on('play', function(data){
+                                            console.log('Play ' + data);
+
+                                            playerTwoPlayer.getCurrentTime().then(function(seconds) {
+                                                console.log('Current time (seconds): ' + seconds);
+                                            }).catch(function(error) {
+                                                console.log('Current time error: ' + error);
+                                            });
+
+                                        });
+                                        playerTwoPlayer.on('pause', function(data){
+                                            console.log('Pause ' + data);
+                                        });
+                                        playerTwoPlayer.on('ended', function(data){
+                                            console.log('Video ended ' + data);
+                                        });
+
+                                        playerTwoPlayer.setCurrentTime(15.456).then(function(seconds) {
+                                            // seconds = the actual time that the player seeked to
+                                            console.log('Current time (seconds): ' + seconds);
+                                        }).catch(function(error) {
+                                            switch (error.name) {
+                                                case 'RangeError':
+                                                    // the time was less than 0 or greater than the video’s duration
+                                                    break;
+
+                                                default:
+                                                    // some other error occurred
+                                                    break;
+                                            }
+                                        });
+                                    });
+
+                                }
+                                pop_up_home($("#pop-up_video"));
+
+                                $('#bt-workout-done').on('click', function(){
+                                    $.ajax({
+                                        url: '/viewed/video',
+                                        type: 'post',
+                                        data: {
+                                            woid: calEvent.endParam
+                                        },
+                                        complete: function (result) {
+                                            if (result.responseText == 'true') {
+                                                $('#wo-done').html("<div id='wo-done'><div class='workout_form_but done'>Выполнено</div></div>");
+                                            }
+                                        }
+                                    });
+                                });
+                            }
                         }
                     });
                 }

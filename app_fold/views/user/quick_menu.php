@@ -38,7 +38,7 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col
         </div>
     <?php endif; ?>
     <div class="cat_item_wrap">
-        <a href="/anthropometric" class="cat_item">
+        <a href="/progress" class="cat_item">
             <div class="cat_img"><img src="/img/cat4.png" alt=""></div>
             <div class="cat_desk">Ввести параметры тела</div>
         </a>

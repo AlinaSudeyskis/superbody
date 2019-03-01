@@ -27,6 +27,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="anketa_block_item">
                                 <div class="anketa_block_item_h">Антропометрические данные</div>
                                 <div class="anketa_block_item_cont">
+                                    <?php $user_anthrop_data = $user_data['user_anthrop_data']; ?>
                                     <?php include_once('./app_fold/views/user/questionnaire/anthropometric_form.php');?>
                                 </div>
                             </div>
@@ -79,66 +80,66 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_block_item_cont">
                                     <form action="" class="anketa_form" method="post">
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Оценка физического состояния</div></div>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Оценка физического состояния:</div></div>
                                             <div class="anketa_form_one_wrap anketa_form_three_wrap">
                                                 <select name="physical_condition" class="anketa_form_select">
                                                     <option>Выберите уровень</option>
-                                                    <option value="0"
-                                                        <?php if (!empty($user_data['user_physical_condition']) and $user_data['user_physical_condition'] == 0) :?> selected="selected" <?php endif;?>>Хорошее</option>
                                                     <option value="1"
-                                                        <?php if (!empty($user_data['user_physical_condition']) and $user_data['user_physical_condition'] == 1) :?> selected="selected" <?php endif;?>>Среднее</option>
+                                                        <?php if (!empty($user_data['user_physical_condition']) and $user_data['user_physical_condition'] == 1) :?> selected="selected" <?php endif;?>>Хорошее</option>
                                                     <option value="2"
-                                                        <?php if (!empty($user_data['user_physical_condition']) and $user_data['user_physical_condition'] == 2) :?> selected="selected" <?php endif;?>>Плохое</option>
+                                                        <?php if (!empty($user_data['user_physical_condition']) and $user_data['user_physical_condition'] == 2) :?> selected="selected" <?php endif;?>>Среднее</option>
+                                                    <option value="3"
+                                                        <?php if (!empty($user_data['user_physical_condition']) and $user_data['user_physical_condition'] == 3) :?> selected="selected" <?php endif;?>>Плохое</option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Пульс в покое</div></div>
-                                            <input type="text"  name="pulse" value="<?php echo $user_data['user_pulse'];?>" class="anketa_form_in anketa_form_in_long" placeholder="60">
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Пульс в покое:</div></div>
+                                            <input type="text" name="pulse" value="<?php echo $user_data['user_pulse'];?>" class="anketa_form_in anketa_form_in_long" placeholder="Введите свой пульс">
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Цель занятий</div></div>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Цель занятий:</div></div>
                                             <div class="anketa_form_one_wrap anketa_form_three_wrap">
                                                 <select name="training_goal" class="anketa_form_select">
                                                     <option>Выберите цель</option>
                                                     <option value="1"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 1) :?> selected="selected" <?php endif;?>>Сбросить лишний вес</option>
-                                                    <option value="1"
+                                                    <option value="2"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 2) :?> selected="selected" <?php endif;?>>Набор мышечной массы</option>
-                                                    <option value="1"
+                                                    <option value="3"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 3) :?> selected="selected" <?php endif;?>>Общий тонус</option>
-                                                    <option value="1"
+                                                    <option value="4"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 4) :?> selected="selected" <?php endif;?>>Общее оздоровление</option>
-                                                    <option value="1"
+                                                    <option value="5"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 5) :?> selected="selected" <?php endif;?>>Развить выносливость</option>
-                                                    <option value="1"
+                                                    <option value="6"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 6) :?> selected="selected" <?php endif;?>>Развить силу</option>
-                                                    <option value="1"
+                                                    <option value="7"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 7) :?> selected="selected" <?php endif;?>>Развить гибкость</option>
-                                                    <option value="1"
+                                                    <option value="8"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 8) :?> selected="selected" <?php endif;?>>Укрепить сердце</option>
-                                                    <option value="1"
+                                                    <option value="9"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 9) :?> selected="selected" <?php endif;?>>Накачать ягодицы</option>
-                                                    <option value="1"
+                                                    <option value="10"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 10) :?> selected="selected" <?php endif;?>>Накачать пресс</option>
-                                                    <option value="1"
+                                                    <option value="11"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 11) :?> selected="selected" <?php endif;?>>Реабилитация после родов</option>
-                                                    <option value="1"
+                                                    <option value="12"
                                                         <?php if (!empty($user_data['user_training_goal']) and $user_data['user_training_goal'] == 12) :?> selected="selected" <?php endif;?>>Курс омоложения</option>
                                                 </select>
                                             </div>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">История тренировок или занятий спортом</div></div>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">История тренировок или занятий спортом:</div></div>
                                             <textarea name="sports_history" class="anketa_form_in anketa_form_in_long" placeholder="Введите историю"><?php if (!empty($user_data['user_sports_history'])) {echo $user_data['user_sports_history'];}?></textarea>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Перечень травм или заболеваний</div></div>
-                                            <textarea name="injuries_diseases" class="anketa_form_in anketa_form_in_long" placeholder="Введите перечень"><?php if (!empty($user_data['user_injuries_diseases'])) {echo $user_data['user_injuries_diseases'];}?></textarea>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Перечень травм или заболеваний:</div></div>
+                                            <textarea name="injuries_diseases" class="anketa_form_in anketa_form_in_long" placeholder="Введите перечень травм"><?php if (!empty($user_data['user_injuries_diseases'])) {echo $user_data['user_injuries_diseases'];}?></textarea>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Вредные привычки</div></div>
-                                            <textarea name="bad_habits" class="anketa_form_in anketa_form_in_long" placeholder="Введите привычки"><?php if (!empty($user_data['user_bad_habits'])) {echo $user_data['user_bad_habits'];}?></textarea>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Вредные привычки:</div></div>
+                                            <textarea name="bad_habits" class="anketa_form_in anketa_form_in_long" placeholder="Введите вредные привычки"><?php if (!empty($user_data['user_bad_habits'])) {echo $user_data['user_bad_habits'];}?></textarea>
                                         </div>
                                         <div class="anketa_form_buts_wrap parent">
                                             <!--<input type="reset" value="Отмена" class="anketa_form_reset">-->
@@ -152,51 +153,51 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_block_item_cont">
                                     <form action="" class="anketa_form" method="post">
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Время бодрствования</div></div>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Время бодрствования:</div></div>
                                             <div class="anketa_form_two_all parent">
                                                 <div class="anketa_form_two_wrap parent">
                                                     <div class="anketa_form_pre">c</div>
-                                                    <input type="text" name="waking_from" value="<?php echo $user_data['user_waking_from'];?>" class="anketa_form_in" placeholder="10:00"/>
+                                                    <input type="text" name="waking_from" value="<?php echo $user_data['user_waking_from'];?>" class="anketa_form_in time" placeholder="чч:мм" maxlength="5"/>
                                                 </div>
                                                 <div class="anketa_form_two_wrap parent">
                                                     <div class="anketa_form_pre">до</div>
-                                                    <input type="text" name="waking_to" value="<?php echo $user_data['user_waking_to'];?>" class="anketa_form_in" placeholder="10:00"/>
+                                                    <input type="text" name="waking_to" value="<?php echo $user_data['user_waking_to'];?>" class="anketa_form_in time" placeholder="чч:мм" maxlength="5"/>
                                                 </div>
                                             </div>
                                             <div class="anketa_form_desk">часов</div>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Предпочтительное время тренировки</div></div>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Предпочтительное время тренировки:</div></div>
                                             <div class="anketa_form_two_all parent">
                                                 <div class="anketa_form_two_wrap parent">
                                                     <div class="anketa_form_pre">c</div>
-                                                    <input type="text" name="training_time_from" value="<?php echo $user_data['user_training_time_from'];?>" class="anketa_form_in" placeholder="10:00"/>
+                                                    <input type="text" name="training_time_from" value="<?php echo $user_data['user_training_time_from'];?>" class="anketa_form_in time" placeholder="чч:мм" maxlength="5"/>
                                                 </div>
                                                 <div class="anketa_form_two_wrap parent">
                                                     <div class="anketa_form_pre">до</div>
-                                                    <input type="text" name="training_time_to" value="<?php echo $user_data['user_training_time_to'];?>" class="anketa_form_in" placeholder="10:00"/>
+                                                    <input type="text" name="training_time_to" value="<?php echo $user_data['user_training_time_to'];?>" class="anketa_form_in time" placeholder="чч:мм" maxlength="5"/>
                                                 </div>
                                             </div>
                                             <div class="anketa_form_desk">часов</div>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество основных приемов пищи</div></div>
-                                            <input type="text"  name="num_main_meals" value="<?php echo $user_data['user_num_main_meals']?>" class="anketa_form_in" placeholder="3"/>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество основных приемов пищи:</div></div>
+                                            <input type="text"  name="num_main_meals" value="<?php echo $user_data['user_num_main_meals']?>" class="anketa_form_in" placeholder=""/>
                                             <div class="anketa_form_desk">шт</div>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество перекусов</div></div>
-                                            <input type="text" name="num_snacks" value="<?php echo $user_data['user_num_snacks']?>" class="anketa_form_in" placeholder="2">
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество перекусов:</div></div>
+                                            <input type="text" name="num_snacks" value="<?php echo $user_data['user_num_snacks']?>" class="anketa_form_in" placeholder="">
                                             <div class="anketa_form_desk">шт</div>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество потребляемой воды</div></div>
-                                            <input type="text" name="amount_water_consumed" value="<?php echo $user_data['user_water_consumed']?>" class="anketa_form_in" placeholder="2"/>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество потребляемой воды:</div></div>
+                                            <input type="text" name="amount_water_consumed" value="<?php echo $user_data['user_water_consumed']?>" class="anketa_form_in" placeholder=""/>
                                             <div class="anketa_form_desk">л</div>
                                         </div>
                                         <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество потребляемой жидкости<span>суп, чай, кофе, соки</span></div></div>
-                                            <input type="text" name="amount_fluid_intake" value="<?php echo $user_data['user_fluid_intake']?>" class="anketa_form_in" placeholder="1"/>
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество потребляемой жидкости:<span>суп, чай, кофе, соки</span></div></div>
+                                            <input type="text" name="amount_fluid_intake" value="<?php echo $user_data['user_fluid_intake']?>" class="anketa_form_in" placeholder=""/>
                                             <div class="anketa_form_desk">л</div>
                                         </div>
                                         <div class="anketa_form_buts_wrap parent">

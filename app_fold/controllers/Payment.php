@@ -161,68 +161,94 @@ class Payment extends CI_Controller
         $payment_id           = strip_tags($this->input->get('pid', true));
         $payment_status       = strip_tags($this->input->get('ps', true));
         $payment_paid         = (strip_tags($this->input->get('pp', true)) == 'true') ? 1 : 0;
-        $created_at           = strip_tags($this->input->get('pcr', true));
-        $expires_at           = strip_tags($this->input->get('pe', true));
-        $captured_at          = strip_tags($this->input->get('pc', true));
         $payment_method_id    = strip_tags($this->input->get('pmid', true));
         $payment_method_saved = (strip_tags($this->input->get('pms', true)) == 'true') ? 1 : 0;
 
+        $pcr = $this->input->get('pcr', true);
+        $pc  = $this->input->get('pc', true);
+        $pe  = $this->input->get('pe', true);
 
-        // Обновление данных платежа
-        $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
-            $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
+        $created_at  = '';
+        $captured_at = '';
+        $expires_at  = '';
 
-        if ($payment_status == 'succeeded')
+        // Дата создания платежа
+        if(is_array($pcr) and !empty($pcr['date']))
         {
-            $this->load->model('Store_model');
-            $this->load->model('Course_model');
+            $tmp_date = new DateTime($pcr['date']);
+            $created_at = ($tmp_date !== false) ? $tmp_date->format('Y-m-d H:i:s') : '';
+        }
+        // Дата подверждения платежа
+        if(is_array($pc) and !empty($pc['date']))
+        {
+            $tmp_date = new DateTime($pc['date']);
+            $captured_at = ($tmp_date !== false) ? $tmp_date->format('Y-m-d H:i:s') : '';
+        }
+        // Дата окончания активности платежа
+        if(is_array($pe) and !empty($pe['date']))
+        {
+            $tmp_date = new DateTime($pe['date']);
+            $expires_at = ($tmp_date !== false) ? $tmp_date->format('Y-m-d H:i:s') : '';
+        }
 
-            $payment = $this->Payment_model->getOrderPayment($payment_id);
+        if(!empty($payment_id))
+        {
+            // Обновление данных платежа
+            $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
+                $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
 
-            // Выборка курса заказа по номеру платежа
-            $courses = $this->Store_model->getOrderCourses($payment_id);
-
-            if (!empty($courses['courses']))
+            if ($payment_status == 'succeeded')
             {
-                $user_id = $courses['user_id'];
+                $this->load->model('Store_model');
+                $this->load->model('Course_model');
 
-                // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
-                if (!empty($payment) and $payment['option'] == 'installments')
+                $payment = $this->Payment_model->getOrderPayment($payment_id);
+
+                // Выборка курса заказа по номеру платежа
+                $courses = $this->Store_model->getOrderCourses($payment_id);
+
+                if (!empty($courses['courses']))
                 {
-                    // Выборка рекуррентных данных
-                    $recurrent_data = $this->Course_model->getCourseRecurrentData($courses);
-                    //log_message('debug', __METHOD__ . __LINE__ . ' Course_model->getCourseRecurrentData: ' . print_r($recurrent_data, true));
+                    $user_id = $courses['user_id'];
 
-                    // Сохранение последующих платежей
-                    $this->Payment_model->setSubsequentPayments($payment['order_id'], self::PAYMENT_METHOD, $payment_method_id, $recurrent_data['courses'], $this->date);
-                }
-
-                // Прикрепление курса(ов) к пользователю
-                foreach($courses['courses'] as $course)
-                {
-                    $start_date = '';
-                    $end_date = '';
-                    $training_days = '';
-                    $user_couch = '';
-
-                    // Даты начала и окончания курса
-                    if($course['category'] == 'nutrition')
+                    // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
+                    if (!empty($payment) and $payment['option'] == 'installments')
                     {
-                        // Количество тренировок за курс
-                        $count_workouts = $course['count_weeks'] * $course['count_days'];
+                        // Выборка рекуррентных данных
+                        $recurrent_data = $this->Course_model->getCourseRecurrentData($courses);
+                        //log_message('debug', __METHOD__ . __LINE__ . ' Course_model->getCourseRecurrentData: ' . print_r($recurrent_data, true));
 
-                        $start_date = $this->date;
-
-                        $tmp_date = new DateTime($this->date);
-                        $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
-                        $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                        // Сохранение последующих платежей
+                        $this->Payment_model->setSubsequentPayments($payment['order_id'], self::PAYMENT_METHOD, $payment_method_id, $recurrent_data['courses'], $this->date);
                     }
 
-                    $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
-                }
+                    // Прикрепление курса(ов) к пользователю
+                    foreach($courses['courses'] as $course)
+                    {
+                        $start_date = '';
+                        $end_date = '';
+                        $training_days = '';
+                        $user_couch = '';
 
-                // Изменение статуса заказа как "Выполненный"
-                $this->Store_model->updateOrderStatus('', $payment_id, 1);
+                        // Даты начала и окончания курса
+                        if($course['category'] == 'nutrition')
+                        {
+                            // Количество тренировок за курс
+                            $count_workouts = $course['count_weeks'] * $course['count_days'];
+
+                            $start_date = $this->date;
+
+                            $tmp_date = new DateTime($this->date);
+                            $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
+                            $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                        }
+
+                        $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
+                    }
+
+                    // Изменение статуса заказа как "Выполненный"
+                    $this->Store_model->updateOrderStatus('', $payment_id, 1);
+                }
             }
         }
     }

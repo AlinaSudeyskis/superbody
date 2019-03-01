@@ -13,8 +13,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="footer_desk">ПОДПИШИТЕСЬ НА НОВОСТИ НАШЕГО ПОРТАЛА И БУДЬТЕ В КУРСЕ ВСЕХ СОБЫТИЙ</div>
                 <form action="/" id="subscribe_form" method="post">
                     <div class="subscribe_form_in_wrap">
-                        <input type="text" name="subscribe_email" class="subscribe_form_in valid_email" placeholder="Укажите email" required="required" maxlength="255" />
-                        <input type="text" name="subscribe_name" class="subscribe_form_in" placeholder="Ваше имя" required="required" maxlength="255" />
+                        <input type="text" name="subscribe_email" class="subscribe_form_in valid_email" placeholder="УКАЖИТЕ EMAIL" required="required" maxlength="255" />
+                        <input type="text" name="subscribe_name" class="subscribe_form_in" placeholder="ВАШЕ ИМЯ" required="required" maxlength="255" />
                         <div class="sing-in_h tren_form_block_check_wrap">
                             <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-2" required="required" />
                             <label for="cb-politics-2">согласие на

@@ -838,7 +838,87 @@ class User extends CI_Controller
         {
             parent::pageNotFound($this->page_url);
         }
-        $result = $this->User_model->getAnthropometricData($this->user_id, $this->date); // Антропометрические данные пользователя
+
+        // Получение данных анкеты из БД
+        $user_all_anthrop  = $this->User_model->getAnthropometricData($this->user_id, $this->date);
+        $user_last_anthrop = $this->User_model->getLastAnthropometricData($this->user_id);
+        $result = array_merge($user_all_anthrop, $user_last_anthrop);
+
+        if ($this->input->post('bt_save_anthrop', true))
+        {
+            // Антропометрические данные
+            // Вес
+            $weight = (is_numeric($this->input->post('weight', true))) ? $this->input->post('weight', true) : '';
+
+            // Расчет и сохранение ИМТ и БСО
+            parent::calcBmiBmr($this->user_id, $weight);
+
+            // Обхват груди
+            $chest = (is_numeric($this->input->post('chest', true))) ? $this->input->post('chest', true) : '';
+
+            // Обхват талии
+            $waist = (is_numeric($this->input->post('waist', true))) ? $this->input->post('waist', true) : '';
+
+            // Обхвать ягодиц
+            $buttocks = (is_numeric($this->input->post('buttocks', true))) ? $this->input->post('buttocks', true) : '';
+
+            // Обхвать боков
+            $waist_sides = (is_numeric($this->input->post('waist_sides', true))) ? $this->input->post('waist_sides', true) : '';
+
+            // Обхвать левого бедра
+            $left_hip = (is_numeric($this->input->post('left_hip', true))) ? $this->input->post('left_hip', true) : '';
+
+            // Обхвать правого бедра
+            $right_hip = (is_numeric($this->input->post('right_hip', true))) ? $this->input->post('right_hip', true) : '';
+
+            // Обхвать левого бицепса
+            $left_biceps = (is_numeric($this->input->post('left_biceps', true))) ? $this->input->post('left_biceps', true) : '';
+
+            // Обхвать правого бицепса
+            $right_biceps = (is_numeric($this->input->post('right_biceps', true))) ? $this->input->post('right_biceps', true) : '';
+
+            $tmp_date = new DateTime($this->date);
+            $today = $tmp_date->format('Y-m-d');
+
+            if(!empty($weight) and !empty($chest) and !empty($waist) and !empty($buttocks) and !empty($waist_sides)
+                and !empty($left_hip) and !empty($right_hip) and !empty($left_biceps) and !empty($right_biceps))
+            {
+                $result_anthrop = $this->User_model->setAnthropometricData($this->user_id, $weight, $chest, $waist, $buttocks,
+                    $waist_sides, $left_hip, $right_hip, $left_biceps, $right_biceps, $today);
+
+                //$this->session->set_userdata('type_questionnaire', 0);
+
+                if ($result_anthrop === false)
+                {
+                    // Не удалось сохранить
+                    $this->session->set_tempdata('message', 12, 60);
+                }
+                else
+                {
+                    $email = $this->session->user['email'];
+                    $email_hash = password_hash($email, PASSWORD_DEFAULT);
+                    // Отправление уведомления об измениях в данных
+
+                    $system_message['text']  = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
+                    $system_message['text'] .= '<p>Вес: ' . $weight . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
+
+                    parent::sendEmail(10, $email, $system_message);
+
+                    // Сохрано
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+            }
+
+            header('Location: /progress');
+        }
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Прогресс';
@@ -870,63 +950,73 @@ class User extends CI_Controller
         {
             // Антропометрические данные
             // Вес
-            $weight = is_numeric($this->input->post('weight', true)) ? $this->input->post('weight', true) : '';
+            $weight = (is_numeric($this->input->post('weight', true))) ? $this->input->post('weight', true) : '';
 
             // Расчет и сохранение ИМТ и БСО
             parent::calcBmiBmr($this->user_id, $weight);
 
             // Обхват груди
-            $chest = is_numeric($this->input->post('chest', true)) ? $this->input->post('chest', true) : '';
+            $chest = (is_numeric($this->input->post('chest', true))) ? $this->input->post('chest', true) : '';
 
             // Обхват талии
-            $waist = is_numeric($this->input->post('waist', true)) ? $this->input->post('waist', true) : '';
+            $waist = (is_numeric($this->input->post('waist', true))) ? $this->input->post('waist', true) : '';
 
             // Обхвать ягодиц
-            $buttocks = is_numeric($this->input->post('buttocks', true)) ? $this->input->post('buttocks', true) : '';
+            $buttocks = (is_numeric($this->input->post('buttocks', true))) ? $this->input->post('buttocks', true) : '';
 
             // Обхвать боков
-            $waist_sides = is_numeric($this->input->post('waist_sides', true)) ? $this->input->post('waist_sides', true) : '';
+            $waist_sides = (is_numeric($this->input->post('waist_sides', true))) ? $this->input->post('waist_sides', true) : '';
 
             // Обхвать левого бедра
-            $left_hip = is_numeric($this->input->post('left_hip', true)) ? $this->input->post('left_hip', true) : '';
+            $left_hip = (is_numeric($this->input->post('left_hip', true))) ? $this->input->post('left_hip', true) : '';
 
             // Обхвать правого бедра
-            $right_hip = is_numeric($this->input->post('right_hip', true)) ? $this->input->post('right_hip', true) : '';
+            $right_hip = (is_numeric($this->input->post('right_hip', true))) ? $this->input->post('right_hip', true) : '';
 
             // Обхвать левого бицепса
-            $left_biceps = is_numeric($this->input->post('left_biceps', true)) ? $this->input->post('left_biceps', true) : '';
+            $left_biceps = (is_numeric($this->input->post('left_biceps', true))) ? $this->input->post('left_biceps', true) : '';
 
             // Обхвать правого бицепса
-            $right_biceps = is_numeric($this->input->post('right_biceps', true)) ? $this->input->post('right_biceps', true) : '';
+            $right_biceps = (is_numeric($this->input->post('right_biceps', true))) ? $this->input->post('right_biceps', true) : '';
 
-            $result_anthrop = $this->User_model->setAnthropometricData($this->user_id, $weight, $chest, $waist, $buttocks,
-                $waist_sides, $left_hip, $right_hip, $left_biceps, $right_biceps, $this->date);
+            $tmp_date = new DateTime($this->date);
+            $today = $tmp_date->format('Y-m-d');
 
-            //$this->session->set_userdata('type_questionnaire', 0);
+            if(!empty($weight) and !empty($chest) and !empty($waist) and !empty($buttocks) and !empty($waist_sides)
+                and !empty($left_hip) and !empty($right_hip) and !empty($left_biceps) and !empty($right_biceps))
+            {
+                $result_anthrop = $this->User_model->setAnthropometricData($this->user_id, $weight, $chest, $waist, $buttocks,
+                    $waist_sides, $left_hip, $right_hip, $left_biceps, $right_biceps, $today);
 
-            if ($result_anthrop === false) {
-                // Не удалось сохранить
-                $this->session->set_tempdata('message', 12, 60);
-            } else {
-                $email = $this->session->user['email'];
-                $email_hash = password_hash($email, PASSWORD_DEFAULT);
-                // Отправление уведомления об измениях в данных
+                //$this->session->set_userdata('type_questionnaire', 0);
 
-                $system_message['text']  = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
-                $system_message['text'] .= '<p>Вес: ' . $weight . 'см</p> </br>';
-                $system_message['text'] .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
-                $system_message['text'] .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
-                $system_message['text'] .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
-                $system_message['text'] .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
-                $system_message['text'] .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
-                $system_message['text'] .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
-                $system_message['text'] .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
-                $system_message['text'] .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
+                if ($result_anthrop === false)
+                {
+                    // Не удалось сохранить
+                    $this->session->set_tempdata('message', 12, 60);
+                }
+                else
+                {
+                    $email = $this->session->user['email'];
+                    $email_hash = password_hash($email, PASSWORD_DEFAULT);
+                    // Отправление уведомления об измениях в данных
 
-                parent::sendEmail(10, $email, $system_message);
+                    $system_message['text']  = '<p>В Вашем аккаунте были изменены данные:</p> </br></br>';
+                    $system_message['text'] .= '<p>Вес: ' . $weight . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхват груди: ' . $chest . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхват талии: ' . $waist . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать ягодиц: ' . $buttocks . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать боков: ' . $waist_sides . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать левого бедра: ' . $left_hip . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать правого бедра: ' . $right_hip . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать левого бицепса: ' . $left_biceps . 'см</p> </br>';
+                    $system_message['text'] .= '<p>Обхвать правого бицепса: ' . $right_biceps . 'см</p> </br></br>';
 
-                // Сохрано
-                $this->session->set_tempdata('message', 10, 60);
+                    parent::sendEmail(10, $email, $system_message);
+
+                    // Сохрано
+                    $this->session->set_tempdata('message', 10, 60);
+                }
             }
 
             header('Location: /questionnaire');
@@ -937,19 +1027,19 @@ class User extends CI_Controller
             $gender = (0 == $this->input->post('gender', true)) ? 'male' : 'female';
 
             // Дата рождения
-            $b_day       = is_numeric($this->input->post('b_day', true)) ? $this->input->post('b_day', true) : '';
-            $b_mon       = is_numeric($this->input->post('b_mon', true)) ? $this->input->post('b_mon', true) : '';
-            $b_year      = is_numeric($this->input->post('b_year', true)) ? $this->input->post('b_year', true) : '';
+            $b_day       = (is_numeric($this->input->post('b_day', true))) ? $this->input->post('b_day', true) : '';
+            $b_mon       = (is_numeric($this->input->post('b_mon', true))) ? $this->input->post('b_mon', true) : '';
+            $b_year      = (is_numeric($this->input->post('b_year', true))) ? $this->input->post('b_year', true) : '';
             $birthday    = $b_day . '.' . $b_mon . '.' . $b_year;
             $date        = DateTime::createFromFormat('d.m.Y', $birthday);
             $birthday    = ($date !== false) ? $birthday : '';
             $db_birthday = ($date !== false) ? $date->format('Y-m-d') : '';
 
             // Рост
-            $height = is_numeric($this->input->post('height', true)) ? $this->input->post('height', true) : '';
+            $height = (is_numeric($this->input->post('height', true))) ? $this->input->post('height', true) : '';
 
             // Вес
-            $weight = is_numeric($this->input->post('weight', true)) ? $this->input->post('weight', true) : '';
+            $weight = (is_numeric($this->input->post('weight', true))) ? $this->input->post('weight', true) : '';
 
             // Сохранение данных в БД
             $result_quest = $this->User_model->setPhysicalParam($this->user_id, $gender, $db_birthday, $height, $weight, $this->date);
@@ -981,15 +1071,16 @@ class User extends CI_Controller
 
             header('Location: /questionnaire');
         }
-        if ($this->input->post('bt_save_physical_condition', true)) {
+        if ($this->input->post('bt_save_physical_condition', true))
+        {
             // Физическое состояние
-            $physical_condition = is_numeric($this->input->post('physical_condition', true)) ? $this->input->post('physical_condition', true) : '';
+            $physical_condition = (is_numeric($this->input->post('physical_condition', true))) ? $this->input->post('physical_condition', true) : '';
 
             // Пульс в покое
-            $pulse = is_numeric($this->input->post('pulse', true)) ? $this->input->post('pulse', true) : '';
+            $pulse = (is_numeric($this->input->post('pulse', true))) ? $this->input->post('pulse', true) : '';
 
             // Цель занятий
-            $training_goal = is_numeric($this->input->post('training_goal', true)) ? $this->input->post('training_goal', true) : '';
+            $training_goal = (is_numeric($this->input->post('training_goal', true))) ? $this->input->post('training_goal', true) : '';
 
             // История тренировок
             $sports_history = mb_substr(strip_tags($this->input->post('sports_history', true)), 0, 1000);
@@ -1001,8 +1092,8 @@ class User extends CI_Controller
             $bad_habits = mb_substr(strip_tags($this->input->post('bad_habits', true)), 0, 255);
 
             // Сохранение данных в БД
-            $result_quest = $this->User_model->setPhysicalCondition($this->user_id, $physical_condition, $pulse, $sports_history,
-                $injuries_diseases, $training_goal, $bad_habits, $this->date);
+            $result_quest = $this->User_model->setPhysicalCondition($this->user_id, $physical_condition, $pulse,
+                $sports_history, $injuries_diseases, $training_goal, $bad_habits, $this->date);
 
             //$this->session->set_userdata('type_questionnaire', 2);
 
@@ -1068,7 +1159,7 @@ class User extends CI_Controller
         // Получение данных анкеты из БД
         $user_quest_data     = $this->User_model->getQuestionnaireData($this->user_id);
         $user_anthrop_data   = $this->User_model->getLastAnthropometricData($this->user_id);
-        $result['user_data'] = array_merge($user_quest_data['user_data'], $user_anthrop_data['user_anthrop_data']);
+        $result['user_data'] = array_merge($user_quest_data['user_data'], $user_anthrop_data);
         $result['user_name'] = $this->session->user['name'];
 
         // Объединенные данные страница

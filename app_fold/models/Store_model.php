@@ -2610,7 +2610,8 @@ class Store_model extends CI_Model
 
         // Создание заказа
         $in_data = $this->db->query('
-            INSERT INTO `orders` (`o_u_id`) 
+            INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, 
+                                  `o_user_phone`, `o_oud_id`, `o_delivery`, `o_date_add`) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 array($user_id, $name, $surname, $email, $code, $phone, $address_id, $delivery, $date));
 

@@ -1,19 +1,9 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div class="content_block">
-    <?php //print_r($anthropometric['weight']);?>
-    <div class="content_block_h parent">
-        <h3>График изменения параметров тела человека</h3>
-        <div class="content_block_h_buts">
-            <div class="content_block_h_slide chart_wrap_slide"></div>
-            <div class="content_block_h_close"></div>
-        </div>
-    </div>
-    <div class="content_block_val chart_wrap">
-        <div id="legend"></div>
-        <div id="chartdiv"></div>
-    </div>
+<div class="content_block_val chart_wrap">
+    <div id="legend"></div>
+    <div id="chartdiv"></div>
 </div>
 <script>
     /* график */
@@ -36,7 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php if (!empty($anthropometric)) :
                 foreach ($anthropometric as $key => $anthrop_data) :
                     $prev_value = ($key > 0) ? $anthropometric[$key-1]['weight'] : $anthrop_data['weight'];
-                    $percent = (!empty($prev_value)) ? round($anthrop_data['weight'] * 100 / $prev_value) - 100 : null;
+                    $percent = (!empty($prev_value) and !empty($prev_value)) ? (round($anthrop_data['weight'] * 100 / $prev_value) - 100) : null;
                     if ($percent > 0) {
                         $mark = "<span class='plas_chart'></span>";
                     }
@@ -60,7 +50,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     });
 
                     <?php $prev_value = ($key > 0) ? $anthropometric[$key-1]['chest'] : $anthrop_data['chest'];
-                    $percent = (!empty($prev_value)) ? round($anthrop_data['chest'] * 100 / $prev_value) - 100 : null;
+                    $percent = (!empty($prev_value) and !empty($prev_value)) ? (round($anthrop_data['chest'] * 100 / $prev_value) - 100) : null;
                     if ($percent > 0) {
                         $mark = "<span class='plas_chart'></span>";
                     }
@@ -82,7 +72,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     });
 
                     <?php $prev_value = ($key > 0) ? $anthropometric[$key-1]['waist'] : $anthrop_data['waist'];
-                    $percent = (!empty($prev_value)) ? round($anthrop_data['waist'] * 100 / $prev_value) - 100 : null;
+                    $percent = (!empty($prev_value) and !empty($prev_value)) ? (round($anthrop_data['waist'] * 100 / $prev_value) - 100) : null;
                     if ($percent > 0) {
                         $mark = "<span class='plas_chart'></span>";
                     }
@@ -104,7 +94,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     });
 
                     <?php $prev_value = ($key > 0) ? $anthropometric[$key-1]['buttocks'] : $anthrop_data['buttocks'];
-                    $percent = (!empty($prev_value)) ? round($anthrop_data['buttocks'] * 100 / $prev_value) - 100 : null;
+                    $percent = (!empty($prev_value) and !empty($prev_value)) ? (round($anthrop_data['buttocks'] * 100 / $prev_value) - 100) : null;
                     if ($percent > 0) {
                         $mark = "<span class='plas_chart'></span>";
                     }
