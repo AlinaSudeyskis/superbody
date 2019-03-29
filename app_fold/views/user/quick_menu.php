@@ -18,8 +18,8 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col
             <div class="cat_desk">Выбор личного эксперта</div>
         </a>
     </div>
-    <?php $disabled = (!empty($available_workout) and $available_workout === true) ? '' : 'disabled';?>
-    <div class="cat_item_wrap <?php echo $disabled; ?>" id="s-t-wo">
+    <?php //$disabled = (!empty($available_workout) and $available_workout === true) ? '' : 'disabled';?>
+    <div class="cat_item_wrap <?php //echo $disabled; ?>" id="s-t-wo">
         <div class="cat_item">
             <div class="cat_img"><img src="/img/cat3.png" alt=""></div>
             <div class="cat_desk">Тренировка
@@ -38,7 +38,7 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col
         </div>
     <?php endif; ?>
     <div class="cat_item_wrap">
-        <a href="/progress" class="cat_item">
+        <a href="/questionnaire" class="cat_item">
             <div class="cat_img"><img src="/img/cat4.png" alt=""></div>
             <div class="cat_desk">Ввести параметры тела</div>
         </a>

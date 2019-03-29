@@ -96,6 +96,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <?php include_once('./app_fold/views/course/payment_form_up.php'); ?>
 
 <script src="/js/lightbox.js"></script>
+<script src="/js/vimeo_player.js"></script>
 
 </body>
 </html>

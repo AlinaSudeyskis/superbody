@@ -34,6 +34,16 @@ $(document).ready(function() {
                 chat.scrollTop(chat[0].scrollHeight);
             }/**/
 
+            $("a.scroll_to").click(function(event) {
+                event.preventDefault();
+                var elementClick = $(this).attr("href"),
+                    destination = $(elementClick).offset().top - 35;
+
+                jQuery("html:not(:animated),body:not(:animated)").animate({
+                    scrollTop: destination
+                }, 800);
+                return false;
+            });
 
             // Валидация email
             var email_error = $('.email_error'),
@@ -194,26 +204,32 @@ $(document).ready(function() {
             });*/
 
             // Скрыть/Показать checkboxes дней тренировок
-            $('#week_days').on("click", "input[type=checkbox]", function () {
+            $("body").on("click", "#week_days input[type=checkbox]", function ()
+            {
                 var count_rest = parseInt($('#count_rest').val()),
                     count_days = parseInt($('#count_days').val()),
                     checkboxes = $('input:checkbox:checked'),
                     next_element = $(this).parent(),
                     prev_element = $(this).parent(),
-                    element = $(this).parent();
+                    element = $(this).parent(),
+                    frm_postpone = $(this).parents('form.postpone');
 
+                if($("#pop-up_video").children('h3.info').length === 1)
+                {
+                    $("#pop-up_video").children('h3.info').hide();
+                }
 
                 if (checkboxes.length <= count_days)
                 {
-                    if ($(this).is(":checked"))
+                    if ($(this).is(":checked") && frm_postpone.length === 0)
                     {
                         blockWeekDays(count_rest, next_element, prev_element, element)
                     }
-                    else
+                    else if(!$(this).is(":checked"))
                     {
                         // Разблокировать предыдущий и следующий checkbox.
-                        next_element.nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').prop('disabled', false);
-                        prev_element.prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').prop('disabled', false);
+                        next_element.nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').prop('disabled', false);
+                        prev_element.prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').prop('disabled', false);
                     }
 
                     $('#week_days input:checkbox:checked').each(function (indx, elm)
@@ -222,19 +238,20 @@ $(document).ready(function() {
                         prev_element = $(this).parent();
 
                         // Блокировать все остальные checkbox
-                        if (checkboxes.length == count_days) {
+                        if (checkboxes.length == count_days)
+                        {
                             $(this).parent().nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').prop('disabled', true);
                             $(this).parent().prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').prop('disabled', true);
                         }
-                        else if (checkboxes.length < count_days)
+                        else if (checkboxes.length < count_days && frm_postpone.length === 0)
                         {
                             blockWeekDays(count_rest, next_element, prev_element, element);
                         }
                     });
                     // Разблокировать checkbox
                     if (checkboxes.length == 0) {
-                        $(this).parent().nextAll('.cb_week_day').children('input[type=checkbox]').prop('disabled', false);
-                        $(this).parent().prevAll('.cb_week_day').children('input[type=checkbox]').prop('disabled', false);
+                        $(this).parent().nextAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').prop('disabled', false);
+                        $(this).parent().prevAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').prop('disabled', false);
                     }
                 }
                 else if (checkboxes.length > count_days) {
@@ -1382,95 +1399,135 @@ $(document).ready(function() {
                     type: 'post',
                     dataType: 'json',
                     complete: function (result) {
-                        var data = jQuery.parseJSON(result.responseText);
+                        var data = jQuery.parseJSON(result.responseText),
+                            pop_up_video = $("#pop-up_video");
                         if (!data.error) {
                             $.each(data.video, function(id, video){
-                                $("#pop-up_video").html(video);
-                                $("#pop-up_video").append(data.i_video[id]);
-                                $("#pop-up_video").append(data.i_a[id]);
-                                $("#pop-up_video").append(data.description[id]);
-                                $("#pop-up_video").append(data.done[id]);
-                                if(getInternetExplorerVersion()==-1) {
-                                    if (data.player[id] == 1) {
-                                        $("#myvid").each(function () {
-                                            new InitPxVideo({
-                                                "videoId": this,
-                                                "captionsOnDefault": false,
-                                                "seekInterval": 20,
-                                                "videoTitle": "Promo",
-                                                "debug": true,
-                                                "woid": $("#wo-id").val()
-                                            });
-                                        });
-                                    }
+                                /*pop_up_video.html(video);
+                                 pop_up_video.append(data.description[id]);
+                                 videoPlayer(data, id);
+                                 pop_up_def(pop_up_video);*/
 
-                                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
-
-                                    if ($('#vimeo-player-1').length == 1)
-                                    {
-                                        if (data.i_player == 1) {
-                                            $("#ivid").each(function () {
-                                                new InitPxVideo({
-                                                    "videoId": this,
-                                                    "captionsOnDefault": false,
-                                                    "seekInterval": 20,
-                                                    "videoTitle": "Promo",
-                                                    "debug": true,
-                                                    "woid": $("#wo-id").val()
-                                                });
-                                            });
-                                        }
-                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
-                                    }
-
-
-                                    playerTwoPlayer.getPaused().then(function(paused) {
-                                        // paused = whether or not the player is paused
-                                        console.log('Video paused');
-                                    }).catch(function(error) {
-                                        // an error occurred
-                                    });
-
-                                    playerTwoPlayer.getCurrentTime().then(function(seconds) {
-                                        // seconds = the current playback position
-                                        console.log('Current time: ' + seconds);
-                                    }).catch(function(error) {
-                                        // an error occurred
-                                    });
-
-                                    playerTwoPlayer.getEnded().then(function(ended) {
-                                        // ended = whether or not the video has ended
-                                        console.log('Video ended');
-                                    }).catch(function(error) {
-                                        // an error occurred
-                                    });
-
-                                    playerTwoPlayer.on('seeked', function(data) {
-                                        console.log(data);
-                                    });
-                                }
-                                pop_up_def($("#pop-up_video"));
+                                //$('.fc-content[event_id_' + data.woid[id] + ']').trigger('click');
+                                $('#event-' + data.woid[id] + '.fc-content').trigger('click');
                             });
+                        }
+                        else
+                        {
+                            pop_up_video.html(data.postpone);
+                            pop_up_def(pop_up_video);
 
-                            $('#bt-workout-done').on('click', function(){
-                                var wo_id = $(this).parent('#wo-done').find('#wo-id').val();
-                                $.ajax({
-                                    url: '/viewed/video',
-                                    type: 'post',
-                                    data: {
-                                        woid: wo_id
-                                    },
-                                    complete: function (result) {
-                                        if (result.responseText == 'true') {
-                                            $('#wo-done').html("<div id='wo-done'><div class='workout_form_but done'>Выполнено</div></div>");
-                                        }
+                            $(document).on('submit', '.postpone', function(event){
+                                var uc_days = data.uc_days,
+                                    ch_cb = $(this).find("input:checkbox[name='cb_day[]']:checked");
+
+                                if(ch_cb.length === 1 || uc_days.length === ch_cb.length)
+                                {
+                                    $(this).submit();
+                                }
+                                else
+                                {
+                                    if(pop_up_video.children('h3.info').length === 0)
+                                    {
+                                        pop_up_video.append('<h3 class="info">*Для переноса выберите один день или все дни тренировок недели.</h3>');
                                     }
-                                });
+                                    else
+                                    {
+                                        pop_up_video.children('h3.info').show();
+                                    }
+                                }
+                                event.preventDefault();
                             });
                         }
                     }
                 });
             });
+
+            function workoutDone(woid)
+            {
+                $.ajax({
+                    url: '/viewed/video',
+                    type: 'post',
+                    data: {
+                        woid: woid
+                    },
+                    complete: function(result){
+                        if (result.responseText == 'true')
+                        {
+                            //calEvent.backgroundColor = 'rgba(159, 220, 39, .7)';
+                            $('.fc-event[event_id_' + woid + ']').trigger('click');
+                        }
+                    }
+                });
+            }
+
+            function videoPlayer(data, id)
+            {
+                if(getInternetExplorerVersion()==-1)
+                {
+                    if (data.player[id] == 1)
+                    {
+                        $("#myvid").each(function ()
+                        {
+                            new InitPxVideo({
+                                "videoId": this,
+                                "captionsOnDefault": false,
+                                "seekInterval": 20,
+                                "videoTitle": "Promo",
+                                "debug": true,
+                                "woid": $("#wo-id").val()
+                            });
+                        });
+                    }
+
+                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+
+                    if ($('#vimeo-player-1').length == 1)
+                    {
+                        if (data.i_player == 1)
+                        {
+                            $("#ivid").each(function ()
+                            {
+                                new InitPxVideo({
+                                    "videoId": this,
+                                    "captionsOnDefault": false,
+                                    "seekInterval": 20,
+                                    "videoTitle": "Promo",
+                                    "debug": true,
+                                    "woid": $("#wo-id").val()
+                                });
+                            });
+                        }
+                        playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
+                    }
+
+
+                    playerTwoPlayer.getPaused().then(function(paused) {
+                        // paused = whether or not the player is paused
+                        console.log('Video paused');
+                    }).catch(function(error) {
+                        // an error occurred
+                    });
+
+                    playerTwoPlayer.getCurrentTime().then(function(seconds) {
+                        // seconds = the current playback position
+                        console.log('Current time: ' + seconds);
+                    }).catch(function(error) {
+                        // an error occurred
+                    });
+
+                    playerTwoPlayer.getEnded().then(function(ended) {
+                        // ended = whether or not the video has ended
+                        console.log('Video ended');
+                    }).catch(function(error) {
+                        // an error occurred
+                    });
+
+                    playerTwoPlayer.on('seeked', function(data) {
+                        console.log(data);
+                    });
+                }
+            }
 
             $('#pop-up_video').on('click', '#wo-i-but', function()
             {

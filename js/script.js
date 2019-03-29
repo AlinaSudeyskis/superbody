@@ -659,18 +659,22 @@ $(document).ready(function() {
 /* pop_up */
 
 function pop_up_def(popup) {
-  var shadow = $("#shadow");
-  popup.css({marginLeft:-popup.width()/2-15,marginTop:-popup.height()/2-15}).fadeIn(600); /*+$(window).scrollTop()*/
-  $("#shadow, #shadow2, .close_video").fadeTo(600,0.8).on('click', function() {
-    shadow.fadeOut(600);
-    popup.fadeOut(600);
-      if(typeof(playerTwoPlayer) !== "undefined")
-      {
-          playerTwoPlayer.destroy();
-      }
-    //enableScroll();
-  });
-  //disableScroll();
+    var shadow = $("#shadow"),
+        shadow2 = $("#shadow2");
+
+    popup.css({marginLeft:-popup.width()/2-15,marginTop:-popup.height()/2-15}).fadeIn(600); /*+$(window).scrollTop()*/
+
+    $("#shadow, .close_video").fadeTo(600,0.8).on('click', function() {
+        shadow.fadeOut(600);
+        //shadow2.fadeOut(600);
+        popup.fadeOut(600);
+        if(typeof(playerTwoPlayer) !== "undefined")
+        {
+            playerTwoPlayer.destroy();
+        }
+        //enableScroll();
+    });
+    //disableScroll();
 }
 function pop_up_home(popup) {
     var shadow = $("#shadow2");

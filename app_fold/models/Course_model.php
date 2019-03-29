@@ -5240,17 +5240,18 @@ class Course_model extends CI_Model
 
                 // Выборка пользовательских данных о тренировке на сегодня
                 $sel_today_workout = $this->db->query('
-                    SELECT `utw_uc_id`, `utw_workout`, `utw_duplicate`, `utw_done`, `utw_date` 
+                    SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date` 
                     FROM `users_training_weeks`
-                    WHERE `utw_uc_id`=? and `utw_date`=? and `utw_duplicate`=0 LIMIT 1', array($row->uc_id, $today));
+                    WHERE `utw_uc_id`=? and `utw_date`=? and `utw_status`<>"missed" LIMIT 1', array($row->uc_id, $today));
 
                 if ($sel_today_workout !== false and 1 == $sel_today_workout->num_rows())
                 {
                     $w_row = $sel_today_workout->row();
 
+                    $result['workouts'][$i]['id']      = $w_row->utw_id;
                     $result['workouts'][$i]['course']  = $row->uc_course_id;
-                    $result['workouts'][$i]['workout'] = $w_row->utw_workout;
-                    $result['workouts'][$i]['done']    = $w_row->utw_done;
+                    $result['workouts'][$i]['workout'] = $w_row->utw_crs_workout;
+                    $result['workouts'][$i]['done']    = ($w_row->utw_status == 'done') ? 1 : 0;
 
                     unset($w_row);
                 }
@@ -5264,60 +5265,63 @@ class Course_model extends CI_Model
             unset($row);
 
             // Данные тренировки и инструктажа курса
-            foreach ($result['workouts'] as $key => $cw)
+            if(!empty($result['workouts']))
             {
-                // Данные тренировки курса
-                $sel_course_workout = $this->db->query('
+                foreach ($result['workouts'] as $key => $cw)
+                {
+                    // Данные тренировки курса
+                    $sel_course_workout = $this->db->query('
                     SELECT `ctw_id`, `ctw_course_id`, `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout` 
                     FROM `courses_training_weeks`
                     WHERE `ctw_course_id`=? and `ctw_num_workout`=? LIMIT 1', array($cw['course'], $cw['workout']));
 
-                if ($sel_course_workout !== false and 1 == $sel_course_workout->num_rows())
-                {
-                    $row = $sel_course_workout->row();
-
-                    if ($row->ctw_repeat_workout > 0)
+                    if ($sel_course_workout !== false and 1 == $sel_course_workout->num_rows())
                     {
-                        // Выборка ID видео повторяемой тренировки
-                        $sel_repeat_workout = $this->db->query('
+                        $row = $sel_course_workout->row();
+
+                        if ($row->ctw_repeat_workout > 0)
+                        {
+                            // Выборка ID видео повторяемой тренировки
+                            $sel_repeat_workout = $this->db->query('
                             SELECT `ctw_video_id`, `ctw_description` 
                             FROM `courses_training_weeks`
                             WHERE `ctw_course_id`=? and `ctw_num_workout`=? LIMIT 1', array($cw['course'], $row->ctw_repeat_workout));
 
-                        if ($sel_repeat_workout !== false and 1 == $sel_repeat_workout->num_rows())
-                        {
-                            $row2 = $sel_repeat_workout->row();
+                            if ($sel_repeat_workout !== false and 1 == $sel_repeat_workout->num_rows())
+                            {
+                                $row2 = $sel_repeat_workout->row();
 
-                            $video_id = $row2->ctw_video_id;
-                            $video_description = $row2->ctw_description;
+                                $video_id = $row2->ctw_video_id;
+                                $video_description = $row2->ctw_description;
 
-                            unset($row2);
+                                unset($row2);
+                            }
+                            elseif ($sel_repeat_workout === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
                         }
-                        elseif ($sel_repeat_workout === false)
+                        else
                         {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            $video_id = $row->ctw_video_id;
+                            $video_description = $row->ctw_description;
                         }
+                        unset($row);
+
+                        $result['workouts'][$key]['video_id'] = $video_id;
+                        $result['workouts'][$key]['description'] = $video_description;
                     }
-                    else
+                    elseif ($sel_course_workout === false)
                     {
-                        $video_id = $row->ctw_video_id;
-                        $video_description = $row->ctw_description;
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
-                    unset($row);
 
-                    $result['workouts'][$key]['video_id'] = $video_id;
-                    $result['workouts'][$key]['description'] = $video_description;
+                    // Данные инструктажа тренировки
+                    $instruction_video = self::getActiveCourseInstructionVideo($cw['course']);
+                    $result['workouts'][$key]['instruction'] = (!empty($instruction_video['video'])) ? $instruction_video['video']['id'] : '';
                 }
-                elseif ($sel_course_workout === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Данные инструктажа тренировки
-                $instruction_video = self::getActiveCourseInstructionVideo($cw['course']);
-                $result['workouts'][$key]['instruction'] = (!empty($instruction_video['video'])) ? $instruction_video['video']['id'] : '';
+                unset($cw);
             }
-            unset($cw);
         }
         elseif ($sel_user_courses === false)
         {
@@ -5344,7 +5348,7 @@ class Course_model extends CI_Model
 
         // Нахождение уникального ID курса, пользователя и номера тренировки курса
         $sel_utw = $this->db->query('
-          SELECT `utw_uc_id`, `utw_workout`, `utw_done` 
+          SELECT `utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_status` 
           FROM `users_training_weeks`
           WHERE `utw_id`=? LIMIT 1', $workout_id);
 
@@ -5353,8 +5357,8 @@ class Course_model extends CI_Model
             $row = $sel_utw->row();
 
             $uc_id        = $row->utw_uc_id; // Уникальное ID курса и пользователя
-            $workout_num  = $row->utw_workout; // Номер тренировки курса
-            $workout_done = $row->utw_done; // Выполнена ли тренировки
+            $workout_num  = $row->utw_crs_workout; // Номер тренировки курса
+            $workout_done = ($row->utw_status == 'done') ? 1 : 0; // Выполнена ли тренировки
 
             unset($row);
             $sel_utw->free_result();
@@ -5463,7 +5467,7 @@ class Course_model extends CI_Model
 
         // Нахождение уникального ID курса, пользователя и номера тренировки курса
         $sel_utw = $this->db->query('
-            SELECT `utw_uc_id`, `utw_workout`, `uc_course_id`, `uc_user_id` 
+            SELECT `utw_uc_id`, `utw_workout`, `utw_crs_workout`, `uc_course_id`, `uc_user_id` 
             FROM `users_training_weeks`
             LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
             WHERE `utw_id`=? and `uc_user_id`=? LIMIT 1', array($workout_id, $user_id));
@@ -5835,9 +5839,25 @@ class Course_model extends CI_Model
 
                         if($course['blocked'] == 0)
                         {
-                            // Определение даты первой тренировки, которая уже будет считаться пропущенной
                             // Добавление пропущенный тренировок в БД
-                            $sel_f_workout = $this->db->query('
+                            $up_missed = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="missed" 
+                                WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`=""', array($course['id'], $today));
+                            if($up_missed !== false and 0 < $this->db->affected_rows())
+                            {
+                                // Изменение нумерации тренировок
+                                $up_workouts = $this->db->query('UPDATE `users_training_weeks` SET `utw_crs_workout`=(`utw_crs_workout`-1) 
+                                    WHERE `utw_uc_id`=? and `utw_date`>=?', array($course['id'], $today));
+                                if($up_workouts === false)
+                                {
+                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                }
+                            }
+                            elseif($up_missed === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+
+                            /*$sel_f_workout = $this->db->query('
                                 SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
                                 FROM `users_training_weeks`
                                 WHERE `utw_uc_id`=? and `utw_date`<? and `utw_done`=0 and `utw_duplicate`=0
@@ -5960,11 +5980,11 @@ class Course_model extends CI_Model
                             elseif ($sel_f_workout === false)
                             {
                                 parent::logDbMessages(__METHOD__.':'.__LINE__);
-                            }
+                            }*/
 
                             // Обработка тренировок, проверка на пропущенные занятия
                             // Изменение дат будущих тренировок (смещение курса)
-                            $sel_workouts = $this->db->query('
+                            /*$sel_workouts = $this->db->query('
                             SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
                             FROM `users_training_weeks`
                             WHERE `utw_uc_id`=? and `utw_duplicate`=0
@@ -6075,11 +6095,11 @@ class Course_model extends CI_Model
                             {
                                 parent::logDbMessages(__METHOD__.':'.__LINE__);
                             }
-                            $sel_workouts->free_result();
+                            $sel_workouts->free_result();*/
 
                             // Изменение окончания даты тренировок курса
                             // Дата последней тренировки курса
-                            $sel_last_w_date = $this->db->query('
+                            /*$sel_last_w_date = $this->db->query('
                             SELECT `utw_uc_id`, `utw_date` 
                             FROM `users_training_weeks`
                             WHERE `utw_duplicate`=0 and `utw_uc_id`=?
@@ -6102,12 +6122,12 @@ class Course_model extends CI_Model
                             elseif ($sel_last_w_date === false)
                             {
                                 parent::logDbMessages(__METHOD__.':'.__LINE__);
-                            }
+                            }*/
                         }
 
                         // Выборка расписания тренировок
                         $sel_workouts = $this->db->query('
-                            SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_duplicate`, `utw_date`
+                            SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date`
                             FROM `users_training_weeks`
                             WHERE `utw_uc_id`=?
                             ORDER BY `utw_date` ASC', $course['id']);
@@ -6116,11 +6136,11 @@ class Course_model extends CI_Model
                             $i = 0;
                             foreach ($sel_workouts->result() as $row)
                             {
-                                $workouts[$i]['id']        = $row->utw_id;
-                                $workouts[$i]['workout']   = $row->utw_workout;
-                                $workouts[$i]['done']      = $row->utw_done;
-                                $workouts[$i]['duplicate'] = $row->utw_duplicate;
-                                $workouts[$i]['date']      = $row->utw_date;
+                                $workouts[$i]['id']      = $row->utw_id;
+                                $workouts[$i]['workout'] = $row->utw_crs_workout;
+                                $workouts[$i]['done']    = ($row->utw_status == 'done') ? 1 : 0;
+                                $workouts[$i]['missed']  = ($row->utw_status == 'missed') ? 1 : 0;
+                                $workouts[$i]['date']    = $row->utw_date;
 
                                 $i++;
                             }
@@ -6223,10 +6243,10 @@ class Course_model extends CI_Model
                             foreach ($workouts as $workout)
                             {
                                 // Выполнено ли занятие
-                                $w_done      = $workout['done'];
-                                $w_date      = $workout['date'];
-                                $w_duplicate = $workout['duplicate'];
-                                $w_num       = $workout['workout'];
+                                $w_done   = $workout['done'];
+                                $w_date   = $workout['date'];
+                                $w_missed = $workout['missed'];
+                                $w_num    = $workout['workout'];
 
                                 $events[$ei]['constraint']     = 'workout';
                                 $events[$ei]['blocked']        = ($course['blocked'] == 1) ? 'true' : 'false';
@@ -6261,7 +6281,7 @@ class Course_model extends CI_Model
                                     $next_training = true;
                                 }
 
-                                $events[$ei]['title'] = ($w_duplicate == 1)
+                                $events[$ei]['title'] = ($w_missed == 1)
                                     ? 'Пропущенное занятие'
                                     : $course_data['course']['workouts'][$w_num]['video_name'];
                                 $events[$ei]['start'] = !empty($user_training_time)
@@ -6276,7 +6296,7 @@ class Course_model extends CI_Model
                                     $events[$ei]['done']  = 'done';
                                     $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
                                 }
-                                elseif ($w_duplicate == 1)
+                                elseif ($w_missed == 1)
                                 {
                                     $events[$ei]['missed'] = 'missed';
                                     $events[$ei]['color'] = 'rgba(255, 159, 137, 0.5)';
@@ -6354,11 +6374,11 @@ class Course_model extends CI_Model
                         }
                     }
 
-                    $result['courses'][$key]['pauses']     = !empty($pauses) ? $pauses : array();
-                    $result['courses'][$key]['workouts']   = !empty($workouts) ? $workouts : array();
-                    $result['courses'][$key]['nutritions'] = !empty($nutritions) ? $nutritions : array();
+                    $result['courses'][$key]['pauses']     = (!empty($pauses)) ? $pauses : array();
+                    $result['courses'][$key]['workouts']   = (!empty($workouts)) ? $workouts : array();
+                    $result['courses'][$key]['nutritions'] = (!empty($nutritions)) ? $nutritions : array();
 
-                    $result['events'] = !empty($events) ? array_merge($result['events'], $events) : $result['events'];
+                    $result['events'] = (!empty($events)) ? array_merge($result['events'], $events) : $result['events'];
                 }
                 unset($ei);
                 unset($course);
@@ -6376,7 +6396,6 @@ class Course_model extends CI_Model
                 FROM `users_courses` 
                 LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
                 WHERE `uc_user_id`=? and `uc_blocked`=1', $user_id);
-
             if ($sel_bl_courses !== false and 0 < $sel_bl_courses->num_rows())
             {
                 $tmp_date = new DateTime($date);
@@ -6462,7 +6481,7 @@ class Course_model extends CI_Model
 
                         // Выборка расписания тренировок
                         $sel_workouts = $this->db->query('
-                        SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_duplicate`, `utw_date`, `uc_blocked`
+                        SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date`, `uc_blocked`
                         FROM `users_training_weeks`
                         LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
                         WHERE `utw_uc_id`=?
@@ -6474,11 +6493,11 @@ class Course_model extends CI_Model
                             {
                                 if($row->uc_blocked == 0 or ($row->uc_blocked == 1 and $row->utw_date < $date))
                                 {
-                                    $workouts[$i]['id']        = $row->utw_id;
-                                    $workouts[$i]['workout']   = $row->utw_workout;
-                                    $workouts[$i]['done']      = $row->utw_done;
-                                    $workouts[$i]['duplicate'] = $row->utw_duplicate;
-                                    $workouts[$i]['date']      = $row->utw_date;
+                                    $workouts[$i]['id']      = $row->utw_id;
+                                    $workouts[$i]['workout'] = $row->utw_crs_workout;
+                                    $workouts[$i]['done']    = ($row->utw_status == 'done') ? 1 : 0;
+                                    $workouts[$i]['missed']  = ($row->utw_status == 'missed') ? 1 : 0;
+                                    $workouts[$i]['date']    = $row->utw_date;
 
                                     $i++;
                                 }
@@ -6530,10 +6549,10 @@ class Course_model extends CI_Model
                             foreach ($workouts as $workout)
                             {
                                 // Выполнено ли занятие
-                                $w_done      = $workout['done'];
-                                $w_date      = $workout['date'];
-                                $w_duplicate = $workout['duplicate'];
-                                $w_num       = $workout['workout'];
+                                $w_done   = $workout['done'];
+                                $w_date   = $workout['date'];
+                                $w_missed = $workout['missed'];
+                                $w_num    = $workout['workout'];
 
                                 $events[$ei]['workout_id'] = $workout['id'];
                                 $events[$ei]['blocked']    = ($bl_course['blocked'] == 1) ? 'true' : 'false';
@@ -6552,7 +6571,7 @@ class Course_model extends CI_Model
                                     $available_training = true;
                                 }
 
-                                $events[$ei]['title'] = ($w_duplicate == 1)
+                                $events[$ei]['title'] = ($w_missed == 1)
                                     ? 'Пропущенное занятие'
                                     : $course_data['course']['workouts'][$w_num]['video_name'];
                                 $events[$ei]['start'] = !empty($user_training_time)
@@ -6567,8 +6586,7 @@ class Course_model extends CI_Model
                                     $events[$ei]['done']  = 'done';
                                     $events[$ei]['color'] = 'rgba(147, 147, 147, 0.5)';
                                 }
-
-                                if ($w_duplicate == 1)
+                                elseif ($w_missed == 1)
                                 {
                                     $events[$ei]['missed'] = 'missed';
                                     $events[$ei]['color'] = 'rgba(255, 159, 137, 0.5)';
@@ -6708,6 +6726,135 @@ class Course_model extends CI_Model
                 }
                 unset($course);
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Дата следующей тренировки
+     *
+     * @param $user_id
+     * @param $date
+     * @return array
+     */
+    public function getNextUserWorkout($user_id, $date)
+    {
+        $result = array('next_workout' => '', 'uc_id' => '');
+
+        $sel_data = $this->db->query('
+            SELECT `utw_date`, `uc_user_id`, `uc_id`, `uc_display`, `uc_blocked` 
+            FROM `users_training_weeks`
+             LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+            WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_display`=1 and `utw_date`>=? 
+            ORDER BY `utw_date` ASC LIMIT 1', array($user_id, $date));
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            setlocale(LC_ALL, 'ru_RU.UTF-8');
+            $tmp_w_date = DateTime::createFromFormat('Y-m-d', $row->utw_date);
+            $next_w_date = ($tmp_w_date !== false)
+                ? $tmp_w_date->format('j') . ' ' . parent::declensionRussianMonths($tmp_w_date->format('n'))
+                : '';
+
+            $result['next_workout'] = $next_w_date;
+            $result['uc_id']        = $row->uc_id;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Данные о тренировках этой недели
+     *
+     * @param $user_course_id
+     * @param $user_id
+     * @param $today
+     * @return array
+     */
+    public function getUserCourseWeekWorkouts($user_course_id, $user_id, $today)
+    {
+        $result = array();
+
+        $current_num_day = date("N", strtotime($today));
+        $tmp_date        = new DateTime($today);
+        $interval        = 7 - $current_num_day;
+        $end_date        = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$interval.'D'))->format('Y-m-d') : false;
+        $start_date      = ($end_date !== false) ? $tmp_date->sub(new DateInterval('P6D'))->format('Y-m-d') : false;
+
+        if(is_numeric($user_id) and is_numeric($user_course_id) and $start_date and $end_date)
+        {
+            $sel_data = $this->db->query('
+                SELECT `utw_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date`, `uc_user_id` 
+                FROM `users_training_weeks`
+                LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+                WHERE `utw_uc_id`=? and `uc_user_id`=? and (`utw_date`>=? and `utw_date`<=?)',
+                    array($user_course_id, $user_id, $start_date, $end_date));
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                $i = 0;
+                foreach($sel_data->result() as $row)
+                {
+                    $num_day = date("N", strtotime($row->utw_date));
+
+                    $result['days'][$i] = $num_day;
+
+                    $result['tw_wo'][$num_day]['num_day']   = $num_day;
+                    $result['tw_wo'][$num_day]['id']        = $row->utw_id;
+                    $result['tw_wo'][$num_day]['wo_id']     = $row->utw_workout;
+                    $result['tw_wo'][$num_day]['crs_wo_id'] = $row->utw_crs_workout;
+                    $result['tw_wo'][$num_day]['status']    = $row->utw_status;
+                    $result['tw_wo'][$num_day]['date']      = $row->utw_date;
+
+                    $i++;
+                }
+                unset($row);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Перенос тренировок курса текущей недели
+     *
+     * @param $user_course_id
+     * @param $user_id
+     * @param $workouts
+     * @param $date
+     * @return bool
+     */
+    public function postponeUserCourseWeekWorkouts($user_course_id, $user_id, $workouts, $date)
+    {
+        $result = true;
+
+        if(is_numeric($user_course_id) and is_numeric($user_id) and !empty($workouts['tw_wo']))
+        {
+            foreach ($workouts['tw_wo'] as $day => $wo)
+            {
+                if($day != $wo['num_day'])
+                {
+                    $up_data = $this->db->query('
+                        UPDATE `users_training_weeks` SET `utw_crs_workout`=?, `utw_date`=?, `utw_status`=?, `utw_date_update`=? 
+                        WHERE `utw_id`=? and `utw_uc_id`=? LIMIT 1',
+                            array($wo['crs_wo_id'], $wo['date'], $wo['status'], $date, $wo['id'], $user_course_id));
+                    if($up_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        $result = false;
+                    }
+                }
+            }
+            unset($wo);
         }
 
         return $result;
@@ -7160,14 +7307,17 @@ class Course_model extends CI_Model
         end($a_t_d);
         $last_t_day = key($a_t_d);
 
-        if ($key_num_day !== false) {
+        if ($key_num_day !== false)
+        {
             // Вычисление разницы между номерами дней недели
             // Если предыдущий день недели тренировки последний день недели, то
-            if ($key_num_day == $last_t_day) {
+            if ($key_num_day == $last_t_day)
+            {
                 // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
                 $diff_days = 7 - $array_training_days[$key_num_day] + $array_training_days[0];
             }
-            else {
+            else
+            {
                 // Разница между текущим номером недели тренировки и предыдущем.
                 $diff_days = $array_training_days[$key_num_day+1] - $array_training_days[$key_num_day];
             }
@@ -7266,7 +7416,7 @@ class Course_model extends CI_Model
             $result['course']['course_id']        = $row->uc_course_id;
             $result['course']['couch_id']         = $row->uc_couch_id;
             $result['course']['training_days']    = $row->uc_days;
-            $result['course']['days']             = !empty($row->uc_days) ? str_split($row->uc_days) : array();
+            $result['course']['days']             = (!empty($row->uc_days)) ? str_split($row->uc_days) : array();
             $result['course']['db_date_start']    = $row->uc_date_start;
             $result['course']['db_date_end']      = $row->uc_date_end;
             $result['course']['date_start']       = $date_start;
@@ -7347,7 +7497,7 @@ class Course_model extends CI_Model
 
                 // Текущие тренировочные дни
                 $sel_training_days = $this->db->query('
-                    SELECT `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
+                    SELECT `utw_uc_id`, `utw_workout`, `utw_status`, `utw_date`
                     FROM `users_training_weeks`
                     WHERE `utw_uc_id`=?
                     ORDER BY `utw_date`', $result['course']['id']);
@@ -7359,9 +7509,10 @@ class Course_model extends CI_Model
                     $workouts_passed = 0; // Общее кол-во выполненных тренировок
 
                     $i = 0;
-                    foreach ($sel_training_days->result() as $row) {
+                    foreach ($sel_training_days->result() as $row)
+                    {
                         $result['course']['workouts'][$row->utw_workout]['date'] = $row->utw_date;
-                        $result['course']['workouts'][$row->utw_workout]['done'] = $row->utw_done;
+                        $result['course']['workouts'][$row->utw_workout]['done'] = ($row->utw_status == 'done') ? 1 : 0;
 
                         setlocale(LC_ALL, 'ru_RU.UTF-8');
                         $date = DateTime::createFromFormat('Y-m-d', $row->utw_date);
@@ -7369,11 +7520,13 @@ class Course_model extends CI_Model
                             ? strftime('%d %b %Gг.', strtotime($row->utw_date))
                             : '';
 
-                        if ($row->utw_date < $today and $row->utw_done == 0) {
+                        if ($row->utw_date < $today and $row->utw_status == 'missed')
+                        {
                             $d_o_l_m_w = $date;
                             $workouts_missed++;
                         }
-                        elseif ($row->utw_date <= $today and $row->utw_done == 1) {
+                        elseif ($row->utw_date <= $today and $row->utw_status == 'done')
+                        {
                             $workouts_passed++;
                         }
 
@@ -7860,7 +8013,8 @@ class Course_model extends CI_Model
 
         if(!empty($update_workouts))
         {
-            foreach ($update_workouts as $num_workout => $workout) {
+            foreach ($update_workouts as $num_workout => $workout)
+            {
                 $up_data = $this->db->query('
                     UPDATE `users_training_weeks` SET `utw_date`=?, `utw_date_update`=?
                     WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1',
@@ -7888,35 +8042,39 @@ class Course_model extends CI_Model
      * @param int $user_course_id ID курса и пользователя (Уникальное ID купленного курса в таблице users_courses)
      * @param $date_pause_to
      * @param string $course_end Дата окончания курса
+     * @param $update_workouts
      * @param $date
      * @return bool
      */
-    public function setUserCoursePause($user_course_id, $date_pause_to, $course_end, $date)
+    public function setUserCoursePause($user_course_id, $date_pause_to, $course_end, $update_workouts, $date)
     {
-        $up_data = $this->db->query('
-            INSERT INTO `users_courses_pauses` (`ucp_pause_start`, `ucp_pause_end`, `ucp_uc_id`)
-            VALUES (?, ?, ?)',
+        $result = false;
+
+        $ins_data = $this->db->query('
+            INSERT INTO `users_courses_pauses` (`ucp_pause_start`, `ucp_pause_end`, `ucp_uc_id`) VALUES (?, ?, ?)',
                 array($date, $date_pause_to, $user_course_id));
 
-        if ($up_data !== false and 1 == $this->db->affected_rows())
+        if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
-            $this->db->query('
-                UPDATE `users_courses` 
-                SET `uc_paused`=1, `uc_date_update`=?, `uc_date_end`=?
-                WHERE `uc_id`=?  LIMIT 1',
-                    array($date, $course_end, $user_course_id));
+            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_paused`=1, `uc_date_update`=?, `uc_date_end`=?
+                WHERE `uc_id`=?  LIMIT 1', array($date, $course_end, $user_course_id));
+            if($up_data !== false and 1 == $this->db->affected_rows() and is_array($update_workouts))
+            {
+                self::updateDatesUserWorkouts($user_course_id, $update_workouts, $date);
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
 
-            return true;
+            $result = true;
         }
-        elseif ($up_data === false)
+        elseif ($ins_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -7977,10 +8135,11 @@ class Course_model extends CI_Model
         $training_days = str_split($training_days); // Дни недели тренировок в массив
         $count_days    = count($training_days);
 
-        for ($workout = 1; $workout <= $count_workouts; $workout++) {
+        for ($workout = 1; $workout <= $count_workouts; $workout++)
+        {
             if ($workout == 1)
             {
-                $values = '(' . $uc_id . ', ' . $workout . ', "' . $training_date . '", "' . $date . '")';
+                $values = '(' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $date . '")';
             }
             else
             {
@@ -7991,15 +8150,15 @@ class Course_model extends CI_Model
                 {
                     // Вычисление разницы между номерами дней недели
                     // Если предыдущий день недели тренировки последний день недели, то
-                    if ($key_num_week == $count_days-1)
+                    if ($key_num_week == ($count_days - 1))
                     {
                         // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                        $diff_days = 7-$training_days[$key_num_week]+$training_days[0];
+                        $diff_days = 7 - $training_days[$key_num_week] + $training_days[0];
                     }
                     else
                     {
                         // Разница между текущим номером недели тренировки и предыдущем.
-                        $diff_days = $training_days[$key_num_week+1]-$training_days[$key_num_week];
+                        $diff_days = $training_days[$key_num_week+1] - $training_days[$key_num_week];
                     }
 
                     // Временная дата предыдущей тренивроки
@@ -8010,7 +8169,7 @@ class Course_model extends CI_Model
 
                     unset($tem_date);
 
-                    $values .= ', (' . $uc_id . ', ' . $workout . ', "' . $training_date . '", "' . $date . '")';
+                    $values .= ', (' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $date . '")';
                 }
             }
         }
@@ -8020,8 +8179,8 @@ class Course_model extends CI_Model
         if (!empty($values)) {
             $up_data = $this->db->query('
                 INSERT INTO `users_training_weeks`
-                  (`utw_uc_id`, `utw_workout`, `utw_date`, `utw_date_update`)
-                VALUES '.$values);
+                  (`utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_date`, `utw_date_update`)
+                VALUES ' . $values);
             if ($up_data !== false and 0 < $this->db->affected_rows()) {
                 return true;
             }
@@ -10016,7 +10175,7 @@ class Course_model extends CI_Model
                 $result .= '                    
                     <div class="add_tren_item video parent" id="' . $row->video_id . '" data-poster-link="' . $poster . '" data-video-link="' . $video . '" data-video-desk="' . $row->video_name . '">
                         <div class="add_tov_img"><img src="' . $poster . '" alt=""></div>
-                        <a href="/administration/video/' . $row->video_id . '" class="add_tov_cont add_tren_name">
+                        <a href="/administration/course/'.$course_id.'/video/' . $row->video_id . '" class="add_tov_cont add_tren_name">
                             <div class="add_tov_h">' . $name . '</div>
                             <input type="hidden" value="'.$row->video_id.'" name="res-video_id" id="res-video-id"/>
                         </a>
@@ -10067,7 +10226,7 @@ class Course_model extends CI_Model
                     if ($sel_course !== false and 1 == $sel_course->num_rows())
                     {
                         $up_data = $this->db->query('
-                            UPDATE `users_training_weeks` SET `utw_done`=1, `utw_date_update`=? 
+                            UPDATE `users_training_weeks` SET `utw_status`="done", `utw_date_update`=? 
                             WHERE `utw_id`=? LIMIT 1', array($date, $workout_id));
 
                         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -10083,7 +10242,6 @@ class Course_model extends CI_Model
                     {
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
-
                 }
             }
             elseif ($sel_workout === false)

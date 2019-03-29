@@ -80,6 +80,127 @@ class User extends CI_Controller
 
         $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data);
 
+        if($this->input->post('bt_save_postpone', true))
+        {
+            $update_days = array();
+
+            $current_num_day   = date("N", strtotime($this->date));
+            $choose_days       = $this->input->post('cb_day', true);
+            $count_choose_days = count($this->input->post('cb_day', true));
+            $tmp_date = new DateTime($this->date);
+            $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
+
+            $next_workout = $this->Course_model->getNextUserWorkout($this->user_id, $this->date);
+            //$course_data = $this->Course_model->getUserCourseSettings($next_workout['uc_id'], $this->user_id, $this->date);
+            $wo_data = $this->Course_model->getUserCourseWeekWorkouts($next_workout['uc_id'], $this->user_id, $today);
+            $count_crs_days = count($wo_data['days']);
+            // Дни недели в обратном порядке
+            rsort($wo_data['days']);
+
+            /* Смещение дней тренировок
+             * Если кол-во выбранных дней = 1, то проверка номера дня недели на больше, меньше.
+             * Иначе перенос всех тренировок недели */
+            if($count_choose_days == 1)
+            {
+                $choose_day = $choose_days[0];
+
+                foreach($wo_data['days'] as $key => $crs_day)
+                {
+                    if($crs_day < $choose_day)
+                    {
+                        // Обновляем данные тренировки
+                        $wo_data['tw_wo'][$crs_day]['num_day'] = $choose_day;
+
+                        // New date
+                        $diff_day = $choose_day - $crs_day;
+                        $tmp_date = new DateTime($wo_data['tw_wo'][$crs_day]['date']);
+                        $new_date = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $wo_data['tw_wo'][$crs_day]['date'];
+                        $wo_data['tw_wo'][$crs_day]['date'] = $new_date;
+                        $num_date = date("N", strtotime($new_date));
+
+                        // New status
+                        $status = $wo_data['tw_wo'][$crs_day]['status'];
+                        $wo_data['tw_wo'][$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
+
+                        // New course number workout
+                        if($status == '')
+                        {
+                            $wo_data['tw_wo'][$crs_day]['crs_wo_id']++;
+                        }
+
+                        // Смещаем номер недели тренировки на предыдущю тренировку.
+                        $choose_day = $crs_day;
+
+                        // Прерываем цикл, если текущий день недели больше проверяемого значения.
+                        // (тем самым, перенос только одно пропущенной тренировки)
+                        if($current_num_day > $crs_day)
+                        {
+                            break;
+                        }
+                    }
+                    elseif($crs_day == $choose_day)
+                    {
+                        break;
+                    }
+                }
+                unset($crs_day);
+            }
+            elseif($count_choose_days == $count_crs_days)
+            {
+                rsort($choose_days);
+
+                foreach($wo_data['days'] as $key => $crs_day)
+                {
+                    // Обновляем данные тренировки
+                    $wo_data['tw_wo'][$crs_day]['num_day'] = $choose_days[$key];
+
+                    // New date
+                    $new_date = $wo_data['tw_wo'][$crs_day]['date'];
+                    if($choose_days[$key] > $crs_day)
+                    {
+                        $diff_day = $choose_days[$key] - $crs_day;
+                        $tmp_date = new DateTime($wo_data['tw_wo'][$crs_day]['date']);
+                        $new_date = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $new_date;
+                    }
+                    elseif($choose_days[$key] < $crs_day)
+                    {
+                        $diff_day = $crs_day - $choose_days[$key];
+                        $tmp_date = new DateTime($wo_data['tw_wo'][$crs_day]['date']);
+                        $new_date = ($tmp_date !== false) ? $tmp_date->sub(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $new_date;
+                    }
+                    $wo_data['tw_wo'][$crs_day]['date'] = $new_date;
+                    $num_date = date("N", strtotime($new_date));
+
+                    // New status
+                    $status = $wo_data['tw_wo'][$crs_day]['status'];
+                    $wo_data['tw_wo'][$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
+
+                    // New course number workout
+                    if($status == '')
+                    {
+                        $wo_data['tw_wo'][$crs_day]['crs_wo_id']++;
+                    }
+                }
+                unset($crs_day);
+            }
+
+            //print_r($wo_data['tw_wo']); echo '<br/>';
+            $result = $this->Course_model->postponeUserCourseWeekWorkouts($next_workout['uc_id'], $this->user_id, $wo_data, $this->date);
+
+            if($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 196, 60);
+            }
+
+            header('Location: /profile/'.$this->user_id);
+        }
+
         $this->load->model('Notification_model');
         // Уведомления курсов
         if(!empty($course_notifs['notifications']))
@@ -935,15 +1056,19 @@ class User extends CI_Controller
     /**
      * Анкета пользователя
      *
+     * @param string $page_tab
      * @return void
      */
-    public function userQuestionnaire()
+    public function userQuestionnaire($page_tab)
     {
         // Если пользователь не авторизован, переход на страницу авторизации
         if (empty($this->user_id))
         {
             parent::pageNotFound($this->page_url);
         }
+
+        $page_tabs = array('anthropometric', 'progress', 'parameters', 'condition', 'regime');
+        $page_tab = (in_array($page_tab, $page_tabs)) ? $page_tab : 'anthropometric';
 
         // Валидация и сохранение данных анкеты в БД
         if ($this->input->post('bt_save_anthrop', true))
@@ -1019,7 +1144,7 @@ class User extends CI_Controller
                 }
             }
 
-            header('Location: /questionnaire');
+            header('Location: /questionnaire/anthropometric');
         }
         if ($this->input->post('bt_save_physical_param', true))
         {
@@ -1069,7 +1194,7 @@ class User extends CI_Controller
                 $this->session->set_tempdata('message', 10, 60);
             }
 
-            header('Location: /questionnaire');
+            header('Location: /questionnaire/parameters');
         }
         if ($this->input->post('bt_save_physical_condition', true))
         {
@@ -1106,9 +1231,10 @@ class User extends CI_Controller
                 $this->session->set_tempdata('message', 10, 60);
             }
 
-            header('Location: /questionnaire');
+            header('Location: /questionnaire/condition');
         }
-        if ($this->input->post('bt_save_daily_regime', true)) {
+        if ($this->input->post('bt_save_daily_regime', true))
+        {
             // Время бодрствования
             $minutes = mb_strlen($this->input->post('waking_from', true)) <= 2 ? ':00' : '';
             $d = DateTime::createFromFormat('H:i', $this->input->post('waking_from', true) . $minutes);
@@ -1153,18 +1279,20 @@ class User extends CI_Controller
 
             //$this->session->set_userdata('type_questionnaire', 3);
 
-            header('Location: /questionnaire');
+            header('Location: /questionnaire/regime');
         }
 
         // Получение данных анкеты из БД
         $user_quest_data     = $this->User_model->getQuestionnaireData($this->user_id);
         $user_anthrop_data   = $this->User_model->getLastAnthropometricData($this->user_id);
-        $result['user_data'] = array_merge($user_quest_data['user_data'], $user_anthrop_data);
+        $user_all_anthrop    = $this->User_model->getAnthropometricData($this->user_id, $this->date);
+        $result['user_data'] = array_merge($user_quest_data['user_data'], $user_anthrop_data, $user_all_anthrop);
         $result['user_name'] = $this->session->user['name'];
 
         // Объединенные данные страница
-        $this->page_data['title']     = 'Анкета';
-        $this->page_data['page_menu'] = 'questionnaire';
+        $this->page_data['title']        = 'Анкета';
+        $this->page_data['page_menu']    = 'questionnaire';
+        $this->page_data['page_submenu'] = $page_tab;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');

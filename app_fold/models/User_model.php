@@ -324,7 +324,7 @@ class User_model extends CI_Model
                 {
                     $result['user_social'][$row->us_social]['connect']     = true;
                     $result['user_social'][$row->us_social]['available']   = $row->us_available;
-                    $result['user_social'][$row->us_social]['profile_url'] = !empty($row->us_url_profile) ? $row->us_url_profile : '#';
+                    $result['user_social'][$row->us_social]['profile_url'] = (!empty($row->us_url_profile)) ? $row->us_url_profile : '';
                     $result['user_social'][$row->us_social]['id']          = $row->us_social_id;
                 }
                 unset($row);

@@ -1705,6 +1705,66 @@ class Database_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление базы данных март 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseMarch2019($date)
+    {
+        $result = false;
+
+        $date = '2019-03-18 13:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE FROM `users_social` WHERE `us_id`=15 or `us_id`=14");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-03-21 10:37';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE FROM `users_training_weeks` WHERE `utw_duplicate`=1");
+            $this->db->query("ALTER TABLE `users_training_weeks` DROP `utw_duplicate`");
+            $this->db->query("ALTER TABLE `users_training_weeks` CHANGE `utw_done` `utw_status` ENUM('','missed','done') NOT NULL DEFAULT ''");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-03-21 21:53';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_training_weeks` ADD `utw_crs_workout` SMALLINT(3) UNSIGNED NOT NULL AFTER `utw_workout`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-03-21 21:54';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_training_weeks` SET `utw_crs_workout`=`utw_workout`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-03-29 15:54';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (196, 'Ошибка! Тренерировки курса не перенесены.', 'Ошибка! Тренерировки курса не перенесены.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Поиск даты обновления в БД

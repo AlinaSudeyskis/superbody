@@ -27,7 +27,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <script src="/js/moment.min.js"></script>
     <script src="/js/jquery.min.js"></script>
-    <script src="/js/vimeo_player.js"></script>
     <script src="/js/amcharts/amcharts.js"></script>
     <script src="/js/amcharts/serial.js"></script>
     <script src="/js/amcharts/amstock.js"></script>

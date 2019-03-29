@@ -31,37 +31,37 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 $last_element = count($events);
                 foreach ($events as $key => $event) :?>
                 {
-                    start       : '<?php echo $event['start'];?>',
-                    end         : '<?php echo $event['end'];?>',
-                    constraint  : '<?php echo $event['constraint'];?>',
-                    ev_bl       : <?php if($event['blocked'] == 'true') : echo 'true'; else: echo 'false'; endif; ?>,
-                    <?php if (!empty($event['title'])) :?>
-                        title  : '<?php echo $event['title'];?>',
-                    <?php endif;
-                    if (!empty($event['id'])) :?>
-                        startParam  : '<?php echo $event['id'];?>',
-                    <?php endif;
-                    if (!empty($event['ml_id'])) :?>
-                        ml_id  : '<?php echo $event['ml_id'];?>',
-                    <?php endif;
-                    if (!empty($event['day'])) :?>
-                        day  : '<?php echo $event['day'];?>',
-                    <?php endif;
-                    if (!empty($event['ingestion'])) :?>
-                        ingestion  : '<?php echo $event['ingestion'];?>',
-                    <?php endif;
-                    if (!empty($event['workout_id'])) :?>
-                        endParam  : '<?php echo $event['workout_id'];?>',
-                    <?php endif;
-                    if (!empty($event['pause']) and $event['pause'] === true): ?>
-                        overlap   : false,
-                        rendering : 'background',
-                        color     : 'rgba(255, 159, 137, 0.5)'
-                    <?php else: ?>
-                        color: '<?php echo $event['color']; ?>'
-                    <?php endif; ?>
+                    start      : '<?php echo $event['start'];?>',
+                    end        : '<?php echo $event['end'];?>',
+                    constraint : '<?php echo $event['constraint'];?>',
+                    ev_bl      : <?php if($event['blocked'] == 'true') : echo 'true'; else: echo 'false'; endif; ?>,
+                <?php if (!empty($event['title'])) :?>
+                    title  : '<?php echo $event['title'];?>',
+                <?php endif;
+                if (!empty($event['id'])) :?>
+                    startParam  : '<?php echo $event['id'];?>',
+                <?php endif;
+                if (!empty($event['ml_id'])) :?>
+                    ml_id  : '<?php echo $event['ml_id'];?>',
+                <?php endif;
+                if (!empty($event['day'])) :?>
+                    day  : '<?php echo $event['day'];?>',
+                <?php endif;
+                if (!empty($event['ingestion'])) :?>
+                    ingestion  : '<?php echo $event['ingestion'];?>',
+                <?php endif;
+                if (!empty($event['workout_id'])) :?>
+                    endParam  : '<?php echo $event['workout_id'];?>',
+                <?php endif;
+                if (!empty($event['pause']) and $event['pause'] === true): ?>
+                    overlap   : false,
+                    rendering : 'background',
+                    color     : 'rgba(255, 159, 137, 0.5)'
+                <?php else: ?>
+                    color: '<?php echo $event['color']; ?>'
+                <?php endif; ?>
                 }<?php if ($last_element != $key) :?>,<?php endif; ?>
-                <?php if($event['missed'] == 'not_missed'): // and !empty($event['instruction_id'])?>
+                <?php if($event['missed'] == 'not_missed' and !empty($event['instruction_id'])): //?>
                 {
                     start      : '<?php echo $event['start'];?>',
                     end        : '<?php echo $event['end'];?>',
@@ -75,6 +75,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endforeach;
                 endif;?>
             ],
+            eventAfterRender:function(calEvent, element, view ) {
+                element.find('.fc-content').attr("id", "event-" + calEvent.endParam);
+            },
             eventClick: function(calEvent, jsEvent, view) {
                 if (calEvent.constraint == "workout" && calEvent.startParam != "")
                 {
@@ -92,7 +95,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             if (!data.error)
                             {
                                 $("#pop-up_video").html(data.video);
-                                $("#pop-up_video").append(data.i_video);
+                                //$("#pop-up_video").append(data.i_video);
                                 //$("#pop-up_video").append(data.i_a);
                                 $("#pop-up_video").append(data.description);
                                 //$("#pop-up_video").append(data.done);
@@ -170,6 +173,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                                 }
                                 pop_up_home($("#pop-up_video"));
+
                                 $.ajax({
                                     url: '/viewed/video',
                                     type: 'post',
@@ -179,8 +183,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     complete: function(result){
                                         if (result.responseText == 'true')
                                         {
-                                             calEvent.backgroundColor = 'rgba(159, 220, 39, .7)';
-                                             $('#calendar').fullCalendar('updateEvent', calEvent);
+                                            calEvent.backgroundColor = 'rgba(159, 220, 39, .7)';
+                                            $('#calendar').fullCalendar('updateEvent', calEvent);
                                         }
                                     }
                                 });

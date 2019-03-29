@@ -90,8 +90,7 @@ $route['profile/(:num)']                      = 'User/profile/$1';
 $route['profile']                             = 'User/profile';
 
 $route['settings']               = 'User/settings';
-$route['questionnaire']          = 'User/userQuestionnaire';
-//$route['anthropometric']         = 'User/userAnthropometric';
+$route['questionnaire(/(anthropometric|progress|parameters|condition|regime))?'] = 'User/userQuestionnaire/$2';
 $route['registry/questionnaire'] = 'User/registrationQuestionnaire';
 $route['getAnthropometricData']  = 'User/getAnthropometricData';
 $route['calendar']               = 'Calendar/getUserCalendar';
@@ -159,14 +158,14 @@ $route['administration/user/(:num)']           = 'User/userASettings/$1';
 $route['administration/users/archive(/(:num))?'] = 'User/archive/$2';
 $route['users/delete'] = 'User/deleteUsers';
 // Видео
-$route['administration/video']                = 'Course/video/promo';
+/*$route['administration/video']                = 'Course/video/promo';
 $route['administration/video/promo']          = 'Course/video/promo';
 $route['administration/video/courses']        = 'Course/video/courses';
 $route['administration/video/uncategorized']  = 'Course/video/uncategorized';
 $route['administration/video/instructions']   = 'Course/video/instructions';
 $route['administration/video/course/(:num)']  = 'Course/courseVideo/$1';
 $route['administration/video/upload']         = 'Course/newVideo';
-$route['administration/video/(:num)']         = 'Course/videoSettings/$1';
+$route['administration/video/(:num)']         = 'Course/videoSettings/$1';*/
 
 $route['upload/video']  = 'Course/uploadVideo';
 $route['upload/poster'] = 'Course/uploadPoster';

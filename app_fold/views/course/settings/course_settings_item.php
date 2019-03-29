@@ -234,7 +234,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php if ($workout['video_id'] > 0 and $workout['repeat_workout'] == 0) : ?>
                                         <div id="<?php echo $num_workout; ?>video" class="add_tov_val_item parent">
                                             <div class="add_kurs_val_video_wrap parent">
-                                                <a href="/administration/video/<?php echo $workout['video_id']; ?>" class="add_tov_val_cont parent">
+                                                <a href="/administration/course/<?php echo $course['id']; ?>/video/<?php echo $workout['video_id']; ?>" class="add_tov_val_cont parent">
                                                     <span class="add_tov_val_h"><?php echo $workout['video_name']; ?></span>
                                                 </a>
                                                 <div class="del_tov"></div>

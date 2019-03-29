@@ -12,9 +12,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="anketa_form_line parent">
                             <div class="anketa_form_h"><div class="anketa_form_h_cell">Длительность курса:</div></div>
                             <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php if (!empty($course['count_weeks'])) { echo $course['count_weeks']; }?></div></div>
-                            <input type="hidden" name="count_weeks" id="count_weeks" value="<?php if (!empty($course['count_weeks'])) { echo $course['count_weeks']; }?>" />
-                            <input type="hidden" name="count_days" id="count_days" value="<?php if (!empty($course['count_days'])) { echo $course['count_days']; }?>" />
-                            <input type="hidden" name="count_rest" id="count_rest" value="<?php if (!empty($course['count_rest'])) { echo $course['count_rest']; }?>" />
                             <div class="anketa_form_desk">нед.</div>
                         </div>
                         <div class="anketa_form_line parent">
@@ -44,50 +41,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         if($course['category'] == 'workout'):?>
                             <div class="anketa_form_line parent">
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренировочные дни:</div></div>
-                                <div class="anketa_form_radio_all parent <?php echo $days_disabled; ?>" id="week_days">
-                                    <div class="anketa_form_radio_wrap cb_week_day">
-                                        <input type="checkbox" name="cb_day[]" value="1" id="cb_monday" class="anketa_form_radio"
-                                               <?php if (!empty($course['days']) and in_array(1, $course['days'])) :?>checked="checked"
-                                               <?php elseif(!empty($course['days'])) :?>disabled<?php endif;?>
-                                        /><label for="cb_monday">Пн.</label>
-                                    </div>
-                                    <div class="anketa_form_radio_wrap cb_week_day">
-                                        <input type="checkbox" name="cb_day[]" value="2" id="cb_tuesday" class="anketa_form_radio"
-                                               <?php if (!empty($course['days']) and in_array(2, $course['days'])) :?>checked="checked"
-                                               <?php elseif(!empty($course['days'])) :?>disabled<?php endif;?>
-                                        /><label for="cb_tuesday">Вт.</label>
-                                    </div>
-                                    <div class="anketa_form_radio_wrap cb_week_day">
-                                        <input type="checkbox" name="cb_day[]" value="3" id="cb_wednesday" class="anketa_form_radio"
-                                               <?php if (!empty($course['days']) and in_array(3, $course['days'])) :?>checked="checked"
-                                               <?php elseif(!empty($course['days'])) :?>disabled<?php endif;?>
-                                        /><label for="cb_wednesday">Ср.</label>
-                                    </div>
-                                    <div class="anketa_form_radio_wrap cb_week_day">
-                                        <input type="checkbox" name="cb_day[]" value="4" id="cb_thursday" class="anketa_form_radio"
-                                               <?php if (!empty($course['days']) and !empty($course['days']) and in_array(4, $course['days'])) :?>checked="checked"
-                                               <?php elseif(!empty($course['days'])) :?>disabled<?php endif;?>
-                                        /><label for="cb_thursday">Чт.</label>
-                                    </div>
-                                    <div class="anketa_form_radio_wrap cb_week_day">
-                                        <input type="checkbox" name="cb_day[]" value="5" id="cb_friday" class="anketa_form_radio"
-                                               <?php if (!empty($course['days']) and in_array(5, $course['days'])) :?>checked="checked"
-                                               <?php elseif(!empty($course['days'])) :?>disabled<?php endif;?>
-                                        /><label for="cb_friday">Пт.</label>
-                                    </div>
-                                    <div class="anketa_form_radio_wrap cb_week_day">
-                                        <input type="checkbox" name="cb_day[]" value="6" id="cb_saturday" class="anketa_form_radio"
-                                               <?php if (!empty($course['days']) and in_array(6, $course['days'])) :?>checked="checked"
-                                               <?php elseif(!empty($course['days'])) :?>disabled<?php endif;?>
-                                        /><label for="cb_saturday">Сб.</label>
-                                    </div>
-                                    <div class="anketa_form_radio_wrap cb_week_day">
-                                        <input type="checkbox" name="cb_day[]" value="7" id="cb_sunday" class="anketa_form_radio"
-                                               <?php if (!empty($course['days']) and in_array(7, $course['days'])) :?>checked="checked"
-                                               <?php elseif(!empty($course['days'])) :?>disabled<?php endif;?>
-                                        /><label for="cb_sunday">Вс.</label>
-                                    </div>
-                                </div>
+                                <?php include('./app_fold/views/course/week_days_item.php'); ?>
                             </div>
                         <?php endif;
                         if (!empty($course['couches'])) :?>

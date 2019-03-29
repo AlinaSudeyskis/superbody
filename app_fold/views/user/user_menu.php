@@ -23,11 +23,6 @@ if (!empty($user_session)) :
             </a>
         </li>
         <li <?php echo $user_blocked; ?> >
-            <a href="/progress" <?php if ($page_menu == 'progress') { echo 'class="active"'; } ?>>
-                <span><img src="/img/menu_ico7.png" alt=""></span><span>Прогресс</span>
-            </a>
-        </li>
-        <li <?php echo $user_blocked; ?> >
             <a href="/profile/courses" <?php if ($page_menu == 'u_courses') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico6.png" alt=""></span><span>Мои курсы</span>
             </a>
@@ -39,11 +34,13 @@ if (!empty($user_session)) :
                 </a>
             </li>
         <?php endif; ?>
-        <li <?php echo $user_blocked; ?> >
-            <a href="/calendar" <?php if ($page_menu == 'calendar') { echo 'class="active"'; } ?>>
-                <span><img src="/img/menu_ico5.png" alt=""></span><span>Календарь</span>
-            </a>
-        </li>
+        <?php if($page_menu == 'profile'): ?>
+            <li <?php echo $user_blocked; ?> >
+                <a href="#calendar" class="scroll_to">
+                    <span><img src="/img/menu_ico5.png" alt=""></span><span>Календарь</span>
+                </a>
+            </li>
+        <?php endif; ?>
         <li>
             <a href="/messages" <?php if ($page_menu == 'messages') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico4.png" alt=""></span><span>Сообщения</span>

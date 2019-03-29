@@ -7299,15 +7299,36 @@ h3.tip{
     background: #f3f3f3;
     cursor: default;
 }
+.anketa_form_radio.prev_workout + label {
+    background: #e0e0e0;
+}
+.anketa_form_radio:checked.prev_workout + label {
+    background: #2acaf2;
+}
 .anketa_form_radio.long + label{
     width: 160px;
 }
 .anketa_form_radio_all{
 	float: left;
 }
+.postpone{
+    text-align: center;
+}
+.postpone #week_days{
+    width: 581px;
+    margin: 0 auto;
+    float: none;
+}
+.postpone_next_wo{
+    margin-bottom: 20px;
+}
+.postpone_title{
+    margin-bottom: 10px;
+}
 .anketa_form_radio_wrap{
 	float: left;
 	padding: 3px 0;
+    margin-right: 3px;
 }
 .anketa_form_three_all{
 	float: left;
@@ -8789,6 +8810,7 @@ textarea.anketa_form_in{
     float: left;
     width: 125px;
     overflow: hidden;
+    margin-right: 25px;
 }
 .admin_video img{
     display: block;
@@ -8796,10 +8818,11 @@ textarea.anketa_form_in{
     border-bottom: 2px solid #00bff0;
 }
 .admin_video_cont{
-    margin-left: 25px;
-    /* margin-left: 150px; */
     overflow: hidden;
     float: left;
+    width: calc(100% - 250px);
+    /* margin-left: 25px;
+    margin-left: 150px;*/
 }
 .progressbar {
     display: none;

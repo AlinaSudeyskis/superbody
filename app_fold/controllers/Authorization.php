@@ -937,6 +937,7 @@ class Authorization extends CI_Controller
 
             if (!empty($resp_data->access_token))
             {
+                log_message('debug', 'Instagram response ' . print_r($resp_data, true));
                 $user_access_token = $resp_data->access_token;
                 $expires_in        = 0;
                 $expires_at        = 0;
@@ -948,7 +949,7 @@ class Authorization extends CI_Controller
                 $user_email       = (!empty($email)) ? $email : '';
                 $user_birthday    = '';
                 $user_gender      = '';
-                $user_profile_url = (!empty($resp_data->user->user_name)) ? 'https://www.instagram.com/'.$resp_data->user->user_name : '';
+                $user_profile_url = (!empty($resp_data->user->username)) ? 'https://www.instagram.com/'.$resp_data->user->username : '';
 
                 if (empty($this->session->user))
                 {
@@ -998,7 +999,7 @@ class Authorization extends CI_Controller
                 else
                 {
                     $result = $this->Authorization_model->connectSocial($this->user_id, 'instagram', $this->date, $user_access_token,
-                        $user_soc_id, $expires_at, $issued_at, $expires_in);
+                        $user_soc_id, $user_profile_url, $expires_at, $issued_at, $expires_in);
 
                     if($result === true)
                     {
@@ -1200,7 +1201,7 @@ class Authorization extends CI_Controller
                     else
                     {
                         $result = $this->Authorization_model->connectSocial($this->user_id, 'vk', $this->date, $user_access_token,
-                            $user_soc_id, $expires_at, $issued_at, $expires_in);
+                            $user_soc_id, '', $expires_at, $issued_at, $expires_in);
 
                         if($result === true)
                         {
@@ -1393,11 +1394,11 @@ class Authorization extends CI_Controller
                     else
                     {
                         $result = $this->Authorization_model->connectSocial($this->user_id, 'facebook', $this->date, $fb_u_data['user_access_token'],
-                            $fb_u_data['user_soc_id'], $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in']);
+                            $fb_u_data['user_soc_id'], $fb_u_data['user_profile_url'], $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in']);
 
                         if($result === true)
                         {
-                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
+                            //log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
 
                             parent::deleteSessionReturnUrl();
 
@@ -1521,15 +1522,16 @@ class Authorization extends CI_Controller
                 curl_close($myCurl2);
                 $resp_info = json_decode($response);
 
+                log_message('debug', 'Facebook response ' . print_r($resp_info, true));
                 if (!empty($resp_info->id))
                 {
                     // Данные пользователя в соц. сети
-                    $result['user_email']       = !empty($resp_info->email) ? $resp_info->email : '';
-                    $result['user_name']        = !empty($resp_info->name) ? $resp_info->name : '';
-                    $result['user_image']       = !empty($resp_info->picture->data->url) ? $resp_info->picture->data->url : '';
+                    $result['user_email']       = (!empty($resp_info->email)) ? $resp_info->email : '';
+                    $result['user_name']        = (!empty($resp_info->name)) ? $resp_info->name : '';
+                    $result['user_image']       = (!empty($resp_info->picture->data->url)) ? $resp_info->picture->data->url : '';
                     $result['user_birthday']    = '';
                     $result['user_gender']      = '';
-                    $result['user_profile_url'] = !empty($resp_info->link) ? $resp_info->link : '';
+                    $result['user_profile_url'] = (!empty($resp_info->link)) ? $resp_info->link : '';
                 }
             }
         }
@@ -1641,12 +1643,12 @@ class Authorization extends CI_Controller
                     $user_soc_id     = $resp_info->uid;
                     $expires_at      = 0;
                     $issued_at       = 0;
-                    $user_soc_name   = !empty($resp_info->name) ? $resp_info->name : '';
-                    $user_soc_email  = !empty($email) ? $email : $resp_info->email;
-                    $user_soc_image  = is_file($resp_info->pic_3) ? $resp_info->pic_3 : '';
-                    $user_soc_bd     = !empty($resp_info->birthday) ? $resp_info->birthday : '';
-                    $user_soc_gender = !empty($resp_info->gender) ? $resp_info->gender : '';
-                    $user_soc_url    = !empty($resp_info->url_profile) ? $resp_info->url_profile : '';
+                    $user_soc_name   = (!empty($resp_info->name)) ? $resp_info->name : '';
+                    $user_soc_email  = (!empty($email)) ? $email : $resp_info->email;
+                    $user_soc_image  = (is_file($resp_info->pic_3)) ? $resp_info->pic_3 : '';
+                    $user_soc_bd     = (!empty($resp_info->birthday)) ? $resp_info->birthday : '';
+                    $user_soc_gender = (!empty($resp_info->gender)) ? $resp_info->gender : '';
+                    $user_soc_url    = (!empty($resp_info->url_profile)) ? $resp_info->url_profile : '';
 
                     if (empty($this->session->user))
                     {
@@ -1696,7 +1698,7 @@ class Authorization extends CI_Controller
                     else
                     {
                         $result = $this->Authorization_model->connectSocial($this->user_id, 'ok', $this->date, $user_access_token,
-                            $user_soc_id, $expires_at, $issued_at, $expires_in);
+                            $user_soc_id, $user_soc_url, $expires_at, $issued_at, $expires_in);
 
                         if($result === true)
                         {
