@@ -7108,6 +7108,15 @@ h3.tip{
     margin-left: 0;
     font-weight: normal;
 }
+span.tip>.bt_link {
+    border: none;
+    background: none;
+    color: #72d0f4;
+    cursor: pointer;
+}
+.bt_link:hover {
+    text-decoration: underline;
+}
 .confirm_form .tip{
     margin-left: 0;
     text-align: center;

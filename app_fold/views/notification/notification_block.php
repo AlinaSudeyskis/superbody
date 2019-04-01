@@ -28,6 +28,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             if($course_finished === true and !empty($course_finished_info)):?>
                 <h3 class="info"><?php echo $course_finished_info; ?></h3>
             <?php endif;
+            if($workout_missed === true and !empty($workout_missed_info)):?>
+                <h3 class="info"><?php echo $workout_missed_info; ?></h3>
+            <?php endif;
         endif;
 
         // Отсчет времени окончания курса

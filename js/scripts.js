@@ -1414,34 +1414,56 @@ $(document).ready(function() {
                         }
                         else
                         {
-                            pop_up_video.html(data.postpone);
-                            pop_up_def(pop_up_video);
-
-                            $(document).on('submit', '.postpone', function(event){
-                                var uc_days = data.uc_days,
-                                    ch_cb = $(this).find("input:checkbox[name='cb_day[]']:checked");
-
-                                if(ch_cb.length === 1 || uc_days.length === ch_cb.length)
-                                {
-                                    $(this).submit();
-                                }
-                                else
-                                {
-                                    if(pop_up_video.children('h3.info').length === 0)
-                                    {
-                                        pop_up_video.append('<h3 class="info">*Для переноса выберите один день или все дни тренировок недели.</h3>');
-                                    }
-                                    else
-                                    {
-                                        pop_up_video.children('h3.info').show();
-                                    }
-                                }
-                                event.preventDefault();
-                            });
+                            if(data.postpone)
+                            {
+                                workoutPostpone(pop_up_video, data.postpone, data.uc_days);
+                            }
                         }
                     }
                 });
             });
+            $('#wo-m').on('click', function(event){
+                event.preventDefault();
+                $.ajax({
+                    url: '/show/postpone',
+                    type: 'post',
+                    dataType: 'json',
+                    complete: function (result) {
+                        var data = jQuery.parseJSON(result.responseText),
+                            pop_up_video = $("#pop-up_video");
+                        if(data.postpone)
+                        {
+                            workoutPostpone(pop_up_video, data.postpone, data.uc_days);
+                        }
+                    }
+                });
+            });
+            function workoutPostpone(pop_up_video, postpone, uc_days)
+            {
+                pop_up_video.html(postpone);
+                pop_up_def(pop_up_video);
+
+                $(document).on('submit', '.postpone', function(event){
+                    var ch_cb = $(this).find("input:checkbox[name='cb_day[]']:checked");
+
+                    if(ch_cb.length === 1 || uc_days.length === ch_cb.length)
+                    {
+                        $(this).submit();
+                    }
+                    else
+                    {
+                        if(pop_up_video.children('h3.info').length === 0)
+                        {
+                            pop_up_video.append('<h3 class="info">*Для переноса выберите один день или все дни тренировок недели.</h3>');
+                        }
+                        else
+                        {
+                            pop_up_video.children('h3.info').show();
+                        }
+                    }
+                    event.preventDefault();
+                });
+            }
 
             function workoutDone(woid)
             {

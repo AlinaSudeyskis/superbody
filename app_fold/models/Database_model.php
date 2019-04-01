@@ -1715,6 +1715,15 @@ class Database_model extends CI_Model
     {
         $result = false;
 
+        $date = '2019-02-07 19:30:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `anthropometric` CHANGE `user_date_add` `user_date_add` DATE NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
         $date = '2019-03-18 13:05';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
@@ -1758,6 +1767,55 @@ class Database_model extends CI_Model
         if($fl_up_db === false)
         {
             $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (196, 'Ошибка! Тренерировки курса не перенесены.', 'Ошибка! Тренерировки курса не перенесены.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных апрель 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseApril2019($date)
+    {
+        $result = false;
+
+        $date = '2019-04-01 10:24';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (197, 'Вы пропустили тренировку на этой неделе.', 'Вы пропустили тренировку на этой неделе.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-04-01 13:40';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (198, 'Письмо с подтверждением изменения email повторно отравлено на текущую почту.', 'Письмо с подтверждением изменения email повторно отравлено на текущую почту.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-04-01 13:40';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (198, 'Письмо по активации email повторно отравлено на текущую почту.', 'Письмо по активации email повторно отравлено на текущую почту.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-04-01 14:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `emails` SET `e_subject` = 'Подтверждение email', `e_text` = 'Подтвердите email, перейдя по ссылке ниже.' WHERE `emails`.`e_id` = 17");
 
             self::setDbUpdate($date);
         }

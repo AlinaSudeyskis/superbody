@@ -286,6 +286,14 @@ class User extends CI_Controller
                         $this->page_data['course_notification'][$user_course_id]['course_finished']['text']    = $notification['notification']['text'];
                         $this->page_data['course_notification'][$user_course_id]['course_finished']['extends'] = $notif['extends'];
                     }
+
+                    // Пропущена тренировка на этой неделе
+                    if(is_numeric($code) and $code == 197)
+                    {
+                        $notification = $this->Notification_model->getNotification($code);
+
+                        $this->page_data['course_notification'][$user_course_id]['workout_missed']['text'] = $notification['notification']['text'];
+                    }
                 }
             }
             unset($course_notif);
@@ -613,15 +621,9 @@ class User extends CI_Controller
 
                     if($set_change === true)
                     {
-                        $system_message['text']  = '<b><a href="https://superbody.pro/email/change?e=' . $user_data['user_email'] . '&ac=' . $user_data['user_activate_code'] . '&i=' . $idempotent
-                            . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                        $system_message['text']  .= 'Сменить email';
-                        $system_message['text']  .= '</a></b>';
+                        self::sendEChangeEmail($user_data['user_email'], $user_data['user_activate_code'], $idempotent);
 
-                        // Отправка письма с подтверждением смены email на текущий email.
-                        parent::sendEmail(15, $user_data['user_email'], $system_message);
-
-                        // Данные о смене не были сохранены
+                        // Данные о смене были сохранены
                         $this->session->set_tempdata('message', 191, 60);
                     }
                     else
@@ -867,6 +869,44 @@ class User extends CI_Controller
 
                 header('Location: /settings');
             }
+        }
+        elseif ($this->input->post('bt_e_activate_send_again', true))
+        {
+            $this->load->model('Authorization_model');
+
+            $res_check = $this->Authorization_model->checkActivateEmail($this->user_id);
+
+            if(is_array($res_check))
+            {
+                // Отправка письма с активацией новой почты
+                $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $res_check['user_email'] . '&ac=' . $res_check['activate_code']
+                    . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                $system_message['text']  .= 'Активировать';
+                $system_message['text']  .= '</a></b>';
+
+                parent::sendEmail(17, $res_check['user_email'], $system_message);
+
+
+                // Данные о смене были сохранены
+                $this->session->set_tempdata('message', 199, 60);
+            }
+            header('Location: /settings');
+
+        }
+        elseif ($this->input->post('bt_e_change_email_send_again', true))
+        {
+            $this->load->model('Authorization_model');
+
+            $res_check = $this->Authorization_model->checkChangingEmail($this->user_id);
+
+            if(is_array($res_check))
+            {
+                self::sendEChangeEmail($res_check['user_email'], $res_check['activate_code'], $res_check['idempotent']);
+
+                // Данные о смене были сохранены
+                $this->session->set_tempdata('message', 198, 60);
+            }
+            header('Location: /settings');
         }
 
 
@@ -2072,5 +2112,23 @@ class User extends CI_Controller
         }
 
         echo $result;
+    }
+
+    /**
+     * Отправка эл. письма по смене email пользователю
+     *
+     * @param $user_email
+     * @param $activate_code
+     * @param $idempotent
+     */
+    protected function sendEChangeEmail($user_email, $activate_code, $idempotent)
+    {
+        $system_message['text']  = '<b><a href="https://superbody.pro/email/change?e=' . $user_email . '&ac=' . $activate_code . '&i=' . $idempotent
+            . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+        $system_message['text']  .= 'Сменить email';
+        $system_message['text']  .= '</a></b>';
+
+        // Отправка письма с подтверждением смены email на текущий email.
+        parent::sendEmail(15, $user_email, $system_message);
     }
 }

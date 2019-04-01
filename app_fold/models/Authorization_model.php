@@ -951,6 +951,64 @@ class Authorization_model extends CI_Model
     }
 
     /**
+     * Проверка пользователя для повторного отправления письма по смене email
+     *
+     * @param $user_id
+     * @return bool
+     */
+    public function checkChangingEmail($user_id)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `user_email`, `user_new_email`, `user_activate_code`, `user_new_email_idempotent` FROM `users` 
+            WHERE `user_id`=? and `user_new_email_idempotent`<>"" and `user_new_email`<>"" LIMIT 1', $user_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $check_email = self::checkEmail($row->user_new_email);
+            if($check_email === false)
+            {
+                $result['user_email']    = $row->user_email;
+                $result['activate_code'] = $row->user_activate_code;
+                $result['idempotent']    = $row->user_new_email_idempotent;
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка пользователя для повторного отправления письма по активации email
+     *
+     * @param $user_id
+     * @return bool
+     */
+    public function checkActivateEmail($user_id)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `user_email`, `user_activate_code` FROM `users` WHERE `user_id`=? and `user_activated`=0 LIMIT 1', $user_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['user_email']    = $row->user_email;
+            $result['activate_code'] = $row->user_activate_code;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Проверка наличия зарегистрированного пользователя с таким email в БД
      *
      * @param $email

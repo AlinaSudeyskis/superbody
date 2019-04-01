@@ -6777,7 +6777,7 @@ class Course_model extends CI_Model
      * @param $today
      * @return array
      */
-    public function getUserCourseWeekWorkouts($user_course_id, $user_id, $today)
+    public function getUserCourseWeekWorkouts($user_id, $today)
     {
         $result = array();
 
@@ -6787,22 +6787,27 @@ class Course_model extends CI_Model
         $end_date        = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$interval.'D'))->format('Y-m-d') : false;
         $start_date      = ($end_date !== false) ? $tmp_date->sub(new DateInterval('P6D'))->format('Y-m-d') : false;
 
-        if(is_numeric($user_id) and is_numeric($user_course_id) and $start_date and $end_date)
+        if(is_numeric($user_id) and $start_date and $end_date)
         {
             $sel_data = $this->db->query('
-                SELECT `utw_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date`, `uc_user_id` 
+                SELECT `utw_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date`, `uc_user_id`, `uc_display`, `uc_id` 
                 FROM `users_training_weeks`
                 LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
-                WHERE `utw_uc_id`=? and `uc_user_id`=? and (`utw_date`>=? and `utw_date`<=?)',
-                    array($user_course_id, $user_id, $start_date, $end_date));
+                WHERE `uc_user_id`=? and `uc_display`=1 and (`utw_date`>=? and `utw_date`<=?)',
+                    array($user_id, $start_date, $end_date));
             if($sel_data !== false and 0 < $sel_data->num_rows())
             {
+                $result['uc_id'] = '';
                 $i = 0;
                 foreach($sel_data->result() as $row)
                 {
                     $num_day = date("N", strtotime($row->utw_date));
-
                     $result['days'][$i] = $num_day;
+
+                    if(empty($result['uc_id']))
+                    {
+                        $result['uc_id'] = $row->uc_id;
+                    }
 
                     $result['tw_wo'][$num_day]['num_day']   = $num_day;
                     $result['tw_wo'][$num_day]['id']        = $row->utw_id;
@@ -6877,7 +6882,6 @@ class Course_model extends CI_Model
             FROM `users_courses` 
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
             WHERE `uc_user_id`=? and `uc_blocked`=1 and `uc_blocked_reason`="payment_canceled"', $user_id);
-
         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
         {
             $tmp_date = new DateTime($date);
@@ -6943,7 +6947,6 @@ class Course_model extends CI_Model
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
             WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`>=? and `uc_date_end`<?',
                 array($user_id, $today, $next_week));
-
         if ($sel_courses2 !== false and 0 < $sel_courses2->num_rows())
         {
             foreach ($sel_courses2->result() as $row)
@@ -7027,7 +7030,6 @@ class Course_model extends CI_Model
             FROM `users_courses`
             LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
             WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`<? and `uc_date_end`<>"0000-00-00"', array($user_id, $today));
-
         if($sel_courses3 !== false and 0 < $sel_courses3->num_rows())
         {
             $i = 0;
@@ -7139,6 +7141,30 @@ class Course_model extends CI_Model
         else
         {
             $result['display_nutrition'] = false;
+        }
+
+        // Уведосление о пропущенной тренировке на этой неделе
+        //$today = '2019-04-04';
+        $current_num_day = date("N", strtotime($today));
+        $tmp_date        = new DateTime($today);
+        $interval        = 7 - $current_num_day;
+        $this_sunday     = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$interval.'D'))->format('Y-m-d') : false;
+        $this_monday     = ($this_sunday !== false) ? $tmp_date->sub(new DateInterval('P6D'))->format('Y-m-d') : false;
+
+        $sel_this_week = $this->db->query('
+            SELECT `utw_id`, `utw_uc_id`, `uc_user_id` FROM `users_training_weeks`
+            LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+            WHERE `uc_user_id`=? and `utw_date`>=? and `utw_date`<? and `utw_status`="missed" LIMIT 1',
+                array($user_id, $this_monday, $today));
+        if($sel_this_week !== false and 1 == $sel_this_week->num_rows())
+        {
+            $row = $sel_this_week->row();
+
+            $result['notifications'][$row->utw_uc_id][197]['course_name'] = $row->crs_name;
+        }
+        elseif($sel_this_week === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;

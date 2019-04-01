@@ -93,13 +93,13 @@ class Administrator extends CI_Controller
 
                 if (is_numeric($result))
                 {
-                    // Отправление письма с данными администратора
+                    // Отправка письма с активацией почты
                     $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
                         . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                    $system_message['text']  .= 'Подтвердить';
+                    $system_message['text']  .= 'Активировать';
                     $system_message['text']  .= '</a></b>';
 
-                    parent::sendEmail(1, $email, $system_message);
+                    parent::sendEmail(17, $email, $system_message);
 
                     $admin_id    = $result;
                     $path_avatar = '';

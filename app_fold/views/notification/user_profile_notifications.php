@@ -6,6 +6,7 @@ $course_blocked  = false;
 $course_ends     = false;
 $course_finished = false;
 $count_ends_down = false;
+$workout_missed  = false;
 $extends         = array();
 
 // Аккаунт пользователя заблокирован
@@ -30,10 +31,13 @@ if(!empty($course_notification)):
     $h3_info = '';
 
     foreach($course_notification as $user_course_id => $notif):
-        if(!empty($notif['course_blocked']) or !empty($notif['course_ends']) or (!empty($notif['course_finished']) and !empty($notif['course_finished']['extends']))):
+        if(!empty($notif['course_blocked']) or !empty($notif['course_ends'])
+            or (!empty($notif['course_finished']) and !empty($notif['course_finished']['extends']))
+            or !empty($notif['workout_missed'])):
             $course_blocked  = false;
             $course_ends     = false;
             $course_finished = false;
+            $workout_missed  = false;
             $notif_block_h   = '<a href="/profile/course/' . $user_course_id . '">' . $notif['course_name'] . '</a>';
 
             // Курс заморожен (оплата не прошла)
@@ -56,6 +60,13 @@ if(!empty($course_notification)):
                 $course_finished         = true;
                 $course_finished_info    = $notif['course_finished']['text'];
                 $course_finished_extends = $notif['course_finished']['extends'];
+            endif;
+
+            // Пропущена тренировка на этой неделе
+            if(!empty($notif['workout_missed'])):
+                $workout_missed      = true;
+                $notif_block_h       = '<a href="#" id="wo-m">Перенести тренировку</a>';
+                $workout_missed_info = $notif['workout_missed']['text'];
             endif;
             include('notification_block.php');
         endif;

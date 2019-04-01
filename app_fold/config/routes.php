@@ -105,6 +105,7 @@ $route['showMeal']               = 'Course/showMeal';
 $route['showMeals']              = 'Course/showMeals';
 $route['selectMeal']             = 'Course/selectMeal';
 $route['show/workout']           = 'Course/showWorkout';
+$route['show/postpone']          = 'Course/showPostpone';
 $route['show/userMeal']          = 'Course/showUserMeal';
 $route['saveUserMeal']           = 'Course/saveUserMeal';
 $route['userSearchMeals']        = 'Course/userSearchMeals';
