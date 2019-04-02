@@ -668,6 +668,7 @@ function pop_up_def(popup) {
         shadow.fadeOut(600);
         //shadow2.fadeOut(600);
         popup.fadeOut(600);
+        popup.empty();
         if(typeof(playerTwoPlayer) !== "undefined")
         {
             playerTwoPlayer.destroy();
@@ -687,25 +688,14 @@ function pop_up_home(popup) {
         returnScroll();
     });
 
-    $("#shadow2, .home_pop-up_close").fadeTo(600,0.8).on('click', function() {
+    $("#shadow2, .home_pop-up_close, .close_meal, .close_user_meal").fadeTo(600,0.8).on('click', function() {
         shadow.fadeOut(600);
         popup.fadeOut(600);
+        popup.empty();
         if(typeof(playerTwoPlayer) !== "undefined")
         {
             playerTwoPlayer.destroy();
         }
-    });
-    $("#shadow2, .close_meal").fadeTo(600,0.8).on('click', function() {
-        shadow.fadeOut(600);
-        popup.fadeOut(600);
-        if(typeof(playerTwoPlayer) !== "undefined")
-        {
-            playerTwoPlayer.destroy();
-        }
-    });
-    $("#shadow2, .close_user_meal").fadeTo(600,0.8).on('click', function() {
-        shadow.fadeOut(600);
-        popup.fadeOut(600);
     });
 }
 var scrollKeys = [33,34,35,36,38,40];

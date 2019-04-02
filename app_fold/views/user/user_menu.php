@@ -34,13 +34,11 @@ if (!empty($user_session)) :
                 </a>
             </li>
         <?php endif; ?>
-        <?php if($page_menu == 'profile'): ?>
-            <li <?php echo $user_blocked; ?> >
-                <a href="#calendar" class="scroll_to">
-                    <span><img src="/img/menu_ico5.png" alt=""></span><span>Календарь</span>
-                </a>
-            </li>
-        <?php endif; ?>
+        <li <?php echo $user_blocked; ?> >
+            <a href="/profile/<?php echo $user_session['id'];?>" class="scroll_to" data-id="calendar">
+                <span><img src="/img/menu_ico5.png" alt=""></span><span>Календарь</span>
+            </a>
+        </li>
         <li>
             <a href="/messages" <?php if ($page_menu == 'messages') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico4.png" alt=""></span><span>Сообщения</span>

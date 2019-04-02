@@ -34,16 +34,37 @@ $(document).ready(function() {
                 chat.scrollTop(chat[0].scrollHeight);
             }/**/
 
+            // Read the cookie and if it defined scroll to id
+            var scroll = Cookies.get('scroll');
+            if(scroll){
+                scrollToID(scroll, 1000);
+                Cookies.remove('scroll');
+            }
             $("a.scroll_to").click(function(event) {
                 event.preventDefault();
-                var elementClick = $(this).attr("href"),
-                    destination = $(elementClick).offset().top - 35;
+                var id = $(this).data("id"),
+                    href = $(this).attr("href");
 
-                jQuery("html:not(:animated),body:not(:animated)").animate({
-                    scrollTop: destination
-                }, 800);
+                if($('#' + id).length === 1)
+                {
+                    scrollToID(id, 1000);
+                }
+                else{
+                    Cookies.set('scroll', id);
+                    window.location.href = href;
+                }
                 return false;
             });
+            // scrollToID function
+            function scrollToID(id, speed) {
+                var offSet = 35;
+                var obj = $('#' + id);
+                if(obj.length){
+                    var offs = obj.offset();
+                    var targetOffset = offs.top - offSet;
+                    $('html,body').animate({ scrollTop: targetOffset }, speed);
+                }
+            }
 
             // Валидация email
             var email_error = $('.email_error'),
