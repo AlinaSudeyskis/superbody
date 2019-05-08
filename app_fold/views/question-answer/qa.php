@@ -47,6 +47,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         include_once('./app_fold/views/question-answer/qa_new_subsection.php');?>
                     <?php elseif($page_type == 'subsection'):
                         include_once('./app_fold/views/question-answer/qa_subsection_settings.php');?>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
                     <?php endif; ?>
                 </div>
             </div>

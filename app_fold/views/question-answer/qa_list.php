@@ -13,5 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         <?php endforeach;
         unset($article);?>
+    <?php else: ?>
+        <h3 class="info">Информация не найдена</h3>
     <?php endif; ?>
 </div>
