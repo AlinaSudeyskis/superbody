@@ -26,8 +26,8 @@ class Authorization_model extends CI_Model
         {
             $this->db->query('
                 INSERT INTO `users`
-                  (`user_email`, `user_password`, `user_activate_code`, `user_date_reg`, `user_date_update`, `user_name`, `user_auth_via`)
-                VALUES (?, ?, ?, ?, ?, ?, ?)', array($email, $password, $email_hash, $date, $date, $name, 'native'));
+                  (`user_email`, `user_password`, `user_activate_code`, `user_date_reg`, `user_activate_date`, `user_date_update`, `user_name`, `user_auth_via`)
+                VALUES (?, ?, ?, ?, ?, ?, ?)', array($email, $password, $email_hash, $date, $date, $date, $name, 'native'));
 
             if ($this->db->affected_rows() == 1)
             {
@@ -97,7 +97,8 @@ class Authorization_model extends CI_Model
     {
         $result = false;
 
-        $up_data = $this->db->query('UPDATE `users` SET `user_activated`=1 WHERE `user_id`=? LIMIT 1', $user_id);
+        $up_data = $this->db->query('UPDATE `users` SET `user_activated`=1, `user_activate_date`="0000-00-00 00:00:00", `user_date_update`=? 
+          WHERE `user_id`=? LIMIT 1', array($date, $user_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -880,7 +881,7 @@ class Authorization_model extends CI_Model
     }
 
     /**
-     * Сохранение данныз для смены email
+     * Сохранение данных для смены email
      *
      * @param $user_id
      * @param $new_email
@@ -899,8 +900,8 @@ class Authorization_model extends CI_Model
             {
                 $up_data = $this->db->query('
                     UPDATE `users` 
-                    SET `user_new_email`=?, `user_new_email_idempotent`=?, `user_date_update`=? 
-                    WHERE `user_id`=? LIMIT 1', array($new_email, $idempotent, $date, $user_id));
+                    SET `user_new_email`=?, `user_new_email_idempotent`=?, `user_date_update`=?, `user_new_email_update`=? 
+                    WHERE `user_id`=? LIMIT 1', array($new_email, $idempotent, $date, $date, $user_id));
 
                 if($up_data !== false and 1 == $this->db->affected_rows())
                 {
@@ -928,7 +929,7 @@ class Authorization_model extends CI_Model
     {
         $result = false;
 
-        $sel_data = $this->db->query('SELECT `user_new_email` FROM `users` 
+        $sel_data = $this->db->query('SELECT `user_new_email`, `user_new_email_date` FROM `users` 
             WHERE `user_email`=? and `user_activate_code`=? and `user_new_email_idempotent`=? LIMIT 1',
             array($email, $code, $idempotent));
 
@@ -954,13 +955,14 @@ class Authorization_model extends CI_Model
      * Проверка пользователя для повторного отправления письма по смене email
      *
      * @param $user_id
+     * @param $date
      * @return bool
      */
-    public function checkChangingEmail($user_id)
+    public function checkChangingEmail($user_id, $date)
     {
         $result = false;
 
-        $sel_data = $this->db->query('SELECT `user_email`, `user_new_email`, `user_activate_code`, `user_new_email_idempotent` FROM `users` 
+        $sel_data = $this->db->query('SELECT `user_email`, `user_new_email`, `user_activate_code`, `user_new_email_date`, `user_new_email_idempotent` FROM `users` 
             WHERE `user_id`=? and `user_new_email_idempotent`<>"" and `user_new_email`<>"" LIMIT 1', $user_id);
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
@@ -969,9 +971,27 @@ class Authorization_model extends CI_Model
             $check_email = self::checkEmail($row->user_new_email);
             if($check_email === false)
             {
-                $result['user_email']    = $row->user_email;
-                $result['activate_code'] = $row->user_activate_code;
-                $result['idempotent']    = $row->user_new_email_idempotent;
+                $result['user_email']      = $row->user_email;
+                $result['activate_code']   = $row->user_activate_code;
+                $result['new_email_date']  = ($row->user_new_email_date != '0000-00-00 00:00:00') ? $row->user_new_email_date : '';
+                $result['idempotent']      = $row->user_new_email_idempotent;
+
+                $result['availability_send_email']      = true;
+                $result['availability_send_email_date'] = null;
+
+                if($row->user_new_email_date != '0000-00-00 00:00:00')
+                {
+                    $datetime1 = new DateTime($date);
+                    $datetime2 = new DateTime($row->user_new_email_date);
+                    $interval = $datetime1->diff($datetime2);
+
+                    // Разница во времени не должна превышать 60 минут
+                    if($interval->h == 0 and $interval->i <= 59)
+                    {
+                        $result['availability_send_email']      = false;
+                        $result['availability_send_email_date'] = (59 - $interval->i) . ' мин.';
+                    }
+                }
             }
         }
         elseif($sel_data === false)
@@ -986,19 +1006,38 @@ class Authorization_model extends CI_Model
      * Проверка пользователя для повторного отправления письма по активации email
      *
      * @param $user_id
+     * @param $date
      * @return bool
      */
-    public function checkActivateEmail($user_id)
+    public function checkActivateEmail($user_id, $date)
     {
         $result = false;
 
-        $sel_data = $this->db->query('SELECT `user_email`, `user_activate_code` FROM `users` WHERE `user_id`=? and `user_activated`=0 LIMIT 1', $user_id);
+        $sel_data = $this->db->query('SELECT `user_email`, `user_activate_code`, `user_activate_date` FROM `users` WHERE `user_id`=? and `user_activated`=0 LIMIT 1', $user_id);
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
 
             $result['user_email']    = $row->user_email;
             $result['activate_code'] = $row->user_activate_code;
+            $result['activate_date'] = ($row->user_activate_date != '0000-00-00 00:00:00') ? $row->user_activate_date : '';
+
+            $result['availability_send_email']      = true;
+            $result['availability_send_email_date'] = null;
+
+            if($row->user_activate_date != '0000-00-00 00:00:00')
+            {
+                $datetime1 = new DateTime($date);
+                $datetime2 = new DateTime($row->user_activate_date);
+                $interval = $datetime1->diff($datetime2);
+
+                // Разница во времени не должна превышать 60 минут
+                if($interval->h == 0 and $interval->i <= 59)
+                {
+                    $result['availability_send_email']      = false;
+                    $result['availability_send_email_date'] = (59 - $interval->i) . ' мин.';
+                }
+            }
         }
         elseif($sel_data === false)
         {
@@ -1056,7 +1095,7 @@ class Authorization_model extends CI_Model
             {
                 $up_data = $this->db->query('
                     UPDATE `users` 
-                    SET `user_email`=?, `user_activate_code`=?, `user_date_update`=?, `user_activated`=0, `user_new_email`="", `user_new_email_idempotent`="" 
+                    SET `user_email`=?, `user_activate_code`=?, `user_date_update`=?, `user_new_email_date`="0000-00-00 00:00:00", `user_activated`=0, `user_new_email`="", `user_new_email_idempotent`="" 
                     WHERE `user_id`=? LIMIT 1', array($new_email, $email_hash, $date, $user_id));
 
                 if($up_data !== false and 1 == $this->db->affected_rows())
@@ -1137,6 +1176,48 @@ class Authorization_model extends CI_Model
         elseif($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение даты последней отправки письма для подтверждения активации аккаунта
+     *
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function setResendingActivateEmailDate($user_id, $date)
+    {
+        $result = true;
+
+        $up_data = $this->db->query('UPDATE `users` SET `user_activate_date`=? WHERE `user_id`=? LIMIT 1', array($date, $user_id));
+        if($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $result = false;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение даты последней отправки письма пользователю для подтвержения изменения адреса почты
+     *
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function setResendingChangeEmailDate($user_id, $date)
+    {
+        $result = true;
+
+        $up_data = $this->db->query('UPDATE `users` SET `user_new_email_date`=? WHERE `user_id`=? LIMIT 1', array($date, $user_id));
+        if($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $result = false;
         }
 
         return $result;

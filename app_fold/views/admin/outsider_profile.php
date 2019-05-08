@@ -2,6 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div id="content" class="container">
+    <?php $breadcrumbs = array('/admin' => $user_data['user_name']);
+    include_once('./app_fold/views/breadcrumb.php');?>
     <div class="row">
         <div class="col-lg-2 left_sidebar">
             <?php if ($user_session['type'] == 2):

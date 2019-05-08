@@ -682,7 +682,9 @@ class Couch extends CI_Controller
             header('Location: /login');
         }
 
-        $result = $this->Couch_model->getPortfolioPost($post_id);
+        $post   = $this->Couch_model->getPortfolioPost($post_id);
+        $user   = $this->Couch_model->getCouch($post['post']['couch_id'], $this->date);
+        $result = array_merge($post, $user);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Портфолио';

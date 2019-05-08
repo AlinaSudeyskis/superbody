@@ -6823,13 +6823,13 @@ class Course extends CI_Controller
 
             // Дни недели тренировок
             $training_days = '';
-            if (!empty($this->input->post('cb_day')) and empty($db_training_days))
+            $days = $this->input->post('cb_day');
+            if (!empty($days[$course_id]) and empty($db_training_days))
             {
-                $days = $this->input->post('cb_day');
                 $prev_key = 0;
-                $total = count($days);
+                $total = count($days[$course_id]);
                 $i = 1;
-                foreach ($days as $key => $day)
+                foreach ($days[$course_id] as $key => $day)
                 {
                     // Если кол-во выбранных дней не превышает кол-во дней курса
                     if ($i < $course_days)
@@ -8444,6 +8444,9 @@ class Course extends CI_Controller
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 
+    /**
+     * AJAX Отображение формы переноса тренировок текущей недели
+     */
     public function showPostpone()
     {
         // Если пользователь не авторизован, вывод страницы 404
@@ -8470,32 +8473,39 @@ class Course extends CI_Controller
         $tmp_date = new DateTime($this->date);
         $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
         // Данные тренировок недели пользователя
-        $wo_data = $this->Course_model->getUserCourseWeekWorkouts($this->user_id, $today);
+        $wo_data = $this->Course_model->getUserCoursesWeekWorkouts($this->user_id, $today);
 
         if(!empty($wo_data))
         {
-            // Данные курса пользователя
-            $course_data = $this->Course_model->getUserCourseSettings($wo_data['uc_id'], $this->user_id, $this->date);
-            $course      = $course_data['course'];
             // Данные следующей тренировки
-            $next_workout = $this->Course_model->getNextUserWorkout($this->user_id, $this->date);
-
-            $result['uc_days']  = $wo_data['days'];
-            $result['postpone'] = '<form action="" method="post" class="postpone">';
-            $result['postpone'] .= '<div class="postpone_next_wo">Следующая тренировка: ' . $next_workout['next_workout'] . '</div>';
-            $result['postpone'] .= '<div class="postpone_title lend_form_h">Перенести тренировки недели</div>';
-
-            $grey_current_days = true;
+            $next_workout      = $this->Course_model->getNextUserWorkout($this->user_id, $this->date);
+            $courses_week_wo   = $wo_data['tw_wo'];
             $current_num_day   = date("N", strtotime($this->date));
+            $grey_current_days = true;
+            $week_dates        = array();
+            $week_dates_today  = ($tmp_date !== false) ? $tmp_date->format('d.m') : false;
+
+            $tmp_date        = new DateTime($today);
+            $interval        = 7 - $current_num_day;
+            $this_sunday     = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$interval.'D'))->format('Y-m-d') : false;
+            $this_monday     = ($this_sunday !== false) ? $tmp_date->sub(new DateInterval('P6D'))->format('Y-m-d') : false;
+            if($this_monday !== false)
+            {
+                for($i = 1; $i <= 7; $i++)
+                {
+                    if($i > 1)
+                    {
+                        $tmp_date->add(new DateInterval('P1D'));
+                    }
+                    $week_dates[$i] = ($tmp_date !== false) ? $tmp_date->format('d.m') : '';
+                }
+
+            }
             ob_start();
-            include_once('./app_fold/views/course/week_days_item.php');
-            $week_days = ob_get_contents();
+                include_once('./app_fold/views/course/user_course/courses_week_postpone.php');
+                $postpone = ob_get_contents();
             ob_end_clean();
-            $result['postpone'] .= '<div class="anketa_form_line parent">' . $week_days . '</div>';
-            $result['postpone'] .= '<div class="anketa_form_line parent">
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_postpone" value="Сохранить" class="video_admin_form_send" id="bt-save-postpone"></div></div>';
-            $result['postpone'] .= '</form>';
+            $result['postpone'] .= $postpone;
         }
         else
         {

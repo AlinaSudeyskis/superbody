@@ -1,6 +1,14 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+<div class="mob_side_menu_but_wrap">
+    <div class="mob_side_menu_but">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="mob_side_menu_close"><span>Скрыть меню</span></div>
+</div>
 <ul class="profile_menu">
     <li>
         <a href="/administration/site" <?php if ($page_menu == 'site_info') { echo 'class="active"'; } ?>>
@@ -78,7 +86,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <a href="/administration/feedback" <?php if ($page_menu == 'feedback') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico20.png" alt=""></span><span>Обратная связь<?php if(!empty($e_new_messages)): ?> [<?php echo $e_new_messages; ?>]<?php endif; ?></span>
         </a>
-    </li> 
+    </li>
+    <li>
+        <a href="/administration/question-answer" <?php if ($page_menu == 'question-answer') { echo 'class="active"'; } ?>>
+            <span><img src="/img/menu_ico30.png" alt=""></span><span>Вопрос - Ответ</span>
+        </a>
+    </li>
     <li>
         <a href="/administration/sublist" <?php if ($page_menu == 'sublist') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico1.png" alt=""></span><span>Подписчики</span>

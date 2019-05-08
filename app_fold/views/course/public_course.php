@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+<?php $breadcrumbs = array('/courses' => 'Курсы', '/course/' => $course['name']);
+include_once('./app_fold/views/breadcrumb.php');?>
 <div class="container"><h2 class="block_h"><?php echo $course['name']; ?></h2></div>
 <div class="content_col">
     <div class="content_block new_content_block">

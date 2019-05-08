@@ -21,7 +21,7 @@ $(document).ready(function() {
         selector: "textarea.formatted_textarea",
         menubar: false,
         statusbar: false,
-        theme: 'modern',
+        theme: 'silver',
         language_url : '/js/tinymce/langs/ru.js',
         plugins: "textcolor colorpicker bbcode",
         toolbar: "undo redo | bold italic | forecolor",
@@ -652,9 +652,13 @@ $(document).ready(function() {
     $(".content_block_h_close").on('click', function() {
         $(this).parents(".content_block").slideUp(200);
     });
-
-
 });
+var options, playerTwoPlayer;
+options = {
+    width: 640,
+    loop: false
+};
+playerTwoPlayer = undefined;
 
 /* pop_up */
 
@@ -668,10 +672,26 @@ function pop_up_def(popup) {
         shadow.fadeOut(600);
         //shadow2.fadeOut(600);
         popup.fadeOut(600);
-        popup.empty();
-        if(typeof(playerTwoPlayer) !== "undefined")
+        //popup.empty();
+        if(playerTwoPlayer)
         {
-            playerTwoPlayer.destroy();
+            playerTwoPlayer.pause().then(function() {
+                // The video is paused
+            }).catch(function(error) {
+                switch (error.name) {
+                    case 'PasswordError':
+                        // The video is password-protected
+                        break;
+
+                    case 'PrivacyError':
+                        // The video is private
+                        break;
+
+                    default:
+                        // Some other error occurred
+                        break;
+                }
+            });
         }
         //enableScroll();
     });
@@ -691,13 +711,30 @@ function pop_up_home(popup) {
     $("#shadow2, .home_pop-up_close, .close_meal, .close_user_meal").fadeTo(600,0.8).on('click', function() {
         shadow.fadeOut(600);
         popup.fadeOut(600);
-        popup.empty();
-        if(typeof(playerTwoPlayer) !== "undefined")
+        //popup.empty();
+        if(playerTwoPlayer)
         {
-            playerTwoPlayer.destroy();
+            playerTwoPlayer.pause().then(function() {
+                // The video is paused
+            }).catch(function(error) {
+                switch (error.name) {
+                    case 'PasswordError':
+                        // The video is password-protected
+                        break;
+
+                    case 'PrivacyError':
+                        // The video is private
+                        break;
+
+                    default:
+                        // Some other error occurred
+                        break;
+                }
+            });
         }
     });
 }
+
 var scrollKeys = [33,34,35,36,38,40];
 
 function preventScroll(popUp) {
@@ -761,6 +798,32 @@ function enableScroll() {
     document.onkeydown = null;
 }*/
 
+function meal_slider(meal_up)
+{
+    var meal_block_img = $('.meal_block_img');
+    meal_block_img.slick({
+        dots: true,
+        infinite: true,
+        autoplaySpeed: 5000,
+        speed: 500,
+        autoplay: true,
+        arrows: false
+    });
+    meal_block_img.on('afterChange',function(e,o){
+        //on change slide = do action
+        $('iframe').each(function(){
+            $(this)[0].contentWindow.postMessage('{"event":"command","func":"' + 'stopVideo' + '","args":""}', '*');
+        });
+    });
+    meal_block_img.on('beforeChange',function(event, slick, currentSlide, nextSlide){
+        $('.yt-player').each(function(){
+            this.contentWindow.postMessage('{"event":"command","func":"' + 'pauseVideo' + '","args":""}', '*')
+        });
+    });
+    meal_block_img.find('img').each(function(){$(this).css('height','auto')});
+    onYouTubeIframeAPIReady();
+}
+
 // Работа с youtube видео
 var tag = document.createElement('script');
 tag.id = 'iframe-demo';
@@ -804,37 +867,14 @@ function onPlayerStateChange(event) {
     handleVideo(event.data);
 }
 
-function meal_slider(meal_up)
-{
-    var meal_block_img = $('.meal_block_img');
-    meal_block_img.slick({
-        dots: true,
-        infinite: true,
-        autoplaySpeed: 5000,
-        speed: 500,
-        autoplay: true,
-        arrows: false
-    });
-    meal_block_img.on('afterChange',function(e,o){
-        //on change slide = do action
-        $('iframe').each(function(){
-            $(this)[0].contentWindow.postMessage('{"event":"command","func":"' + 'stopVideo' + '","args":""}', '*');
-        });
-    });
-    meal_block_img.on('beforeChange',function(event, slick, currentSlide, nextSlide){
-        $('.yt-player').each(function(){
-            this.contentWindow.postMessage('{"event":"command","func":"' + 'pauseVideo' + '","args":""}', '*')
-        });
-    });
-    meal_block_img.find('img').each(function(){$(this).css('height','auto')});
-    onYouTubeIframeAPIReady();
-}
-
 
 
 $(document).ready(function(){
     $('.otziv_row').masonry({
         itemSelector: '.otziv_col'
+    });
+    $('.qa_row').masonry({
+        itemSelector: '.qa_col'
     });
 });
 
@@ -1599,6 +1639,16 @@ $('.anketa_block_nav li:nth-child(4)').on('click', function(){
 	$(this).find('span').addClass('anketa_active');
 	$('.anketa_block_item').hide();
 	$('.anketa_block_item:nth-child(4)').show();
+});
+$(document).on('click', '.anketa_block_nav li', function(){
+    var parent = $(this).parents('.anketa_block'),
+        a_id = $(this).index();
+
+    parent.find('.anketa_block_nav li span').removeClass('anketa_active');
+    $(this).find('span').addClass('anketa_active');
+    parent.find('.anketa_block_item').hide();
+    parent.find('.anketa_block_item:nth-child(' + (a_id + 1) + ')').show();
+    //parent.find('.anketa_block_item:nth-child(' + (a_id + 1) + ')').animate({width:'toggle'}, 100);
 });
 
 

@@ -262,10 +262,23 @@ $route['administration/blog/post/(:num)']    = 'Blog/blogPost/$1';
 $route['administration/blog/comments']       = 'Blog/blogComments';
 $route['administration/blog/comment/(:num)'] = 'Blog/blogComment/$1';
 // Сообщения
-$route['administration/messages']            = 'Message/messages';
-$route['administration/message/(:num)']      = 'Message/message/$1';
-$route['administration/feedback']            = 'Message/feedbackMessages';
-$route['administration/feedback/(:any)']     = 'Message/feedbackUserMessages/$1';
+$route['administration/messages']        = 'Message/messages';
+$route['administration/message/(:num)']  = 'Message/message/$1';
+$route['administration/feedback']        = 'Message/feedbackMessages';
+$route['administration/feedback/(:any)'] = 'Message/feedbackUserMessages/$1';
+// Вопрос - Ответ
+$route['administration/question-answer'] = 'Message/eQuestionAnswer';
+$route['administration/question-answer/new'] = 'Message/eQaNewArticle';
+$route['administration/question-answer/sections'] = 'Message/eQaSections';
+$route['administration/question-answer/section/new'] = 'Message/eQaNewSection';
+$route['administration/question-answer/section/(:num)'] = 'Message/eQaSection/$1';
+$route['administration/question-answer/subsection/new'] = 'Message/eQaNewSubsection';
+$route['administration/question-answer/subsection/(:num)'] = 'Message/eQaSubsection/$1';
+$route['administration/question-answer/(:num)'] = 'Message/eQaArticle/$1';
+$route['upload_qa_images'] = 'Message/eQaUploadImage';
+$route['support'] = 'Message/QaSections';
+$route['support/(:num)(/(:num))?'] = 'Message/QaSection/$1/$3';
+$route['support/(:num)/(:num)/(:num)'] = 'Message/QaArticle/$1/$2/$3';
 // Подписчики
 $route['administration/sublist'] = 'Administrator/sublist';
 // Информация о сайте

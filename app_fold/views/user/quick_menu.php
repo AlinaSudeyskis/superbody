@@ -12,26 +12,28 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col
             </div>
         </a>
     </div>-->
-    <div class="cat_item_wrap disabled">
-        <a href="" class="cat_item">
+    <div class="cat_item_wrap">
+        <a href="" class="cat_item disabled">
             <div class="cat_img"><img src="/img/cat2.png" alt=""></div>
             <div class="cat_desk">Выбор личного эксперта</div>
         </a>
     </div>
-    <?php //$disabled = (!empty($available_workout) and $available_workout === true) ? '' : 'disabled';?>
-    <div class="cat_item_wrap <?php //echo $disabled; ?>" id="s-t-wo">
-        <div class="cat_item">
+    <?php $disabled = (!empty($available_workout) and $available_workout === true) ? '' : 'disabled';?>
+    <div class="cat_item_wrap">
+        <div class="cat_item <?php echo $disabled; ?>" id="s-t-wo">
             <div class="cat_img"><img src="/img/cat3.png" alt=""></div>
-            <div class="cat_desk">Тренировка
+            <div class="cat_desk" style="height: 56px;">
+                <span>Тренировка</span>
                 <?php if(!empty($next_training)):?>
-                    <span>Сл. тренировка: <?php echo $next_training; ?></span>
+                    <div class="cat_subdesk">Сл. тренировка: <?php echo $next_training; ?></div>
                 <?php endif; ?>
             </div>
+            <div class="cat_but" id="wo-pp">Перенести</div>
         </div>
     </div>
     <?php if(!empty($user_session) and $user_session['type'] == 3): ?>
-        <div class="cat_item_wrap" id="s-adding-meal">
-            <div class="cat_item">
+        <div class="cat_item_wrap">
+            <div class="cat_item" id="s-adding-meal">
                 <div class="cat_img"><img src="/img/cat10.png" alt=""></div>
                 <div class="cat_desk">Добавить прием пищи</div>
             </div>
@@ -46,7 +48,7 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col
     <div class="cat_item_wrap">
         <a href="/orders" class="cat_item">
             <div class="cat_img"><img src="/img/cat5.png" alt=""></div>
-            <div class="cat_desk">Финансы Покупки</div>
+            <div class="cat_desk">Финансы<br/>Покупки</div>
         </a>
     </div>
 </div>

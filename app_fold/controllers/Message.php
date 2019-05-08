@@ -430,4 +430,651 @@ class Message extends CI_Controller
         $this->load->view('messages/feedback_user_messages', $result);
         $this->load->view('footer/footer');
     }
+
+    /* БЛОК ОБРАБОТКИ ДАННЫХ РАЗДЕЛА ВОПРОС - ОТВЕТ */
+
+    /**
+     * Вывод списка статей Вопрос - Ответ
+     */
+    public function eQuestionAnswer()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result = $this->Message_model->getQaArticles();
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'qa_articles';
+        $this->page_data['page_type']    = 'articles';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('question-answer/qa', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы добавления раздела Вопрос - Ответ
+     */
+    public function eQaNewSection()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if($this->input->post('bt_save_new_section', true))
+        {
+            $section_name = mb_substr(strip_tags($this->input->post('section_name', true)), 0, 255);
+
+            if(!empty($section_name))
+            {
+                $res_ins = $this->Message_model->setNewQaSection($section_name, $this->user_id, $this->date);
+
+                if($res_ins !== false and is_numeric($res_ins))
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+
+                    header('Location: /administration/question-answer/section/'.$res_ins);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 199, 60);
+
+                    header('Location: /administration/question-answer/section/new');
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 199, 60);
+
+                header('Location: /administration/question-answer/section/new');
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'qa_sections';
+        $this->page_data['page_type']    = 'new_section';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('question-answer/qa');
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы редактирования раздела Вопрос - Ответ
+     * @param $section_id
+     */
+    public function eQaSection($section_id)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $section = $this->Message_model->getQaSection($section_id);
+        $subsections = $this->Message_model->getQaSectionSubsections($section_id);
+        $result = array_merge($section, $subsections);
+
+        if($this->input->post('bt_save_section', true))
+        {
+            $section_name = mb_substr(strip_tags($this->input->post('section_name', true)), 0, 255);
+
+            if(!empty($section_name) and $section_name != $section['section']['name'])
+            {
+                $res_up = $this->Message_model->setQaSection($section_id, $section_name, $this->user_id, $this->date);
+
+                if($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 199, 60);
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 199, 60);
+            }
+
+            header('Location: /administration/question-answer/section/' . $section_id);
+        }
+        elseif($this->input->post('bt_block_section', true))
+        {
+            $res_up = $this->Message_model->blockQaSection($section_id, 1, $this->user_id, $this->date);
+
+            if($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 199, 60);
+            }
+            header('Location: /administration/question-answer/section/' . $section_id);
+        }
+        elseif($this->input->post('bt_unblock_section', true))
+        {
+            $res_up = $this->Message_model->blockQaSection($section_id, 0, $this->user_id, $this->date);
+
+            if($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 199, 60);
+            }
+            header('Location: /administration/question-answer/section/' . $section_id);
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'qa_sections';
+        $this->page_data['page_type']    = 'section';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('question-answer/qa', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод списка разделов Вопрос - Ответ
+     */
+    public function eQaSections()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $sections = $this->Message_model->getQaSections();
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'qa_sections';
+        $this->page_data['page_type']    = 'sections';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('question-answer/qa', $sections);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы добавления подраздела Вопрос - Ответ
+     */
+    public function eQaNewSubsection()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $sections = $this->Message_model->getQaSections();
+
+        if($this->input->post('bt_save_new_subsection', true))
+        {
+            $section_id = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
+            $sub_name   = mb_substr(strip_tags($this->input->post('subsection_name', true)), 0, 255);
+
+            if(!empty($section_id) and !empty($sub_name))
+            {
+                $ins_res = $this->Message_model->setNewQaSubsection($section_id, $sub_name, $this->user_id, $this->date);
+
+                if($ins_res !== false and is_numeric($ins_res))
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+
+                    header('Location: /administration/question-answer/subsection/'.$ins_res);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 200, 60);
+
+                    header('Location: /administration/question-answer/subsection/new');
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 200, 60);
+
+                header('Location: /administration/question-answer/subsection/new');
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'qa_sections';
+        $this->page_data['page_type']    = 'new_subsection';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('question-answer/qa', $sections);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы редактирования подраздела Вопрос - Ответ
+     * @param $subsection_id
+     */
+    public function eQaSubsection($subsection_id)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $sections = $this->Message_model->getQaSections();
+        $subsection = $this->Message_model->getQaSubsection($subsection_id);
+        $result = array_merge($sections, $subsection);
+
+        if($this->input->post('bt_save_subsection', true))
+        {
+            $section_id = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
+            $sub_name   = mb_substr(strip_tags($this->input->post('subsection_name', true)), 0, 255);
+
+            if(!empty($section_id) and !empty($sub_name)
+                and ($sub_name !== $subsection['subsection']['name'] or $section_id != $subsection['subsection']['section_id']))
+            {
+                $res_up = $this->Message_model->setQaSubsection($subsection_id, $section_id, $sub_name, $this->user_id, $this->date);
+
+                if($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 200, 60);
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 200, 60);
+            }
+            header('Location: /administration/question-answer/subsection/' . $subsection_id);
+        }
+        elseif($this->input->post('bt_block_subsection', true))
+        {
+            $res_up = $this->Message_model->blockQaSubsection($subsection_id, 1, $this->user_id, $this->date);
+
+            if($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 200, 60);
+            }
+            header('Location: /administration/question-answer/subsection/' . $subsection_id);
+        }
+        elseif($this->input->post('bt_unblock_subsection', true))
+        {
+            $res_up = $this->Message_model->blockQaSubsection($subsection_id, 0, $this->user_id, $this->date);
+
+            if($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 200, 60);
+            }
+            header('Location: /administration/question-answer/subsection/' . $subsection_id);
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'qa_sections';
+        $this->page_data['page_type']    = 'subsection';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('question-answer/qa', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы добавления статьи Вопрос - Ответ
+     */
+    public function eQaNewArticle()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $sections = $this->Message_model->getQaSections();
+        $subsections = $this->Message_model->getQaSubsections();
+        $result = array_merge($sections, $subsections);
+
+        if($this->input->post('bt_save_new_article', true))
+        {
+            $user_groups = array('general', 'user', 'couch', 'admin');
+
+            $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
+            $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
+            $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
+            $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span>');
+            $user_group    = (in_array($this->input->post('s_user_group', true), $user_groups)) ? $this->input->post('s_user_group', true) : 'general';
+            $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
+
+            if(!empty($section_id) and !empty($subsection_id) and !empty($article_text) and !empty($user_group) and !empty($article_name))
+            {
+                $ins_res = $this->Message_model->setNewQaArticle($section_id, $subsection_id, $user_group, $article_name, $article_text, $this->user_id, $this->date);
+
+                if($ins_res !== false and is_numeric($ins_res))
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                    header('Location: /administration/question-answer/' . $ins_res);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 201, 60);
+                    header('Location: /administration/question-answer/new');
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 201, 60);
+                header('Location: /administration/question-answer/new');
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'qa_articles';
+        $this->page_data['page_type']    = 'new_article';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('question-answer/qa', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы редактирования данных статьи Вопрос - Ответ
+     *
+     * @param $article_id
+     */
+    public function eQaArticle($article_id)
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $sections = $this->Message_model->getQaSections();
+        $subsections = $this->Message_model->getQaSubsections();
+        $article = $this->Message_model->getQaArticle($article_id);
+        $result = array_merge($sections, $subsections, $article);
+
+        if($this->input->post('bt_save_article', true))
+        {
+            $user_groups = array('general', 'user', 'couch', 'admin');
+
+            $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
+            $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
+            $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
+            $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span>');
+            $user_group    = (in_array($this->input->post('s_user_group', true), $user_groups)) ? $this->input->post('s_user_group', true) : 'general';
+            $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
+
+            if(!empty($section_id) and !empty($subsection_id) and !empty($article_text) and !empty($user_group) and !empty($article_name))
+            {
+                $res_up = $this->Message_model->setQaArticle($article_id, $section_id, $subsection_id, $user_group, $article_name, $article_text, $this->user_id, $this->date);
+
+                if($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 201, 60);
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 201, 60);
+            }
+            header('Location: /administration/question-answer/'.$article_id);
+        }
+        elseif($this->input->post('bt_block_article', true))
+        {
+            $res_up = $this->Message_model->blockQaArticle($article_id, 1, $this->user_id, $this->date);
+
+            if($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 201, 60);
+            }
+            header('Location: /administration/question-answer/' . $article_id);
+        }
+        elseif($this->input->post('bt_unblock_article', true))
+        {
+            $res_up = $this->Message_model->blockQaArticle($article_id, 0, $this->user_id, $this->date);
+
+            if($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 201, 60);
+            }
+            header('Location: /administration/question-answer/' . $article_id);
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'qa_articles';
+        $this->page_data['page_type']    = 'article';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('question-answer/qa', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * AJAX Загрузка изображений статьи
+     */
+    public function eQaUploadImage()
+    {
+        reset ($_FILES);
+        $temp = current($_FILES);
+        $_FILES['qa_file'] = $temp;
+        //log_message('debug', print_r($temp, true));
+        // Загрузка изображения на сервер
+        if(is_uploaded_file($_FILES['qa_file']['tmp_name']))
+        {
+            $path = './qa_images/';
+            $this->load->helper('file');
+
+            $path_image = parent::uploadImage('qa_file', $temp['type'], $path);
+            $full_path = $path.$path_image;
+            if(file_exists($path.$path_image))
+            {
+                if ($this->security->xss_clean($full_path, TRUE) === FALSE)
+                {
+                    unlink($full_path);
+                }
+                else
+                {
+                    echo json_encode(array('location' => $path_image));
+                }
+            }
+        }
+    }
+
+    /**
+     * Вывод разделов и подразделов Вопрос - Ответ
+     *
+     * @return void
+     */
+    public function QaSections()
+    {
+        $users_types = array('user' => 1, 'couch' => 2, 'admin' => 3);
+        $user_type = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
+        $result = $this->Message_model->getPublicQaSections($user_type);
+        $result_search = false;
+
+        if($this->input->post('bt_support_search', true))
+        {
+            $search = strip_tags($this->input->post('search', true));
+
+            if(!empty($search))
+            {
+                $res_sel = $this->Message_model->getPublicQaArticles($search, $user_type);
+                if($res_sel !== false)
+                {
+                    $result_search = true;
+                    $result = $res_sel;
+                }
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']         = $this->page_data['metadata'][12]['title'];
+        $this->page_data['keywords']      = $this->page_data['metadata'][12]['keywords'];
+        $this->page_data['description']   = $this->page_data['metadata'][12]['description'];
+        $this->page_data['page_menu']     = 'question-answer';
+        $this->page_data['page_submenu']  = 'sections';
+        $this->page_data['result_search'] = $result_search;
+        $this->page_data['search']        = (!empty($search)) ? $search : '';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/secondary');
+        $this->load->view('question-answer/public_qa', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод разделов и подразделов Вопрос - Ответ
+     *
+     * @param $section_id
+     * @param $subsection_id
+     * @return void
+     */
+    public function QaSection($section_id, $subsection_id)
+    {
+        $result = array();
+        $users_types = array('user' => 1, 'couch' => 2, 'admin' => 3);
+        $user_type = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
+
+        if(is_numeric($section_id) and empty($subsection_id))
+        {
+            $result = $this->Message_model->getPublicQaSection($section_id, $user_type);
+        }
+        elseif(is_numeric($section_id) and is_numeric($subsection_id))
+        {
+            $section    = $this->Message_model->getPublicQaSection($section_id, $user_type);
+            $subsection = $this->Message_model->getPublicQaSubsection($section_id, $subsection_id, $user_type);
+            $articles   = $this->Message_model->getPublicQaSubsectionArticles($section_id, $subsection_id, $user_type);
+            $result     = array_merge($section, $subsection, $articles);
+        }
+        else
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = $this->page_data['metadata'][12]['title'];
+        $this->page_data['keywords']     = $this->page_data['metadata'][12]['keywords'];
+        $this->page_data['description']  = $this->page_data['metadata'][12]['description'];
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'section';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/secondary');
+        $this->load->view('question-answer/public_qa', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод статьи Вопрос - Ответ
+     *
+     * @param $section_id
+     * @param $subsection_id
+     * @param $article_id
+     * @return void
+     */
+    public function QaArticle($section_id, $subsection_id, $article_id)
+    {
+        $result = array();
+        $users_types = array('user' => 1, 'couch' => 2, 'admin' => 3);
+        $user_type = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
+
+        if(is_numeric($section_id) and is_numeric($subsection_id) and is_numeric($article_id))
+        {
+            $section    = $this->Message_model->getPublicQaSection($section_id, $user_type);
+            $subsection = $this->Message_model->getPublicQaSubsection($section_id, $subsection_id, $user_type);
+            $article    = $this->Message_model->getPublicQaArticle($section_id, $subsection_id, $article_id, $user_type);
+            $result     = array_merge($section, $subsection, $article);
+        }
+        else
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = $this->page_data['metadata'][12]['title'];
+        $this->page_data['keywords']     = $this->page_data['metadata'][12]['keywords'];
+        $this->page_data['description']  = $this->page_data['metadata'][12]['description'];
+        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_submenu'] = 'article';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/secondary');
+        $this->load->view('question-answer/public_qa', $result);
+        $this->load->view('footer/footer');
+    }
 }

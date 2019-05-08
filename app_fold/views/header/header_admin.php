@@ -42,6 +42,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/jquery.mask.min.js" type="text/javascript"></script>
     <script src="/js/tinymce/jquery.tinymce.min.js" type="text/javascript"></script>
     <script src="/js/tinymce/tinymce.min.js" type="text/javascript"></script>
+    <script src="/js/js.cookie.js" type="text/javascript"></script>
 
     <script src="/js/script.js"></script>
     <script src="/js/scripts.js"></script>

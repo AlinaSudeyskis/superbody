@@ -81,7 +81,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="shadow"></div>
 <div id="shadow2"></div>
 
-<div id="pop-up_video">
+<div id="pop-up_video"></div><!-- pop-up_video -->
+
+<div id="pop-up_postpone">
     <div class="close_video"></div>
 </div><!-- pop-up_video -->
 
@@ -97,6 +99,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <script src="/js/lightbox.js"></script>
 <script src="/js/vimeo_player.js"></script>
-
+<!-- BEGIN JIVOSITE CODE {literal} -->
+<script type='text/javascript'>
+    (function(){ var widget_id = 'pJLIxhdVt8';var d=document;var w=window;function l(){
+        var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true;
+        s.src = '//code.jivosite.com/script/widget/'+widget_id
+        ; var ss = document.getElementsByTagName('script')[0]; ss.parentNode.insertBefore(s, ss);}
+        if(d.readyState=='complete'){l();}else{if(w.attachEvent){w.attachEvent('onload',l);}
+        else{w.addEventListener('load',l,false);}}})();
+</script>
+<!-- {/literal} END JIVOSITE CODE -->
 </body>
 </html>

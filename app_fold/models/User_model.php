@@ -179,7 +179,7 @@ class User_model extends CI_Model
             SELECT `users`.`user_id`, `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, 
                `user_image`, `user_soc_image`, `user_blocked`, `user_activated`, `user_activate_code`, `user_type`, 
                `user_gender`, `user_birthday`, `user_deleted`, `user_delete_date`, `user_delete_by`, `user_new_email`, 
-               `user_new_email_idempotent`, `user_restore_account_idempotent`
+               `user_new_email_idempotent`, `user_restore_account_idempotent`, `user_new_email_date`, `user_activate_date`
             FROM `users` 
             LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
             WHERE `users`.`user_id`=? and CASE WHEN ?=1 THEN `user_deleted`=1 ELSE TRUE END 
@@ -1510,25 +1510,27 @@ class User_model extends CI_Model
     {
         $result = array();
 
-        $result['user_id']                = (!empty($row->user_id)) ? $row->user_id : '';
-        $result['user_name']              = (!empty($row->user_name)) ? $row->user_name : '';
-        $result['user_email']             = (!empty($row->user_email)) ? $row->user_email : '';
-        $result['user_country_code']      = (!empty($row->user_country_code)) ? $row->user_country_code : '';
-        $result['user_phone']             = (!empty($row->user_phone)) ? $row->user_phone : '';
-        $result['user_password_hash']     = (!empty($row->user_password)) ? $row->user_password : '';
-        $result['user_blocked']           = (!empty($row->user_blocked)) ? $row->user_blocked : '';
-        $result['user_activated']         = (!empty($row->user_activated)) ? $row->user_activated : '';
-        $result['user_activate_code']     = (!empty($row->user_activate_code)) ? $row->user_activate_code : '';
-        $result['user_type']              = (!empty($row->user_type)) ? $row->user_type : '';
-        $result['user_image']             = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
-        $result['user_soc_image']         = '';
-        $result['user_deleted']           = (!empty($row->user_deleted)) ? 1 : null;
-        $result['user_delete_date']       = (!empty($row->user_delete_date)) ? $row->user_delete_date : null;
-        $result['user_delete_by']         = (!empty($row->user_delete_by)) ? $row->user_delete_by : null;
-        $result['user_new_email']         = (!empty($row->user_new_email)) ? $row->user_new_email : null;
-        $result['user_ne_idempotent']     = (!empty($row->user_new_email_idempotent)) ? $row->user_new_email_idempotent : null;
-        $result['user_changing_email']    = false;
-        $result['user_restoring_account'] = false;
+        $result['user_id']                 = (!empty($row->user_id)) ? $row->user_id : '';
+        $result['default_name']            = ($row->user_type == 3) ? 'Страница администратора' : 'Страница пользователя';
+        $result['user_name']               = (!empty($row->user_name)) ? $row->user_name : '';
+        $result['user_email']              = (!empty($row->user_email)) ? $row->user_email : '';
+        $result['user_country_code']       = (!empty($row->user_country_code)) ? $row->user_country_code : '';
+        $result['user_phone']              = (!empty($row->user_phone)) ? $row->user_phone : '';
+        $result['user_password_hash']      = (!empty($row->user_password)) ? $row->user_password : '';
+        $result['user_blocked']            = ($row->user_blocked == 1) ? $row->user_blocked : '';
+        $result['user_activated']          = ($row->user_activated == 1) ? $row->user_activated : '';
+        $result['user_activate_code']      = (!empty($row->user_activate_code)) ? $row->user_activate_code : '';
+        $result['user_type']               = (!empty($row->user_type)) ? $row->user_type : '';
+        $result['user_image']              = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+        $result['user_soc_image']          = '';
+        $result['user_deleted']            = (!empty($row->user_deleted)) ? 1 : null;
+        $result['user_delete_date']        = (!empty($row->user_delete_date)) ? $row->user_delete_date : null;
+        $result['user_delete_by']          = (!empty($row->user_delete_by)) ? $row->user_delete_by : null;
+        $result['user_new_email']          = (!empty($row->user_new_email)) ? $row->user_new_email : null;
+        $result['user_ne_idempotent']      = (!empty($row->user_new_email_idempotent)) ? $row->user_new_email_idempotent : null;
+        $result['user_changing_email']     = false;
+        $result['user_restoring_account']  = false;
+        $result['availability_send_email'] = false;
 
         if(!empty($row->user_soc_image))
         {

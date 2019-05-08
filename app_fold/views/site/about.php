@@ -1,5 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+$breadcrumbs = array('/about' => 'О нас');
+include_once('./app_fold/views/breadcrumb.php');
 ?>
 <div class="container txt_wrap">
     <h2 class="block_h">несколько слов о нашем проекте</h2>

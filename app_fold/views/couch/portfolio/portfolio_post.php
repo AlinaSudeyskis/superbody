@@ -2,6 +2,15 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div id="content" class="container">
+    <?php
+    $parse_url = parse_url($_SERVER['HTTP_REFERER']);
+    if(empty($_SERVER['HTTP_REFERER']) or $parse_url['path'] == '/'):
+        $breadcrumbs = array('/portfolio' => 'Галерея');
+    else:
+        $user_name = (!empty($user_data['user_name'])) ? $user_data['user_name'] : 'Страница тренера';
+        $breadcrumbs = array('/couches' => 'Тренеры', '/profile/'.$user_data['user_id'] => $user_name, '/portfolio' => 'Портфолио');
+    endif;
+    include_once('./app_fold/views/breadcrumb.php');?>
     <div class="row">
         <div class="col-lg-2 left_sidebar">
             <?php if (!empty($user_session)):

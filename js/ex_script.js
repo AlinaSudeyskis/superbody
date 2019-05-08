@@ -3,7 +3,7 @@ $(document).ready(function(){
         selector: "textarea.formatted_textarea",
         menubar: false,
         statusbar: false,
-        theme: 'modern',
+        theme: 'silver',
         language_url : '/js/tinymce/langs/ru.js',
         plugins: "textcolor colorpicker bbcode",
         toolbar: "undo redo | bold italic | forecolor",
@@ -12,8 +12,7 @@ $(document).ready(function(){
     if($('.kurs_block_val').length > 0 && $('.content_block_container').length > 0)
     {
         $(function(){
-            var kursBlockValHeight = $('.kurs_block_val').height(),
-                fxTopCont = $('.content_block_container'),
+            var fxTopCont = $('.content_block_container'),
                 fxTopContWrap = $('.content_block_container_wrap'),
                 parTopContWidth = fxTopContWrap.outerWidth(),
                 parTopContHeight = fxTopContWrap.outerHeight(),
@@ -21,7 +20,8 @@ $(document).ready(function(){
                 parButContWidth = $('.admin_form_buts_wrap_container').outerWidth(),
                 topPos = fxTopCont.offset().top;
             $(window).scroll(function() {
-                var top = $(document).scrollTop();
+                var top = $(document).scrollTop(),
+                    kursBlockValHeight = $('.kurs_block_val').height();
 
                 if (top > topPos && kursBlockValHeight > 500)
                 {
@@ -1399,6 +1399,19 @@ $(document).ready(function(){
         var last_id = $('#i_last_id').val();
 
         searchNotifications(null, last_id);
+    });
+
+    $('select[name=s_section]').on('change', function(){
+        var section_id  = $(this).val(),
+            subsection  = $('#subsection-' + section_id),
+            subsections = $('.subsections');
+
+        subsections.hide();
+        if(subsection.length === 1)
+        {
+            subsections.hide();
+            subsection.show();
+        }
     });
 
     /**

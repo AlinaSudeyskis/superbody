@@ -1820,6 +1820,88 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-04-22 16:53';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `q_a_sections` ( 
+                `qas_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `qas_name` VARCHAR(255) NOT NULL , 
+                `qas_blocked` TINYINT(1) NOT NULL DEFAULT '0' , 
+                `qas_update` DATETIME NOT NULL , 
+                `qas_admin_id` INT(10) UNSIGNED NOT NULL , PRIMARY KEY (`qas_id`))");
+
+            $this->db->query("CREATE TABLE `q_a_subsections` ( 
+                `qass_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `qass_qas_id` INT(10) UNSIGNED NOT NULL , 
+                `qass_name` VARCHAR(255) NOT NULL , 
+                `qass_blocked` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' , 
+                `qass_update` DATETIME NOT NULL , 
+                `qass_admin_id` INT(10) UNSIGNED NOT NULL , 
+                PRIMARY KEY (`qass_id`), INDEX `ix_qass_qas_id` (`qass_qas_id`)) ENGINE = MyISAM");
+
+            $this->db->query("CREATE TABLE `question_answer` ( 
+                `qa_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `qa_qas_id` INT(10) UNSIGNED NOT NULL ,
+                `qa_qass_id` INT(10) UNSIGNED NOT NULL , 
+                `qa_name` VARCHAR(255) NOT NULL ,
+                `qa_user_group` ENUM('general','user','couch','admin') NOT NULL DEFAULT 'general' , 
+                `qa_text` TEXT NOT NULL , 
+                `qa_blocked` TINYINT(1) NOT NULL DEFAULT '0' , 
+                `qa_update` DATETIME NOT NULL , 
+                `qa_admin_id` INT(10) UNSIGNED NOT NULL , 
+                PRIMARY KEY (`qa_id`), INDEX `ix_qa_qass_id` (`qa_qass_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-04-23 15:26';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (199, 'Ошибка! Данные раздела не сохранены.', 'Ошибка! Данные раздела не сохранены.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (200, 'Ошибка! Данные подраздела не сохранены.', 'Ошибка! Данные подраздела не сохранены.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-04-25 16:22';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (201, 'Ошибка! Данные статьи не сохранены.', 'Ошибка! Данные статьи не сохранены.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-04-26 11:03';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_title`, `smt_keywords`, `smt_description`, `smt_admin_id`, `smt_update`) VALUES (12, 'Вопрос - Ответ', 'Вопрос - Ответ', '', '', 4, '2018-12-26 13:45:22')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-04-26 17:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `question_answer` ADD FULLTEXT `fix_qa_name_text` (`qa_name`, `qa_text`);");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-04-27 17:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_new_email_date` DATETIME NOT NULL AFTER `user_new_email_idempotent`");
+            $this->db->query("ALTER TABLE `users` ADD `user_activate_date` DATETIME NOT NULL AFTER `user_activate_code`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

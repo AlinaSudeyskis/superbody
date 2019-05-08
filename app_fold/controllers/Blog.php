@@ -410,7 +410,11 @@ class Blog extends CI_Controller
             header('Location: /blog/' . $post_id);
         }
 
-        $result = $this->Blog_model->getPublicBlogPost($post_id);
+        $this->load->model('Couch_model');
+
+        $post   = $this->Blog_model->getPublicBlogPost($post_id);
+        $user   = $this->Couch_model->getCouch($post['post']['user']['id'], $this->date);
+        $result = array_merge($post, $user);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Блог тренера';

@@ -463,7 +463,7 @@ class Couch_model extends CI_Model
         $result = array();
 
         $sel_post = $this->db->query('
-            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description`, `cp_image_approval` 
+            SELECT `cp_id`, `cp_u_id`, `cp_image_title`, `cp_image_path`, `cp_image_description`, `cp_image_approval` 
             FROM `couch_portfolio` 
             WHERE `cp_id`=?
             LIMIT 1', array($post_id));
@@ -473,6 +473,7 @@ class Couch_model extends CI_Model
             $row = $sel_post->row();
 
             $result['post']['id']       = $row->cp_id;
+            $result['post']['couch_id'] = $row->cp_u_id;
             $result['post']['title']    = !empty($row->cp_image_title) ? $row->cp_image_title : '';
             $result['post']['path']     = !empty($row->cp_image_path) ? mb_substr($row->cp_image_path, 1) : '';
             $result['post']['desc']     = $row->cp_image_description;
@@ -1107,6 +1108,7 @@ class Couch_model extends CI_Model
         $result['user_id']             = (!empty($row->user_id)) ? $row->user_id : '';
         $result['user_email']          = (!empty($row->user_email)) ? $row->user_email : '';
         $result['user_type']           = (!empty($row->user_type)) ? $row->user_type : '';
+        $result['default_name']        = 'Страница тренера';
         $result['user_name']           = (!empty($row->user_name)) ? $row->user_name : '';
         $result['user_country_code']   = (!empty($row->user_country_code)) ? $row->user_country_code : '';
         $result['user_phone']          = (!empty($row->user_phone)) ? $row->user_phone : '';

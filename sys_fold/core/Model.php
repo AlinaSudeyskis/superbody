@@ -180,4 +180,34 @@ class CI_Model {
 
         return $m;
     }
+
+    /**
+     * Склонение месяцев
+     *
+     * @param $weekday
+     * @return string
+     */
+    public function RussianWeekday($weekday)
+    {
+        $m = '';
+
+        switch ($weekday){
+            case 'Mon': $m='пон'; break;
+            case 'Tue': $m='вт'; break;
+            case 'Wed': $m='ср'; break;
+            case 'Thu': $m='чт'; break;
+            case 'Fri': $m='пт'; break;
+            case 'Sat': $m='сб'; break;
+            case 'Sun': $m='вс'; break;
+            case 'Monday': $m='понедельник'; break;
+            case 'Tuesday': $m='вторник'; break;
+            case 'Wednesday': $m='среда'; break;
+            case 'Thursday': $m='четверг'; break;
+            case 'Friday': $m='пятница'; break;
+            case 'Saturday': $m='суббота'; break;
+            case 'Sunday': $m='воскресенье'; break;
+        }
+
+        return $m;
+    }
 }

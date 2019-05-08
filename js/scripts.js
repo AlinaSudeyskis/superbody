@@ -34,38 +34,6 @@ $(document).ready(function() {
                 chat.scrollTop(chat[0].scrollHeight);
             }/**/
 
-            // Read the cookie and if it defined scroll to id
-            var scroll = Cookies.get('scroll');
-            if(scroll){
-                scrollToID(scroll, 1000);
-                Cookies.remove('scroll');
-            }
-            $("a.scroll_to").click(function(event) {
-                event.preventDefault();
-                var id = $(this).data("id"),
-                    href = $(this).attr("href");
-
-                if($('#' + id).length === 1)
-                {
-                    scrollToID(id, 1000);
-                }
-                else{
-                    Cookies.set('scroll', id);
-                    window.location.href = href;
-                }
-                return false;
-            });
-            // scrollToID function
-            function scrollToID(id, speed) {
-                var offSet = 35;
-                var obj = $('#' + id);
-                if(obj.length){
-                    var offs = obj.offset();
-                    var targetOffset = offs.top - offSet;
-                    $('html,body').animate({ scrollTop: targetOffset }, speed);
-                }
-            }
-
             // Валидация email
             var email_error = $('.email_error'),
                 timer;
@@ -225,19 +193,23 @@ $(document).ready(function() {
             });*/
 
             // Скрыть/Показать checkboxes дней тренировок
-            $("body").on("click", "#week_days input[type=checkbox]", function ()
+            $("body").on("click", ".week_days input[type=checkbox]", function ()
             {
-                var count_rest = parseInt($('#count_rest').val()),
-                    count_days = parseInt($('#count_days').val()),
-                    checkboxes = $('input:checkbox:checked'),
+                var parent       = $(this).parents('.week_days'),
+                    count_rest   = parseInt(parent.find('#count_rest').val()),
+                    count_days   = parseInt(parent.find('#count_days').val()),
+                    checkboxes   = parent.find('input:checkbox:checked'),
                     next_element = $(this).parent(),
                     prev_element = $(this).parent(),
-                    element = $(this).parent(),
-                    frm_postpone = $(this).parents('form.postpone');
+                    element      = $(this).parent(),
+                    this_wd      = $(this).parents('.week_days'),
+                    frm_postpone = $(this).parents('form.postpone'),
+                    pop_up       = $("#pop-up_postpone"), error_info = '',
+                    all_ch_cb    = $('.week_days').find("input:checkbox:checked");
 
-                if($("#pop-up_video").children('h3.info').length === 1)
+                if(this_wd.next('h3.info').length === 1)
                 {
-                    $("#pop-up_video").children('h3.info').hide();
+                    this_wd.next('h3.info').hide();
                 }
 
                 if (checkboxes.length <= count_days)
@@ -253,7 +225,7 @@ $(document).ready(function() {
                         prev_element.prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').prop('disabled', false);
                     }
 
-                    $('#week_days input:checkbox:checked').each(function (indx, elm)
+                    this_wd.find('input:checkbox:checked').each(function (indx, elm)
                     {
                         next_element = $(this).parent();
                         prev_element = $(this).parent();
@@ -271,8 +243,172 @@ $(document).ready(function() {
                     });
                     // Разблокировать checkbox
                     if (checkboxes.length == 0) {
-                        $(this).parent().nextAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').prop('disabled', false);
-                        $(this).parent().prevAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').prop('disabled', false);
+                        element.nextAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').prop('disabled', false);
+                        element.prevAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').prop('disabled', false);
+                    }
+
+                    // Postpone form
+                    if(frm_postpone.length === 1 && checkboxes.length > 0)
+                    {
+                        var prev_els     = element.prevUntil('.cb_week_day > input:checkbox.prev_workout').children('input:checkbox.prev_workout'),
+                            count_pels   = prev_els.length,
+                            prev_done    = element.prevUntil('.cb_week_day > input:checkbox').children('input:checkbox.prev_workout.done'),
+                            next_els     = element.nextUntil('.cb_week_day > input:checkbox').children('input:checkbox.prev_workout'),
+                            count_nels   = next_els.length,
+                            diff_rest    = 0,
+                            fl_rest_warn = false,
+                            fl_days_warn = false;
+
+                        // Проверка на кол-во дней отдыха
+                        // Между выполненной тренировкой и выбранным днем
+                        if(prev_done.length > 0)
+                        {
+                            var i_prev_done = parseInt(prev_done.val()),
+                                next_checked = prev_done.parent().nextUntil('.cb_week_day > input:checkbox').children('input:checkbox:checked');
+
+                            if(next_checked.length > 0)
+                            {
+                                diff_rest = parseInt(next_checked.val()) - i_prev_done - 1;
+                                if(diff_rest < count_rest)
+                                {
+                                    fl_rest_warn = true;
+                                }
+                            }
+                        }
+                        // Между выбранными днями
+                        /*if(checkboxes.length === count_days)
+                        {
+                            var prev_dn;
+                                diff_rest = 0;
+                            this_wd.find('input:checkbox:checked').each(function (indx, elm)
+                            {
+                                if(prev_dn)
+                                {
+                                    diff_rest =  parseInt($(this).val()) - prev_dn - 1;
+                                    if(diff_rest < count_rest)
+                                    {
+                                        fl_rest_warn = true;
+                                        return false;
+                                    }
+                                }
+                                prev_dn = parseInt($(this).val());
+                            });
+                        }*/
+                        // Между выбранным днем и последующей по графику тренировкой, между выбранными днями
+                        else
+                        {
+                            var prev_dn;
+                            diff_rest = 0;
+                            this_wd.find('input:checkbox:checked').each(function (indx, elm)
+                            {
+                                if(prev_dn)
+                                {
+                                    diff_rest =  parseInt($(this).val()) - prev_dn - 1;
+                                    if(diff_rest < count_rest)
+                                    {
+                                        fl_rest_warn = true;
+                                        return false;
+                                    }
+                                }
+                                prev_dn = parseInt($(this).val());
+                            });
+
+                            if(checkboxes.length < count_days)
+                            {
+                                var last_checked = this_wd.find('input:checkbox:checked').last();
+
+                                if(last_checked.length > 0)
+                                {
+                                    var next_elm = last_checked.parent().nextUntil('.cb_week_day > input:checkbox').children('input:checkbox.prev_workout').first();
+
+                                    if(next_elm.length > 0)
+                                    {
+                                        diff_rest =  parseInt(next_elm.val()) - parseInt(last_checked.val()) - 1;
+                                        if(diff_rest < count_rest)
+                                        {
+                                            fl_rest_warn = true;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // Проверка на кол-во выбранных дней
+                        var ch_cb = this_wd.find("input:checkbox:checked"), need_days;
+                        if(ch_cb.length === 0)
+                        {
+                            need_days = count_days;
+                            if(need_days === 1)
+                            {
+                                error_info = '*Для сохранения переноса тренировок выберите 1 день.';
+                            }
+                            else
+                            {
+                                error_info = '*Для сохранения переноса тренировок выберите 1 или ' + need_days + ' ' + declensionDays(need_days) + '.';
+                            }
+                            fl_days_warn = true;
+                        }
+                        else if(ch_cb.length === 1 || count_days === ch_cb.length)
+                        {
+                            var prev_ch = this_wd.find("input:checkbox.prev_workout"),
+                                diff_ch_cb = $(ch_cb).not(prev_ch).length,
+                                diff_prev_ch = $(prev_ch).not(ch_cb).length;
+                            if(ch_cb.length === 1 && ch_cb.hasClass('prev_workout'))
+                            {
+                                //need_days  = count_days - 1;
+                                //error_info = '*Выберите еще ' + need_days + ' ' + declensionDays(need_days) + '.';
+                                fl_days_warn = true;
+                            }
+                            else if(count_days === ch_cb.length && diff_ch_cb === 0 && diff_prev_ch === 0)
+                            {
+                                fl_days_warn = true;
+                            }
+                        }
+                        else
+                        {
+                            need_days  = count_days - ch_cb.length;
+                            error_info = '*Выберите еще ' + need_days + ' ' + declensionDays(need_days) + '.';
+                            fl_days_warn = true;
+                        }
+
+                        if(fl_rest_warn === true)
+                        {
+                            var error_rest_info = '* Рекомендуемое количество дней отдыха ' + count_rest + '.';
+
+                            if(fl_days_warn === true)
+                            {
+                                error_info = error_info + '<br/>' + error_rest_info;
+                            }
+                            else
+                            {
+                                error_info = error_rest_info;
+                            }
+                        }
+
+                        if(fl_days_warn === true || all_ch_cb.length === 0)
+                        {
+                            pop_up.find('#bt-save-postpone').prop('disabled', true);
+                        }
+                        else
+                        {
+                            pop_up.find('#bt-save-postpone').prop('disabled', false);
+                        }
+
+                        var h3_info = this_wd.next('h3.info');
+                        if(h3_info.length === 0)
+                        {
+                            this_wd.after('<h3 class="info">'+error_info+'</h3>');
+                            h3_info = this_wd.next('h3.info');
+                        }
+                        else
+                        {
+                            h3_info.html(error_info);
+                        }
+                        h3_info.show();
+                    }
+                    else if(frm_postpone.length === 1 && all_ch_cb.length === 0)
+                    {
+                        pop_up.find('#bt-save-postpone').prop('disabled', true);
                     }
                 }
                 else if (checkboxes.length > count_days) {
@@ -1349,7 +1485,6 @@ $(document).ready(function() {
                     }
                 });
             });
-
             // Выбранный товара
             $("#block-product").on('click', '#search-result #list-search-result li', function () {
                 var product_id = $(this).find("#res-product-id").val(),
@@ -1371,12 +1506,10 @@ $(document).ready(function() {
                 $('#product-id').val("");
                 $("#search-result").hide();
             });
-
             // Удаление товара
             $("#select-product").on('click', '.select_input .selected', function () {
                 $(this).remove();
             });
-
             // Корзина
             $("input[type=radio]").on('click', function () {
                 var cp_id = $(this).parent('.ordering_tov_price').find('.cp_id').val(),
@@ -1405,45 +1538,25 @@ $(document).ready(function() {
                 width: 640,
                 loop: true
             },
+                players = $(".vimeo_players"),
                 player, playerTwoPlayer;
 
-            if ($(".vimeo_players").length > 0) {
-                $(".vimeo_players").each(function() {
-                    player = this.id;
-                    playerTwoPlayer = new Vimeo.Player(player, options);
-                });
-            }
-
-            $('#s-t-wo').on('click', function(){
+            $('#s-t-wo > .cat_img, #s-t-wo > .cat_desk').on('click', function(){
                 $.ajax({
                     url: '/show/workout',
                     type: 'post',
                     dataType: 'json',
                     complete: function (result) {
-                        var data = jQuery.parseJSON(result.responseText),
-                            pop_up_video = $("#pop-up_video");
+                        var data = jQuery.parseJSON(result.responseText);
                         if (!data.error) {
                             $.each(data.video, function(id, video){
-                                /*pop_up_video.html(video);
-                                 pop_up_video.append(data.description[id]);
-                                 videoPlayer(data, id);
-                                 pop_up_def(pop_up_video);*/
-
-                                //$('.fc-content[event_id_' + data.woid[id] + ']').trigger('click');
                                 $('#event-' + data.woid[id] + '.fc-content').trigger('click');
                             });
-                        }
-                        else
-                        {
-                            if(data.postpone)
-                            {
-                                workoutPostpone(pop_up_video, data.postpone, data.uc_days);
-                            }
                         }
                     }
                 });
             });
-            $('#wo-m').on('click', function(event){
+            $('#wo-m, #wo-pp').on('click', function(event){
                 event.preventDefault();
                 $.ajax({
                     url: '/show/postpone',
@@ -1451,39 +1564,38 @@ $(document).ready(function() {
                     dataType: 'json',
                     complete: function (result) {
                         var data = jQuery.parseJSON(result.responseText),
-                            pop_up_video = $("#pop-up_video");
+                            pop_up_postpone = $("#pop-up_postpone");
                         if(data.postpone)
                         {
-                            workoutPostpone(pop_up_video, data.postpone, data.uc_days);
+                            workoutPostpone(pop_up_postpone, data.postpone);
                         }
                     }
                 });
             });
-            function workoutPostpone(pop_up_video, postpone, uc_days)
+            function workoutPostpone(pop_up_postpone, postpone)
             {
-                pop_up_video.html(postpone);
-                pop_up_def(pop_up_video);
+                pop_up_postpone.html(postpone);
+                pop_up_def(pop_up_postpone);
 
-                $(document).on('submit', '.postpone', function(event){
-                    var ch_cb = $(this).find("input:checkbox[name='cb_day[]']:checked");
-
-                    if(ch_cb.length === 1 || uc_days.length === ch_cb.length)
-                    {
-                        $(this).submit();
-                    }
-                    else
-                    {
-                        if(pop_up_video.children('h3.info').length === 0)
-                        {
-                            pop_up_video.append('<h3 class="info">*Для переноса выберите один день или все дни тренировок недели.</h3>');
-                        }
-                        else
-                        {
-                            pop_up_video.children('h3.info').show();
-                        }
-                    }
+                /*$(document).on('submit', '.postpone', function(event){
                     event.preventDefault();
-                });
+                });*/
+            }
+
+            function declensionDays(count_day)
+            {
+                if(count_day === 1)
+                {
+                    return 'день';
+                }
+                else if(count_day <= 4)
+                {
+                    return 'дня';
+                }
+                else
+                {
+                    return 'дней';
+                }
             }
 
             function workoutDone(woid)
@@ -1502,74 +1614,6 @@ $(document).ready(function() {
                         }
                     }
                 });
-            }
-
-            function videoPlayer(data, id)
-            {
-                if(getInternetExplorerVersion()==-1)
-                {
-                    if (data.player[id] == 1)
-                    {
-                        $("#myvid").each(function ()
-                        {
-                            new InitPxVideo({
-                                "videoId": this,
-                                "captionsOnDefault": false,
-                                "seekInterval": 20,
-                                "videoTitle": "Promo",
-                                "debug": true,
-                                "woid": $("#wo-id").val()
-                            });
-                        });
-                    }
-
-                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
-
-                    if ($('#vimeo-player-1').length == 1)
-                    {
-                        if (data.i_player == 1)
-                        {
-                            $("#ivid").each(function ()
-                            {
-                                new InitPxVideo({
-                                    "videoId": this,
-                                    "captionsOnDefault": false,
-                                    "seekInterval": 20,
-                                    "videoTitle": "Promo",
-                                    "debug": true,
-                                    "woid": $("#wo-id").val()
-                                });
-                            });
-                        }
-                        playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
-                    }
-
-
-                    playerTwoPlayer.getPaused().then(function(paused) {
-                        // paused = whether or not the player is paused
-                        console.log('Video paused');
-                    }).catch(function(error) {
-                        // an error occurred
-                    });
-
-                    playerTwoPlayer.getCurrentTime().then(function(seconds) {
-                        // seconds = the current playback position
-                        console.log('Current time: ' + seconds);
-                    }).catch(function(error) {
-                        // an error occurred
-                    });
-
-                    playerTwoPlayer.getEnded().then(function(ended) {
-                        // ended = whether or not the video has ended
-                        console.log('Video ended');
-                    }).catch(function(error) {
-                        // an error occurred
-                    });
-
-                    playerTwoPlayer.on('seeked', function(data) {
-                        console.log(data);
-                    });
-                }
             }
 
             $('#pop-up_video').on('click', '#wo-i-but', function()
@@ -1591,34 +1635,6 @@ $(document).ready(function() {
                     $(this).html("Инструктаж");
                 }
             });
-
-            if(playerTwoPlayer)
-            {
-                playerTwoPlayer.getPaused().then(function(paused) {
-                    // paused = whether or not the player is paused
-                    console.log('Video paused');
-                }).catch(function(error) {
-                    // an error occurred
-                });
-
-                playerTwoPlayer.getCurrentTime().then(function(seconds) {
-                    // seconds = the current playback position
-                    console.log('Current time: ' + seconds);
-                }).catch(function(error) {
-                    // an error occurred
-                });
-
-                playerTwoPlayer.getEnded().then(function(ended) {
-                    // ended = whether or not the video has ended
-                    console.log('Video ended');
-                }).catch(function(error) {
-                    // an error occurred
-                });
-
-                playerTwoPlayer.on('seeked', function(data) {
-                    console.log(data);
-                });
-            }
 
             $('#logout').on('click', function(){
                 FB.logout();
@@ -2078,6 +2094,38 @@ $(document).ready(function() {
                     $('#span_bmr').html(Math.round(bmr));
                 }
             }
+        }
+    }
+
+    // Read the cookie and if it defined scroll to id
+    var scroll = Cookies.get('scroll');
+    if(scroll){
+        scrollToID(scroll, 1000);
+        Cookies.remove('scroll');
+    }
+    $("a.scroll_to").click(function(event) {
+        event.preventDefault();
+        var id = $(this).data("id"),
+            href = $(this).attr("href");
+
+        if($('#' + id).length === 1)
+        {
+            scrollToID(id, 1000);
+        }
+        else{
+            Cookies.set('scroll', id);
+            window.location.href = href;
+        }
+        return false;
+    });
+    // scrollToID function
+    function scrollToID(id, speed) {
+        var offSet = 35;
+        var obj = $('#' + id);
+        if(obj.length){
+            var offs = obj.offset();
+            var targetOffset = offs.top - offSet;
+            $('html,body').animate({ scrollTop: targetOffset }, speed);
         }
     }
 });

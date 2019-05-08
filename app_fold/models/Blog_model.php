@@ -226,7 +226,7 @@ class Blog_model extends CI_Model
 
             $result['post'] = self::parseBlogPostData($row);
             $result['post']['user']['id']    = $row->cb_u_id;
-            $result['post']['user']['name']  = (!empty($row->user_name)) ? $row->user_name : 'Пользователь №'.$row->cb_u_id;
+            $result['post']['user']['name']  = (!empty($row->user_name)) ? $row->user_name : 'Автор';
             $result['post']['comments']   = array();
 
             // Выборка комментариев к записи блога тренера

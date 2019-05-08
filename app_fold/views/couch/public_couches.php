@@ -1,6 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+<?php $breadcrumbs = array('/couches' => 'Тренеры');
+include_once('./app_fold/views/breadcrumb.php');?>
 <div class="container"><h2 class="block_h">Наши тренеры</h2></div>
 
 <div id="content" class="container">

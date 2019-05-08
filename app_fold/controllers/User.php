@@ -82,115 +82,164 @@ class User extends CI_Controller
 
         if($this->input->post('bt_save_postpone', true))
         {
-            $update_days = array();
+            $update_days     = array();
+            $current_num_day = date("N", strtotime($this->date));
+            $tmp_date        = new DateTime($this->date);
+            $today           = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
 
-            $current_num_day   = date("N", strtotime($this->date));
-            $choose_days       = $this->input->post('cb_day', true);
-            $count_choose_days = count($this->input->post('cb_day', true));
-            $tmp_date = new DateTime($this->date);
-            $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
-
-            $next_workout = $this->Course_model->getNextUserWorkout($this->user_id, $this->date);
-            //$course_data = $this->Course_model->getUserCourseSettings($next_workout['uc_id'], $this->user_id, $this->date);
-            $wo_data = $this->Course_model->getUserCourseWeekWorkouts($next_workout['uc_id'], $this->user_id, $today);
-            $count_crs_days = count($wo_data['days']);
-            // Дни недели в обратном порядке
-            rsort($wo_data['days']);
-
-            /* Смещение дней тренировок
-             * Если кол-во выбранных дней = 1, то проверка номера дня недели на больше, меньше.
-             * Иначе перенос всех тренировок недели */
-            if($count_choose_days == 1)
+            $postpone_courses = $this->input->post('cb_day', true);
+            if(!empty($postpone_courses))
             {
-                $choose_day = $choose_days[0];
+                // Данные тренировок недели пользователя
+                $wo_data = $this->Course_model->getUserCoursesWeekWorkouts($this->user_id, $today);
 
-                foreach($wo_data['days'] as $key => $crs_day)
+                //print_r($wo_data['tw_wo']); echo '<br/><br/>';
+
+                foreach ($postpone_courses as $pc_uc_id => $choose_days)
                 {
-                    if($crs_day < $choose_day)
+                    if(!empty($wo_data['tw_wo'][$pc_uc_id]))
                     {
-                        // Обновляем данные тренировки
-                        $wo_data['tw_wo'][$crs_day]['num_day'] = $choose_day;
+                        $crs_wo_data = $wo_data['tw_wo'][$pc_uc_id];
 
-                        // New date
-                        $diff_day = $choose_day - $crs_day;
-                        $tmp_date = new DateTime($wo_data['tw_wo'][$crs_day]['date']);
-                        $new_date = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $wo_data['tw_wo'][$crs_day]['date'];
-                        $wo_data['tw_wo'][$crs_day]['date'] = $new_date;
-                        $num_date = date("N", strtotime($new_date));
+                        $count_choose_days = count($choose_days); // Кол-во выбранных дней
+                        $count_crs_days    = count($crs_wo_data['days']); // Текущие дни недели тренировок курса
 
-                        // New status
-                        $status = $wo_data['tw_wo'][$crs_day]['status'];
-                        $wo_data['tw_wo'][$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
+                        // Дни недели в обратном порядке
+                        rsort($crs_wo_data['days']);
 
-                        // New course number workout
-                        if($status == '')
+                        // Данные тренировок курса недели
+                        $update_days = $crs_wo_data['wos'];
+
+                        /* Смещение дней тренировок
+                         * Если кол-во выбранных дней = 1, то проверка номера дня недели на больше, меньше.
+                         * Иначе перенос всех тренировок недели */
+                        if($count_choose_days == 1)
                         {
-                            $wo_data['tw_wo'][$crs_day]['crs_wo_id']++;
+                            $choose_day  = $choose_days[0];
+                            $fl_postpone = false;
+
+                            foreach($crs_wo_data['days'] as $key => $crs_day)
+                            {
+                                if($crs_day < $choose_day)
+                                {
+                                    // Обновляем данные тренировки
+                                    $update_days[$crs_day]['num_day'] = $choose_day;
+
+                                    // New date
+                                    $diff_day = $choose_day - $crs_day;
+                                    $tmp_date = new DateTime($update_days[$crs_day]['date']);
+                                    $new_date = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $update_days[$crs_day]['date'];
+                                    $update_days[$crs_day]['date'] = $new_date;
+                                    $num_date = date("N", strtotime($new_date));
+
+                                    // New status
+                                    $status = $update_days[$crs_day]['status'];
+                                    $update_days[$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
+
+                                    // New course number workout
+                                    if($status == '')
+                                    {
+                                        $update_days[$crs_day]['crs_wo_id']++;
+                                    }
+
+                                    // Смещаем номер недели тренировки на предыдущю тренировку.
+                                    $choose_day  = $crs_day;
+                                    $fl_postpone = true;
+
+                                    break;
+                                }
+                                elseif($crs_day == $choose_day)
+                                {
+                                    $fl_postpone = true;
+                                    break;
+                                }
+                            }
+                            unset($crs_day);
+
+                            // Если перенос не произошел, то переносим первую тренировку из списка
+                            if($fl_postpone === false)
+                            {
+                                sort($crs_wo_data['days']);
+                                $crs_day = $crs_wo_data['days'][0];
+
+                                // Обновляем данные тренировки
+                                $update_days[$crs_day]['num_day'] = $choose_day;
+
+                                // New date
+                                $diff_day = $crs_day - $choose_day;
+                                $tmp_date = new DateTime($update_days[$crs_day]['date']);
+                                $new_date = ($tmp_date !== false) ? $tmp_date->sub(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $update_days[$crs_day]['date'];
+                                $update_days[$crs_day]['date'] = $new_date;
+                                $num_date = date("N", strtotime($new_date));
+
+                                // New status
+                                $status = $update_days[$crs_day]['status'];
+                                $update_days[$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
+                            }
+                        }
+                        elseif($count_choose_days == $count_crs_days)
+                        {
+                            rsort($choose_days);
+
+                            foreach($crs_wo_data['days'] as $key => $crs_day)
+                            {
+                                // Обновляем данные тренировки
+                                $update_days[$crs_day]['num_day'] = $choose_days[$key];
+
+                                // New date
+                                $new_date = $update_days[$crs_day]['date'];
+                                if($choose_days[$key] > $crs_day)
+                                {
+                                    $diff_day = $choose_days[$key] - $crs_day;
+                                    $tmp_date = new DateTime($update_days[$crs_day]['date']);
+                                    $new_date = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $new_date;
+                                }
+                                elseif($choose_days[$key] < $crs_day)
+                                {
+                                    $diff_day = $crs_day - $choose_days[$key];
+                                    $tmp_date = new DateTime($update_days[$crs_day]['date']);
+                                    $new_date = ($tmp_date !== false) ? $tmp_date->sub(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $new_date;
+                                }
+                                $update_days[$crs_day]['date'] = $new_date;
+                                $num_date = date("N", strtotime($new_date));
+
+                                // New status
+                                $status = $update_days[$crs_day]['status'];
+                                $update_days[$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
+
+                                // New course number workout
+                                if($status == '')
+                                {
+                                    $update_days[$crs_day]['crs_wo_id']++;
+                                }
+                            }
+                            unset($crs_day);
                         }
 
-                        // Смещаем номер недели тренировки на предыдущю тренировку.
-                        $choose_day = $crs_day;
+                        $wo_data['tw_wo'][$pc_uc_id]['wos'] = $update_days;
+                    }
 
-                        // Прерываем цикл, если текущий день недели больше проверяемого значения.
-                        // (тем самым, перенос только одно пропущенной тренировки)
-                        if($current_num_day > $crs_day)
-                        {
-                            break;
-                        }
-                    }
-                    elseif($crs_day == $choose_day)
-                    {
-                        break;
-                    }
+                    /*print_r($wo_data['tw_wo'][$pc_uc_id]['wos']); echo '<br/>';
+                    print_r($update_days); echo '<br/><br/>';
+                    print_r($wo_data['tw_wo'][$pc_uc_id]['wos']); echo '<br/>';*/
                 }
-                unset($crs_day);
-            }
-            elseif($count_choose_days == $count_crs_days)
-            {
-                rsort($choose_days);
+                unset($pc);
+                unset($pc_uc_id);
 
-                foreach($wo_data['days'] as $key => $crs_day)
+                $result = $this->Course_model->postponeUserCourseWeekWorkouts($this->user_id, $wo_data, $this->date);
+                //$result = false;
+                //print_r($wo_data['tw_wo']); echo '<br/>';
+
+                if($result === true)
                 {
-                    // Обновляем данные тренировки
-                    $wo_data['tw_wo'][$crs_day]['num_day'] = $choose_days[$key];
-
-                    // New date
-                    $new_date = $wo_data['tw_wo'][$crs_day]['date'];
-                    if($choose_days[$key] > $crs_day)
-                    {
-                        $diff_day = $choose_days[$key] - $crs_day;
-                        $tmp_date = new DateTime($wo_data['tw_wo'][$crs_day]['date']);
-                        $new_date = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $new_date;
-                    }
-                    elseif($choose_days[$key] < $crs_day)
-                    {
-                        $diff_day = $crs_day - $choose_days[$key];
-                        $tmp_date = new DateTime($wo_data['tw_wo'][$crs_day]['date']);
-                        $new_date = ($tmp_date !== false) ? $tmp_date->sub(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $new_date;
-                    }
-                    $wo_data['tw_wo'][$crs_day]['date'] = $new_date;
-                    $num_date = date("N", strtotime($new_date));
-
-                    // New status
-                    $status = $wo_data['tw_wo'][$crs_day]['status'];
-                    $wo_data['tw_wo'][$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
-
-                    // New course number workout
-                    if($status == '')
-                    {
-                        $wo_data['tw_wo'][$crs_day]['crs_wo_id']++;
-                    }
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
                 }
-                unset($crs_day);
-            }
-
-            //print_r($wo_data['tw_wo']); echo '<br/>';
-            $result = $this->Course_model->postponeUserCourseWeekWorkouts($next_workout['uc_id'], $this->user_id, $wo_data, $this->date);
-
-            if($result === true)
-            {
-                // Изменения сохранены
-                $this->session->set_tempdata('message', 10, 60);
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 196, 60);
+                }
             }
             else
             {
@@ -473,7 +522,7 @@ class User extends CI_Controller
             $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
         }
 
-        $title = !empty($result['user_data']['name']) ? $result['user_data']['name'] . ' - пользователь' : 'Страница пользователя' ;
+        $title = !empty($result['user_data']['name']) ? $result['user_data']['name'] . ' - пользователь' : $result['user_data']['default_name'] ;
         // Объединенные данные страница
         $this->page_data['title']     = $title;
         $this->page_data['page_menu'] = 'user_page';
@@ -527,7 +576,7 @@ class User extends CI_Controller
             $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
         }
 
-        $title = !empty($result['user_data']['user_name']) ? $result['user_data']['user_name'] . ' - тренер' : 'Страница тренера' ;
+        $title = !empty($result['user_data']['user_name']) ? $result['user_data']['user_name'] . ' - тренер' : $result['user_data']['default_name'] ;
         // Объединенные данные страница
         $this->page_data['title']     = $title;
         $this->page_data['page_menu'] = 'user_page';
@@ -559,7 +608,7 @@ class User extends CI_Controller
             $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
         }
 
-        $title = !empty($result['user_data']['name']) ? $result['user_data']['name'] . ' - администратор' : 'Страница администратора' ;
+        $title = !empty($result['user_data']['name']) ? $result['user_data']['name'] . ' - администратор' : $result['user_data']['default_name'] ;
         // Объединенные данные страница
         $this->page_data['title']     = $title;
         $this->page_data['page_menu'] = 'user_page';
@@ -582,6 +631,8 @@ class User extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $user = array();
+
         // Получение данных пользователя из БД
         // Страница пользователя или администратора
         if (!empty($this->user_id) and $this->session->user['type'] != 2)
@@ -596,6 +647,25 @@ class User extends CI_Controller
             // Получение данных тренера из БД
             $user = $this->Couch_model->getCouch($this->user_id);
         }
+
+        // Возможность отправить повторно письмо с подтверждением активации или смены email
+        if($user['user_data']['user_changing_email'] === true or empty($user['user_data']['user_activated']))
+        {
+            $this->load->model('Authorization_model');
+            $activate_check = $this->Authorization_model->checkActivateEmail($this->user_id, $this->date);
+            $email_check    = $this->Authorization_model->checkChangingEmail($this->user_id, $this->date);
+            
+            if($activate_check['availability_send_email'] === true or $email_check['availability_send_email'] === true)
+            {
+                $user['user_data']['availability_send_email'] = true;
+            }
+
+            $user['user_data']['availability_send_email_date'] = (!empty($activate_check['availability_send_email_date'])) ? $activate_check['availability_send_email_date'] : $email_check['availability_send_email_date'];
+        }
+
+        // Получение данных пользователя из БД
+        $user_social = $this->User_model->getUserSocial($this->user_id);
+        $result = array_merge($user, $user_social);
 
         $user_data = (!empty($user)) ? $user['user_data'] : null;
 
@@ -874,21 +944,25 @@ class User extends CI_Controller
         {
             $this->load->model('Authorization_model');
 
-            $res_check = $this->Authorization_model->checkActivateEmail($this->user_id);
+            $res_check = $this->Authorization_model->checkActivateEmail($this->user_id, $this->date);
 
             if(is_array($res_check))
             {
-                // Отправка письма с активацией новой почты
-                $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $res_check['user_email'] . '&ac=' . $res_check['activate_code']
-                    . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                $system_message['text']  .= 'Активировать';
-                $system_message['text']  .= '</a></b>';
+                if($res_check['availability_send_email'] === true)
+                {
+                    // Отправка письма с активацией новой почты
+                    $system_message['text'] = '<b><a href="https://superbody.pro/activate?e=' . $res_check['user_email'] . '&ac=' . $res_check['activate_code']
+                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                    $system_message['text'] .= 'Активировать';
+                    $system_message['text'] .= '</a></b>';
 
-                parent::sendEmail(17, $res_check['user_email'], $system_message);
+                    parent::sendEmail(17, $res_check['user_email'], $system_message);
 
+                    $this->Authorization_model->setResendingActivateEmailDate($this->user_id, $this->date);
 
-                // Данные о смене были сохранены
-                $this->session->set_tempdata('message', 199, 60);
+                    // Данные о смене были сохранены
+                    $this->session->set_tempdata('message', 199, 60);
+                }
             }
             header('Location: /settings');
 
@@ -897,42 +971,44 @@ class User extends CI_Controller
         {
             $this->load->model('Authorization_model');
 
-            $res_check = $this->Authorization_model->checkChangingEmail($this->user_id);
+            $res_check = $this->Authorization_model->checkChangingEmail($this->user_id, $this->date);
 
             if(is_array($res_check))
             {
-                self::sendEChangeEmail($res_check['user_email'], $res_check['activate_code'], $res_check['idempotent']);
+                if($res_check['availability_send_email'] === true)
+                {
+                    self::sendEChangeEmail($res_check['user_email'], $res_check['activate_code'], $res_check['idempotent']);
 
-                // Данные о смене были сохранены
-                $this->session->set_tempdata('message', 198, 60);
+                    $this->Authorization_model->setResendingChangeEmailDate($this->user_id, $this->date);
+
+                    // Данные о смене были сохранены
+                    $this->session->set_tempdata('message', 198, 60);
+                }
             }
             header('Location: /settings');
         }
 
 
         // Страница пользователя или администратора
-        if (!empty($this->user_id) and $this->session->user['type'] != 2) {
-            self::userSettings();
+        if (!empty($this->user_id) and $this->session->user['type'] != 2)
+        {
+            self::userSettings($result);
         }
         // Страница тренера
-        elseif (!empty($this->user_id)  and $this->session->user['type'] == 2) {
-            self::couchSettings();
+        elseif (!empty($this->user_id)  and $this->session->user['type'] == 2)
+        {
+            self::couchSettings($result);
         }
     }
 
     /**
      * Страница редактирования регистрационных данных пользователя
      *
+     * @param $result
      * @return void
      */
-    public function userSettings()
+    public function userSettings($result)
     {
-        // Получение данных пользователя из БД
-        $user_data   = $this->User_model->getUserSettingsData($this->user_id);
-        $user_social = $this->User_model->getUserSocial($this->user_id);
-
-        $result = array_merge($user_data, $user_social);
-
         // Объединенные данные страница
         $this->page_data['title']        = 'Настройки';
         $this->page_data['page_menu']    = 'settings';
@@ -941,7 +1017,7 @@ class User extends CI_Controller
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
 
-        if ($user_data !== false)
+        if ($result['user_data'] !== false)
         {
             // Вывод страницы настроек пользователя
             $this->load->view('user/settings/settings', $result);
@@ -958,16 +1034,11 @@ class User extends CI_Controller
     /**
      * Страница редактирования регистрационных данных тренера
      *
+     * @param $result
      * @return void
      */
-    public function couchSettings()
+    public function couchSettings($result)
     {
-        // Получение данных пользователя из БД
-        $user_data   = $this->Couch_model->getCouch($this->user_id);
-        $user_social = $this->User_model->getUserSocial($this->user_id);
-
-        $result = array_merge($user_data, $user_social);
-
         // Объединенные данные страница
         $this->page_data['title']        = 'Настройки';
         $this->page_data['page_menu']    = 'settings';
@@ -976,7 +1047,7 @@ class User extends CI_Controller
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
 
-        if ($user_data !== false)
+        if ($result['user_data'] !== false)
         {
             // Вывод страницы настроек пользователя
             $this->load->view('couch/settings/settings', $result);

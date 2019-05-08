@@ -13,12 +13,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <li><a href="/about" <?php if ($page_menu == 'about') { echo 'class="active"'; } ?>>О НАС</a></li>
         <?php /*<li><a href="/journal/articles" <?php if ($page_menu == 'articles') { echo 'class="active"'; } ?>>ЖУРНАЛ</a></li>*/?>
         <li><a href="/couches" <?php if ($page_menu == 'couches') { echo 'class="active"'; } ?>>ТРЕНЕРЫ</a></li>
-        <li <?php if (!empty($menu_courses['courses'])) :?> class="submenu_li" <?php endif;?>>
+        <li <?php if (!empty($menu_courses['course_types'])) :?> class="submenu_li" <?php endif;?>>
             <a href="/courses" <?php if ($page_menu == 'courses') { echo 'class="active"'; } ?>>КУРСЫ</a>
-            <?php if (!empty($menu_courses['courses'])) :?>
+            <?php if (!empty($menu_courses['course_types'])) :?>
                 <ul class="submenu">
-                    <?php foreach ($menu_courses['courses'] as $m_course) :?>
-                        <li><a href="/course/<?php echo $m_course['id']; ?>"><?php echo $m_course['name']; ?></a></li>
+                    <?php foreach ($menu_courses['course_types'] as $m_course) :?>
+                        <li><a href="/courses/<?php echo $m_course['id']; ?>"><?php echo $m_course['name']; ?></a></li>
                     <?php endforeach;
                     unset($m_course);?>
                 </ul>

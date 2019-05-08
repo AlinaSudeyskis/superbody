@@ -9,6 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <meta name="description" content="<?php echo $description; ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="yandex-verification" content="180e958474bf7c8f" />
     <link rel="icon" type="image/png" href="/favicon.ico" />
 
     <link rel="stylesheet" href="/css/google_fonts.css">
@@ -54,8 +55,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <link rel="stylesheet" type="text/css" href="/datetimepicker/jquery.datetimepicker.css"/ >
     <script src="/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
+
+    <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
+<!-- Global Site Tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GA_TRACKING_ID"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-136119880-1');
+</script>
 <body>
+<?php include_once('./app_fold/views/reporting_services.php'); ?>
 <span id="block-message" <?php if (!empty($message)){ echo 'class="show"';}?>>
     <?php if (!empty($message)) :
         echo $message;

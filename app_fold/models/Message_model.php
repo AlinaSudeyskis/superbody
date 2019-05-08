@@ -1279,4 +1279,818 @@ class Message_model extends CI_Model
 
     /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ СООБЩЕНИЙ */
 
+    /* БЛОК ОБРАБОТКИ ДАННЫХ РАЗДЕЛА ВОПРОС - ОТВЕТ */
+
+    /**
+     * Сохранение нового раздела Вопрос - Ответ
+     *
+     * @param $section_name
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setNewQaSection($section_name, $admin_id, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('INSERT INTO `q_a_sections`(`qas_name`, `qas_admin_id`, `qas_update`) VALUES (?, ?, ?)',
+            array($section_name, $admin_id, $date));
+
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = $this->db->insert_id();
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных раздела
+     *
+     * @param $section_id
+     * @return array
+     */
+    public function getQaSection($section_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `qas_id`, `qas_name`, `qas_blocked`, `qas_update`, `qas_admin_id` 
+            FROM `q_a_sections` 
+            WHERE `qas_id`=? LIMIT 1', $section_id);
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['section']['id']       = $row->qas_id;
+            $result['section']['name']     = $row->qas_name;
+            $result['section']['blocked']  = $row->qas_blocked;
+            $result['section']['update']   = $row->qas_update;
+            $result['section']['admin_id'] = $row->qas_admin_id;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение данных раздела
+     *
+     * @param $section_id
+     * @param $section_name
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setQaSection($section_id, $section_name, $admin_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `q_a_sections` SET `qas_name`=?, `qas_update`=?, `qas_admin_id`=? WHERE `qas_id`=? LIMIT 1',
+            array($section_name, $date, $admin_id, $section_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Блокировка раздела
+     *
+     * @param $section_id
+     * @param $block_type
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function blockQaSection($section_id, $block_type, $admin_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `q_a_sections` SET `qas_blocked`=?, `qas_update`=?, `qas_admin_id`=? WHERE `qas_id`=? LIMIT 1',
+            array($block_type, $date, $admin_id, $section_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка разделов
+     * @return array
+     */
+    public function getQaSections()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `qas_id`, `qas_name`, `qas_blocked`, `qas_update`, `qas_admin_id` FROM `q_a_sections`');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['sections'][$i]['id'] = $row->qas_id;
+                $result['sections'][$i]['name'] = $row->qas_name;
+                $result['sections'][$i]['blocked'] = $row->qas_bloked;
+                $result['sections'][$i]['update'] = $row->qas_update;
+                $result['sections'][$i]['admin_id'] = $row->qas_admin_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение данных подраздела
+     *
+     * @param $section_id
+     * @param $subsection_name
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setNewQaSubsection($section_id, $subsection_name, $admin_id, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('INSERT INTO `q_a_subsections`(`qass_qas_id`, `qass_name`, `qass_update`, `qass_admin_id`) 
+            VALUES (?, ?, ?, ?)', array($section_id, $subsection_name, $date, $admin_id));
+
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = $this->db->insert_id();
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных подраздела
+     *
+     * @param $subsection_id
+     * @return array
+     */
+    public function getQaSubsection($subsection_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `qass_id`, `qass_qas_id`, `qass_name`, `qass_blocked`, `qass_update`, `qass_admin_id` 
+            FROM `q_a_subsections` WHERE `qass_id`=? LIMIT 1', $subsection_id);
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['subsection']['id']         = $row->qass_id;
+            $result['subsection']['section_id'] = $row->qass_qas_id;
+            $result['subsection']['name']       = $row->qass_name;
+            $result['subsection']['blocked']    = $row->qass_blocked;
+            $result['subsection']['update']     = $row->qass_update;
+            $result['subsection']['admin_id']   = $row->qass_admin_id;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение данных подраздела
+     *
+     * @param $subsection_id
+     * @param $section_id
+     * @param $subsection_name
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setQaSubsection($subsection_id, $section_id, $subsection_name, $admin_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `q_a_subsections` SET `qass_qas_id`=?, `qass_name`=?, `qass_update`=?, `qass_admin_id`=? 
+            WHERE `qass_id`=? LIMIT 1', array($section_id, $subsection_name, $date, $admin_id, $subsection_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Блокировка подраздела
+     *
+     * @param $subsection_id
+     * @param $block_type
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function blockQaSubsection($subsection_id, $block_type, $admin_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `q_a_subsections` SET `qass_blocked`=?, `qass_update`=?, `qass_admin_id`=? 
+            WHERE `qass_id`=? LIMIT 1', array($block_type, $date, $admin_id, $subsection_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка подразделов раздела
+     *
+     * @param $section_id
+     * @return array
+     */
+    public function getQaSectionSubsections($section_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `qass_id`, `qass_name`, `qass_blocked`, `qass_update`, `qass_admin_id` 
+            FROM `q_a_subsections` WHERE `qass_qas_id`=?', $section_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['subsections'][$i]['id']       = $row->qass_id;
+                $result['subsections'][$i]['name']     = $row->qass_name;
+                $result['subsections'][$i]['blocked']  = $row->qass_blocked;
+                $result['subsections'][$i]['update']   = $row->qass_update;
+                $result['subsections'][$i]['admin_id'] = $row->qass_admin_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка всех подразделов
+     *
+     * @param $section_id
+     * @return array
+     */
+    public function getQaSubsections()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `qass_id`, `qass_qas_id`, `qass_name`, `qass_blocked`, `qass_update`, `qass_admin_id` 
+            FROM `q_a_subsections`');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach ($sel_data->result() as $row)
+            {
+                $result['subsections'][$row->qass_qas_id][$row->qass_id]['id']       = $row->qass_id;
+                $result['subsections'][$row->qass_qas_id][$row->qass_id]['name']     = $row->qass_name;
+                $result['subsections'][$row->qass_qas_id][$row->qass_id]['blocked']  = $row->qass_blocked;
+                $result['subsections'][$row->qass_qas_id][$row->qass_id]['update']   = $row->qass_update;
+                $result['subsections'][$row->qass_qas_id][$row->qass_id]['admin_id'] = $row->qass_admin_id;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение новой статьи
+     *
+     * @param $section_id
+     * @param $subsection_id
+     * @param $user_group
+     * @param $article_name
+     * @param $article_text
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setNewQaArticle($section_id, $subsection_id, $user_group, $article_name, $article_text, $admin_id, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('INSERT INTO `question_answer`(`qa_qas_id`, `qa_qass_id`, `qa_user_group`, `qa_name`, `qa_text`, `qa_update`, `qa_admin_id`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?)', array($section_id, $subsection_id, $user_group, $article_name, $article_text, $date, $admin_id));
+
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = $this->db->insert_id();
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка статьей
+     * @return array
+     */
+    public function getQaArticles()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qass_id`, `qa_user_group`, `qa_name`, `qa_blocked`, `qa_update`, `qa_admin_id` FROM `question_answer`');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['qa_articles'][$i]['id']            = $row->qa_id;
+                $result['qa_articles'][$i]['subsection_id'] = $row->qa_qass_id;
+                $result['qa_articles'][$i]['user_group']    = $row->qa_user_group;
+                $result['qa_articles'][$i]['name']          = $row->qa_name;
+                $result['qa_articles'][$i]['blocked']       = $row->qa_blocked;
+                $result['qa_articles'][$i]['update']        = $row->qa_update;
+                $result['qa_articles'][$i]['admin_id']      = $row->qa_admin_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных статьи
+     *
+     * @param $article_id
+     * @return array
+     */
+    public function getQaArticle($article_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qas_id`, `qa_qass_id`, `qa_user_group`, `qa_name`, `qa_text`, `qa_blocked`, `qa_update`, `qa_admin_id` 
+            FROM `question_answer` WHERE `qa_id`=? LIMIT 1', $article_id);
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['qa_article']['id']            = $row->qa_id;
+            $result['qa_article']['section_id']    = $row->qa_qas_id;
+            $result['qa_article']['subsection_id'] = $row->qa_qass_id;
+            $result['qa_article']['user_group']    = $row->qa_user_group;
+            $result['qa_article']['name']          = $row->qa_name;
+            $result['qa_article']['text']          = $row->qa_text;
+            $result['qa_article']['blocked']       = $row->qa_blocked;
+            $result['qa_article']['update']        = $row->qa_update;
+            $result['qa_article']['admin_id']      = $row->qa_admin_id;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение данных статьи
+     *
+     * @param $article_id
+     * @param $section_id
+     * @param $subsection_id
+     * @param $user_group
+     * @param $article_name
+     * @param $article_text
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function setQaArticle($article_id, $section_id, $subsection_id, $user_group, $article_name, $article_text, $admin_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `question_answer` SET `qa_qas_id`=?, `qa_qass_id`=?, `qa_user_group`=?, `qa_name`=?, `qa_text`=?, `qa_update`=?, `qa_admin_id`=? 
+            WHERE `qa_id`=? LIMIT 1', array($section_id, $subsection_id, $user_group, $article_name, $article_text, $date, $admin_id, $article_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Блокировка статьи
+     *
+     * @param $article_id
+     * @param $block_type
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function blockQaArticle($article_id, $block_type, $admin_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `question_answer` SET `qa_blocked`=?, `qa_update`=?, `qa_admin_id`=? 
+            WHERE `qa_id`=? LIMIT 1', array($block_type, $date, $admin_id, $article_id));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка общедоступных разделов с подразделами
+     *
+     * @param $user_type
+     * @return array
+     */
+    public function getPublicQaSections($user_type)
+    {
+        $result = array();
+
+        $user_group = ' and `qa_user_group`="general"';
+        if($user_type == 'user')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+        }
+        elseif($user_type == 'couch')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+        }
+        elseif($user_type == 'admin')
+        {
+            $user_group = '';
+        }
+
+        $sel_data = $this->db->query('SELECT `qass_id`, `qass_qas_id`, `qass_name`, `qass_blocked`, `qas_name`, `qas_blocked`
+            FROM `q_a_subsections` 
+            LEFT JOIN `q_a_sections` ON `qas_id`=`qass_qas_id`
+            WHERE `qass_blocked`=0 and `qas_blocked`=0');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach ($sel_data->result() as $row)
+            {
+                $sel_articles = $this->db->query('SELECT COUNT(`qa_id`) as `count_articles` FROM `question_answer` WHERE `qa_qass_id`=? and `qa_blocked`=0' . $user_group, $row->qass_id);
+                if($sel_articles !== false and 1 == $sel_articles->num_rows())
+                {
+                    $row2 = $sel_articles->row();
+                    if($row2->count_articles > 0)
+                    {
+                        $result['sections'][$row->qass_qas_id]['name'] = $row->qas_name;
+                        $result['sections'][$row->qass_qas_id]['subsections'][$row->qass_id]['name'] = $row->qass_name;
+                    }
+                }
+                elseif($sel_articles === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка общедоступных подразделов раздела
+     *
+     * @param $section_id
+     * @param $user_type
+     * @return array
+     */
+    public function getPublicQaSection($section_id, $user_type)
+    {
+        $result = array();
+
+        $user_group = ' and `qa_user_group`="general"';
+        if($user_type == 'user')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+        }
+        elseif($user_type == 'couch')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+        }
+        elseif($user_type == 'admin')
+        {
+            $user_group = '';
+        }
+
+        $sel_data = $this->db->query('SELECT `qass_id`, `qass_qas_id`, `qass_name`, `qas_name`, `qas_blocked` 
+            FROM `q_a_subsections` 
+            LEFT JOIN `q_a_sections` ON `qas_id`=`qass_qas_id`
+            WHERE `qas_blocked`=0 and `qass_blocked`=0 and `qass_qas_id`=?', $section_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $sel_articles = $this->db->query('SELECT COUNT(`qa_id`) as `count_articles` FROM `question_answer` WHERE `qa_qass_id`=? and `qa_blocked`=0' . $user_group, $row->qass_id);
+                if($sel_articles !== false and 1 == $sel_articles->num_rows())
+                {
+                    $result['section']['id'] = $section_id;
+                    $result['section']['name'] = $row->qas_name;
+                    $result['section']['subsections'][$row->qass_id]['name'] = $row->qass_name;
+                }
+                elseif($sel_articles === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка общедоступных статей подраздела
+     *
+     * @param $section_id
+     * @param $subsection_id
+     * @param $user_type
+     * @return array
+     */
+    public function getPublicQaSubsection($section_id, $subsection_id, $user_type)
+    {
+        $result = array();
+
+        $user_group = ' and `qa_user_group`="general"';
+        if($user_type == 'user')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+        }
+        elseif($user_type == 'couch')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+        }
+        elseif($user_type == 'admin')
+        {
+            $user_group = '';
+        }
+
+        $sel_data = $this->db->query('SELECT `qass_id`, `qass_name` FROM `q_a_subsections` 
+            WHERE `qass_id`=? and `qass_qas_id`=? and `qass_blocked`=0 LIMIT 1', array($subsection_id, $section_id));
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['subsection']['id']   = $row->qass_id;
+            $result['subsection']['name'] = $row->qass_name;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка общедоступных статей подраздела
+     *
+     * @param $section_id
+     * @param $subsection_id
+     * @param $user_type
+     * @return array
+     */
+    public function getPublicQaSubsectionArticles($section_id, $subsection_id, $user_type)
+    {
+        $result = array();
+
+        $user_group = ' and `qa_user_group`="general"';
+        if($user_type == 'user')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+        }
+        elseif($user_type == 'couch')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+        }
+        elseif($user_type == 'admin')
+        {
+            $user_group = '';
+        }
+
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_name`, `qa_user_group` 
+            FROM `question_answer` 
+            WHERE `qa_qas_id`=? and `qa_qass_id`=? and `qa_blocked`=0'.$user_group, array($section_id, $subsection_id));
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['articles'][$row->qa_id]['name'] = $row->qa_name;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных общедоступной статьи
+     *
+     * @param $section_id
+     * @param $subsection_id
+     * @param $article_id
+     * @param $user_type
+     * @return array
+     */
+    public function getPublicQaArticle($section_id, $subsection_id, $article_id, $user_type)
+    {
+        $result = array();
+
+        $user_group = ' and `qa_user_group`="general"';
+        if($user_type == 'user')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+        }
+        elseif($user_type == 'couch')
+        {
+            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+        }
+        elseif($user_type == 'admin')
+        {
+            $user_group = '';
+        }
+
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qas_id`, `qa_qass_id`, `qa_user_group`, `qa_name`, `qa_text`, `qa_blocked`, `qa_update`, `qa_admin_id` 
+            FROM `question_answer` 
+            WHERE `qa_id`=? and `qa_qas_id`=? and `qa_qass_id`=? LIMIT 1', array($article_id, $section_id, $subsection_id));
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['article']['id']            = $row->qa_id;
+            $result['article']['section_id']    = $row->qa_qas_id;
+            $result['article']['subsection_id'] = $row->qa_qass_id;
+            $result['article']['user_group']    = $row->qa_user_group;
+            $result['article']['name']          = $row->qa_name;
+            $result['article']['text']          = nl2br(parent::showBBcodes($row->qa_text));
+            $result['article']['blocked']       = $row->qa_blocked;
+            $result['article']['update']        = $row->qa_update;
+            $result['article']['admin_id']      = $row->qa_admin_id;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Поиск по статьям
+     *
+     * @param $search
+     * @param $user_type
+     * @return bool
+     */
+    public function getPublicQaArticles($search, $user_type)
+    {
+        $result = false;
+
+        $user_group = '`qa_user_group`="general"';
+        if($user_type == 'user')
+        {
+            $user_group = '(`qa_user_group`="general" or `qa_user_group`="user")';
+        }
+        elseif($user_type == 'couch')
+        {
+            $user_group = '(`qa_user_group`="general" or `qa_user_group`="couch")';
+        }
+        elseif($user_type == 'admin')
+        {
+            $user_group = '1 = 1';
+        }
+
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_name`, `qa_user_group`, `qas_id`, `qas_name`, `qass_id`, `qass_name` 
+            FROM `question_answer` 
+            LEFT JOIN `q_a_sections` ON `qas_id`=`qa_qas_id`
+            LEFT JOIN `q_a_subsections` ON `qass_id`=`qa_qass_id`
+            WHERE MATCH (`qa_name`, `qa_text`) AGAINST (? IN BOOLEAN MODE) and '.$user_group, $search);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['search_qa_articles'][$row->qas_id]['name'] = $row->qas_name;
+                $result['search_qa_articles'][$row->qas_id]['subsections'][$row->qass_id]['name'] = $row->qass_name;
+                $result['search_qa_articles'][$row->qas_id]['subsections'][$row->qass_id]['articles'][$row->qa_id]['name'] = $row->qa_name;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ РАЗДЕЛА ВОПРОС - ОТВЕТ */
+
 }

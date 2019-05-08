@@ -5,11 +5,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div id="legend"></div>
     <div id="chartdiv"></div>
 </div>
+<?php $gender = $user_data['user_gender_eng'];
+$prefix = ($gender === 'female') ? 'w amcharts' : 'amcharts';?>
 <script>
     /* график */
     $(document).ready(function(){
         var minDate = new Date("<?php echo $min;?>"),
-            maxDate = new Date("<?php echo $max;?>");
+            maxDate = new Date("<?php echo $max;?>"),
+            prefix  = "<?php echo $prefix;?>";
 
         AmCharts.ready(function () {
             generateChartData();
@@ -177,7 +180,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
             // set data sets to the chart
             chart.dataSets = [dataSet1, dataSet2, dataSet3, dataSet4];
-
+            chart.addClassNames = true;
+            chart.classNamePrefix = prefix;
 
             // PANELS ///////////////////////////////////////////
             // first stock panel

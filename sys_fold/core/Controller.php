@@ -503,7 +503,9 @@ class CI_Controller {
         }
 
         // Список доступных пользователю курсов
-        $courses = $this->Course_model->getAvailableCourses();
+        //$courses = $this->Course_model->getAvailableCourses();
+        // Список доступных пользователю категорий курсов
+        $courses = $this->Course_model->getAvailableCourseTypes();
 
         // Данные сайта (контактные данные, о нас, соц. сети и т.д.)
         $site_info = $this->Welcome_model->getSiteInfo();

@@ -708,6 +708,7 @@ audio, canvas, progress, video{
     width: 20%;
     padding: 0 15px 20px;
     float: left;
+    position: relative;
 }
 .col_4 .cat_item_wrap{
     width: 25%;
@@ -716,33 +717,72 @@ audio, canvas, progress, video{
     width: 20%;
 }
 .cat_item{
+    position: relative;
     background: #fff;
     border-bottom: 3px solid #cdcdcd;
     text-decoration: none;
     color: #33363f;
-    display: block;
+    display: flex; /* block */
+    flex-flow: column wrap;
     cursor: pointer;
 }
-.cat_img, .cat_desk{
-    display: table-cell;
+.cat_img, .cat_desk, .cat_but, .cat_subdesk{
+    /*display: table-cell;
+    vertical-align: middle;*/
     font-size: 18px;
     line-height: 18px;
-    vertical-align: middle;
-    height: 90px;
+    height: 80px; /* 90 */
 }
 .cat_img{
     text-align: center;
-    width: 53px;
+    /*width: 53px;*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 66px; /* 90 */
 }
 .cat_desk{
     padding: 10px;
+
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
-.cat_desk span {
-    font-size: 11px;
+.cat_desk span{
+
+}
+.cat_subdesk{
+    font-size: 10px;
     display: block;
-    margin-top: 5px;
-    color: #6d6d6d;
+    margin-top: 3px;
+    color: #000000;
+    height: 18px;
 }
+.cat_but{
+    background-color: #fff687;
+    color: #6b6b6b;
+    font-size: 11px;
+    text-align: center;
+    padding: 3px;
+    order: 3;
+    flex: 1 1 0;
+    text-transform: uppercase;
+    pointer-events: auto;
+    cursor: pointer;
+    z-index: 1;
+}
+/*.cat_item_wrap.disabled:after{
+    content: '';
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    opacity: .4;
+    position: absolute;
+    top: 0;
+    left: 0;
+}*/
 .cat_item_wrap:first-child .cat_img{
     background: #d99900;
 }
@@ -1059,6 +1099,9 @@ div.info{
 }
 .amcharts-center-div{
     background: url(/img/man.png) 2px 42px no-repeat;
+}
+.w.amcharts-center-div{
+    background: url(/img/woman.png) 2px 42px no-repeat;
 }
 .amChartsPeriodSelector{
     overflow: visible !important;
@@ -1702,6 +1745,17 @@ tr:first-child > td > .fc-day-grid-event{
     width: 90%;
     max-width: 900px;
     padding: 15px;
+    z-index: 113;
+    left: 50%;
+    top: 50%;
+    background: #fff;
+    position: fixed;
+    display: none;
+    min-height: 330px;
+}
+#pop-up_postpone{
+    width: 90%;
+    max-width: 900px;
     z-index: 113;
     left: 50%;
     top: 50%;
@@ -2871,6 +2925,9 @@ tr:first-child > td > .fc-day-grid-event{
 	background: #72d0f4;
 	color: #fff;
 }
+.kurs_block_val.support {
+    min-height: 300px;
+}
 .kurs_block_val .nav_ul{
     margin: 30px 0;
 }
@@ -3437,6 +3494,66 @@ tr:first-child > td > .fc-day-grid-event{
     margin-bottom: 50px;
 }
 
+/* вопрос - ответ */
+.qa_item{
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+.qa_item_h{
+    font-size: 22px;
+    line-height: 28px;
+    color: #33363f;
+    padding: 15px 15px 0;
+}
+.qa_item_cont{
+    padding: 10px 15px 0;
+    font-size: 13px;
+    line-height: 19px;
+    color: #888;
+}
+.qa_item_cont span {
+    color: #72d0f4;
+}
+.qa_item_h a, .qa_item_cont a {
+    text-decoration: none;
+    color: inherit;
+}
+.qa_item_h a:hover, .qa_item_cont a:hover {
+    color: #72d0f4;
+}
+
+.search_form{
+    width: 40%;
+    height: 30px;
+    margin: 0 auto;
+}
+.search_in{
+    display: block;
+    width: calc(100% - 40px);
+    height: 30px;
+    line-height: 28px;
+    border: 1px solid #e6e6e6;
+    border-right: none;
+    border-radius: 5px 0 0 5px;
+    padding-left: 15px;
+    padding-right: 15px;
+    font-size: 13px;
+    font-weight: 300;
+    font-style: italic;
+    float: left;
+}
+.search_but{
+    width: 40px;
+    height: 30px;
+    display: block;
+    border: none;
+    padding: 0;
+    border-radius: 0 5px 5px 0;
+    background: url(/img/search_ico.png) 50% 50% no-repeat, #00bff0;
+    float: left;
+    cursor: pointer;
+    text-indent: -500px;
+}
 
 
 /* календарь в профиле */
@@ -6331,6 +6448,7 @@ textarea.journal_post_comm_in{
 .tren_prof_page_img img{
 	display: block;
 	height: 145px;
+    margin: 0 auto;
 	/*width: 145px;
 	border-radius: 50%;
 	border: 2px solid #00bff0;*/
@@ -6794,6 +6912,10 @@ textarea.journal_post_comm_in{
     line-height: 18px;
     color: #99a3b1;
     margin-bottom: 10px;
+    overflow: hidden;
+}
+.support .comment_page_cont_txt{
+    color: #222;
 }
 .comment_page_cont_link a{
     font-size: 14px;
@@ -7065,6 +7187,9 @@ textarea.journal_post_comm_in{
 	font-size: 11px;
 	line-height: 13px;
 }
+.anketa_block_cont{
+    min-height: 300px;
+}
 .anketa_block_item{
 	padding-left: 25px;
 	padding-right: 25px;
@@ -7159,6 +7284,9 @@ span.tip>.bt_link {
 	margin-bottom: 20px;
     min-height: 36px;
 }
+.anketa_form_line.subsections{
+    display: none;
+}
 .anketa_form_line.current_meal_day, .anketa_form_line.user_meal_time{
     margin-bottom: 0;
 }
@@ -7250,6 +7378,19 @@ span.tip>.bt_link {
 	color: #33363f;
 	cursor: pointer;
 }
+.cal_date label{
+	display: block;
+	width: 80px;
+	height: 28px;
+	text-align: center;
+	line-height: 26px;
+	font-size: 13px;
+	color: #33363f;
+    cursor: default;
+}
+.cal_date label.bold{
+	font-weight: 700;
+}
 .block_table .anketa_form_radio + label, .nutrition_block_table .anketa_form_radio + label{
     border-radius: unset;
     display: block;
@@ -7295,24 +7436,30 @@ span.tip>.bt_link {
     line-height: 26px;
     font-size: 13px;
     cursor: pointer;
-    background: #2acaf2;
+    background-color: #2acaf2;
     color: #fff;
     border-color: #2acaf2;
 }
 .anketa_form_radio:checked + label{
-    background: #2acaf2;
+    background-color: #2acaf2;
     color: #fff;
     border-color: #2acaf2;
 }
 .anketa_form_radio:disabled + label{
-    background: #f3f3f3;
+    background-color: #f3f3f3;
     cursor: default;
 }
 .anketa_form_radio.prev_workout + label {
-    background: #e0e0e0;
+    background-color: #dcf8ff;
 }
 .anketa_form_radio:checked.prev_workout + label {
-    background: #2acaf2;
+    background-color: #2acaf2;
+}
+.anketa_form_radio.prev_workout.done + label {
+    background-color: #edfdcd;
+}
+.anketa_form_radio.prev_workout.missed + label {
+    background-color: #fdeae6;
 }
 .anketa_form_radio.long + label{
     width: 160px;
@@ -7323,7 +7470,11 @@ span.tip>.bt_link {
 .postpone{
     text-align: center;
 }
-.postpone #week_days{
+.postpone h3 {
+    padding-left: 10px;
+    font-size: 15px;
+}
+.postpone .week_days, .postpone .cal_date{
     width: 581px;
     margin: 0 auto;
     float: none;
@@ -8783,6 +8934,14 @@ textarea.anketa_form_in{
     margin-left: 20px;
     text-decoration: none;
 }
+#bt-save-postpone{
+    margin: 0 auto;
+    float: none;
+}
+#bt-save-postpone:disabled {
+    opacity: .4;
+    cursor: default;
+}
 .admin_form_reset{
     background-color: #f3f3f3;
     color: #595959;
@@ -9969,6 +10128,31 @@ input.tren_form_block_check{
 .anketa_form_line .admin_form_foto_wrap{
     margin-bottom: 0;
     height: auto;
+}
+
+#breadcrumb{
+    display: block;
+    margin: -20px 0 10px 15px;
+    font-size: 12px;
+}
+#content > #breadcrumb{
+    margin: 10px 0 0 0;
+}
+#breadcrumb a {
+    text-decoration: none;
+    color: #a5a5a5;
+}
+#breadcrumb a:hover {
+    text-decoration: underline;
+    color: #72d0f4;
+}
+#breadcrumb span {
+    color: #252525;
+}
+#breadcrumb span.separator {
+    color: #a5a5a5;
+    margin: 0 3px;
+    border-bottom: none;
 }
 
 
@@ -13117,7 +13301,7 @@ input.tren_form_block_check{
         margin-bottom: -1px;
     }
 
-    .otziv_col{
+    .otziv_col, .qa_col{
         float: none;
         width: 100%;
     }

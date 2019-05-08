@@ -11,10 +11,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php $activate = (empty($user_data['user_activated'])) ? 'disabled' : ''; ?>
         <input type="text" name="email" class="anketa_form_in anketa_form_in_long valid_email <?php echo $activate; ?>" placeholder="Email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255" required="required" autocomplete="off"/>
         <?php if(!empty($activate)): ?>
-            <span class="tip">* Активируйте email. Письмо с активацией отправлено Вам на почту (<input type="submit" name="bt_ne_activate_send_again" value="Отправить снова" class="bt_link">)</span>
+            <span class="tip">
+                * Активируйте email. Письмо с активацией отправлено Вам на почту.
+                <?php if($user_data['availability_send_email'] === true): ?>
+                    <input type="submit" name="bt_ne_activate_send_again" value="Отправить снова" class="bt_link">
+                <?php elseif(!empty($user_data['availability_send_email_date'])): ?>
+                    Повторно отправить письмо можно будет через <?php echo $user_data['availability_send_email_date']; ?>.
+                <?php endif; ?>
+            </span>
         <?php endif; ?>
         <?php if($user_data['user_changing_email'] === true): ?>
-            <span class="tip">* Письмо с подтверждением изменения email отправлено Вам на текущую почту (<input type="submit" name="bt_e_change_email_send_again" value="Отправить снова" class="bt_link">)</span>
+            <span class="tip">
+                * Письмо с подтверждением изменения email отправлено Вам на текущую почту.
+                <?php if($user_data['availability_send_email'] === true): ?>
+                    <input type="submit" name="bt_e_change_email_send_again" value="Отправить снова" class="bt_link">
+                <?php elseif(!empty($user_data['availability_send_email_date'])): ?>
+                    Повторно отправить письмо можно будет через <?php echo $user_data['availability_send_email_date']; ?>.
+                <?php endif; ?>
+            </span>
         <?php endif; ?>
     </div>
     <?php if (!empty($user_session) and $user_session['auth_via'] == 'native') :?>

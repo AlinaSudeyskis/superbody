@@ -12,8 +12,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script>
     /* календарь */
 
-    $(document).ready(function() {
-
+    $(document).ready(function()
+    {
         $('#calendar').fullCalendar({
             locale: 'ru',
             timeFormat: 'H:mm',
@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             },
             navLinks: true, // can click day/week names to navigate views
             editable: true,
-            eventLimit: true, // allow "more" link when too many events
+            eventLimit: 3, // allow "more" link when too many events
             events: [
                 <?php if (!empty($events)) :
                 $last_element = count($events);
@@ -61,7 +61,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     color: '<?php echo $event['color']; ?>'
                 <?php endif; ?>
                 }<?php if ($last_element != $key) :?>,<?php endif; ?>
-                <?php if($event['missed'] == 'not_missed' and !empty($event['instruction_id'])): //?>
+                <?php if($event['missed'] == 'not_missed' and $event['done'] == 'not_done' and !empty($event['instruction_id'])): //?>
                 {
                     start      : '<?php echo $event['start'];?>',
                     end        : '<?php echo $event['end'];?>',
@@ -94,11 +94,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             var data = jQuery.parseJSON(result.responseText);
                             if (!data.error)
                             {
-                                $("#pop-up_video").html(data.video);
-                                //$("#pop-up_video").append(data.i_video);
-                                //$("#pop-up_video").append(data.i_a);
-                                $("#pop-up_video").append(data.description);
-                                //$("#pop-up_video").append(data.done);
+                                var pop_up_video = $("#pop-up_video"), viewed = false;
+                                if(pop_up_video.is(':empty'))
+                                {
+                                    pop_up_video.html(data.video);
+                                    pop_up_video.append(data.description);
+                                }
+                                pop_up_home(pop_up_video);
                                 if(getInternetExplorerVersion()==-1) {
                                     if (data.player == 1) {
                                         $("#myvid").each(function () {
@@ -112,13 +114,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             });
                                         });
                                     }
-                                    var options = {
-                                            width: 640,
-                                            loop: false
-                                        },
-                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
 
-                                    if ($('#vimeo-player-1').length == 1)
+                                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+
+                                    /*if ($('#vimeo-player-1').length == 1)
                                     {
                                         if (data.i_player == 1) {
                                             $("#ivid").each(function () {
@@ -133,77 +132,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             });
                                         }
                                         playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
-                                    }
+                                    }*/
 
-                                    playerTwoPlayer.ready().then(function() {
-                                        console.log('Ready');
+                                    playerTwoPlayer.on('play', function(data) {});
 
-                                        playerTwoPlayer.on('play', function(data){
-                                            console.log('Play ' + data);
+                                    playerTwoPlayer.on('seeked', function(data) {});
 
-                                            playerTwoPlayer.getCurrentTime().then(function(seconds) {
-                                                console.log('Current time (seconds): ' + seconds);
-                                            }).catch(function(error) {
-                                                console.log('Current time error: ' + error);
-                                            });
+                                    playerTwoPlayer.on('pause', function(pause) {
+                                        playerTwoPlayer.getCurrentTime().then(function(seconds) {});
+                                    });
 
-                                        });
-                                        playerTwoPlayer.on('pause', function(data){
-                                            console.log('Pause ' + data);
-                                        });
-                                        playerTwoPlayer.on('ended', function(data){
-                                            console.log('Video ended ' + data);
-                                        });
+                                    playerTwoPlayer.on('ended', function(data) {});
 
-                                        playerTwoPlayer.setCurrentTime(15.456).then(function(seconds) {
-                                            // seconds = the actual time that the player seeked to
-                                            console.log('Current time (seconds): ' + seconds);
-                                        }).catch(function(error) {
-                                            switch (error.name) {
-                                                case 'RangeError':
-                                                    // the time was less than 0 or greater than the video’s duration
-                                                    break;
-
-                                                default:
-                                                    // some other error occurred
-                                                    break;
+                                    playerTwoPlayer.on('timeupdate', function(data){
+                                        playerTwoPlayer.getVideoTitle().then(function(title) {
+                                            if (data.percent > 0.75 && viewed === false) {
+                                                $.ajax({
+                                                    url: '/viewed/video',
+                                                    type: 'post',
+                                                    data: {
+                                                        woid: calEvent.endParam
+                                                    },
+                                                    complete: function(result){
+                                                        if (result.responseText == 'true')
+                                                        {
+                                                            calEvent.backgroundColor = 'rgb(153, 230, 0)';
+                                                            $('#calendar').fullCalendar('updateEvent', calEvent);
+                                                            viewed = true;
+                                                        }
+                                                    }
+                                                });
                                             }
                                         });
                                     });
-
                                 }
-                                pop_up_home($("#pop-up_video"));
-
-                                $.ajax({
-                                    url: '/viewed/video',
-                                    type: 'post',
-                                    data: {
-                                        woid: calEvent.endParam
-                                    },
-                                    complete: function(result){
-                                        if (result.responseText == 'true')
-                                        {
-                                            calEvent.backgroundColor = 'rgba(159, 220, 39, .7)';
-                                            $('#calendar').fullCalendar('updateEvent', calEvent);
-                                        }
-                                    }
-                                });
-
-                                /*$('#bt-workout-done').on('click', function()
-                                {
-                                    $.ajax({
-                                        url: '/viewed/video',
-                                        type: 'post',
-                                        data: {
-                                            woid: calEvent.endParam
-                                        },
-                                        complete: function (result) {
-                                            if (result.responseText == 'true') {
-                                                $('#wo-done').html("<div id='wo-done'><div class='workout_form_but done'>Выполнено</div></div>");
-                                            }
-                                        }
-                                    });
-                                });*/
                             }
                         }
                     });
