@@ -1,8 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div class="admin_list">
-    <?php if(!empty($qa_articles)): ?>
+<?php if(!empty($qa_articles)): ?>
+    <div class="admin_list">
         <?php foreach ($qa_articles as $article): ?>
             <div class="admin_item parent">
                 <div class="admin_cont">
@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         <?php endforeach;
         unset($article);?>
-    <?php else: ?>
-        <h3 class="info">Информация не найдена</h3>
-    <?php endif; ?>
-</div>
+    </div>
+<?php else: ?>
+    <h3 class="info">Информация не найдена</h3>
+<?php endif; ?>
