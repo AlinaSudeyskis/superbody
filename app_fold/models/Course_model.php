@@ -1859,7 +1859,7 @@ class Course_model extends CI_Model
         {
             if(is_numeric($courses_type))
             {
-                $limit = 3;
+                $limit = 9;
 
                 $category = self::getAvailableCourseType($courses_type);
                 $result['courses_categories'] = $category['course_type'];
