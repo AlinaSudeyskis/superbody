@@ -1076,7 +1076,6 @@ class Couch extends CI_Controller
             $user_data         = $this->User_model->getUser($user_id);
             $last_anthrop_data = $this->User_model->getLastAnthropometricData($user_id);
             $anthrop_data      = $this->User_model->getAnthropometricData($user_id);
-            $last_anthrop_data = array();
         }
         $result = array_merge($last_anthrop_data, $anthrop_data, $user_data);
 

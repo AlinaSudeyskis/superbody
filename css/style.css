@@ -601,6 +601,7 @@ audio, canvas, progress, video{
     /*border-radius: 50%;
     width: 100%;*/
     height: 100%;
+    margin: 0 auto;
 }
 .profile_line_in{
     display: block;
@@ -1941,6 +1942,16 @@ tr:first-child > td > .fc-day-grid-event{
     line-height: 36px;
     margin: 0 0 20px;
     text-align: center;
+}
+.block_h a{
+    text-decoration: none;
+    color: inherit;
+}
+.block_h a:hover{
+    color: #00bff0;
+}
+.kurs_page .block_h:first-child{
+    margin-top: 20px;
 }
 .new_kurs_buts{
     cursor: default;
@@ -4694,7 +4705,7 @@ textarea.journal_post_comm_in{
     float: left;
     padding: 2px 0;
 }
-.shop_sort_in_wrap label{
+.shop_sort_in_wrap label, .shop_sort_in_wrap a{
     display: block;
     float: left;
     height: 35px;
@@ -4707,14 +4718,15 @@ textarea.journal_post_comm_in{
     font-style: italic;
     margin-right: 30px;
     cursor: pointer;
+    text-decoration: none;
 }
-.shop_sort_in_wrap label:last-child{
+.shop_sort_in_wrap label:last-child, .shop_sort_in_wrap a:last-child{
     margin-right: 0;
 }
 .shop_sort_in_wrap input{
     display: none;
 }
-.shop_sort_in_wrap .shop_sort_in:checked + label{
+.shop_sort_in_wrap .shop_sort_in:checked + label, .shop_sort_in_wrap a.checked{
     background: #72d0f4;
     color: #fff;
 }
@@ -7672,6 +7684,13 @@ textarea.anketa_form_in{
 	width: 280px;
 	float: left;
 }
+.kurs_block_two_all{
+    width: 330px;
+    float: left;
+}
+.kurs_block_two_all .anketa_form_two_wrap:first-child{
+    padding-left: 0;
+}
 
 .email_error{
     display: none;
@@ -9440,6 +9459,9 @@ textarea.anketa_form_in{
     float: left;
     margin-right: 30px;
 }
+.kurs_cur_wrap .pc_course input{
+    float: none;
+}
 .land_block_opacity{
     height: 35px;
     width: calc(100% - 250px);
@@ -9458,6 +9480,11 @@ textarea.anketa_form_in{
 .kurs_cur_wrap input#generated-code{
     text-transform: uppercase;
 }
+.generated_code {
+     font-size: 20px;
+     margin-bottom: 20px;
+     /* color: #2acaf2; */
+ }
 .admin_form_txt_dop{
     float: left;
     font-size: 13px;

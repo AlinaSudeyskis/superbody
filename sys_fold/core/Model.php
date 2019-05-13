@@ -210,4 +210,95 @@ class CI_Model {
 
         return $m;
     }
+
+    /**
+     * Обработка данных пагинации
+     *
+     * @param $row_type
+     * @param $first_id
+     * @param $last_id
+     * @param $limit
+     * @param $elements
+     * @return array
+     */
+    public function parsePagination($row_type, $first_id, $last_id, $limit, $elements)
+    {
+        $result = array('pagination' => array());
+        $next_page = false;
+        $prev_page = false;
+
+        $count_rows = count($elements);
+
+        // Если нажата "Предыдущая страница"
+        if (!empty($first_id))
+        {
+            if ($count_rows == $limit)
+            {
+                // Извлекаем первый элемент массива
+                array_shift($elements);
+                $count_rows--;
+                $prev_page = true;
+            }
+            $next_page = true;
+        }
+        // Если нажата "Следующая страница"
+        elseif (!empty($last_id))
+        {
+            if ($count_rows == $limit)
+            {
+                // Извлекаем последний элемент массива
+                array_pop($elements);
+                $count_rows--;
+                $next_page = true;
+            }
+            $prev_page = true;
+        }
+        // Первая страница
+        elseif ($count_rows == $limit and empty($first_id) and empty($last_id))
+        {
+            // Извлекаем последний элемент массива
+            array_pop($elements);
+            $count_rows--;
+            $next_page = true;
+        }
+
+        foreach($elements as $key => $row)
+        {
+            // Данные последнего элемента страницы
+            if ($next_page === true and $key == ($count_rows-1))
+            {
+                // Последний элемент страницы
+                if($row_type == 'shop')
+                {
+                    $result['pagination']['last_id']       = $row->p_id;
+                    $result['pagination']['last_price']    = $row->p_price;
+                    $result['pagination']['last_fc_price'] = $row->p_fitcoin_price;
+                    $result['pagination']['last_discount'] = $row->p_discount;
+                }
+                elseif($row_type == 'course')
+                {
+                    $result['pagination']['last_id'] = $row->crs_id;
+                }
+            }
+            // Данные первого элемента страницы
+            if ($prev_page === true and $key == 0)
+            {
+                // Последний элемент страницы
+                if($row_type == 'shop') {
+                    $result['pagination']['first_id']       = $row->p_id;
+                    $result['pagination']['first_price']    = $row->p_price;
+                    $result['pagination']['first_fc_price'] = $row->p_fitcoin_price;
+                    $result['pagination']['first_discount'] = $row->p_discount;
+                }
+                elseif($row_type == 'course')
+                {
+                    $result['pagination']['first_id'] = $row->crs_id;
+                }
+            }
+        }
+
+        $result['elements'] = $elements;
+
+        return $result;
+    }
 }

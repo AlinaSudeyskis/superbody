@@ -15,6 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $user_data = !empty($user_session) ? $user_session : null;
             $profile_title = 'Профиль';
             include_once('./app_fold/views/user/profile/profile_info.php');
+            include_once('./app_fold/views/promocodes/promocode_for_friend.php');
             include_once('./app_fold/views/calendar/calendar.php'); ?>
             <!--<div class="content_block">
                 <div class="content_block_h parent">

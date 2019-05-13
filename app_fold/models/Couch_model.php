@@ -656,9 +656,9 @@ class Couch_model extends CI_Model
                 {
                     // Выборка пропущенных занятий клиента
                     $sel_missed_workouts = $this->db->query('
-                        SELECT COUNT(`utw_done`) as `missed_workouts`, `utw_date` 
+                        SELECT COUNT(`utw_status`) as `missed_workouts`, `utw_date` 
                         FROM `users_training_weeks`
-                        WHERE `utw_uc_id`=?', $client['uc_id']);
+                        WHERE `utw_uc_id`=? and `utw_status`="missed"', $client['uc_id']);
 
                     if ($sel_missed_workouts !== false and 1 == $sel_missed_workouts->num_rows())
                     {
@@ -692,9 +692,9 @@ class Couch_model extends CI_Model
 
                         // Выборка кол-ва выполненных тренировок курса пользователем
                         $sel_done_workouts = $this->db->query('
-                            SELECT COUNT(`utw_done`) as `workouts_done`
+                            SELECT COUNT(`utw_status`) as `workouts_done`
                             FROM `users_training_weeks`
-                            WHERE `utw_uc_id`=? and `utw_duplicate`=0 and `utw_done`=1', $client['uc_id']);
+                            WHERE `utw_uc_id`=? and `utw_status`="done"', $client['uc_id']);
 
                         if ($sel_done_workouts !== false and 1 == $sel_done_workouts->num_rows())
                         {

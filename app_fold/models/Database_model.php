@@ -1905,6 +1905,97 @@ class Database_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление базы данных апрель 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseMay2019($date)
+    {
+        $result = false;
+
+        $date = '2019-05-10 10:24';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` DROP `pc_crs_id`");
+            $this->db->query("ALTER TABLE `promocodes` DROP `pc_category`");
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_type` ENUM('all','courses','course') NOT NULL DEFAULT 'all' AFTER `pc_id`");
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_discount_type` ENUM('percent','currency') NOT NULL DEFAULT 'percent' AFTER `pc_discount`");
+            $this->db->query("CREATE TABLE `promocode_courses` ( 
+                `pcc_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `pcc_pc_id` INT(10) UNSIGNED NOT NULL ,
+                `pcc_crs_id` INT(10) UNSIGNED NOT NULL , 
+                `pcc_update` DATETIME NOT NULL , 
+                `pcc_admin_id` INT(10) UNSIGNED NOT NULL , 
+                PRIMARY KEY (`pcc_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-05-10 11:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_relative_percent` TINYINT(3) UNSIGNED NOT NULL AFTER `pc_discount_type`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-05-11 15:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `promocodes_for_friend` ( 
+                `pff_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `pff_code` VARCHAR(25) NOT NULL , 
+                `pff_used` TINYINT(1) NOT NULL DEFAULT '0' , 
+                `pff_u_id` INT(10) UNSIGNED NOT NULL , 
+                `pff_date_add` DATETIME NOT NULL , 
+                `pff_date_used` DATETIME NOT NULL , 
+                `pff_u_id_used` INT(10) UNSIGNED NOT NULL , 
+                `pff_o_id` INT(10) UNSIGNED NOT NULL , 
+                `pff_p_id` INT(10) UNSIGNED NOT NULL , 
+                PRIMARY KEY (`pff_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-05-11 15:17';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `promocodes` 
+                SET `pc_type` = 'all', `pc_name` = 'Промокод для друга', `pc_description` = 'Создай промокод для друга со скидкой в ', 
+                `pc_period_validity_type` = 'unlimited', `pc_pv_date_start` = '0000-00-00', `pc_pv_date_end` = '0000-00-00', 
+                `pc_use_amount_type` = 'unlimited', `pc_ua_number` = '0', `pc_code` = '' 
+                WHERE `promocodes`.`pc_id` = 1");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-05-13 10:23';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+
+            $sel_data = $this->db->query("SELECT `uc_id`, `uc_date_end` FROM `users_courses`");
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $this->db->query('DELETE FROM `users_trainings_weeks` WHERE `utw_date`>?', $row->uc_date_end);
+                }
+                unset($row);
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Поиск даты обновления в БД

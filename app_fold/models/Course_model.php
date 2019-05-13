@@ -149,8 +149,41 @@ class Course_model extends CI_Model
             $i = 0;
             foreach ($sel_types->result() as $row)
             {
-                $result['course_types'][$i]['id']   = $row->ct_id;
-                $result['course_types'][$i]['name'] = $row->ct_name;
+                $result['course_types'][$row->ct_id]['id']   = $row->ct_id;
+                $result['course_types'][$row->ct_id]['name'] = $row->ct_name;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_types === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка доступного типа курса
+     *
+     * @param $type_id
+     * @return array
+     */
+    public function getAvailableCourseType($type_id)
+    {
+        // Результат
+        $result = array();
+
+        $sel_types = $this->db->query('SELECT `ct_id`, `ct_name` FROM `course_type` WHERE `ct_blocked`=0 and `ct_id`=? LIMIT 1', $type_id);
+
+        if ($sel_types !== false and 0 < $sel_types->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_types->result() as $row)
+            {
+                $result['course_type'][$row->ct_id]['id']   = $row->ct_id;
+                $result['course_type'][$row->ct_id]['name'] = $row->ct_name;
 
                 $i++;
             }
@@ -1812,36 +1845,140 @@ class Course_model extends CI_Model
     /**
      * Выборка доступных (не заблокированных) для пользователей курсов
      *
+     * @param $courses_category
+     * @param $courses_type
+     * @param null $first_id
+     * @param null $last_id
      * @return array
      */
-    public function getAvailableCourses()
+    public function getAvailableCourses($courses_category = null, $courses_type = null, $first_id = null, $last_id = null)
     {
         $result['courses'] = array();
 
-        $sel_courses = $this->db->query('
+        if(empty($courses_category) or $courses_category == 'workouts' or ($courses_category == 'workouts' and is_numeric($courses_type)))
+        {
+            if(is_numeric($courses_type))
+            {
+                $limit = 3;
+
+                $category = self::getAvailableCourseType($courses_type);
+                $result['courses_categories'] = $category['course_type'];
+
+                $and_where = '';
+                // Если нажата "Следующая страница"
+                if (!empty($last_id))
+                {
+                    $and_where = ' and `crs_id`<'.$last_id;
+                }
+                // Если нажата "Предыдущая страница"
+                elseif (!empty($first_id))
+                {
+                    $and_where = ' and `crs_id`>'.$first_id;
+                }
+
+                $sel_courses = $this->db->query('
+                    SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                    FROM `courses` 
+                    LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+                    WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout"'.$and_where.'
+                    ORDER BY `crs_id` DESC
+                    LIMIT ?', array($courses_type, $limit));
+
+                if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+                {
+                    $elements = $sel_courses->result();
+
+                    // Данные пагинации
+                    $pagination = parent::parsePagination('course', $first_id, $last_id, $limit, $elements);
+                    $result['pagination'] = $pagination['pagination'];
+
+                    $elements = $pagination['elements'];
+                    $i = 0;
+                    foreach ($elements as $key => $row)
+                    {
+                        $result['courses']['workouts'][$courses_type][$i] = self::parseCourseData($row);
+
+                        // Тренеры курса
+                        $couches = self::getCourseCouches($row->crs_id);
+                        $result['courses']['workouts'][$courses_type][$i] = array_merge($result['courses']['workouts'][$courses_type][$i], $couches);
+
+                        $i++;
+                    }
+                    unset($row);
+                }
+                elseif ($sel_courses === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            elseif(empty($courses_type))
+            {
+                $categories = self::getAvailableCourseTypes();
+                if(!empty($categories))
+                {
+                    $result['courses_categories'] = $categories['course_types'];
+
+                    foreach($categories['course_types'] as $category)
+                    {
+                        $sel_courses = $this->db->query('
+                            SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                            FROM `courses` 
+                            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+                            WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout" 
+                            LIMIT 3', $category['id']);
+
+                        if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+                        {
+                            $i = 0;
+                            foreach ($sel_courses->result() as $row)
+                            {
+                                $result['courses']['workouts'][$category['id']][$i] = self::parseCourseData($row);
+
+                                // Тренеры курса
+                                $couches = self::getCourseCouches($row->crs_id);
+                                $result['courses']['workouts'][$category['id']][$i] = array_merge($result['courses']['workouts'][$category['id']][$i], $couches);
+
+                                $i++;
+                            }
+                            unset($row);
+                        }
+                        elseif ($sel_courses === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+                    unset($category);
+                }
+            }
+        }
+
+        if(empty($courses_category) or $courses_category == 'nutritions')
+        {
+            $sel_courses = $this->db->query('
             SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
             FROM `courses` 
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-            WHERE `crs_blocked`=0 and `crs_archive`=0 LIMIT 12');
+            WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_category`="nutrition" LIMIT 3');
 
-        if ($sel_courses !== false and 0 < $sel_courses->num_rows())
-        {
-            $i = 0;
-            foreach ($sel_courses->result() as $row)
+            if ($sel_courses !== false and 0 < $sel_courses->num_rows())
             {
-                $result['courses'][$i] = self::parseCourseData($row);
+                $i = 0;
+                foreach ($sel_courses->result() as $row)
+                {
+                    $result['courses']['nutritions'][$i] = self::parseCourseData($row);
 
-                // Тренеры курса
-                $couches = self::getCourseCouches($row->crs_id);
-                $result['courses'][$i] = array_merge($result['courses'][$i], $couches);
+                    // Тренеры курса
+                    $couches = self::getCourseCouches($row->crs_id);
+                    $result['courses']['nutritions'][$i] = array_merge($result['courses']['nutritions'][$i], $couches);
 
-                $i++;
+                    $i++;
+                }
+                unset($row);
             }
-            unset($row);
-        }
-        elseif ($sel_courses === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            elseif ($sel_courses === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
 
         return $result;
@@ -9236,92 +9373,15 @@ class Course_model extends CI_Model
      * @param $date
      * @return array
      */
-    public function getCoursePromocodes($course_id, $date)
+    public function getPromocodes($date)
     {
         $result = array('promocodes' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_crs_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
+            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
               `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
               `pc_admin_id`, `pc_date_add`, `pc_update` 
-            FROM `promocodes`
-            WHERE `pc_crs_id`=?', $course_id);
-
-        if($sel_data !== false and 0 < $sel_data->num_rows())
-        {
-            $i = 0;
-
-            foreach($sel_data->result() as $row)
-            {
-                $result['promocodes'][$i] = self::parsePromocodeData($row, $date);
-
-                $i++;
-            }
-            unset($row);
-        }
-        elseif($sel_data === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Выборка промокодов курса категории продления
-     *
-     * @param $course_id
-     * @param $date
-     * @return array
-     */
-    public function getCourseExtendPromocodes($course_id, $date)
-    {
-        $result = array('promocodes' => array());
-
-        $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_crs_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
-              `pc_admin_id`, `pc_date_add`, `pc_update` 
-            FROM `promocodes`
-            WHERE `pc_crs_id`=? and `pc_category`="extend"', $course_id);
-
-        if($sel_data !== false and 0 < $sel_data->num_rows())
-        {
-            $i = 0;
-
-            foreach($sel_data->result() as $row)
-            {
-                $result['promocodes'][$i] = self::parsePromocodeData($row, $date);
-
-                $i++;
-            }
-            unset($row);
-        }
-        elseif($sel_data === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
-
-        return $result;
-    }
-
-    /**
-     * Выборка промокодов курса продления
-     *
-     * @param $course_id
-     * @param $date
-     * @return array
-     */
-    public function getExtendCoursePromocodes($course_id, $date)
-    {
-        $result = array('promocodes' => array());
-
-        $sel_data = $this->db->query('
-            SELECT `ce_extend_crs_id`, `pc_id`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
-            FROM `courses_extends`
-              LEFT JOIN `promocodes` ON `pc_id`=`ce_pc_id`
-            WHERE `ce_extend_crs_id`=?', $course_id);
+            FROM `promocodes`');
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -9351,22 +9411,125 @@ class Course_model extends CI_Model
      * @param $date
      * @return array
      */
-    public function getCoursePromocode($course_id, $promocode_id, $date)
+    public function getPromocode($promocode_id, $date)
     {
         $result = array('promocode' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_crs_id`, `pc_category`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
-              `pc_admin_id`, `pc_date_add`, `pc_update` 
+            SELECT `pc_id`, `pc_type`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
+              `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, 
+              `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
-            WHERE `pc_crs_id`=? and `pc_id`=? LIMIT 1', array($course_id, $promocode_id));
+            WHERE `pc_id`=? LIMIT 1', $promocode_id);
 
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
 
             $result['promocode'] = self::parsePromocodeData($row, $date);
+
+            $promocode_courses = self::getPromocodeCourses($promocode_id, $row->pc_type);
+
+            $result['promocode'] = array_merge($result['promocode'], $promocode_courses);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных промокода для друга
+     *
+     * @return array
+     */
+    public function getPromocodeForFriend()
+    {
+        $result = array('pc_for_friend' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent` 
+            FROM `promocodes`
+            WHERE `pc_id`=1 LIMIT 1');
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['pc_for_friend'] = self::parsePromocodeData($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+
+    }
+
+    /**
+     * Сохранение проокода для друга
+     *
+     * @param $generated_code
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function setNewFriendPromocode($generated_code, $user_id, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('
+            INSERT INTO `promocodes_for_friend`(`pff_code`, `pff_u_id`, `pff_date_add`) 
+            VALUES (?, ?, ?)', array($generated_code, $user_id, $date));
+
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = $this->db->insert_id();
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+
+    }
+
+    /**
+     * Выборка курсов промокода
+     *
+     * @param $promocode_id
+     * @param $promocode_type
+     * @return array
+     */
+    public function getPromocodeCourses($promocode_id, $promocode_type)
+    {
+        $result = array('courses' => array(), 'courses_ids' => array());
+
+        $sel_data = $this->db->query('SELECT `pcc_pc_id`, `pcc_crs_id`, `pcc_update`, `pcc_admin_id`, `crs_name` 
+            FROM `promocode_courses` 
+            LEFT JOIN `courses` ON `crs_id`=`pcc_crs_id`
+            WHERE `pcc_pc_id`=?', $promocode_id);
+        if($promocode_type == 'course')
+        {
+            $this->db->limit(1);
+        }
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['courses'][$i]['id']   = $row->pcc_crs_id;
+                $result['courses'][$i]['name'] = $row->crs_name;
+
+                $result['courses_ids'][$i] = $row->pcc_crs_id;
+
+                $i++;
+            }
+            unset($row);
         }
         elseif($sel_data === false)
         {
@@ -9379,37 +9542,55 @@ class Course_model extends CI_Model
     /**
      * Добавление нового промокода курса
      *
-     * @param $course_id
-     * @param $category
+     * @param $pc_type
      * @param $name
      * @param $desc
      * @param $discount
+     * @param $discount_type
+     * @param $rel_percent
      * @param $validity_type
      * @param $pv_date_start
      * @param $pv_date_end
      * @param $use_type
      * @param $ua_number
      * @param $promocode
+     * @param $courses
      * @param $admin_id
      * @param $date
      * @return bool|int
+     * @internal param $course_id
+     * @internal param $category
      */
-    public function setNewPromocode($course_id, $category, $name, $desc, $discount, $validity_type, $pv_date_start, $pv_date_end,
-                                    $use_type, $ua_number, $promocode, $admin_id, $date)
+    public function setNewPromocode($pc_type, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $promocode, $courses, $admin_id, $date)
     {
         $result = false;
 
         $ins_data = $this->db->query('
-            INSERT INTO `promocodes` (`pc_crs_id`, `pc_category`, `pc_name`, `pc_description`, `pc_discount`, 
+            INSERT INTO `promocodes` (`pc_type`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`,
               `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, 
               `pc_code`, `pc_admin_id`, `pc_date_add`, `pc_update`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($course_id, $category, $name, $desc, $discount, $validity_type, $pv_date_start, $pv_date_end, $use_type,
-                    $ua_number, $promocode, $admin_id, $date, $date));
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($pc_type, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type, $pv_date_start,
+                    $pv_date_end, $use_type, $ua_number, $promocode, $admin_id, $date, $date));
 
         if($ins_data !== false and 1 == $this->db->affected_rows())
         {
-            return $this->db->insert_id();
+            $result = $this->db->insert_id();
+
+            if(!empty($courses['insert']))
+            {
+                foreach($courses['insert'] as $crs_id)
+                {
+                    $ins_data = $this->db->query('INSERT INTO `promocode_courses`(`pcc_pc_id`, `pcc_crs_id`, `pcc_update`, `pcc_admin_id`) VALUES (?, ?, ?, ?)',
+                        array($result, $crs_id, $date, $admin_id));
+                    if($ins_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+                unset($crs_id);
+            }
         }
         elseif($ins_data === false)
         {
@@ -9423,11 +9604,12 @@ class Course_model extends CI_Model
      * Обновление данных промокода курса
      *
      * @param $promocode_id
-     * @param $course_id
-     * @param $category
+     * @param $pc_type
      * @param $name
      * @param $desc
      * @param $discount
+     * @param $discount_type
+     * @param $rel_percent
      * @param $validity_type
      * @param $pv_date_start
      * @param $pv_date_end
@@ -9438,30 +9620,76 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function updatePromocode($promocode_id, $course_id, $category, $name, $desc, $discount, $validity_type, $pv_date_start,
-                                   $pv_date_end, $use_type, $ua_number, $generated_code, $admin_id, $date)
+    public function updatePromocode($promocode_id, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
+                                    $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $generated_code,
+                                    $admin_id, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
-            UPDATE `promocodes` SET `pc_category`=?, `pc_name`=?, `pc_description`=?, `pc_discount`=?, `pc_period_validity_type`=?, 
-              `pc_pv_date_start`=?, `pc_pv_date_end`=?, `pc_use_amount_type`=?, `pc_ua_number`=?, `pc_code`=?, 
-              `pc_admin_id`=?, `pc_update`=?
-            WHERE `pc_id`=? and `pc_crs_id`=? LIMIT 1',
-                array($category, $name, $desc, $discount, $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number,
-                    $generated_code, $admin_id, $date, $promocode_id, $course_id));
+            UPDATE `promocodes` SET `pc_type`=?, `pc_name`=?, `pc_description`=?, `pc_discount`=?, `pc_discount_type`=?, 
+              `pc_relative_percent`=?, `pc_period_validity_type`=?, `pc_pv_date_start`=?, `pc_pv_date_end`=?, 
+              `pc_use_amount_type`=?, `pc_ua_number`=?, `pc_code`=?, `pc_admin_id`=?, `pc_update`=?
+            WHERE `pc_id`=? LIMIT 1',
+                array($pc_type, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type, $pv_date_start,
+                    $pv_date_end, $use_type, $ua_number, $generated_code, $admin_id, $date, $promocode_id));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
         }
         elseif($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
+
+        return $result;
+    }
+
+    /**
+     * Обновление данных курсов промокода
+     *
+     * @param $promocode_id
+     * @param $courses
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function updatePromocodeCourses($promocode_id, $courses, $admin_id, $date)
+    {
+        $result = true;
+
+        if(!empty($courses['insert']))
         {
-            return false;
+            foreach($courses['insert'] as $crs_id)
+            {
+                $ins_data = $this->db->query('INSERT INTO `promocode_courses`(`pcc_pc_id`, `pcc_crs_id`, `pcc_update`, `pcc_admin_id`) VALUES (?, ?, ?, ?)',
+                    array($promocode_id, $crs_id, $date, $admin_id));
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+            unset($crs_id);
         }
+
+        if(!empty($courses['delete']))
+        {
+            foreach($courses['delete'] as $crs_id)
+            {
+                $ins_data = $this->db->query('DELETE FROM `promocode_courses` WHERE `pcc_pc_id`=? and `pcc_crs_id`=? LIMIT 1',
+                    array($promocode_id, $crs_id));
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    $result = false;
+                }
+            }
+            unset($crs_id);
+        }
+
+        return $result;
     }
 
     /**
@@ -9474,11 +9702,11 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function blockPromocode($promocode_id, $course_id, $block, $admin_id, $date)
+    public function blockPromocode($promocode_id, $block, $admin_id, $date)
     {
         $up_data = $this->db->query('
-            UPDATE `promocodes` SET `pc_blocked`=?, `pc_admin_id`=?, `pc_update`=? WHERE `pc_id`=? and `pc_crs_id`=? LIMIT 1',
-                array($block, $admin_id, $date, $promocode_id, $course_id));
+            UPDATE `promocodes` SET `pc_blocked`=?, `pc_admin_id`=?, `pc_update`=? WHERE `pc_id`=? LIMIT 1',
+                array($block, $admin_id, $date, $promocode_id));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -9538,7 +9766,7 @@ class Course_model extends CI_Model
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('
-                SELECT `pc_id`, `pc_crs_id`, `pc_category`, `pc_discount`, `pc_period_validity_type`, `pc_pv_date_start`, 
+                SELECT `pc_id`, `pc_type`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, 
                   `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
                 FROM `promocodes`
                 WHERE `pc_code`=? LIMIT 1', $promocode);
@@ -9553,6 +9781,77 @@ class Course_model extends CI_Model
                 // Промокод активен
                 if($promocode_data['active'] === true)
                 {
+                    if($row->pc_type == 'all')
+                    {
+                        $result['discount']      = $promocode_data['discount'];
+                        $result['discount_type'] = $promocode_data['discount_type'];
+                        $result['rel_percent']   = $promocode_data['relative_percent'];
+                        $result['id']            = $promocode_data['id'];
+                    }
+                    else
+                    {
+                        $sel_promo_courses = $this->db->query('
+                            SELECT `pcc_pc_id`, `pcc_crs_id` FROM `promocode_courses` WHERE `pcc_crs_id`=? and `pcc_pc_id`=? LIMIT 1',
+                            array($course_id, $row->pc_id));
+                        if($sel_promo_courses !== false and 1 == $sel_promo_courses->num_rows())
+                        {
+                            $result['discount']      = $promocode_data['discount'];
+                            $result['discount_type'] = $promocode_data['discount_type'];
+                            $result['rel_percent']   = $promocode_data['relative_percent'];
+                            $result['id']            = $promocode_data['id'];
+                        }
+                    }
+
+                    // Если категория промокода основной курс, возвращаем данные скидки
+                    /*if($promocode_data['category'] == 'course')
+                    {
+                        $result['discount'] = $promocode_data['discount'];
+                        $result['id']       = $promocode_data['id'];
+                    }
+                    // Если категория промокода курсы продления, проверям курсы продления и покупал ли пользователь основной курс
+                    elseif($promocode_data['category'] == 'extend')
+                    {
+                        $course_data = self::checkToBoughtUserCourse($row->pc_crs_id, $user_id);
+
+                        if($course_data['bought'] === true)
+                        {
+                            $sel_extend = $this->db->query('SELECT `ce_weeks_after` FROM `courses_extends`
+                                WHERE `ce_extend_crs_id`=? and `ce_pc_id`=? and `ce_blocked`=0 LIMIT 1',
+                                    array($course_id, $promocode_data['id']));
+
+                            if($sel_extend !== false and 1 == $sel_extend->num_rows())
+                            {
+                                $row2 = $sel_extend->row();
+
+                                $tmp_date = new DateTime($date);
+                                $today    = $tmp_date->format('Y-m-d');
+                                $tmp_date2 = new DateTime($course_data['date_end']);
+                                $tmp_date2->add(new DateInterval('P' . $row2->ce_weeks_after * 7 . 'D'));
+                                $weeks_after = $tmp_date2->format('Y-m-d');
+
+                                // Если срок покупки курса продления не истек, возвращаем данные скидки
+                                if($today < $weeks_after)
+                                {
+                                    $result['discount'] = $promocode_data['discount'];
+                                    $result['id']       = $promocode_data['id'];
+                                }
+                            }
+                            elseif($sel_extend === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+                        }
+                    }*/
+                }
+
+                // Промокод активен
+                /*if($promocode_data['active'] === true and $row->pc_type == 'all')
+                {
+
+                    $result['discount'] = $promocode_data['discount'];
+                    $result['discount_type'] = $promocode_data['discount_type'];
+                    $result['id']       = $promocode_data['id'];
+
                     // Если категория промокода основной курс, возвращаем данные скидки
                     if($promocode_data['category'] == 'course')
                     {
@@ -9593,7 +9892,7 @@ class Course_model extends CI_Model
                             }
                         }
                     }
-                }
+                }*/
 
                 unset($row);
             }
@@ -9601,6 +9900,151 @@ class Course_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка промокодов для курса
+     *
+     * @param $course_id
+     * @param $date
+     * @return array
+     */
+    public function getCoursePromocodes($course_id, $date)
+    {
+        $result = array('promocodes' => array());
+        $i = 0;
+        $promocodes_all = array();
+
+        $sel_data = $this->db->query('
+            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
+              `pc_admin_id`, `pc_date_add`, `pc_update` 
+            FROM `promocodes`
+            WHERE `pc_type`="all"');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach($sel_data->result() as $row)
+            {
+                $result['promocodes'][$i] = self::parsePromocodeData($row, $date);
+
+                $promocodes_all[$i] = $row->pc_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        $sel_data = $this->db->query('
+            SELECT `pcc_pc_id`, `pcc_crs_id`, `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
+              `pc_admin_id`, `pc_date_add`, `pc_update` 
+            FROM `promocode_courses` 
+            LEFT JOIN `promocodes` ON `pc_id`=`pcc_pc_id`
+            WHERE `pcc_crs_id`=?', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach($sel_data->result() as $row)
+            {
+                if(!in_array($row->pc_id, $promocodes_all))
+                {
+                    $result['promocodes'][$i] = self::parsePromocodeData($row, $date);
+                }
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+
+
+        return $result;
+    }
+
+
+    /**
+     * Выборка промокодов курса категории продления
+     *
+     * @param $course_id
+     * @param $date
+     * @return array
+     */
+    public function getCourseExtendPromocodes($course_id, $date)
+    {
+        $result = array('promocodes' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
+              `pc_admin_id`, `pc_date_add`, `pc_update` 
+            FROM `promocodes`
+            WHERE `pc_crs_id`=? and `pc_category`="extend"', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+
+            foreach($sel_data->result() as $row)
+            {
+                $result['promocodes'][$i] = self::parsePromocodeData($row, $date);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка промокодов курса продления
+     *
+     * @param $course_id
+     * @param $date
+     * @return array
+     */
+    public function getExtendCoursePromocodes($course_id, $date)
+    {
+        $result = array('promocodes' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `ce_extend_crs_id`, `pc_id`, `pc_discount`, `pc_period_validity_type`, 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
+            FROM `courses_extends`
+              LEFT JOIN `promocodes` ON `pc_id`=`ce_pc_id`
+            WHERE `ce_extend_crs_id`=?', $course_id);
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+
+            foreach($sel_data->result() as $row)
+            {
+                $result['promocodes'][$i] = self::parsePromocodeData($row, $date);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -9864,7 +10308,7 @@ class Course_model extends CI_Model
                 $result['extends'][$i]['course_price']     = $row->crs_price;
                 $result['extends'][$i]['course_new_price'] = null;
 
-                $sel_promocode = self::getCoursePromocode($course_id, $row->ce_pc_id, $date);
+                /*$sel_promocode = self::getCoursePromocode($course_id, $row->ce_pc_id, $date);
 
                 if(!empty($sel_promocode['promocode']) and $sel_promocode['promocode']['active'] === true)
                 {
@@ -9874,7 +10318,7 @@ class Course_model extends CI_Model
 
                     $result['extends'][$i]['promocode']        = $ext_crs_code;
                     $result['extends'][$i]['course_new_price'] = money_format('%!.2n', $ext_crs_new_price);
-                }
+                }*/
 
                 $i++;
             }
@@ -10368,6 +10812,53 @@ class Course_model extends CI_Model
         
     }
 
+    /**
+     * Поиск курсов
+     *
+     * @param $search_text
+     * @return bool|string
+     */
+    public function searchCourses($search_text)
+    {
+        $result = false;
+
+        if (is_numeric($search_text))
+        {
+            $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category` FROM `courses` WHERE `crs_id`=?', $search_text);
+        }
+        else
+        {
+            $search_text = $search_text.'*';
+
+            $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category` FROM `courses` 
+                WHERE MATCH (`crs_name`) AGAINST (? IN BOOLEAN MODE)', $search_text);
+        }
+
+        if ($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach ($sel_data->result() as $row)
+            {
+                $result .= '<div class="add_tren_item pc_course parent" id="pc-course-' . $row->crs_id . '" data-crsid="' . $row->crs_id . '">
+                    <a href="/administration/'.$row->crs_category.'/'.$row->crs_id.'" class="add_tov_cont add_tren_name">
+                        <div class="add_tov_h">' . $row->crs_name . '</div>
+                    </a>
+                </div>';
+            }
+            unset($row);
+        }
+        elseif ($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        else
+        {
+            $result = '<div class="not_found">Курс не найден</div>';
+        }
+
+        return $result;
+
+    }
+
 
     /* НАЧАЛО БЛОКА ФУНКЦИЙ ОБРАБОТКИ ДАННЫХ */
 
@@ -10395,15 +10886,15 @@ class Course_model extends CI_Model
         $result['blocked']          = (!empty($row->crs_blocked)) ? $row->crs_blocked : null;
         $result['archive']          = (!empty($row->crs_archive)) ? $row->crs_archive : null;
 
-        $result['price']            = (!empty($row->crs_price) and $row->crs_price != '0.00') ? money_format('%!.2n', $row->crs_price) : null;
-        $result['fc_price']         = (!empty($row->crs_fitcoin_price) and $row->crs_fitcoin_price != '0.00') ? money_format('%!.2n', $row->crs_fitcoin_price) : null;
+        $result['price']            = (!empty($row->crs_price) and $row->crs_price != '0.00') ? $row->crs_price : null;
+        $result['fc_price']         = (!empty($row->crs_fitcoin_price) and $row->crs_fitcoin_price != '0.00') ? $row->crs_fitcoin_price : null;
         $result['db_price']         = (!empty($row->crs_price) and $row->crs_price != '0.00') ? $row->crs_price : null;
         $result['db_fc_price']      = (!empty($row->crs_fitcoin_price) and $row->crs_fitcoin_price != '0.00') ? $row->crs_fitcoin_price : null;
 
         $result['recur_months']        = (!empty($row->crs_recurrent_months) and $row->crs_recurrent_months != 0) ? $row->crs_recurrent_months : null;
-        $result['recur_price']         = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? money_format('%!.2n', $row->crs_recurrent_price) : null;
-        $result['recur_first']         = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? money_format('%!.2n', $row->crs_recurrent_first) : null;
-        $result['recur_subsequent']    = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? money_format('%!.2n', $row->crs_recurrent_subsequent) : null;
+        $result['recur_price']         = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? $row->crs_recurrent_price : null;
+        $result['recur_first']         = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? $row->crs_recurrent_first : null;
+        $result['recur_subsequent']    = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? $row->crs_recurrent_subsequent : null;
         $result['db_recur_price']      = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? $row->crs_recurrent_price : null;
         $result['db_recur_first']      = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? $row->crs_recurrent_first : null;
         $result['db_recur_subsequent'] = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? $row->crs_recurrent_subsequent : null;
@@ -11189,26 +11680,28 @@ class Course_model extends CI_Model
      * @param $date
      * @return mixed
      */
-    protected function parsePromocodeData($row, $date)
+    protected function parsePromocodeData($row, $date = null)
     {
-        $result['id']            = $row->pc_id;
-        $result['course_id']     = $row->pc_crs_id;
-        $result['category']      = $row->pc_category;
-        $result['name']          = !empty($row->pc_name) ? $row->pc_name : 'Промокод №'.$row->pc_id;
-        $result['description']   = $row->pc_description;
-        $result['discount']      = $row->pc_discount;
-        $result['validity_type'] = $row->pc_period_validity_type;
-        $result['pv_date_start'] = $row->pc_pv_date_start;
-        $result['pv_date_end']   = $row->pc_pv_date_end;
-        $result['use_type']      = $row->pc_use_amount_type;
-        $result['ua_number']     = $row->pc_ua_number;
-        $result['code']          = $row->pc_code;
-        $result['blocked']       = $row->pc_blocked;
-        $result['admin_id']      = $row->pc_admin_id;
-        $result['date_add']      = $row->pc_date_add;
-        $result['update']        = $row->pc_update;
-        $result['active']        = false;
-        $result['active_string'] = 'Не активен';
+        $result['id']               = $row->pc_id;
+        $result['name']             = !empty($row->pc_name) ? $row->pc_name : 'Промокод №'.$row->pc_id;
+        $result['description']      = $row->pc_description;
+        $result['discount']         = $row->pc_discount;
+        $result['discount_type']    = $row->pc_discount_type;
+        $result['dt_unit']          = ($row->pc_discount_type == 'percent') ? '%' : ' руб.';
+        $result['relative_percent'] = $row->pc_relative_percent;
+        $result['validity_type']    = $row->pc_period_validity_type;
+        $result['pv_date_start']    = $row->pc_pv_date_start;
+        $result['pv_date_end']      = $row->pc_pv_date_end;
+        $result['use_type']         = $row->pc_use_amount_type;
+        $result['ua_number']        = $row->pc_ua_number;
+        $result['code']             = $row->pc_code;
+        $result['blocked']          = $row->pc_blocked;
+        $result['admin_id']         = $row->pc_admin_id;
+        $result['date_add']         = $row->pc_date_add;
+        $result['update']           = $row->pc_update;
+        $result['active']           = false;
+        $result['active_string']    = 'Не активен';
+        $result['courses']          = array();
 
         if(!empty($date))
         {

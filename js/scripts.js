@@ -85,6 +85,25 @@ $(document).ready(function() {
                 }
                 $("#generated-code").val(result);
             });
+            $("#generate-friend-code").on('click', function(){
+                var result       = '',
+                    words        = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM',
+                    max_position = words.length - 1,
+                    position     = 0;
+                for( var i = 0; i < 6; ++i ) {
+                    position = Math.floor ( Math.random() * max_position );
+                    result = result + words.substring(position, position + 1);
+                }
+                $(".generated_code").html(result);
+                $.ajax({
+                    url: '/saveFriendPromocode',
+                    type: 'post',
+                    data: {promocode: result},
+                    complete: function (result) {
+
+                    }
+                });
+            });
 
             // Блок информации
             var block_message = $('#block-message');
@@ -1465,6 +1484,25 @@ $(document).ready(function() {
 
                 searchProducts(sort, category_id, subcategory_id, search, null, null, null, last_id, last_price, last_discount);
             });
+            var kurs_block = $('.kurs_page');
+            kurs_block.on('click', '.shop_block_nav #prev_page', function (event) {
+                event.preventDefault();
+
+                var category_id    = $('#category_id').val(),
+                    subcategory_id = $('#subcategory_id').val(),
+                    first_id       = $('#i_first_id').val();
+
+                searchCourses(category_id, subcategory_id, first_id, null);
+            });
+            kurs_block.on('click', '.shop_block_nav #next_page', function (event) {
+                event.preventDefault();
+
+                var category_id    = $('#category_id').val(),
+                    subcategory_id = $('#subcategory_id').val(),
+                    last_id        = $('#i_last_id').val();
+
+                searchCourses(category_id, subcategory_id, null, last_id);
+            });
 
             // Поиск товара по ID
             $('#product-id').on('keyup', function () {
@@ -1786,7 +1824,7 @@ $(document).ready(function() {
     function searchProducts(sort, category_id, subcategory_id, search, first_id, first_price, first_discount, last_id, last_price, last_discount)
     {
         $.ajax({
-            url: '/getSortProducts',
+            url: '/sortProducts',
             type: 'post',
             dataType: 'json',
             data: {sort: sort,
@@ -1808,6 +1846,38 @@ $(document).ready(function() {
                 }
                 else {
                     $(".shop_block_tov.parent").html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
+                }
+            }
+        });
+    }
+
+    /**
+     * Поиск курсов
+     * @param category_id
+     * @param subcategory_id
+     * @param first_id
+     * @param last_id
+     */
+    function searchCourses(category_id, subcategory_id, first_id, last_id)
+    {
+        $.ajax({
+            url: '/sortCourses',
+            type: 'post',
+            dataType: 'json',
+            data: {category_id: category_id,
+                subcategory_id: subcategory_id,
+                first_id: first_id,
+                last_id: last_id},
+            complete: function (result) {
+                var data = jQuery.parseJSON(result.responseText),
+                    kurs_rows = $(".kurs_page_row.row");
+                if (data.courses != "false") {
+                    kurs_rows.html(data.courses);
+                    kurs_rows.next("#pagination").remove();
+                    kurs_rows.after(data.pagination);
+                }
+                else {
+                    kurs_rows.html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
                 }
             }
         });

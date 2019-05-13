@@ -200,11 +200,6 @@ $route['administration/course/(:num)/video/workouts']     = 'Course/course/$1/vi
 $route['administration/course/(:num)/video/instructions'] = 'Course/course/$1/video_instructions';
 $route['administration/course/(:num)/video/new']          = 'Course/course/$1/video_new';
 $route['administration/course/(:num)/video/(:num)']       = 'Course/courseVideoSettings/$1/$2';
-
-// Промокоды курса
-$route['administration/course/(:num)/promocodes']       = 'Course/course/$1/promocodes';
-$route['administration/course/(:num)/promocode/new']    = 'Course/course/$1/promocode_new';
-$route['administration/course/(:num)/promocode/(:num)'] = 'Course/course/$1/promocode/$2';
 // Курсы продления
 $route['administration/course/(:num)/extends']       = 'Course/course/$1/extends';
 $route['administration/course/(:num)/extend/new']    = 'Course/course/$1/extend_new';
@@ -231,10 +226,12 @@ $route['administration/nutrition/(:num)/statistics'] = 'Course/nutrition/$1/stat
 // Отзывы
 $route['administration/nutrition/(:num)/reviews']       = 'Course/nutrition/$1/reviews';
 $route['administration/nutrition/(:num)/review/(:num)'] = 'Course/nutrition/$1/review/$2';
-// Промокоды курса
-$route['administration/nutrition/(:num)/promocodes']       = 'Course/nutrition/$1/promocodes';
-$route['administration/nutrition/(:num)/promocode/new']    = 'Course/nutrition/$1/promocode_new';
-$route['administration/nutrition/(:num)/promocode/(:num)'] = 'Course/nutrition/$1/promocode/$2';
+// Промокоды
+$route['administration/promocodes']       = 'Course/promocodes';
+$route['administration/promocode/new']    = 'Course/newPromocode';
+$route['administration/promocode/(:num)'] = 'Course/promocode/$1';
+$route['searchCourses'] = 'Course/searchCourses';
+$route['saveFriendPromocode'] = 'Course/saveFriendPromocode';
 // Тип приемов пищи
 /*$route['administration/ingestion/type']        = 'Course/ingestionTypes';
 $route['administration/ingestion/type/new']    = 'Course/newIngestionTypes';
@@ -353,6 +350,9 @@ $route['couches']                = 'Couch/publicCouches';
 // Курс
 $route['course/(:num)'] = 'Course/publicCourse/$1';
 $route['courses']       = 'Course/publicCourses';
+$route['courses/(workouts|nutritions)(/(:num))?'] = 'Course/publicCourses/$1/$3';
+
+$route['sortCourses'] = 'Course/getSortCourses';
 
 // Оплата
 $route['payment']               = 'Payment/payment';
@@ -380,7 +380,7 @@ $route['dataCourse']             = 'Course/getAvailableDataCourse';
 $route['deleteCartProduct']      = 'Store/deleteCartProduct';
 $route['detachCartProducts']     = 'Store/detachCartProducts';
 $route['updateCartProduct']      = 'Store/updateCartProduct';
-$route['getSortProducts']        = 'Store/getSortProducts';
+$route['sortProducts']           = 'Store/getSortProducts';
 $route['getSearchProducts']      = 'Store/getSearchProducts';
 $route['getSearchNotifications'] = 'Notification/getSearchNotifications';
 

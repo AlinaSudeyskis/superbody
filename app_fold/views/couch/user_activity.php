@@ -36,13 +36,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php else: ?>
                         <h3 class="info">Информация не найдена</h3>
                     <?php endif;?>
+
+                    <?php if (!empty($anthropometric)): ?>
+                        <div class="anketa_block_item" style="display: block;">
+                            <div class="anketa_block_item_h">Прогресс</div>
+                            <div class="anketa_block_item_cont">
+                                <?php include_once('./app_fold/views/user/questionnaire/charts.php'); ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
-
-            <?php
-            if (!empty($anthropometric)) :
-                include_once('./app_fold/views/user/questionnaire/charts.php');
-            endif;?>
         </div><!-- content_col -->
     </div>
 </div><!-- content -->

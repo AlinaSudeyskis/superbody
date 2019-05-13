@@ -18,7 +18,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php if (!empty($menu_courses['course_types'])) :?>
                 <ul class="submenu">
                     <?php foreach ($menu_courses['course_types'] as $m_course) :?>
-                        <li><a href="/courses/<?php echo $m_course['id']; ?>"><?php echo $m_course['name']; ?></a></li>
+                        <li><a href="/courses/workouts/<?php echo $m_course['id']; ?>"><?php echo $m_course['name']; ?></a></li>
                     <?php endforeach;
                     unset($m_course);?>
                 </ul>

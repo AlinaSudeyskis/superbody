@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <meta name="description" content="<?php echo $description; ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="yandex-verification" content="180e958474bf7c8f" />
+    <!--<meta name="yandex-verification" content="180e958474bf7c8f" />-->
     <link rel="icon" type="image/png" href="/favicon.ico" />
 
     <link rel="stylesheet" href="/css/google_fonts.css">
@@ -58,6 +58,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <script src="https://player.vimeo.com/api/player.js"></script>
 </head>
+<!-- TODO Раскомментировать перед загрузкой на сервер TestSB -->
 <!-- Global Site Tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=GA_TRACKING_ID"></script>
 <script>

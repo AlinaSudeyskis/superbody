@@ -45,6 +45,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span><img src="/img/menu_ico24.png" alt=""></span><span>Курсы питания</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/promocodes" <?php if ($page_menu == 'promocodes') { echo 'class="active"'; } ?>>
+            <span style="font-size: 23px; font-weight: 600;">%</span><span>Промокоды</span>
+        </a>
+    </li>
     <!--<li>
         <a href="/administration/categories" <?php /*if ($page_menu == 'categories') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico9.png" alt=""></span><span>Категория товара</span>

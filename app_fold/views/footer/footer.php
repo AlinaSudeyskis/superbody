@@ -99,6 +99,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <script src="/js/lightbox.js"></script>
 <script src="/js/vimeo_player.js"></script>
+<!-- TODO Раскомментировать перед загрузкой на сервер TestSB -->
 <!-- BEGIN JIVOSITE CODE {literal} -->
 <script type='text/javascript'>
     (function(){ var widget_id = 'pJLIxhdVt8';var d=document;var w=window;function l(){

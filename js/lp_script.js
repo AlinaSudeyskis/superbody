@@ -56,10 +56,10 @@ $(document).ready(function(){
 
     $('.purchase_form').on('keyup', ' #i-promocode', function(){
         var input_search     = $(this).val(),
-            crs_id           = $('.purchase_form').children('#crs-id').val(),
+            crs_id           = $('.purchase_form').find('#crs-id').val(),
             price_block      = $('#course-price'),
             new_price_block  = $('#course-new-price'),
-            course_price     = price_block.html();
+            course_price     = parseFloat(price_block.html());
 
         if(input_search.length >= 6 && input_search.length <= 25)
         {
@@ -73,7 +73,26 @@ $(document).ready(function(){
 
                     if (data.discount !== false)
                     {
-                        var new_price = course_price - (course_price*data.discount/100);
+                        var new_price;
+
+                        if(data.discount_type === 'percent')
+                        {
+                            new_price = course_price - (course_price*data.discount/100);
+                        }
+                        else
+                        {
+                            new_price = course_price - data.discount;
+                        }
+
+                        if(data.rel_percent)
+                        {
+                            new_price = course_price - (course_price*data.rel_percent/100);
+                        }
+
+                        if(new_price < 1 && !data.rel_percent)
+                        {
+                            new_price = 1;
+                        }
 
                         price_block.addClass('strikeout');
                         if(price_block.next('#course-new-price').length == 0)

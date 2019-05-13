@@ -1014,6 +1014,27 @@ $(document).ready(function(){
         }
     });
 
+    /* выпадающий список курсов */
+    $(document).on('input', '.add_tov_in.pc_course input:text', function () {
+        if($(this).val() != '' && $(this).val().length < 255){
+            var input_search = $(this).val(),
+                tov_in = $(this);
+            $.ajax({
+                url: '/searchCourses',
+                type: 'post',
+                dataType: 'json',
+                data: {search_text: input_search},
+                complete: function (result) {
+                    var data = result.responseJSON;
+                    tov_in.parents(".add_tov_in").find(".add_tov_list").html(data.courses);
+                    tov_in.parents(".add_tov_in").find(".add_tov_list").show();
+                }
+            });
+        } else{
+            $(this).parents(".add_tov_in").find(".add_tov_list").hide();
+        }
+    });
+
     $(document).on("click", ".add_tov_item", function() {
         if(!$(this).hasClass("disable")){
             var link = $(this).find(".add_tov_cont").attr("href"),
@@ -1048,7 +1069,8 @@ $(document).ready(function(){
             video_id = $(this).parents(".add_tov_in_total").children("#id-video"+parseFloat(id)),
             inst_id = $(this).parents(".add_tov_in_total").children("#id-video-instruction"),
             ml_type_block = $(this).parents(".add_tov_val_item").parent(),
-            meal_block = $("#" + id);
+            meal_block = $("#" + id),
+            course_block = $("#" + id + ".pc_course");
 
         if (video_id.length == 1 || inst_id.length == 1)
         {
@@ -1057,8 +1079,12 @@ $(document).ready(function(){
             video_id.val('');
             inst_id.val('');
         }
+        else if(course_block.length === 1)
+        {
+            course_block.remove();
+        }
         // Удалить блок блюда
-        if(meal_block.length == 1)
+        else if(meal_block.length == 1)
         {
             meal_block.remove();
 
@@ -1069,7 +1095,7 @@ $(document).ready(function(){
             }
         }
         // Пересчет ВКБЖУ
-        if($(this).parents('.ingredients_data').length == 1)
+        else if($(this).parents('.ingredients_data').length == 1)
         {
             calcWCPFC();
             if($(".add_tov_in_total").children('.add_tov_val').length == 0)
@@ -1313,6 +1339,45 @@ $(document).ready(function(){
             this_meal.addClass("disable");
         }
         return false;
+    });
+
+    $(document).on('click', '.add_tren_item.pc_course', function () {
+        if(!$(this).hasClass("disable")){
+            var link = $(this).find(".add_tov_cont").attr("href"),
+                name = $(this).find(".add_tov_h").text(),
+                number = $(this).attr("id"),
+                parent_block = $(this).parents(".add_tov_in_total").find(".add_tov_val"),
+                crsid = $(this).data('crsid');
+
+            if(parent_block.find('#'+number+'course').length === 0)
+            {
+                parent_block.append('<div id="'+number+'course" class="add_tov_val_item pc_course parent">' +
+                    '<div class="add_kurs_val_video_wrap parent">' +
+                        '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                        '<input type="hidden" name="pc_courses[]" value="'+crsid+'" >' +
+                        '<div class="del_tov"></div>' +
+                    '</div>' +
+                    '</div>');
+            }
+            $(this).parents(".add_tov_list").hide();
+            $(this).parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');
+            $(this).addClass("disable");
+        }
+        return false;
+    });
+
+    $('select[name=s_discount_type]').on('change', function(){
+        var type = $(this).val(),
+            pcrp = $('#pc-relative-percent');
+
+        if(type === 'currency')
+        {
+            pcrp.show();
+        }
+        else
+        {
+            pcrp.hide();
+        }
     });
 
 

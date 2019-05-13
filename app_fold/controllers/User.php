@@ -71,14 +71,15 @@ class User extends CI_Controller
 
         $title = !empty($this->session->user['name']) ? $this->session->user['name'] . ' - пользователь' : 'Страница пользователя' ;
 
-        $u_training_time = $this->User_model->getUserTrainingTime($user_id); // Тренировочное время пользователя
-        $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, 'active', $u_training_time); // Выборка курсов пользователя
-        $course_notifs   = $this->Course_model->getUserCoursesNotifications($user_id, $this->date); // Выборка уведомлений курсов пользователя
-        $anthrop_data    = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
-        $user_social     = $this->User_model->getUserSocial($user_id);
-        $u_data          = $this->User_model->getUser($user_id);
+        $u_training_time  = $this->User_model->getUserTrainingTime($user_id); // Тренировочное время пользователя
+        $user_courses     = $this->Course_model->getUserCourses($user_id, $this->date, 'active', $u_training_time); // Выборка курсов пользователя
+        $course_notifs    = $this->Course_model->getUserCoursesNotifications($user_id, $this->date); // Выборка уведомлений курсов пользователя
+        $anthrop_data     = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
+        $user_social      = $this->User_model->getUserSocial($user_id);
+        $u_data           = $this->User_model->getUser($user_id);
+        $friend_promocode = $this->Course_model->getPromocodeForFriend();
 
-        $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data);
+        $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data, $friend_promocode);
 
         if($this->input->post('bt_save_postpone', true))
         {
