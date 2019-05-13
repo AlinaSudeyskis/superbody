@@ -31,7 +31,7 @@ include_once('./app_fold/views/breadcrumb.php');?>
     <?php if(!empty($courses['workouts'])): ?>
         <?php foreach($courses['workouts'] as $cat_id => $workouts):?>
             <h2 class="block_h">
-                <?php if(empty($page_submenu) or ($page_submenu == 'workouts' and is_numeric($courses_type) and $courses_type != $cat_id)): ?>
+                <?php if(empty($page_submenu) or ($page_submenu == 'workouts' and empty($courses_type)) or ($page_submenu == 'workouts' and is_numeric($courses_type) and $courses_type != $cat_id)): ?>
                     <a href="/courses/workouts/<?php echo $cat_id; ?>"><?php echo $courses_categories[$cat_id]['name']; ?></a>
                 <?php else: ?>
                     <?php echo $courses_categories[$cat_id]['name']; ?>
