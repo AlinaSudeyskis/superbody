@@ -61,7 +61,7 @@ $(document).ready(function(){
             new_price_block  = $('#course-new-price'),
             course_price     = parseFloat(price_block.html());
 
-        if(input_search.length >= 6 && input_search.length <= 25)
+        if(input_search.length >= 1 && input_search.length <= 25)
         {
             $.ajax({
                 url: '/searchPromo',
