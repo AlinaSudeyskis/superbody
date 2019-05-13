@@ -9896,6 +9896,55 @@ class Course_model extends CI_Model
 
                 unset($row);
             }
+            elseif($sel_promo_data !== false and 0 == $sel_promo_data->num_rows())
+            {
+                $sel_promo_data = $this->db->query('
+                    SELECT `pff_code`, `pff_used`, `pc_id`, `pc_type`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
+                      `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, 
+                      `pc_blocked` 
+                    FROM `promocodes_for_friend` 
+                    LEFT JOIN `promocodes` ON `pc_id`=1
+                    WHERE `pff_code`=? and `pff_used`=0 LIMIT 1', $promocode);
+
+                if($sel_promo_data !== false and 1 == $sel_promo_data->num_rows())
+                {
+                    $row = $sel_promo_data->row();
+
+                    // Данные промокода
+                    $promocode_data = self::parsePromocodeData($row, $date);
+
+                    // Промокод активен
+                    if ($promocode_data['active'] === true)
+                    {
+                        if ($row->pc_type == 'all')
+                        {
+                            $result['discount'] = $promocode_data['discount'];
+                            $result['discount_type'] = $promocode_data['discount_type'];
+                            $result['rel_percent'] = $promocode_data['relative_percent'];
+                            $result['id'] = $promocode_data['id'];
+                        }
+                        else
+                        {
+                            $sel_promo_courses = $this->db->query('
+                                SELECT `pcc_pc_id`, `pcc_crs_id` FROM `promocode_courses` WHERE `pcc_crs_id`=? AND `pcc_pc_id`=? LIMIT 1',
+                                array($course_id, $row->pc_id));
+                            if ($sel_promo_courses !== false and 1 == $sel_promo_courses->num_rows())
+                            {
+                                $result['discount'] = $promocode_data['discount'];
+                                $result['discount_type'] = $promocode_data['discount_type'];
+                                $result['rel_percent'] = $promocode_data['relative_percent'];
+                                $result['id'] = $promocode_data['id'];
+                            }
+                        }
+                    }
+
+                    unset($row);
+                }
+                elseif($sel_promo_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
             elseif($sel_promo_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
