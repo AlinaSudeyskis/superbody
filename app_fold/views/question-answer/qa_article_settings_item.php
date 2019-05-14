@@ -17,9 +17,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </select>
     </div>
 </div>
-<?php
-$selected_section = array_shift($sections);
-if(!empty($subsections)): ?>
+<?php if(!empty($subsections)):
+    $selected_section = array_shift($sections);?>
     <?php foreach($subsections as $section_id => $sections):
         $style = ($section_id == $selected_section['id']) ? 'style="display:block;"' : ''; ?>
         <div class="anketa_form_line parent subsections" id="subsection-<?php echo $section_id; ?>" <?php echo $style; ?>>

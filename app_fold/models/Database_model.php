@@ -1985,7 +1985,7 @@ class Database_model extends CI_Model
             {
                 foreach ($sel_data->result() as $row)
                 {
-                    $this->db->query('DELETE FROM `users_trainings_weeks` WHERE `utw_date`>?', $row->uc_date_end);
+                    $this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_date`>?', $row->uc_date_end);
                 }
                 unset($row);
             }

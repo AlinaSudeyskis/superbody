@@ -9762,7 +9762,7 @@ class Course_model extends CI_Model
     {
         $result = array('discount' => false, 'id' => null);
 
-        if(is_numeric($course_id) and is_numeric($user_id) and !empty($promocode) and strlen($promocode) >=6 and strlen($promocode) <= 25)
+        if(is_numeric($course_id) and is_numeric($user_id) and !empty($promocode) and strlen($promocode) >=1 and strlen($promocode) <= 25)
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('
