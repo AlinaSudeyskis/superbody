@@ -6027,16 +6027,16 @@ class Course extends CI_Controller
                     }
                 }
                 unset($i_c);
-
-                if($up_courses != $db_data['courses_ids'])
-                {
-                    $courses['insert'] = array_diff($up_courses, $db_data['courses_ids']);
-                    $courses['delete'] = array_diff($db_data['courses_ids'], $up_courses);
-                }
+            }
+            if($up_courses != $db_data['courses_ids'])
+            {
+                $courses['insert'] = array_diff($up_courses, $db_data['courses_ids']);
+                $courses['delete'] = array_diff($db_data['courses_ids'], $up_courses);
             }
 
+            $selected_courses = (!empty($up_courses) and !empty($courses['insert'])) ? array_merge($courses['insert'], array_intersect($up_courses, $db_data['courses_ids'])) : array();
             $pc_type = 'all';
-            $count_courses = count($courses);
+            $count_courses = count($selected_courses);
             if($count_courses == 1)
             {
                 $pc_type = 'course';
@@ -6069,8 +6069,8 @@ class Course extends CI_Controller
                     $this->session->set_tempdata('message', 145, 60);
                 }
             }
-            //
-            if($courses != $db_data['courses_ids'])
+            // Сохранение курсов, к которым прикреплен промокод
+            if($selected_courses != $db_data['courses_ids'])
             {
                 $res_up = $this->Course_model->updatePromocodeCourses($promocode_id, $courses, $this->user_id, $this->date);
 
@@ -8660,7 +8660,7 @@ class Course extends CI_Controller
         $promocode = mb_substr(strip_tags($this->input->post('input_search', true)), 0, 25);
         $course_id = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
 
-        if(!empty($course_id) and !empty($promocode) and strlen($promocode) >=6 and is_numeric($this->user_id))
+        if(!empty($course_id) and !empty($promocode) and strlen($promocode) >=1 and is_numeric($this->user_id))
         {
             $result = $this->Course_model->getAvailableCoursePromocode($course_id, $promocode, $this->user_id, $this->date);
         }
