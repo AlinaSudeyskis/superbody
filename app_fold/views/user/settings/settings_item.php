@@ -14,7 +14,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span class="tip">
                 * Активируйте email. Письмо с активацией отправлено Вам на почту.
                 <?php if($user_data['availability_send_email'] === true): ?>
-                    <input type="submit" name="bt_ne_activate_send_again" value="Отправить снова" class="bt_link">
+                    <input type="submit" name="bt_e_activate_send_again" value="Отправить снова" class="bt_link">
                 <?php elseif(!empty($user_data['availability_send_email_date'])): ?>
                     Повторно отправить письмо можно будет через <?php echo $user_data['availability_send_email_date']; ?>.
                 <?php endif; ?>

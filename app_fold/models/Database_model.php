@@ -1993,6 +1993,27 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-05-14 21:40';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+
+            $this->db->query("UPDATE `users` SET `user_new_email_date`='0000-00-00 00:00:00' WHERE `user_id`=4 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-05-15 13:11';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+
+            $this->db->query("ALTER TABLE `questionnaire` CHANGE `user_gender` `user_gender` ENUM('male','female','') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+            $this->db->query("UPDATE `users` SET `user_activated`='0' WHERE `user_id`=4 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
