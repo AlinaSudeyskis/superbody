@@ -650,18 +650,27 @@ class User extends CI_Controller
         }
 
         // Возможность отправить повторно письмо с подтверждением активации или смены email
-        if($user['user_data']['user_changing_email'] === true or empty($user['user_data']['user_activated']))
+        if($user['user_data']['user_changing_email'] === true)
+        {
+            $this->load->model('Authorization_model');
+            $email_check    = $this->Authorization_model->checkChangingEmail($this->user_id, $this->date);
+            
+            if($email_check['availability_send_email'] === true)
+            {
+                $user['user_data']['changing_email']['availability_send_email'] = true;
+                $user['user_data']['changing_email']['availability_send_email_date'] = $email_check['availability_send_email_date'];
+            }
+        }
+        if(empty($user['user_data']['user_activated']))
         {
             $this->load->model('Authorization_model');
             $activate_check = $this->Authorization_model->checkActivateEmail($this->user_id, $this->date);
-            $email_check    = $this->Authorization_model->checkChangingEmail($this->user_id, $this->date);
-            
-            if($activate_check['availability_send_email'] === true or $email_check['availability_send_email'] === true)
-            {
-                $user['user_data']['availability_send_email'] = true;
-            }
 
-            $user['user_data']['availability_send_email_date'] = (!empty($activate_check['availability_send_email_date'])) ? $activate_check['availability_send_email_date'] : $email_check['availability_send_email_date'];
+            if($activate_check['availability_send_email'] === true)
+            {
+                $user['user_data']['activate_email']['availability_send_email'] = true;
+                $user['user_data']['activate_email']['availability_send_email_date'] = $activate_check['availability_send_email_date'];
+            }
         }
 
         // Получение данных пользователя из БД
@@ -962,7 +971,7 @@ class User extends CI_Controller
                     $this->Authorization_model->setResendingActivateEmailDate($this->user_id, $this->date);
 
                     // Данные о смене были сохранены
-                    $this->session->set_tempdata('message', 199, 60);
+                    $this->session->set_tempdata('message', 202, 60);
                 }
             }
             header('Location: /settings');
