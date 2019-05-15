@@ -658,8 +658,8 @@ class User extends CI_Controller
             if($email_check['availability_send_email'] === true)
             {
                 $user['user_data']['changing_email']['availability_send_email'] = true;
-                $user['user_data']['changing_email']['availability_send_email_date'] = $email_check['availability_send_email_date'];
             }
+            $user['user_data']['changing_email']['availability_send_email_date'] = $email_check['availability_send_email_date'];
         }
         if(empty($user['user_data']['user_activated']))
         {
@@ -669,8 +669,8 @@ class User extends CI_Controller
             if($activate_check['availability_send_email'] === true)
             {
                 $user['user_data']['activate_email']['availability_send_email'] = true;
-                $user['user_data']['activate_email']['availability_send_email_date'] = $activate_check['availability_send_email_date'];
             }
+            $user['user_data']['activate_email']['availability_send_email_date'] = $activate_check['availability_send_email_date'];
         }
 
         // Получение данных пользователя из БД
