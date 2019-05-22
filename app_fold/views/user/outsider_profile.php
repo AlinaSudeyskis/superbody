@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div id="content" class="container">
-    <?php $breadcrumbs = array('/user' => $user_data['user_name']);
+    <?php $breadcrumbs = array('/couches' => 'Тренеры', '/user' => $user_data['user_name']);
     include_once('./app_fold/views/breadcrumb.php');?>
     <div class="row">
         <div class="col-lg-2 left_sidebar">

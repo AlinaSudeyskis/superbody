@@ -224,7 +224,9 @@ $(document).ready(function() {
                     this_wd      = $(this).parents('.week_days'),
                     frm_postpone = $(this).parents('form.postpone'),
                     pop_up       = $("#pop-up_postpone"), error_info = '',
-                    all_ch_cb    = $('.week_days').find("input:checkbox:checked");
+                    all_ch_cb    = $('.week_days').find("input:checkbox:checked"),
+                    fl_rest_warn = false,
+                    fl_days_warn = false;
 
                 if(this_wd.next('h3.info').length === 1)
                 {
@@ -233,15 +235,15 @@ $(document).ready(function() {
 
                 if (checkboxes.length <= count_days)
                 {
-                    if ($(this).is(":checked") && frm_postpone.length === 0)
+                    if ($(this).is(":checked"))
                     {
                         blockWeekDays(count_rest, next_element, prev_element, element)
                     }
                     else if(!$(this).is(":checked"))
                     {
                         // Разблокировать предыдущий и следующий checkbox.
-                        next_element.nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').prop('disabled', false);
-                        prev_element.prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').prop('disabled', false);
+                        next_element.nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').removeClass('disabled');
+                        prev_element.prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').removeClass('disabled');
                     }
 
                     this_wd.find('input:checkbox:checked').each(function (indx, elm)
@@ -252,8 +254,8 @@ $(document).ready(function() {
                         // Блокировать все остальные checkbox
                         if (checkboxes.length == count_days)
                         {
-                            $(this).parent().nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').prop('disabled', true);
-                            $(this).parent().prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').prop('disabled', true);
+                            $(this).parent().nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').addClass('disabled');
+                            $(this).parent().prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').addClass('disabled');
                         }
                         else if (checkboxes.length < count_days && frm_postpone.length === 0)
                         {
@@ -262,21 +264,19 @@ $(document).ready(function() {
                     });
                     // Разблокировать checkbox
                     if (checkboxes.length == 0) {
-                        element.nextAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').prop('disabled', false);
-                        element.prevAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').prop('disabled', false);
+                        element.nextAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').removeClass('disabled');
+                        element.prevAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').removeClass('disabled');
                     }
 
                     // Postpone form
-                    if(frm_postpone.length === 1 && checkboxes.length > 0)
+                    if(checkboxes.length > 0)
                     {
                         var prev_els     = element.prevUntil('.cb_week_day > input:checkbox.prev_workout').children('input:checkbox.prev_workout'),
                             count_pels   = prev_els.length,
                             prev_done    = element.prevUntil('.cb_week_day > input:checkbox').children('input:checkbox.prev_workout.done'),
                             next_els     = element.nextUntil('.cb_week_day > input:checkbox').children('input:checkbox.prev_workout'),
                             count_nels   = next_els.length,
-                            diff_rest    = 0,
-                            fl_rest_warn = false,
-                            fl_days_warn = false;
+                            diff_rest    = 0;
 
                         // Проверка на кол-во дней отдыха
                         // Между выполненной тренировкой и выбранным днем
@@ -404,30 +404,29 @@ $(document).ready(function() {
                             }
                         }
 
-                        if(fl_days_warn === true || all_ch_cb.length === 0)
+                        if(error_info)
                         {
-                            pop_up.find('#bt-save-postpone').prop('disabled', true);
+                            var h3_info = this_wd.next('h3.info');
+                            if(h3_info.length === 0)
+                            {
+                                this_wd.after('<h3 class="info">'+error_info+'</h3>');
+                                h3_info = this_wd.next('h3.info');
+                            }
+                            else
+                            {
+                                h3_info.html(error_info);
+                            }
+                            h3_info.show();
                         }
-                        else
-                        {
-                            pop_up.find('#bt-save-postpone').prop('disabled', false);
-                        }
-
-                        var h3_info = this_wd.next('h3.info');
-                        if(h3_info.length === 0)
-                        {
-                            this_wd.after('<h3 class="info">'+error_info+'</h3>');
-                            h3_info = this_wd.next('h3.info');
-                        }
-                        else
-                        {
-                            h3_info.html(error_info);
-                        }
-                        h3_info.show();
                     }
-                    else if(frm_postpone.length === 1 && all_ch_cb.length === 0)
+
+                    if(frm_postpone.length === 1 && (fl_days_warn === true || all_ch_cb.length === 0))
                     {
                         pop_up.find('#bt-save-postpone').prop('disabled', true);
+                    }
+                    else
+                    {
+                        pop_up.find('#bt-save-postpone').prop('disabled', false);
                     }
                 }
                 else if (checkboxes.length > count_days) {
@@ -466,7 +465,7 @@ $(document).ready(function() {
                 }
             });
             $('input[name=gender]').click(function () {
-                if($(this).val() == 1) $('#gender_male').attr('checked', false);
+                if($(this).val() == "female") $('#gender_male').attr('checked', false);
                 else $('#gender_female').attr('checked', false);
 
                 $(this).attr('checked', 'checked');
@@ -1549,7 +1548,7 @@ $(document).ready(function() {
                 $(this).remove();
             });
             // Корзина
-            $("input[type=radio]").on('click', function () {
+            /*$("input[type=radio]").on('click', function () {
                 var cp_id = $(this).parent('.ordering_tov_price').find('.cp_id').val(),
                     id_radio = this.id,
                     price_rub = 'price_rub[' + cp_id + ']',
@@ -1569,7 +1568,7 @@ $(document).ready(function() {
 
                     totalCartPrice();
                 }
-            });
+            });*/
 
             /* Видеоплеер Vimeo */
             var options = {
@@ -1587,9 +1586,21 @@ $(document).ready(function() {
                     complete: function (result) {
                         var data = jQuery.parseJSON(result.responseText);
                         if (!data.error) {
-                            $.each(data.video, function(id, video){
-                                $('#event-' + data.woid[id] + '.fc-content').trigger('click');
-                            });
+                            if(data.woid.length == 1)
+                            {
+                                $('#event-' + data.woid[0] + '.fc-content').trigger('click');
+                            }
+                            else if(data.woid.length > 1)
+                            {
+                                var pop_up_video = $('#pop-up_video');
+                                pop_up_video.html(data.crss);
+                                pop_up_home(pop_up_video);
+
+                                $('.tc_item').on('click', function(){
+                                    var woid = $(this).data('woid');
+                                    $('#event-' + woid + '.fc-content').trigger('click');
+                                });
+                            }
                         }
                     }
                 });
@@ -1653,26 +1664,6 @@ $(document).ready(function() {
                     }
                 });
             }
-
-            $('#pop-up_video').on('click', '#wo-i-but', function()
-            {
-                if ($(this).hasClass('video'))
-                {
-                    $('#wo-instruction').show();
-                    $('#bt-workout-done').hide();
-                    $('#wo-video').hide();
-                    $(this).removeClass("video");
-                    $(this).html("Тренировка");
-                }
-                else
-                {
-                    $('#wo-instruction').hide();
-                    $('#bt-workout-done').show();
-                    $('#wo-video').show();
-                    $(this).addClass("video");
-                    $(this).html("Инструктаж");
-                }
-            });
 
             $('#logout').on('click', function(){
                 FB.logout();
@@ -2042,7 +2033,8 @@ $(document).ready(function() {
         {
             if (n_e.length > 0 && !n_e.is(':checked'))
             {
-                n_e.prop('disabled', true);
+                n_e.addClass('disabled');
+                //n_e.prop('disabled', true);
                 n_e = n_e.parent().next('.cb_week_day').children('input[type=checkbox]');
 
                 count_next_block++;
@@ -2050,7 +2042,8 @@ $(document).ready(function() {
 
             if (p_e.length > 0 && !p_e.is(':checked'))
             {
-                p_e.prop('disabled', true);
+                p_e.addClass('disabled');
+                //p_e.prop('disabled', true);
                 p_e = p_e.parent().prev('.cb_week_day').children('input[type=checkbox]');
 
                 count_prev_block++;
@@ -2064,7 +2057,8 @@ $(document).ready(function() {
             // Блокировать последние checkbox. в кол-ве дней отдыха
             for (i = 0; i < diff_count_block; i++)
             {
-                el.children('input[type=checkbox]').prop('disabled', true);
+                el.children('input[type=checkbox]').addClass('disabled');
+                //el.children('input[type=checkbox]').prop('disabled', true);
                 el = el.prev('.cb_week_day');
             }
         }
@@ -2076,7 +2070,8 @@ $(document).ready(function() {
             // Блокировать последние checkbox. в кол-ве дней отдыха
             for (i = 0; i < diff_count_block; i++)
             {
-                el.children('input[type=checkbox]').prop('disabled', true);
+                el.children('input[type=checkbox]').addClass('disabled');
+                //el.children('input[type=checkbox]').prop('disabled', true);
                 el = el.next('.cb_week_day');
             }
         }

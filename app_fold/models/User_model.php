@@ -205,9 +205,13 @@ class User_model extends CI_Model
             }
 
             $result['user_data']['user_birthday']   = $birthday;
-            $result['user_data']['user_gender']     = ($row->user_gender == 'female') ? 'Женщина' : 'Мужчина';
-            $result['user_data']['user_gender_eng'] = ($row->user_gender == 'female') ? 'female' : 'male';
-            $result['user_data']['user_gender_rus'] = ($row->user_gender == 'female') ? 'Женский' : 'Мужской';
+            $user_gender = (!empty($row->user_gender)) ? $row->user_gender : null;
+            if(!empty($user_gender))
+            {
+                $result['user_data']['user_gender']     = ($row->user_gender == 'female') ? 'Женщина' : 'Мужчина';
+                $result['user_data']['user_gender_eng'] = $user_gender;
+                $result['user_data']['user_gender_rus'] = ($row->user_gender == 'female') ? 'Женский' : 'Мужской';
+            }
 
             $sel_weight = $this->db->query('
                 SELECT `user_weight` FROM `anthropometric` WHERE `user_id`=? ORDER BY `user_date_add` DESC LIMIT 1', $user_id);

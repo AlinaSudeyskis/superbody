@@ -699,7 +699,7 @@ function pop_up_def(popup) {
 }
 function pop_up_home(popup) {
     var shadow = $("#shadow2");
-    popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
+    popup.css({marginLeft:-(popup.width()/2),marginTop:-(popup.height()/2)}).fadeIn(600);
 
     // если необходимо делегирование событий, замените на mouseenter и mouseleave соответственно
     $(popup).hover(function() {

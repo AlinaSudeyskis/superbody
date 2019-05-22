@@ -54,11 +54,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             include_once('./app_fold/views/course/settings/course_reviews_item.php');
                         elseif ($page_submenu == 'reviews' and !empty($review)) :
                             include_once('./app_fold/views/course/settings/course_review_item.php');
-                        elseif ($page_submenu == 'video' and $video_page == 'video_settings') :?>
+                        elseif ($page_submenu == 'video' and $video_page == 'video_new') :?>
                             <form action="" method="post" enctype="multipart/form-data">
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
-                                        <?php $dis_delete = (!empty($video['course_id']) and $video['course_id'] > 0) ? 'disabled' : '';?>
+                                        <input type="submit" name="bt_save_video" value="Сохранить" class="video_admin_form_send">
+                                    </div>
+                                </div>
+
+                                <div class="video_admin_form">
+                                    <?php include_once('./app_fold/views/video/video_settings_item.php');?>
+                                </div>
+                            </form>
+                        <?php elseif ($page_submenu == 'video' and $video_page == 'video_settings' and !empty($video)) :?>
+                            <form action="" method="post" enctype="multipart/form-data">
+                                <div class="admin_form_buts_wrap_container">
+                                    <div class="admin_form_buts_wrap parent">
+                                        <?php $dis_delete = (!empty($video['course_id']) and $video['course_id'] > 0) ? '' : '';?>
                                         <?php if ($video['blocked'] == 0) :?>
                                             <input type="submit" name="bt_block_video" value="Заблокировать" class="video_admin_form_block"/>
                                         <?php else :?>

@@ -727,6 +727,9 @@ audio, canvas, progress, video{
     flex-flow: column wrap;
     cursor: pointer;
 }
+#s-t-wo.disabled {
+     opacity: 1;
+ }
 .cat_img, .cat_desk, .cat_but, .cat_subdesk{
     /*display: table-cell;
     vertical-align: middle;*/
@@ -746,7 +749,7 @@ audio, canvas, progress, video{
     padding: 10px;
 
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: column; /* row wrap */
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -808,6 +811,38 @@ audio, canvas, progress, video{
     font-size: 26px;
     line-height: 30px;
 }
+.tc_container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    align-content: space-around;
+}
+
+.tc_item {
+    flex: 1 1 auto;
+    max-width: 300px;
+    margin: 0 10px;
+    cursor: pointer;
+}
+.tc_item_title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    width: 100%;
+    padding: 0 10px 10px;
+    text-align: center;
+    font-size: 22px;
+    line-height: 28px;
+    color: #33363f;
+}
+.tc_item:hover .tc_item_title {
+    color: #72d0f4;
+}
+
+.tc_item_img > img {
+    width: 100%;
+    margin: 0 auto;
+}
 .content_block h3{
     font-size: 18px;
     line-height: 28px;
@@ -851,6 +886,15 @@ h3.info{
     font-size: 15px;
     line-height: 17px;
     padding: 15px 10px;
+}
+.anketa_form_line h3.info{
+    float: left;
+    font-size: 12px;
+    line-height: 13px;
+    padding: 10px 0 0;
+    color: #a0a0a0;
+    text-align: left;
+    width: 300px;
 }
 h3.info.small{
     font-size: 14px;
@@ -968,6 +1012,10 @@ div.info{
     height: 100%;
     cursor: default;
     padding: 10px 15px 0;
+    display: none;
+}
+.notification_block .content_block_h_buts {
+     display: block;
 }
 .content_block_h{
     position: relative;
@@ -1241,7 +1289,7 @@ div.info{
 	margin-bottom: 0;
 	padding-bottom: 7px;
 	border-bottom: 3px solid #cdcdcd;
-	padding-right: 72px;
+	/*padding-right: 72px;*/
 }
 table .fc-day-header{
 	padding: 10px;
@@ -7457,9 +7505,14 @@ span.tip>.bt_link {
     color: #fff;
     border-color: #2acaf2;
 }
-.anketa_form_radio:disabled + label{
+.anketa_form_radio.disabled:checked + label{
+    background-color: #2acaf2;
+    color: #fff;
+    border-color: #2acaf2;
+}
+.anketa_form_radio.disabled + label{
     background-color: #f3f3f3;
-    cursor: default;
+    /*cursor: default;*/
 }
 .anketa_form_radio.prev_workout + label {
     background-color: #dcf8ff;

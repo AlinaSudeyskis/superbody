@@ -94,11 +94,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             var data = jQuery.parseJSON(result.responseText);
                             if (!data.error)
                             {
-                                var pop_up_video = $("#pop-up_video"), viewed = false;
-                                if(pop_up_video.is(':empty'))
+                                var pop_up_video = $("#pop-up_video"),
+                                    pop_up_desc = pop_up_video.find('#wo-description').html(),
+                                    viewed = false;
+                                if(pop_up_video.is(':empty')
+                                    || (pop_up_video.find('#vimeo-player-0').length == 0 && pop_up_video.find('#myvid').length == 0)
+                                    || (pop_up_video.find('#vimeo-player-0').length == 1 && (pop_up_video.find('#vimeo-player-0').data('vimeo-url') !== data.source || pop_up_desc !== data.description))
+                                    || (pop_up_video.find('#myvid').length == 1 && (pop_up_video.find('#myvid').data('video-url') !== data.source || pop_up_desc !== data.description)))
                                 {
                                     pop_up_video.html(data.video);
-                                    pop_up_video.append(data.description);
                                 }
                                 pop_up_home(pop_up_video);
                                 if(getInternetExplorerVersion()==-1) {
@@ -114,58 +118,59 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             });
                                         });
                                     }
+                                }
 
-                                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
 
-                                    /*if ($('#vimeo-player-1').length == 1)
-                                    {
-                                        if (data.i_player == 1) {
-                                            $("#ivid").each(function () {
-                                                new InitPxVideo({
-                                                    "videoId": this,
-                                                    "captionsOnDefault": false,
-                                                    "seekInterval": 20,
-                                                    "videoTitle": "Promo",
-                                                    "debug": true,
-                                                    "woid": $("#wo-id").val()
-                                                });
+                                playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+
+                                /*if ($('#vimeo-player-1').length == 1)
+                                 {
+                                 if (data.i_player == 1) {
+                                 $("#ivid").each(function () {
+                                 new InitPxVideo({
+                                 "videoId": this,
+                                 "captionsOnDefault": false,
+                                 "seekInterval": 20,
+                                 "videoTitle": "Promo",
+                                 "debug": true,
+                                 "woid": $("#wo-id").val()
+                                 });
+                                 });
+                                 }
+                                 playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
+                                 }*/
+
+                                playerTwoPlayer.on('play', function(data) {});
+
+                                playerTwoPlayer.on('seeked', function(data) {});
+
+                                playerTwoPlayer.on('pause', function(pause) {
+                                    playerTwoPlayer.getCurrentTime().then(function(seconds) {});
+                                });
+
+                                playerTwoPlayer.on('ended', function(data) {});
+
+                                playerTwoPlayer.on('timeupdate', function(data){
+                                    playerTwoPlayer.getVideoTitle().then(function(title) {
+                                        if (data.percent > 0.75 && viewed === false) {
+                                            $.ajax({
+                                                url: '/viewed/video',
+                                                type: 'post',
+                                                data: {
+                                                    woid: calEvent.endParam
+                                                },
+                                                complete: function(result){
+                                                    if (result.responseText == 'true')
+                                                    {
+                                                        calEvent.backgroundColor = 'rgb(153, 230, 0)';
+                                                        $('#calendar').fullCalendar('updateEvent', calEvent);
+                                                        viewed = true;
+                                                    }
+                                                }
                                             });
                                         }
-                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
-                                    }*/
-
-                                    playerTwoPlayer.on('play', function(data) {});
-
-                                    playerTwoPlayer.on('seeked', function(data) {});
-
-                                    playerTwoPlayer.on('pause', function(pause) {
-                                        playerTwoPlayer.getCurrentTime().then(function(seconds) {});
                                     });
-
-                                    playerTwoPlayer.on('ended', function(data) {});
-
-                                    playerTwoPlayer.on('timeupdate', function(data){
-                                        playerTwoPlayer.getVideoTitle().then(function(title) {
-                                            if (data.percent > 0.75 && viewed === false) {
-                                                $.ajax({
-                                                    url: '/viewed/video',
-                                                    type: 'post',
-                                                    data: {
-                                                        woid: calEvent.endParam
-                                                    },
-                                                    complete: function(result){
-                                                        if (result.responseText == 'true')
-                                                        {
-                                                            calEvent.backgroundColor = 'rgb(153, 230, 0)';
-                                                            $('#calendar').fullCalendar('updateEvent', calEvent);
-                                                            viewed = true;
-                                                        }
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    });
-                                }
+                                });
                             }
                         }
                     });
@@ -336,11 +341,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         complete: function (result) {
                             var data = jQuery.parseJSON(result.responseText);
                             if (!data.error) {
-                                $("#pop-up_video").html(data.video);
-                                $("#pop-up_video").append(data.i_video);
-                                //$("#pop-up_video").append(data.i_a);
-                                $("#pop-up_video").append(data.description);
-                                //$("#pop-up_video").append(data.done);
+                                var pop_up_video = $("#pop-up_video"),
+                                    pop_up_desc = pop_up_video.find('#wo-description').html();
+                                if(pop_up_video.is(':empty')
+                                    || (pop_up_video.find('#vimeo-player-1').length == 0 && pop_up_video.find('#ivid').length == 0)
+                                    || (pop_up_video.find('#vimeo-player-1').length == 1 && (pop_up_video.find('#vimeo-player-1').data('vimeo-url') !== data.source || pop_up_desc !== data.description))
+                                    || (pop_up_video.find('#ivid').length == 1 && (pop_up_video.find('#ivid').data('video-url') !== data.source || pop_up_desc !== data.description)))
+                                {
+                                    pop_up_video.html(data.video);
+                                }
+                                pop_up_home(pop_up_video);
                                 if(getInternetExplorerVersion()==-1) {
                                     if (data.player == 1) {
                                         $("#myvid").each(function () {
@@ -354,82 +364,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             });
                                         });
                                     }
-                                    var options = {
-                                            width: 640,
-                                            loop: false
-                                        },
-                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
-
-                                    if ($('#vimeo-player-1').length == 1)
-                                    {
-                                        if (data.i_player == 1) {
-                                            $("#ivid").each(function () {
-                                                new InitPxVideo({
-                                                    "videoId": this,
-                                                    "captionsOnDefault": false,
-                                                    "seekInterval": 20,
-                                                    "videoTitle": "Promo",
-                                                    "debug": true,
-                                                    "woid": $("#wo-id").val()
-                                                });
-                                            });
-                                        }
-                                        playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
-                                    }
-
-                                    playerTwoPlayer.ready().then(function() {
-                                        console.log('Ready');
-
-                                        playerTwoPlayer.on('play', function(data){
-                                            console.log('Play ' + data);
-
-                                            playerTwoPlayer.getCurrentTime().then(function(seconds) {
-                                                console.log('Current time (seconds): ' + seconds);
-                                            }).catch(function(error) {
-                                                console.log('Current time error: ' + error);
-                                            });
-
-                                        });
-                                        playerTwoPlayer.on('pause', function(data){
-                                            console.log('Pause ' + data);
-                                        });
-                                        playerTwoPlayer.on('ended', function(data){
-                                            console.log('Video ended ' + data);
-                                        });
-
-                                        playerTwoPlayer.setCurrentTime(15.456).then(function(seconds) {
-                                            // seconds = the actual time that the player seeked to
-                                            console.log('Current time (seconds): ' + seconds);
-                                        }).catch(function(error) {
-                                            switch (error.name) {
-                                                case 'RangeError':
-                                                    // the time was less than 0 or greater than the video’s duration
-                                                    break;
-
-                                                default:
-                                                    // some other error occurred
-                                                    break;
-                                            }
-                                        });
-                                    });
-
                                 }
-                                pop_up_home($("#pop-up_video"));
 
-                                $('#bt-workout-done').on('click', function(){
-                                    $.ajax({
-                                        url: '/viewed/video',
-                                        type: 'post',
-                                        data: {
-                                            woid: calEvent.endParam
-                                        },
-                                        complete: function (result) {
-                                            if (result.responseText == 'true') {
-                                                $('#wo-done').html("<div id='wo-done'><div class='workout_form_but done'>Выполнено</div></div>");
-                                            }
-                                        }
-                                    });
-                                });
+                                playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
                             }
                         }
                     });

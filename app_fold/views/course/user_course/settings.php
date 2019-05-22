@@ -43,8 +43,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренировочные дни:</div></div>
                                 <?php include('./app_fold/views/course/week_days_item.php'); ?>
                             </div>
-                        <?php endif;
-                        if (!empty($course['couches'])) :?>
+                        <?php endif; ?>
+                        <?php $time_disabled = (!empty($course['training_time']) or $course['blocked'] == 1) ? 'disabled' : ''; ?>
+                        <div class="anketa_form_line parent">
+                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Время тренировок:</div></div>
+                            <div class="anketa_form_two_all parent <?php echo $time_disabled; ?>">
+                                <div class="anketa_form_two_wrap parent">
+                                    <input type="text" name="training_time_from" value="<?php echo $course['training_time']; ?>" class="anketa_form_in time" placeholder="чч:мм" maxlength="5"/>
+                                </div>
+                                <div class="anketa_form_two_wrap parent">
+                                    <div class="anketa_form_pre">часов</div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php if (!empty($course['couches'])) :?>
                             <div class="anketa_form_line parent">
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренеры:</div></div>
                                 <div class="anketa_form_radio_all parent <?php echo $days_disabled; ?>">
@@ -59,8 +71,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     unset($couch);?>
                                 </div>
                             </div>
-                        <?php endif;
-                        if (!empty($course['days'])):
+                        <?php endif; ?>
+                        <?php if (!empty($course['days'])):
                             if ($course['paused'] == 0 and $course['blocked'] == 0 and $course['finished'] === false) :?>
                                 <div class="anketa_form_line parent">
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell">Заморозить курс до:</div></div>

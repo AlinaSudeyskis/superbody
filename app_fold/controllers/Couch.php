@@ -436,7 +436,8 @@ class Couch extends CI_Controller
             $res_cd = false;
 
             // Пол
-            $gender = (0 == $this->input->post('gender', true)) ? 'male' : 'female';
+            $genders = array('male', 'female');
+            $gender = (in_array($this->input->post('gender', true), $genders)) ? $this->input->post('gender', true) : '';
 
             // Дата рождения
             $b_day  = is_numeric($this->input->post('b_day', true)) ? $this->input->post('b_day', true) : '';

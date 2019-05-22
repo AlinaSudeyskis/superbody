@@ -479,19 +479,19 @@ class User extends CI_Controller
             self::outsiderCouchProfile($user_id);
         }
         // Страница администратора
-        elseif ($result['user_data']['user_type'] == 3)
+        /*elseif ($result['user_data']['user_type'] == 3)
         {
             self::outsiderAdminProfile($user_id);
-        }
+        }*/
         // Страница пользователя
-        elseif ($result['user_data']['user_type'] == 1)
+        /*elseif ($result['user_data']['user_type'] == 1)
         {
             self::outsiderUserProfile($user_id);
-        }
+        }*/
         else
         {
             // Объединенные данные страница
-            $this->page_data['title']     = 'Пользователь';
+            $this->page_data['title']     = 'Страница пользователя';
             $this->page_data['page_menu'] = 'user_page';
             $this->page_data['outsider']  = true;
 
@@ -830,7 +830,8 @@ class User extends CI_Controller
             $res_cd = false;
 
             // Пол
-            $gender = (0 == $this->input->post('gender', true)) ? 'male' : 'female';
+            $genders = array('male', 'female');
+            $gender = (in_array($this->input->post('gender', true), $genders)) ? $this->input->post('gender', true) : '';
 
             // Дата рождения
             $b_day  = is_numeric($this->input->post('b_day', true)) ? $this->input->post('b_day', true) : '';
@@ -1270,7 +1271,8 @@ class User extends CI_Controller
         if ($this->input->post('bt_save_physical_param', true))
         {
             // Пол
-            $gender = (0 == $this->input->post('gender', true)) ? 'male' : 'female';
+            $genders = array('male', 'female');
+            $gender = (in_array($this->input->post('gender', true), $genders)) ? $this->input->post('gender', true) : '';
 
             // Дата рождения
             $b_day       = (is_numeric($this->input->post('b_day', true))) ? $this->input->post('b_day', true) : '';
@@ -1543,7 +1545,8 @@ class User extends CI_Controller
             $old_name = $this->session->user['name'];
 
             // Пол
-            $gender = (0 == $this->input->post('gender', true)) ? 'male' : 'female';
+            $genders = array('male', 'female');
+            $gender = (in_array($this->input->post('gender', true), $genders)) ? $this->input->post('gender', true) : '';
 
             // Дата рождения
             $date = DateTime::createFromFormat('d.m.Y', $this->input->post('birthday', true));
@@ -1928,7 +1931,8 @@ class User extends CI_Controller
             $res_cd = false;
 
             // Пол
-            $gender = (0 == $this->input->post('gender', true)) ? 'male' : 'female';
+            $genders = array('male', 'female');
+            $gender = (in_array($this->input->post('gender', true), $genders)) ? $this->input->post('gender', true) : '';
 
             // Дата рождения
             $b_day  = is_numeric($this->input->post('b_day', true)) ? $this->input->post('b_day', true) : '';

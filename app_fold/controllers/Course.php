@@ -2915,7 +2915,7 @@ class Course extends CI_Controller
      * @param $course_id
      * @return void
      */
-    protected function newCourseVideo($course_id)
+    public function newCourseVideo($course_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
@@ -2923,41 +2923,68 @@ class Course extends CI_Controller
         }
 
         $course_id = (is_numeric($course_id)) ? $course_id : '';
-        $result    = $this->Course_model->getShortCourse($course_id);
+        $course    = $this->Course_model->getShortCourse($course_id);
+        $courses  = $this->Course_model->getCourses('workout');
+        $schedule = $this->Course_model->getCourseSchedules($course_id);
+        $result   = array_merge($courses, $course, $schedule);
 
         if ($this->input->post('bt_save_video', true))
         {
-            $type        = (is_numeric($this->input->post('s_type', true))) ? $this->input->post('s_type', true) : 0;
-            $name        = !empty($this->input->post('file_name', true))
-                ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255) : '';
-            $remove_url  = !empty($this->input->post('remove_url', true))
-                ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255) : '';
-            $poster_path = is_file('./video/' . $this->input->post('poster_path', true))
-                ? './video/' . $this->input->post('poster_path', true) : '';
-            $video_path  = is_file('./video/' . $this->input->post('video_path', true))
-                ? './video/' . $this->input->post('video_path', true) : '';
-            $workout_num = (is_numeric($this->input->post('hi_ctw', true))) ? $this->input->post('hi_ctw', true) : null;
+            // Введенные данные
+            $type          = (is_numeric($this->input->post('s_type', true))) ? $this->input->post('s_type', true) : 0;
+            $new_course_id = (is_numeric($this->input->post('s_courses', true))) ? $this->input->post('s_courses', true) : null;
+            $poster_path   = (!empty($this->input->post('poster_path', true)) and is_file('./video/' . $this->input->post('poster_path', true)))
+                ? './video/' . $this->input->post('poster_path', true)
+                : '';
+            $video_path  = (!empty($this->input->post('video_path', true)) and is_file('./video/' . $this->input->post('video_path', true)))
+                ? './video/' . $this->input->post('video_path', true)
+                : '';
+            $name = !(empty($this->input->post('file_name', true)))
+                ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255)
+                : '';
+            $remove_url = (!empty($this->input->post('remove_url', true)))
+                ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255)
+                : '';
+            $remove_id  = mb_substr($remove_url, -11);
 
-            if (!empty($video_path) or !empty($remove_url))
+            if(!empty($new_course_id) and (!empty($video_path) or !empty($remove_url)))
             {
-                $result = $this->Course_model->setNewVideo($type, $course_id, $name, $video_path, $poster_path, $remove_url, $this->user_id, $this->date);
+                $result = $this->Course_model->setNewVideo($type, $new_course_id, $name, $video_path, $poster_path, $remove_url, $this->user_id, $this->date);
 
-                //echo 'T '.$type.' N '.$name.' RU '.$remove_url.' PP '.$poster_path.' VP '.$video_path.'<br/>';
-
-                if (is_numeric($result) and $result !== false)
-                {
+                if (is_numeric($result) and $result !== false) {
                     $video_id = $result;
 
-                    // Прикрепление видео к тренировке
-                    if(!empty($workout_num) and !empty($course_id))
-                    {
-                        $this->Course_model->attachVideoToWorkout($course_id, $workout_num, $video_id, $this->date);
+                    // Выборка информации о тренировках нового выбранного курса
+                    $schedule = (!empty($new_course_id) and $new_course_id != $course_id) ? $this->Course_model->getCourseSchedules($new_course_id) : $schedule;
+
+                    // Id тренировок курса
+                    $workouts_num = (!empty($this->input->post('cb_practice_days', true))) ? $this->input->post('cb_practice_days', true) : null;
+                    $selected_trainings = array('update' => array(), 'delete' => array());
+                    $i = 0;
+                    $search_w = array_flip(array_keys($schedule['workouts_id'], $video_id));
+                    // Обновление id видео дней тренировок
+                    if (!empty($workouts_num)) {
+                        foreach ($workouts_num as $w_id => $w_vd_id) {
+                            if (is_numeric($w_id) and !array_key_exists($w_id, $search_w)) {
+                                $selected_trainings['update'][$i] = $w_id;
+                                $i++;
+                            }
+                        }
+                        unset($w_vd_id);
+
+                        // Удаление id видео из дней тренировок курса
+                        $selected_trainings['delete'] = array_diff_key($search_w, $workouts_num);
+                    }
+
+                    // Обновление видео тренировке
+                    if ((!empty($selected_trainings['update']) or !empty($selected_trainings['delete'])) and !empty($new_course_id)) {
+                        $this->Course_model->attachVideoToWorkouts($new_course_id, $selected_trainings, $video_id, $this->date);
                     }
 
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
 
-                    header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
+                    header('Location: /administration/course/' . $new_course_id . '/video/' . $video_id);
                 }
                 else
                 {
@@ -2996,11 +3023,13 @@ class Course extends CI_Controller
         $this->page_data['title']        = 'АП - Добавление видео курса';
         $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = '';
+        $this->page_data['video_page']   = 'video_new';
         $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('course/settings/course_video_new', $result);
+        $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
 
@@ -6906,6 +6935,7 @@ class Course extends CI_Controller
         $workouts_passed  = $db_course['workouts_passed'];
         $db_workouts      = $db_course['workouts'];
         $db_training_days = $db_course['training_days'];
+        $db_training_time = $db_course['training_time'];
         $db_pause_days    = $db_course['pause_days'];// Кол-во дней прошлой заморозки
         $pause_days       = $db_pause_days;
 
@@ -6954,6 +6984,15 @@ class Course extends CI_Controller
             }
             // Массив новых дней тренировок
             $array_training_days = !empty($training_days) ? str_split($training_days) : null;
+
+            // Время тренировок
+            $training_time = $db_training_time;
+            $i_time = $this->input->post('training_time_from', true);
+            $time_date = DateTime::createFromFormat('H:i', $i_time);
+            if(empty($db_training_time) and $time_date !== false)
+            {
+                $training_time = $i_time;
+            }
 
             // Вычисление старта и окончания курса
             if (empty($db_training_days) and !empty($array_training_days))
@@ -7328,16 +7367,27 @@ class Course extends CI_Controller
 
 
             /* СОХРАНЕНИЕ ИЗМЕНЕНИЙ */
-            // Сохранение изменения дней тренировок
+            // Сохранение изменения дней/времени тренировок
             if (!empty($array_training_days) and empty($db_training_days) and !empty($new_course_start) and !empty($new_course_end))
             {
                 // Сохранение дней тренировок пользователя
-                $result_td = $this->Course_model->setUserTrainingDays($uc_id, $training_days, $new_course_start, $new_course_end, $this->date);
+                $result_td = $this->Course_model->setUserTrainingDays($uc_id, $training_days, $training_time, $new_course_start, $new_course_end, $this->date);
 
                 // Добавление тренировок пользователя в БД
                 $count_workouts = $course_weeks * $course_days;
-                $this->Course_model->setUserTrainingWeeks($uc_id, $new_course_start, $training_days, $count_workouts, $course_days, $this->date);
+                $this->Course_model->setUserTrainingWeeks($uc_id, $new_course_start, $training_days, $training_time, $count_workouts, $course_days, $this->date);
+            }
+            elseif(!empty($training_time) and empty($db_training_time))
+            {
+                // Сохранение дней тренировок пользователя
+                $result_td = $this->Course_model->setUserTrainingTime($uc_id, $training_time, $this->date);
 
+                if(!empty($db_training_days))
+                {
+                    // Добавление тренировок пользователя в БД
+                    $count_workouts = $course_weeks * $course_days;
+                    $this->Course_model->setUserTrainingWeeksTime($uc_id, $training_time, $count_workouts, $this->date);
+                }
             }
 
             // Сохранение заморозки курса
@@ -7664,6 +7714,7 @@ class Course extends CI_Controller
         $this->page_data['calendar_max_date'] = $calendar_max_date;
         $this->page_data['string_min_date']   = $string_min_date;
         $this->page_data['string_max_date']   = $string_max_date;
+        $this->page_data['crs_id']            = $course_id;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -8334,7 +8385,7 @@ class Course extends CI_Controller
             {
                 // Данные видео
                 $video_data = $this->Course_model->getVideo($video_id);
-                $instruction_data = $this->Course_model->getVideo($result['workout']['instruction']);
+                //$instruction_data = $this->Course_model->getVideo($result['workout']['instruction']);
 
                 if ($video_data !== false)
                 {
@@ -8345,13 +8396,14 @@ class Course extends CI_Controller
                     $workout_instruction_a = '';
                     $workout_instruction = '';
                     $i_player = '';
+                    $v_source = null;
 
                     $v_remove_url = $video_data['video']['remove_url'];
                     $v_poster = $video_data["video"]["poster"];
                     $v_video = $video_data["video"]["video"];
-                    $i_remove_url = $instruction_data['video']['remove_url'];
-                    $i_poster = $instruction_data["video"]["poster"];
-                    $i_video = $instruction_data["video"]["video"];
+                    $i_remove_url = null;
+                    $i_poster = null;
+                    $i_video = null;
                     $w_done = $result['workout']['done'];
                     $w_description = $result['workout']['description'];
 
@@ -8364,7 +8416,8 @@ class Course extends CI_Controller
                         "player" => $v_player,
                         "i_a" => $workout_instruction_a,
                         "i_video" => $workout_instruction,
-                        "i_player" => $i_player
+                        "i_player" => $i_player,
+                        "source" => $v_source
                     );
 
                     echo json_encode($display_result, JSON_NUMERIC_CHECK);
@@ -8410,27 +8463,26 @@ class Course extends CI_Controller
 
                 if ($video_data !== false)
                 {
-                    $workout_done = '';
-                    $workout_description = '';
-                    $workout_video = '';
-                    $v_player = '';
-                    $workout_instruction_a = '';
-                    $workout_instruction = '';
-                    $i_player = '';
+                    $workout_done = null;
+                    $workout_description = null;
+                    $workout_video = null;
+                    $v_player = null;
+                    $workout_instruction = null;
+                    $i_player = null;
+                    $i_source = null;
 
-                    $v_remove_url = $video_data['video']['remove_url'];
-                    $v_poster = $video_data["video"]["poster"];
-                    $v_video = $video_data["video"]["video"];
-                    $w_done = $result['workout']['done'];
-                    $w_description = $result['workout']['description'];
+                    $i_remove_url = $video_data['video']['remove_url'];
+                    $i_poster = $video_data["video"]["poster"];
+                    $i_video = $video_data["video"]["video"];
+                    $w_done = null;
+                    $w_description = null;
 
                     include_once('./app_fold/views/video/player/video_player.php');
 
                     $display_result = array(
-                        "done" => $workout_done,
-                        "description" => $workout_description,
-                        "video" => $workout_video,
-                        "player" => $v_player
+                        "video" => $workout_instruction,
+                        "player" => $i_player,
+                        "source" => $i_source
                     );
 
                     echo json_encode($display_result, JSON_NUMERIC_CHECK);
@@ -8466,67 +8518,50 @@ class Course extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result = array('video' => array(), 'player' => array(), 'description' => array(), 'done' => array(),
-            'error' => '', 'error_text' => '', 'postpone' => array(), 'woid' => '');
+        $result = array();
 
         // Данные тренировки
         $workout_data = $this->Course_model->getWorkoutVideo($this->user_id, $this->date);
         if ($workout_data !== false)
         {
+            $result['crss'] = '';
             $i = 0;
+            $count_courses = count($workout_data['workouts']);
             foreach ($workout_data['workouts'] as $workout)
             {
                 if (!empty($workout['video_id']))
                 {
                     // Данные видео
                     $video_data = $this->Course_model->getVideo($workout['video_id']);
-                    $instruction_data = $this->Course_model->getVideo($workout['instruction']);
 
                     if ($video_data !== false)
                     {
-                        $workout_done = '';
-                        $workout_description = '';
-                        $workout_video = '';
-                        $v_player = '';
-                        $workout_instruction_a = '';
-                        $workout_instruction = '';
-                        $i_player = '';
-
-                        $v_remove_url = $video_data['video']['remove_url'];
-                        $v_poster = $video_data["video"]["poster"];
-                        $v_video = $video_data["video"]["video"];
-                        $i_remove_url = $instruction_data['video']['remove_url'];
-                        $i_poster = $instruction_data["video"]["poster"];
-                        $i_video = $instruction_data["video"]["video"];
-                        $w_done = $workout['done'];
-                        $w_description = $workout['description'];
-
-                        include_once('./app_fold/views/video/player/video_player.php');
-
-                        $result['woid'][$i]        = $workout['id'];
-                        $result['video'][$i]       = $workout_video;
-                        $result['player'][$i]      = $v_player;
-                        $result['i_a'][$i]         = $workout_instruction_a;
-                        $result['i_video'][$i]     = $workout_instruction;
-                        $result['i_player'][$i]    = $i_player;
-                        $result['description'][$i] = $workout_description;
-                        $result['done'][$i]        = $workout_done;
+                        $result['woid'][$i] = $workout['id'];
                     }
                     else
                     {
-                        $result['error'] = 3;
-                        $result['error_text'] = 'Video data error';
+                        $result['error'][$i] = 3;
+                        $result['error_text'][$i] = 'Video data error';
                     }
                 }
                 else
                 {
-                    $result['error'] = 2;
-                    $result['error_text'] = 'Workout data error';
+                    $result['error'][$i] = 2;
+                    $result['error_text'][$i] = 'Workout data error';
                 }
 
                 $i++;
             }
             unset($workout);
+
+            if($count_courses > 1)
+            {
+                ob_start();
+                    include_once('./app_fold/views/course/user_course/today_courses.php');
+                    $view_courses = ob_get_contents();
+                ob_end_clean();
+                $result['crss'] = $view_courses;
+            }
         }
         else
         {

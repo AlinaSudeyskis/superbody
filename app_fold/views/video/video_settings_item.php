@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <option value="">Выберите курс</option>
             <?php foreach($courses as $crs):?>
                 <option value="<?php echo $crs['id']; ?>"
-                    <?php if(!empty($video['course_id']) and $crs['id'] == $video['course_id']):?>selected="selected"<?php endif;?>
+                    <?php if((!empty($video['course_id']) and $crs['id'] == $video['course_id']) or $course_id == $crs['id']):?>selected="selected"<?php endif;?>
                 ><?php echo $crs['name']; ?></option>
             <?php endforeach;
             unset($crs);?>

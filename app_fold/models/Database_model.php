@@ -2023,6 +2023,25 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-05-15 13:43';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `questionnaire` CHANGE `user_gender` `user_gender` ENUM('male','female', '') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-05-21 21:03';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` ADD `uc_time` TIME NOT NULL AFTER `uc_days`");
+            $this->db->query("ALTER TABLE `users_training_weeks` ADD `utw_time` TIME NOT NULL AFTER `utw_date`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

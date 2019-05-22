@@ -198,7 +198,7 @@ $route['administration/course/(:num)/video']              = 'Course/course/$1/vi
 $route['administration/course/(:num)/video/promo']        = 'Course/course/$1/video_promo';
 $route['administration/course/(:num)/video/workouts']     = 'Course/course/$1/video_workouts';
 $route['administration/course/(:num)/video/instructions'] = 'Course/course/$1/video_instructions';
-$route['administration/course/(:num)/video/new']          = 'Course/course/$1/video_new';
+$route['administration/course/(:num)/video/new']          = 'Course/newCourseVideo/$1';
 $route['administration/course/(:num)/video/(:num)']       = 'Course/courseVideoSettings/$1/$2';
 // Курсы продления
 $route['administration/course/(:num)/extends']       = 'Course/course/$1/extends';
