@@ -8418,7 +8418,7 @@ class Course_model extends CI_Model
         {
             if ($workout == 1)
             {
-                $values = '(' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . ', "' . $training_time . '", "' . $date . '")';
+                $values = '(' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
             }
             else
             {
