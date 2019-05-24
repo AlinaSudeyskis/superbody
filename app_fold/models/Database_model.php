@@ -2066,6 +2066,26 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-05-24 14:14';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_courses` 
+                SET `uc_days`='', `uc_time`='', `uc_date_start`='0000-00-00', `uc_date_end`='0000-00-00', `uc_display`=0
+                WHERE `uc_id`=9 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-05-24 14:23';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE FROM `users_training_weeks` WHERE `utw_id`=810 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

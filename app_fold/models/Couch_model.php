@@ -96,7 +96,9 @@ class Couch_model extends CI_Model
         // Массив возвращаемых значений
         $result = array ( 'user_data' => array());
 
-        $sel_data = $this->db->query('
+        if(is_numeric($user_id))
+        {
+            $sel_data = $this->db->query('
             SELECT `users`.`user_id`, `user_email`, `user_type`, `user_name`, `user_image`, `user_blocked`, 
               `user_password`, `user_deleted`, `user_delete_date`, `user_delete_by`, 
               `user_new_email`, `user_new_email_idempotent`, `user_activated`, `user_activate_code`, 
@@ -107,16 +109,18 @@ class Couch_model extends CI_Model
             LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
             WHERE `users`.`user_id`=? and `user_type`=2 and `user_deleted`=0 LIMIT 1', $user_id);
 
-        if ($sel_data !== false and 1 == $sel_data->num_rows())
-        {
-            $row = $sel_data->row();
+            if ($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
 
-            $result['user_data'] = self::parseCouchData($row, $today);
+                $result['user_data'] = self::parseCouchData($row, $today);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
-        elseif($sel_data === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
+
 
         return $result;
     }
