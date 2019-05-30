@@ -7675,7 +7675,7 @@ class Course_model extends CI_Model
             $result['course']['couch_id']         = $row->uc_couch_id;
             $result['course']['training_days']    = $row->uc_days;
             $result['course']['days']             = (!empty($row->uc_days)) ? str_split($row->uc_days) : array();
-            $result['course']['training_time']    = ($row->uc_time != "00:00:00") ? $row->uc_time : null;
+            $result['course']['training_time']    = ($row->uc_time != "00:00:00") ? $row->uc_time : '';
             $result['course']['db_date_start']    = $row->uc_date_start;
             $result['course']['db_date_end']      = $row->uc_date_end;
             $result['course']['date_start']       = $date_start;
@@ -8448,7 +8448,7 @@ class Course_model extends CI_Model
 
                     unset($tem_date);
 
-                    $values .= ', (' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . ', "' . $training_time . '", "' . $date . '")';
+                    $values .= ', (' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
                 }
             }
         }
