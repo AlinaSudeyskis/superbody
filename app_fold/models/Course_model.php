@@ -9427,7 +9427,6 @@ class Course_model extends CI_Model
     /**
      * Выборка промокодов курса
      *
-     * @param $course_id
      * @param $date
      * @return array
      */
@@ -9464,7 +9463,6 @@ class Course_model extends CI_Model
     /**
      * Выборка данных промокода курса
      *
-     * @param $course_id
      * @param $promocode_id
      * @param $date
      * @return array
@@ -9754,7 +9752,6 @@ class Course_model extends CI_Model
      * Блокировка/разблокировка промокода курса
      *
      * @param $promocode_id
-     * @param $course_id
      * @param $block
      * @param $admin_id
      * @param $date
@@ -10096,8 +10093,7 @@ class Course_model extends CI_Model
             SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
               `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
               `pc_admin_id`, `pc_date_add`, `pc_update` 
-            FROM `promocodes`
-            WHERE `pc_crs_id`=? and `pc_category`="extend"', $course_id);
+            FROM `promocodes`', $course_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -10238,7 +10234,7 @@ class Course_model extends CI_Model
      * @param $course_id
      * @return array
      */
-    public function getPotentiallyExtendCourses($course_id)
+    public function getPotentiallyExtendCourses($course_id = null)
     {
         $result = array('potentially_extends' => array());
 
@@ -10264,11 +10260,11 @@ class Course_model extends CI_Model
 
             $ext_in = implode(',', $ext_in);
 
-            $sel_data = $this->db->query('SELECT `crs_id`, `crs_name` FROM `courses` WHERE `crs_id` NOT IN ('.$ext_in.')');
+            $sel_data = $this->db->query('SELECT `crs_id`, `crs_name` FROM `courses` WHERE `crs_id` NOT IN ('.$ext_in.') and `crs_archive`=0');
         }
         else
         {
-            $sel_data = $this->db->query('SELECT `crs_id`, `crs_name` FROM `courses`');
+            $sel_data = $this->db->query('SELECT `crs_id`, `crs_name` FROM `courses` WHERE `crs_archive`=0');
         }
 
         if($sel_data !== false and 0 < $sel_data->num_rows())

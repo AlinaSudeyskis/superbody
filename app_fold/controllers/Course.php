@@ -5937,9 +5937,6 @@ class Course extends CI_Controller
 
     /**
      * Вывод списка промокодов курса
-     *
-     * @param $course_id
-     * @param $course_type
      */
     public function promocodes()
     {
@@ -5958,9 +5955,6 @@ class Course extends CI_Controller
 
     /**
      * Форма добавления промокода курса
-     *
-     * @param $course_id
-     * @param $course_type
      */
     public function newPromocode()
     {
@@ -6263,7 +6257,7 @@ class Course extends CI_Controller
      *
      * @param $course_id
      */
-    /*protected function courseExtends($course_id)
+    protected function courseExtends($course_id)
     {
         $extends = $this->Course_model->getCourseExtends($course_id, $this->date);
         $course  = $this->Course_model->getShortCourse($course_id);
@@ -6279,18 +6273,18 @@ class Course extends CI_Controller
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
-    }*/
+    }
 
     /**
      * Форма добавления промокода курса
      *
      * @param $course_id
      */
-    /*protected function newCourseExtend($course_id)
+    protected function newCourseExtend($course_id)
     {
         $course         = $this->Course_model->getShortCourse($course_id);
         $courses_list   = $this->Course_model->getPotentiallyExtendCourses($course_id);
-        $promocode_list = $this->Course_model->getCourseExtendPromocodes($course_id, $this->date);
+        $promocode_list = $this->Course_model->getPromocodes($this->date);
 
         if($this->input->post('bt_save_new_extend', true))
         {
@@ -6305,19 +6299,21 @@ class Course extends CI_Controller
             }
             elseif($s_promocode == 'new')
             {
-                $category      = 'extend';
                 $name          = $this->input->post('i_code_name', true);
                 $desc          = $this->input->post('i_code_desc', true);
                 $discount      = $this->input->post('i_code_discount', true);
+                $discount_type = ($this->input->post('s_discount_type', true) == 'percent') ? 'percent' : 'currency';
+                $rel_percent   = (is_numeric($this->input->post('i_relative_percent', true))) ? $this->input->post('i_relative_percent', true) : 0;
                 $validity_type = $this->input->post('s_pv_type', true);
                 $date_start    = $this->input->post('i_validity_date_start', true);
                 $date_end      = $this->input->post('i_validity_date_end', true);
                 $use_type      = $this->input->post('s_ua_type', true);
                 $ua_number     = $this->input->post('i_ua_number', true);
                 $promocode     = $this->input->post('i_promocode', true);
+                $courses       = array($extend_crs_id);
 
-                $res_ins = self::saveNewCoursePromocode($course_id, $category, $name, $desc, $discount, $validity_type,
-                    $date_start, $date_end, $use_type, $ua_number, $promocode);
+                $res_ins = self::saveNewCoursePromocode($name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                    $date_start, $date_end, $use_type, $ua_number, $promocode, $courses);
 
                 if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
                 {
@@ -6364,7 +6360,7 @@ class Course extends CI_Controller
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
-    }*/
+    }
 
     /**
      * Форма редактирования промокода курса
@@ -6372,12 +6368,12 @@ class Course extends CI_Controller
      * @param $course_id
      * @param $extend_id
      */
-    /*protected function courseExtend($course_id, $extend_id)
+    protected function courseExtend($course_id, $extend_id)
     {
         $extend         = $this->Course_model->getCourseExtend($course_id, $extend_id, $this->date);
         $course         = $this->Course_model->getShortCourse($course_id);
         $courses_list   = $this->Course_model->getPotentiallyExtendCourses($course_id);
-        $promocode_list = $this->Course_model->getCoursePromocodes($course_id, $this->date);
+        $promocode_list = $this->Course_model->getPromocodes($this->date);
 
         if($this->input->post('bt_save_extend', true))
         {
@@ -6389,23 +6385,25 @@ class Course extends CI_Controller
             $s_promocode = $this->input->post('s_promocode', true);
             if($s_promocode > 0)
             {
-                $promocode_id  = $s_promocode;
+                $promocode_id = $s_promocode;
             }
             elseif($s_promocode == 'new')
             {
-                $category      = 'extend';
                 $name          = $this->input->post('i_code_name', true);
                 $desc          = $this->input->post('i_code_desc', true);
                 $discount      = $this->input->post('i_code_discount', true);
+                $discount_type = ($this->input->post('s_discount_type', true) == 'percent') ? 'percent' : 'currency';
+                $rel_percent   = (is_numeric($this->input->post('i_relative_percent', true))) ? $this->input->post('i_relative_percent', true) : 0;
                 $validity_type = $this->input->post('s_pv_type', true);
                 $date_start    = $this->input->post('i_validity_date_start', true);
                 $date_end      = $this->input->post('i_validity_date_end', true);
                 $use_type      = $this->input->post('s_ua_type', true);
                 $ua_number     = $this->input->post('i_ua_number', true);
                 $promocode     = $this->input->post('i_promocode', true);
+                $courses       = array($extend_id);
 
-                $res_ins = self::saveNewCoursePromocode($course_id, $category, $name, $desc, $discount, $validity_type,
-                    $date_start, $date_end, $use_type, $ua_number, $promocode);
+                $res_ins = self::saveNewCoursePromocode($name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                    $date_start, $date_end, $use_type, $ua_number, $promocode, $courses);
 
                 if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
                 {
@@ -6482,13 +6480,13 @@ class Course extends CI_Controller
         $this->load->view('header/admin');
         $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
-    }*/
+    }
 
 
     /* БЛОК ФУНКЦИЙ ПРИКРЕПЛЕННЫХ КУРСОВ ПИТАНИЯ */
 
     /**
-     * Вывод списка промокодов курса
+     * Вывод списка прикрепленных курсов
      *
      * @param $course_id
      */
@@ -6554,7 +6552,7 @@ class Course extends CI_Controller
     }
 
     /**
-     * Форма добавления промокода курса
+     * Форма прикрепления курса
      *
      * @param $course_id
      */

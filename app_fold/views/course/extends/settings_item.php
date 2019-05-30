@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Курс:</div>
-    <?php if(empty($extend)):?>
+    <?php if(empty($extend) and !empty($potentially_extends)):?>
         <select name="s_extend_course" class="journal_form_select">
             <?php foreach($potentially_extends as $pe): ?>
                 <option value="<?php echo $pe['id']; ?>"><?php echo $pe['name']; ?></option>
@@ -27,11 +27,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <option value="0">Без промокода</option>
         <option value="new">Добавить промокод</option>
         <?php  if(!empty($promocodes)):
-            foreach($promocodes as $code): ?>
-                <option value="<?php echo $code['id']; ?>"
-                    <?php if(!empty($extend) and $extend['promocode_id'] == $code['id']): ?>selected="selected"<?php endif; ?>>
-                    <?php echo '[' . $code['code'] . '] ' . $code['discount']. '% ' . $code['name'] . ' (' . $code['active_string'] . ')'; ?>
-                </option>
+            foreach($promocodes as $code):
+                if($code['id'] != 1): ?>
+                    <option value="<?php echo $code['id']; ?>"
+                        <?php if(!empty($extend) and $extend['promocode_id'] == $code['id']): ?>selected="selected"<?php endif; ?>>
+                        <?php echo '[' . $code['code'] . '] ' . $code['discount']. '% ' . $code['name'] . ' (' . $code['active_string'] . ')'; ?>
+                    </option>
+                <?php endif; ?>
             <?php endforeach;
             unset($code);
         endif; ?>

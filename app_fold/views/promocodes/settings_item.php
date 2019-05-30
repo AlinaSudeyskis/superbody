@@ -14,7 +14,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="kurs_block_h">Скидка:</div>
     <div class="kurs_block_two_all parent">
         <div class="anketa_form_two_wrap">
-            <input type="number" name="i_code_discount" step="1" min="1" class="anketa_form_in" value="<?php if(!empty($promocode['discount'])): echo $promocode['discount']; endif; ?>" required="required"/>
+            <input type="number" name="i_code_discount" step="1" min="1" class="anketa_form_in" value="<?php if(!empty($promocode['discount'])): echo $promocode['discount']; endif; ?>"/>
         </div>
         <div class="anketa_form_two_wrap">
             <select name="s_discount_type" class="anketa_form_select">
@@ -63,7 +63,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <?php if(empty($disabled)):?>
     <div class="parent kurs_cur_wrap">
         <div class="kurs_block_h">Промокод:</div>
-        <input type="text" name="i_promocode" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['code'])): echo $promocode['code']; endif; ?>" maxlength="25" id="generated-code" required="required"/>
+        <input type="text" name="i_promocode" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['code'])): echo $promocode['code']; endif; ?>" maxlength="25" id="generated-code"/>
         <input type="button" value="Сгенерировать" class="full_photo_comm_reset" id="generate-code"/>
     </div>
     <?php if(!empty($used_amount)): ?>
@@ -77,27 +77,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="kurs_block_h">Не использовался</div>
         </div>
     <?php endif; ?>
-    <div class="parent kurs_cur_wrap">
-        <div class="practice_block_h">Курсы</div>
-        <div class="add_tov_in_total anketa_form_in_long">
-            <div class="add_tov_in pc_course">
-                <input type="text" name="name_course" class="admin_form_txt" placeholder="Введите наименование или ID курса" autocomplete="off">
-                <div class="add_tov_list"></div>
-            </div>
-            <div class="add_tov_val">
-                <?php if(!empty($promocode['courses'])): ?>
-                    <?php foreach ($promocode['courses'] as $course):?>
-                        <div id="pc-course-<?php echo $course['id']; ?>course" class="add_tov_val_item pc_course parent">
-                            <div class="add_kurs_val_video_wrap parent">
-                                <a href="/administration/course/<?php echo $course['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $course['name']; ?></span></a>
-                                <input type="hidden" name="pc_courses[]" value="<?php echo $course['id']; ?>" >
-                                <div class="del_tov"></div>
+    <?php if($extend_new_promocode === false): ?>
+        <div class="parent kurs_cur_wrap">
+            <div class="practice_block_h">Курсы</div>
+            <div class="add_tov_in_total anketa_form_in_long">
+                <div class="add_tov_in pc_course">
+                    <input type="text" name="name_course" class="admin_form_txt" placeholder="Введите наименование или ID курса" autocomplete="off">
+                    <div class="add_tov_list"></div>
+                </div>
+                <div class="add_tov_val">
+                    <?php if(!empty($promocode['courses'])): ?>
+                        <?php foreach ($promocode['courses'] as $course):?>
+                            <div id="pc-course-<?php echo $course['id']; ?>course" class="add_tov_val_item pc_course parent">
+                                <div class="add_kurs_val_video_wrap parent">
+                                    <a href="/administration/course/<?php echo $course['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $course['name']; ?></span></a>
+                                    <input type="hidden" name="pc_courses[]" value="<?php echo $course['id']; ?>" >
+                                    <div class="del_tov"></div>
+                                </div>
                             </div>
-                        </div>
-                    <?php endforeach;
-                    unset($course);?>
-                <?php endif; ?>
+                        <?php endforeach;
+                        unset($course);?>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
-    </div>
+    <?php endif;?>
 <?php endif;?>
