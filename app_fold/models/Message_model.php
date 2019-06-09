@@ -1282,6 +1282,73 @@ class Message_model extends CI_Model
     /* БЛОК ОБРАБОТКИ ДАННЫХ РАЗДЕЛА ВОПРОС - ОТВЕТ */
 
     /**
+     * Выборка групп пользователей
+     *
+     * @return array
+     */
+    public function getQaUsersGroup()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `qaug_id`, `qaug_name` FROM `q_a_users_group`');
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['users_group'][$i]['id']   = $row->qaug_id;
+                $result['users_group'][$i]['name'] = $row->qaug_name;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка групп пользователей статьи
+     *
+     * @param $article_id
+     * @param $count_ug
+     * @return array
+     */
+    public function getQaArticleUsersGroups($article_id, $count_ug)
+    {
+        $result = array('users_group' => array());
+
+        $sel_data = $this->db->query('SELECT `qag_id`, `qag_qa_id`, `qag_qaug_id`, `qag_admin_id`, `qag_date` 
+            FROM `q_a_groups` 
+            WHERE `qag_qa_id`=?', $article_id);
+        if(!empty($count_ug))
+        {
+            $this->db->limit($count_ug);
+        }
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['users_group'][$i] = $row->qag_qaug_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Сохранение нового раздела Вопрос - Ответ
      *
      * @param $section_name
@@ -1585,7 +1652,6 @@ class Message_model extends CI_Model
     /**
      * Выборка всех подразделов
      *
-     * @param $section_id
      * @return array
      */
     public function getQaSubsections()
@@ -1631,12 +1697,15 @@ class Message_model extends CI_Model
     {
         $result = false;
 
-        $ins_data = $this->db->query('INSERT INTO `question_answer`(`qa_qas_id`, `qa_qass_id`, `qa_user_group`, `qa_name`, `qa_text`, `qa_update`, `qa_admin_id`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)', array($section_id, $subsection_id, $user_group, $article_name, $article_text, $date, $admin_id));
+        $ins_data = $this->db->query('INSERT INTO `question_answer`(`qa_qas_id`, `qa_qass_id`, `qa_name`, `qa_text`, `qa_update`, `qa_admin_id`) 
+            VALUES (?, ?, ?, ?, ?, ?)', array($section_id, $subsection_id, $article_name, $article_text, $date, $admin_id));
 
         if($ins_data !== false and 1 == $this->db->affected_rows())
         {
-            $result = $this->db->insert_id();
+            $article_id = $this->db->insert_id();
+            $result     = $article_id;
+
+            self::updateQaArticleUsersGroups($article_id, $user_group, $admin_id, $date);
         }
         elseif($ins_data === false)
         {
@@ -1648,26 +1717,24 @@ class Message_model extends CI_Model
 
     /**
      * Выборка статьей
+     * @param $count_ug
      * @return array
      */
-    public function getQaArticles()
+    public function getQaArticles($count_ug)
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qass_id`, `qa_user_group`, `qa_name`, `qa_blocked`, `qa_update`, `qa_admin_id` FROM `question_answer`');
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qass_id`, `qa_name`, `qa_blocked`, `qa_update`, `qa_admin_id` FROM `question_answer`');
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $i = 0;
             foreach ($sel_data->result() as $row)
             {
-                $result['qa_articles'][$i]['id']            = $row->qa_id;
-                $result['qa_articles'][$i]['subsection_id'] = $row->qa_qass_id;
-                $result['qa_articles'][$i]['user_group']    = $row->qa_user_group;
-                $result['qa_articles'][$i]['name']          = $row->qa_name;
-                $result['qa_articles'][$i]['blocked']       = $row->qa_blocked;
-                $result['qa_articles'][$i]['update']        = $row->qa_update;
-                $result['qa_articles'][$i]['admin_id']      = $row->qa_admin_id;
+                $result['qa_articles'][$i] = self::parseQaData($row);
+
+                $get_ug = self::getQaArticleUsersGroups($row->qa_id, $count_ug);
+                $result['qa_articles'][$i]['users_group'] = $get_ug['users_group'];
 
                 $i++;
             }
@@ -1685,28 +1752,24 @@ class Message_model extends CI_Model
      * Выборка данных статьи
      *
      * @param $article_id
+     * @param $count_ug
      * @return array
      */
-    public function getQaArticle($article_id)
+    public function getQaArticle($article_id, $count_ug)
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qas_id`, `qa_qass_id`, `qa_user_group`, `qa_name`, `qa_text`, `qa_blocked`, `qa_update`, `qa_admin_id` 
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qas_id`, `qa_qass_id`, `qa_name`, `qa_text`, `qa_blocked`, `qa_update`, `qa_admin_id` 
             FROM `question_answer` WHERE `qa_id`=? LIMIT 1', $article_id);
 
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
 
-            $result['qa_article']['id']            = $row->qa_id;
-            $result['qa_article']['section_id']    = $row->qa_qas_id;
-            $result['qa_article']['subsection_id'] = $row->qa_qass_id;
-            $result['qa_article']['user_group']    = $row->qa_user_group;
-            $result['qa_article']['name']          = $row->qa_name;
-            $result['qa_article']['text']          = $row->qa_text;
-            $result['qa_article']['blocked']       = $row->qa_blocked;
-            $result['qa_article']['update']        = $row->qa_update;
-            $result['qa_article']['admin_id']      = $row->qa_admin_id;
+            $result['qa_article'] = self::parseQaData($row);
+
+            $get_ug = self::getQaArticleUsersGroups($article_id, $count_ug);
+            $result['qa_article']['users_group'] = $get_ug['users_group'];
         }
         elseif($sel_data === false)
         {
@@ -1733,12 +1796,14 @@ class Message_model extends CI_Model
     {
         $result = false;
 
-        $up_data = $this->db->query('UPDATE `question_answer` SET `qa_qas_id`=?, `qa_qass_id`=?, `qa_user_group`=?, `qa_name`=?, `qa_text`=?, `qa_update`=?, `qa_admin_id`=? 
-            WHERE `qa_id`=? LIMIT 1', array($section_id, $subsection_id, $user_group, $article_name, $article_text, $date, $admin_id, $article_id));
+        $up_data = $this->db->query('UPDATE `question_answer` SET `qa_qas_id`=?, `qa_qass_id`=?, `qa_name`=?, `qa_text`=?, `qa_update`=?, `qa_admin_id`=? 
+            WHERE `qa_id`=? LIMIT 1', array($section_id, $subsection_id, $article_name, $article_text, $date, $admin_id, $article_id));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
             $result = true;
+
+            self::updateQaArticleUsersGroups($article_id, $user_group, $admin_id, $date);
         }
         elseif($up_data === false)
         {
@@ -1746,6 +1811,64 @@ class Message_model extends CI_Model
         }
 
         return $result;
+    }
+
+    /**
+     * Обновление данных групп пользователей статьи
+     *
+     * @param $article_id
+     * @param $user_group
+     * @param $admin_id
+     * @param $date
+     */
+    protected function updateQaArticleUsersGroups($article_id, $user_group, $admin_id, $date)
+    {
+        if(!empty($user_group['insert']))
+        {
+            $value = '';
+            foreach ($user_group['insert'] as $ug)
+            {
+                if (!empty($value))
+                {
+                    $value .= ', ';
+                }
+                $value .= '(' . $article_id .', "' . $ug . '", "' . $admin_id . '", "' . $date . '")';
+            }
+            unset($ug);
+
+            if(!empty($value))
+            {
+                $ins_data = $this->db->query('INSERT INTO `q_a_groups`(`qag_qa_id`, `qag_qaug_id`, `qag_admin_id`, `qag_date`) 
+                    VALUES '.$value);
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
+
+        if(!empty($user_group['delete']))
+        {
+            $value = '';
+            foreach ($user_group['delete'] as $ug)
+            {
+                if (!empty($value))
+                {
+                    $value .= ', ';
+                }
+                $value .= $ug;
+            }
+            unset($ug);
+
+            if(!empty($value))
+            {
+                $del_data = $this->db->query('DELETE FROM `q_a_groups` WHERE `qag_qa_id`=? and `qag_qaug_id` IN ('.$value.')', $article_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
     }
 
     /**
@@ -1786,18 +1909,18 @@ class Message_model extends CI_Model
     {
         $result = array();
 
-        $user_group = ' and `qa_user_group`="general"';
+        $user_group = ' and `qag_qaug_id`=1';
         if($user_type == 'user')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
         elseif($user_type == 'couch')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
         elseif($user_type == 'admin')
         {
-            $user_group = '';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=4)';
         }
 
         $sel_data = $this->db->query('SELECT `qass_id`, `qass_qas_id`, `qass_name`, `qass_blocked`, `qas_name`, `qas_blocked`
@@ -1809,7 +1932,9 @@ class Message_model extends CI_Model
         {
             foreach ($sel_data->result() as $row)
             {
-                $sel_articles = $this->db->query('SELECT COUNT(`qa_id`) as `count_articles` FROM `question_answer` WHERE `qa_qass_id`=? and `qa_blocked`=0' . $user_group, $row->qass_id);
+                $sel_articles = $this->db->query('SELECT COUNT(`qa_id`) as `count_articles`, `qag_qaug_id` FROM `question_answer`
+                    LEFT JOIN `q_a_groups` ON `qag_qa_id`=`qa_id` 
+                    WHERE `qa_qass_id`=? and `qa_blocked`=0' . $user_group, $row->qass_id);
                 if($sel_articles !== false and 1 == $sel_articles->num_rows())
                 {
                     $row2 = $sel_articles->row();
@@ -1845,18 +1970,18 @@ class Message_model extends CI_Model
     {
         $result = array();
 
-        $user_group = ' and `qa_user_group`="general"';
+        $user_group = ' and `qag_qaug_id`=1';
         if($user_type == 'user')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
         elseif($user_type == 'couch')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
         elseif($user_type == 'admin')
         {
-            $user_group = '';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=4)';
         }
 
         $sel_data = $this->db->query('SELECT `qass_id`, `qass_qas_id`, `qass_name`, `qas_name`, `qas_blocked` 
@@ -1869,7 +1994,9 @@ class Message_model extends CI_Model
             $i = 0;
             foreach($sel_data->result() as $row)
             {
-                $sel_articles = $this->db->query('SELECT COUNT(`qa_id`) as `count_articles` FROM `question_answer` WHERE `qa_qass_id`=? and `qa_blocked`=0' . $user_group, $row->qass_id);
+                $sel_articles = $this->db->query('SELECT COUNT(`qa_id`) as `count_articles`, `qag_qaug_id` FROM `question_answer` 
+                    LEFT JOIN `q_a_groups` ON `qag_qa_id`=`qa_id`
+                    WHERE `qa_qass_id`=? and `qa_blocked`=0' . $user_group, $row->qass_id);
                 if($sel_articles !== false and 1 == $sel_articles->num_rows())
                 {
                     $result['section']['id'] = $section_id;
@@ -1905,18 +2032,18 @@ class Message_model extends CI_Model
     {
         $result = array();
 
-        $user_group = ' and `qa_user_group`="general"';
+        $user_group = ' and `qag_qaug_id`=1';
         if($user_type == 'user')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
         elseif($user_type == 'couch')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
         elseif($user_type == 'admin')
         {
-            $user_group = '';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=4)';
         }
 
         $sel_data = $this->db->query('SELECT `qass_id`, `qass_name` FROM `q_a_subsections` 
@@ -1949,22 +2076,23 @@ class Message_model extends CI_Model
     {
         $result = array();
 
-        $user_group = ' and `qa_user_group`="general"';
+        $user_group = ' and `qag_qaug_id`=1';
         if($user_type == 'user')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
         elseif($user_type == 'couch')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
         elseif($user_type == 'admin')
         {
-            $user_group = '';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=4)';
         }
 
-        $sel_data = $this->db->query('SELECT `qa_id`, `qa_name`, `qa_user_group` 
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_name`, `qag_qaug_id` 
             FROM `question_answer` 
+            LEFT JOIN `q_a_groups` ON `qag_qa_id`=`qa_id`
             WHERE `qa_qas_id`=? and `qa_qass_id`=? and `qa_blocked`=0'.$user_group, array($section_id, $subsection_id));
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
@@ -1999,21 +2127,21 @@ class Message_model extends CI_Model
     {
         $result = array();
 
-        $user_group = ' and `qa_user_group`="general"';
+        $user_group = ' and `qag_qaug_id`=1';
         if($user_type == 'user')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="user")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
         elseif($user_type == 'couch')
         {
-            $user_group = ' and (`qa_user_group`="general" or `qa_user_group`="couch")';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
         elseif($user_type == 'admin')
         {
-            $user_group = '';
+            $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=4)';
         }
 
-        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qas_id`, `qa_qass_id`, `qa_user_group`, `qa_name`, `qa_text`, `qa_blocked`, `qa_update`, `qa_admin_id` 
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qas_id`, `qa_qass_id`, `qa_name`, `qa_text`, `qa_blocked`, `qa_update`, `qa_admin_id` 
             FROM `question_answer` 
             WHERE `qa_id`=? and `qa_qas_id`=? and `qa_qass_id`=? LIMIT 1', array($article_id, $section_id, $subsection_id));
 
@@ -2021,15 +2149,7 @@ class Message_model extends CI_Model
         {
             $row = $sel_data->row();
 
-            $result['article']['id']            = $row->qa_id;
-            $result['article']['section_id']    = $row->qa_qas_id;
-            $result['article']['subsection_id'] = $row->qa_qass_id;
-            $result['article']['user_group']    = $row->qa_user_group;
-            $result['article']['name']          = $row->qa_name;
-            $result['article']['text']          = nl2br(parent::showBBcodes($row->qa_text));
-            $result['article']['blocked']       = $row->qa_blocked;
-            $result['article']['update']        = $row->qa_update;
-            $result['article']['admin_id']      = $row->qa_admin_id;
+            $result['article'] = self::parseQaData($row);
         }
         elseif($sel_data === false)
         {
@@ -2050,24 +2170,25 @@ class Message_model extends CI_Model
     {
         $result = false;
 
-        $user_group = '`qa_user_group`="general"';
+        $user_group = '`qag_qaug_id`=1';
         if($user_type == 'user')
         {
-            $user_group = '(`qa_user_group`="general" or `qa_user_group`="user")';
+            $user_group = '(`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
         elseif($user_type == 'couch')
         {
-            $user_group = '(`qa_user_group`="general" or `qa_user_group`="couch")';
+            $user_group = '(`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
         elseif($user_type == 'admin')
         {
-            $user_group = '1 = 1';
+            $user_group = '(`qag_qaug_id`=1 or `qag_qaug_id`=4)';
         }
 
-        $sel_data = $this->db->query('SELECT `qa_id`, `qa_name`, `qa_user_group`, `qas_id`, `qas_name`, `qass_id`, `qass_name` 
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_name`, `qas_id`, `qas_name`, `qass_id`, `qass_name`, `qag_qaug_id` 
             FROM `question_answer` 
             LEFT JOIN `q_a_sections` ON `qas_id`=`qa_qas_id`
             LEFT JOIN `q_a_subsections` ON `qass_id`=`qa_qass_id`
+            LEFT JOIN `q_a_groups` ON `qag_qa_id`=`qa_id`
             WHERE MATCH (`qa_name`, `qa_text`) AGAINST (? IN BOOLEAN MODE) and '.$user_group, $search);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
@@ -2087,6 +2208,29 @@ class Message_model extends CI_Model
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
+
+        return $result;
+    }
+
+    /**
+     * Обработка данных статьи Вопрос - Ответ
+     *
+     * @param $row
+     * @return array
+     */
+    protected function parseQaData($row)
+    {
+        $result = array();
+
+        $result['id']            = $row->qa_id;
+        $result['section_id']    = (!empty($row->qa_qas_id)) ? $row->qa_qas_id : null;
+        $result['subsection_id'] = $row->qa_qass_id;
+        $result['name']          = $row->qa_name;
+        $result['text']          = (!empty($row->qa_text)) ? $row->qa_text : null;
+        $result['blocked']       = $row->qa_blocked;
+        $result['update']        = $row->qa_update;
+        $result['admin_id']      = $row->qa_admin_id;
+        $result['users_group']   = array();
 
         return $result;
     }

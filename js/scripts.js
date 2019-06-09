@@ -1158,7 +1158,7 @@ $(document).ready(function() {
                     $("#select-couch .select_couch").append("<div class='select_input'>" +
                         "<input type='hidden' name='couches[]' value='" + couch_id + "'/>" +
                         "<div class='input_name selected'>" + couch_name + "</div>" +
-                        "<div class='input_value'><input type='text' name='couches_percent[]' value='' placeholder='Процент' class='percent'/>%</div>" +
+                        "<div class='input_value'><input type='text' name='couches_percent[]' value='' placeholder='0' class='percent'/>%</div>" +
                         "</div>");
 
                     $('.percent').mask('000.00', {reverse: true});
@@ -1749,6 +1749,73 @@ $(document).ready(function() {
                     $("#method-phone").hide();
                     $("#method-login").hide();
                 }
+            });
+
+            $('#check-promocode').on('click', function(event)
+            {
+                event.preventDefault();
+                var c_p_f = $('#check-promocode-form');
+                pop_up_home(c_p_f);
+
+                c_p_f.on('keyup, paste', ' #i-promocode', function(){
+                    var pc_input = $(this);
+                    setTimeout(function() {
+                        var input_search = pc_input.val(),
+                            promo_block  = $('.promo_block');
+
+                        if(input_search.length >= 1 && input_search.length <= 25)
+                        {
+                            $.ajax({
+                                url: '/checkPromo',
+                                type: 'post',
+                                dataType: 'json',
+                                data: {input_search: input_search},
+                                complete: function (result) {
+                                    var data = result.responseJSON;
+
+                                    if (data.discount !== false)
+                                    {
+                                        var discount_type = 'руб.',
+                                            rel_per_block = '';
+
+                                        if(data.discount_type === 'percent')
+                                        {
+                                            discount_type = '%';
+                                        }
+
+                                        if(data.rel_percent)
+                                        {
+                                            rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                                '<div class="kurs_block_h">Ограничение:</div>' +
+                                                '<div class="pbi_h">' + data.rel_percent + '%</div>' +
+                                                '</div>';
+                                        }
+
+                                        var p_b_i = '<div class="parent kurs_cur_wrap">' +
+                                            '<div class="kurs_block_h">Статус:</div>' +
+                                            '<div class="pbi_h">' + data.status + '</div>' +
+                                            '</div>' +
+                                            '<div class="parent kurs_cur_wrap">' +
+                                            '<div class="kurs_block_h">Скидка:</div>' +
+                                            '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
+                                            '</div>' +
+                                            rel_per_block;
+
+                                        if(promo_block.next('.promo_block_info').length == 0)
+                                        {
+                                            promo_block.after('<div class="promo_block_info">' + p_b_i + '</div>');
+                                        }
+                                        else
+                                        {
+                                            promo_block.next('.promo_block_info').html(p_b_i);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                    }, 50);
+                });
             });
     }
     );

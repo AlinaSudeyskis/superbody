@@ -1014,7 +1014,7 @@ div.info{
     padding: 10px 15px 0;
     display: none;
 }
-.notification_block .content_block_h_buts {
+.notification_block .content_block_h_buts, .metadata .content_block_h_buts {
      display: block;
 }
 .content_block_h{
@@ -1790,7 +1790,7 @@ tr:first-child > td > .fc-day-grid-event{
 #shadow3{
     z-index: 99;
 }
-#pop-up_video{
+#pop-up_video, #check-promocode-form{
     width: 90%;
     max-width: 900px;
     padding: 15px;
@@ -7250,6 +7250,9 @@ textarea.journal_post_comm_in{
 .anketa_block_cont{
     min-height: 300px;
 }
+.metadata .anketa_block_cont{
+    min-height: unset;
+}
 .anketa_block_item{
 	padding-left: 25px;
 	padding-right: 25px;
@@ -7437,6 +7440,16 @@ span.tip>.bt_link {
 	font-size: 13px;
 	color: #33363f;
 	cursor: pointer;
+}
+#site-percent{
+    line-height: 35px;
+    white-space: nowrap;
+    font-size: 13px;
+}
+.pbi_h {
+    font-size: 13px;
+    line-height: 35px;
+    color: #33363f;
 }
 .cal_date label{
 	display: block;
@@ -13175,7 +13188,7 @@ input.tren_form_block_check{
     .js-fullscreen-controls .pull-left:first-child{
         width: 40% !important;
     }
-    #pop-up_video, #pop-up_meal{
+    #pop-up_video, #pop-up_meal, #check-promocode-form{
         min-height: 310px;
     }
     .close_video{
@@ -14140,7 +14153,7 @@ input.tren_form_block_check{
     .calendar h2{
         font-size: 14px;
     }
-    #pop-up_video, #pop-up_meal{
+    #pop-up_video, #pop-up_meal, #check-promocode-form{
         min-height: 200px;
     }
     .pull-left:first-child{

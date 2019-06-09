@@ -323,6 +323,7 @@ class Authorization extends CI_Controller
 
                         if ($res_activate === true)
                         {
+                            parent::sendPulseAddEmails($email);
                             // Аккаунт активирован.
                             $this->session->set_tempdata('message', 20, 60);
                             header('Location: /activated');
@@ -695,6 +696,8 @@ class Authorization extends CI_Controller
                         $system_message['text']  .= '</a></b>';
 
                         parent::sendEmail(17, $res_up['new_email'], $system_message);
+
+                        parent::sendPulseRemoveEmails($email);
 
                         // Обновление данных сессии
                         $user_data = array('user' => $this->session->user);

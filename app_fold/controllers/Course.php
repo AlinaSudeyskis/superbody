@@ -8702,6 +8702,23 @@ class Course extends CI_Controller
     }
 
     /**
+     * AJAX Проверка промокода
+     */
+    public function checkPromocode()
+    {
+        $result['discount'] = false;
+
+        $promocode = mb_substr(strip_tags($this->input->post('input_search', true)), 0, 25);
+
+        if(!empty($promocode) and strlen($promocode) >=1)
+        {
+            $result = $this->Course_model->getAvailablePromocode($promocode, $this->user_id, $this->date);
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
      * AJAX. Поиск блюд
      */
     public function searchMeals()

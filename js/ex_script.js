@@ -1048,7 +1048,7 @@ $(document).ready(function(){
                         '<div class="add_tov_val_sale">' +
                         '<div class="admin_form_h">Процент, %</div>' +
                         '<input type="hidden" name="couches['+number+']" value="'+number+'" />' +
-                        '<input type="text" name="couches_percent['+number+']" class="admin_form_txt" placeholder="20" />' +
+                        '<input type="text" name="couches_percent['+number+']" class="admin_form_txt couches_percent" placeholder="0" value=""/>' +
                         '</div>' +
                         '<div class="del_tov"></div></div>');
             } else if($(this).parents("form").hasClass("landing_admin_form")){
@@ -1062,6 +1062,45 @@ $(document).ready(function(){
             $(this).addClass("disable");
         }
         return false;
+    });
+
+    $(document).on('input', '.couches_percent', function(){
+        var couches_percent = $('.couches_percent'),
+            site_info = $('#site-percent'),
+            sum_percent = 0, site_percent = 0;
+
+        couches_percent.each(function(){
+            if((sum_percent + parseFloat($(this).val())) > 100)
+            {
+                $(this).val(100 - sum_percent);
+                sum_percent = 100;
+                return false;
+            }
+
+            sum_percent = sum_percent + parseFloat($(this).val());
+        });
+        if(!sum_percent)
+        {
+            sum_percent = 0;
+        }
+        site_percent = 100 - parseFloat(sum_percent);
+        if(site_percent > 0)
+        {
+            site_percent = site_percent + '%';
+        }
+        else
+        {
+            site_percent = 'Заработок отсутствует!';
+        }
+        if(site_info.length == 0)
+        {
+            couches_percent.parents('.add_tov_in_total').after('<div class="parent kurs_cur_wrap">' +
+            '<div class="kurs_block_h">Процент сайта:</div>' +
+            '<div id="site-percent"></div>' +
+            '</div>');
+            site_info = $('#site-percent');
+        }
+        site_info.html(site_percent);
     });
 
     $(document).on('click', '.del_tov', function () {

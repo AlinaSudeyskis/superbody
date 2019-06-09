@@ -443,7 +443,9 @@ class Message extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Message_model->getQaArticles();
+        $users_group = $this->Message_model->getQaUsersGroup();
+        $count_ug    = count($users_group);
+        $result = $this->Message_model->getQaArticles($count_ug);
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
@@ -777,20 +779,29 @@ class Message extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $sections = $this->Message_model->getQaSections();
+        $sections    = $this->Message_model->getQaSections();
         $subsections = $this->Message_model->getQaSubsections();
-        $result = array_merge($sections, $subsections);
+        $users_group = $this->Message_model->getQaUsersGroup();
+        $result = array_merge($sections, $subsections, $users_group);
 
         if($this->input->post('bt_save_new_article', true))
         {
-            $user_groups = array('general', 'user', 'couch', 'admin');
-
             $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
             $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
             $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
             $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span>');
-            $user_group    = (in_array($this->input->post('s_user_group', true), $user_groups)) ? $this->input->post('s_user_group', true) : 'general';
             $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
+
+            $cb_ug      = $this->input->post('cb_users_group');
+            $user_group = null;
+            if(!empty($cb_ug[1]))
+            {
+                $user_group['insert'] = array(1);
+            }
+            elseif(!empty($cb_ug))
+            {
+                $user_group['insert'] = $cb_ug;
+            }
 
             if(!empty($section_id) and !empty($subsection_id) and !empty($article_text) and !empty($user_group) and !empty($article_name))
             {
@@ -841,25 +852,40 @@ class Message extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $sections = $this->Message_model->getQaSections();
+        $sections    = $this->Message_model->getQaSections();
         $subsections = $this->Message_model->getQaSubsections();
-        $article = $this->Message_model->getQaArticle($article_id);
-        $result = array_merge($sections, $subsections, $article);
+        $users_group = $this->Message_model->getQaUsersGroup();
+        $count_ug    = count($users_group);
+        $article     = $this->Message_model->getQaArticle($article_id, $count_ug);
+        $result = array_merge($sections, $subsections, $article, $users_group);
 
         if($this->input->post('bt_save_article', true))
         {
-            $user_groups = array('general', 'user', 'couch', 'admin');
+            $db_data = $article['qa_article'];
 
             $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
             $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
             $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
             $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span>');
-            $user_group    = (in_array($this->input->post('s_user_group', true), $user_groups)) ? $this->input->post('s_user_group', true) : 'general';
             $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
 
-            if(!empty($section_id) and !empty($subsection_id) and !empty($article_text) and !empty($user_group) and !empty($article_name))
+            $cb_ug      = $this->input->post('cb_users_group');
+            $user_group = null;
+            if(!empty($cb_ug[1]))
             {
-                $res_up = $this->Message_model->setQaArticle($article_id, $section_id, $subsection_id, $user_group, $article_name, $article_text, $this->user_id, $this->date);
+                $user_group = array(1);
+            }
+            elseif(!empty($cb_ug))
+            {
+                $user_group = $cb_ug;
+            }
+            // Сравнение с БД
+            $save_ug['insert'] = array_diff($user_group, $db_data['users_group']);
+            $save_ug['delete'] = array_diff($db_data['users_group'], $user_group);
+
+            if(!empty($section_id) and !empty($subsection_id) and !empty($article_text) and !empty($save_ug) and !empty($article_name))
+            {
+                $res_up = $this->Message_model->setQaArticle($article_id, $section_id, $subsection_id, $save_ug, $article_name, $article_text, $this->user_id, $this->date);
 
                 if($res_up === true)
                 {

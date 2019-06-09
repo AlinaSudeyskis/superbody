@@ -53,6 +53,7 @@ class Welcome extends CI_Controller
 
                 if ($result === true)
                 {
+                    parent::sendPulseAddEmails($email);
                     // Сохранено
                     $this->session->set_tempdata('message', 74, 60);
 
@@ -280,6 +281,8 @@ class Welcome extends CI_Controller
             {
                 // Сохранено
                 $info_code = 141;
+
+                parent::sendPulseRemoveEmails($email);
             }
             else
             {

@@ -149,7 +149,7 @@ class CI_Model {
 
         if (!empty($error))
         {
-            $method = $_SERVER['REQUEST_URI'] . '<br/>' . $method;
+            $method = $_SERVER['REQUEST_URI'] . PHP_EOL . $method;
             log_message('error', $method . ' [' . $error['code'] . '] ' . $error['message'] . ' ' . $this->db->last_query() . ' Params: '. print_r($params, true));
         }
     }

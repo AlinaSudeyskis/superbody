@@ -54,71 +54,98 @@ $(document).ready(function(){
     });
 
 
-    $('.purchase_form').on('keyup', ' #i-promocode', function(){
-        var input_search     = $(this).val(),
-            crs_id           = $('.purchase_form').find('#crs-id').val(),
-            price_block      = $('#course-price'),
-            new_price_block  = $('#course-new-price'),
-            course_price     = parseFloat(price_block.html());
+    $('.purchase_form').on('keyup, paste', ' #i-promocode', function(){
+        var pc_input = $(this);
+        setTimeout(function() {
+            var input_search     = pc_input.val(),
+                crs_id           = $('.purchase_form').find('#crs-id').val(),
+                price_block      = $('#course-price'),
+                new_price_block  = $('#course-new-price'),
+                promo_block      = $('.promo_block'),
+                course_price     = parseFloat(price_block.html());
 
-        if(input_search.length >= 1 && input_search.length <= 25)
-        {
-            $.ajax({
-                url: '/searchPromo',
-                type: 'post',
-                dataType: 'json',
-                data: {input_search: input_search, crs_id: crs_id},
-                complete: function (result) {
-                    var data = result.responseJSON;
+            if(input_search.length >= 1 && input_search.length <= 25)
+            {
+                $.ajax({
+                    url: '/searchPromo',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {input_search: input_search, crs_id: crs_id},
+                    complete: function (result) {
+                        var data = result.responseJSON;
 
-                    if (data.discount !== false)
-                    {
-                        var new_price;
-
-                        if(data.discount_type === 'percent')
+                        if (data.discount !== false)
                         {
-                            new_price = course_price - (course_price*data.discount/100);
+                            var new_price,
+                                discount_type = 'руб.',
+                                rel_per_block = '';
+
+                            if(data.discount_type === 'percent')
+                            {
+                                new_price = course_price - (course_price*data.discount/100);
+                                discount_type = '%';
+                            }
+                            else
+                            {
+                                new_price = course_price - data.discount;
+                            }
+
+                            if(data.rel_percent)
+                            {
+                                new_price = course_price - (course_price*data.rel_percent/100);
+                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                    '<div class="kurs_block_h">Ограничение:</div>' +
+                                    '<div class="pbi_h">' + data.rel_percent + '%</div>' +
+                                '</div>';
+                            }
+
+                            if(new_price < 1 && !data.rel_percent)
+                            {
+                                new_price = 1;
+                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                    '<div class="kurs_block_h">Ограничение:</div>' +
+                                    '<div class="pbi_h">Минимальная сумма к оплате 1 руб.</div>' +
+                                '</div>';
+                            }
+
+                            var promo_block_info = promo_block.next('.promo_block_info');
+                            if(promo_block.next('.promo_block_info').length == 0)
+                            {
+                                promo_block.after('<div class="promo_block_info"></div>');
+                                promo_block_info = promo_block.next('.promo_block_info');
+                            }
+                            promo_block_info.html('<div class="parent kurs_cur_wrap">' +
+                                '<div class="kurs_block_h">Скидка:</div>' +
+                                '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
+                                '</div>' + rel_per_block);
+
+                            price_block.addClass('strikeout');
+                            if(price_block.next('#course-new-price').length == 0)
+                            {
+                                price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
+                                new_price_block = $('#course-new-price');
+                            }
+                            else
+                            {
+                                new_price_block.html(new_price);
+                                new_price_block.show();
+                            }
                         }
                         else
                         {
-                            new_price = course_price - data.discount;
-                        }
-
-                        if(data.rel_percent)
-                        {
-                            new_price = course_price - (course_price*data.rel_percent/100);
-                        }
-
-                        if(new_price < 1 && !data.rel_percent)
-                        {
-                            new_price = 1;
-                        }
-
-                        price_block.addClass('strikeout');
-                        if(price_block.next('#course-new-price').length == 0)
-                        {
-                            price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
-                            new_price_block = $('#course-new-price');
-                        }
-                        else
-                        {
-                            new_price_block.html(new_price);
-                            new_price_block.show();
+                            price_block.removeClass('strikeout');
+                            new_price_block.hide();
                         }
                     }
-                    else
-                    {
-                        price_block.removeClass('strikeout');
-                        new_price_block.hide();
-                    }
-                }
-            });
-        }
-        else
-        {
-            price_block.removeClass('strikeout');
-            new_price_block.hide();
-        }
+                });
+            }
+            else
+            {
+                price_block.removeClass('strikeout');
+                new_price_block.hide();
+            }
+
+        }, 50);
     });
 
     if($("#policy_pop-up").length > 0){

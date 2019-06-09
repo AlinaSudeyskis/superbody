@@ -191,8 +191,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="add_tov_list"></div>
             </div>
             <div class="add_tov_val">
-                <?php if (!empty($course['couches'])) :
-                    foreach($course['couches'] as $key => $couch) :?>
+                <?php $couches_percent = 0;
+                if (!empty($course['couches'])) :
+                    foreach($course['couches'] as $key => $couch) :
+                        $couches_percent += $couch['percent']; ?>
                         <div id="<?php echo $couch['id']; ?>tov" class="add_tov_val_item parent">
                             <a href="/profile/<?php echo $couch['id']; ?>" class="add_tov_val_cont parent">
                                 <span class="add_tov_val_h"><?php echo $couch['name']; ?></span>
@@ -200,8 +202,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="add_tov_val_sale">
                                 <div class="admin_form_h">Процент, %</div>
                                 <input type="hidden" name="couches[<?php echo $couch['id']; ?>]" value="<?php echo $couch['id']?>"/>
-                                <input type="text" name="couches_percent[<?php echo $couch['id']; ?>]" class="admin_form_txt"
-                                       placeholder="20" value="<?php echo $couch['percent']; ?>"/>
+                                <input type="text" name="couches_percent[<?php echo $couch['id']; ?>]" class="admin_form_txt couches_percent"
+                                       placeholder="0" value="<?php echo $couch['percent']; ?>"/>
                             </div>
                             <div class="del_tov"></div>
                         </div>
@@ -210,6 +212,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 endif;?>
             </div>
         </div>
+        <?php if(!empty($course['couches']) and $couches_percent > 0): ?>
+            <div class="parent kurs_cur_wrap">
+                <div class="kurs_block_h">Процент сайта:</div>
+                <?php $site_percent = 100 - $couches_percent;
+                $site_percent = ($site_percent > 0) ? $site_percent . '%' : 'Заработок отсутствует!'; ?>
+                <div id="site-percent"><?php echo $site_percent; ?></div>
+            </div>
+        <?php endif; ?>
         <div class="practice_block_container">
             <div class="block_wrap">
                 <div class="practice_block_h">Тренировки:</div>

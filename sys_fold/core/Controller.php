@@ -37,6 +37,22 @@
  */
 defined('BASEPATH') OR exit('No direct script access allowed');
 
+require("./app_fold/third_party/sendpulse-rest-api-php/src/ApiInterface.php");
+require("./app_fold/third_party/sendpulse-rest-api-php/src/ApiClient.php");
+require("./app_fold/third_party/sendpulse-rest-api-php/src/Storage/TokenStorageInterface.php");
+require("./app_fold/third_party/sendpulse-rest-api-php/src/Storage/FileStorage.php");
+require("./app_fold/third_party/sendpulse-rest-api-php/src/Storage/SessionStorage.php");
+require("./app_fold/third_party/sendpulse-rest-api-php/src/Storage/MemcachedStorage.php");
+require("./app_fold/third_party/sendpulse-rest-api-php/src/Storage/MemcacheStorage.php");
+
+use Sendpulse\RestApi\ApiClient;
+use Sendpulse\RestApi\Storage\FileStorage;
+
+// API credentials from https://login.sendpulse.com/settings/#api
+define('API_USER_ID', '1fffbf089fbc738f9e2e2a29006f83b6');
+define('API_SECRET', '028b7e8fd03b4e638fd33ad50726c117');
+define('PATH_TO_ATTACH_FILE', __FILE__);
+
 /**
  * Application Controller Class
  *
@@ -1762,5 +1778,46 @@ class CI_Controller {
         //curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_exec ($ch);
         curl_close ($ch);
+    }
+
+    /**
+     * Добавление email пользователя в книгу SendPulse
+     * @param $email
+     */
+    public function sendPulseAddEmails($email)
+    {
+        $SPApiClient = new ApiClient(API_USER_ID, API_SECRET, new FileStorage());
+
+        $bookID = 37283;
+        $emails = array(
+            array(
+                'email' => $email
+            )
+        );
+
+        $response = $SPApiClient->addEmails($bookID, $emails);
+
+        // Without confirmation
+        //log_message('debug', __METHOD__ . ':'. PHP_EOL . print_r($response, true));
+
+    }
+
+    /**
+     * Удаление email пользователя из книги SendPulse
+     *
+     * @param $email
+     */
+    public function sendPulseRemoveEmails($email)
+    {
+        $SPApiClient = new ApiClient(API_USER_ID, API_SECRET, new FileStorage());
+
+        $bookID = 37283;
+        $emails = array($email);
+
+        $response = $SPApiClient->removeEmails($bookID, $emails);
+
+        // Without confirmation
+        //log_message('debug', __METHOD__ . ':'. PHP_EOL . print_r($response, true));
+
     }
 }

@@ -59,6 +59,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php endif;?>
                             <li><a href="/contacts">Контакты</a></li>
                         </ul>
+                        <a href="#" class="agreement" id="check-promocode">Проверить промокод</a>
+
                         <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
                     </div>
                     <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
@@ -95,11 +97,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="close_user_meal"></div>
 </div><!-- pop-up_user_meal -->
 
+<div id="check-promocode-form">
+    <div class="parent kurs_cur_wrap promo_block">
+        <div class="kurs_block_h">Промокод:</div>
+        <input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode">
+    </div>
+</div><!-- check-promocode-form -->
+
 <?php include_once('./app_fold/views/course/payment_form_up.php'); ?>
 
 <script src="/js/lightbox.js"></script>
 <script src="/js/vimeo_player.js"></script>
-<!-- TODO Раскомментировать перед загрузкой на сервер TestSB -->
+<!-- TODO-me Раскомментировать перед загрузкой на сервер TestSB -->
 <!-- BEGIN JIVOSITE CODE {literal} -->
 <script type='text/javascript'>
     (function(){ var widget_id = 'pJLIxhdVt8';var d=document;var w=window;function l(){

@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="video_admin_form site_info">
         <?php if(!empty($meta)): ?>
             <?php foreach($meta as $mt): ?>
-                <div class="content_block new_content_block ovv content_block_internal ">
+                <div class="content_block new_content_block ovv content_block_internal metadata">
                     <div class="content_block_h parent">
                         <h3><?php echo $mt['page']; ?></h3>
                         <div class="content_block_h_buts">

@@ -77,7 +77,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="kurs_block_h">Не использовался</div>
         </div>
     <?php endif; ?>
-    <?php if($extend_new_promocode === false): ?>
+    <?php if(empty($extend_new_promocode)): ?>
         <div class="parent kurs_cur_wrap">
             <div class="practice_block_h">Курсы</div>
             <div class="add_tov_in_total anketa_form_in_long">

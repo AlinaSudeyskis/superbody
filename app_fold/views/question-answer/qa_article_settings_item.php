@@ -40,12 +40,16 @@ endif; ?>
 <div class="anketa_form_line parent">
     <div class="anketa_form_h"><div class="anketa_form_h_cell">Граппа пользователей:</div></div>
     <div class="anketa_form_one_wrap anketa_form_three_wrap">
-        <select name="s_user_group" class="anketa_form_select">
-            <option value="general" <?php if(!empty($qa_article['user_group']) and $qa_article['user_group'] == 'general'): ?>selected<?php endif; ?>>Для всех</option>
-            <option value="user" <?php if(!empty($qa_article['user_group']) and $qa_article['user_group'] == 'user'): ?>selected<?php endif; ?>>Авторизованные пользователи</option>
-            <option value="couch" <?php if(!empty($qa_article['user_group']) and $qa_article['user_group'] == 'couch'): ?>selected<?php endif; ?>>Тренеры</option>
-            <option value="admin" <?php if(!empty($qa_article['user_group']) and $qa_article['user_group'] == 'admin'): ?>selected<?php endif; ?>>Администраторы</option>
-        </select>
+        <?php if(!empty($users_group)): ?>
+            <?php foreach($users_group as $ug): ?>
+                <div class="tren_form_block_check_wrap">
+                    <input type="checkbox" name="cb_users_group[<?php echo $ug['id'];?>]" class="tren_form_block_check" value="<?php echo $ug['id'];?>" id="ug_check<?php echo $ug['id'];?>"
+                        <?php if(!empty($qa_article['users_group']) and in_array($ug['id'], $qa_article['users_group'])):?>checked="checked"<?php endif;?>>
+                    <label for="ug_check<?php echo $ug['id'];?>"><?php echo $ug['name'];?></label>
+                </div>
+            <?php endforeach;
+            unset($ug);?>
+        <?php endif; ?>
     </div>
 </div>
 <div class="anketa_form_line parent">

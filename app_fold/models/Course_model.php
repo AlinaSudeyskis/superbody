@@ -10010,6 +10010,68 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Поиск промокода
+     *
+     * @param $promocode
+     * @param $user_id
+     * @param $date
+     * @return array
+     */
+    public function getAvailablePromocode($promocode, $user_id, $date)
+    {
+        $result = array('discount' => false, 'id' => null);
+
+        if(!empty($promocode) and strlen($promocode) >=1 and strlen($promocode) <= 25)
+        {
+            // Поиск промокода
+            $sel_promo_data = $this->db->query('
+                SELECT `pc_id`, `pc_type`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, 
+                  `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
+                FROM `promocodes`
+                WHERE `pc_code`=? LIMIT 1', $promocode);
+
+            if($sel_promo_data !== false and 1 == $sel_promo_data->num_rows())
+            {
+                $row = $sel_promo_data->row();
+
+                // Данные промокода
+                $promocode_data = self::parsePromocodeData($row, $date);
+
+                // Промокод активен
+                if($promocode_data['active'] === true)
+                {
+                    $result['status']        = 'Активен';
+                    $result['discount']      = $promocode_data['discount'];
+                    $result['discount_type'] = $promocode_data['discount_type'];
+                    $result['rel_percent']   = $promocode_data['relative_percent'];
+                    $result['id']            = $promocode_data['id'];
+
+                    if($row->pc_type == 'all')
+                    {
+                        $result['type'] = 'Для всех курсов';
+                    }
+                    else
+                    {
+                        $result['type'] = 'Не для всех курсов';
+                    }
+                }
+                else
+                {
+                    $result['status'] = 'Не активен';
+                }
+
+                unset($row);
+            }
+            elseif($sel_promo_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка промокодов для курса
      *
      * @param $course_id

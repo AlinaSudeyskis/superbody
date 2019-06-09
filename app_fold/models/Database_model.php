@@ -1906,7 +1906,7 @@ class Database_model extends CI_Model
     }
 
     /**
-     * Обновление базы данных апрель 2019
+     * Обновление базы данных май 2019
      *
      * @param $date
      * @return bool
@@ -2106,6 +2106,56 @@ class Database_model extends CI_Model
                     }
                 }
             }
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных июнь 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseJune2019($date)
+    {
+        $result = false;
+
+        $date = '2019-06-05 11:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `question_answer` DROP `qa_user_group`");
+
+            $this->db->query("CREATE TABLE `q_a_users_group` ( 
+                `qaug_id` TINYINT(3) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `qaug_name` VARCHAR(255) NOT NULL , 
+                PRIMARY KEY (`qaug_id`)) ENGINE = MyISAM");
+
+            $this->db->query("CREATE TABLE `q_a_groups` ( 
+                `qag_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `qag_qa_id` INT(10) UNSIGNED NOT NULL , 
+                `qag_qaug_id` TINYINT(3) UNSIGNED NOT NULL , 
+                `qag_admin_id` INT(10) UNSIGNED NOT NULL , 
+                `qag_date` DATETIME NOT NULL , 
+                PRIMARY KEY (`qag_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-06-05 12:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `q_a_users_group` (`qaug_id`, `qaug_name`) 
+                VALUES 
+                (1, 'Для всех'), 
+                (2, 'Авторизованные пользователи'), 
+                (3, 'Тренеры'), 
+                (4, 'Администраторы')
+                ");
 
             self::setDbUpdate($date);
         }
