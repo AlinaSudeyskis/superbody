@@ -9,11 +9,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <meta name="description" content="<?php echo $description; ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="/favicon.ico" />
     <!-- TODO-me Раскомментировать перед загрузкой на сервер TestSB -->
     <meta name="yandex-verification" content="fbc35dfc3ef66ae0" />
     <meta name='wmail-verification' content='c49202d54c0fb7f8e8847bfd048f81dd' />
     <meta name="msvalidate.01" content="60DCFF887D5472AFA3314F542E53F876" />
-    <link rel="icon" type="image/png" href="/favicon.ico" />
 
     <link rel="stylesheet" href="/css/google_fonts.css">
     <link rel="stylesheet" href="/css/grid.css">
