@@ -900,7 +900,7 @@ class Authorization_model extends CI_Model
             {
                 $up_data = $this->db->query('
                     UPDATE `users` 
-                    SET `user_new_email`=?, `user_new_email_idempotent`=?, `user_date_update`=?, `user_new_email_update`=? 
+                    SET `user_new_email`=?, `user_new_email_idempotent`=?, `user_date_update`=?, `user_new_email_date`=? 
                     WHERE `user_id`=? LIMIT 1', array($new_email, $idempotent, $date, $date, $user_id));
 
                 if($up_data !== false and 1 == $this->db->affected_rows())

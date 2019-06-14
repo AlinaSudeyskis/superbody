@@ -28,16 +28,17 @@ if(!empty($display_courses)):
 endif;
 // Уведомления курсов
 if(!empty($course_notification)):
-    $h3_info = '';
+    $h3_info         = '';
+    $non_started     = false;
+    $course_blocked  = false;
+    $course_ends     = false;
+    $course_finished = false;
+    $workout_missed  = false;
 
     foreach($course_notification as $user_course_id => $notif):
-        if(!empty($notif['course_blocked']) or !empty($notif['course_ends'])
+        if(is_numeric($user_course_id) and (!empty($notif['course_blocked']) or !empty($notif['course_ends'])
             or (!empty($notif['course_finished']) and !empty($notif['course_finished']['extends']))
-            or !empty($notif['workout_missed'])):
-            $course_blocked  = false;
-            $course_ends     = false;
-            $course_finished = false;
-            $workout_missed  = false;
+            or !empty($notif['workout_missed']))):
             $notif_block_h   = '<a href="/profile/course/' . $user_course_id . '">' . $notif['course_name'] . '</a>';
 
             // Курс заморожен (оплата не прошла)
@@ -77,6 +78,30 @@ if(!empty($course_notification)):
                 include('notification_block.php');
                 $workout_missed      = false;
             endif;
+        endif;
+    endforeach;
+    unset($notif);
+    unset($user_course_id);
+
+    // Неначатые курсы
+    foreach($course_notification as $key => $notif):
+        $h3_info = '';
+        $notif_block_h = '';
+        if($key == 'non_started' and !empty($key)) :
+            $non_started_info = '';
+            $non_started      = true;
+            $non_started_courses = array();
+
+            foreach($notif as $uc_id => $notif_course):
+                $non_started_courses[$uc_id] = $notif_course;
+                if(empty($non_started_info)):
+                    $non_started_info = $notif_course['text'];
+                endif;
+            endforeach;
+            unset($notif_course);
+
+            include('notification_block.php');
+            $non_started = false;
         endif;
     endforeach;
     unset($notif);

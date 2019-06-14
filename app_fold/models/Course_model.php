@@ -7167,6 +7167,30 @@ class Course_model extends CI_Model
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
+        // Неначатые курсы (данные для старта курсов не заполены)
+        $sel_non_started = $this->db->query('
+            SELECT `uc_id`, `uc_course_id`, `crs_name`, `crs_category`, `crs_count_weeks`, `crs_count_days`, `crs_count_rest`
+            FROM `users_courses` 
+            LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
+            WHERE `uc_user_id`=? and `crs_category`="workout" and `uc_date_start`="0000-00-00" and `uc_date_end`="0000-00-00"
+             and `uc_days`="" and `uc_time`="00:00:00"', $user_id);
+        if ($sel_non_started !== false and 0 < $sel_non_started->num_rows())
+        {
+            foreach ($sel_non_started->result() as $row)
+            {
+                $result['notifications'][$row->uc_id][203]['course_name']  = $row->crs_name;
+                $result['notifications'][$row->uc_id][203]['course_id']    = $row->uc_course_id;
+                $result['notifications'][$row->uc_id][203]['course_weeks'] = $row->crs_count_weeks;
+                $result['notifications'][$row->uc_id][203]['course_days']  = $row->crs_count_days;
+                $result['notifications'][$row->uc_id][203]['course_rest']  = $row->crs_count_rest;
+            }
+            unset($row);
+        }
+        elseif ($sel_non_started === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
         // Курсы, которые заканчиваются через неделю или меньше + курсы продления
         $tmp_date = new DateTime($date);
         $today = $tmp_date->format('Y-m-d');
@@ -7255,7 +7279,6 @@ class Course_model extends CI_Model
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
-
         // Курсы закончились + курсы продления (если кол-во недель для покупки не истекло)
         $sel_courses3 = $this->db->query('
             SELECT `uc_id`, `uc_course_id`, `uc_user_id`, `uc_date_end`, `crs_name`
@@ -7269,6 +7292,7 @@ class Course_model extends CI_Model
             {
                 // Данные курса
                 $result['notifications'][$row->uc_id][154]['course_name'] = $row->crs_name;
+                $result['notifications'][$row->uc_id][154]['course_id']   = $row->uc_course_id;
                 $result['notifications'][$row->uc_id][154]['extends']     = array();
 
                 $sel_extends = self::getUserCourseExtends($row->uc_course_id, $date);
@@ -8496,6 +8520,39 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Сохранение дней и времени тренировок новых курсов пользователя
+     *
+     * @param $user_id
+     * @param $training_days
+     * @param $training_times
+     * @param $courses_start
+     * @param $courses_end
+     * @param $courses_weeks
+     * @param $courses_days
+     * @param $date
+     * @return bool
+     */
+    public function setUserCoursesTrainingDays($user_id, $training_days, $training_times, $courses_start, $courses_end, $courses_weeks, $courses_days, $date)
+    {
+        $result = true;
+        if(!empty($training_days and is_numeric($user_id)))
+        {
+            foreach ($training_days as $uc_id => $days)
+            {
+                // Сохранение дней тренировок пользователя
+                self::setUserTrainingDays($uc_id, $days, $training_times[$uc_id], $courses_start[$uc_id], $courses_end[$uc_id], $date);
+
+                // Добавление тренировок пользователя в БД
+                $count_workouts = $courses_weeks[$uc_id] * $courses_days[$uc_id];
+                self::setUserTrainingWeeks($uc_id, $courses_start[$uc_id], $days, $training_times[$uc_id], $count_workouts, $courses_days[$uc_id], $date);
+            }
+            unset($days);
+        }
+
+        return $result;
+    }
+
+    /**
      * ID пользователей курса
      *
      * @param $course_id
@@ -8567,16 +8624,17 @@ class Course_model extends CI_Model
      * Выборка ID курсов пользователя
      *
      * @param $user_id
+     * @param $date
      * @return array
      */
-    public function getUserCoursesId($user_id)
+    public function getUserCoursesId($user_id, $date)
     {
         $result = array();
 
         $sel_courses = $this->db->query('
             SELECT `uc_id`, `uc_course_id`, `uc_date_end`, `uc_pause_days` 
             FROM `users_courses` 
-            WHERE `uc_user_id`=? and `uc_blocked`=0', $user_id);
+            WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`>?', array($user_id, $date));
 
         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
         {

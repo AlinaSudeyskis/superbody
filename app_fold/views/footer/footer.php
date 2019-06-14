@@ -8,26 +8,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="footer">
     <div class="container">
         <div class="row">
-            <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 footer_subscribe_wrap">
-                <div class="footer_h">ПОДПИСКА НА НОВОСТИ</div>
-                <div class="footer_desk">ПОДПИШИТЕСЬ НА НОВОСТИ НАШЕГО ПОРТАЛА И БУДЬТЕ В КУРСЕ ВСЕХ СОБЫТИЙ</div>
-                <form action="/" id="subscribe_form" method="post">
-                    <div class="subscribe_form_in_wrap">
-                        <input type="text" name="subscribe_email" class="subscribe_form_in valid_email" placeholder="УКАЖИТЕ EMAIL" required="required" maxlength="255" />
-                        <input type="text" name="subscribe_name" class="subscribe_form_in" placeholder="ВАШЕ ИМЯ" required="required" maxlength="255" />
-                        <div class="sing-in_h tren_form_block_check_wrap">
-                            <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-2" required="required" />
-                            <label for="cb-politics-2">согласие на
-                                <a href="#" class="reg_in_link policy">обработку персональных данных</a>
-                            </label>
+            <?php $block2 = ($user_session['subscribed'] === true) ? 'col-lg-9 col-md-9 col-sm-12 col-xs-12' : 'col-lg-5 col-md-5 col-sm-6 col-xs-12';
+            ?>
+            <?php if($user_session['subscribed'] !== true): ?>
+                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 footer_subscribe_wrap">
+                    <div class="footer_h">ПОДПИСКА НА НОВОСТИ</div>
+                    <div class="footer_desk">ПОДПИШИТЕСЬ НА НОВОСТИ НАШЕГО ПОРТАЛА И БУДЬТЕ В КУРСЕ ВСЕХ СОБЫТИЙ</div>
+                    <form action="/" id="subscribe_form" method="post">
+                        <div class="subscribe_form_in_wrap">
+                            <input type="text" name="subscribe_email" class="subscribe_form_in valid_email" placeholder="УКАЖИТЕ EMAIL" required="required" maxlength="255" />
+                            <input type="text" name="subscribe_name" class="subscribe_form_in" placeholder="ВАШЕ ИМЯ" required="required" maxlength="255" />
+                            <div class="sing-in_h tren_form_block_check_wrap">
+                                <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-2" required="required" />
+                                <label for="cb-politics-2">согласие на
+                                    <a href="#" class="reg_in_link policy">обработку персональных данных</a>
+                                </label>
+                            </div>
                         </div>
-                    </div>
-                    <div class="subscribe_form_but_wrap">
-                        <input type="submit" name="bt_subscribe" value="Подписаться" class="subscribe_form_but">
-                    </div>
-                </form>
-            </div>
-            <div class="col-lg-5 col-md-5 col-sm-6 col-xs-12">
+                        <div class="subscribe_form_but_wrap">
+                            <input type="submit" name="bt_subscribe" value="Подписаться" class="subscribe_form_but">
+                        </div>
+                    </form>
+                </div>
+            <?php endif; ?>
+            <div class="<?php echo $block2; ?>">
                 <a href="" class="f_logo"><img src="/img/logo.png" alt=""></a>
                 <div class="f_logo_desk"><?php if (!empty($site_info['rights'])): echo $site_info['rights']; endif;?></div>
                 <div class="f_contact">
@@ -41,8 +45,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="f_policy">
-                    <a href="<?php if (!empty($site_info['agreement'])): echo $site_info['agreement']; endif;?>" class="agreement <?php if (empty($site_info['agreement'])): echo 'disabled'; endif;?>">Пользовательское соглашение</a>
-                    <a href="<?php if (!empty($site_info['private_policy'])): echo $site_info['private_policy']; endif;?>" class="agreement <?php if (empty($site_info['private_policy'])): echo 'disabled'; endif;?>">Политика конфиденциальности</a>
+                    <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
                 </div>
             </div>
             <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 footer_menu_wrap">
@@ -60,8 +63,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <li><a href="/contacts">Контакты</a></li>
                         </ul>
                         <a href="#" class="agreement" id="check-promocode">Проверить промокод</a>
-
-                        <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
                     </div>
                     <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                         <div class="footer_h">СООБЩЕСТВО</div>

@@ -54,15 +54,26 @@ $(document).ready(function(){
     });
 
 
-    $('.purchase_form').on('keyup, paste', ' #i-promocode', function(){
+    var purchase_form = $('.purchase_form');
+    purchase_form.on('paste', ' #i-promocode', function(){
         var pc_input = $(this);
+        searchPromo(pc_input);
+    });
+    purchase_form.on('keyup', ' #i-promocode', function(){
+        var pc_input = $(this);
+        searchPromo(pc_input);
+    });
+
+    function searchPromo(pc_input)
+    {
         setTimeout(function() {
             var input_search     = pc_input.val(),
                 crs_id           = $('.purchase_form').find('#crs-id').val(),
                 price_block      = $('#course-price'),
                 new_price_block  = $('#course-new-price'),
                 promo_block      = $('.promo_block'),
-                course_price     = parseFloat(price_block.html());
+                course_price     = parseFloat(price_block.html()),
+                promo_block_info = promo_block.next('.promo_block_info'), promo_info = '';
 
             if(input_search.length >= 1 && input_search.length <= 25)
             {
@@ -74,7 +85,7 @@ $(document).ready(function(){
                     complete: function (result) {
                         var data = result.responseJSON;
 
-                        if (data.discount !== false)
+                        if (data.discount)
                         {
                             var new_price,
                                 discount_type = 'руб.',
@@ -96,7 +107,7 @@ $(document).ready(function(){
                                 rel_per_block = '<div class="parent kurs_cur_wrap">' +
                                     '<div class="kurs_block_h">Ограничение:</div>' +
                                     '<div class="pbi_h">' + data.rel_percent + '%</div>' +
-                                '</div>';
+                                    '</div>';
                             }
 
                             if(new_price < 1 && !data.rel_percent)
@@ -105,19 +116,12 @@ $(document).ready(function(){
                                 rel_per_block = '<div class="parent kurs_cur_wrap">' +
                                     '<div class="kurs_block_h">Ограничение:</div>' +
                                     '<div class="pbi_h">Минимальная сумма к оплате 1 руб.</div>' +
-                                '</div>';
+                                    '</div>';
                             }
-
-                            var promo_block_info = promo_block.next('.promo_block_info');
-                            if(promo_block.next('.promo_block_info').length == 0)
-                            {
-                                promo_block.after('<div class="promo_block_info"></div>');
-                                promo_block_info = promo_block.next('.promo_block_info');
-                            }
-                            promo_block_info.html('<div class="parent kurs_cur_wrap">' +
+                            promo_info = '<div class="parent kurs_cur_wrap">' +
                                 '<div class="kurs_block_h">Скидка:</div>' +
                                 '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
-                                '</div>' + rel_per_block);
+                                '</div>' + rel_per_block;
 
                             price_block.addClass('strikeout');
                             if(price_block.next('#course-new-price').length == 0)
@@ -135,7 +139,18 @@ $(document).ready(function(){
                         {
                             price_block.removeClass('strikeout');
                             new_price_block.hide();
+                            promo_info = '<div class="parent kurs_cur_wrap">' +
+                                '<div class="kurs_block_h"></div>' +
+                                '<div class="pbi_h">Промокод не найден</div>' +
+                                '</div>';
                         }
+
+                        if(promo_block.next('.promo_block_info').length == 0)
+                        {
+                            promo_block.after('<div class="promo_block_info"></div>');
+                            promo_block_info = promo_block.next('.promo_block_info');
+                        }
+                        promo_block_info.html(promo_info);
                     }
                 });
             }
@@ -143,10 +158,11 @@ $(document).ready(function(){
             {
                 price_block.removeClass('strikeout');
                 new_price_block.hide();
+                promo_block_info.hide();
             }
 
         }, 50);
-    });
+    }
 
     if($("#policy_pop-up").length > 0){
         $(".policy").on('click', function(event){

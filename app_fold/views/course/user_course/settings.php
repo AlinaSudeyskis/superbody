@@ -51,9 +51,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_form_two_wrap parent">
                                     <input type="text" name="training_time_from" value="<?php echo $course['training_time']; ?>" class="anketa_form_in time" placeholder="чч:мм" maxlength="5"/>
                                 </div>
-                                <div class="anketa_form_two_wrap parent">
-                                    <div class="anketa_form_pre">часов</div>
-                                </div>
                             </div>
                         </div>
                         <?php if (!empty($course['couches'])) :?>

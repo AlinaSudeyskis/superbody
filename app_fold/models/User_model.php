@@ -191,6 +191,20 @@ class User_model extends CI_Model
 
             $result['user_data'] = self::parseUserData($row);
 
+            $result['user_data']['user_subscribed'] = false;
+
+            $sel_subscr = $this->db->query('
+                SELECT `s_id` FROM `subscription` WHERE `s_email`=? LIMIT 1', $row->user_email);
+
+            if ($sel_subscr !== false and 1 == $sel_subscr->num_rows())
+            {
+                $result['user_data']['user_subscribed'] = true;
+            }
+            elseif($sel_subscr === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
             $date = DateTime::createFromFormat('Y-m-d', $row->user_birthday);
             $birthday = ($row->user_birthday != '0000-00-00' and $date !== false) ? $date->format('d.m.Y') : '';
 
@@ -216,11 +230,15 @@ class User_model extends CI_Model
             $sel_weight = $this->db->query('
                 SELECT `user_weight` FROM `anthropometric` WHERE `user_id`=? ORDER BY `user_date_add` DESC LIMIT 1', $user_id);
 
-            if (1 == $sel_weight->num_rows())
+            if ($sel_weight !== false and 1 == $sel_weight->num_rows())
             {
-                $row2 = $sel_weight->row();
+                $row3 = $sel_weight->row();
 
-                $result['user_data']['user_weight'] = $row2->user_weight;
+                $result['user_data']['user_weight'] = $row3->user_weight;
+            }
+            elseif($sel_weight === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             return $result;

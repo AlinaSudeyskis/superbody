@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <tr>
                 <td align="center" style="padding-top:0; padding-bottom:0; padding-right:0;
                                         padding-left:0; font-size:12px; height:27px; line-height:14px; color:#ffffff;">
-                    <a href="https://superbody.pro/unsubscribe" target="_blank" style="width:100%; text-decoration: none;
+                    <a href="https://superbody.pro/unsubscribe?email=<?php echo $recipient_email; ?>" target="_blank" style="width:100%; text-decoration: none;
                         text-align:center; color: #606060; font-weight: 300; -webkit-text-size-adjust:none;">
                         Отписаться от рассылки
                     </a>

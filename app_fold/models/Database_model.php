@@ -2160,6 +2160,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-06-12 12:14';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (203, 'Для старта курса выберите дни и время тренировок.', 'Для старта курса выберите дни и время тренировок.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

@@ -887,6 +887,9 @@ h3.info{
     line-height: 17px;
     padding: 15px 10px;
 }
+.notification_block .kurs_block_val{
+    overflow: hidden;
+}
 .anketa_form_line h3.info{
     float: left;
     font-size: 12px;
@@ -1520,9 +1523,6 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .footer_menu_wrap{
     padding-left: 6%;
-}
-.f_policy{
-    display: none;
 }
 .footer_menu{
     margin: 0;
@@ -6431,6 +6431,10 @@ textarea.journal_post_comm_in{
 
     position: relative;
 }
+.add_tab_but.fix_width{
+    width: 200px;
+    margin: 0 auto;
+}
 .new_content_block_h h3{
 	/*padding-right: 220px;*/
 }
@@ -9019,9 +9023,10 @@ textarea.anketa_form_in{
     margin-left: 20px;
     text-decoration: none;
 }
-#bt-save-postpone{
+#bt-save-postpone, .notification_block .video_admin_form_send{
     margin: 0 auto;
     float: none;
+    clear: both;
 }
 #bt-save-postpone:disabled {
     opacity: .4;
@@ -10410,9 +10415,6 @@ input.tren_form_block_check{
     .footer_menu_wrap{
         padding-left: 5%;
     }
-    .f_policy{
-        display: none;
-    }
     .subscribe_form_in{
         width: 155px;
     }
@@ -11388,9 +11390,6 @@ input.tren_form_block_check{
     }
     .footer_menu_wrap{
         display: none;
-    }
-    .f_policy{
-        display: block;
     }
     .cat_item_wrap{
         width: 50%; /* 33.3333% */

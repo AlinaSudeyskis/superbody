@@ -7377,7 +7377,7 @@ class Course extends CI_Controller
             }
             elseif(!empty($training_time) and empty($db_training_time))
             {
-                // Сохранение дней тренировок пользователя
+                // Сохранение дней и времени тренировок пользователя
                 $result_td = $this->Course_model->setUserTrainingTime($uc_id, $training_time, $this->date);
 
                 if(!empty($db_training_days))

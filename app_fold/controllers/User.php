@@ -250,6 +250,132 @@ class User extends CI_Controller
 
             header('Location: /profile/'.$this->user_id);
         }
+        elseif($this->input->post('bt_save_start_courses', true))
+        {
+            $cb_days = $this->input->post('cb_day', true);
+            $i_times = $this->input->post('training_time_from', true);
+
+            $crs_count_weeks = $this->input->post('crs_count_weeks', true);
+            $crs_count_days  = $this->input->post('crs_count_days', true);
+
+            if(!empty($cb_days))
+            {
+                $training_days    = array();
+                $training_times   = array();
+                $new_course_start = array();
+                $new_course_end   = array();
+
+                foreach ($cb_days as $uc_id => $days)
+                {
+                    $course_weeks = $crs_count_weeks[$uc_id];
+                    $course_days  = $crs_count_days[$uc_id];
+
+                    $i_time = $i_times[$uc_id];
+                    $time_date = DateTime::createFromFormat('H:i', $i_time);
+                    $training_times[$uc_id] = ($time_date !== false) ? $i_time : '';
+
+                    $i = 1;
+                    if(!empty($days))
+                    {
+                        foreach ($days as $day)
+                        {
+                            // Если кол-во выбранных дней не превышает кол-во дней курса
+                            if ($i <= $course_days)
+                            {
+                                $training_days[$uc_id] .= $day;
+                            }
+
+                            $i++;
+                        }
+                        unset($day);
+                        // Массив новых дней тренировок
+                        $array_training_days = !empty($training_days[$uc_id]) ? str_split($training_days[$uc_id]) : null;
+
+                        // Вычисление старта и окончания курса
+                        if (!empty($array_training_days))
+                        {
+                            // Номер дня недели сегодня
+                            $current_num_day = date("N", strtotime($this->date));
+                            $tem_date = new DateTime($this->date);
+                            $today    = $tem_date->format('Y-m-d');
+                            unset($tem_date);
+
+                            // Вычисление даты начала курса
+                            if (!in_array($current_num_day, $array_training_days))
+                            {
+                                // Поиск большего номера дня недели и вычисление его даты
+                                foreach ($array_training_days as $key => $training_day)
+                                {
+                                    if ($training_day > $current_num_day)
+                                    {
+                                        $diff_days = $training_day - $current_num_day;
+
+                                        $tmp_date = new DateTime($today);
+                                        $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
+                                        $new_course_start[$uc_id] = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                                        break;
+                                    }
+                                }
+                                unset($training_day);
+
+                                // Если дата начала курса не вычислилась на предыдущем этапе, выбираем первый день недели тренировки
+                                // пользователя и вычисляем её дату
+                                if (empty($new_course_start[$uc_id]))
+                                {
+                                    // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
+                                    $diff_days = 7 - $current_num_day + $array_training_days[0];
+                                    // Временная дата предыдущей тренивроки
+                                    $tem_date = new DateTime($today);
+                                    // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
+                                    $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                                    $new_course_start[$uc_id] = ($tem_date !== false) ? $tem_date->format('Y-m-d') : $this->date;
+                                }
+                            }
+                            else
+                            {
+                                $new_course_start[$uc_id] = $today;
+                            }
+
+                            // Изначальная дата окончания курса
+                            if (!empty($new_course_start[$uc_id]))
+                            {
+                                $count_days = ($course_weeks*7) - 1;
+                                $tmp_date = new DateTime($new_course_start[$uc_id]);
+                                $tmp_date->add(new DateInterval('P' . $count_days . 'D'));
+                                $new_course_end[$uc_id] = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                            }
+                        }
+                    }
+                }
+                unset($days);
+
+                // Сохранение данных
+                if(!empty($training_days))
+                {
+                    // Сохранение дней и времени тренировок пользователя
+                    /*log_message('debug', 'Training days: ' . print_r($training_days, true));
+                    log_message('debug', 'Training times: ' . print_r($training_times, true));
+                    log_message('debug', 'Courses starts: ' . print_r($new_course_start, true));
+                    log_message('debug', 'Courses ends: ' . print_r($new_course_end, true));*/
+                    $result_td = $this->Course_model->setUserCoursesTrainingDays($user_id, $training_days, $training_times,
+                        $new_course_start, $new_course_end, $crs_count_weeks, $crs_count_days, $this->date);
+                    if ($result_td === true)
+                    {
+                        // Изменения сохранены
+                        $this->session->set_tempdata('message', 10, 60);
+                    }
+                    else
+                    {
+                        // Изменения не сохранены
+                        $this->session->set_tempdata('message', 79, 60);
+                    }
+                }
+            }
+
+            header('Location: /profile/'.$user_id);
+        }
 
         $this->load->model('Notification_model');
         // Уведомления курсов
@@ -343,6 +469,19 @@ class User extends CI_Controller
                         $notification = $this->Notification_model->getNotification($code);
 
                         $this->page_data['course_notification'][$user_course_id]['workout_missed']['text'] = $notification['notification']['text'];
+                    }
+
+                    // Неначатые курсы
+                    if(is_numeric($code) and $code == 203)
+                    {
+                        $notification = $this->Notification_model->getNotification($code);
+
+                        $this->page_data['course_notification']['non_started'][$user_course_id]['text'] = $notification['notification']['text'];
+                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_name']  = $notif['course_name'];
+                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_id']    = $notif['course_id'];
+                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_weeks'] = $notif['course_weeks'];
+                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_days']  = $notif['course_days'];
+                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_rest']  = $notif['course_rest'];
                     }
                 }
             }

@@ -5,6 +5,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <input type="hidden" name="count_weeks" id="count_weeks" value="<?php if (!empty($course['count_weeks'])) { echo $course['count_weeks']; }?>" />
     <input type="hidden" name="count_days" id="count_days" value="<?php if (!empty($course['count_days'])) { echo $course['count_days']; }?>" />
     <input type="hidden" name="count_rest" id="count_rest" value="<?php if (!empty($course['count_rest'])) { echo $course['count_rest']; }?>" />
+    <input type="hidden" name="crs_count_weeks[<?php echo $crs_id; ?>]" value="<?php if (!empty($course['count_weeks'])) { echo $course['count_weeks']; }?>" />
+    <input type="hidden" name="crs_count_days[<?php echo $crs_id; ?>]" value="<?php if (!empty($course['count_days'])) { echo $course['count_days']; }?>" />
+    <input type="hidden" name="crs_count_rest[<?php echo $crs_id; ?>]" value="<?php if (!empty($course['count_rest'])) { echo $course['count_rest']; }?>" />
     <div class="anketa_form_radio_wrap cb_week_day">
         <?php
         // Является ли текущий день предыдущим выбранным днем.

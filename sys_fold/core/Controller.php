@@ -411,9 +411,10 @@ class CI_Controller {
 
             // Уничтожение сессии, для повтороной авторизации, если дата авторизации меньше метки,
             // заданной для обновления сессий пользователя
+            //echo date('U');
             $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->session->user['date_auth']);
             $u_date = $tmp_date->format('U');
-            if ($u_date < '1511022412')
+            if ($u_date < '1560275974')
             {
                 header('Location: /logout');
             }
@@ -452,13 +453,14 @@ class CI_Controller {
                     'products' => $this->session->cart['products'],
                 ));
 
-            $user_session_data['user']['email']     = $user_data['user_data']['user_email'];
-            $user_session_data['user']['name']      = $user_data['user_data']['user_name'];
-            $user_session_data['user']['phone']     = $user_data['user_data']['user_phone'];
-            $user_session_data['user']['image']     = $user_data['user_data']['user_image'];
-            $user_session_data['user']['type']      = $user_data['user_data']['user_type'];
-            $user_session_data['user']['blocked']   = $user_data['user_data']['user_blocked'];
-            $user_session_data['user']['date_auth'] = $this->date;
+            $user_session_data['user']['email']      = $user_data['user_data']['user_email'];
+            $user_session_data['user']['name']       = $user_data['user_data']['user_name'];
+            $user_session_data['user']['phone']      = $user_data['user_data']['user_phone'];
+            $user_session_data['user']['image']      = $user_data['user_data']['user_image'];
+            $user_session_data['user']['type']       = $user_data['user_data']['user_type'];
+            $user_session_data['user']['blocked']    = $user_data['user_data']['user_blocked'];
+            $user_session_data['user']['subscribed'] = $user_data['user_data']['user_subscribed'];
+            //$user_session_data['user']['date_auth']  = $this->date;
 
             $this->session->set_userdata($user_session_data);
             // Проверка существования изображения пользователя
@@ -534,12 +536,13 @@ class CI_Controller {
             "title" => '',
             "keywords" => '',
             "description" => '',
-            "site_info" => !empty($site_info) ? $site_info : '',
-            "metadata" => !empty($site_metadata) ? $site_metadata : '',
-            "user_session" => !empty($this->session->user) ? $this->session->user : '',
-            "new_messages" => !empty($this->session->new_messages) ? $this->session->new_messages : 0,
-            "new_fb_messages" => !empty($this->session->new_fb_messages) ? $this->session->new_fb_messages : 0,
-            "cart_count" => !empty($this->session->cart['count']) ? $this->session->cart['count'] : 0,
+            "site_info" => (!empty($site_info)) ? $site_info : '',
+            "metadata" => (!empty($site_metadata)) ? $site_metadata : '',
+            "user_session" => (!empty($this->session->user)) ? $this->session->user : '',
+            "new_messages" => (!empty($this->session->new_messages)) ? $this->session->new_messages : 0,
+            "new_fb_messages" => (!empty($this->session->new_fb_messages)) ? $this->session->new_fb_messages : 0,
+            "user_subscribed" => ($this->session->user['subscribed'] === true) ? true : false,
+            "cart_count" => (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0,
             "message" => $this->page_message,
             "page_menu" => '',
             "page_submenu" => '',
