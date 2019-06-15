@@ -1017,7 +1017,7 @@ div.info{
     padding: 10px 15px 0;
     display: none;
 }
-.notification_block .content_block_h_buts, .metadata .content_block_h_buts {
+.notification_block .content_block_h_buts, .content_block_internal .content_block_h_buts {
      display: block;
 }
 .content_block_h{
@@ -6122,6 +6122,7 @@ textarea.journal_post_comm_in{
     color: #33363f;
 }
 .chat_block_h_buts{
+    display: none;
     border-left: 1px solid #cccccc;
     cursor: default;
     height: 39px;

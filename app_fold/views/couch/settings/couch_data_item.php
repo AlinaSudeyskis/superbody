@@ -5,9 +5,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     tinymce.init({
         selector: "textarea.formatted_textarea",
         menubar:false,
-        theme: "modern",
+        theme: "silver",
         language_url : '/js/tinymce/langs/ru.js',
-        plugins: "textcolor colorpicker bbcode",
+        plugins: "bbcode",
         toolbar: "undo redo | bold italic | forecolor",
         min_height : 200
     });

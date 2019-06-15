@@ -22,7 +22,7 @@ include_once('./app_fold/views/course/user_course/page_part/header.php');?>
                         $date = $tmp_date->format('d.m.Y');?>
                         <div class="anketa_block_item_h" style="display: flex; clear: both;">
                             <?php echo $day; ?>
-                            <span style="color: #b3b3b3; font-size: 10px; font-weight: normal; line-height: 14px; margin-left: 7px;"><?php echo '('.$date.')'; ?></span>
+                            <span style="color: #b3b3b3; font-size: 10px; font-weight: normal; line-height: 35px; margin-left: 7px;"><?php echo '('.$date.')'; ?></span>
                         </div>
                         <?php if(!empty($cm)):?>
                             <div style="clear: both; overflow: hidden; padding-bottom: 20px;">

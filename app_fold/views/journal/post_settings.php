@@ -7,7 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         menubar:false,
         theme: "modern",
         language_url : '/js/tinymce/langs/ru.js',
-        plugins: "image link imagetools textcolor colorpicker bbcode",
+        plugins: "image link imagetools bbcode",
         toolbar: "undo redo | fontsizeselect | bold italic | alignleft aligncenter alignright alignjustify | image | forecolor",
         fontsize_formats: "8px 10px 12px 14px 18px 24px 36px 42px 50px"
     });
