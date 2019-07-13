@@ -209,6 +209,7 @@ $(document).ready(function() {
                                 '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
                                 '</div>' + rel_per_block;
 
+                            new_price = parseFloat(new_price).toFixed(2);
                             price_block.addClass('strikeout');
                             if(price_block.next('#course-new-price').length == 0)
                             {
