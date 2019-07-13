@@ -46,32 +46,6 @@ $(document).ready(function(){
         });
     }
 
-    // Скрыть/отобразить блоки периода действия и число использований промокода
-    $('#s-pv-type').on('change', function(){
-        var bl_pv = $('#bl-pv'),
-            pv_type = $(this).val();
-        if(pv_type === 'date_range')
-        {
-            bl_pv.show();
-        }
-        else
-        {
-            bl_pv.hide();
-        }
-    });
-    $('#s-ua-type').on('change', function(){
-        var ua_number = $('#bl-ua-number'),
-            ua_type = $(this).val();
-        if(ua_type === 'number')
-        {
-            ua_number.show();
-        }
-        else
-        {
-            ua_number.hide();
-        }
-    });
-
     // Скрыть/отобразить блок добавления промокода
     $('#extends-promocode').on('change', function(){
         var bl_pc_sett = $('#bl-pc-sett');
@@ -994,18 +968,18 @@ $(document).ready(function(){
     });
 
     /* выпадающий список тренеров */
-    $(document).on('input', '.add_tov_in.couches input:text', function () {
+    $(document).on('input', '.add_tov_in.coaches input:text', function () {
         if($(this).val() != '' && $(this).val().length < 255){
             var input_search = $(this).val(),
                 tov_in = $(this);
             $.ajax({
-                url: '/searchCouches',
+                url: '/searchCoaches',
                 type: 'post',
                 dataType: 'json',
                 data: {search_text: input_search},
                 complete: function (result) {
                     var data = result.responseJSON;
-                    tov_in.parents(".add_tov_in").find(".add_tov_list").html(data.couches);
+                    tov_in.parents(".add_tov_in").find(".add_tov_list").html(data.coaches);
                     tov_in.parents(".add_tov_in").find(".add_tov_list").show();
                 }
             });
@@ -1047,8 +1021,8 @@ $(document).ready(function(){
                         '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
                         '<div class="add_tov_val_sale">' +
                         '<div class="admin_form_h">Процент, %</div>' +
-                        '<input type="hidden" name="couches['+number+']" value="'+number+'" />' +
-                        '<input type="text" name="couches_percent['+number+']" class="admin_form_txt couches_percent" placeholder="0" value=""/>' +
+                        '<input type="hidden" name="coaches['+number+']" value="'+number+'" />' +
+                        '<input type="text" name="coaches_percent['+number+']" class="admin_form_txt coaches_percent" placeholder="0" value=""/>' +
                         '</div>' +
                         '<div class="del_tov"></div></div>');
             } else if($(this).parents("form").hasClass("landing_admin_form")){
@@ -1064,12 +1038,12 @@ $(document).ready(function(){
         return false;
     });
 
-    $(document).on('input', '.couches_percent', function(){
-        var couches_percent = $('.couches_percent'),
+    $(document).on('input', '.coaches_percent', function(){
+        var coaches_percent = $('.coaches_percent'),
             site_info = $('#site-percent'),
             sum_percent = 0, site_percent = 0;
 
-        couches_percent.each(function(){
+        coaches_percent.each(function(){
             if((sum_percent + parseFloat($(this).val())) > 100)
             {
                 $(this).val(100 - sum_percent);
@@ -1094,7 +1068,7 @@ $(document).ready(function(){
         }
         if(site_info.length == 0)
         {
-            couches_percent.parents('.add_tov_in_total').after('<div class="parent kurs_cur_wrap">' +
+            coaches_percent.parents('.add_tov_in_total').after('<div class="parent kurs_cur_wrap">' +
             '<div class="kurs_block_h">Процент сайта:</div>' +
             '<div id="site-percent"></div>' +
             '</div>');

@@ -16,11 +16,11 @@ include_once('./app_fold/views/breadcrumb.php');
 <div class="container"><h2 class="block_h">Наши тренера</h2></div>
 <div id="content" class="container">
     <div class="trainers_row row">
-        <?php if (!empty($couches)):
-            foreach($couches as $couch):?>
-                <?php include('./app_fold/views/couch/couch_item.php');?>
+        <?php if (!empty($coaches)):
+            foreach($coaches as $coach):?>
+                <?php include('./app_fold/views/coach/coach_item.php');?>
             <?php endforeach;
-            unset($couch);
+            unset($coach);
         endif;?>
     </div>
 </div><!-- content -->

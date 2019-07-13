@@ -7,22 +7,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="kurs_page_block_h"><?php echo $course['name']; ?></div>
             <div class="kurs_page_block_desk"><?php echo $course['description']; ?></div>
             <div class="kurs_page_block_slider">
-                <?php if (!empty($course['couches'])) :
-                    foreach ($course['couches'] as $course_couch) :?>
+                <?php if (!empty($course['coaches'])) :
+                    foreach ($course['coaches'] as $course_coach) :?>
                         <div class="kurs_page_block_slide parent">
                             <div class="kurs_page_block_slide_img">
-                                <?php if (!empty($course_couch['image'])):?>
-                                    <img src="<?php echo $course_couch['image'];?>" alt="">
+                                <?php if (!empty($course_coach['image'])):?>
+                                    <img src="<?php echo $course_coach['image'];?>" alt="">
                                 <?php endif;?>
                             </div>
                             <div class="kurs_page_block_slide_cont">
                                 <div class="kurs_page_block_slide_stat">тренер</div>
-                                <div class="kurs_page_block_slide_name"><a href="/profile/<?php echo $course_couch['id'];?>"><?php echo $course_couch['name'];?></a></div>
-                                <div class="kurs_page_block_slide_desk"><?php echo $course_couch['special'];?></div>
+                                <div class="kurs_page_block_slide_name"><a href="/profile/<?php echo $course_coach['id'];?>"><?php echo $course_coach['name'];?></a></div>
+                                <div class="kurs_page_block_slide_desk"><?php echo $course_coach['special'];?></div>
                             </div>
                         </div>
                     <?php endforeach;
-                    unset($course_couch);
+                    unset($course_coach);
                 endif;?>
             </div>
             <div class="kurs_page_block_but parent">

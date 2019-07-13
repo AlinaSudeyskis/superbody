@@ -121,9 +121,9 @@ $route['notifications/nutritionWeekMenu'] = 'Course/sendNutritionWeekMenuEmails'
 
 //$route['buy/course']             = 'Course/buyCourse';
 // Записи блога тренера
-$route['posts']       = 'Blog/getCouchPosts';
-$route['post/new']    = 'Blog/newCouchPost';
-$route['post/(:num)'] = 'Blog/getCouchPost/$1';
+$route['posts']       = 'Blog/getCoachPosts';
+$route['post/new']    = 'Blog/newCoachPost';
+$route['post/(:num)'] = 'Blog/getCoachPost/$1';
 // Записи блога
 $route['blog/(:num)'] = 'Blog/getPost/$1';
 // Сообщения
@@ -145,13 +145,13 @@ $route['administration/admin/new/users']       = 'Administrator/newAdminOfTheUse
 $route['administration/admin/(:num)/personal'] = 'Administrator/adminSettings/$1/personal';
 $route['administration/admin/(:num)']          = 'Administrator/adminSettings/$1';
 // Тренеры
-$route['administration/couches']                  = 'Couch/couches';
-$route['administration/couch/new']                = 'Couch/newCouch';
-$route['administration/couch/new/users']          = 'Couch/newCouchOfTheUsers';
-$route['administration/couch/(:num)/personal']    = 'Couch/couchSettings/$1/personal';
-$route['administration/couch/(:num)']             = 'Couch/couchSettings/$1';
-$route['administration/couches/portfolio']        = 'Couch/couchesPortfolioPosts';
-$route['administration/couches/portfolio/(:num)'] = 'Couch/couchesPortfolioPost/$1';
+$route['administration/coaches']                  = 'Coach/coaches';
+$route['administration/coach/new']                = 'Coach/newCoach';
+$route['administration/coach/new/users']          = 'Coach/newCoachOfTheUsers';
+$route['administration/coach/(:num)/personal']    = 'Coach/coachSettings/$1/personal';
+$route['administration/coach/(:num)']             = 'Coach/coachSettings/$1';
+$route['administration/coaches/portfolio']        = 'Coach/coachesPortfolioPosts';
+$route['administration/coaches/portfolio/(:num)'] = 'Coach/coachesPortfolioPost/$1';
 // Пользователи
 $route['administration/users']                 = 'User/users';
 $route['administration/user/(:num)/personal']  = 'User/userASettings/$1/personal';
@@ -231,6 +231,8 @@ $route['administration/nutrition/(:num)/review/(:num)'] = 'Course/nutrition/$1/r
 $route['administration/promocodes']       = 'Course/promocodes';
 $route['administration/promocode/new']    = 'Course/newPromocode';
 $route['administration/promocode/(:num)'] = 'Course/promocode/$1';
+$route['administration/coaches/promocodes']      = 'Course/coachesPromocodes';
+$route['administration/coach/promocodes/(:num)'] = 'Course/coachPromocodes/$1';
 $route['searchCourses'] = 'Course/searchCourses';
 $route['saveFriendPromocode'] = 'Course/saveFriendPromocode';
 // Тип приемов пищи
@@ -338,16 +340,19 @@ $route['administration/landing/default/(:num)'] = 'Course/defaultLanding/$1';
 $route['landing/(:num)']                        = 'Course/landing/$1';
 
 // Страница тренера
-$route['portfolio']              = 'Couch/couchPortfolio';
-$route['portfolio/(:num)']       = 'Couch/portfolioPost/$1';
-$route['portfolio/post/(:num)']  = 'Couch/editPortfolioPost/$1';
-$route['portfolio/post/new']     = 'Couch/newPortfolioPost';
-$route['searchCouches']          = 'Couch/searchCouches';
-$route['partner']                = 'Couch/partner';
-$route['partner/course/(:num)']  = 'Couch/partnerCourse/$1';
-$route['clients/activity']       = 'Couch/usersActivity';
-$route['client/activity/(:num)'] = 'Couch/userActivity/$1';
-$route['couches']                = 'Couch/publicCouches';
+$route['profile/promocodes']       = 'Coach/coachPromocodes';
+$route['profile/promocode/new']    = 'Coach/coachNewPromocode';
+$route['profile/promocode/(:num)'] = 'Coach/coachPromocode/$1';
+$route['portfolio']                = 'Coach/coachPortfolio';
+$route['portfolio/(:num)']         = 'Coach/portfolioPost/$1';
+$route['portfolio/post/(:num)']    = 'Coach/editPortfolioPost/$1';
+$route['portfolio/post/new']       = 'Coach/newPortfolioPost';
+$route['searchCoaches']            = 'Coach/searchCoaches';
+$route['partner']                  = 'Coach/partner';
+$route['partner/course/(:num)']    = 'Coach/partnerCourse/$1';
+$route['clients/activity']         = 'Coach/usersActivity';
+$route['client/activity/(:num)']   = 'Coach/userActivity/$1';
+$route['coaches']                  = 'Coach/publicCoaches';
 
 // Курс
 $route['course/(:num)'] = 'Course/publicCourse/$1';

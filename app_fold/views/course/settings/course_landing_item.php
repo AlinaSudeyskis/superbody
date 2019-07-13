@@ -249,7 +249,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                             <div class="tren_set_form_r">
                                 <div class="tren_form_block_check_wrap">
-                                    <input type="checkbox" name="cb_couch_image_block2"
+                                    <input type="checkbox" name="cb_coach_image_block2"
                                         <?php if ($landing['block2']['image_default'] === true) : ?> checked="checked" <?php endif ; ?>
                                            class="tren_form_block_check" id="tren_form_block_check1bi" />
                                     <label for="tren_form_block_check1bi">Изображение по умолчанию</label>
@@ -260,7 +260,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="video_down_line parent">
                                         <div class="video_down_line_but_wrap">
                                             <label for="video_down_line_but1fbi" class="video_down_line_but">
-                                                <input type="file" name="couch_file_block2" class="admin_form_videofile" id="video_down_line_but1fbi" accept="image/jpeg,image/png" />
+                                                <input type="file" name="coach_file_block2" class="admin_form_videofile" id="video_down_line_but1fbi" accept="image/jpeg,image/png" />
                                                 <span>Выберите файл</span>
                                             </label>
                                         </div>
@@ -725,7 +725,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <div class="video_down_line parent">
                                             <div class="video_down_line_but_wrap">
                                                 <label for="video_down_line_but5fbi" class="video_down_line_but">
-                                                    <input type="file" name="couch_file1_block5" class="admin_form_videofile" id="video_down_line_but5fbi" accept="image/jpeg,image/png" />
+                                                    <input type="file" name="coach_file1_block5" class="admin_form_videofile" id="video_down_line_but5fbi" accept="image/jpeg,image/png" />
                                                     <span>Выберите файл</span>
                                                 </label>
                                             </div>
@@ -762,7 +762,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <div class="video_down_line parent">
                                             <div class="video_down_line_but_wrap">
                                                 <label for="video_down_line_but6fbi" class="video_down_line_but">
-                                                    <input type="file" name="couch_file2_block5" class="admin_form_videofile" id="video_down_line_but6fbi" accept="image/jpeg,image/png" />
+                                                    <input type="file" name="coach_file2_block5" class="admin_form_videofile" id="video_down_line_but6fbi" accept="image/jpeg,image/png" />
                                                     <span>Выберите файл</span>
                                                 </label>
                                             </div>
@@ -800,7 +800,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <div class="video_down_line parent">
                                             <div class="video_down_line_but_wrap">
                                                 <label for="video_down_line_but7fbi" class="video_down_line_but">
-                                                    <input type="file" name="couch_avatar_block5" class="admin_form_videofile" id="video_down_line_but7fbi" accept="image/jpeg,image/png" />
+                                                    <input type="file" name="coach_avatar_block5" class="admin_form_videofile" id="video_down_line_but7fbi" accept="image/jpeg,image/png" />
                                                     <span>Выберите файл</span>
                                                 </label>
                                             </div>
@@ -813,15 +813,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_h">Слова тренера о программе</div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Заголовок:</div>
-                            <input type="text" name="i_couch_title_block5" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block5']['r_title']; ?>" />
+                            <input type="text" name="i_coach_title_block5" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block5']['r_title']; ?>" />
                         </div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Подзаголовок:</div>
-                            <input type="text" name="i_couch_subtitle_block5" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block5']['r_subtitle']; ?>" />
+                            <input type="text" name="i_coach_subtitle_block5" class="admin_form_txt admin_form_txt_middle" maxlength="50" value="<?php echo $landing['block5']['r_subtitle']; ?>" />
                         </div>
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст:</div>
-                            <input type="text" name="i_couch_text_block5" class="admin_form_txt admin_form_txt_middle" maxlength="120" value="<?php echo $landing['block5']['r_text']; ?>" />
+                            <input type="text" name="i_coach_text_block5" class="admin_form_txt admin_form_txt_middle" maxlength="120" value="<?php echo $landing['block5']['r_text']; ?>" />
                         </div>
                         <div class="lend_form_h">Кнопка</div>
                         <div class="parent kurs_cur_wrap">

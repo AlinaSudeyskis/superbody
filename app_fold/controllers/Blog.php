@@ -234,7 +234,7 @@ class Blog extends CI_Controller
     /**
      * Записи блога тренера
      */
-    public function getCouchPosts()
+    public function getCoachPosts()
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
@@ -242,14 +242,14 @@ class Blog extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $this->load->model('Couch_model');
+        $this->load->model('Coach_model');
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Блог';
         $this->page_data['page_menu'] = 'blog';
 
-        $c_data = $this->Couch_model->getCouch($this->user_id, $this->date);
-        $posts  = $this->Blog_model->getCouchBlogPosts($this->user_id);
+        $c_data = $this->Coach_model->getCoach($this->user_id, $this->date);
+        $posts  = $this->Blog_model->getCoachBlogPosts($this->user_id);
         $result = array_merge($posts, $c_data);
 
         $this->load->view('header/header', $this->page_data);
@@ -264,7 +264,7 @@ class Blog extends CI_Controller
      *
      * @param $post_id
      */
-    public function getCouchPost($post_id)
+    public function getCoachPost($post_id)
     {
         if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
         {
@@ -278,7 +278,7 @@ class Blog extends CI_Controller
             $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<span><br/><b><i><p>'), 0, 1000);
             $post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
 
-            $result = $this->Blog_model->updateCouchBlogPost($this->user_id, $post_id, $post_title, $post_desc, $post_text, $this->date);
+            $result = $this->Blog_model->updateCoachBlogPost($this->user_id, $post_id, $post_title, $post_desc, $post_text, $this->date);
 
             if ($result === true)
             {
@@ -317,7 +317,7 @@ class Blog extends CI_Controller
             header('Location: /post/' . $post_id);
         }
 
-        $result = $this->Blog_model->getCouchBlogPost($this->user_id, $post_id);
+        $result = $this->Blog_model->getCoachBlogPost($this->user_id, $post_id);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Блог тренера';
@@ -333,7 +333,7 @@ class Blog extends CI_Controller
     /**
      * Форма добавления записи блога тренером
      */
-    public function newCouchPost()
+    public function newCoachPost()
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
@@ -410,10 +410,10 @@ class Blog extends CI_Controller
             header('Location: /blog/' . $post_id);
         }
 
-        $this->load->model('Couch_model');
+        $this->load->model('Coach_model');
 
         $post   = $this->Blog_model->getPublicBlogPost($post_id);
-        $user   = $this->Couch_model->getCouch($post['post']['user']['id'], $this->date);
+        $user   = $this->Coach_model->getCoach($post['post']['user']['id'], $this->date);
         $result = array_merge($post, $user);
 
         // Объединенные данные страница

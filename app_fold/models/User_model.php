@@ -663,21 +663,21 @@ class User_model extends CI_Model
                 }
 
                 // Удаление данных блога тренера
-                $del_data = $this->db->query('DELETE FROM `couch_blog` WHERE `cb_u_id`=?', $user_id);
+                $del_data = $this->db->query('DELETE FROM `coach_blog` WHERE `cb_u_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
                 // Удаление данных тренера
-                $del_data = $this->db->query('DELETE FROM `couch_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
+                $del_data = $this->db->query('DELETE FROM `coach_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
 
                 // Удаление данных портфолио тренера
-                $del_data = $this->db->query('DELETE FROM `couch_portfolio` WHERE `cp_u_id`=?', $user_id);
+                $del_data = $this->db->query('DELETE FROM `coach_portfolio` WHERE `cp_u_id`=?', $user_id);
                 if($del_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);

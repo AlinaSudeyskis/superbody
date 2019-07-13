@@ -214,15 +214,17 @@ $(document).ready(function() {
             // Скрыть/Показать checkboxes дней тренировок
             $("body").on("click", ".week_days input[type=checkbox]", function ()
             {
-                var parent       = $(this).parents('.week_days'),
+                var this_el      = $(this),
+                    parent       = this_el.parents('.week_days'),
                     count_rest   = parseInt(parent.find('#count_rest').val()),
                     count_days   = parseInt(parent.find('#count_days').val()),
                     checkboxes   = parent.find('input:checkbox:checked'),
-                    next_element = $(this).parent(),
-                    prev_element = $(this).parent(),
-                    element      = $(this).parent(),
-                    this_wd      = $(this).parents('.week_days'),
-                    frm_postpone = $(this).parents('form.postpone'),
+                    next_element = this_el.parent(),
+                    prev_element = this_el.parent(),
+                    element      = this_el.parent(),
+                    this_wd      = this_el.parents('.week_days'),
+                    this_wt      = this_wd.next('.week_times'),
+                    frm_postpone = this_el.parents('form.postpone'),
                     pop_up       = $("#pop-up_postpone"), error_info = '',
                     all_ch_cb    = $('.week_days').find("input:checkbox:checked"),
                     fl_rest_warn = false,
@@ -235,15 +237,31 @@ $(document).ready(function() {
 
                 if (checkboxes.length <= count_days)
                 {
-                    if ($(this).is(":checked"))
+                    var this_el_t = $('#' + this_el.attr('id') + '_time');
+
+                    if (this_el.is(":checked"))
                     {
-                        blockWeekDays(count_rest, next_element, prev_element, element)
+                        blockWeekDays(count_rest, next_element, prev_element, element);
+
+                        if(this_el_t.length == 1)
+                        {
+                            this_el_t.removeClass('disabled');
+                            this_el_t.prop('disabled', false);
+                            this_el_t.focus();
+                        }
                     }
-                    else if(!$(this).is(":checked"))
+                    else if(!this_el.is(":checked"))
                     {
                         // Разблокировать предыдущий и следующий checkbox.
                         next_element.nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').removeClass('disabled');
                         prev_element.prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').removeClass('disabled');
+
+
+                        if(this_el_t.length == 1)
+                        {
+                            this_el_t.addClass('disabled');
+                            this_el_t.prop('disabled', true);
+                        }
                     }
 
                     this_wd.find('input:checkbox:checked').each(function (indx, elm)
@@ -374,13 +392,29 @@ $(document).ready(function() {
                                 diff_prev_ch = $(prev_ch).not(ch_cb).length;
                             if(ch_cb.length === 1 && ch_cb.hasClass('prev_workout'))
                             {
+                                var ch_cb_t = $('#' + ch_cb.attr('id') + '_time');
+                                ch_cb_t.on('input', function(){
+                                    var this_i = $(this),
+                                        default_value = this_i.prop('defaultValue'),
+                                        cur_value = this_i.val();
+                                    if(default_value == cur_value)
+                                    {
+                                        fl_days_warn = true;
+                                        pop_up.find('#bt-save-postpone').prop('disabled', true);
+                                    }
+                                    else
+                                    {
+                                        fl_days_warn = false;
+                                        pop_up.find('#bt-save-postpone').prop('disabled', false);
+                                    }
+                                });
                                 //need_days  = count_days - 1;
                                 //error_info = '*Выберите еще ' + need_days + ' ' + declensionDays(need_days) + '.';
                                 fl_days_warn = true;
                             }
                             else if(count_days === ch_cb.length && diff_ch_cb === 0 && diff_prev_ch === 0)
                             {
-                                fl_days_warn = true;
+                                //fl_days_warn = true;
                             }
                         }
                         else
@@ -406,11 +440,11 @@ $(document).ready(function() {
 
                         if(error_info)
                         {
-                            var h3_info = this_wd.next('h3.info');
+                            var h3_info = this_wd.parent().next('h3.info');
                             if(h3_info.length === 0)
                             {
-                                this_wd.after('<h3 class="info">'+error_info+'</h3>');
-                                h3_info = this_wd.next('h3.info');
+                                this_wd.parent().after('<h3 class="info">'+error_info+'</h3>');
+                                h3_info = this_wd.parent().next('h3.info');
                             }
                             else
                             {
@@ -1124,11 +1158,11 @@ $(document).ready(function() {
             }
 
             // Поиск тренера курса
-            $('#input-couch-search').keyup(function () {
+            $('#input-coach-search').keyup(function () {
                 var input_search = $(this).val();
                 if (input_search.length < 255 && input_search.length > 3) {
                     $.ajax({
-                        url: '/searchCouches',
+                        url: '/searchCoaches',
                         type: 'post',
                         data: {search_text: input_search},
                         complete: function (result) {
@@ -1149,28 +1183,28 @@ $(document).ready(function() {
             });
 
             // Выбранный тренер
-            $("#block-couch").on('click', '#search-result #list-search-result li', function () {
-                var couch_id = $(this).find("#res-couch-id").val(),
-                    couch_name = $(this).find("#res-couch-name").val(),
-                    input = $(".select_couch .select_input input[type=hidden][value=" + couch_id + "]");
+            $("#block-coach").on('click', '#search-result #list-search-result li', function () {
+                var coach_id = $(this).find("#res-coach-id").val(),
+                    coach_name = $(this).find("#res-coach-name").val(),
+                    input = $(".select_coach .select_input input[type=hidden][value=" + coach_id + "]");
 
                 if (input.length == 0) {
-                    $("#select-couch .select_couch").append("<div class='select_input'>" +
-                        "<input type='hidden' name='couches[]' value='" + couch_id + "'/>" +
-                        "<div class='input_name selected'>" + couch_name + "</div>" +
-                        "<div class='input_value'><input type='text' name='couches_percent[]' value='' placeholder='0' class='percent'/>%</div>" +
+                    $("#select-coach .select_coach").append("<div class='select_input'>" +
+                        "<input type='hidden' name='coaches[]' value='" + coach_id + "'/>" +
+                        "<div class='input_name selected'>" + coach_name + "</div>" +
+                        "<div class='input_value'><input type='text' name='coaches_percent[]' value='' placeholder='0' class='percent'/>%</div>" +
                         "</div>");
 
                     $('.percent').mask('000.00', {reverse: true});
                 }
 
                 $("#search-result #list-search-result").html("");
-                $('#input-couch-search').val("");
+                $('#input-coach-search').val("");
                 $("#search-result").hide();
             });
 
             // Удаление тренера
-            $("#select-couch").on('click', '.select_input .selected', function () {
+            $("#select-coach").on('click', '.select_input .selected', function () {
                 $(this).remove();
             });
 

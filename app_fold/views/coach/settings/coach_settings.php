@@ -51,7 +51,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="video_admin_form">
                                     <div class="anketa_block_item_h">Личные данные</div>
                                     <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?>
-                                    <?php include_once('./app_fold/views/couch/settings/couch_data_item.php'); ?>
+                                    <?php include_once('./app_fold/views/coach/settings/coach_data_item.php'); ?>
                                 </div>
                             </form>
                         <?php else: ?>

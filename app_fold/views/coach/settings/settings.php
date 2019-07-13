@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="content" class="container">
     <div class="row">
         <div class="col-lg-2 left_sidebar">
-            <?php include_once('./app_fold/views/couch/couch_menu.php');?>
+            <?php include_once('./app_fold/views/coach/coach_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block no_over">
@@ -34,7 +34,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_block_item_cont">
                                     <form action="" class="anketa_form" method="post">
                                         <?php include_once('./app_fold/views/user/settings/settings_bg_item.php');?>
-                                        <?php include_once('./app_fold/views/couch/settings/couch_data_item.php');?>
+                                        <?php include_once('./app_fold/views/coach/settings/coach_data_item.php');?>
                                         <div class="anketa_form_line parent">
                                             <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
                                         </div>

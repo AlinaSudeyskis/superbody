@@ -494,7 +494,7 @@ class CI_Controller {
             elseif(filter_var($forward, FILTER_VALIDATE_IP)) $ip = $forward;
             else $ip = $remote;
 
-            $ip_data = json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=".$ip));
+            $ip_data = (!empty($ip)) ? json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=".$ip)) : null;
 
             if($ip_data && $ip_data->geoplugin_countryName != null)
             {
@@ -1445,8 +1445,8 @@ class CI_Controller {
      *
      * @param $course_id
      * @param $course_data
-     * @param $course_couches
-     * @param $id_couch
+     * @param $course_coaches
+     * @param $id_coach
      * @param $s_payment_options
      * @param $s_payment_method
      * @param $i_phone
@@ -1456,14 +1456,14 @@ class CI_Controller {
      * @param $return_url
      * @throws Exception
      */
-    public function buyCourse($course_id, $course_data, $course_couches, $id_couch, $s_payment_options,
+    public function buyCourse($course_id, $course_data, $course_coaches, $id_coach, $s_payment_options,
                               $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url)
     {
         // Количество тренировок за курс
         $count_workouts = $course_data['count_weeks'] * $course_data['count_days'];
 
         // Выбранный тренер
-        $user_couch = (is_numeric($id_couch) and in_array($id_couch, $course_couches['id'])) ? $id_couch : '';
+        $user_coach = (is_numeric($id_coach) and in_array($id_coach, $course_coaches['id'])) ? $id_coach : '';
 
         // Тренировочные дни
         $training_days = '';
@@ -1653,7 +1653,7 @@ class CI_Controller {
 
                 header('Location: /payment?' .http_build_query($payment_data));
 
-                /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
+                /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_coach, $this->date);
 
                 if (is_numeric($res_buy))
                 {
@@ -1822,5 +1822,119 @@ class CI_Controller {
         // Without confirmation
         //log_message('debug', __METHOD__ . ':'. PHP_EOL . print_r($response, true));
 
+    }
+
+    /**
+     * Сохранение нового промокода
+     *
+     * @param $i_code_name
+     * @param $i_code_desc
+     * @param $i_code_discount
+     * @param $i_discount_type
+     * @param $i_rel_percent
+     * @param $s_pv_type
+     * @param $i_validity_date_start
+     * @param $i_validity_date_end
+     * @param $s_ua_type
+     * @param $i_ua_number
+     * @param $i_promocode
+     * @param $r_crs_group
+     * @param $s_crs_categories
+     * @param $i_courses
+     * @param int $coach_id
+     * @param int $admin_id
+     * @return array
+     * @internal param $course_id
+     * @internal param $s_category
+     */
+    public function saveNewCoursePromocode($i_code_name, $i_code_desc, $i_code_discount, $i_discount_type,
+                                          $i_rel_percent, $s_pv_type, $i_validity_date_start, $i_validity_date_end,
+                                          $s_ua_type, $i_ua_number, $i_promocode, $r_crs_group, $s_crs_categories,
+                                          $i_courses, $admin_id, $coach_id = 0)
+    {
+        $result = array('error' => false, 'promocode_id' => null);
+
+        $name          = mb_substr(strip_tags($i_code_name), 0, 255);
+        $desc          = mb_substr(strip_tags($i_code_desc), 0, 255);
+        $discount      = (is_numeric($i_code_discount)) ? $i_code_discount : null;
+        $discount_type = ($i_discount_type == 'percent') ? 'percent' : 'currency';
+        $rel_percent   = (is_numeric($i_rel_percent)) ? $i_rel_percent : 0;
+        $validity_type = ($s_pv_type == 'unlimited') ? 'unlimited' : 'date_range';
+        $tmp_ds        = new DateTime($i_validity_date_start);
+        $tmp_de        = new DateTime($i_validity_date_end);
+        $pv_date_start = ($tmp_ds !== false and $validity_type == 'date_range') ? $tmp_ds->format('Y-m-d') : '';
+        $pv_date_end   = ($tmp_de !== false and $validity_type == 'date_range') ? $tmp_de->format('Y-m-d') : '';
+
+        $use_type  = ($s_ua_type == 'unlimited') ? 'unlimited' : 'number';
+        $ua_number = (is_numeric($i_ua_number) and $use_type == 'number') ? $i_ua_number : '';
+
+        $promocode = strtoupper(mb_substr(strip_tags($i_promocode), 0, 25));
+
+        $discount = ($discount_type == 'percent' and $discount > 100) ? 100 : $discount;
+
+        // Группы курсов, на которые распространяется промокод
+        $crs_groups = array('all', 'workouts', 'nutritions', 'categories', 'courses');
+        $pc_type = (in_array($r_crs_group, $crs_groups)) ? $r_crs_group : 'all';
+
+        // Категории курсов, на которые распространяется промокод
+        $crs_categories   = '';
+        if(!empty($s_crs_categories) and $pc_type == 'categories')
+        {
+            foreach($s_crs_categories as $key => $crs_cat)
+            {
+                if(!is_numeric($crs_cat))
+                {
+                    unset($s_crs_categories[$key]);
+                }
+            }
+            unset($crs_cat);
+
+            $crs_categories = implode(';', $s_crs_categories);
+        }
+
+        // Выбранные курсы, на которые распространяется промокод
+        $courses = array('insert' => array());
+        if(!empty($i_courses))
+        {
+            $i = 0;
+            foreach ($i_courses as $i_c)
+            {
+                if(is_numeric($i_c))
+                {
+                    $courses['insert'][$i] = $i_c;
+
+                    $i++;
+                }
+            }
+            unset($i_c);
+
+            $count_courses = count($courses['insert']);
+            if($count_courses > 0)
+            {
+                $pc_type = 'courses';
+            }
+        }
+
+        if(!empty($discount) and !empty($promocode))
+        {
+            $res_ins = $this->Course_model->setNewPromocode($pc_type, $name, $desc, $discount, $discount_type,
+                $rel_percent, $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $promocode, $courses,
+                $crs_categories, $coach_id, $admin_id, $this->date);
+
+            if (is_numeric($res_ins))
+            {
+                $result['promocode_id'] = $res_ins;
+            }
+            else
+            {
+                $result['error'] = 145;
+            }
+        }
+        else
+        {
+            $result['error'] = 146;
+        }
+
+        return $result;
     }
 }

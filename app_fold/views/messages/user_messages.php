@@ -5,7 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="row">
         <div class="col-lg-2 left_sidebar">
             <?php if (!empty($user_session) and $user_session['type'] == 2):
-                include_once('./app_fold/views/couch/couch_menu.php');
+                include_once('./app_fold/views/coach/coach_menu.php');
             elseif(!empty($user_session)) :
                 include_once('./app_fold/views/user/user_menu.php');
             endif;?>
@@ -57,8 +57,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             unset($attached_users[$conv['user_with']['id']]);
                                         endif;
                                     else :
-                                        if (array_key_exists($conv['user_with']['id'], $attached_couches)) :
-                                            unset($attached_couches[$conv['user_with']['id']]);
+                                        if (array_key_exists($conv['user_with']['id'], $attached_coaches)) :
+                                            unset($attached_coaches[$conv['user_with']['id']]);
                                         endif;
                                     endif;?>
                                     <div class="chat_contact parent <?php if ($user_with == $conv['user_with']['id']) { echo 'chat_contact_active';}?>"

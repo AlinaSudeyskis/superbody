@@ -89,7 +89,8 @@ $(document).ready(function() {
 
         $(".buy_course").on('click', function(event){
             event.preventDefault();
-            var cid = $(this).data('cid');
+            var cid = $(this).data('cid'),
+                purchase_form = $('.purchase_form');
 
             $.ajax({
                 url: '/dataCourse',
@@ -101,10 +102,32 @@ $(document).ready(function() {
                 complete: function (result) {
                     var data = result.responseJSON;
                     if (data.crs) {
-                        $('.purchase_form').html(data.crsd);
+                        purchase_form.html(data.crsd);
 
                         purchase_up();
                         $('.anketa_form_select, .journal_form_select').styler();
+
+                        purchase_form.find(".promo_line").on('click', function(){
+                            $(this).hide();
+                            $(this).parent('.promo_block').find('.kurs_block_h').html('Промокод:');
+                            if(purchase_form.find('#i-promocode').length === 1)
+                            {
+                                purchase_form.find('#i-promocode').show();
+                            }
+                            else
+                            {
+                                $(this).parent('.promo_block').find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
+                            }
+                        });
+
+                        purchase_form.on('paste', ' #i-promocode', function(){
+                            var pc_input = $(this);
+                            searchPromo(pc_input);
+                        });
+                        purchase_form.on('keyup', ' #i-promocode', function(){
+                            var pc_input = $(this);
+                            searchPromo(pc_input);
+                        });
                     }
                 }
             });
@@ -125,6 +148,108 @@ $(document).ready(function() {
             purchase.fadeOut(600);
         });
     }
+
+    function searchPromo(pc_input)
+    {
+        setTimeout(function() {
+            var this_form        = pc_input.parents('.purchase_form'),
+                input_search     = pc_input.val(),
+                crs_id           = this_form.find('#crs-id').val(),
+                price_block      = this_form.find('#course-price'),
+                new_price_block  = this_form.find('#course-new-price'),
+                promo_block      = this_form.find('.promo_block'),
+                course_price     = parseFloat(price_block.html()),
+                promo_block_info = promo_block.next('.promo_block_info'), promo_info = '';
+
+            if(input_search.length >= 1 && input_search.length <= 25)
+            {
+                $.ajax({
+                    url: '/searchPromo',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {input_search: input_search, crs_id: crs_id},
+                    complete: function (result) {
+                        var data = result.responseJSON;
+
+                        if (data.discount)
+                        {
+                            var new_price,
+                                discount_type = 'руб.',
+                                rel_per_block = '';
+
+                            if(data.discount_type === 'percent')
+                            {
+                                new_price = course_price - (course_price*data.discount/100);
+                                discount_type = '%';
+                            }
+                            else
+                            {
+                                new_price = course_price - data.discount;
+                            }
+
+                            if(data.rel_percent)
+                            {
+                                new_price = course_price - (course_price*data.rel_percent/100);
+                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                    '<div class="kurs_block_h">Ограничение:</div>' +
+                                    '<div class="pbi_h">' + data.rel_percent + '%</div>' +
+                                    '</div>';
+                            }
+
+                            if(new_price < 1 && !data.rel_percent)
+                            {
+                                new_price = 1;
+                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                    '<div class="kurs_block_h">Ограничение:</div>' +
+                                    '<div class="pbi_h">Минимальная сумма к оплате 1 руб.</div>' +
+                                    '</div>';
+                            }
+                            promo_info = '<div class="parent kurs_cur_wrap">' +
+                                '<div class="kurs_block_h">Скидка:</div>' +
+                                '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
+                                '</div>' + rel_per_block;
+
+                            price_block.addClass('strikeout');
+                            if(price_block.next('#course-new-price').length == 0)
+                            {
+                                price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
+                                new_price_block = $('#course-new-price');
+                            }
+                            else
+                            {
+                                new_price_block.html(new_price);
+                                new_price_block.show();
+                            }
+                        }
+                        else
+                        {
+                            price_block.removeClass('strikeout');
+                            new_price_block.hide();
+                            promo_info = '<div class="parent kurs_cur_wrap">' +
+                                '<div class="kurs_block_h"></div>' +
+                                '<div class="pbi_h">Промокод не найден</div>' +
+                                '</div>';
+                        }
+
+                        if(promo_block.next('.promo_block_info').length == 0)
+                        {
+                            promo_block.after('<div class="promo_block_info"></div>');
+                            promo_block_info = promo_block.next('.promo_block_info');
+                        }
+                        promo_block_info.html(promo_info);
+                    }
+                });
+            }
+            else
+            {
+                price_block.removeClass('strikeout');
+                new_price_block.hide();
+                promo_block_info.hide();
+            }
+
+        }, 50);
+    }
+
       /*function setVideoList(){
         if($(".form_video_list").length > 0 && $(".practice_block .add_tov_list").length > 0){
             list = $(".form_video_list").html();
@@ -182,67 +307,6 @@ $(document).ready(function() {
             }
         });
     }, 1000);
-
-    $(".promo_line").on('click', function(){
-        $(this).hide();
-        $(this).parent('.promo_block').find('.kurs_block_h').html('Промокод:');
-        if($('#i-promocode').length === 1)
-        {
-            $('#i-promocode').show();
-        }
-        else
-        {
-            $(this).parent('.promo_block').find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
-        }
-    });
-
-    $('.purchase_form').on('keyup', ' #i-promocode', function(){
-        var input_search     = $(this).val(),
-            crs_id           = $('.purchase_form').children('#crs-id').val(),
-            price_block      = $('#course-price'),
-            new_price_block  = $('#course-new-price'),
-            course_price     = price_block.html();
-
-        if(input_search.length >= 1 && input_search.length <= 25)
-        {
-            $.ajax({
-                url: '/searchPromo',
-                type: 'post',
-                dataType: 'json',
-                data: {input_search: input_search, crs_id: crs_id},
-                complete: function (result) {
-                    var data = result.responseJSON;
-
-                    if (data.discount !== false)
-                    {
-                        var new_price = course_price - (course_price*data.discount/100);
-
-                        price_block.addClass('strikeout');
-                        if(price_block.next('#course-new-price').length === 0)
-                        {
-                            price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
-                            new_price_block = $('#course-new-price');
-                        }
-                        else
-                        {
-                            new_price_block.html(new_price);
-                            new_price_block.show();
-                        }
-                    }
-                    else
-                    {
-                        price_block.removeClass('strikeout');
-                        new_price_block.hide();
-                    }
-                }
-            });
-        }
-        else
-        {
-            price_block.removeClass('strikeout');
-            new_price_block.hide();
-        }
-    });
 
 
 	/* Добавление опции */
@@ -1134,6 +1198,46 @@ $(document).ready(function(){
 		}
 	});
 
+
+
+    // Скрыть/отобразить блоки периода действия и число использований промокода
+    $('#s-pv-type').on('change', function(){
+        var bl_pv = $('#bl-pv'),
+            pv_type = $(this).val();
+        if(pv_type === 'date_range')
+        {
+            bl_pv.show();
+        }
+        else
+        {
+            bl_pv.hide();
+        }
+    });
+    $('#s-ua-type').on('change', function(){
+        var ua_number = $('#bl-ua-number'),
+            ua_type = $(this).val();
+        if(ua_type === 'number')
+        {
+            ua_number.show();
+        }
+        else
+        {
+            ua_number.hide();
+        }
+    });
+    $('.cg').on('click', function(){
+        var this_id = $(this).attr('id'),
+            cats    = $('#cg-cats');
+        if(this_id === 'cg-categories')
+        {
+            cats.show();
+            cats.find('.journal_form_select').trigger('refresh');
+        }
+        else
+        {
+            cats.hide();
+        }
+    });
 });
 
 

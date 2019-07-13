@@ -49,6 +49,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="up_but up_but_bot hide_chart"></div>
 </div><!-- prezent_head -->
 <div id="content" class="container">
-    <?php include_once('./app_fold/views/site/content/couches_reviews_block.php'); ?>
+    <?php include_once('./app_fold/views/site/content/coaches_reviews_block.php'); ?>
     <?php include_once('./app_fold/views/site/content/gallery.php'); ?>
 </div><!-- content -->

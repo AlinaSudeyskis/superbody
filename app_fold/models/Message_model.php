@@ -1914,7 +1914,7 @@ class Message_model extends CI_Model
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
-        elseif($user_type == 'couch')
+        elseif($user_type == 'coach')
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
@@ -1975,7 +1975,7 @@ class Message_model extends CI_Model
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
-        elseif($user_type == 'couch')
+        elseif($user_type == 'coach')
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
@@ -2037,7 +2037,7 @@ class Message_model extends CI_Model
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
-        elseif($user_type == 'couch')
+        elseif($user_type == 'coach')
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
@@ -2081,7 +2081,7 @@ class Message_model extends CI_Model
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
-        elseif($user_type == 'couch')
+        elseif($user_type == 'coach')
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
@@ -2132,7 +2132,7 @@ class Message_model extends CI_Model
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
-        elseif($user_type == 'couch')
+        elseif($user_type == 'coach')
         {
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }
@@ -2175,7 +2175,7 @@ class Message_model extends CI_Model
         {
             $user_group = '(`qag_qaug_id`=1 or `qag_qaug_id`=2)';
         }
-        elseif($user_type == 'couch')
+        elseif($user_type == 'coach')
         {
             $user_group = '(`qag_qaug_id`=1 or `qag_qaug_id`=3)';
         }

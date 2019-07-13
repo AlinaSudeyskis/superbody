@@ -24,7 +24,7 @@ class Blog_model extends CI_Model
     public function setBlogPost($user_id, $title, $short_desc, $text, $date)
     {
         $ins_data = $this->db->query('
-            INSERT INTO `couch_blog` (`cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, 
+            INSERT INTO `coach_blog` (`cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, 
               `cb_post_date_add`, `cb_post_date_update`)
             VALUES (?, ?, ?, ?, ?, ?)', array($user_id, $title, $short_desc, $text, $date, $date));
 
@@ -51,13 +51,13 @@ class Blog_model extends CI_Model
      * @param $user_id
      * @return array
      */
-    public function getCouchBlogPosts($user_id)
+    public function getCoachBlogPosts($user_id)
     {
         $result = array();
 
         $sel_blog = $this->db->query('
             SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`
-            FROM `couch_blog` 
+            FROM `coach_blog` 
             WHERE `cb_u_id`=?', $user_id);
 
         if ($sel_blog !== false and 0 < $sel_blog->num_rows())
@@ -85,13 +85,13 @@ class Blog_model extends CI_Model
      * @param int $post_id ID записи
      * @return array
      */
-    public function getCouchBlogPost($user_id, $post_id)
+    public function getCoachBlogPost($user_id, $post_id)
     {
         $result = array('post' => array());
 
         $sel_post = $this->db->query('
             SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, `cb_post_approval` 
-            FROM `couch_blog` 
+            FROM `coach_blog` 
             WHERE `cb_id`=? and `cb_u_id`=? LIMIT 1', array($post_id, $user_id));
 
         if ($sel_post !== false and 1 == $sel_post->num_rows())
@@ -142,10 +142,10 @@ class Blog_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function updateCouchBlogPost($user_id, $post_id, $post_title, $post_desc, $post_text, $date)
+    public function updateCoachBlogPost($user_id, $post_id, $post_title, $post_desc, $post_text, $date)
     {
         $up_data = $this->db->query('
-            UPDATE `couch_blog` 
+            UPDATE `coach_blog` 
             SET `cb_post_title`=?, `cb_post_short_description`=?, `cb_post_text`=?, `cb_post_date_update`=? 
             WHERE `cb_id`=? and `cb_u_id`=? and `cb_post_approval`=0 LIMIT 1',
                 array($post_title, $post_desc, $post_text, $date, $post_id, $user_id));
@@ -180,7 +180,7 @@ class Blog_model extends CI_Model
 
         $sel_blog = $this->db->query('
             SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, `user_name`, `user_email` 
-            FROM `couch_blog` 
+            FROM `coach_blog` 
             LEFT JOIN `users`
             ON `cb_u_id`=`user_id`
             WHERE `cb_u_id`=? and `cb_post_approval`=1', $user_id);
@@ -215,7 +215,7 @@ class Blog_model extends CI_Model
 
         $sel_post = $this->db->query('
             SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_text`, `user_name`, `user_email` 
-            FROM `couch_blog` 
+            FROM `coach_blog` 
             LEFT JOIN `users`
             ON `cb_u_id`=`user_id`
             WHERE `cb_id`=? and `cb_post_approval`=1 LIMIT 1', $post_id);
@@ -311,7 +311,7 @@ class Blog_model extends CI_Model
         $sel_blog_mess = $this->db->query('
             SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, `cb_post_approval`, 
               `cb_post_date_add`, `user_name`, `user_email` 
-            FROM `couch_blog` 
+            FROM `coach_blog` 
             LEFT JOIN `users`
             ON `cb_u_id`=`user_id`');
 
@@ -349,7 +349,7 @@ class Blog_model extends CI_Model
         $sel_message = $this->db->query('
             SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, `cb_post_approval`, 
               `cb_post_date_add`, `user_name`, `user_email` 
-            FROM `couch_blog` 
+            FROM `coach_blog` 
             LEFT JOIN `users`
             ON `cb_u_id`=`user_id`
             WHERE `cb_id`=? LIMIT 1', $post_id);
@@ -420,7 +420,7 @@ class Blog_model extends CI_Model
     public function updateBlogPost($post_id, $post_title, $post_desc, $post_text, $date)
     {
         $up_data = $this->db->query('
-            UPDATE `couch_blog` 
+            UPDATE `coach_blog` 
             SET `cb_post_title`=?, `cb_post_short_description`=?, `cb_post_text`=?, `cb_post_date_update`=? 
             WHERE `cb_id`=? LIMIT 1',
             array($post_title, $post_desc, $post_text, $date, $post_id));
@@ -449,7 +449,7 @@ class Blog_model extends CI_Model
     {
         $result = false;
 
-        $up_data = $this->db->query('DELETE FROM `couch_blog` WHERE `cb_id`=? LIMIT 1', $post_id);
+        $up_data = $this->db->query('DELETE FROM `coach_blog` WHERE `cb_id`=? LIMIT 1', $post_id);
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -472,7 +472,7 @@ class Blog_model extends CI_Model
      */
     public function approvalBlogPost($post_id, $date)
     {
-        $up_data = $this->db->query('UPDATE `couch_blog` SET `cb_post_approval`=1, `cb_post_date_update`=? WHERE `cb_id`=? LIMIT 1',
+        $up_data = $this->db->query('UPDATE `coach_blog` SET `cb_post_approval`=1, `cb_post_date_update`=? WHERE `cb_id`=? LIMIT 1',
             array($date, $post_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -499,7 +499,7 @@ class Blog_model extends CI_Model
      */
     public function blockBlogPost($post_id, $date)
     {
-        $up_data = $this->db->query('UPDATE `couch_blog` SET `cb_post_approval`=0, `cb_post_date_update`=? WHERE `cb_id`=? LIMIT 1',
+        $up_data = $this->db->query('UPDATE `coach_blog` SET `cb_post_approval`=0, `cb_post_date_update`=? WHERE `cb_id`=? LIMIT 1',
             array($date, $post_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows()) {

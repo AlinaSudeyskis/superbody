@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <li><a href="/" <?php if ($page_menu == 'index') { echo 'class="active"'; } ?>>ГЛАВНАЯ</a></li>
         <li><a href="/about" <?php if ($page_menu == 'about') { echo 'class="active"'; } ?>>О НАС</a></li>
         <?php /*<li><a href="/journal/articles" <?php if ($page_menu == 'articles') { echo 'class="active"'; } ?>>ЖУРНАЛ</a></li>*/?>
-        <li><a href="/couches" <?php if ($page_menu == 'couches') { echo 'class="active"'; } ?>>ТРЕНЕРЫ</a></li>
+        <li><a href="/coaches" <?php if ($page_menu == 'coaches') { echo 'class="active"'; } ?>>ТРЕНЕРЫ</a></li>
         <li <?php if (!empty($menu_courses['course_types'])) :?> class="submenu_li" <?php endif;?>>
             <a href="/courses" <?php if ($page_menu == 'courses') { echo 'class="active"'; } ?>>КУРСЫ</a>
             <?php if (!empty($menu_courses['course_types'])) :?>

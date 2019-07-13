@@ -1392,9 +1392,16 @@ class Store extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $after_payment = (!empty($this->input->get('return', true))) ? true : false;
+
         $categories = $this->Store_model->getCategories();
         $order      = $this->Store_model->getUserOrder($this->user_id, $order_id);
         $result     = array_merge($categories, $order);
+
+        if($after_payment === true and $order['order']['bought_course'] > 0)
+        {
+            header('Location: /profile/course/'.$order['order']['bought_course']);
+        }
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Заказ №' . $order_id;

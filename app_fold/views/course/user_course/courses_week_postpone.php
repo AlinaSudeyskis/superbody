@@ -29,6 +29,7 @@ $course['count_days'] = count($wo_data['available_days']);*/
                         $course['count_days']  = count($crs['available_days']);
                         $course['count_rest']  = $crs['count_rest'];
                         $course['days']        = $crs['days'];
+                        $course['training_time'] = $week_wo['time'];
                         ?>
                         <div class="anketa_block_item">
                             <div class="anketa_block_item_h">Перенести тренировки недели</div>
@@ -50,7 +51,10 @@ $course['count_days'] = count($wo_data['available_days']);*/
                                         unset($wd);?>
                                     </div>
                                 <?php endif;?>
-                                <div class="anketa_form_line parent"><?php echo $week_days; ?></div>
+                                <div class="anketa_form_line parent">
+                                    <?php echo $week_days; ?>
+                                    <?php include('./app_fold/views/course/week_days_time_item.php'); ?>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach;

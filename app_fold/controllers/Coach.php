@@ -2,23 +2,23 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Couch class
+ * Coach class
  * 
  * Класс для работы с данными тренера
  *
  * @author Alina Sudeyskis <alina.sudeyskis@gmail.com>
  * @license http://www.php.net/license/3_01.txt PHP License 3.01
  */
-class Couch extends CI_Controller
+class Coach extends CI_Controller
 {
     /**
-     * Couch constructor.
+     * Coach constructor.
      */
     public function __construct()
     {
         parent::__construct();
         
-        $this->load->model('Couch_model');
+        $this->load->model('Coach_model');
         $this->load->model('User_model');
     }
 
@@ -27,7 +27,7 @@ class Couch extends CI_Controller
      *
      * @return void
      */
-    public function couches()
+    public function coaches()
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
@@ -35,16 +35,16 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Couch_model->getCouches();
+        $result = $this->Coach_model->getCoaches();
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Тренеры';
         $this->page_data['page_menu']    = 'users';
-        $this->page_data['page_submenu'] = 'a_couches';
+        $this->page_data['page_submenu'] = 'a_coaches';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('couch/couches', $result);
+        $this->load->view('coach/coaches', $result);
         $this->load->view('footer/footer');
     }
 
@@ -53,19 +53,19 @@ class Couch extends CI_Controller
      *
      * @return void
      */
-    public function publicCouches()
+    public function publicCoaches()
     {
-        $result = $this->Couch_model->getCouches();
+        $result = $this->Coach_model->getCoaches();
 
         // Объединенные данные страница
         $this->page_data['title']       = $this->page_data['metadata'][4]['title'];
         $this->page_data['keywords']    = $this->page_data['metadata'][4]['keywords'];
         $this->page_data['description'] = $this->page_data['metadata'][4]['description'];
-        $this->page_data['page_menu'] = 'couches';
+        $this->page_data['page_menu'] = 'coaches';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');
-        $this->load->view('couch/public_couches', $result);
+        $this->load->view('coach/public_coaches', $result);
         $this->load->view('footer/footer');
     }
 
@@ -74,7 +74,7 @@ class Couch extends CI_Controller
      *
      * @return void
      */
-    public function newCouch()
+    public function newCoach()
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
@@ -82,7 +82,7 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        if ($this->input->post('bt_save_new_couch', true))
+        if ($this->input->post('bt_save_new_coach', true))
         {
             // Валидация E-mail
             $email         = null;
@@ -102,7 +102,7 @@ class Couch extends CI_Controller
             // Сохранение данных в БД
             if (!empty($email))
             {
-                $result = $this->Couch_model->setNewCouch($email, $name, $password_hash, $email_hash, $this->date);
+                $result = $this->Coach_model->setNewCoach($email, $name, $password_hash, $email_hash, $this->date);
 
                 if (is_numeric($result))
                 {
@@ -114,23 +114,23 @@ class Couch extends CI_Controller
 
                     parent::sendEmail(17, $email, $system_message);
 
-                    $couch_id = $result;
+                    $coach_id = $result;
                     $path_avatar = '';
 
                     // Загрузка изображения на сервер
                     if(is_uploaded_file($_FILES['avatar_file']['tmp_name']))
                     {
-                        $path = './user_files/'.$couch_id.'/avatar/';
+                        $path = './user_files/'.$coach_id.'/avatar/';
 
                         if(!file_exists($path))
                         {
                             chdir('user_files');
-                            if(!is_dir($couch_id))
+                            if(!is_dir($coach_id))
                             {
-                                mkdir($couch_id);
+                                mkdir($coach_id);
                             }
-                            chmod($couch_id, 0777);
-                            chdir($couch_id);
+                            chmod($coach_id, 0777);
+                            chdir($coach_id);
                             if(!is_dir('avatar'))
                             {
                                 mkdir('avatar');
@@ -158,13 +158,13 @@ class Couch extends CI_Controller
 
                     if (!empty($path_avatar))
                     {
-                        $this->Couch_model->setCouchAvatar($couch_id, $path_avatar);
+                        $this->Coach_model->setCoachAvatar($coach_id, $path_avatar);
                     }
 
                     // Сохранено
                     $this->session->set_tempdata('message', 10, 60);
 
-                    header('Location: /administration/couch/' . $couch_id);
+                    header('Location: /administration/coach/' . $coach_id);
                 }
                 else
                 {
@@ -179,7 +179,7 @@ class Couch extends CI_Controller
                         $this->session->set_tempdata('message', 2, 60);
                     }
 
-                    header('Location: /administration/couch/new');
+                    header('Location: /administration/coach/new');
                 }
             }
             else
@@ -187,18 +187,18 @@ class Couch extends CI_Controller
                 // Некорректные данные
                 $this->session->set_tempdata('message', 15, 60);
 
-                header('Location: /administration/couch/new');
+                header('Location: /administration/coach/new');
             }
         }
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Добавление тренера';
         $this->page_data['page_menu']    = 'users';
-        $this->page_data['page_submenu'] = 'a_couches';
+        $this->page_data['page_submenu'] = 'a_coaches';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('couch/new_couch');
+        $this->load->view('coach/new_coach');
         $this->load->view('footer/footer');
     }
 
@@ -207,14 +207,14 @@ class Couch extends CI_Controller
      *
      * @return void
      */
-    public function newCouchOfTheUsers()
+    public function newCoachOfTheUsers()
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        if ($this->input->post('bt_save_new_couches', true)) {
+        if ($this->input->post('bt_save_new_coaches', true)) {
             $users = array();
             if (!empty($this->input->post('users', true))) {
                 $input_users = $this->input->post('users', true);
@@ -262,17 +262,17 @@ class Couch extends CI_Controller
                 unset($user_id);
             }
 
-            header('Location: /administration/couch/new/users');
+            header('Location: /administration/coach/new/users');
         }
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Выбор тренера из пользователей';
         $this->page_data['page_menu']    = 'users';
-        $this->page_data['page_submenu'] = 'a_couches';
+        $this->page_data['page_submenu'] = 'a_coaches';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('couch/new_couch_ot_users');
+        $this->load->view('coach/new_coach_ot_users');
         $this->load->view('footer/footer');
     }
 
@@ -284,7 +284,7 @@ class Couch extends CI_Controller
      * @return void
      * @throws Exception
      */
-    public function couchSettings($user_id, $page_type = 'settings')
+    public function coachSettings($user_id, $page_type = 'settings')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
@@ -292,7 +292,7 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $user = $this->Couch_model->getCouch($user_id);
+        $user = $this->Coach_model->getCoach($user_id);
         $user_data = $user['user_data'];
 
         if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))
@@ -348,8 +348,8 @@ class Couch extends CI_Controller
             }
 
             // Сохранение данных в БД
-            $result = $this->Couch_model->setCouchSettings($user_id, $email, $name, $path_avatar, $this->date);
-            $this->Couch_model->setCouchData($user_id, $special, $experience, $titles_awards, $about, $this->date);
+            $result = $this->Coach_model->setCoachSettings($user_id, $email, $name, $path_avatar, $this->date);
+            $this->Coach_model->setCoachData($user_id, $special, $experience, $titles_awards, $about, $this->date);
 
             if ($result === true) {
                 // Сохранено
@@ -359,10 +359,10 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 9, 60);
             }
 
-            header('Location: /administration/couch/'.$user_id);
+            header('Location: /administration/coach/'.$user_id);
         }
         elseif ($this->input->post('bt_block_user', true) and is_numeric($user_id)) {
-            $result = $this->Couch_model->blockCouch($user_id, $this->date);
+            $result = $this->Coach_model->blockCoach($user_id, $this->date);
 
             if ($result === true) {
                 // Сохранено
@@ -372,10 +372,10 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 17, 60);
             }
 
-            header('Location: /administration/couch/'.$user_id);
+            header('Location: /administration/coach/'.$user_id);
         }
         elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id)) {
-            $result = $this->Couch_model->unblockCouch($user_id, $this->date);
+            $result = $this->Coach_model->unblockCoach($user_id, $this->date);
 
             if ($result === true) {
                 // Сохранено
@@ -385,7 +385,7 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 19, 60);
             }
 
-            header('Location: /administration/couch/'.$user_id);
+            header('Location: /administration/coach/'.$user_id);
         }
         elseif ($this->input->post('bt_change_user_type', true) and is_numeric($user_id))
         {
@@ -414,7 +414,7 @@ class Couch extends CI_Controller
                 // Не сохранено
                 $this->session->set_tempdata('message', 86, 60);
 
-                header('Location: /administration/couch/'.$user_id);
+                header('Location: /administration/coach/'.$user_id);
             }
         }
         elseif ($this->input->post('bt_delete_avatar', true)) {
@@ -427,7 +427,7 @@ class Couch extends CI_Controller
                 // Сохранено
                 $this->session->set_tempdata('message', 10, 60);
             }
-            header('Location: /administration/couch/'.$user_id);
+            header('Location: /administration/coach/'.$user_id);
         }
         elseif ($this->input->post('bt_save_data', true))
         {
@@ -477,7 +477,7 @@ class Couch extends CI_Controller
             if ($special != $user_data['user_special'] or $experience != $user_data['user_experience']
                 or $title_awards != $user_data['user_titles_awards'] or $about != $user_data['user_about'])
             {
-                $res_cd = $this->Couch_model->setCouchData($user_id, $special, $experience, $title_awards, $about, $this->date);
+                $res_cd = $this->Coach_model->setCoachData($user_id, $special, $experience, $title_awards, $about, $this->date);
             }
 
             if ($res_gb === false and $res_cd === true)
@@ -501,7 +501,7 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 187, 60);
             }
 
-            header('Location: /administration/couch/'.$user_id.'/personal');
+            header('Location: /administration/coach/'.$user_id.'/personal');
         }
         elseif ($this->input->post('bt_reset_password', true))
         {
@@ -560,15 +560,15 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 6, 60);
             }
 
-            header('Location: /administration/couch/'.$user_id);
+            header('Location: /administration/coach/'.$user_id);
         }
         elseif ($this->input->post('bt_on_behalf_login', true))
         {
             $this->load->model('Authorization_model');
             // Поиск тренера в БД
-            $search_couch = $this->Authorization_model->authorizationOnBehalfCouch($user_id);
+            $search_coach = $this->Authorization_model->authorizationOnBehalfCoach($user_id);
 
-            if ($search_couch !== false and is_array($search_couch))
+            if ($search_coach !== false and is_array($search_coach))
             {
                 // Завершение текущей сессии
                 if ($this->session->user['auth_via'] == 'native')
@@ -581,17 +581,17 @@ class Couch extends CI_Controller
                 }
 
                 // Создание новой сессии
-                $user_image = (!empty($search_couch['user_image'])) ? $search_couch['user_image'] : $search_couch['user_soc_image'];
+                $user_image = (!empty($search_coach['user_image'])) ? $search_coach['user_image'] : $search_coach['user_soc_image'];
 
-                parent::updateSession($search_couch['user_id'], $search_couch['user_email'], $search_couch['user_type'], $search_couch['user_blocked'],
-                    $search_couch['user_name'], $search_couch['user_phone'], $user_image, '', 'native', 0, $this->date);
+                parent::updateSession($search_coach['user_id'], $search_coach['user_email'], $search_coach['user_type'], $search_coach['user_blocked'],
+                    $search_coach['user_name'], $search_coach['user_phone'], $user_image, '', 'native', 0, $this->date);
 
                 // После успешной авторизации переход на страницу тренера
-                header('Location: /profile/'.$search_couch['user_id']);
+                header('Location: /profile/'.$search_coach['user_id']);
             }
             else
             {
-                header('Location: /administration/couch/'.$user_id);
+                header('Location: /administration/coach/'.$user_id);
             }
         }
         elseif ($this->input->post('bt_delete_user', true))
@@ -617,19 +617,19 @@ class Couch extends CI_Controller
                 // Пользователь не удален
                 $this->session->set_tempdata('message', 180, 60);
 
-                header('Location: /administration/couch/'.$user_id);
+                header('Location: /administration/coach/'.$user_id);
             }
         }
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Редактирование данных тренера';
         $this->page_data['page_menu']     = 'users';
-        $this->page_data['page_submenu']  = ($user_data['user_deleted'] == 1) ? 'a_users_archive' : 'a_couches';
+        $this->page_data['page_submenu']  = ($user_data['user_deleted'] == 1) ? 'a_users_archive' : 'a_coaches';
         $this->page_data['page_2submenu'] = ($page_type == 'settings') ? 'settings' : 'personal_data';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('couch/settings/couch_settings', $user);
+        $this->load->view('coach/settings/coach_settings', $user);
         $this->load->view('footer/footer');
     }
 
@@ -640,7 +640,7 @@ class Couch extends CI_Controller
      *
      * @return void
      */
-    public function couchPortfolio()
+    public function coachPortfolio()
     {
         // Если пользователь не авторизован, переход на страницу авторизации
         if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
@@ -654,11 +654,11 @@ class Couch extends CI_Controller
             {
                 $path = '.' . strip_tags($this->input->post('img_path', true));
 
-                $this->Couch_model->deletePortfolioImage($this->user_id, $this->input->post('img_id', true), $path);
+                $this->Coach_model->deletePortfolioImage($this->user_id, $this->input->post('img_id', true), $path);
             }
         }
 
-        $result = $this->Couch_model->getCouchPortfolioData($this->user_id);
+        $result = $this->Coach_model->getCoachPortfolioData($this->user_id);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Портфолио';
@@ -667,7 +667,7 @@ class Couch extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('couch/portfolio/portfolio', $result);
+        $this->load->view('coach/portfolio/portfolio', $result);
         $this->load->view('footer/footer');
     }
 
@@ -683,8 +683,8 @@ class Couch extends CI_Controller
             header('Location: /login');
         }
 
-        $post   = $this->Couch_model->getPortfolioPost($post_id);
-        $user   = $this->Couch_model->getCouch($post['post']['couch_id'], $this->date);
+        $post   = $this->Coach_model->getPortfolioPost($post_id);
+        $user   = $this->Coach_model->getCoach($post['post']['coach_id'], $this->date);
         $result = array_merge($post, $user);
 
         // Объединенные данные страница
@@ -694,7 +694,7 @@ class Couch extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('couch/portfolio/portfolio_post', $result);
+        $this->load->view('coach/portfolio/portfolio_post', $result);
         $this->load->view('footer/footer');
     }
 
@@ -711,7 +711,7 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result   = $this->Couch_model->getCouchPortfolioPost($this->user_id, $post_id);
+        $result   = $this->Coach_model->getCoachPortfolioPost($this->user_id, $post_id);
         $db_image = '.' . $result['post']['path'];
         $db_title = $result['post']['title'];
         $db_desc  = $result['post']['desc'];
@@ -748,7 +748,7 @@ class Couch extends CI_Controller
 
             if($db_image != $files_data or $db_title != $title or $db_desc != $description)
             {
-                $res_save_image = $this->Couch_model->updateCouchPortfolio($this->user_id, $post_id, $files_data, $title, $description, $this->date);
+                $res_save_image = $this->Coach_model->updateCoachPortfolio($this->user_id, $post_id, $files_data, $title, $description, $this->date);
 
                 if ($res_save_image['image'] === true or $res_save_image['data'] === true)
                 {
@@ -773,7 +773,7 @@ class Couch extends CI_Controller
         }
         elseif ($this->input->post('bt_del_post', true))
         {
-            $res_del = $this->Couch_model->deleteCouchPortfolioPost($this->user_id, $post_id);
+            $res_del = $this->Coach_model->deleteCoachPortfolioPost($this->user_id, $post_id);
 
             if ($res_del === true)
             {
@@ -789,7 +789,7 @@ class Couch extends CI_Controller
             header('Location: /portfolio');
         }
 
-        $result = $this->Couch_model->getCouchPortfolioPost($this->user_id, $post_id);
+        $result = $this->Coach_model->getCoachPortfolioPost($this->user_id, $post_id);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Редактирование записи портфолио';
@@ -798,7 +798,7 @@ class Couch extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('couch/portfolio/form_edit', $result);
+        $this->load->view('coach/portfolio/form_edit', $result);
         $this->load->view('footer/footer');
     }
 
@@ -855,7 +855,7 @@ class Couch extends CI_Controller
 
             if(!empty($files_data))
             {
-                $res_ins = $this->Couch_model->setCouchPortfolioPost($this->user_id, $files_data, $name, $description, $this->date);
+                $res_ins = $this->Coach_model->setCoachPortfolioPost($this->user_id, $files_data, $name, $description, $this->date);
 
                 if (is_numeric($res_ins))
                 {
@@ -885,14 +885,14 @@ class Couch extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('couch/portfolio/form_new');
+        $this->load->view('coach/portfolio/form_new');
         $this->load->view('footer/footer');
     }
 
     /**
      * АП. Портфолио тренера
      */
-    public function couchesPortfolioPosts()
+    public function coachesPortfolioPosts()
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
@@ -900,15 +900,15 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Couch_model->getCouchesPortfolioPosts();
+        $result = $this->Coach_model->getCoachesPortfolioPosts();
 
         // Объединенные данные страница
         $this->page_data['title']     = 'АП - Портфолио тренера';
-        $this->page_data['page_menu'] = 'couch_portfolio';
+        $this->page_data['page_menu'] = 'coach_portfolio';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('couch/portfolio/couches_portfolio_posts', $result);
+        $this->load->view('coach/portfolio/coaches_portfolio_posts', $result);
         $this->load->view('footer/footer');
     }
 
@@ -917,7 +917,7 @@ class Couch extends CI_Controller
      *
      * @param $post_id
      */
-    public function couchesPortfolioPost($post_id)
+    public function coachesPortfolioPost($post_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
@@ -925,7 +925,7 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Couch_model->getCouchesPortfolioPost($post_id);
+        $result = $this->Coach_model->getCoachesPortfolioPost($post_id);
 
         $db_title = $result['post']['title'];
         $db_desc  = $result['post']['desc'];
@@ -937,7 +937,7 @@ class Couch extends CI_Controller
 
             if($db_title != $title or $db_desc != $description)
             {
-                $res_save_image = $this->Couch_model->updateCouchesPortfolio($post_id, $title, $description, $this->date);
+                $res_save_image = $this->Coach_model->updateCoachesPortfolio($post_id, $title, $description, $this->date);
 
                 if ($res_save_image === true)
                 {
@@ -950,11 +950,11 @@ class Couch extends CI_Controller
                 }
             }
 
-            header('Location: /administration/couches/portfolio/' . $post_id);
+            header('Location: /administration/coaches/portfolio/' . $post_id);
         }
         elseif($this->input->post('bt_approval_post', true))
         {
-            $res_block = $this->Couch_model->approvalCouchesPortfolio($post_id, 1, $this->date);
+            $res_block = $this->Coach_model->approvalCoachesPortfolio($post_id, 1, $this->date);
 
             if ($res_block === true)
             {
@@ -966,11 +966,11 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 165, 60);
             }
 
-            header('Location: /administration/couches/portfolio/' . $post_id);
+            header('Location: /administration/coaches/portfolio/' . $post_id);
         }
         elseif($this->input->post('bt_block_post', true))
         {
-            $res_block = $this->Couch_model->approvalCouchesPortfolio($post_id, 0, $this->date);
+            $res_block = $this->Coach_model->approvalCoachesPortfolio($post_id, 0, $this->date);
 
             if ($res_block === true)
             {
@@ -982,16 +982,16 @@ class Couch extends CI_Controller
                 $this->session->set_tempdata('message', 166, 60);
             }
 
-            header('Location: /administration/couches/portfolio/' . $post_id);
+            header('Location: /administration/coaches/portfolio/' . $post_id);
         }
 
         // Объединенные данные страница
         $this->page_data['title']     = 'АП - Портфолио тренера';
-        $this->page_data['page_menu'] = 'couch_portfolio';
+        $this->page_data['page_menu'] = 'coach_portfolio';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('couch/portfolio/couches_portfolio_post', $result);
+        $this->load->view('coach/portfolio/coaches_portfolio_post', $result);
         $this->load->view('footer/footer');
     }
 
@@ -1000,7 +1000,7 @@ class Couch extends CI_Controller
      *
      * @return void
      */
-    public function searchCouches()
+    public function searchCoaches()
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
@@ -1008,14 +1008,14 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result['couches'] = false;
+        $result['coaches'] = false;
 
         $search_text = !empty(mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255)) 
             ? mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255)
             : null;
         
         if (!empty($search_text)) {
-            $result['couches'] = $this->Couch_model->searchCouches($search_text);
+            $result['coaches'] = $this->Coach_model->searchCoaches($search_text);
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
@@ -1036,7 +1036,7 @@ class Couch extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Couch_model->getCouchClientsActivity($this->user_id);
+        $result = $this->Coach_model->getCoachClientsActivity($this->user_id);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Активность клиентов';
@@ -1045,7 +1045,7 @@ class Couch extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('couch/users_activity', $result);
+        $this->load->view('coach/users_activity', $result);
         $this->load->view('footer/footer');
     }
 
@@ -1067,7 +1067,7 @@ class Couch extends CI_Controller
 
         $this->load->model('User_model');
 
-        $attached_users_id = $this->Couch_model->getAttachedUsersId($this->user_id);
+        $attached_users_id = $this->Coach_model->getAttachedUsersId($this->user_id);
 
         $user_data         = array();
         $last_anthrop_data = array();
@@ -1087,7 +1087,7 @@ class Couch extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('couch/user_activity', $result);
+        $this->load->view('coach/user_activity', $result);
         $this->load->view('footer/footer');
     }
 
@@ -1106,7 +1106,7 @@ class Couch extends CI_Controller
 
         $this->load->model('Course_model');
 
-        $result = $this->Course_model->getCouchCourses($this->user_id);
+        $result = $this->Course_model->getCoachCourses($this->user_id);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Партнерская программа - Курсы';
@@ -1138,13 +1138,13 @@ class Couch extends CI_Controller
         $result = $this->Course_model->getPartnerCourse($course_id, $this->user_id);
 
         if ($this->input->post('bt_save_course', true)) {
-            $discount = $this->input->post('couch_discount', true);
-            $couch_discount = (is_numeric($discount) and $discount <= $result['course']['couch_percent'])
+            $discount = $this->input->post('coach_discount', true);
+            $coach_discount = (is_numeric($discount) and $discount <= $result['course']['coach_percent'])
                 ? $discount
                 : 0;
 
-            if ($couch_discount != $result['course']['couch_discount']) {
-                $result_course = $this->Course_model->setPartnerCourseSettings($course_id, $this->user_id, $couch_discount, $this->date);
+            if ($coach_discount != $result['course']['coach_discount']) {
+                $result_course = $this->Course_model->setPartnerCourseSettings($course_id, $this->user_id, $coach_discount, $this->date);
 
                 if ($result_course === true) {
                     // Сохранено
@@ -1166,6 +1166,108 @@ class Couch extends CI_Controller
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
         $this->load->view('course/partner_course_settings', $result);
+        $this->load->view('footer/footer');
+    }
+
+    public function coachPromocodes()
+    {
+        // Если пользователь не авторизован, переход на страницу авторизации
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $this->load->model('Course_model');
+        $result = $this->Course_model->getCoachPromocodes($this->user_id, $this->date);
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'Промокоды';
+        $this->page_data['page_menu'] = 'c_promocodes';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/profile');
+        $this->load->view('user/profile_line');
+        $this->load->view('promocodes/user_promocodes', $result);
+        $this->load->view('footer/footer');
+    }
+
+    public function coachNewPromocode()
+    {
+        // Если пользователь не авторизован, переход на страницу авторизации
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $this->load->model('Course_model');
+
+        if($this->input->post('bt_save_new_promocode', true))
+        {
+            $name           = $this->input->post('i_code_name', true);
+            $desc           = $this->input->post('i_code_desc', true);
+            $discount       = $this->input->post('i_code_discount', true);
+            $discount_type  = ($this->input->post('s_discount_type', true) == 'percent') ? 'percent' : 'currency';
+            $rel_percent    = (is_numeric($this->input->post('i_relative_percent', true))) ? $this->input->post('i_relative_percent', true) : 0;
+            $validity_type  = $this->input->post('s_pv_type', true);
+            $date_start     = $this->input->post('i_validity_date_start', true);
+            $date_end       = $this->input->post('i_validity_date_end', true);
+            $use_type       = $this->input->post('s_ua_type', true);
+            $ua_number      = $this->input->post('i_ua_number', true);
+            $promocode      = $this->input->post('i_promocode', true);
+            $courses        = '';
+            $crs_group      = 'all';
+            $crs_categories = '';
+
+            $res_ins = parent::saveNewCoursePromocode($name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                $date_start, $date_end, $use_type, $ua_number, $promocode, $crs_group, $crs_categories, $courses, 0, $this->user_id);
+
+            if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+                header('Location: /profile/promocode/' . $res_ins['promocode_id']);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', $res_ins['error'], 60);
+                header('Location: /profile/promocode/new');
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'Промокоды';
+        $this->page_data['page_menu'] = 'c_promocodes';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/profile');
+        $this->load->view('user/profile_line');
+        $this->load->view('promocodes/user_new_promocode');
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * @param $promocode_id
+     */
+    public function coachPromocode($promocode_id)
+    {
+        // Если пользователь не авторизован, переход на страницу авторизации
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $this->load->model('Course_model');
+        $result = $this->Course_model->getCoachPromocode($this->user_id, $promocode_id, $this->date);
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'Промокоды';
+        $this->page_data['page_menu'] = 'c_promocodes';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/profile');
+        $this->load->view('user/profile_line');
+        $this->load->view('promocodes/user_promocode', $result);
         $this->load->view('footer/footer');
     }
 }

@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="content" class="container">
     <div class="row">
         <div class="col-lg-2 left_sidebar">
-            <?php include_once('./app_fold/views/couch/couch_menu.php'); ?>
+            <?php include_once('./app_fold/views/coach/coach_menu.php'); ?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
@@ -44,14 +44,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                             <div class="anketa_form_line parent">
                                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Процент тренера:</div></div>
-                                                <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php if (!empty($course['couch_percent'])) { echo $course['couch_percent']; }?></div></div>
+                                                <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php if (!empty($course['coach_percent'])) { echo $course['coach_percent']; }?></div></div>
                                                 <div class="anketa_form_desk">%</div>
                                             </div>
                                             <?php /*
                                             <div class="anketa_form_line parent">
                                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Скидка тренера на курс:</div></div>
                                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">
-                                                        <input type="number" name="couch_discount" class="tov_number" value="<?php echo $course['couch_discount']; ?>" min="0" max="<?php echo $course['couch_percent']; ?>" step="0.1"/>
+                                                        <input type="number" name="coach_discount" class="tov_number" value="<?php echo $course['coach_discount']; ?>" min="0" max="<?php echo $course['coach_percent']; ?>" step="0.1"/>
                                                     </div></div>
                                                 <div class="anketa_form_desk">%</div>
                                             </div>

@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="tren_gal_item">
                                         <div class="tren_gal_cont">
                                             <div class="tren_gal_img">
-                                                <a href="/administration/couches/portfolio/<?php echo $image['image_id'];?>"><img src="<?php echo $image['image_path'];?>" alt=""></a>
+                                                <a href="/administration/coaches/portfolio/<?php echo $image['image_id'];?>"><img src="<?php echo $image['image_path'];?>" alt=""></a>
                                             </div>
                                             <div class="tren_gal_line">
                                                 <!--<a href=""><i class="fa fa-heart-o" aria-hidden="true"></i></a>
@@ -36,7 +36,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 </div>
                                                 <div class="tren_gal_info_txt">
                                                     <span class="tren_gal_info_txt_val"><?php echo $image['image_desc'];?>...</span>
-                                                    <a href="/administration/couches/portfolio/<?php echo $image['image_id'];?>" class="tren_gal_info_txt_more">больше</a>
+                                                    <a href="/administration/coaches/portfolio/<?php echo $image['image_id'];?>" class="tren_gal_info_txt_more">больше</a>
                                                 </div>
                                             </div>
                                         </div>

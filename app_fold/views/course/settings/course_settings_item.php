@@ -185,37 +185,37 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
         <div class="add_tov_in_total">
-            <div class="add_tov_in couches">
+            <div class="add_tov_in coaches">
                 <div class="practice_block_h">Тренеры:</div>
                 <input type="text" name="tren" class="admin_form_txt admin_form_txt_short" placeholder="Введите имя или ID тренера" />
                 <div class="add_tov_list"></div>
             </div>
             <div class="add_tov_val">
-                <?php $couches_percent = 0;
-                if (!empty($course['couches'])) :
-                    foreach($course['couches'] as $key => $couch) :
-                        $couches_percent += $couch['percent']; ?>
-                        <div id="<?php echo $couch['id']; ?>tov" class="add_tov_val_item parent">
-                            <a href="/profile/<?php echo $couch['id']; ?>" class="add_tov_val_cont parent">
-                                <span class="add_tov_val_h"><?php echo $couch['name']; ?></span>
+                <?php $coaches_percent = 0;
+                if (!empty($course['coaches'])) :
+                    foreach($course['coaches'] as $key => $coach) :
+                        $coaches_percent += $coach['percent']; ?>
+                        <div id="<?php echo $coach['id']; ?>tov" class="add_tov_val_item parent">
+                            <a href="/profile/<?php echo $coach['id']; ?>" class="add_tov_val_cont parent">
+                                <span class="add_tov_val_h"><?php echo $coach['name']; ?></span>
                             </a>
                             <div class="add_tov_val_sale">
                                 <div class="admin_form_h">Процент, %</div>
-                                <input type="hidden" name="couches[<?php echo $couch['id']; ?>]" value="<?php echo $couch['id']?>"/>
-                                <input type="text" name="couches_percent[<?php echo $couch['id']; ?>]" class="admin_form_txt couches_percent"
-                                       placeholder="0" value="<?php echo $couch['percent']; ?>"/>
+                                <input type="hidden" name="coaches[<?php echo $coach['id']; ?>]" value="<?php echo $coach['id']?>"/>
+                                <input type="text" name="coaches_percent[<?php echo $coach['id']; ?>]" class="admin_form_txt coaches_percent"
+                                       placeholder="0" value="<?php echo $coach['percent']; ?>"/>
                             </div>
                             <div class="del_tov"></div>
                         </div>
                     <?php endforeach;
-                    unset($couch);
+                    unset($coach);
                 endif;?>
             </div>
         </div>
-        <?php if(!empty($course['couches']) and $couches_percent > 0): ?>
+        <?php if(!empty($course['coaches']) and $coaches_percent > 0): ?>
             <div class="parent kurs_cur_wrap">
                 <div class="kurs_block_h">Процент сайта:</div>
-                <?php $site_percent = 100 - $couches_percent;
+                <?php $site_percent = 100 - $coaches_percent;
                 $site_percent = ($site_percent > 0) ? $site_percent . '%' : 'Заработок отсутствует!'; ?>
                 <div id="site-percent"><?php echo $site_percent; ?></div>
             </div>

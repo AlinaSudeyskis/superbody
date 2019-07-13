@@ -912,7 +912,7 @@ h3.info.small{
     font-size: 16px;
     line-height: 17px;
     /*padding: 20px 0 20px 30px;*/
-    padding: 15px 0 10px 30px;
+    padding: 15px 30px 10px;
 }
 .notification_block_h a{
     color: #72d0f4;
@@ -7434,7 +7434,7 @@ span.tip>.bt_link {
 .anketa_form_radio{
 	display: none;
 }
-.anketa_form_radio + label{
+.anketa_form_radio + label, .cb_week_time > input{
 	display: block;
 	width: 80px;
 	height: 28px;
@@ -7445,6 +7445,13 @@ span.tip>.bt_link {
 	font-size: 13px;
 	color: #33363f;
 	cursor: pointer;
+}
+.cb_week_time > input{
+    cursor: auto;
+}
+.mx_width .anketa_form_radio + label{
+    width: auto;
+    padding: 0 5px;
 }
 #site-percent{
     line-height: 35px;
@@ -7530,7 +7537,7 @@ span.tip>.bt_link {
 }
 .anketa_form_radio.disabled + label{
     background-color: #f3f3f3;
-    /*cursor: default;*/
+    cursor: default;
 }
 .anketa_form_radio.prev_workout + label {
     background-color: #dcf8ff;
@@ -7557,7 +7564,7 @@ span.tip>.bt_link {
     padding-left: 10px;
     font-size: 15px;
 }
-.postpone .week_days, .postpone .cal_date{
+.postpone .week_days, .postpone .cal_date, .postpone .week_times{
     width: 581px;
     margin: 0 auto;
     float: none;
@@ -9553,9 +9560,12 @@ textarea.anketa_form_in{
     text-transform: uppercase;
 }
 .generated_code {
-     font-size: 20px;
-     margin-bottom: 20px;
-     /* color: #2acaf2; */
+    font-size: 22px;
+    font-weight: 700;
+    margin: 10px 0 0;
+    color: #2acaf2;
+    text-align: center;
+    text-transform: uppercase;
  }
 .admin_form_txt_dop{
     float: left;

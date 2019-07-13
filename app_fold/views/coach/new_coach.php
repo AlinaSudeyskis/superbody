@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Добавить тренера</h3>
-                            <a href="/administration/couch/new/users" class="add_tab_but">Выбрать</a>
+                            <a href="/administration/coach/new/users" class="add_tab_but">Выбрать</a>
                         </div>
                         <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     </div>
@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <form action="" method="post" enctype="multipart/form-data">
                             <div class="admin_form_buts_wrap_container">
                                 <div class="admin_form_buts_wrap parent">
-                                    <input type="submit" name="bt_save_new_couch" value="Сохранить" class="video_admin_form_send">
+                                    <input type="submit" name="bt_save_new_coach" value="Сохранить" class="video_admin_form_send">
                                 </div>
                             </div>
 

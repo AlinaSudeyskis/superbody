@@ -93,11 +93,11 @@ class Welcome extends CI_Controller
             if(!empty($course_id))
             {
                 $course         = $this->Course_model->getAvailableCourse($course_id, $this->date);
-                $course_couches = $this->Course_model->getCourseCouchesId($course_id);
+                $course_coaches = $this->Course_model->getCourseCoachesId($course_id);
                 $db_data = $course['course'];
 
                 // Выбранный тренер
-                $id_couch   = $this->input->post('user_couch', true);
+                $id_coach   = $this->input->post('user_coach', true);
                 // Вариант оплаты (полный, разделить на месяцы)
                 $s_payment_options = $this->input->post('s_payment_options', true);
                 // Способ оплаты
@@ -109,7 +109,7 @@ class Welcome extends CI_Controller
                 // Введенный промокод
                 $i_promocode = $this->input->post('promocode', true);
 
-                parent::buyCourse($course_id, $db_data, $course_couches, $id_couch, $s_payment_options,
+                parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
                     $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
             }
         }
@@ -143,17 +143,17 @@ class Welcome extends CI_Controller
         }
 
         $this->load->model('Course_model');
-        $this->load->model('Couch_model');
+        $this->load->model('Coach_model');
 
-        $courses = $this->Course_model->getAvailableCourses();
+        $courses = $this->Course_model->getLastAddedCourses('workout');
         $reviews = $this->Course_model->getAvaliableReviews();
-        $couches = $this->Couch_model->getCouches();
+        $coaches = $this->Coach_model->getCoaches();
         $video   = $this->Course_model->getAvaliablePromoVideo();
-        $gallery = $this->Couch_model->getGallery();
+        $gallery = $this->Coach_model->getGallery();
 
-        $result = array_merge($courses, $couches, $video, $gallery, $reviews);
+        $result = array_merge($courses, $coaches, $video, $gallery, $reviews);
 
-        //print_r($couches);
+        //print_r($coaches);
         
         // Объединенные данные страница
         $this->page_data['title']       = $this->page_data['metadata'][2]['title'];
@@ -174,8 +174,8 @@ class Welcome extends CI_Controller
      */
     public function about()
     {
-        $this->load->model('Couch_model');
-        $result = $this->Couch_model->getCouches();
+        $this->load->model('Coach_model');
+        $result = $this->Coach_model->getCoaches();
 
         // Объединенные данные страница
         $this->page_data['title']       = $this->page_data['metadata'][3]['title'];
@@ -250,12 +250,12 @@ class Welcome extends CI_Controller
             header('Location: /contacts');
         }
 
-        $this->load->model('Couch_model');
-        $gallery = $this->Couch_model->getGallery();
-        $couches = $this->Couch_model->getCouches();
+        $this->load->model('Coach_model');
+        $gallery = $this->Coach_model->getGallery();
+        $coaches = $this->Coach_model->getCoaches();
         $reviews = $this->Course_model->getAvaliableReviews();
 
-        $result = array_merge($gallery, $couches, $reviews);
+        $result = array_merge($gallery, $coaches, $reviews);
 
         // Объединенные данные страница
         $this->page_data['title']       = $this->page_data['metadata'][7]['title'];

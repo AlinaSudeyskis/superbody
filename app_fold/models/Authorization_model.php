@@ -36,6 +36,64 @@ class Authorization_model extends CI_Model
                 // Добавляем данные пользователя в таблицу анкеты
                 $this->db->query('INSERT INTO `questionnaire` (`user_id`) VALUES (?)', $user_id);
 
+                // Промокод для друга
+                $i = 0;
+                $existing_pc = array();
+                $sel_pc = $this->db->query('SELECT `pc_code` FROM `promocodes`');
+                if($sel_pc !== false and 0 < $sel_pc->num_rows())
+                {
+                    foreach ($sel_pc->result() as $row)
+                    {
+                        if(!empty($row->pc_code))
+                        {
+                            $existing_pc[$i] = $row->pc_code;
+                            $i++;
+                        }
+                    }
+                    unset($row);
+                }
+                elseif($sel_pc === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                $sel_pff = $this->db->query('SELECT `pff_code` FROM `promocodes_for_friend`');
+                if($sel_pff !== false and 0 < $sel_pff->num_rows())
+                {
+                    foreach ($sel_pff->result() as $row)
+                    {
+                        if(!empty($row->pff_code))
+                        {
+                            $existing_pc[$i] = $row->pff_code;
+                            $i++;
+                        }
+                    }
+                    unset($row);
+                }
+                elseif($sel_pff === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                $promocode = '';
+                $promocode2 = 'BEIVYI';
+                $words        = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM';
+                $max_position = strlen($words) - 1;
+                $fl_cycle = false;
+                for( $i = 1; $i <= 6; $i++ ) {
+                    $position = floor ( rand(0,$max_position));
+                    $promocode .= substr($words, $position, 1);
+
+                    if($i == 6 and in_array($promocode2, $existing_pc) and $fl_cycle === false)
+                    {
+                        $i = 0;
+                        $fl_cycle = true;
+                        $promocode = '';
+                    }
+                }
+                $promocode = strtoupper($promocode);
+                $this->db->query('INSERT INTO `promocodes_for_friend` (`pff_code`, `pff_u_id`, `pff_date_add`) VALUES(?, ?, ?)',
+                    array($promocode, $user_id, $date));
+
                 // Добавляем данные пользователя в таблицу подписчиков
                 //$this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($email, $date));
                 
@@ -530,10 +588,10 @@ class Authorization_model extends CI_Model
     /**
      * Авторизация администратора от имени тренера.
      *
-     * @param $couch_id
+     * @param $coach_id
      * @return array | bool
      */
-    public function authorizationOnBehalfCouch($couch_id)
+    public function authorizationOnBehalfCoach($coach_id)
     {
         $result = false;
 
@@ -541,7 +599,7 @@ class Authorization_model extends CI_Model
             SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
               `user_image`, `user_soc_image` 
             FROM `users` 
-            WHERE `user_id`=? and `user_type`=2 LIMIT 1', $couch_id);
+            WHERE `user_id`=? and `user_type`=2 LIMIT 1', $coach_id);
 
         if ($sel_user !== false and 1 == $sel_user->num_rows())
         {

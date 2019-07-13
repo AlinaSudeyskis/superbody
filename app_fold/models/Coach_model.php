@@ -2,14 +2,14 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Класс Couch_model
+ * Класс Coach_model
  *
  * Класс вывода, сохранения, изменения данных тренера
  *
  * @author Alina Sudeyskis <alina.sudeyskis@gmail.com>
  * @license http://www.php.net/license/3_01.txt PHP License 3.01
  */
-class Couch_model extends CI_Model
+class Coach_model extends CI_Model
 {
     /**
      * Добавление нового тренера
@@ -21,7 +21,7 @@ class Couch_model extends CI_Model
      * @param datetime $date Текущая дата
      * @return bool
      */
-    public function setNewCouch($email, $name, $password_hash, $email_hash, $date)
+    public function setNewCoach($email, $name, $password_hash, $email_hash, $date)
     {
         $sel_user = $this->db->query('SELECT `user_id` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
 
@@ -35,7 +35,7 @@ class Couch_model extends CI_Model
             if (1 == $this->db->affected_rows())
             {
                 $this->db->query('INSERT INTO `questionnaire` (`user_id`) VALUES (?)', $this->db->insert_id());
-                $this->db->query('INSERT INTO `couch_data` (`cd_u_id`) VALUES (?)', $this->db->insert_id());
+                $this->db->query('INSERT INTO `coach_data` (`cd_u_id`) VALUES (?)', $this->db->insert_id());
 
                 return $this->db->insert_id();
             }
@@ -62,7 +62,7 @@ class Couch_model extends CI_Model
      * @param $path_avatar
      * @return bool
      */
-    public function setCouchAvatar($user_id, $path_avatar)
+    public function setCoachAvatar($user_id, $path_avatar)
     {
         $result = false;
 
@@ -91,7 +91,7 @@ class Couch_model extends CI_Model
      * @param string $today Текущая дата
      * @return array
      */
-    public function getCouch($user_id, $today = null)
+    public function getCoach($user_id, $today = null)
     {
         // Массив возвращаемых значений
         $result = array ( 'user_data' => array());
@@ -105,7 +105,7 @@ class Couch_model extends CI_Model
               `user_gender`, `user_birthday`, `user_country_code`, `user_phone`,
               `cd_specialization`, `cd_experience`, `cd_titles_awards`, `cd_about` 
             FROM `users` 
-            LEFT JOIN `couch_data` ON `cd_u_id`=`users`.`user_id`
+            LEFT JOIN `coach_data` ON `cd_u_id`=`users`.`user_id`
             LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
             WHERE `users`.`user_id`=? and `user_type`=2 and `user_deleted`=0 LIMIT 1', $user_id);
 
@@ -113,7 +113,7 @@ class Couch_model extends CI_Model
             {
                 $row = $sel_data->row();
 
-                $result['user_data'] = self::parseCouchData($row, $today);
+                $result['user_data'] = self::parseCoachData($row, $today);
             }
             elseif($sel_data === false)
             {
@@ -135,7 +135,7 @@ class Couch_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function setCouchSettings($user_id, $user_email, $user_name, $path_image, $date)
+    public function setCoachSettings($user_id, $user_email, $user_name, $path_image, $date)
     {
         $up_data = $this->db->query('
             UPDATE `users` 
@@ -167,7 +167,7 @@ class Couch_model extends CI_Model
      * @param string $date Текущая дата
      * @return bool
      */
-    public function setCouchGenderBd($user_id, $gender, $birthday, $date)
+    public function setCoachGenderBd($user_id, $gender, $birthday, $date)
     {
         $up_data = $this->db->query('
             UPDATE `questionnaire` 
@@ -200,15 +200,15 @@ class Couch_model extends CI_Model
      * @param string $date Текущая дата
      * @return bool
      */
-    public function setCouchData($user_id, $special, $experience, $title_awards, $about, $date)
+    public function setCoachData($user_id, $special, $experience, $title_awards, $about, $date)
     {
         $result = false;
 
-        $sel_data = $this->db->query('SELECT `cd_u_id` FROM `couch_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
+        $sel_data = $this->db->query('SELECT `cd_u_id` FROM `coach_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $up_data = $this->db->query('
-                UPDATE `couch_data` 
+                UPDATE `coach_data` 
                 SET `cd_specialization`=?, `cd_experience`=?, `cd_titles_awards`=?, `cd_about`=?, `cd_date_update`=?
                 WHERE `cd_u_id`=? LIMIT 1', array($special, $experience, $title_awards, $about, $date, $user_id));
 
@@ -228,7 +228,7 @@ class Couch_model extends CI_Model
         else
         {
             $up_data = $this->db->query('
-                INSERT INTO `couch_data` (`cd_u_id`, `cd_specialization`, `cd_experience`, `cd_titles_awards`, `cd_about`, `cd_date_update`)
+                INSERT INTO `coach_data` (`cd_u_id`, `cd_specialization`, `cd_experience`, `cd_titles_awards`, `cd_about`, `cd_date_update`)
                 VALUES(?, ?, ?, ?, ?, ?)', array($user_id, $special, $experience, $title_awards, $about, $date));
 
             if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -249,38 +249,38 @@ class Couch_model extends CI_Model
      *
      * @return array
      */
-    public function getCouches()
+    public function getCoaches()
     {
         $result = array();
 
-        $sel_couches = $this->db->query('
+        $sel_coaches = $this->db->query('
             SELECT `user_name`, `user_email`, `user_id`, `user_image`, `cd_specialization`, `cd_titles_awards`, `cd_about` 
             FROM `users` 
-            LEFT JOIN `couch_data` ON `cd_u_id`=`user_id`
+            LEFT JOIN `coach_data` ON `cd_u_id`=`user_id`
             WHERE `user_type`=2 and `user_deleted`=0');
 
-        if ($sel_couches !== false and 0 < $sel_couches->num_rows())
+        if ($sel_coaches !== false and 0 < $sel_coaches->num_rows())
         {
             $i = 0;
-            foreach ($sel_couches->result() as $row)
+            foreach ($sel_coaches->result() as $row)
             {
-                $result['couches'][$i]['id']      = $row->user_id;
+                $result['coaches'][$i]['id']      = $row->user_id;
 
                 $user_name = explode(' ', $row->user_name);
-                $result['couches'][$i]['f_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                $result['couches'][$i]['name']    = $user_name[0];
-                $result['couches'][$i]['surname'] = !empty($user_name[1]) ? $user_name[1] : '';
+                $result['coaches'][$i]['f_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
+                $result['coaches'][$i]['name']    = $user_name[0];
+                $result['coaches'][$i]['surname'] = !empty($user_name[1]) ? $user_name[1] : '';
                 
-                $result['couches'][$i]['image']         = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
-                $result['couches'][$i]['special']       = $row->cd_specialization;
-                $result['couches'][$i]['titles_awards'] = $row->cd_titles_awards;
-                $result['couches'][$i]['bbc_about']     = !empty($row->cd_about) ? parent::showBBcodes($row->cd_about) : '';
-                $result['couches'][$i]['about']         = $row->cd_about;
+                $result['coaches'][$i]['image']         = is_file($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                $result['coaches'][$i]['special']       = $row->cd_specialization;
+                $result['coaches'][$i]['titles_awards'] = $row->cd_titles_awards;
+                $result['coaches'][$i]['bbc_about']     = !empty($row->cd_about) ? parent::showBBcodes($row->cd_about) : '';
+                $result['coaches'][$i]['about']         = $row->cd_about;
 
                 $i++;
             }
         }
-        elseif($sel_couches === false)
+        elseif($sel_coaches === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -295,7 +295,7 @@ class Couch_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function blockCouch($user_id, $date)
+    public function blockCoach($user_id, $date)
     {
         $up_data = $this->db->query('
             UPDATE `users` 
@@ -324,7 +324,7 @@ class Couch_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function unblockCouch($user_id, $date)
+    public function unblockCoach($user_id, $date)
     {
         $up_data = $this->db->query('
             UPDATE `users` 
@@ -352,12 +352,12 @@ class Couch_model extends CI_Model
      * @param $user_id
      * @return array
      */
-    public function getCouchPortfolioData($user_id)
+    public function getCoachPortfolioData($user_id)
     {
         $result = array('portfolio' => array());
 
         $sel_portfolio = $this->db->query('
-            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `couch_portfolio` WHERE `cp_u_id`=?', $user_id);
+            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `coach_portfolio` WHERE `cp_u_id`=?', $user_id);
 
         if ($sel_portfolio !== false and 0 < $sel_portfolio->num_rows())
         {
@@ -389,12 +389,12 @@ class Couch_model extends CI_Model
      * @param $user_id
      * @return array
      */
-    public function getPublicCouchPortfolioData($user_id)
+    public function getPublicCoachPortfolioData($user_id)
     {
         $result = array('portfolio' => array());
 
         $sel_portfolio = $this->db->query('
-            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `couch_portfolio`
+            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `coach_portfolio`
             WHERE `cp_u_id`=? and `cp_image_approval`=1', $user_id);
 
         if ($sel_portfolio !== false and 0 < $sel_portfolio->num_rows())
@@ -428,13 +428,13 @@ class Couch_model extends CI_Model
      * @param int $post_id ID записи
      * @return array
      */
-    public function getCouchPortfolioPost($user_id, $post_id)
+    public function getCoachPortfolioPost($user_id, $post_id)
     {
         $result = array();
 
         $sel_post = $this->db->query('
             SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description`, `cp_image_approval` 
-            FROM `couch_portfolio` 
+            FROM `coach_portfolio` 
             WHERE `cp_u_id`=? and `cp_id`=?
             LIMIT 1', array($user_id, $post_id));
 
@@ -468,7 +468,7 @@ class Couch_model extends CI_Model
 
         $sel_post = $this->db->query('
             SELECT `cp_id`, `cp_u_id`, `cp_image_title`, `cp_image_path`, `cp_image_description`, `cp_image_approval` 
-            FROM `couch_portfolio` 
+            FROM `coach_portfolio` 
             WHERE `cp_id`=?
             LIMIT 1', array($post_id));
 
@@ -477,7 +477,7 @@ class Couch_model extends CI_Model
             $row = $sel_post->row();
 
             $result['post']['id']       = $row->cp_id;
-            $result['post']['couch_id'] = $row->cp_u_id;
+            $result['post']['coach_id'] = $row->cp_u_id;
             $result['post']['title']    = !empty($row->cp_image_title) ? $row->cp_image_title : '';
             $result['post']['path']     = !empty($row->cp_image_path) ? mb_substr($row->cp_image_path, 1) : '';
             $result['post']['desc']     = $row->cp_image_description;
@@ -501,10 +501,10 @@ class Couch_model extends CI_Model
      * @param string $date Дата
      * @return bool|int
      */
-    public function setCouchPortfolioPost($user_id, $image, $title, $description, $date)
+    public function setCoachPortfolioPost($user_id, $image, $title, $description, $date)
     {
         $up_data = $this->db->query('
-            INSERT INTO `couch_portfolio` (`cp_u_id`, `cp_image_path`, `cp_image_title`, `cp_image_description`, `cp_date_add`, `cp_date_update`)
+            INSERT INTO `coach_portfolio` (`cp_u_id`, `cp_image_path`, `cp_image_title`, `cp_image_description`, `cp_date_add`, `cp_date_update`)
             VALUES (?, ?, ?, ?, ?, ?)', array($user_id, $image, $title, $description, $date, $date));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -533,14 +533,14 @@ class Couch_model extends CI_Model
      * @param string $date Дата
      * @return array
      */
-    public function updateCouchPortfolio($user_id, $post_id, $image = null, $title = null, $description = null, $date)
+    public function updateCoachPortfolio($user_id, $post_id, $image = null, $title = null, $description = null, $date)
     {
         $result = array('image' => '', 'data' => '');
 
         if (!empty($image))
         {
             $up_data = $this->db->query('
-                UPDATE `couch_portfolio`
+                UPDATE `coach_portfolio`
                 SET `cp_image_path`=?, `cp_date_update`=?
                 WHERE `cp_u_id`=? and `cp_id`=? LIMIT 1', array($image, $date, $user_id, $post_id));
 
@@ -561,7 +561,7 @@ class Couch_model extends CI_Model
         if (!empty($title) and !empty($description))
         {
             $up_data = $this->db->query('
-                UPDATE `couch_portfolio`
+                UPDATE `coach_portfolio`
                 SET `cp_image_title`=?, `cp_image_description`=?, `cp_date_update`=?
                 WHERE `cp_u_id`=? and `cp_id`=? LIMIT 1', array($title, $description, $date, $user_id, $post_id));
 
@@ -589,9 +589,9 @@ class Couch_model extends CI_Model
      * @param int $post_id ID записи
      * @return bool
      */
-    public function deleteCouchPortfolioPost($user_id, $post_id)
+    public function deleteCoachPortfolioPost($user_id, $post_id)
     {
-        $up_data = $this->db->query('DELETE FROM `couch_portfolio` WHERE `cp_u_id`=? and `cp_id`=? LIMIT 1', array($user_id, $post_id));
+        $up_data = $this->db->query('DELETE FROM `coach_portfolio` WHERE `cp_u_id`=? and `cp_id`=? LIMIT 1', array($user_id, $post_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -614,7 +614,7 @@ class Couch_model extends CI_Model
      * @param $user_id
      * @return array
      */
-    public function getCouchClientsActivity($user_id)
+    public function getCoachClientsActivity($user_id)
     {
         // Массив данных ою активности клиентов и общее кол-во клиентов
         $result = array('clients' => array(), 'number_clients' => 0);
@@ -624,7 +624,7 @@ class Couch_model extends CI_Model
             SELECT `uc_id`, `uc_course_id`, `uc_user_id`, `user_name`, `user_email`, `user_image` 
             FROM `users_courses` 
             LEFT JOIN `users` ON `uc_user_id`=`user_id`
-            WHERE `uc_couch_id`=?', $user_id);
+            WHERE `uc_coach_id`=?', $user_id);
 
         if ($sel_users !== false and 0 < $sel_users->num_rows())
         {
@@ -733,18 +733,18 @@ class Couch_model extends CI_Model
      * @param int|string $search_text
      * @return string|bool
      */
-    public function searchCouches($search_text)
+    public function searchCoaches($search_text)
     {
         $result = false;
 
         if (is_numeric($search_text))
         {
-            $sel_couches = $this->db->query('
+            $sel_coaches = $this->db->query('
                 SELECT `user_id`, `user_name`, `user_email`, `user_image` 
                 FROM `users` 
                 WHERE `user_id`=? and `user_type`=2 LIMIT 1',
                     $search_text);
-            if($sel_couches === false)
+            if($sel_coaches === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
@@ -753,20 +753,20 @@ class Couch_model extends CI_Model
         {
             $search_text = $search_text.'*';
 
-            $sel_couches = $this->db->query('
+            $sel_coaches = $this->db->query('
                 SELECT `user_id`, `user_name`, `user_email`, `user_image` 
                 FROM `users` 
                 WHERE `user_type`=2 and MATCH (`user_email`, `user_name`) AGAINST (? IN BOOLEAN MODE)',
                     $search_text);
-            if($sel_couches === false)
+            if($sel_coaches === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
-        if (0 < $sel_couches->num_rows())
+        if (0 < $sel_coaches->num_rows())
         {
-            foreach ($sel_couches->result() as $row)
+            foreach ($sel_coaches->result() as $row)
             {
                 $user_name = !empty($row->user_name) ? $row->user_name : $row->user_email ;
                 $user_image = !empty($row->user_image) ? '<img src="' . mb_substr($row->user_image, 1) . '" alt="">' : '' ;
@@ -794,31 +794,31 @@ class Couch_model extends CI_Model
      * @param $user_id
      * @return array
      */
-    public function getAttachedCouches($user_id)
+    public function getAttachedCoaches($user_id)
     {
         $result = array();
 
         if (is_numeric($user_id))
         {
-            $sel_couches = $this->db->query('
-                SELECT `uc_couch_id`, `user_name`, `user_email`, `user_image` 
+            $sel_coaches = $this->db->query('
+                SELECT `uc_coach_id`, `user_name`, `user_email`, `user_image` 
                 FROM `users_courses` 
-                LEFT JOIN `users` ON `uc_couch_id`=`user_id`
+                LEFT JOIN `users` ON `uc_coach_id`=`user_id`
                 WHERE `uc_user_id`=?', $user_id);
 
-            if ($sel_couches !== false and 0 < $sel_couches->num_rows())
+            if ($sel_coaches !== false and 0 < $sel_coaches->num_rows())
             {
                 $i = 0;
-                foreach ($sel_couches->result() as $row) {
-                    $result[$row->uc_couch_id]['id']    = $row->uc_couch_id;
-                    $result[$row->uc_couch_id]['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                    $result[$row->uc_couch_id]['image'] = $row->user_image;
+                foreach ($sel_coaches->result() as $row) {
+                    $result[$row->uc_coach_id]['id']    = $row->uc_coach_id;
+                    $result[$row->uc_coach_id]['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
+                    $result[$row->uc_coach_id]['image'] = $row->user_image;
 
                     $i++;
                 }
                 unset($row);
             }
-            elseif ($sel_couches === false)
+            elseif ($sel_coaches === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
@@ -842,7 +842,7 @@ class Couch_model extends CI_Model
             FROM `users_courses` 
             LEFT JOIN `users` 
               ON `uc_user_id`=`user_id`
-            WHERE `uc_couch_id`=?', $user_id);
+            WHERE `uc_coach_id`=?', $user_id);
 
         if ($sel_users !== false and 0 < $sel_users->num_rows())
         {
@@ -871,25 +871,25 @@ class Couch_model extends CI_Model
      * @param $user_id
      * @return array
      */
-    public function getAttachedCouchesId($user_id)
+    public function getAttachedCoachesId($user_id)
     {
         $result = array();
 
-        $sel_couches = $this->db->query('
-            SELECT `uc_couch_id` 
+        $sel_coaches = $this->db->query('
+            SELECT `uc_coach_id` 
             FROM `users_courses`
             WHERE `uc_user_id`=?', $user_id);
 
-        if ($sel_couches !== false and 0 < $sel_couches->num_rows()) {
+        if ($sel_coaches !== false and 0 < $sel_coaches->num_rows()) {
             $i = 0;
-            foreach ($sel_couches->result() as $row) {
-                $result['id'][$i] = $row->uc_couch_id;
+            foreach ($sel_coaches->result() as $row) {
+                $result['id'][$i] = $row->uc_coach_id;
 
                 $i++;
             }
             unset($row);
         }
-        elseif($sel_couches === false)
+        elseif($sel_coaches === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -910,7 +910,7 @@ class Couch_model extends CI_Model
         $sel_users = $this->db->query('
             SELECT `uc_user_id` 
             FROM `users_courses`
-            WHERE `uc_couch_id`=?', $user_id);
+            WHERE `uc_coach_id`=?', $user_id);
 
         if ($sel_users !== false and 0 < $sel_users->num_rows())
         {
@@ -942,7 +942,7 @@ class Couch_model extends CI_Model
 
         $sel_images = $this->db->query('
             SELECT `cp_image_path`, `cp_image_title`, `cp_image_description`, `cp_id`
-            FROM `couch_portfolio`
+            FROM `coach_portfolio`
             WHERE `cp_image_approval`=1
             ORDER BY `cp_date_add` DESC
             LIMIT 32');
@@ -976,12 +976,12 @@ class Couch_model extends CI_Model
      *
      * @return array
      */
-    public function getCouchesPortfolioPosts()
+    public function getCoachesPortfolioPosts()
     {
         $result = array('portfolio' => array());
 
         $sel_portfolio = $this->db->query('
-            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `couch_portfolio`');
+            SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description` FROM `coach_portfolio`');
 
         if ($sel_portfolio !== false and 0 < $sel_portfolio->num_rows())
         {
@@ -1012,13 +1012,13 @@ class Couch_model extends CI_Model
      *
      * @return array
      */
-    public function getCouchesPortfolioPost($post_id)
+    public function getCoachesPortfolioPost($post_id)
     {
         $result = array();
 
         $sel_post = $this->db->query('
             SELECT `cp_id`, `cp_image_title`, `cp_image_path`, `cp_image_description`, `cp_image_approval` 
-            FROM `couch_portfolio` 
+            FROM `coach_portfolio` 
             WHERE `cp_id`=?
             LIMIT 1', array($post_id));
 
@@ -1051,12 +1051,12 @@ class Couch_model extends CI_Model
      * @param string $date Дата
      * @return bool
      */
-    public function updateCouchesPortfolio($post_id, $title = null, $description = null, $date)
+    public function updateCoachesPortfolio($post_id, $title = null, $description = null, $date)
     {
         $result = false;
 
         $up_data = $this->db->query('
-            UPDATE `couch_portfolio`
+            UPDATE `coach_portfolio`
             SET `cp_image_title`=?, `cp_image_description`=?, `cp_date_update`=?
             WHERE `cp_id`=? LIMIT 1', array($title, $description, $date, $post_id));
 
@@ -1080,12 +1080,12 @@ class Couch_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function approvalCouchesPortfolio($post_id, $approval, $date)
+    public function approvalCoachesPortfolio($post_id, $approval, $date)
     {
         $result = false;
 
         $up_data = $this->db->query('
-            UPDATE `couch_portfolio` SET `cp_image_approval`=?, `cp_date_update`=? WHERE `cp_id`=? LIMIT 1',
+            UPDATE `coach_portfolio` SET `cp_image_approval`=?, `cp_date_update`=? WHERE `cp_id`=? LIMIT 1',
                 array($approval, $date, $post_id));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
@@ -1107,7 +1107,7 @@ class Couch_model extends CI_Model
      * @param $today
      * @return array
      */
-    public function parseCouchData($row, $today = '')
+    public function parseCoachData($row, $today = '')
     {
         $result['user_id']             = (!empty($row->user_id)) ? $row->user_id : '';
         $result['user_email']          = (!empty($row->user_email)) ? $row->user_email : '';

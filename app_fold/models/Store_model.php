@@ -2767,7 +2767,7 @@ class Store_model extends CI_Model
             LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
             LEFT JOIN `orders_payment` ON `op_o_id`=`o_id`
             LEFT JOIN `users` ON `o_u_id`=`user_id`
-            WHERE `op_number`=0 and `op_status`=? '.$and_where.'
+            WHERE `op_number`=0 and `op_status`=? ' . $and_where . '
             GROUP BY `o_id`
             ORDER BY `o_id` ASC', $payment_status);
 
@@ -2942,10 +2942,11 @@ class Store_model extends CI_Model
 
             // Данные заказа
             $result['order'] = self::parseOrderData($row);
+            $result['order']['bought_course'] = 0;
+            $payment_status = $row->o_payment_status;
+            $bought_course  = 0;
 
             unset($row);
-
-            // Даннаые оплаты заказа
 
             // Даннаые оплаты заказа
             $result['order']['payments'] = self::getOrderPayments($order_id);
@@ -2961,7 +2962,6 @@ class Store_model extends CI_Model
                 LEFT JOIN `products` ON `p_id`=`ouc_p_id`
                 LEFT JOIN `courses` ON `crs_id`=`p_course_id`
                 WHERE `ouc_o_id`=? and `ouc_u_id`=?', array($order_id, $user_id));
-
             if ($sel_products !== false and 0 < $sel_products->num_rows()) {
                 $i = 0;
 
@@ -2969,8 +2969,8 @@ class Store_model extends CI_Model
                 {
                     if ($row->ouc_attached_p_id == 0)
                     {
-                        // Данные
                         $result['order']['products'][$i] = self::parseOrderProductData($row);
+                        $bought_course = ($payment_status == 1 and $bought_course == 0) ? $row->p_course_id : $bought_course;
 
                         $i++;
                     }
@@ -2980,6 +2980,23 @@ class Store_model extends CI_Model
             elseif ($sel_products === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            if($bought_course > 0)
+            {
+                $sel_uc = $this->db->query('SELECT `uc_id` FROM `users_courses` 
+                    WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1',
+                    array($user_id, $order_id, $bought_course));
+                if ($sel_uc !== false and 1 == $sel_uc->num_rows())
+                {
+                    $row = $sel_uc->row();
+                    $uc_id = $row->uc_id;
+                    $result['order']['bought_course'] = $uc_id;
+                }
+                elseif ($sel_uc === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
         }
         elseif ($sel_order === false)

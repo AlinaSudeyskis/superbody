@@ -48,7 +48,7 @@ class User extends CI_Controller
         // Страница тренера
         elseif (!empty($this->user_id) and $this->user_id == $user_id and $this->session->user['type'] == 2)
         {
-            self::couchProfile($user_id);
+            self::coachProfile($user_id);
         }
         // Просмотр страницы другого пользователя
         elseif (empty($this->user_id) or $this->user_id != $user_id)
@@ -65,7 +65,7 @@ class User extends CI_Controller
      */
     private function userProfile($user_id)
     {
-        $this->load->model('Couch_model');
+        $this->load->model('Coach_model');
         $this->load->model('Blog_model');
         $this->load->model('Course_model');
 
@@ -77,7 +77,7 @@ class User extends CI_Controller
         $anthrop_data     = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
         $user_social      = $this->User_model->getUserSocial($user_id);
         $u_data           = $this->User_model->getUser($user_id);
-        $friend_promocode = $this->Course_model->getPromocodeForFriend();
+        $friend_promocode = $this->Course_model->getPromocodeForFriend($user_id);
 
         $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data, $friend_promocode);
 
@@ -89,6 +89,7 @@ class User extends CI_Controller
             $today           = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
 
             $postpone_courses = $this->input->post('cb_day', true);
+            $pc_times = $this->input->post('i_days_time', true);
             if(!empty($postpone_courses))
             {
                 // Данные тренировок недели пользователя
@@ -121,6 +122,7 @@ class User extends CI_Controller
 
                             foreach($crs_wo_data['days'] as $key => $crs_day)
                             {
+                                // Смещаем предыдущую тренировку вперед
                                 if($crs_day < $choose_day)
                                 {
                                     // Обновляем данные тренировки
@@ -132,6 +134,10 @@ class User extends CI_Controller
                                     $new_date = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$diff_day.'D'))->format('Y-m-d') : $update_days[$crs_day]['date'];
                                     $update_days[$crs_day]['date'] = $new_date;
                                     $num_date = date("N", strtotime($new_date));
+
+                                    // New time
+                                    $update_days[$crs_day]['time'] = (!empty($pc_times[$pc_uc_id][$choose_day]) and $update_days[$crs_day]['time'] != $pc_times[$pc_uc_id][$choose_day])
+                                        ? $pc_times[$pc_uc_id][$choose_day] : $update_days[$crs_day]['time'];
 
                                     // New status
                                     $status = $update_days[$crs_day]['status'];
@@ -146,13 +152,27 @@ class User extends CI_Controller
                                     // Смещаем номер недели тренировки на предыдущю тренировку.
                                     $choose_day  = $crs_day;
                                     $fl_postpone = true;
+                                    $update_days[$crs_day]['update'] = true;
 
                                     break;
                                 }
+                                // Смещение отсутствует
                                 elseif($crs_day == $choose_day)
                                 {
-                                    $fl_postpone = true;
-                                    break;
+                                    // Проверка изменения времени тренировки
+                                    if(!empty($pc_times[$pc_uc_id][$choose_day]) and $update_days[$crs_day]['time'] != $pc_times[$pc_uc_id][$choose_day])
+                                    {
+                                        // New time
+                                        $update_days[$crs_day]['time']   = $pc_times[$pc_uc_id][$choose_day];
+                                        $update_days[$crs_day]['update'] = true;
+                                        $fl_postpone = true;
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        $fl_postpone = true;
+                                        break;
+                                    }
                                 }
                             }
                             unset($crs_day);
@@ -173,9 +193,15 @@ class User extends CI_Controller
                                 $update_days[$crs_day]['date'] = $new_date;
                                 $num_date = date("N", strtotime($new_date));
 
+                                // New time
+                                $update_days[$crs_day]['time'] = (!empty($pc_times[$pc_uc_id][$choose_day]) and $update_days[$crs_day]['time'] != $pc_times[$pc_uc_id][$choose_day])
+                                    ? $pc_times[$pc_uc_id][$choose_day] : $update_days[$crs_day]['time'];
+
                                 // New status
                                 $status = $update_days[$crs_day]['status'];
                                 $update_days[$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
+
+                                $update_days[$crs_day]['update'] = true;
                             }
                         }
                         elseif($count_choose_days == $count_crs_days)
@@ -204,6 +230,10 @@ class User extends CI_Controller
                                 $update_days[$crs_day]['date'] = $new_date;
                                 $num_date = date("N", strtotime($new_date));
 
+                                // New time
+                                $update_days[$crs_day]['time'] = (!empty($pc_times[$pc_uc_id][$choose_days[$key]]) and $update_days[$crs_day]['time'] != $pc_times[$pc_uc_id][$choose_days[$key]])
+                                    ? $pc_times[$pc_uc_id][$choose_days[$key]] : $update_days[$crs_day]['time'];
+
                                 // New status
                                 $status = $update_days[$crs_day]['status'];
                                 $update_days[$crs_day]['status'] = ($current_num_day <= $num_date) ? '' : $status;
@@ -213,6 +243,8 @@ class User extends CI_Controller
                                 {
                                     $update_days[$crs_day]['crs_wo_id']++;
                                 }
+
+                                $update_days[$crs_day]['update'] = true;
                             }
                             unset($crs_day);
                         }
@@ -253,39 +285,41 @@ class User extends CI_Controller
         elseif($this->input->post('bt_save_start_courses', true))
         {
             $cb_days = $this->input->post('cb_day', true);
-            $i_times = $this->input->post('training_time_from', true);
+            $i_times = $this->input->post('i_days_time', true);
 
             $crs_count_weeks = $this->input->post('crs_count_weeks', true);
             $crs_count_days  = $this->input->post('crs_count_days', true);
 
             if(!empty($cb_days))
             {
-                $training_days    = array();
-                $training_times   = array();
-                $new_course_start = array();
-                $new_course_end   = array();
+                $training_days        = array();
+                $training_times       = array();
+                $new_course_start     = array();
+                $new_course_end       = array();
+                $array_training_times = array();
 
                 foreach ($cb_days as $uc_id => $days)
                 {
                     $course_weeks = $crs_count_weeks[$uc_id];
                     $course_days  = $crs_count_days[$uc_id];
-
-                    $i_time = $i_times[$uc_id];
-                    $time_date = DateTime::createFromFormat('H:i', $i_time);
-                    $training_times[$uc_id] = ($time_date !== false) ? $i_time : '';
+                    $array_training_times[$uc_id] = array();
 
                     $i = 1;
                     if(!empty($days))
                     {
-                        foreach ($days as $day)
+                        foreach ($days as $key => $day)
                         {
                             // Если кол-во выбранных дней не превышает кол-во дней курса
                             if ($i <= $course_days)
                             {
                                 $training_days[$uc_id] .= $day;
-                            }
 
-                            $i++;
+                                $i_time = $i_times[$uc_id][$day];
+                                $time_date = DateTime::createFromFormat('H:i', $i_time);
+                                $array_training_times[$uc_id][$day] = ($time_date !== false) ? $i_time : '';
+
+                                $i++;
+                            }
                         }
                         unset($day);
                         // Массив новых дней тренировок
@@ -359,7 +393,7 @@ class User extends CI_Controller
                     log_message('debug', 'Training times: ' . print_r($training_times, true));
                     log_message('debug', 'Courses starts: ' . print_r($new_course_start, true));
                     log_message('debug', 'Courses ends: ' . print_r($new_course_end, true));*/
-                    $result_td = $this->Course_model->setUserCoursesTrainingDays($user_id, $training_days, $training_times,
+                    $result_td = $this->Course_model->setUserCoursesTrainingDays($user_id, $training_days, $array_training_times,
                         $new_course_start, $new_course_end, $crs_count_weeks, $crs_count_days, $this->date);
                     if ($result_td === true)
                     {
@@ -536,12 +570,12 @@ class User extends CI_Controller
     /**
      * Страница тренера
      *
-     * @param $couch_id
+     * @param $coach_id
      * @return void
      */
-    private function couchProfile($couch_id)
+    private function coachProfile($coach_id)
     {
-        $this->load->model('Couch_model');
+        $this->load->model('Coach_model');
         $this->load->model('Blog_model');
         $this->load->model('Course_model');
 
@@ -561,10 +595,10 @@ class User extends CI_Controller
             }
         }
 
-        $portfolio   = $this->Couch_model->getCouchPortfolioData($couch_id);
-        $posts       = $this->Blog_model->getCouchBlogPosts($couch_id);
-        $clients     = $this->Couch_model->getCouchClientsActivity($couch_id);
-        $c_data      = $this->Couch_model->getCouch($couch_id, $this->date);
+        $portfolio   = $this->Coach_model->getCoachPortfolioData($coach_id);
+        $posts       = $this->Blog_model->getCoachBlogPosts($coach_id);
+        $clients     = $this->Coach_model->getCoachClientsActivity($coach_id);
+        $c_data      = $this->Coach_model->getCoach($coach_id, $this->date);
         $user_social = $this->User_model->getUserSocial($this->user_id);
 
         $result = array_merge($portfolio, $posts, $clients, $c_data, $user_social);
@@ -589,7 +623,7 @@ class User extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('couch/profile', $result);
+        $this->load->view('coach/profile', $result);
         $this->load->view('footer/footer');
     }
 
@@ -615,7 +649,7 @@ class User extends CI_Controller
         // Страница тренера
         if ($result['user_data']['user_type'] == 2)
         {
-            self::outsiderCouchProfile($user_id);
+            self::outsiderCoachProfile($user_id);
         }
         // Страница администратора
         /*elseif ($result['user_data']['user_type'] == 3)
@@ -678,11 +712,11 @@ class User extends CI_Controller
     /**
      * Страница тренерп для других пользователей
      *
-     * @param $couch_id
+     * @param $coach_id
      */
-    public function outsiderCouchProfile($couch_id)
+    public function outsiderCoachProfile($coach_id)
     {
-        $this->load->model('Couch_model');
+        $this->load->model('Coach_model');
         $this->load->model('Blog_model');
         $this->load->model('Course_model');
 
@@ -702,9 +736,9 @@ class User extends CI_Controller
             }
         }
 
-        $portfolio = $this->Couch_model->getPublicCouchPortfolioData($couch_id);
-        $posts     = $this->Blog_model->getPublicBlogPosts($couch_id);
-        $user      = $this->Couch_model->getCouch($couch_id, $this->date);
+        $portfolio = $this->Coach_model->getPublicCoachPortfolioData($coach_id);
+        $posts     = $this->Blog_model->getPublicBlogPosts($coach_id);
+        $user      = $this->Coach_model->getCoach($coach_id, $this->date);
         $result    = array_merge($portfolio, $posts, $user);
 
         // Уведомления пользователя
@@ -725,7 +759,7 @@ class User extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('couch/outsider_profile', $result);
+        $this->load->view('coach/outsider_profile', $result);
         $this->load->view('footer/footer');
     }
 
@@ -782,10 +816,10 @@ class User extends CI_Controller
         // Страница тренера
         elseif (!empty($this->user_id) and $this->session->user['type'] == 2)
         {
-            $this->load->model('Couch_model');
+            $this->load->model('Coach_model');
 
             // Получение данных тренера из БД
-            $user = $this->Couch_model->getCouch($this->user_id);
+            $user = $this->Coach_model->getCoach($this->user_id);
         }
 
         // Возможность отправить повторно письмо с подтверждением активации или смены email
@@ -1010,7 +1044,7 @@ class User extends CI_Controller
                 // Сохранение данных о тренере
                 if ($special != $user_data['user_special'] or $experience != $user_data['user_experience']
                     or $title_awards != $user_data['user_titles_awards'] or $about != $user_data['user_about']) {
-                    $res_cd = $this->Couch_model->setCouchData($this->user_id, $special, $experience, $title_awards, $about, $this->date);
+                    $res_cd = $this->Coach_model->setCoachData($this->user_id, $special, $experience, $title_awards, $about, $this->date);
                 }
             }
 
@@ -1147,7 +1181,7 @@ class User extends CI_Controller
         // Страница тренера
         elseif (!empty($this->user_id)  and $this->session->user['type'] == 2)
         {
-            self::couchSettings($result);
+            self::coachSettings($result);
         }
     }
 
@@ -1187,7 +1221,7 @@ class User extends CI_Controller
      * @param $result
      * @return void
      */
-    public function couchSettings($result)
+    public function coachSettings($result)
     {
         // Объединенные данные страница
         $this->page_data['title']        = 'Настройки';
@@ -1200,7 +1234,7 @@ class User extends CI_Controller
         if ($result['user_data'] !== false)
         {
             // Вывод страницы настроек пользователя
-            $this->load->view('couch/settings/settings', $result);
+            $this->load->view('coach/settings/settings', $result);
         }
         else
         {
@@ -2275,7 +2309,7 @@ class User extends CI_Controller
                 // Пользователь восстановлен
                 //$this->session->set_tempdata('message', 185, 60);
 
-                $user_types    = array('user' => 1, 'couch' => 2, 'admin' => 3);
+                $user_types    = array('user' => 1, 'coach' => 2, 'admin' => 3);
                 $user_type     = array_search($user_data['user_type'], $user_types);
 
                 header('Location: /administration/users/archive/'.$user_id);

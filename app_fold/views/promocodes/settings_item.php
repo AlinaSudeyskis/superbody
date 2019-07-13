@@ -77,29 +77,73 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="kurs_block_h">Не использовался</div>
         </div>
     <?php endif; ?>
-    <?php if(empty($extend_new_promocode)): ?>
+    <?php $coach_promocode = ($page_menu == 'c_promocodes') ? true : false; ?>
+    <?php if(empty($extend_new_promocode) and $coach_promocode == false): ?>
         <div class="parent kurs_cur_wrap">
             <div class="practice_block_h">Курсы</div>
-            <div class="add_tov_in_total anketa_form_in_long">
-                <div class="add_tov_in pc_course">
-                    <input type="text" name="name_course" class="admin_form_txt" placeholder="Введите наименование или ID курса" autocomplete="off">
-                    <div class="add_tov_list"></div>
+        </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Группы курсов:</div>
+            <div class="anketa_form_radio_all parent mx_width">
+                <div class="anketa_form_radio_wrap">
+                    <input type="radio" name="r_courses_group" class="anketa_form_radio cg" value="all" id="cg-all"
+                           <?php if(empty($promocode['type']) or $promocode['type'] == 'all'): ?>checked="checked"<?php endif; ?>>
+                    <label for="cg-all">Все курсы</label>
                 </div>
-                <div class="add_tov_val">
-                    <?php if(!empty($promocode['courses'])): ?>
-                        <?php foreach ($promocode['courses'] as $course):?>
-                            <div id="pc-course-<?php echo $course['id']; ?>course" class="add_tov_val_item pc_course parent">
-                                <div class="add_kurs_val_video_wrap parent">
-                                    <a href="/administration/course/<?php echo $course['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $course['name']; ?></span></a>
-                                    <input type="hidden" name="pc_courses[]" value="<?php echo $course['id']; ?>" >
-                                    <div class="del_tov"></div>
-                                </div>
-                            </div>
-                        <?php endforeach;
-                        unset($course);?>
-                    <?php endif; ?>
+                <div class="anketa_form_radio_wrap">
+                    <input type="radio" name="r_courses_group" class="anketa_form_radio cg" value="workouts" id="cg-workouts"
+                           <?php if($promocode['type'] == 'workouts'): ?>checked="checked"<?php endif; ?>>
+                    <label for="cg-workouts">Курсы тренировок</label>
                 </div>
+                <div class="anketa_form_radio_wrap">
+                    <input type="radio" name="r_courses_group" class="anketa_form_radio cg" value="nutritions" id="cg-nutr"
+                           <?php if($promocode['type'] == 'nutritions'): ?>checked="checked"<?php endif; ?>>
+                    <label for="cg-nutr">Курсы питания</label>
+                </div>
+                <?php if(!empty($types)):?>
+                    <div class="anketa_form_radio_wrap">
+                        <input type="radio" name="r_courses_group" class="anketa_form_radio cg" value="categories" id="cg-categories"
+                               <?php if($promocode['type'] == 'categories'): ?>checked="checked"<?php endif; ?>>
+                        <label for="cg-categories">Категории курсов</label>
+                    </div>
+                <?php endif;?>
             </div>
         </div>
+        <?php if(!empty($types) and $coach_promocode === false):?>
+            <div class="parent kurs_cur_wrap" id="cg-cats" <?php if($promocode['type'] != 'categories'): ?>style="display: none;"<?php endif; ?>>
+                <div class="kurs_block_h">Категории курсов:</div>
+                <select name="s_courses_categories[]" class="journal_form_select" multiple>
+                    <?php foreach($types as $type):?>
+                        <option value="<?php echo $type['id']; ?>" <?php if(!empty($promocode['courses_categories']) and in_array($type['id'], $promocode['courses_categories'])):?>selected="selected"<?php endif; ?>><?php echo $type['name']; ?></option>
+                    <?php endforeach;
+                    unset($type); ?>
+                </select>
+            </div>
+        <?php endif; ?>
+        <?php if($coach_promocode == false): ?>
+            <div class="parent kurs_cur_wrap">
+                <div class="kurs_block_h">Поиск курсов:</div>
+                <div class="add_tov_in_total anketa_form_in_long">
+                    <div class="add_tov_in pc_course">
+                        <input type="text" name="name_course" class="admin_form_txt" placeholder="Введите наименование или ID курса" autocomplete="off">
+                        <div class="add_tov_list"></div>
+                    </div>
+                    <div class="add_tov_val">
+                        <?php if(!empty($promocode['courses'])): ?>
+                            <?php foreach ($promocode['courses'] as $course):?>
+                                <div id="pc-course-<?php echo $course['id']; ?>course" class="add_tov_val_item pc_course parent">
+                                    <div class="add_kurs_val_video_wrap parent">
+                                        <a href="/administration/course/<?php echo $course['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $course['name']; ?></span></a>
+                                        <input type="hidden" name="pc_courses[]" value="<?php echo $course['id']; ?>" >
+                                        <div class="del_tov"></div>
+                                    </div>
+                                </div>
+                            <?php endforeach;
+                            unset($course);?>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        <?php endif;?>
     <?php endif;?>
 <?php endif;?>

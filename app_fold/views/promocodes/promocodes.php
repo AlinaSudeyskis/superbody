@@ -17,6 +17,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <ul class="anketa_block_nav parent">
+                        <li>
+                            <a href="/administration/promocodes">
+                                <span <?php if ($page_submenu == 'promocodes') { echo 'class="anketa_active"'; } ?>>Промокоды сайта</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/administration/coaches/promocodes">
+                                <span <?php if ($page_submenu == 'coach_promocodes') { echo 'class="anketa_active"'; } ?>>Промокоды тренеров</span>
+                            </a>
+                        </li>
+                    </ul>
                     <div class="anketa_block_cont">
                         <?php if(!empty($promocodes)): ?>
                             <div class="admin_list">

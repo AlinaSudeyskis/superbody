@@ -8,9 +8,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="footer">
     <div class="container">
         <div class="row">
-            <?php $block2 = (!empty($user_session['subscribed']) and $user_session['subscribed'] === true) ? 'col-lg-9 col-md-9 col-sm-12 col-xs-12' : 'col-lg-5 col-md-5 col-sm-6 col-xs-12';
+            <?php $block2 = (is_array($user_session) and array_key_exists('subscribed', $user_session) and $user_session['subscribed'] === true) ? 'col-lg-9 col-md-9 col-sm-12 col-xs-12' : 'col-lg-5 col-md-5 col-sm-6 col-xs-12';
             ?>
-            <?php if(!empty($user_session['subscribed']) and $user_session['subscribed'] !== true): ?>
+            <?php if(empty($user_session['subscribed']) or (is_array($user_session) and array_key_exists('subscribed', $user_session) and $user_session['subscribed'] === false)): ?>
                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 footer_subscribe_wrap">
                     <div class="footer_h">ПОДПИСКА НА НОВОСТИ</div>
                     <div class="footer_desk">ПОДПИШИТЕСЬ НА НОВОСТИ НАШЕГО ПОРТАЛА И БУДЬТЕ В КУРСЕ ВСЕХ СОБЫТИЙ</div>
@@ -54,7 +54,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="footer_h">МЕНЮ</div>
                         <ul class="footer_menu">
                             <li><a href="/about">О нас</a></li>
-                            <li><a href="/couches">Наши тренеры</a></li>
+                            <li><a href="/coaches">Наши тренеры</a></li>
                             <li><a href="/courses">Курсы</a></li>
                             <?php if (!empty($user_session)):?>
                                 <li><a href="/profile/<?php echo $user_session['id']; ?>">Профиль</a></li>
@@ -111,14 +111,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script src="/js/vimeo_player.js"></script>
 <!-- TODO-me Раскомментировать перед загрузкой на сервер TestSB -->
 <!-- BEGIN JIVOSITE CODE {literal} -->
-<!--<script type='text/javascript'>
+<script type='text/javascript'>
     (function(){ var widget_id = 'pJLIxhdVt8';var d=document;var w=window;function l(){
         var s = document.createElement('script'); s.type = 'text/javascript'; s.async = true;
         s.src = '//code.jivosite.com/script/widget/'+widget_id
         ; var ss = document.getElementsByTagName('script')[0]; ss.parentNode.insertBefore(s, ss);}
         if(d.readyState=='complete'){l();}else{if(w.attachEvent){w.attachEvent('onload',l);}
         else{w.addEventListener('load',l,false);}}})();
-</script>-->
+</script>
 <!-- {/literal} END JIVOSITE CODE -->
 </body>
 </html>

@@ -2,12 +2,12 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="tren_item">
-    <div class="tren_ava"><img src="<?php echo $couch['image']?>" alt=""></div>
-    <a href="/profile/<?php echo $couch['id']?>" class="tren_link">
-        <span class="tren_name"><?php echo $couch['name']?></span>
-        <span class="tren_surname"><?php echo $couch['surname']?></span>
+    <div class="tren_ava"><img src="<?php echo $coach['image']?>" alt=""></div>
+    <a href="/profile/<?php echo $coach['id']?>" class="tren_link">
+        <span class="tren_name"><?php echo $coach['name']?></span>
+        <span class="tren_surname"><?php echo $coach['surname']?></span>
     </a>
-    <div class="tren_desk"><?php echo $couch['special']?></div>
+    <div class="tren_desk"><?php echo $coach['special']?></div>
     <div class="tren_buts parent disabled">
         <div class="tren_buts_l">
             <button class="love_but"></button>

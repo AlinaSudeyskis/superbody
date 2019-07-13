@@ -6,16 +6,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="trainers_block parent">
         <div class="tren_item">
             <div class="tren_ava">
-                <?php if (!empty($couch['image'])):?>
-                    <img src="<?php echo $couch['image']?>" alt="">
+                <?php if (!empty($coach['image'])):?>
+                    <img src="<?php echo $coach['image']?>" alt="">
                 <?php endif;?>
             </div>
-            <?php $profile_link = !empty($couch['id']) ? '/profile/'.$couch['id'] : '';?>
+            <?php $profile_link = !empty($coach['id']) ? '/profile/'.$coach['id'] : '';?>
             <a href="<?php echo $profile_link; ?>" class="tren_link">
-                <span class="tren_name"><?php if (!empty($couch['name'])) { echo $couch['name']; }?></span>
-                <span class="tren_surname"><?php if (!empty($couch['surname'])) { echo $couch['surname']; }?></span>
+                <span class="tren_name"><?php if (!empty($coach['name'])) { echo $coach['name']; }?></span>
+                <span class="tren_surname"><?php if (!empty($coach['surname'])) { echo $coach['surname']; }?></span>
             </a>
-            <div class="tren_desk"><?php if (!empty($couch['special'])) { echo $couch['special']; }?></div>
+            <div class="tren_desk"><?php if (!empty($coach['special'])) { echo $coach['special']; }?></div>
             <div class="tren_buts parent">
                 <!--<div class="tren_buts_l">
                     <button class="love_but"></button>
@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <a href="" class="f_but"></a>
                     <a href="" class="tw_but"></a>
                 </div>-->
-                <a href="/messages/<?php echo $couch['id']; ?>" class="tren_mess_link" title="Написать тренеру">
+                <a href="/messages/<?php echo $coach['id']; ?>" class="tren_mess_link" title="Написать тренеру">
                     <i class="fa fa-envelope-o" aria-hidden="true"></i>
                 </a>
             </div>
@@ -33,16 +33,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="trainers_cont">
             <div class="trainers_h">Титулы и награды</div>
             <div class="trainers_txt">
-                <?php if (!empty($couch['titles_awards'])):
-                    echo $couch['titles_awards'];
+                <?php if (!empty($coach['titles_awards'])):
+                    echo $coach['titles_awards'];
                 else:?>
                     Нет информации
                 <?php endif; ?>
             </div>
             <div class="trainers_h">О себе</div>
             <div class="trainers_txt">
-                <?php if (!empty($couch['about'])):
-                    echo $couch['about'];
+                <?php if (!empty($coach['bbc_about'])):
+                    echo $coach['bbc_about'];
                 else: ?>
                     Тренер еще не добавил информацию о себе
                 <?php endif; ?>

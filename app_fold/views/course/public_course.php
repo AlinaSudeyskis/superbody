@@ -34,19 +34,19 @@ include_once('./app_fold/views/breadcrumb.php');?>
                                     <div class="kurs_block_h"><?php if (!empty($course['count_days'])) { echo $course['count_days']; }?></div>
                                     <div class="kurs_cur"> дн./нед.</div>
                                 </div>
-                                <?php if (!empty($course['couches'])) :?>
+                                <?php if (!empty($course['coaches'])) :?>
                                     <!--<div class="anketa_form_line parent">
                                         <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренеры:</div></div>
                                         <div class="anketa_form_radio_all parent">
-                                            <?php /* <!--<input type="hidden" name="user_couch" value="echo $course['couch_id']; " id="user-couch-id"/> --> */?>
-                                            <?php /*foreach($course['couches'] as $key => $couch) :*/?>
+                                            <?php /* <!--<input type="hidden" name="user_coach" value="echo $course['coach_id']; " id="user-coach-id"/> --> */?>
+                                            <?php /*foreach($course['coaches'] as $key => $coach) :*/?>
                                                 <div class="anketa_form_radio_wrap">
-                                                    <input type="radio" name="user_couch" value="<?php /*echo $couch['id']; */?>" id="cb_couch<?php /*echo $course['couch_id']; */?>" class="anketa_form_radio long"
-                                                           <?php /*if ($course['couch_id'] == $couch['id']) :*/?>checked="checked"<?php /*endif;*/?>
-                                                    /><label for="cb_couch<?php /*echo $course['couch_id']; */?>"><?php /*echo $couch['name']; */?></label>
+                                                    <input type="radio" name="user_coach" value="<?php /*echo $coach['id']; */?>" id="cb_coach<?php /*echo $course['coach_id']; */?>" class="anketa_form_radio long"
+                                                           <?php /*if ($course['coach_id'] == $coach['id']) :*/?>checked="checked"<?php /*endif;*/?>
+                                                    /><label for="cb_coach<?php /*echo $course['coach_id']; */?>"><?php /*echo $coach['name']; */?></label>
                                                 </div>
                                             <?php /*endforeach;
-                                            unset($couch);*/?>
+                                            unset($coach);*/?>
                                         </div>
                                     </div>-->
                                 <?php endif;

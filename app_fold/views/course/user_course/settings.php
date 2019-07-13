@@ -43,29 +43,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренировочные дни:</div></div>
                                 <?php include('./app_fold/views/course/week_days_item.php'); ?>
                             </div>
-                        <?php endif; ?>
-                        <?php $time_disabled = (!empty($course['training_time']) or $course['blocked'] == 1) ? 'disabled' : ''; ?>
-                        <div class="anketa_form_line parent">
-                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Время тренировок:</div></div>
-                            <div class="anketa_form_two_all parent <?php echo $time_disabled; ?>">
-                                <div class="anketa_form_two_wrap parent">
-                                    <input type="text" name="training_time_from" value="<?php echo $course['training_time']; ?>" class="anketa_form_in time" placeholder="чч:мм" maxlength="5"/>
-                                </div>
+                            <?php $time_disabled = (!empty($course['training_time']) or $course['blocked'] == 1) ? 'disabled' : ''; ?>
+                            <div class="anketa_form_line parent">
+                                <div class="anketa_form_h"><div class="anketa_form_h_cell">Время тренировок:</div></div>
+                                <?php include('./app_fold/views/course/week_days_time_item.php'); ?>
                             </div>
-                        </div>
-                        <?php if (!empty($course['couches'])) :?>
+                        <?php endif; ?>
+                        <?php if (!empty($course['coaches'])) :?>
                             <div class="anketa_form_line parent">
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренеры:</div></div>
                                 <div class="anketa_form_radio_all parent <?php echo $days_disabled; ?>">
-                                    <!--<input type="hidden" name="user_couch" value="<?php /*echo $course['couch_id']*/?>" id="user-couch-id"/>-->
-                                    <?php foreach($course['couches'] as $key => $couch) :?>
+                                    <!--<input type="hidden" name="user_coach" value="<?php /*echo $course['coach_id']*/?>" id="user-coach-id"/>-->
+                                    <?php foreach($course['coaches'] as $key => $coach) :?>
                                         <div class="anketa_form_radio_wrap">
-                                            <input type="radio" name="user_couch" value="<?php echo $couch['id']; ?>" id="cb_couch<?php echo $course['couch_id']; ?>" class="anketa_form_radio long"
-                                                   <?php if ($course['couch_id'] == $couch['id']) :?>checked="checked"<?php endif;?>
-                                            /><label for="cb_couch<?php echo $course['couch_id']; ?>"><?php echo $couch['name']; ?></label>
+                                            <input type="radio" name="user_coach" value="<?php echo $coach['id']; ?>" id="cb_coach<?php echo $course['coach_id']; ?>" class="anketa_form_radio long"
+                                                   <?php if ($course['coach_id'] == $coach['id']) :?>checked="checked"<?php endif;?>
+                                            /><label for="cb_coach<?php echo $course['coach_id']; ?>"><?php echo $coach['name']; ?></label>
                                         </div>
                                     <?php endforeach;
-                                    unset($couch);?>
+                                    unset($coach);?>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -131,13 +127,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 unset($attached);?>
                             </div>
                         <?php endif; ?>
-                        <div class="anketa_form_buts_wrap parent">
-                            <?php if ($course['paused'] == 1 and $course['blocked'] == 0 and $course['finished'] === false):?>
-                                <input type="submit" name="bt_unblock_course" class="anketa_form_reset" value="Разморозить"/>
-                            <?php endif;
-                            if ($course['blocked'] == 0 and $course['finished'] === false):?>
-                                <input type="submit" name="bt_save_course" value="Сохранить" class="anketa_form_but" />
-                            <?php endif;?>
+                        <div class="anketa_form_line parent">
+                            <div class="video_admin_form_buts parent">
+                                <?php if ($course['paused'] == 1 and $course['blocked'] == 0 and $course['finished'] === false):?>
+                                    <input type="submit" name="bt_unblock_course" class="admin_form_reset" value="Разморозить"/>
+                                <?php endif;
+                                if ($course['blocked'] == 0 and $course['finished'] === false):?>
+                                    <input type="submit" name="bt_save_course" value="Сохранить" class="video_admin_form_send" />
+                                <?php endif;?>
+                            </div>
                         </div>
                     </form>
                 </div>

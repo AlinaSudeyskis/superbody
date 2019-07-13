@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="content" class="container">
     <div class="row">
         <div class="col-lg-2 left_sidebar">
-            <?php include_once('./app_fold/views/couch/couch_menu.php'); ?>
+            <?php include_once('./app_fold/views/coach/coach_menu.php'); ?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block new_content_block">
@@ -37,15 +37,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         </div>
                                         <div class="my_kurs_mid"><?php echo $course['description']; ?></div>
                                         <div class="my_kurs_bot parent">
-                                            <?php if ($course['couches']) :?>
+                                            <?php if ($course['coaches']) :?>
                                                 <div class="my_kurs_tren_h">Тренер</div>
                                                 <div class="my_kurs_tren_names">
-                                                    <?php $last_couch = count($course['couches']);
-                                                    foreach ($course['couches'] as $key => $couch) :?>
-                                                        <a href="/profile/<?php echo $couch['id'];?>"><?php echo $couch['name'];?></a>
-                                                        <?php if ($last_couch != ($key + 1)): echo ','; endif;?>
+                                                    <?php $last_coach = count($course['coaches']);
+                                                    foreach ($course['coaches'] as $key => $coach) :?>
+                                                        <a href="/profile/<?php echo $coach['id'];?>"><?php echo $coach['name'];?></a>
+                                                        <?php if ($last_coach != ($key + 1)): echo ','; endif;?>
                                                     <?php endforeach;
-                                                    unset($couch);?>
+                                                    unset($coach);?>
                                                 </div>
                                             <?php endif;?>
                                         </div>

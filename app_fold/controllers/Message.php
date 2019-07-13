@@ -80,7 +80,7 @@ class Message extends CI_Controller
             header('Location: /messages/' . $user_with);
         }
 
-        $this->load->model('Couch_model');
+        $this->load->model('Coach_model');
 
         // Список сообщений диалога
         $conversations = $this->Message_model->getUserConversations($this->user_id, $user_with);
@@ -114,12 +114,12 @@ class Message extends CI_Controller
         if ($this->session->user['type'] == 2)
         {
             // Список пользователей
-            $result['attached_users'] = $this->Couch_model->getAttachedUsers($this->user_id);
+            $result['attached_users'] = $this->Coach_model->getAttachedUsers($this->user_id);
         }
         else
         {
             // Список тренеров
-            $result['attached_couches'] = $this->Couch_model->getAttachedCouches($this->user_id);
+            $result['attached_coaches'] = $this->Coach_model->getAttachedCoaches($this->user_id);
         }
 
         // Уведомления пользователя
@@ -988,7 +988,7 @@ class Message extends CI_Controller
      */
     public function QaSections()
     {
-        $users_types = array('user' => 1, 'couch' => 2, 'admin' => 3);
+        $users_types = array('user' => 1, 'coach' => 2, 'admin' => 3);
         $user_type = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
         $result = $this->Message_model->getPublicQaSections($user_type);
         $result_search = false;
@@ -1033,7 +1033,7 @@ class Message extends CI_Controller
     public function QaSection($section_id, $subsection_id)
     {
         $result = array();
-        $users_types = array('user' => 1, 'couch' => 2, 'admin' => 3);
+        $users_types = array('user' => 1, 'coach' => 2, 'admin' => 3);
         $user_type = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
 
         if(is_numeric($section_id) and empty($subsection_id))
@@ -1076,7 +1076,7 @@ class Message extends CI_Controller
     public function QaArticle($section_id, $subsection_id, $article_id)
     {
         $result = array();
-        $users_types = array('user' => 1, 'couch' => 2, 'admin' => 3);
+        $users_types = array('user' => 1, 'coach' => 2, 'admin' => 3);
         $user_type = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
 
         if(is_numeric($section_id) and is_numeric($subsection_id) and is_numeric($article_id))

@@ -1845,7 +1845,7 @@ class Database_model extends CI_Model
                 `qa_qas_id` INT(10) UNSIGNED NOT NULL ,
                 `qa_qass_id` INT(10) UNSIGNED NOT NULL , 
                 `qa_name` VARCHAR(255) NOT NULL ,
-                `qa_user_group` ENUM('general','user','couch','admin') NOT NULL DEFAULT 'general' , 
+                `qa_user_group` ENUM('general','user','coach','admin') NOT NULL DEFAULT 'general' , 
                 `qa_text` TEXT NOT NULL , 
                 `qa_blocked` TINYINT(1) NOT NULL DEFAULT '0' , 
                 `qa_update` DATETIME NOT NULL , 
@@ -2165,6 +2165,79 @@ class Database_model extends CI_Model
         if($fl_up_db === false)
         {
             $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (203, 'Для старта курса выберите дни и время тренировок.', 'Для старта курса выберите дни и время тренировок.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных июль 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseJuly2019($date)
+    {
+        $result = false;
+
+        $date = '2019-07-10 10:29';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` CHANGE `pc_type` `pc_type` ENUM('all','workouts','nutritions','categories','courses') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'all'");
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_crs_cats` VARCHAR(255) NOT NULL AFTER `pc_type`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-07-11 16:18';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes_for_friend` DROP `pff_used`, DROP `pff_date_used`, DROP `pff_u_id_used`, DROP `pff_o_id`, DROP `pff_p_id`");
+            $this->db->query("ALTER TABLE `promocodes_used` ADD `pcu_pff_id` INT UNSIGNED NOT NULL AFTER `pcu_pc_id`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-07-11 21:40';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("RENAME TABLE `couch_blog` TO `coach_blog`");
+            $this->db->query("RENAME TABLE `couch_data` TO `coach_data`");
+            $this->db->query("RENAME TABLE `couch_portfolio` TO `coach_portfolio`");
+            $this->db->query("RENAME TABLE `courses_couches` TO `courses_coaches`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-07-11 21:47';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_couch_id` `uc_coach_id` INT(10) UNSIGNED NOT NULL");
+            $this->db->query("ALTER TABLE `courses_coaches` CHANGE `cc_couch_id` `cc_coach_id` INT(10) UNSIGNED NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-07-11 22:03';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_coach_id` INT(10) UNSIGNED NOT NULL AFTER `pc_blocked`, ADD INDEX `ix_pc_coach_id` (`pc_coach_id`)");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-07-12 11:32';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_time` `uc_time` VARCHAR(42) NOT NULL");
 
             self::setDbUpdate($date);
         }

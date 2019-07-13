@@ -98,7 +98,7 @@ class Administrator_model extends CI_Model
         
         if (1 == $this->db->affected_rows()) {
             if ($type == 2) {
-                $this->db->query('INSERT INTO `couch_data` (`cd_u_id`) VALUES (?)', $user_id);
+                $this->db->query('INSERT INTO `coach_data` (`cd_u_id`) VALUES (?)', $user_id);
             }
 
             return true;
@@ -165,13 +165,13 @@ class Administrator_model extends CI_Model
     {
         $result = array('admins' => array());
 
-        $sel_couches = $this->db->query('
+        $sel_coaches = $this->db->query('
           SELECT `user_name`, `user_email`, `user_id`, `user_image` 
           FROM `users` WHERE `user_type`=3 and `user_deleted`=0');
 
-        if ($sel_couches->num_rows() > 0) {
+        if ($sel_coaches->num_rows() > 0) {
             $i = 0;
-            foreach ($sel_couches->result() as $row) {
+            foreach ($sel_coaches->result() as $row) {
                 $result['admins'][$i] = self::parseAdminData($row);
 
                 $i++;

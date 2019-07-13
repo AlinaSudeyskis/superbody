@@ -6,7 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="col-lg-2 left_sidebar">
             <?php if (!empty($user_session)):
                 if ($user_session['type'] == 2):
-                    include_once('./app_fold/views/couch/couch_menu.php');
+                    include_once('./app_fold/views/coach/coach_menu.php');
                 else:
                     include_once('./app_fold/views/user/user_menu.php');
                 endif;

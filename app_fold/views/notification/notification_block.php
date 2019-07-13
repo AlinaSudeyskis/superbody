@@ -27,7 +27,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php endif;
             if($course_finished === true and !empty($course_finished_info)):?>
                 <h3 class="info"><?php echo $course_finished_info; ?></h3>
-                <a href="/course/<?php echo $notif['course_id']; ?>" class="add_tab_but fix_width">Купить снова</a>
+                <a href="#" class="add_tab_but fix_width buy_course" data-cid="<?php echo $notif['course_id']; ?>">Купить снова</a>
             <?php endif;
             if($workout_missed === true and !empty($workout_missed_info)):?>
                 <h3 class="info"><?php echo $workout_missed_info; ?></h3>
@@ -101,18 +101,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php foreach($non_started_courses as $uc_id => $ns_course): ?>
                     <div class="notification_block_wrap">
                         <div class="notification_block_h"><a href="/profile/course/<?php echo $uc_id; ?>"><?php echo $ns_course['course_name']; ?></a></div>
-                        <?php
-                        $course['count_weeks'] = $ns_course['course_weeks'];
-                        $course['count_days']  = $ns_course['course_days'];
-                        $course['count_rest']  = $ns_course['course_rest'];
-                        $crs_id = $uc_id;
-                        ?>
+                        <div class="anketa_form_line parent"></div>
+                    </div>
+                    <?php
+                    $course['count_weeks'] = $ns_course['course_weeks'];
+                    $course['count_days']  = $ns_course['course_days'];
+                    $course['count_rest']  = $ns_course['course_rest'];
+                    $crs_id = $uc_id;
+                    ?>
+
+                    <div class="anketa_form_line parent">
+                        <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренировочные дни:</div></div>
                         <?php include('./app_fold/views/course/week_days_item.php'); ?>
-                        <div class="anketa_form_two_all parent">
-                            <div class="anketa_form_two_wrap parent">
-                                <input type="text" name="training_time_from[<?php echo $crs_id; ?>]" value="" class="anketa_form_in time" placeholder="чч:мм" maxlength="5"/>
-                            </div>
-                        </div>
+                    </div>
+                    <?php $time_disabled = (!empty($course['training_time']) or $course['blocked'] == 1) ? 'disabled' : ''; ?>
+                    <div class="anketa_form_line parent">
+                        <div class="anketa_form_h"><div class="anketa_form_h_cell">Время тренировок:</div></div>
+                        <?php include('./app_fold/views/course/week_days_time_item.php'); ?>
                     </div>
                 <?php endforeach;
                 unset($ns_course);?>

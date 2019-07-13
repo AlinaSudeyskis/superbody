@@ -4,13 +4,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="content" class="container">
     <?php
     $user_name = (!empty($user_data['user_name'])) ? $user_data['user_name'] : 'Страница тренера';
-    $breadcrumbs = array('/couches' => 'Тренеры', '/couch' => $user_name);
+    $breadcrumbs = array('/coaches' => 'Тренеры', '/coach' => $user_name);
     include_once('./app_fold/views/breadcrumb.php');?>
     <div class="row">
         <div class="col-lg-2 left_sidebar">
             <?php if (!empty($user_session)):
                 if ($user_session['type'] == 2):
-                    include_once('./app_fold/views/couch/couch_menu.php');
+                    include_once('./app_fold/views/coach/coach_menu.php');
                 else:
                     include_once('./app_fold/views/user/user_menu.php');
                 endif;
@@ -21,9 +21,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             // Уведомления
             include_once('./app_fold/views/notification/user_profile_notifications.php');
             // Краткая информация
-            include_once('./app_fold/views/couch/profile/short_info.php');
+            include_once('./app_fold/views/coach/profile/short_info.php');
             // Информация профиля
-            include_once('./app_fold/views/couch/profile/profile_info.php');
+            include_once('./app_fold/views/coach/profile/profile_info.php');
             ?>
             <div class="content_block new_content_block">
                 <div class="content_block_h new_content_block_h parent">
@@ -57,7 +57,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <?php // Портфолио
             if (!empty($portfolio)) :
-                include_once('./app_fold/views/couch/portfolio/portfolio_item.php');
+                include_once('./app_fold/views/coach/portfolio/portfolio_item.php');
             endif;
             ?>
 

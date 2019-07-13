@@ -8,8 +8,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </a>
     </li>
     <li>
-        <a href="/administration/couches">
-            <span <?php if ($page_submenu == 'a_couches') { echo 'class="anketa_active"'; } ?>>Тренеры</span>
+        <a href="/administration/coaches">
+            <span <?php if ($page_submenu == 'a_coaches') { echo 'class="anketa_active"'; } ?>>Тренеры</span>
         </a>
     </li>
     <li>
@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>
 </ul>
 <?php if(!empty($user_data) and $page_submenu !== 'a_users_archive'):
-    $user_types = array('user' => 1, 'couch' => 2, 'admin' => 3);
+    $user_types = array('user' => 1, 'coach' => 2, 'admin' => 3);
     $user_type  = array_search($user_data['user_type'], $user_types); ?>
     <ul class="anketa_block_nav parent">
         <li>

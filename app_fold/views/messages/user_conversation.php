@@ -5,17 +5,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="row">
         <div class="col-lg-2 left_sidebar">
             <?php if ($user_session['type'] == 2) :
-                include_once('./app_fold/views/couch/couch_menu.php');
+                include_once('./app_fold/views/coach/coach_menu.php');
             else :
                 include_once('./app_fold/views/user/user_menu.php');
             endif;?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <?php if (!empty($attached_couches)) :
-                foreach ($attached_couches as $couch) :?>
-                    <a href="/messages/<?php echo $couch['id']?>"><span><?php echo $couch['name']?></span></a><br/>
+            <?php if (!empty($attached_coaches)) :
+                foreach ($attached_coaches as $coach) :?>
+                    <a href="/messages/<?php echo $coach['id']?>"><span><?php echo $coach['name']?></span></a><br/>
                 <?php endforeach;
-                unset($couch);
+                unset($coach);
             elseif (!empty($attached_users)) :
                 foreach ($attached_users as $us) :?>
                     <a href="/messages/<?php echo $us['id']?>"><span><?php echo $us['name']?></span></a><br/>

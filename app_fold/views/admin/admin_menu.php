@@ -21,7 +21,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </a>
     </li>
     <!--<li>
-        <a href="/administration/couches" <?php /*if ($page_menu == 'a_couches') { echo 'class="active"'; } */?>>
+        <a href="/administration/coaches" <?php /*if ($page_menu == 'a_coaches') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico17.png" alt=""></span><span>Тренеры</span>
         </a>
     </li>
@@ -78,7 +78,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </a>
     </li>
     <li>
-        <a href="/administration/couches/portfolio" <?php if ($page_menu == 'couch_portfolio') { echo 'class="active"'; } ?>>
+        <a href="/administration/coaches/portfolio" <?php if ($page_menu == 'coach_portfolio') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico14.png" alt=""></span><span>Портфолио тренера</span>
         </a>
     </li>

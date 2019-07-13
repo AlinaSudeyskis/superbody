@@ -228,7 +228,7 @@ class Payment extends CI_Controller
                         $start_date = '';
                         $end_date = '';
                         $training_days = '';
-                        $user_couch = '';
+                        $user_coach = '';
 
                         // Даты начала и окончания курса
                         if($course['category'] == 'nutrition')
@@ -243,7 +243,7 @@ class Payment extends CI_Controller
                             $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
                         }
 
-                        $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $user_id, $start_date, $end_date, $training_days, $user_couch, $this->date);
+                        $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $user_id, $start_date, $end_date, $training_days, $user_coach, $this->date);
                     }
 
                     // Изменение статуса заказа как "Выполненный"
@@ -273,7 +273,7 @@ class Payment extends CI_Controller
         $external_types = array('sberbank', 'alfabank');
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
-        $return_url     = (in_array($payment_type, $external_types)) ? '' : 'https://superbody.pro/order/' . $order_id;
+        $return_url     = 'https://superbody.pro/order/' . $order_id . '?return=true';
         $save           = ($payment_option == 'installments') ? true : false;
         $method_id      = strip_tags($payment_method_id);
         $confirm_type   = (in_array($payment_type, $external_types)) ? 'external' : 'redirect';
