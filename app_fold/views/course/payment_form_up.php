@@ -12,7 +12,7 @@ $display = (!empty($purchase_up) and $purchase_up === true) ? 'class="ref_pop-up
     <div class="purchase_pop-up_cont">
         <div class="purchase_pop-up_h purchase_form">
             <?php if(!empty($course)): ?>
-                <div class="parent kurs_cur_wrap">
+                <div class="parent kurs_cur_wrap" style="justify-content: center; ">
                     <div class="kurs_cur_h"><?php if(!empty($course)): echo $course['name']; endif; ?></div>
                 </div>
                 <div class="parent kurs_cur_wrap separator"></div>

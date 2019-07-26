@@ -9232,7 +9232,7 @@ class Course extends CI_Controller
                 $course       = $course_data['course'];
                 $courses_id   = $user_courses['courses_id'];
 
-                $result['crsd'] = '<div class="parent kurs_cur_wrap">
+                $result['crsd'] = '<div class="parent kurs_cur_wrap" style="justify-content: center; ">
                         <div class="kurs_cur_h">'.$course['name'].'</div>
                     </div>
                     <div class="parent kurs_cur_wrap separator"></div>';
