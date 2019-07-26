@@ -75,7 +75,7 @@ class Authorization_model extends CI_Model
                 }
 
                 $promocode = '';
-                $promocode2 = 'BEIVYI';
+                //$promocode2 = 'BEIVYI';
                 $words        = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM';
                 $max_position = strlen($words) - 1;
                 $fl_cycle = false;
@@ -83,7 +83,7 @@ class Authorization_model extends CI_Model
                     $position = floor ( rand(0,$max_position));
                     $promocode .= substr($words, $position, 1);
 
-                    if($i == 6 and in_array($promocode2, $existing_pc) and $fl_cycle === false)
+                    if($i == 6 and in_array($promocode, $existing_pc) and $fl_cycle === false)
                     {
                         $i = 0;
                         $fl_cycle = true;

@@ -2253,6 +2253,83 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-07-26 16:36';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+
+            $this->db->query('DELETE FROM `promocodes_for_friend`');
+
+            // Промокод для друга
+            $i = 0;
+            $existing_pc = array();
+            $sel_pc = $this->db->query('SELECT `pc_code` FROM `promocodes`');
+            if($sel_pc !== false and 0 < $sel_pc->num_rows())
+            {
+                foreach ($sel_pc->result() as $row)
+                {
+                    if(!empty($row->pc_code))
+                    {
+                        $existing_pc[$i] = $row->pc_code;
+                        $i++;
+                    }
+                }
+                unset($row);
+            }
+            elseif($sel_pc === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            $sel_pff = $this->db->query('SELECT `pff_code` FROM `promocodes_for_friend`');
+            if($sel_pff !== false and 0 < $sel_pff->num_rows())
+            {
+                foreach ($sel_pff->result() as $row)
+                {
+                    if(!empty($row->pff_code))
+                    {
+                        $existing_pc[$i] = $row->pff_code;
+                        $i++;
+                    }
+                }
+                unset($row);
+            }
+            elseif($sel_pff === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            $sel_data = $this->db->query('SELECT `user_id` FROM `users`');
+            foreach ($sel_data->result() as $row)
+            {
+                $promocode = '';
+                //$promocode2 = 'BEIVYI';
+                $words        = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM';
+                $max_position = strlen($words) - 1;
+                $fl_cycle = false;
+                for( $a = 1; $a <= 6; $a++ ) {
+                    $position = floor ( rand(0,$max_position));
+                    $promocode .= substr($words, $position, 1);
+
+                    if($a == 6 and in_array($promocode, $existing_pc) and $fl_cycle === false)
+                    {
+                        $a = 1;
+                        $fl_cycle = true;
+                        $promocode = '';
+                    }
+                    else
+                    {
+                        $existing_pc[$i] = $promocode;
+                        $i++;
+                    }
+                }
+                $promocode = strtoupper($promocode);
+                $this->db->query('INSERT INTO `promocodes_for_friend` (`pff_code`, `pff_u_id`, `pff_date_add`) VALUES(?, ?, ?)',
+                    array($promocode, $row->user_id, $date));
+            }
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
