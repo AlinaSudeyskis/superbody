@@ -95,11 +95,13 @@ class Authorization extends CI_Controller
                         {
                             // Пользователь с таким E-mail существует
                             $this->session->set_tempdata('message', 1, 60);
+                            header('Location: /registry');
                         }
-                        elseif ($result_registration == 'e2')
+                        else
                         {
                             // Не удалось сохранить запись в БД
                             $this->session->set_tempdata('message', 2, 60);
+                            header('Location: /registry');
                         }
                     }
                 }
@@ -107,12 +109,14 @@ class Authorization extends CI_Controller
                 {
                     // Не все поля для регистрации были заполнены
                     $this->session->set_tempdata('message', 8, 60);
+                    header('Location: /registry');
                 }
             }
             else
             {
                 // Нет подтверждения использования персональных данных
                 $this->session->set_tempdata('message', 128, 60);
+                header('Location: /registry');
             }
         }
         elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
@@ -163,7 +167,7 @@ class Authorization extends CI_Controller
             if ($this->input->post('cb_politics', true))
             {
                 // Валидация E-mail
-                $email = (!empty($this->input->post('email', true))  and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+                $email = (!empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
                     ? $this->input->post('email', true)
                     : null;
 

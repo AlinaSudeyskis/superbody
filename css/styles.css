@@ -278,10 +278,11 @@ h3.landing span{
 
 .admin_cont.f_right .admin_name {
     font-size: 15px;
-    margin-top: 5px;
+    /*margin-top: 5px;*/
+    margin: auto;
 }
 .admin_cont.f_right .admin_name:first-child {
-    margin-top: 0;
+    /*margin-top: 0;*/
 }
 .admin_cont.f_right .video_admin_form_send {
      width: 100%;
@@ -792,9 +793,6 @@ span.mess_block_full_time {
 }
 .kurs_block_h .h_subtitle{
     margin-top: -16px;
-}
-.purchase_form{
-    padding:0;
 }
 .ordering_block_side_cont_txt .succeeded{
     color: #3cb878;

@@ -2242,6 +2242,17 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-07-24 18:27';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` 
+                CHANGE `clp_block8_old_price` `clp_block8_old_price` DECIMAL(10,2) NOT NULL, 
+                CHANGE `clp_block8_new_price` `clp_block8_new_price` DECIMAL(10,2) NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

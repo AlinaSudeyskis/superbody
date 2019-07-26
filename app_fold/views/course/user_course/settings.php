@@ -43,7 +43,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренировочные дни:</div></div>
                                 <?php include('./app_fold/views/course/week_days_item.php'); ?>
                             </div>
-                            <?php $time_disabled = (!empty($course['training_time']) or $course['blocked'] == 1) ? 'disabled' : ''; ?>
+                            <?php //$time_disabled = (!empty($course['training_time']) or $course['blocked'] == 1) ? 'disabled' : '';
+                            $uc_set = true; ?>
                             <div class="anketa_form_line parent">
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Время тренировок:</div></div>
                                 <?php include('./app_fold/views/course/week_days_time_item.php'); ?>

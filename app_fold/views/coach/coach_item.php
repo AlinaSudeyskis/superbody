@@ -42,7 +42,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="trainers_h">О себе</div>
             <div class="trainers_txt">
                 <?php if (!empty($coach['bbc_about'])):
-                    echo $coach['bbc_about'];
+                    $temp = (mb_strlen($coach['bbc_about']) > 130) ? mb_substr($coach['bbc_about'], 0, 130) : null ;
+                    $coach_about = (!empty($temp))
+                        ? mb_substr($temp, 0, mb_strrpos($temp, ' ')) . '<a href="/profile/'.$coach['id'].'">...</a>'
+                        : $coach['bbc_about'];
+                    echo $coach_about;
                 else: ?>
                     Тренер еще не добавил информацию о себе
                 <?php endif; ?>

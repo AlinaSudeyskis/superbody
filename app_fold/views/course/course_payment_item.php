@@ -5,17 +5,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <input type="hidden" name="crs_id" id="crs-id" value="<?php if (!empty($course['id'])) { echo $course['id']; }?>" />
     <div class="parent kurs_cur_wrap">
         <div class="kurs_block_h">Стоимость курса:</div>
-        <?php if ($course['new_price'] == 0 and $course['price'] == 0):?>
-            <div class="kurs_block_h">Бесплатно</div>
-        <?php else:
-            if (empty($course['new_price'])): ?>
-                <div class="kurs_block_h" id="course-price"><?php echo $course['price']; ?></div>
-            <?php elseif (!empty($course['new_price'])): ?>
-                <div class="kurs_block_h strikeout" id="course-price"><?php echo $course['price'];?></div>
-                <div class="kurs_cur" id="course-new-price"><?php echo $course['new_price'];?></div>
+        <div class="pf_price_wrap">
+            <?php if ($course['new_price'] == 0 and $course['price'] == 0):?>
+                <div class="kurs_block_h">Бесплатно</div>
+            <?php else:
+                if (empty($course['new_price'])): ?>
+                    <div class="kurs_block_h" id="course-price"><?php echo $course['price']; ?></div>
+                <?php elseif (!empty($course['new_price'])): ?>
+                    <div class="kurs_block_h strikeout" id="course-price"><?php echo $course['price'];?></div>
+                    <div class="kurs_cur" id="course-new-price"><?php echo $course['new_price'];?></div>
+                <?php endif;?>
+                <div class="kurs_cur"> руб.</div>
             <?php endif;?>
-            <div class="kurs_cur"> руб.</div>
-        <?php endif;?>
+        </div>
     </div>
     <?php if ($course['price'] != 0 and $course['recurrent'] === true):?>
         <div class="parent kurs_cur_wrap">
@@ -28,16 +30,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="line_parent" id="recurrent-block">
             <div class="parent kurs_cur_wrap">
-                <div class="kurs_block_h"></div>
                 <div class="kurs_block_h">Первый платеж:</div>
-                <div class="kurs_cur"><?php echo $course['recur_first']; ?></div>
-                <div class="kurs_cur"> руб.</div>
+                <div class="pf_price_wrap">
+                    <div class="kurs_block_h"><?php echo $course['recur_first']; ?></div>
+                    <div class="kurs_cur"> руб.</div>
+                </div>
             </div>
             <div class="parent kurs_cur_wrap">
-                <div class="kurs_block_h"></div>
-                <div class="kurs_block_h">Последующие платежи:</div>
-                <div class="kurs_cur"><?php echo $course['recur_subsequent']; ?></div>
-                <div class="kurs_cur"> руб.</div>
+                <div class="kurs_block_h" style="line-height: 17px;">Последующие платежи:</div>
+                <div class="pf_price_wrap">
+                    <div class="kurs_block_h"><?php echo $course['recur_subsequent']; ?></div>
+                    <div class="kurs_cur"> руб.</div>
+                </div>
             </div>
         </div>
     <?php endif;
@@ -61,7 +65,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="parent kurs_cur_wrap" id="method-login">
             <div class="kurs_block_h">Логин:
-                <div class="h_subtitle">(пользователя в Альфа-Клике)</div>
+                <div class="h_subtitle" style="line-height: 13px; margin-top: -7px;">(пользователя в Альфа-Клике)</div>
             </div>
             <input type="text" name="i_login" value="" class="admin_form_txt admin_form_txt_short" />
         </div>

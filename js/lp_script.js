@@ -17,13 +17,21 @@ $(document).ready(function(){
             purchase_up();
         }
 
-        $(".lp_block_but").on('click', function(event){
+        $(".lp_block_but, .lp_block_but_crs").on('click', function(event){
             event.preventDefault();
             purchase_up();
         });
+        $(".lp_block_but_crs").on('click', function(event){
+            event.preventDefault();
+            purchase_up('full');
+        });
+        $(".lp_block_but_rec_crs").on('click', function(event){
+            event.preventDefault();
+            purchase_up('rec');
+        });
     }
 
-    function purchase_up()
+    function purchase_up(pm_op)
     {
         if (shadow2.length == 0)
         {
@@ -32,6 +40,25 @@ $(document).ready(function(){
         }
 
         purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2}).fadeIn(600);
+
+        if(pm_op)
+        {
+            var p_o = $("#payment-options");
+            if(pm_op == 'full')
+            {
+                p_o.val('full_payment');
+            }
+            else if(pm_op == 'rec')
+            {
+                p_o.val('installments');
+            }
+            else
+            {
+                p_o.val('');
+            }
+            p_o.change();
+        }
+
         $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
             shadow2.fadeOut(600);
             purchase.fadeOut(600);
@@ -51,6 +78,7 @@ $(document).ready(function(){
         {
             $(this).parent('.promo_block').find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
         }
+        purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2})
     });
 
 
@@ -237,6 +265,7 @@ $(document).ready(function(){
                 }
             }
         }
+        purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2})
     });
 
     $("#payment-methods").on('change', function(){
@@ -255,5 +284,6 @@ $(document).ready(function(){
             $("#method-phone").hide();
             $("#method-login").hide();
         }
+        purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2})
     });
 });

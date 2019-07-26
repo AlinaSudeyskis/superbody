@@ -39,23 +39,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <a href="/administration/course/<?php echo $course['id']?>/preview">Предпросмотр</a>
                                         </div>
                                     </div>
-                                    <?php if ($course['landing']['activated'] !== false) : ?>
-                                        <div class="admin_cont f_right">
-                                            <div class="admin_name">
-                                                <a href="/course/<?php echo $course['id']?>">Landing page</a>
-                                            </div>
-                                            <div class="admin_name">
-                                                <form action="" method="post">
-                                                    <input type="hidden" name="i_course_id" value="<?php echo $course['id']?>" />
-                                                    <?php if ($course['landing']['activated'] == 'activate') : ?>
-                                                        <input type="submit" name="bt_deactivate_landing" value="Деактивировать" class="video_admin_form_send" />
-                                                    <?php else : ?>
-                                                        <input type="submit" name="bt_activate_landing" value="Активировать" class="video_admin_form_send" />
-                                                    <?php endif; ?>
-                                                </form>
-                                            </div>
+                                    <div class="admin_cont f_right">
+                                        <!--<div class="admin_name">
+                                            <a href="/course/<?php /*echo $course['id']*/?>">Landing page</a>
+                                        </div>-->
+                                        <div class="admin_name">
+                                            <form action="" method="post">
+                                                <input type="hidden" name="i_course_id" value="<?php echo $course['id']?>" />
+                                                <?php if ($course['blocked'] == 0) : ?>
+                                                    <input type="submit" name="bt_block_course" value="Блокировать" class="video_admin_form_send" />
+                                                <?php else : ?>
+                                                    <input type="submit" name="bt_unblock_course" value="Активировать" class="video_admin_form_send" />
+                                                <?php endif; ?>
+                                            </form>
                                         </div>
-                                    <?php endif; ?>
+                                    </div>
                                 </div>
                             <?php endforeach;
                             unset($course); ?>

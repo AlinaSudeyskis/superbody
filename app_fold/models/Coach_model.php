@@ -1180,7 +1180,7 @@ class Coach_model extends CI_Model
         $result['user_experience']    = (!empty($row->cd_experience)) ? parent::endingWords($row->cd_experience, 'год', 'лет', 'года') : '';
         $result['user_experience_y']  = (!empty($row->cd_experience)) ? $row->cd_experience : '';
         $result['user_titles_awards'] = (!empty($row->cd_titles_awards)) ? $row->cd_titles_awards : '';
-        $result['user_bbc_about']     = (!empty($row->cd_about)) ? parent::showBBcodes($row->cd_about) : '';
+        $result['user_bbc_about']     = (!empty($row->cd_about)) ? nl2br(parent::showBBcodes($row->cd_about)) : '';
         $result['user_about']         = (!empty($row->cd_about)) ? $row->cd_about : '';
 
         return $result;

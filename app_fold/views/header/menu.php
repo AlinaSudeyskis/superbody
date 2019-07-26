@@ -28,9 +28,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <li><a href="<?php echo '/profile/' . $user_session['id']; ?>" <?php if ($page_menu == 'profile') { echo 'class="active"'; } ?>>ПРОФИЛЬ</a></li>
         <?php endif;?>
         <?php if (!empty($user_session) and $user_session['type'] == 3) :?>
-            <li><a href="/store" <?php if ($page_menu == 'store') { echo 'class="active"'; } ?>>МАГАЗИН</a></li>
+            <!--<li><a href="/store" <?php /*if ($page_menu == 'store') { echo 'class="active"'; }  */?>>МАГАЗИН</a></li>-->
         <?php endif;?>
         <li><a href="/contacts" <?php if ($page_menu == 'contacts') { echo 'class="active"'; } ?>>КОНТАКТЫ</a></li>
+        <li><a href="/support" <?php if ($page_menu == 'question-answer') { echo 'class="active"'; } ?>>ПОДДЕРЖКА</a></li>
     </ul>
 </nav>
 <?php if ($page_menu == 'index'):?>

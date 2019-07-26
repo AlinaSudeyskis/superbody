@@ -38,7 +38,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <div class="tren_prof_page_cont">
                 <div class="tren_prof_page_stat"><?php if (!empty($user_data['user_specialization'])) { echo $user_data['user_specialization']; }?></div>
-                <div class="tren_prof_page_txt"><?php if (!empty($user_data['user_about'])) : echo nl2br($user_data['user_about']); else: echo 'Тренер еще не добавил информацию о себе'; endif; ?></div>
+                <div class="tren_prof_page_txt"><?php if (!empty($user_data['user_bbc_about'])) : echo $user_data['user_bbc_about']; else: echo 'Тренер еще не добавил информацию о себе'; endif; ?></div>
             </div>
         </div>
     </div>

@@ -1,15 +1,38 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+
+$lend_block_id = (is_numeric($lend_block_id)) ? $lend_block_id : 1;
 ?>
-<div class="anketa_block_item">
-    <div class="anketa_block_item_cont">
-        <form action="" class="edit_lend_form video_admin_form landing_admin_form" method="post" enctype="multipart/form-data">
-            <!--<div class="tren_form_block_check_wrap example">
-                ! Если не снять галочку
-                <input type="checkbox" name="cb_example" checked="checked" class="tren_form_block_check" id="cb_example" disabled/>
-                <label for="cb_example">По умолчанию</label>
-                , информация будет сохранена по умолчанию.
-            </div>-->
+<form action="" class="edit_lend_form landing_admin_form" method="post" enctype="multipart/form-data">
+    <div class="admin_form_buts_wrap_container">
+        <div class="admin_form_buts_wrap parent">
+            <?php if ($course['landing']['activated'] === 'activate'): ?>
+                <input type="submit" name="bt_deactivate_landing" value="Блокировать" class="video_admin_form_block"/>
+            <?php else: ?>
+                <input type="submit" name="bt_activate_landing" value="Активировать" class="video_admin_form_block"/>
+            <?php endif;?>
+
+            <?php if($lend_block_id == 1): ?>
+                <input type="submit" name="bt_save_block_1" value="Сохранить блок 1" class="video_admin_form_send" />
+            <?php elseif($lend_block_id == 2): ?>
+                <input type="submit" name="bt_save_block_2" value="Сохранить блок 2" class="video_admin_form_send" />
+            <?php elseif($lend_block_id == 3): ?>
+                <input type="submit" name="bt_save_block_3" value="Сохранить блок 3" class="video_admin_form_send" />
+            <?php elseif($lend_block_id == 4): ?>
+                <input type="submit" name="bt_save_block_4" value="Сохранить блок 4" class="video_admin_form_send" />
+            <?php elseif($lend_block_id == 5): ?>
+                <input type="submit" name="bt_save_block_5" value="Сохранить блок 5" class="video_admin_form_send" />
+            <?php elseif($lend_block_id == 6): ?>
+                <input type="submit" name="bt_save_block_6" value="Сохранить блок 6" class="video_admin_form_send" />
+            <?php elseif($lend_block_id == 7): ?>
+                <input type="submit" name="bt_save_block_7" value="Сохранить блок 7" class="video_admin_form_send" />
+            <?php elseif($lend_block_id == 8): ?>
+                <input type="submit" name="bt_save_block_8" value="Сохранить блок 8" class="video_admin_form_send" />
+            <?php endif; ?>
+        </div>
+    </div>
+    <div class="video_admin_form">
+        <div class="anketa_block_item_cont">
             <div class="landing_block_table">
                 <?php $course_type = ($page_menu == 'a_courses_n') ? 'nutrition' : 'course';
                 for($i = 1; $i <= 8; $i++) :
@@ -19,8 +42,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 unset($i);?>
             </div>
             <div class="landing_block_wrap">
-                <?php $lend_block_id = (is_numeric($lend_block_id)) ? $lend_block_id : 1;
-                if($lend_block_id == 1): ?>
+                <?php if($lend_block_id == 1): ?>
                     <div class="landing_block" style="display:block;" id="l-block-1">
                         <div class="landing_title">
                             <span>Блок №1</span>
@@ -102,10 +124,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="lend_form_h">Заголовок страницы</div>
                         <div class="journal_form_textarea_wrap journal_form_textarea_small">
                             <textarea id="area3" name="ta_main_title" class="journal_form_textarea formatted_textarea" placeholder="Заголовок страницы" maxlength="50"><?php echo $landing['main_title']; ?></textarea>
-                        </div>
-
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_block_1" value="Сохранить блок 1" class="video_admin_form_send" />
                         </div>
                     </div>
                 <?php
@@ -268,10 +286,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                 </div>
                             </div>
-                        </div>
-
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_block_2" value="Сохранить блок 2" class="video_admin_form_send" />
                         </div>
                     </div>
                 <?php
@@ -462,10 +476,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="kurs_block_h">Отзыв пользователя:</div>
                             <input type="text" name="i_result_reviews_block3" class="admin_form_txt admin_form_txt_middle" maxlength="80" value="<?php /*echo $landing['block3']['r_reviews']; */?>" />
                         </div>-->
-
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_block_3" value="Сохранить блок 3" class="video_admin_form_send" />
-                        </div>
                     </div>
                 <?php
                 elseif($lend_block_id == 4): ?>
@@ -608,11 +618,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст кнопки:</div>
                             <input type="text" name="i_button_block4" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['block4']['button']; ?>" />
-                        </div>
-
-
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_block_4" value="Сохранить блок 4" class="video_admin_form_send" />
                         </div>
                     </div>
                 <?php
@@ -828,10 +833,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="kurs_block_h">Текст кнопки:</div>
                             <input type="text" name="i_button_block5" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['block5']['button']; ?>" />
                         </div>
-
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_block_5" value="Сохранить блок 5" class="video_admin_form_send" />
-                        </div>
                     </div>
                 <?php
                 elseif($lend_block_id == 6): ?>
@@ -974,10 +975,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="parent kurs_cur_wrap">
                             <div class="kurs_block_h">Текст кнопки:</div>
                             <input type="text" name="i_button_block6" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['block6']['button']; ?>" />
-                        </div>
-
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_block_6" value="Сохранить блок 6" class="video_admin_form_send" />
                         </div>
                     </div>
                 <?php
@@ -1234,11 +1231,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="kurs_block_h">Текст кнопки:</div>
                             <input type="text" name="i_button_block7" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['block7']['button']; ?>" />
                         </div>
-
-
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_block_7" value="Сохранить блок 7" class="video_admin_form_send" />
-                        </div>
                     </div>
                 <?php
                 elseif($lend_block_id == 8): ?>
@@ -1341,14 +1333,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="kurs_block_h">Текст кнопки:</div>
                             <input type="text" name="i_button_block8" class="admin_form_txt admin_form_txt_middle" maxlength="30" value="<?php echo $landing['block8']['button']; ?>" />
                         </div>
-
-
-                        <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_block_8" value="Сохранить блок 8" class="video_admin_form_send" />
-                        </div>
                     </div>
                 <?php endif; ?>
             </div>
-        </form>
+        </div>
     </div>
-</div>
+</form>

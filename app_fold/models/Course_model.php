@@ -1818,7 +1818,7 @@ class Course_model extends CI_Model
         $result['courses'] = array();
         
         $sel_courses = $this->db->query('
-            SELECT `crs_id`, `crs_image`, `crs_name`, `clp_id`, `clp_activated` 
+            SELECT `crs_id`, `crs_image`, `crs_name`, `crs_blocked`, `clp_id`, `clp_activated` 
             FROM `courses`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
             WHERE `crs_category`=? and `crs_archive`=?', array($category, $archive));
@@ -2413,7 +2413,7 @@ class Course_model extends CI_Model
         $result['course'] = NULL;
 
         $sel_course = $this->db->query('
-            SELECT `crs_id`, `crs_image`, `crs_name`, `crs_description`, `crs_price`
+            SELECT `crs_id`, `crs_image`, `crs_name`, `crs_description`, `crs_price`, `clp_activated`
             FROM `courses`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
             WHERE `crs_id`=? LIMIT 1', $course_id);
@@ -5999,6 +5999,7 @@ class Course_model extends CI_Model
                     $nutritions = null;
                     $pauses     = null;
                     $events     = null;
+                    $percent_workouts_done = null;
 
                     // Паузы тренировок
                     $sel_course_pauses = $this->db->query('
@@ -6329,6 +6330,8 @@ class Course_model extends CI_Model
                         if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
                         {
                             $i = 0;
+                            $workouts_done = 0;
+                            $total_count_workouts = $course['count_weeks'] * $course['count_days'];
                             foreach ($sel_workouts->result() as $row)
                             {
                                 $workouts[$i]['id']      = $row->utw_id;
@@ -6338,10 +6341,19 @@ class Course_model extends CI_Model
                                 $workouts[$i]['date']    = $row->utw_date;
                                 $workouts[$i]['time']    = ($row->utw_time != "00:00:00") ? $row->utw_time : null;
 
+                                $workouts_done = ($row->utw_status == 'done') ? $workouts_done + 1 : $workouts_done;
+
                                 $i++;
                             }
                             unset($row);
                             unset($i);
+
+                            $percent_workouts_done = (is_numeric($percent_workouts_done)) ? ($workouts_done * 100 / $total_count_workouts) : 0;
+
+                            $type_shade = ($key % 2 == 0 and $course['id'] % 2 == 1) ? 'lighter' : '';
+                            $rgb = self::different_shade($color, $type_shade);
+                            $color = $rgb;
+                            $color_workouts_done = $rgb;
                         }
                         elseif ($sel_workouts === false)
                         {
@@ -6430,7 +6442,7 @@ class Course_model extends CI_Model
                             // Данные курса тренировок
                             $course_data  = self::getCourse($course['course_id']);
 
-                            $type_shade = $course['id'] % 2 == 0 ? 'lighter' : '';
+                            $type_shade = ($key % 2 == 0) ? 'lighter' : '';
                             $rgb = self::different_shade($color, $type_shade);
                             $color = $rgb;
 
@@ -6583,9 +6595,13 @@ class Course_model extends CI_Model
                         }
                     }
 
-                    $result['courses'][$key]['pauses']     = (!empty($pauses)) ? $pauses : array();
-                    $result['courses'][$key]['workouts']   = (!empty($workouts)) ? $workouts : array();
-                    $result['courses'][$key]['nutritions'] = (!empty($nutritions)) ? $nutritions : array();
+                    $result['courses'][$key]['pauses']       = (!empty($pauses)) ? $pauses : array();
+                    $result['courses'][$key]['workouts']     = (!empty($workouts)) ? $workouts : array();
+                    $result['courses'][$key]['nutritions']   = (!empty($nutritions)) ? $nutritions : array();
+                    $result['courses'][$key]['percent_done'] = (is_numeric($percent_workouts_done)) ? $percent_workouts_done : null;
+                    $result['courses'][$key]['color_done']   = (!empty($color_workouts_done)) ? $color_workouts_done[0].','.$color_workouts_done[1].','.$color_workouts_done[2] : null;
+
+                    $result['courses_percent_done'] = (empty($result['courses_percent_done']) and is_numeric($percent_workouts_done)) ? true : $result['courses_percent_done'];
 
                     $result['events'] = (!empty($events)) ? array_merge($result['events'], $events) : $result['events'];
                 }
@@ -7001,6 +7017,7 @@ class Course_model extends CI_Model
         $current_num_day = date("N", strtotime($today));
         $tmp_date        = new DateTime($today);
         $interval        = 7 - $current_num_day;
+        $today           = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : false;
         $end_date        = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$interval.'D'))->format('Y-m-d') : false;
         $start_date      = ($end_date !== false) ? $tmp_date->sub(new DateInterval('P6D'))->format('Y-m-d') : false;
 
@@ -7008,13 +7025,13 @@ class Course_model extends CI_Model
         {
             $sel_data = $this->db->query('
                 SELECT `utw_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date`, `utw_time`, `uc_user_id`, `uc_course_id`, 
-                  `uc_display`, `uc_id`, `crs_name`, `crs_count_weeks`, `crs_count_days`, `crs_count_rest` 
+                  `uc_display`, `uc_id`, `uc_date_end`, `crs_name`, `crs_count_weeks`, `crs_count_days`, `crs_count_rest` 
                 FROM `users_training_weeks`
                 LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
                 LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
-                WHERE `uc_user_id`=? and `uc_display`=1 and (`utw_date`>=? and `utw_date`<=?)
+                WHERE `uc_user_id`=? and `uc_display`=1 and `uc_date_end`>=? and (`utw_date`>=? and `utw_date`<=?)
                 LIMIT 7',
-                    array($user_id, $start_date, $end_date));
+                    array($user_id, $today, $start_date, $end_date));
             if($sel_data !== false and 0 < $sel_data->num_rows())
             {
                 $i = 0;
@@ -7221,13 +7238,14 @@ class Course_model extends CI_Model
             SELECT `uc_id`, `uc_course_id`, `crs_name`, `crs_category`, `crs_count_weeks`, `crs_count_days`, `crs_count_rest`
             FROM `users_courses` 
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
-            WHERE `uc_user_id`=? and `crs_category`="workout" and `uc_date_start`="0000-00-00" and `uc_date_end`="0000-00-00"
-             and `uc_days`="" and `uc_time`="00:00:00"', $user_id);
+            WHERE `uc_user_id`=? and `crs_category`="workout" and `uc_date_start`="0000-00-00" and `uc_date_end`="0000-00-00"',
+                $user_id);
         if ($sel_non_started !== false and 0 < $sel_non_started->num_rows())
         {
             foreach ($sel_non_started->result() as $row)
             {
                 $result['notifications'][$row->uc_id][203]['course_name']  = $row->crs_name;
+                $result['notifications'][$row->uc_id][203]['uc_id']        = $row->uc_id;
                 $result['notifications'][$row->uc_id][203]['course_id']    = $row->uc_course_id;
                 $result['notifications'][$row->uc_id][203]['course_weeks'] = $row->crs_count_weeks;
                 $result['notifications'][$row->uc_id][203]['course_days']  = $row->crs_count_days;
@@ -8576,18 +8594,16 @@ class Course_model extends CI_Model
      * Изменение времени тренировок курса
      *
      * @param $user_course_id
-     * @param $training_days
      * @param $arr_training_times
      * @param $count_workouts
      * @param $date
      * @return bool
-     * @internal param $training_time
      */
     public function setUserTrainingWeeksTime($user_course_id, $arr_training_times, $count_workouts, $date)
     {
         $result = true;
 
-        $sel_data = $this->db->query('SELECT `utw_date` FROM `users_training_weeks` WHERE `utw_uc_id`=? LIMIT ?',
+        $sel_data = $this->db->query('SELECT `utw_id`, `utw_date` FROM `users_training_weeks` WHERE `utw_uc_id`=? LIMIT ?',
             array($user_course_id, $count_workouts));
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -8600,8 +8616,8 @@ class Course_model extends CI_Model
                 if(!empty($training_time))
                 {
                     $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_time`=?, `utw_date_update`=? 
-                        WHERE `utw_uc_id`=? and `utw_status`="" and `utw_time`<>? LIMIT 1',
-                            array($training_time, $date, $user_course_id, $training_time));
+                        WHERE `utw_id`=? and `utw_status`="" and `utw_time`<>? LIMIT 1',
+                            array($training_time, $date, $row->utw_id, $training_time));
                     if($up_data === false)
                     {
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -10222,8 +10238,9 @@ class Course_model extends CI_Model
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('
-                SELECT `pc_id`, `pc_type`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, 
-                  `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
+                SELECT `pc_id`, `pc_type`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
+                  `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, 
+                  `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
                 FROM `promocodes`
                 WHERE `pc_code`=? LIMIT 1', $promocode);
 
@@ -10238,19 +10255,27 @@ class Course_model extends CI_Model
                 if($promocode_data['active'] === true)
                 {
                     $result['status']        = 'Активен';
+                    $result['name']          = $promocode_data['name'];
+                    $result['desc']          = $promocode_data['description'];
                     $result['discount']      = $promocode_data['discount'];
                     $result['discount_type'] = $promocode_data['discount_type'];
                     $result['rel_percent']   = $promocode_data['relative_percent'];
                     $result['id']            = $promocode_data['id'];
 
-                    if($row->pc_type == 'all')
-                    {
-                        $result['type'] = 'Для всех курсов';
-                    }
-                    else
-                    {
-                        $result['type'] = 'Не для всех курсов';
-                    }
+                    // Период действия
+                    $tmp_date1 = new DateTime($row->pc_pv_date_start);
+                    $tmp_date2 = new DateTime($row->pc_pv_date_end);
+                    $pc_dates = $tmp_date1->format('d.m.Y') . ' - ' . $tmp_date2->format('d.m.Y');
+                    $result['period'] = ($row->pc_period_validity_type == 'unlimited') ? 'Не ограничен' : $pc_dates;
+
+                    // Кол-во использований
+                    $result['use_amount'] = ($row->pc_use_amount_type == 'unlimited') ? 'Не ограничено' : $row->pc_ua_number;
+
+                    // Действует на
+                    $pc_types = array('Все курсы' => 'all', 'Курсы тренировок' => 'workouts', 'Курсы питания' => 'nutritions',
+                        'Категории курсов' => 'categories', 'Некоторые курсы' => 'courses');
+                    $key_type = array_search($row->pc_type, $pc_types);
+                    $result['type'] = (!empty($key_type)) ? $key_type : '';
                 }
                 else
                 {
@@ -12188,9 +12213,8 @@ class Course_model extends CI_Model
             $tmp_date = new DateTime($date);
             $today = $tmp_date->format('Y-m-d');
 
-            if($row->pc_blocked == 0 and ($row->pc_period_validity_type == 'unlimited' or (!empty($row->pc_pv_date_start)
-                        and !empty($row->pc_pv_date_end) and $row->pc_pv_date_start != '0000-00-00' and $row->pc_pv_date_start <= $today
-                        and $row->pc_pv_date_end != '0000-00-00' and $row->pc_pv_date_end >= $today)))
+            if($row->pc_blocked == 0 and ($row->pc_period_validity_type == 'unlimited'
+                or (!empty($row->pc_pv_date_end) and $row->pc_pv_date_end != '0000-00-00' and $row->pc_pv_date_end >= $today)))
             {
                 $result['active']        = true;
                 $result['active_string'] = 'Активен';

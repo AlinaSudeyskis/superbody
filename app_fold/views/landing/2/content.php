@@ -51,7 +51,20 @@ if($landing['hide'] === false):
                 <div class="lp_block1_desk"><?php echo $landing['block2']['subtitle']; ?></div>
                 <div class="lp_block1_txt"><?php echo $landing['block2']['text']; ?></div>
                 <?php if (!empty($landing['block2']['button'])):?>
-                    <a href="#" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
+                    <div class="lp_block_buts_wrap">
+                        <a href="#" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
+                        <?php if(!empty($course['recur_first'])): ?>
+                            <div class="video_col_but">
+                                <div class="video_col_but_left">
+                                    <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
+                                </div>
+                                <div class="video_col_but_right">или</div>
+                                <div class="video_col_but_right">
+                                    <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 <?php endif;?>
             </div>
         </div>
@@ -100,7 +113,20 @@ if($landing['hide'] === false):
                     <span><?php echo $landing['block4']['r_title']; ?></span><?php echo $landing['block4']['r_subtitle']; ?>
                 </div>
                 <?php if (!empty($landing['block4']['button'])):?>
-                    <a href="#" class="lp_block_but lp_block3_but parent"><?php echo $landing['block4']['button']; ?></a>
+                    <div class="lp_block_buts_wrap">
+                        <a href="#" class="lp_block_but lp_block3_but parent"><?php echo $landing['block4']['button']; ?></a>
+                        <?php if(!empty($course['recur_first'])): ?>
+                            <div class="video_col_but">
+                                <div class="video_col_but_left">
+                                    <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
+                                </div>
+                                <div class="video_col_but_right">или</div>
+                                <div class="video_col_but_right">
+                                    <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 <?php endif;?>
             </div>
             <div class="lp_block3_img">
@@ -132,7 +158,20 @@ if($landing['hide'] === false):
                     </div>
                 </div>
                 <?php if (!empty($landing['block5']['button'])):?>
-                    <a href="#" class="lp_block_but lp_block4_but"><?php echo $landing['block5']['button']; ?></a>
+                    <div class="lp_block_buts_wrap">
+                        <a href="#" class="lp_block_but lp_block4_but"><?php echo $landing['block5']['button']; ?></a>
+                        <?php if(!empty($course['recur_first'])): ?>
+                            <div class="video_col_but">
+                                <div class="video_col_but_left">
+                                    <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
+                                </div>
+                                <div class="video_col_but_right">или</div>
+                                <div class="video_col_but_right">
+                                    <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
                 <?php endif;?>
             </div>
             <div class="lp_block4_img">
@@ -167,7 +206,20 @@ if($landing['hide'] === false):
                         endif;?>
                     </ul>
                     <?php if (!empty($landing['block6']['button'])):?>
-                        <a href="#" class="lp_block_but lp_block5_but parent"><?php echo $landing['block6']['button']; ?></a>
+                        <div class="lp_block_buts_wrap">
+                            <a href="#" class="lp_block_but lp_block5_but parent"><?php echo $landing['block6']['button']; ?></a>
+                            <?php if(!empty($course['recur_first'])): ?>
+                                <div class="video_col_but">
+                                    <div class="video_col_but_left">
+                                        <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
+                                    </div>
+                                    <div class="video_col_but_right">или</div>
+                                    <div class="video_col_but_right">
+                                        <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     <?php endif;?>
                 </div>
             </div>
@@ -236,7 +288,20 @@ if($landing['hide'] === false):
                 <?php endif; ?>
             </div>
             <?php if (!empty($landing['block7']['button'])):?>
-                <a href="#" class="lp_block_but lp_block6_but parent"><?php echo $landing['block7']['button']; ?></a>
+                <div class="lp_block_buts_wrap">
+                    <a href="#" class="lp_block_but lp_block6_but parent"><?php echo $landing['block7']['button']; ?></a>
+                    <?php if(!empty($course['recur_first'])): ?>
+                        <div class="video_col_but">
+                            <div class="video_col_but_left">
+                                <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
+                            </div>
+                            <div class="video_col_but_right">или</div>
+                            <div class="video_col_but_right">
+                                <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
             <?php endif;?>
         </div>
     </div><!-- lp_block6_wrap -->
@@ -262,7 +327,20 @@ if($landing['hide'] === false):
                 <?php echo $course['price']; ?> руб
             </div>
             <?php if (!empty($landing['block8']['button'])):?>
-                <a href="#" class="lp_block_but lp_block7_but"><?php echo $landing['block8']['button']; ?></a>
+                <div class="lp_block_buts_wrap">
+                    <a href="#" class="lp_block_but lp_block7_but"><?php echo $landing['block8']['button']; ?></a>
+                    <?php if(!empty($course['recur_first'])): ?>
+                        <div class="video_col_but">
+                            <div class="video_col_but_left">
+                                <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
+                            </div>
+                            <div class="video_col_but_right">или</div>
+                            <div class="video_col_but_right">
+                                <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
             <?php endif;?>
         </div>
     </div><!-- lp_block7_wrap -->

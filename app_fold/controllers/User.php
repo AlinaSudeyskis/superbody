@@ -510,12 +510,13 @@ class User extends CI_Controller
                     {
                         $notification = $this->Notification_model->getNotification($code);
 
-                        $this->page_data['course_notification']['non_started'][$user_course_id]['text'] = $notification['notification']['text'];
-                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_name']  = $notif['course_name'];
-                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_id']    = $notif['course_id'];
-                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_weeks'] = $notif['course_weeks'];
-                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_days']  = $notif['course_days'];
-                        $this->page_data['course_notification']['non_started'][$user_course_id]['course_rest']  = $notif['course_rest'];
+                        $this->page_data['course_notification'][$user_course_id]['non_started']['text'] = $notification['notification']['text'];
+                        $this->page_data['course_notification'][$user_course_id]['non_started']['course_name']  = $notif['course_name'];
+                        $this->page_data['course_notification'][$user_course_id]['non_started']['uc_id']        = $notif['uc_id'];
+                        $this->page_data['course_notification'][$user_course_id]['non_started']['course_id']    = $notif['course_id'];
+                        $this->page_data['course_notification'][$user_course_id]['non_started']['course_weeks'] = $notif['course_weeks'];
+                        $this->page_data['course_notification'][$user_course_id]['non_started']['course_days']  = $notif['course_days'];
+                        $this->page_data['course_notification'][$user_course_id]['non_started']['course_rest']  = $notif['course_rest'];
                     }
                 }
             }
@@ -600,8 +601,9 @@ class User extends CI_Controller
         $clients     = $this->Coach_model->getCoachClientsActivity($coach_id);
         $c_data      = $this->Coach_model->getCoach($coach_id, $this->date);
         $user_social = $this->User_model->getUserSocial($this->user_id);
+        $coach_crss  = $this->Course_model->getCoachCourses($this->user_id);
 
-        $result = array_merge($portfolio, $posts, $clients, $c_data, $user_social);
+        $result = array_merge($portfolio, $posts, $clients, $c_data, $user_social, $coach_crss);
 
         // Уведомления пользователя
         if($c_data['user_data']['user_blocked'] == 1)
@@ -736,10 +738,11 @@ class User extends CI_Controller
             }
         }
 
-        $portfolio = $this->Coach_model->getPublicCoachPortfolioData($coach_id);
-        $posts     = $this->Blog_model->getPublicBlogPosts($coach_id);
-        $user      = $this->Coach_model->getCoach($coach_id, $this->date);
-        $result    = array_merge($portfolio, $posts, $user);
+        $portfolio  = $this->Coach_model->getPublicCoachPortfolioData($coach_id);
+        $posts      = $this->Blog_model->getPublicBlogPosts($coach_id);
+        $user       = $this->Coach_model->getCoach($coach_id, $this->date);
+        $coach_crss = $this->Course_model->getCoachCourses($coach_id);
+        $result     = array_merge($portfolio, $posts, $user, $coach_crss);
 
         // Уведомления пользователя
         if($user['user_data']['user_blocked'] == 1)

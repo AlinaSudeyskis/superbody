@@ -3,13 +3,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $display = (!empty($purchase_up) and $purchase_up === true) ? 'class="ref_pop-up"' : '';
 ?>
 <div id="purchase_pop-up" <?php echo $display; ?>>
+    <div class="purchase_pop-up_close"></div>
     <span id="block-message" <?php if (!empty($message)){ echo 'style="display: block;"';}?>>
         <?php if (!empty($message)) :
             echo $message;
         endif;?>
     </span>
     <div class="purchase_pop-up_cont">
-        <div class="purchase_pop-up_close"></div>
         <div class="purchase_pop-up_h purchase_form">
             <?php if(!empty($course)): ?>
                 <div class="parent kurs_cur_wrap">

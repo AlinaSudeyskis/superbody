@@ -438,9 +438,9 @@ $(document).ready(function() {
                             }
                         }
 
+                        var h3_info = this_wd.parent().next('h3.info');
                         if(error_info)
                         {
-                            var h3_info = this_wd.parent().next('h3.info');
                             if(h3_info.length === 0)
                             {
                                 this_wd.parent().after('<h3 class="info">'+error_info+'</h3>');
@@ -451,6 +451,14 @@ $(document).ready(function() {
                                 h3_info.html(error_info);
                             }
                             h3_info.show();
+                        }
+                        else
+                        {
+                            if(h3_info.length === 1)
+                            {
+                                h3_info.html("");
+                            }
+
                         }
                     }
 
@@ -1785,93 +1793,61 @@ $(document).ready(function() {
                 }
             });
 
-            $('#check-promocode').on('click', function(event)
+            $('#show-check-promocode').on('click', function(event)
             {
                 event.preventDefault();
                 var c_p_f = $('#check-promocode-form');
                 pop_up_home(c_p_f);
 
-                c_p_f.on('paste', ' #i-promocode', function(){
+                /*c_p_f.on('paste', ' #i-promocode', function(){
                     var pc_input = $(this);
                     checkPromo(pc_input);
                 });
                 c_p_f.on('keyup', ' #i-promocode', function(){
                     var pc_input = $(this);
                     checkPromo(pc_input);
+                });*/
+                c_p_f.on('click', ' #check-promocode', function(){
+                    var pc_input = $('#i-promocode');
+                    checkPromo(pc_input);
                 });
             });
 
             function checkPromo(pc_input)
             {
-                setTimeout(function() {
-                    var input_search = pc_input.val(),
-                        promo_block  = $('.promo_block'),
-                        p_b_i = '';
+                var input_search = pc_input.val(),
+                    promo_block  = $('.promo_block'),
+                    p_b_i = '';
 
-                    if(input_search.length >= 1 && input_search.length <= 25)
-                    {
-                        $.ajax({
-                            url: '/checkPromo',
-                            type: 'post',
-                            dataType: 'json',
-                            data: {input_search: input_search},
-                            complete: function (result) {
-                                var data = result.responseJSON;
+                if(input_search.length >= 1 && input_search.length <= 25)
+                {
+                    $.ajax({
+                        url: '/checkPromo',
+                        type: 'post',
+                        dataType: 'json',
+                        data: {input_search: input_search},
+                        complete: function (result) {
+                            var data = result.responseJSON, p_b_i;
 
-                                if (data.discount)
-                                {
-                                    var discount_type = 'руб.',
-                                        rel_per_block = '';
-
-                                    if(data.discount_type === 'percent')
-                                    {
-                                        discount_type = '%';
-                                    }
-
-                                    if(data.rel_percent)
-                                    {
-                                        rel_per_block = '<div class="parent kurs_cur_wrap">' +
-                                            '<div class="kurs_block_h">Ограничение:</div>' +
-                                            '<div class="pbi_h">' + data.rel_percent + '%</div>' +
-                                            '</div>';
-                                    }
-
-                                    p_b_i = '<div class="parent kurs_cur_wrap">' +
-                                        '<div class="kurs_block_h">Статус:</div>' +
-                                        '<div class="pbi_h">' + data.status + '</div>' +
-                                        '</div>' +
-                                        '<div class="parent kurs_cur_wrap">' +
-                                        '<div class="kurs_block_h">Скидка:</div>' +
-                                        '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
-                                        '</div>' +
-                                        rel_per_block;
-
-                                }
-                                else
-                                {
-                                    p_b_i = '<div class="parent kurs_cur_wrap">' +
-                                        '<div class="kurs_block_h"></div>' +
-                                        '<div class="pbi_h">Промокод не найден</div>' +
-                                        '</div>';
-                                }
-
-                                if(promo_block.next('.promo_block_info').length == 0)
-                                {
-                                    promo_block.after('<div class="promo_block_info">' + p_b_i + '</div>');
-                                }
-                                else
-                                {
-                                    promo_block.next('.promo_block_info').html(p_b_i);
-                                }
+                            if(data)
+                            {
+                                p_b_i = data;
                             }
-                        });
-                    }
-                    else
-                    {
-                        promo_block.next('.promo_block_info').hide();
-                    }
+                            else
+                            {
+                                p_b_i = '<div class="pcbi_error">Промокод не найден</div>';
+                            }
 
-                }, 50);
+                            promo_block.next('.promo_block_info').remove();
+                            promo_block.next('.pcbi_error').remove();
+                            promo_block.after(p_b_i);
+                        }
+                    });
+                }
+                else
+                {
+                    promo_block.next('.promo_block_info').remove();
+                }
             }
     }
     );

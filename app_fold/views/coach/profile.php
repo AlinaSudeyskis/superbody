@@ -19,10 +19,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             // Портфолио
             include_once('./app_fold/views/coach/portfolio/portfolio_item.php');
             // Предлагаемые курсы
-            include_once('./app_fold/views/course/offered_courses.php');
+            //include_once('./app_fold/views/course/offered_courses.php');
             // Активность клиентов
-            include_once('./app_fold/views/coach/users_activity_item.php');?>
-
+            include_once('./app_fold/views/coach/users_activity_item.php');
+            // Курсы тренера
+            include_once('./app_fold/views/course/coaches_courses.php');?>
         </div><!-- content_col -->
     </div>
 </div><!-- content -->

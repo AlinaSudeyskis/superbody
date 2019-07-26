@@ -387,7 +387,7 @@ class Administrator_model extends CI_Model
             $row = $sel_info->row();
 
             $result['si_id'] = $row->si_id;
-            $result['about'] = parent::showBBcodes($row->si_about);
+            $result['about'] = $row->si_about;
         }
         elseif ($sel_info === false) {
             parent::logDbMessages(__METHOD__.':'.__LINE__);

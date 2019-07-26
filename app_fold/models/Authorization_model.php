@@ -27,7 +27,7 @@ class Authorization_model extends CI_Model
             $this->db->query('
                 INSERT INTO `users`
                   (`user_email`, `user_password`, `user_activate_code`, `user_date_reg`, `user_activate_date`, `user_date_update`, `user_name`, `user_auth_via`)
-                VALUES (?, ?, ?, ?, ?, ?, ?)', array($email, $password, $email_hash, $date, $date, $date, $name, 'native'));
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)', array($email, $password, $email_hash, $date, $date, $date, $name, 'native'));
 
             if ($this->db->affected_rows() == 1)
             {

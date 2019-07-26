@@ -128,14 +128,84 @@ $(document).ready(function() {
                             var pc_input = $(this);
                             searchPromo(pc_input);
                         });
+
+                        purchase_form.on('change', '#payment-options', function(){
+                            if ($(this).val() == 'installments')
+                            {
+                                $("#recurrent-block").show();
+                                if ($("#course-new-price").length == 1)
+                                {
+                                    $("#course-new-price").hide();
+                                    $("#course-price").children(".anketa_form_h_cell").removeClass('strikeout');
+                                }
+                                $("#payment-methods option[value!='bank_card']").attr('disabled', true );
+                                $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
+
+                                if($('.promo_block').length == 1)
+                                {
+                                    $('.promo_info').show();
+                                    $('.promo_line').hide();
+                                    if($('#i-promocode').length == 1)
+                                    {
+                                        $('#i-promocode').hide();
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                $("#recurrent-block").hide();
+                                if ($("#course-new-price").length == 1)
+                                {
+                                    $("#course-new-price").show();
+                                    $("#course-price").children(".anketa_form_h_cell").addClass('strikeout');
+                                }
+                                $("#payment-methods option[value!='bank_card']").attr('disabled', false );
+                                $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
+
+                                if($('.promo_block').length == 1)
+                                {
+                                    $('.promo_info').hide();
+                                    if($('#i-promocode').length == 1 && $('#i-promocode').val() != '')
+                                    {
+                                        $('#i-promocode').show();
+                                    }
+                                    else
+                                    {
+                                        $('.promo_line').show();
+                                        $('.promo_block').find('.kurs_block_h').html('');
+                                    }
+                                }
+                            }
+                            purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2})
+                        });
+
+                        purchase_form.on('change', '#payment-methods', function(){
+                            if ($(this).val() == 'qiwi' || $(this).val() == 'sberbank')
+                            {
+                                $("#method-phone").show();
+                                $("#method-login").hide();
+                            }
+                            else if($(this).val() == 'alfabank')
+                            {
+                                $("#method-phone").hide();
+                                $("#method-login").show();
+                            }
+                            else
+                            {
+                                $("#method-phone").hide();
+                                $("#method-login").hide();
+                            }
+                            purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2})
+                        });
                     }
                 }
             });
         });
     }
-    function purchase_up()
+
+    function purchase_up(pm_op)
     {
-        if (shadow2.length === 0)
+        if (shadow2.length == 0)
         {
             $("body").append("<div id='shadow2'></div>");
             shadow2 = $("#shadow2");
@@ -143,7 +213,25 @@ $(document).ready(function() {
 
         purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2}).fadeIn(600);
 
-        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).on('click', function() {
+        if(pm_op)
+        {
+            var p_o = $("#payment-options");
+            if(pm_op == 'full')
+            {
+                p_o.val('full_payment');
+            }
+            else if(pm_op == 'rec')
+            {
+                p_o.val('installments');
+            }
+            else
+            {
+                p_o.val('');
+            }
+            p_o.change();
+        }
+
+        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
             shadow2.fadeOut(600);
             purchase.fadeOut(600);
         });
@@ -948,6 +1036,16 @@ $(document).ready(function(){
 /* Слайдер */
 
 $(document).ready(function(){
+    $('.notifications_block').slick({
+        dots: true,
+        infinite: true,
+        arrows: true,
+        speed: 300,
+        autoplay: false,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        adaptiveHeight: false
+    });
 
 	$('.tren_block').slick({
 		dots: false,

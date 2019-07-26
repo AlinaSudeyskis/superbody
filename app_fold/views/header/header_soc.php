@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     if (!empty($site_info['soc_youtube'])):?>
         <li><a href="<?php echo $site_info['soc_youtube']; ?>"><i class="fa fa-youtube-play" aria-hidden="true"></i></a></li>
     <?php endif;
-    if (!empty($user_session['id'])) : ?>
+    if (!empty($user_session['id']) and empty($pm_contacts)) : ?>
         <li><a href="/logout" id="logout"><img src="/img/but_in.png" alt=""></a></li>
     <?php endif;?>
 </ul>

@@ -111,7 +111,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <?php if(!empty($types) and $coach_promocode === false):?>
             <div class="parent kurs_cur_wrap" id="cg-cats" <?php if($promocode['type'] != 'categories'): ?>style="display: none;"<?php endif; ?>>
-                <div class="kurs_block_h">Категории курсов:</div>
+                <div class="kurs_block_h">
+                    Категории курсов:
+                    <div class="h_subtitle" style="line-height: 15px;margin-top: 0;"><b>Ctrl + Левая кнопка мыши</b> - выбор нескольких категорий</div>
+                </div>
                 <select name="s_courses_categories[]" class="journal_form_select" multiple>
                     <?php foreach($types as $type):?>
                         <option value="<?php echo $type['id']; ?>" <?php if(!empty($promocode['courses_categories']) and in_array($type['id'], $promocode['courses_categories'])):?>selected="selected"<?php endif; ?>><?php echo $type['name']; ?></option>

@@ -46,10 +46,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         endif;?>
                     </div>
                 </div>
-                <div class="tren_prof_page_cont">
+                <!--<div class="tren_prof_page_cont">
                     <div class="tren_prof_page_stat"></div>
                     <div class="tren_prof_page_txt"></div>
-                </div>
+                </div>-->
             <?php else: ?>
                 <h3 class="info">Пользователь не найден</h3>
             <?php endif; ?>

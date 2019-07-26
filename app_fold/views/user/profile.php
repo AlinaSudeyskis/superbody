@@ -8,15 +8,41 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <?php
-            // Уведомления
-            include_once('./app_fold/views/notification/user_profile_notifications.php');
             // Быстрое сеню профиля
             include_once('./app_fold/views/user/quick_menu.php');
             $user_data = !empty($user_session) ? $user_session : null;
             $profile_title = 'Профиль';
-            include_once('./app_fold/views/user/profile/profile_info.php');
-            include_once('./app_fold/views/promocodes/promocode_for_friend.php');
-            include_once('./app_fold/views/calendar/calendar.php'); ?>
+            //$user_notification = null; ?>
+            <div class="row user_prof_wrap">
+                <?php $cp_cl = (empty($user_notification))
+                    ? 'col-lg-6 col-md-6 col-sm-6 col-xs-12 user_prog'
+                    : 'col-lg-9 col-md-9 col-sm-8 col-xs-12 user_prog';?>
+                <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 user_prof">
+                    <?php include_once('./app_fold/views/user/profile/profile_info.php'); ?>
+                    <div class="content_block new_content_block">
+                        <div class="notification_block_h"><a href="/questionnaire">Заполнить анкету</a></div>
+                    </div>
+                </div>
+                <div class="<?php echo $cp_cl; ?>">
+                    <?php include_once('./app_fold/views/course/user_course/courses_progress.php'); ?>
+                </div>
+                <?php if(empty($user_notification)): ?>
+                    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 user_prof">
+                        <?php include_once('./app_fold/views/promocodes/promocode_for_friend.php'); ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+             <?php if(!empty($user_notification)): ?>
+                <div class="row user_prof_wrap">
+                    <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12 user_prog">
+                        <?php include_once('./app_fold/views/notification/user_profile_notifications.php'); ?>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 user_prof">
+                        <?php include_once('./app_fold/views/promocodes/promocode_for_friend.php'); ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <?php include_once('./app_fold/views/calendar/calendar.php'); ?>
             <!--<div class="content_block">
                 <div class="content_block_h parent">
                     <h3>Предлагаемые курсы</h3>

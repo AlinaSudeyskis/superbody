@@ -58,11 +58,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <li><a href="/courses">Курсы</a></li>
                             <?php if (!empty($user_session)):?>
                                 <li><a href="/profile/<?php echo $user_session['id']; ?>">Профиль</a></li>
-                                <li><a href="/store">Магазин</a></li>
+                                <!--<li><a href="/store">Магазин</a></li>-->
                             <?php endif;?>
                             <li><a href="/contacts">Контакты</a></li>
+                            <li><a href="/support">Поддержка</a></li>
                         </ul>
-                        <a href="#" class="agreement" id="check-promocode">Проверить промокод</a>
+                        <a href="#" class="agreement" id="show-check-promocode">Проверить промокод</a>
                     </div>
                     <!--<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
                         <div class="footer_h">СООБЩЕСТВО</div>
@@ -102,6 +103,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="parent kurs_cur_wrap promo_block">
         <div class="kurs_block_h">Промокод:</div>
         <input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode">
+        <div class="video_admin_form_buts parent">
+            <input type="button" name="bt_check_promocode" id="check-promocode" value="Проверить" class="video_admin_form_send">
+        </div>
     </div>
 </div><!-- check-promocode-form -->
 

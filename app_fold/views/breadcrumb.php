@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div id="breadcrumb">
+<div id="breadcrumb" <?php if(!empty($margin_0)): echo $margin_0; endif; ?>>
     <a href="/">Главная</a>
     <span class="separator">/</span>
     <?php if(!empty($breadcrumbs)):

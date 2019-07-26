@@ -261,7 +261,7 @@ class Welcome extends CI_Controller
         $this->page_data['title']       = $this->page_data['metadata'][7]['title'];
         $this->page_data['keywords']    = $this->page_data['metadata'][7]['keywords'];
         $this->page_data['description'] = $this->page_data['metadata'][7]['description'];
-        $this->page_data['page_menu'] = 'contacts';
+        $this->page_data['page_menu']   = 'contacts';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/contacts');

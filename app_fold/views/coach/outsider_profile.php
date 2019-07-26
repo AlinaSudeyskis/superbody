@@ -1,11 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-?>
+
+$user_name = (!empty($user_data['user_name'])) ? $user_data['user_name'] : 'Страница тренера';
+$breadcrumbs = array('/coaches' => 'Тренеры', '/coach' => $user_name);
+$margin_0 = 'style="margin:0;"';
+include_once('./app_fold/views/breadcrumb.php');?>
 <div id="content" class="container">
-    <?php
-    $user_name = (!empty($user_data['user_name'])) ? $user_data['user_name'] : 'Страница тренера';
-    $breadcrumbs = array('/coaches' => 'Тренеры', '/coach' => $user_name);
-    include_once('./app_fold/views/breadcrumb.php');?>
     <div class="row">
         <div class="col-lg-2 left_sidebar">
             <?php if (!empty($user_session)):
@@ -24,43 +24,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             include_once('./app_fold/views/coach/profile/short_info.php');
             // Информация профиля
             include_once('./app_fold/views/coach/profile/profile_info.php');
-            ?>
-            <div class="content_block new_content_block">
-                <div class="content_block_h new_content_block_h parent">
-                    <h3>Блог</h3>
-                    <div class="content_block_h_buts">
-                        <div class="content_block_h_slide kurs_slide"></div>
-                        <div class="content_block_h_close"></div>
-                    </div>
-                </div>
-                <div class="kurs_block_val">
-                    <div class="subscription_block">
-                        <div class="subscription_block_cont">
-                            <?php if (!empty($posts)) :
-                                foreach ($posts as $post) :?>
-                                    <div class="subscription_block_item">
-                                        <div class="subscription_block_h"><a href="/blog/<?php echo $post['id'];?>"><?php echo $post['title'];?></a></div>
-                                        <div class="subscription_block_txt">Краткое описание: <?php echo $post['short_desc'];?>...</div>
-                                        <div class="subscription_block_link">
-                                            <!--<a href="">http://if.com.au/2013/09/02/article/</a>-->
-                                        </div>
-                                    </div>
-                                <?php endforeach;
-                                unset($post);
-                            else:?>
-                                <h3 class="info">Информация не добавлена</h3>
-                            <?php endif;?>
-                        </div>
-                    </div>
-                    <?php include_once('./app_fold/views/pagination.php'); ?>
-                </div>
-            </div>
-            <?php // Портфолио
+            // Блог тренера
+            include_once('./app_fold/views/blog/posts/user_posts_item.php');
+            // Портфолио
             if (!empty($portfolio)) :
                 include_once('./app_fold/views/coach/portfolio/portfolio_item.php');
             endif;
-            ?>
-
+            // Курсы тренера
+            include_once('./app_fold/views/course/coaches_courses.php');?>
         </div><!-- content_col -->
     </div>
 </div><!-- content -->

@@ -119,7 +119,7 @@ class Welcome_model extends CI_Model
             $result['private_policy'] = $row->si_policy;
             $result['personal_data']  = $row->si_personal_data;
             $result['footer']         = $row->si_footer;
-            $result['about']          = parent::showBBcodes($row->si_about);
+            $result['about']          = nl2br(parent::showBBcodes($row->si_about));
             $result['contacts_text1'] = $row->si_contacts_text1;
             $result['contacts_text2'] = $row->si_contacts_text2;
             $result['banners']        = array();

@@ -9,10 +9,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $one_next_wo = ($prev_wo === true and $course['count_days'] == 1) ? true : false;
             $prev_wo_cl = ($prev_wo === true) ? 'prev_workout' : '';
             $prev_wo_cl .= (((!empty($current_num_day) and $nwd < $current_num_day) or $one_next_wo === true)) ? ' wo_dis' : '';
+            $day_time = (!empty($week_wo[$nwd]['time'])) ? $week_wo[$nwd]['time'] : $course['training_time'][$nwd];
             ?>
-            <input type="text" name="i_days_time[<?php echo $crs_id; ?>][<?php echo $nwd; ?>]" value="<?php echo $week_wo[$nwd]['time']; ?>"
-                   class="anketa_form_in time <?php echo $prev_wo_cl; ?> disabled" placeholder="чч:мм" maxlength="5" minlength="5"
-                   id="cb_<?php echo $nwd; ?>_<?php echo $crs_id; ?>_time" disabled="disabled">
+            <input type="text" name="i_days_time[<?php echo $crs_id; ?>][<?php echo $nwd; ?>]" value="<?php echo $day_time; ?>"
+                   class="anketa_form_in time <?php echo $prev_wo_cl; ?><?php if(empty($uc_set) or empty($day_time)): ?> disabled <?php endif; ?>" placeholder="чч:мм" maxlength="5" minlength="5"
+                   id="cb_<?php echo $nwd; ?>_<?php echo $crs_id; ?>_time" <?php if(empty($uc_set) or empty($day_time)): ?> disabled="disabled" <?php endif; ?>>
         </div>
     <?php endfor;
     unset($nwd); ?>

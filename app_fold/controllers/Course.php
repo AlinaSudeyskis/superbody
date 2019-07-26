@@ -726,6 +726,56 @@ class Course extends CI_Controller
 
             header('Location: /administration/' . $courses_page);
         }
+        elseif ($this->input->post('bt_block_course', true))
+        {
+            $course_id = is_numeric($this->input->post('i_course_id', true)) ? $this->input->post('i_course_id', true) : null;
+
+            if (!empty($course_id))
+            {
+                $result = $this->Course_model->blockCourse($course_id, $this->date);
+
+                if ($result === true) {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 33, 60);
+                }
+            }
+            else
+            {
+                $this->session->set_tempdata('message', 33, 60);
+            }
+
+            header('Location: /administration/' . $courses_page);
+        }
+        elseif ($this->input->post('bt_unblock_course', true))
+        {
+            $course_id = is_numeric($this->input->post('i_course_id', true)) ? $this->input->post('i_course_id', true) : null;
+
+            if (!empty($course_id))
+            {
+                $result = $this->Course_model->unblockCourse($course_id, $this->date);
+
+                if ($result === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 34, 60);
+                }
+            }
+            else
+            {
+                $this->session->set_tempdata('message', 34, 60);
+            }
+
+            header('Location: /administration/' . $courses_page);
+        }
 
         // Курсы тренировок
         if($courses_category == 'workout' and $archive == 0)
@@ -1500,7 +1550,41 @@ class Course extends CI_Controller
             chdir('../../');
         }
 
-        if ($this->input->post('bt_save_block_1', true))
+        if ($this->input->post('bt_deactivate_landing', true))
+        {
+            $result = $this->Course_model->deactivateCourseLandingPage($course_id, $this->date);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Не удалось деактивировать
+                $this->session->set_tempdata('message', 100, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing/'.$block_id);
+        }
+        elseif ($this->input->post('bt_activate_landing', true))
+        {
+            $result = $this->Course_model->activateCourseLandingPage($course_id, $this->date);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Не удалось активировать
+                $this->session->set_tempdata('message', 99, 60);
+            }
+
+            header('Location: /administration/course/'.$course_id.'/landing/'.$block_id);
+        }
+        elseif ($this->input->post('bt_save_block_1', true))
         {
         	// Скрыть блок со страницы просмотра
 	        $hide_block = (!empty($this->input->post('cb_hide_block1', true))) ? 1 : 0;
@@ -3882,7 +3966,41 @@ class Course extends CI_Controller
             chdir('../../');
         }
 
-        if ($this->input->post('bt_save_block_1', true))
+        if ($this->input->post('bt_deactivate_landing', true))
+        {
+            $result = $this->Course_model->deactivateCourseLandingPage($course_id, $this->date);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Не удалось деактивировать
+                $this->session->set_tempdata('message', 100, 60);
+            }
+
+            header('Location: /administration/nutrition/'.$course_id.'/landing/'.$block_id);
+        }
+        elseif ($this->input->post('bt_activate_landing', true))
+        {
+            $result = $this->Course_model->activateCourseLandingPage($course_id, $this->date);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Не удалось активировать
+                $this->session->set_tempdata('message', 99, 60);
+            }
+
+            header('Location: /administration/nutrition/'.$course_id.'/landing/'.$block_id);
+        }
+        elseif ($this->input->post('bt_save_block_1', true))
         {
             // Скрыть блок со страницы просмотра
             $hide_block = (!empty($this->input->post('cb_hide_block1', true))) ? 1 : 0;
@@ -6922,8 +7040,10 @@ class Course extends CI_Controller
             $training_days  = '';
             $training_times = '';
             $array_training_times = array();
-            $days = $this->input->post('cb_day');
+
+            $days = $this->input->post('cb_day', true);
             $i_times = $this->input->post('i_days_time', true);
+
             if (!empty($days[$course_id]) and empty($db_training_days))
             {
                 /*$prev_key = 0;
@@ -6961,9 +7081,26 @@ class Course extends CI_Controller
                 }
                 unset($day);
             }
+            elseif($i_times[$course_id] != $db_training_time)
+            {
+                $i = 1;
+                foreach ($days[$course_id] as $key => $day)
+                {
+                    // Если кол-во выбранных дней не превышает кол-во дней курса
+                    if ($i <= $course_days)
+                    {
+                        $i_time = $i_times[$course_id][$day];
+                        $time_date = DateTime::createFromFormat('H:i', $i_time);
+                        $array_training_times[$day] = ($time_date !== false) ? $i_time : '';
+
+                        $i++;
+                    }
+                }
+                unset($day);
+            }
             // Массив новых дней тренировок
             $array_training_days  = (!empty($training_days)) ? str_split($training_days) : null;
-            $training_times = (!empty($array_training_times)) ? implode(';', $array_training_times) : '';
+            $training_times       = (!empty($array_training_times)) ? implode(';', $array_training_times) : '';
 
             // Время тренировок
             //$training_time = $db_training_time;
@@ -7351,9 +7488,9 @@ class Course extends CI_Controller
                 $count_workouts = $course_weeks * $course_days;
                 $this->Course_model->setUserTrainingWeeks($uc_id, $new_course_start, $training_days, $array_training_times, $count_workouts, $course_days, $this->date);
             }
-            elseif(!empty($training_times) and empty($db_training_time))
+            elseif(!empty($training_times) and (empty($db_training_time) or $array_training_times != $db_training_time))
             {
-                // Сохранение дней и времени тренировок пользователя
+                // Сохранение времени тренировок пользователя
                 $result_td = $this->Course_model->setUserTrainingTime($uc_id, $training_times, $this->date);
 
                 if(!empty($db_training_days))
@@ -8682,13 +8819,30 @@ class Course extends CI_Controller
      */
     public function checkPromocode()
     {
-        $result['discount'] = false;
+        $result = false;
 
         $promocode = mb_substr(strip_tags($this->input->post('input_search', true)), 0, 25);
 
         if(!empty($promocode) and strlen($promocode) >=1)
         {
-            $result = $this->Course_model->getAvailablePromocode($promocode, $this->user_id, $this->date);
+            $sel_pc = $this->Course_model->getAvailablePromocode($promocode, $this->user_id, $this->date);
+
+            if($sel_pc['status'] == 'Активен')
+            {
+                $pc_info = $sel_pc;
+
+                $pc_info['disc_type'] = 'руб.';
+                if($pc_info['discount_type'] == 'percent')
+                {
+                    $pc_info['disc_type'] = '%';
+                }
+
+                ob_start();
+                    include('./app_fold/views/promocodes/info.php');
+                    $promocode_info = ob_get_contents();
+                ob_end_clean();
+                $result = $promocode_info;
+            }
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);

@@ -975,7 +975,7 @@ class Store extends CI_Controller
         $user_cart    = !empty($this->user_id)
             ? $this->Store_model->getCartProductsId($this->user_id)
             : parent::getSessionCartProductsId();
-        $user_courses = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id) : array();
+        $user_courses = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
         $categories   = $this->Store_model->getCategories();
 
         // Объединенные данные страница
