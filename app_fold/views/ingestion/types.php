@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Тип приема пищи</h3>
-                            <a href="/administration/ingestion/type/new" class="add_tab_but">Добавить</a>
+                            <div class="content_block_h_ref"><a href="/administration/ingestion/type/new" class="add_tab_but">Добавить</a></div>
                         </div>
                     </div>
                 </div>

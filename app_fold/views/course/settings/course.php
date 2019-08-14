@@ -85,7 +85,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php include_once('./app_fold/views/video/video_settings_item.php');?>
                                 </div>
                             </form>
-                        <?php elseif ($page_submenu == 'video' and ($video_menu == 'promo' or $video_menu == 'workouts' or $video_menu == 'instructions')):
+                        <?php elseif ($page_submenu == 'video' and ($video_menu == 'promo' or $video_menu == 'workouts'
+                                or $video_menu == 'instructions' or $video_menu == 'uncategorized')):
                             include_once('./app_fold/views/course/settings/course_video_item.php');
                         elseif ($page_submenu == 'promocodes' and !empty($promocodes)) :
                             include_once('./app_fold/views/promocodes/promocodes.php');

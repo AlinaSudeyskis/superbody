@@ -20,7 +20,7 @@ class Payment_model extends CI_Model
      * @param float $total_amount
      * @param string $currency
      * @param string $created_at
-     * @param string $payment_option (full_payment, installments)
+     * @param string $payment_option (full_payment, partial_payment)
      * @return bool
      */
     public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at, $payment_option)

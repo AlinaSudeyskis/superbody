@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Добавить администратора</h3>
-                            <a href="/administration/admin/new/users" class="add_tab_but">Выбрать</a>
+                            <div class="content_block_h_ref"><a href="/administration/admin/new/users" class="add_tab_but">Выбрать</a></div>
                         </div>
                         <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     </div>

@@ -1133,6 +1133,10 @@ class Course extends CI_Controller
         {
             self::courseInstructionsVideo($course_id);
         }
+        elseif($page_type == 'video_uncategorized')
+        {
+            self::courseUncategorizedVideo($course_id);
+        }
         elseif($page_type == 'video_new')
         {
             self::newCourseVideo($course_id);
@@ -1170,7 +1174,7 @@ class Course extends CI_Controller
         $course          = $this->Course_model->getCourse($course_id);
 
         $course_coaches  = $this->Course_model->getCourseCoachesId($course_id);
-        $course_schedule = $this->Course_model->getCourseSchedule($course_id);
+        $course_schedule = $this->Course_model->getCourseSchedules($course_id);
 
         // Валидация и сохранение данных
         if ($this->input->post('bt_save_course', true))
@@ -1329,7 +1333,7 @@ class Course extends CI_Controller
                 $sw = $schedule['workouts'][$workout];
 
                 // Поиск в массиве сохраненных тренировок
-                $search_key = (!empty($course_schedule)) ? array_search($workout, $course_schedule['num_workout']) : false;
+                $search_key = (!empty($course_schedule['num_workout'])) ? array_search($workout, $course_schedule['num_workout']) : false;
 
                 // Если нашел тренировку и хотя бы одно значение данных отличается, обновить данные
                 if (is_numeric($search_key) and ($course_schedule['repeat_workout'][$search_key] != $sw['repeat_workout']
@@ -1509,7 +1513,7 @@ class Course extends CI_Controller
             header('Location: /administration/course/' . $course_id);
         }
 
-        $result = array_merge($course_types, $course);
+        $result = array_merge($course_types, $course, $course_coaches, $course_schedule);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Редактирование данных курса';
@@ -2985,6 +2989,31 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'a_courses_w';
         $this->page_data['page_submenu'] = 'video';
         $this->page_data['video_menu']   = 'instructions';
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод списка видео без категории "Инструктажи
+     *
+     * @param $course_id
+     */
+    protected function courseUncategorizedVideo($course_id)
+    {
+        $instruction = $this->Course_model->getCourseUncategorizedVideo($course_id);
+        $course      = $this->Course_model->getShortCourse($course_id);
+
+        $result = array_merge($instruction, $course);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Видео курса без категории';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = 'uncategorized';
         $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header_admin', $this->page_data);
@@ -6706,14 +6735,32 @@ class Course extends CI_Controller
         // Исходная страница
         $return_url = '/courses/';
 
-        $courses_categories = array('workouts', 'nutritions');
+        // Проверка промокода
+        $pc_data = null;
+        if($courses_category == 'promocode' and !empty($courses_type))
+        {
+            $promocode = $courses_type;
+            $pc_data = $this->Course_model->getAvailablePromocode($promocode, $this->user_id, $this->date);
+            if(is_numeric($pc_data['id']))
+            {
+                $courses_type = $pc_data['id'];
+            }
+            else
+            {
+                $pc_data = null;
+            }
+        }
+
+        $courses_categories = array('workouts', 'nutritions', 'promocode');
         $courses_category   = (in_array($courses_category, $courses_categories)) ? $courses_category : null;
-        $courses_type       = (is_numeric($courses_type) and $courses_category == 'workouts') ? $courses_type : null;
+        $courses_type       = (($courses_category == 'promocode' or $courses_category == 'workouts') and is_numeric($courses_type))
+            ? $courses_type : null;
 
         $this->load->model('Coach_model');
 
+
         // Получение списка добавленных курсов
-        $courses = $this->Course_model->getAvailableCourses($courses_category, $courses_type);
+        $courses = $this->Course_model->getAvailableCourses($courses_category, $courses_type, null, null, $pc_data);
         $gallery = $this->Coach_model->getGallery();
         $reviews = $this->Course_model->getAvaliableReviews();
 
@@ -6783,6 +6830,7 @@ class Course extends CI_Controller
         $this->page_data['page_menu']    = 'courses';
         $this->page_data['page_submenu'] = $courses_category;
         $this->page_data['courses_type'] = $courses_type;
+        $this->page_data['pc_type']      = (!empty($pc_data)) ? $pc_data['pc_type'] : null;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');
@@ -8830,6 +8878,8 @@ class Course extends CI_Controller
             if($sel_pc['status'] == 'Активен')
             {
                 $pc_info = $sel_pc;
+
+                $pc_info['promocode'] = $promocode;
 
                 $pc_info['disc_type'] = 'руб.';
                 if($pc_info['discount_type'] == 'percent')

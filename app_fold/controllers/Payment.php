@@ -15,11 +15,13 @@ class Payment extends CI_Controller
 {
     const CURRENCY = 'RUB';
     const PAYMENT_METHOD = 'bank_card';
-    const SHOPID = 188363;
-    const SHOP_SECRET = 'live_ant_14AylFl7dwPp3StFpDUJWBuqo9i0ijeyZm8A5dk';
-    //const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
-    const SCID = 715012;
-    const TEST_SCID = 561490;
+
+    // LIVE
+    /*const SHOPID = 618322;
+    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';*/
+    // TEST
+    const SHOPID = 621847;
+    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';
 
     /**
      * Payment constructor.
@@ -38,7 +40,7 @@ class Payment extends CI_Controller
     public function payment()
     {
         // Вариант оплаты (полный, разделить на месяцы)
-        $options = array('full_payment', 'installments');
+        $options = array('full_payment', 'partial_payment');
         // Способ оплаты
         $methods = array('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank');
         // Способы оплаты с доп. данными (телефон)
@@ -61,14 +63,20 @@ class Payment extends CI_Controller
         $login        = strip_tags($this->input->post('login', true));
         $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
 
+        $customer_email = $this->input->get('customer_email', true);
+        $order_items = $this->input->get('order_items', true);
+
         /*log_message('debug', __METHOD__ . ' ' . __LINE__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
             . $payment_type . ' ' . $payment_option . ' ' . $method_phone . ' ' . $method_login);*/
 
+        //log_message('debug', 'Order items: ' . print_r($order_items, true));
+
         if (!empty($order_id) and !empty($total_amount) and !empty($payment_option))
         {
+
             // Создание платежа
             $response = self::createPayment($order_id, $total_amount, self::CURRENCY, $payment_type, $payment_option, '',
-                $method_phone, $method_login);
+                $method_phone, $method_login, $customer_email, $order_items);
 
             if (!empty($response->_id)) {
                 if ($response->_status == 'pending')
@@ -212,7 +220,7 @@ class Payment extends CI_Controller
                     $user_id = $courses['user_id'];
 
                     // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
-                    if (!empty($payment) and $payment['option'] == 'installments')
+                    if (!empty($payment) and $payment['option'] == 'partial_payment')
                     {
                         // Выборка рекуррентных данных
                         $recurrent_data = $this->Course_model->getCourseRecurrentData($courses);
@@ -264,17 +272,19 @@ class Payment extends CI_Controller
      * @param string $payment_method_id
      * @param int|string $method_phone
      * @param string $method_login
+     * @param $customer_email
+     * @param $order_items
      * @return \YandexCheckout\Request\Payments\CreatePaymentResponse
      */
     public function createPayment($order_id, $value, $currency, $payment_type = 'bank_card', $payment_option = 'full_payment',
-                                  $payment_method_id = '', $method_phone = '', $method_login = '')
+                                  $payment_method_id = '', $method_phone = '', $method_login = '', $customer_email, $order_items)
     {
         $response       = false;
         $external_types = array('sberbank', 'alfabank');
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
         $return_url     = 'https://superbody.pro/order/' . $order_id . '?return=true';
-        $save           = ($payment_option == 'installments') ? true : false;
+        $save           = ($payment_option == 'partial_payment') ? true : false;
         $method_id      = strip_tags($payment_method_id);
         $confirm_type   = (in_array($payment_type, $external_types)) ? 'external' : 'redirect';
 
@@ -286,7 +296,22 @@ class Payment extends CI_Controller
                 array(
                     'amount' => array(
                         'value' => $value,
-                        'currency' => $currency
+                        'currency' => $currency,
+                    ),
+                    'receipt' => array(
+                        'customer' => array(
+                            'email' => $customer_email,
+                        ),
+                        'items' => array(
+                            array(
+                                'description' => $order_items['name'],
+                                'quantity' => $order_items['cart_quantity'],
+                                'amount' => $order_items['price'],
+                                'vat_code' => 1,
+                                'payment_subject' => 'service',
+                                'payment_mode' => $payment_option,
+                            ),
+                        ),
                     ),
                     'payment_method_data' => array(
                         'type' => $payment_type,
@@ -304,23 +329,23 @@ class Payment extends CI_Controller
                 $idempotenceKey
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
 
         return $response;
@@ -348,37 +373,50 @@ class Payment extends CI_Controller
                     'amount' => array(
                         'value' => $value,
                         'currency' => $currency,
-                    ),
+                    )/*,
+                    'receipt' => array(
+                        'customer' => array(
+                            'email' => $customer_email
+                        ),
+                        'items' => array(
+                            'description' => $order_items['name'],
+                            'quantity' => $order_items['cart_quantity'],
+                            'amount' => $order_items['price'],
+                            'vat_code' => 1,
+                            'payment_subject' => 'service',
+                            'payment_mode' => $payment_option
+                        )
+                    ),*/
                 ),
                 $payment_id,
                 $idempotenceKey
             );
         }
         catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
         catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
         catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
         catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
         catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
         catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
         catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
         catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
 
         return $response;
@@ -400,23 +438,23 @@ class Payment extends CI_Controller
                 uniqid('', true)
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
     }
 

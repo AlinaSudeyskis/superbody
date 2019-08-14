@@ -831,8 +831,12 @@ class Store extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        // Курсы заказа
         $order_courses = $this->Store_model->getOrderCourses('', $order_id);
+        $order = $this->Store_model->getOrder($order_id);
+
+        $paymentId = '24DCC2E3-000F-5000-9000-100694672556';
+        $payment = $this->Store_model->getPaymentInfo($paymentId);
+        print_r($payment);
 
         if ($this->input->post('bt_capture', true))
         {
@@ -891,24 +895,28 @@ class Store extends CI_Controller
             {
                 $payment = $this->Store_model->getPaymentInfo($payment_id);
 
-                $response = $this->Store_model->refundPayment($payment->_id, $refund_amount, self::CURRENCY, $description);
-
-                if (!empty($response->_id))
+                if(!empty($payment->_id))
                 {
-                    $created_at = $response->_created_at->_date . $response->_created_at->_timezone;
+                    $response = $this->Store_model->refundPayment($payment->_id, $refund_amount, self::CURRENCY, $description,
+                        $payment->_payment_method->type, $order['order']['user_email'], $order['order']['products'][0]);
 
-                    $this->Store_model->setPaymentRefund($response->_payment_id, $response->_id, $refund_amount, $response->_status, $description, $created_at);
-
-                    if ($response->_status == 'succeeded')
+                    if (!empty($response->_id))
                     {
-                        $this->load->model('Course_model');
-                        $this->load->model('Message_model');
+                        $created_at = $response->_created_at->_date . $response->_created_at->_timezone;
 
-                        $reason = 'payment_refunded';
+                        $this->Store_model->setPaymentRefund($response->_payment_id, $response->_id, $refund_amount, $response->_status, $description, $created_at);
 
-                        // Блокировка курсов пользователя
-                        $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
-                        $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
+                        if ($response->_status == 'succeeded')
+                        {
+                            $this->load->model('Course_model');
+                            $this->load->model('Message_model');
+
+                            $reason = 'payment_refunded';
+
+                            // Блокировка курсов пользователя
+                            $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                            $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
+                        }
                     }
                 }
             }
@@ -916,7 +924,6 @@ class Store extends CI_Controller
             header('Location: /administration/order/' . $order_id);
         }
 
-        $order = $this->Store_model->getOrder($order_id);
         $course_data = array();
 
         if (!empty($order_courses['courses']))

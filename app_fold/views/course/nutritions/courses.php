@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Курсы питания</h3>
-                            <a href="/administration/nutrition/new" class="add_tab_but">Новый курс</a>
+                            <div class="content_block_h_ref"><a href="/administration/nutrition/new" class="add_tab_but">Новый курс</a></div>
                         </div>
                         <?php include_once('./app_fold/views/course/nutritions/menu.php'); ?>
                     </div>

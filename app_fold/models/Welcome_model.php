@@ -92,7 +92,7 @@ class Welcome_model extends CI_Model
               `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_auth_display`, `si_auth_title1`, `si_auth_title2`, 
               `si_auth_subtitle1`, `si_auth_subtitle2`, `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, 
               `si_auth_url_name1`, `si_auth_url_name2`, `si_spec_display`, `si_spec_name`, `si_spec_title`, `si_spec_text`, 
-              `si_spec_url`, `si_spec_url_text`
+              `si_spec_url`, `si_spec_url_text`, `si_cookies_title`, `si_cookies_text`
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -140,6 +140,8 @@ class Welcome_model extends CI_Model
             $result['spec_text']      = $row->si_spec_text;
             $result['spec_url']       = $row->si_spec_url;
             $result['spec_url_text']  = $row->si_spec_url_text;
+            $result['cookies_title']  = $row->si_cookies_title;
+            $result['cookies_text']   = $row->si_cookies_text;
 
             $sel_banners = $this->db->query('
                 SELECT `sb_image`, `sb_url` FROM `site_banners` WHERE `sb_blocked`=0');

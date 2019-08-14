@@ -12,9 +12,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Категория курса</h3>
-                            <a href="/administration/course/new" class="add_tab_but">Новый курс</a>
+                            <div class="content_block_h_ref"><a href="/administration/course/new" class="add_tab_but">Новый курс</a>
                             <a href="/administration/courses/type/new" class="add_tab_but">Новая категория</a>
-                        </div>
+                        </div></div>
                         <?php include_once('./app_fold/views/course/courses_menu.php'); ?>
                     </div>
                 </div>

@@ -1849,58 +1849,134 @@ class Course_model extends CI_Model
      * @param $courses_type
      * @param null $first_id
      * @param null $last_id
+     * @param null $promocode_data
      * @return array
      */
-    public function getAvailableCourses($courses_category = null, $courses_type = null, $first_id = null, $last_id = null)
+    public function getAvailableCourses($courses_category = null, $courses_type = null, $first_id = null, $last_id = null,
+                                        $promocode_data = null)
     {
         $result['courses'] = array();
 
-        if(empty($courses_category) or $courses_category == 'workouts' or ($courses_category == 'workouts' and is_numeric($courses_type)))
+        $categories = self::getAvailableCourseTypes();
+        $result['courses_categories'] = $categories['course_types'];
+
+        if(empty($promocode_data) or $promocode_data['pc_type'] == 'all' or $promocode_data['pc_type'] == 'workouts' or $promocode_data['pc_type'] == 'nutritions')
         {
-            if(is_numeric($courses_type))
+            if(empty($courses_category) or $courses_category == 'workouts' or
+                (!empty($promocode_data) and ($promocode_data['pc_type'] == 'all' or $promocode_data['pc_type'] == 'workouts')) or
+                ($courses_category == 'workouts' and is_numeric($courses_type)))
             {
-                $limit = 9;
-
-                $category = self::getAvailableCourseType($courses_type);
-                $result['courses_categories'] = $category['course_type'];
-
-                $and_where = '';
-                // Если нажата "Следующая страница"
-                if (!empty($last_id))
+                if(is_numeric($courses_type))
                 {
-                    $and_where = ' and `crs_id`<'.$last_id;
-                }
-                // Если нажата "Предыдущая страница"
-                elseif (!empty($first_id))
-                {
-                    $and_where = ' and `crs_id`>'.$first_id;
-                }
+                    $limit = 9;
 
+                    $category = self::getAvailableCourseType($courses_type);
+                    $result['courses_categories'] = $category['course_type'];
+
+                    $and_where = '';
+                    // Если нажата "Следующая страница"
+                    if (!empty($last_id))
+                    {
+                        $and_where = ' and `crs_id`<'.$last_id;
+                    }
+                    // Если нажата "Предыдущая страница"
+                    elseif (!empty($first_id))
+                    {
+                        $and_where = ' and `crs_id`>'.$first_id;
+                    }
+
+                    $sel_courses = $this->db->query('
+                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                        FROM `courses` 
+                        LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+                        WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout"'.$and_where.'
+                        ORDER BY `crs_id` DESC
+                        LIMIT ?', array($courses_type, $limit));
+
+                    if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+                    {
+                        $elements = $sel_courses->result();
+
+                        // Данные пагинации
+                        $pagination = parent::parsePagination('course', $first_id, $last_id, $limit, $elements);
+                        $result['pagination'] = $pagination['pagination'];
+
+                        $elements = $pagination['elements'];
+                        $i = 0;
+                        foreach ($elements as $key => $row)
+                        {
+                            $result['courses']['workouts'][$courses_type][$i] = self::parseCourseData($row);
+
+                            // Тренеры курса
+                            $coaches = self::getCourseCoaches($row->crs_id);
+                            $result['courses']['workouts'][$courses_type][$i] = array_merge($result['courses']['workouts'][$courses_type][$i], $coaches);
+
+                            $i++;
+                        }
+                        unset($row);
+                    }
+                    elseif ($sel_courses === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+                elseif(empty($courses_type))
+                {
+                    if(!empty($categories))
+                    {
+                        foreach($categories['course_types'] as $category)
+                        {
+                            $sel_courses = $this->db->query('
+                            SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                            FROM `courses` 
+                            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+                            WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout" 
+                            LIMIT 3', $category['id']);
+
+                            if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+                            {
+                                $i = 0;
+                                foreach ($sel_courses->result() as $row)
+                                {
+                                    $result['courses']['workouts'][$category['id']][$i] = self::parseCourseData($row);
+
+                                    // Тренеры курса
+                                    $coaches = self::getCourseCoaches($row->crs_id);
+                                    $result['courses']['workouts'][$category['id']][$i] = array_merge($result['courses']['workouts'][$category['id']][$i], $coaches);
+
+                                    $i++;
+                                }
+                                unset($row);
+                            }
+                            elseif ($sel_courses === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+                        }
+                        unset($category);
+                    }
+                }
+            }
+
+            if(empty($courses_category) or $courses_category == 'nutritions' or
+                (!empty($promocode_data) and ($promocode_data['pc_type'] == 'all' or $promocode_data['pc_type'] == 'nutritions')))
+            {
                 $sel_courses = $this->db->query('
-                    SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
-                    FROM `courses` 
-                    LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-                    WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout"'.$and_where.'
-                    ORDER BY `crs_id` DESC
-                    LIMIT ?', array($courses_type, $limit));
+                SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                FROM `courses` 
+                LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+                WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_category`="nutrition" LIMIT 3');
 
                 if ($sel_courses !== false and 0 < $sel_courses->num_rows())
                 {
-                    $elements = $sel_courses->result();
-
-                    // Данные пагинации
-                    $pagination = parent::parsePagination('course', $first_id, $last_id, $limit, $elements);
-                    $result['pagination'] = $pagination['pagination'];
-
-                    $elements = $pagination['elements'];
                     $i = 0;
-                    foreach ($elements as $key => $row)
+                    foreach ($sel_courses->result() as $row)
                     {
-                        $result['courses']['workouts'][$courses_type][$i] = self::parseCourseData($row);
+                        $result['courses']['nutritions'][$i] = self::parseCourseData($row);
 
                         // Тренеры курса
                         $coaches = self::getCourseCoaches($row->crs_id);
-                        $result['courses']['workouts'][$courses_type][$i] = array_merge($result['courses']['workouts'][$courses_type][$i], $coaches);
+                        $result['courses']['nutritions'][$i] = array_merge($result['courses']['nutritions'][$i], $coaches);
 
                         $i++;
                     }
@@ -1911,73 +1987,73 @@ class Course_model extends CI_Model
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
             }
-            elseif(empty($courses_type))
-            {
-                $categories = self::getAvailableCourseTypes();
-                if(!empty($categories))
-                {
-                    $result['courses_categories'] = $categories['course_types'];
 
-                    foreach($categories['course_types'] as $category)
-                    {
-                        $sel_courses = $this->db->query('
-                            SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
-                            FROM `courses` 
-                            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-                            WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout" 
-                            LIMIT 3', $category['id']);
-
-                        if ($sel_courses !== false and 0 < $sel_courses->num_rows())
-                        {
-                            $i = 0;
-                            foreach ($sel_courses->result() as $row)
-                            {
-                                $result['courses']['workouts'][$category['id']][$i] = self::parseCourseData($row);
-
-                                // Тренеры курса
-                                $coaches = self::getCourseCoaches($row->crs_id);
-                                $result['courses']['workouts'][$category['id']][$i] = array_merge($result['courses']['workouts'][$category['id']][$i], $coaches);
-
-                                $i++;
-                            }
-                            unset($row);
-                        }
-                        elseif ($sel_courses === false)
-                        {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
-                        }
-                    }
-                    unset($category);
-                }
-            }
         }
-
-        if(empty($courses_category) or $courses_category == 'nutritions')
+        elseif($courses_category == 'promocode' and !empty($promocode_data) and ($promocode_data['pc_type'] == 'courses' or $promocode_data['pc_type'] == 'categories'))
         {
-            $sel_courses = $this->db->query('
-            SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
-            FROM `courses` 
-            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-            WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_category`="nutrition" LIMIT 3');
-
-            if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+            if($promocode_data['pc_type'] == 'categories' and is_array($promocode_data['crs_cats']))
             {
-                $i = 0;
-                foreach ($sel_courses->result() as $row)
+                foreach($promocode_data['crs_cats'] as $category)
                 {
-                    $result['courses']['nutritions'][$i] = self::parseCourseData($row);
+                    $sel_courses = $this->db->query('
+                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                        FROM `courses` 
+                        LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+                        WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout" 
+                        LIMIT 3', $category);
 
-                    // Тренеры курса
-                    $coaches = self::getCourseCoaches($row->crs_id);
-                    $result['courses']['nutritions'][$i] = array_merge($result['courses']['nutritions'][$i], $coaches);
+                    if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+                    {
+                        $i = 0;
+                        foreach ($sel_courses->result() as $row)
+                        {
+                            $result['courses']['workouts'][$category][$i] = self::parseCourseData($row);
 
-                    $i++;
+                            // Тренеры курса
+                            $coaches = self::getCourseCoaches($row->crs_id);
+                            $result['courses']['workouts'][$category][$i] = array_merge($result['courses']['workouts'][$category][$i], $coaches);
+
+                            $i++;
+                        }
+                        unset($row);
+                    }
+                    elseif ($sel_courses === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
                 }
-                unset($row);
+                unset($category);
             }
-            elseif ($sel_courses === false)
+            elseif($promocode_data['pc_type'] == 'courses')
             {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                $sel_courses = $this->db->query('
+                    SELECT `pcc_crs_id`, `crs_id`, `crs_type_id`, `crs_name`, `crs_image`, `crs_description`, `crs_blocked`, 
+                           `crs_archive`, `clp_id`, `clp_activated` 
+                    FROM `promocode_courses`
+                    LEFT JOIN `courses` ON `crs_id`=`pcc_crs_id`
+                    LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+                    WHERE `pcc_pc_id`=? and `crs_blocked`=0 and `crs_archive`=0', $promocode_data['id']);
+
+                if ($sel_courses !== false and 0 < $sel_courses->num_rows())
+                {
+                    $i = 0;
+                    foreach ($sel_courses->result() as $row)
+                    {
+                        $result['courses']['workouts'][$row->crs_type_id][$i] = self::parseCourseData($row);
+
+                        // Тренеры курса
+                        $coaches = self::getCourseCoaches($row->crs_id);
+                        $result['courses']['workouts'][$row->crs_type_id][$i] = array_merge($result['courses']['workouts'][$row->crs_type_id][$i], $coaches);
+
+                        $i++;
+                    }
+                    unset($row);
+                }
+                elseif ($sel_courses === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
             }
         }
 
@@ -2279,7 +2355,7 @@ class Course_model extends CI_Model
                 // Тренировки
                 $sel_schedule = $this->db->query('
                     SELECT `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, 
-                      `video_name`, `video_path`, `video_poster`, `video_remove_url`
+                      `video_id`, `video_name`, `video_path`, `video_poster`, `video_remove_url`
                     FROM `courses_training_weeks`
                     LEFT JOIN `video` ON `video_id`=`ctw_video_id`
                     WHERE `ctw_course_id`=?
@@ -2313,7 +2389,7 @@ class Course_model extends CI_Model
                                 $video_remove   = $row->video_remove_url;
                             }
 
-                            $result['course']['workouts'][$num_workout]['video_id']       = $video_id;
+                            $result['course']['workouts'][$num_workout]['video_id']       = (!empty($row->video_id)) ? $video_id : '';
                             $result['course']['workouts'][$num_workout]['video_name']     = $video_name;
                             $result['course']['workouts'][$num_workout]['video_poster']   = $video_poster;
                             $result['course']['workouts'][$num_workout]['video_path']     = $video_path;
@@ -2655,6 +2731,8 @@ class Course_model extends CI_Model
     public function setCourseSettings($course_id, $image, $name, $description, $meta_description, $meta_keywords,
                                       $price, $fc_price, $course_type, $count_weeks, $count_days, $count_rest, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
           UPDATE `courses` 
           SET `crs_type_id`=?, `crs_image`=?, `crs_name`=?, `crs_description`=?, `crs_meta_description`=?, `crs_meta_keywords`=?, 
@@ -2665,25 +2743,22 @@ class Course_model extends CI_Model
         
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            $up_data2 = $this->db->query('
+            /*$up_data2 = $this->db->query('
                 UPDATE `products` SET `p_name`=?, `p_full_description`=?, `p_price`=?, `p_fitcoin_price`=?, `p_date_update`=?
                 WHERE `p_course_id`=? LIMIT 1', array($name, $description, $price, $fc_price, $date, $course_id));
             if ($up_data2 === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
-            }
+            }*/
 
-            return true;
+            $result = true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -2967,8 +3042,9 @@ class Course_model extends CI_Model
         $result = array('course_length' => array(), 'workouts' => array(), 'workouts_id' => array());
 
         $sel_schedule = $this->db->query('
-            SELECT `ctw_course_id`, `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`
+            SELECT `ctw_course_id`, `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, `video_id`
             FROM `courses_training_weeks`
+            LEFT JOIN `video` ON `video_id`=`ctw_video_id`
             WHERE `ctw_course_id`=? and `ctw_num_workout`>0', $course_id);
 
         if ($sel_schedule !== false and 0 < $sel_schedule->num_rows())
@@ -2989,9 +3065,9 @@ class Course_model extends CI_Model
                     ? $result['workouts'][$row->ctw_repeat_workout]['video_id']
                     : $row->ctw_video_id;
 
-                $result['workouts'][$num_workout]['video_id'] = $video_id;
+                $result['workouts'][$num_workout]['video_id'] = (!empty($row->video_id)) ? $video_id : '';
 
-                $result['workouts_id'][$num_workout] = $video_id;
+                $result['workouts_id'][$num_workout] = $result['workouts'][$num_workout]['video_id'];
             }
             unset($row);
         }
@@ -5187,6 +5263,41 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Список видео курса категории "Инструктажи"
+     *
+     * @param $course_id
+     * @return array
+     */
+    public function getCourseUncategorizedVideo($course_id)
+    {
+        $result = array();
+
+        $sel_video = $this->db->query('
+            SELECT `video_id`, `video_name`, `video_poster`, `video_type`, `video_active` 
+            FROM `video`
+            WHERE `video_crs_id`=? and `video_type`=0', $course_id);
+
+        if ($sel_video !== false and 0 < $sel_video->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_video->result() as $row)
+            {
+                $result['video'][$i] = self::parseVideoData($row);
+                $result['video'][$i]['name'] = !empty($row->video_name) ? $row->video_name : $row->video_id;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_video === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Активное видео курса категории "Инструктажи"
      *
      * @param $course_id
@@ -6348,7 +6459,7 @@ class Course_model extends CI_Model
                             unset($row);
                             unset($i);
 
-                            $percent_workouts_done = (is_numeric($percent_workouts_done)) ? ($workouts_done * 100 / $total_count_workouts) : 0;
+                            $percent_workouts_done = (is_numeric($workouts_done)) ? ($workouts_done * 100 / $total_count_workouts) : 0;
 
                             $type_shade = ($key % 2 == 0 and $course['id'] % 2 == 1) ? 'lighter' : '';
                             $rgb = self::different_shade($color, $type_shade);
@@ -10229,6 +10340,7 @@ class Course_model extends CI_Model
      * @param $user_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getAvailablePromocode($promocode, $user_id, $date)
     {
@@ -10238,7 +10350,7 @@ class Course_model extends CI_Model
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('
-                SELECT `pc_id`, `pc_type`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
+                SELECT `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
                   `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, 
                   `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
                 FROM `promocodes`
@@ -10251,36 +10363,7 @@ class Course_model extends CI_Model
                 // Данные промокода
                 $promocode_data = self::parsePromocodeData($row, $date);
 
-                // Промокод активен
-                if($promocode_data['active'] === true)
-                {
-                    $result['status']        = 'Активен';
-                    $result['name']          = $promocode_data['name'];
-                    $result['desc']          = $promocode_data['description'];
-                    $result['discount']      = $promocode_data['discount'];
-                    $result['discount_type'] = $promocode_data['discount_type'];
-                    $result['rel_percent']   = $promocode_data['relative_percent'];
-                    $result['id']            = $promocode_data['id'];
-
-                    // Период действия
-                    $tmp_date1 = new DateTime($row->pc_pv_date_start);
-                    $tmp_date2 = new DateTime($row->pc_pv_date_end);
-                    $pc_dates = $tmp_date1->format('d.m.Y') . ' - ' . $tmp_date2->format('d.m.Y');
-                    $result['period'] = ($row->pc_period_validity_type == 'unlimited') ? 'Не ограничен' : $pc_dates;
-
-                    // Кол-во использований
-                    $result['use_amount'] = ($row->pc_use_amount_type == 'unlimited') ? 'Не ограничено' : $row->pc_ua_number;
-
-                    // Действует на
-                    $pc_types = array('Все курсы' => 'all', 'Курсы тренировок' => 'workouts', 'Курсы питания' => 'nutritions',
-                        'Категории курсов' => 'categories', 'Некоторые курсы' => 'courses');
-                    $key_type = array_search($row->pc_type, $pc_types);
-                    $result['type'] = (!empty($key_type)) ? $key_type : '';
-                }
-                else
-                {
-                    $result['status'] = 'Не активен';
-                }
+                $result = self::parseCheckPromocodeData($promocode_data, $row);
 
                 unset($row);
             }
@@ -10288,7 +10371,73 @@ class Course_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
+            elseif($sel_promo_data !== false and 0 == $sel_promo_data->num_rows())
+            {
+                // Поиск промокода для друга
+                $sel_promo_data = $this->db->query('
+                    SELECT `pff_code`, `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
+                       `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, 
+                       `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
+                    FROM `promocodes_for_friend` 
+                    LEFT JOIN `promocodes` ON `pc_id`=1
+                    WHERE `pff_code`=? LIMIT 1', $promocode);
+
+                if($sel_promo_data !== false and 1 == $sel_promo_data->num_rows())
+                {
+                    $row = $sel_promo_data->row();
+
+                    // Данные промокода
+                    $promocode_data = self::parsePromocodeData($row, $date);
+
+                    $result = self::parseCheckPromocodeData($promocode_data, $row);
+
+                    unset($row);
+                }
+                elseif($sel_promo_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
         }
+
+        return $result;
+    }
+
+    /**
+     * Обработка данных проверки промокода
+     *
+     * @param $promocode_data
+     * @param $row
+     * @return mixed
+     * @throws Exception
+     */
+    protected function parseCheckPromocodeData($promocode_data, $row)
+    {
+        $result['status']        = ($promocode_data['active'] === true) ? 'Активен' : 'Не активен';
+        $result['name']          = $promocode_data['name'];
+        $result['desc']          = $promocode_data['description'];
+        $result['discount']      = $promocode_data['discount'];
+        $result['discount_type'] = $promocode_data['discount_type'];
+        $result['rel_percent']   = $promocode_data['relative_percent'];
+        $result['id']            = $promocode_data['id'];
+
+        // Период действия
+        $tmp_date1 = new DateTime($row->pc_pv_date_start);
+        $tmp_date2 = new DateTime($row->pc_pv_date_end);
+        $pc_dates  = $tmp_date1->format('d.m.Y') . ' - ' . $tmp_date2->format('d.m.Y');
+        $result['period'] = ($row->pc_period_validity_type == 'unlimited') ? 'Не ограничен' : $pc_dates;
+
+        // Кол-во использований
+        $result['use_amount'] = ($row->pc_use_amount_type == 'unlimited') ? 'Не ограничено' : $row->pc_ua_number;
+
+        // Действует на
+        $pc_types = array('Все курсы' => 'all', 'Курсы тренировок' => 'workouts', 'Курсы питания' => 'nutritions',
+            'Категории курсов' => 'categories', 'Некоторые курсы' => 'courses');
+        $key_type          = array_search($row->pc_type, $pc_types);
+        $result['type']    = (!empty($key_type)) ? $key_type : '';
+        $result['pc_type'] = $row->pc_type;
+        // Категории курсов
+        $result['crs_cats'] = (!empty($row->pc_crs_cats)) ? explode(';', $row->pc_crs_cats) : '';
 
         return $result;
     }
@@ -10355,8 +10504,6 @@ class Course_model extends CI_Model
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
-
-
 
         return $result;
     }

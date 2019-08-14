@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <form action="" method="post" enctype="multipart/form-data">
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
-                                        <?php if ($user_blocked == 0) :?>
+                                        <?php if ($user_data['user_blocked'] == 0) :?>
                                             <input type="submit" name="bt_block_user" class="video_admin_form_block" value="Блокировать"/>
                                         <?php else :?>
                                             <input type="submit" name="bt_unblock_user" class="video_admin_form_block" value="Разблокировать"/>

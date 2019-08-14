@@ -2292,4 +2292,16 @@ $(document).ready(function() {
             $('html,body').animate({ scrollTop: targetOffset }, speed);
         }
     }
+
+    /*Cookies.remove('disclaimer');*/
+    $('#cookie_stop').click(function(){
+        $('#cookie_disclaimer').slideUp();
+
+        var nDays = 999;
+        var today = new Date();
+        var expire = new Date();
+        expire.setTime(today.getTime() + 3600000*24*nDays);
+
+        Cookies.set('disclaimer', 'true', { expires: expire });
+    });
 });

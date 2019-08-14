@@ -1536,7 +1536,7 @@ class CI_Controller {
         }*/
 
         // Вариант оплаты (полный, разделить на месяцы)
-        $options = array('full_payment', 'installments');
+        $options = array('full_payment', 'partial_payment');
         $payment_option = (in_array($s_payment_options, $options))
             ? $s_payment_options
             : 'full_payment';
@@ -1556,7 +1556,7 @@ class CI_Controller {
         $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
 
         // Стоимость курса в зависимости от варианта оплаты и доступности такой оплаты в настройка курса
-        if($payment_option == 'installments' and $course_data['recurrent'] === true)
+        if($payment_option == 'partial_payment' and $course_data['recurrent'] === true)
         {
             $course_price = $course_data['db_recur_first'];
         }
@@ -1612,6 +1612,7 @@ class CI_Controller {
 
             $products['products'] = array( 0 => array(
                 'id' => $course_data['p_id'],
+                'name' => $course_data['name'],
                 'cart_quantity' => 1,
                 'price' => $course_price,
                 'fc_price' => '',
@@ -1649,6 +1650,8 @@ class CI_Controller {
                     'option' => $payment_option,
                     'phone' => $method_phone,
                     'login' => $method_login,
+                    'customer_email' => $email,
+                    'order_items' => $products['products'][0]
                 );
 
                 header('Location: /payment?' .http_build_query($payment_data));

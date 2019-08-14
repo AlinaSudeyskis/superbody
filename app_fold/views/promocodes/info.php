@@ -30,7 +30,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="pcbi_details">
             <div class="pcbi_detail_h">Действует</div>
             <div class="pcbi_detail_sh">на</div>
-            <div class="pcbi_detail_val"><?php echo $pc_info['type']; ?></div>
+            <div class="pcbi_detail_val">
+                <?php $crs_url = ($pc_info['type']  != 'Все курсы') ? '/courses/promocode/' . $pc_info['promocode'] : '/courses'; ?>
+                <a href="<?php echo $crs_url; ?>"><?php echo $pc_info['type']; ?></a>
+            </div>
         </div>
     </div>
 </div>

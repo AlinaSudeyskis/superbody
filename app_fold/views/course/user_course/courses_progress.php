@@ -11,7 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="tren_prof_page_block parent">
         <?php //$courses_percent_done = true;
-        if(!empty($courses_percent_done)): ?>
+        if(!empty($courses_percent_done) and !empty($courses)): ?>
             <?php foreach($courses as $course): ?>
                 <?php if(is_numeric($course['percent_done'])): ?>
                     <div class="calendar_prof_item">

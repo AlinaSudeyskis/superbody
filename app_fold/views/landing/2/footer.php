@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="lp_dark_footer_wrap">
     <div class="lp_dark_footer container parent">
-        <?php if(!array_key_exists('subscribed', $user_session) or $user_session['subscribed'] === false):?>
+        <?php if(empty($user_session) or !array_key_exists('subscribed', $user_session) or $user_session['subscribed'] === false):?>
             <div class="lp_dark_footer_cont">
                 <div class="lp_dark_footer_h">ПОДПИСКА НА НОВОСТИ</div>
                 <div class="lp_dark_footer_txt">Подпишитесь на новости нашего портала и будьте в курсе всех событий</div>

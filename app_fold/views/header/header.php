@@ -26,8 +26,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link rel="stylesheet" href="/css/colorpicker/colorpicker.css">
     <link rel="stylesheet" href="/css/colorpicker/page.css">
 
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/styles.css">
+    <!-- version 1 (?version=1) -->
+    <link rel="stylesheet" href="/css/style.css?version=1">
+    <link rel="stylesheet" href="/css/styles.css?version=1">
 
     <script src="/js/moment.min.js"></script>
     <script src="/js/jquery.min.js"></script>
@@ -47,8 +48,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/tinymce/tinymce.min.js" type="text/javascript"></script>
     <script src="/js/js.cookie.js" type="text/javascript"></script>
 
-    <script src="/js/script.js"></script>
-    <script src="/js/scripts.js"></script>
+    <script src="/js/script.js?version=1"></script>
+    <script src="/js/scripts.js?version=1"></script>
 
     <script src="/js/colorpicker/colorpicker.min.js"></script>
     <!--<script src="/js/colorpicker/eye.js"></script>
@@ -84,7 +85,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="policy_pop-up_cont">
         <div class="policy_pop-up_close"></div>
         <div class="policy_pop-up_h">Подтверждая данное действие, я (Клиент) даю своё согласие ООО «Лайф Технолоджи Рус.» на обработку моих персональных данных, в соответствии с Федеральным законом от 27.07.2006 года №152-ФЗ «О персональных данных», на условиях и для целей, определенных
-            <a href="<?php if (!empty($site_info['personal_data'])): echo $site_info['personal_data']; endif;?>" class="policy" target="_blank">Политикой обработки персональных данных</a>
+            <a href="<?php if (!empty($site_info['personal_data'])): echo $site_info['personal_data']; endif;?>" class="agreement" target="_blank">Политикой обработки персональных данных</a>
         </div>
     </div>
 </div><!-- home_pop-up -->

@@ -199,6 +199,7 @@ $route['administration/course/(:num)/video']              = 'Course/course/$1/vi
 $route['administration/course/(:num)/video/promo']        = 'Course/course/$1/video_promo';
 $route['administration/course/(:num)/video/workouts']     = 'Course/course/$1/video_workouts';
 $route['administration/course/(:num)/video/instructions'] = 'Course/course/$1/video_instructions';
+$route['administration/course/(:num)/video/uncategorized'] = 'Course/course/$1/video_uncategorized';
 $route['administration/course/(:num)/video/new']          = 'Course/newCourseVideo/$1';
 $route['administration/course/(:num)/video/(:num)']       = 'Course/courseVideoSettings/$1/$2';
 // Курсы продления
@@ -284,7 +285,7 @@ $route['support/(:num)/(:num)/(:num)'] = 'Message/QaArticle/$1/$2/$3';
 $route['administration/sublist'] = 'Administrator/sublist';
 // Информация о сайте
 $route['administration/site'] = 'Administrator/siteInfo';
-$route['administration/site/(header|banner|about|contacts|auth|spec|meta)'] = 'Administrator/siteInfo/$1';
+$route['administration/site/(header|banner|about|contacts|auth|spec|meta|cookies)'] = 'Administrator/siteInfo/$1';
 $route['administration/site/banner/new']    = 'Administrator/newBanner';
 $route['administration/site/banner/(:num)'] = 'Administrator/siteBanner/$1';
 // Уведомления и письма
@@ -358,6 +359,7 @@ $route['coaches']                  = 'Coach/publicCoaches';
 $route['course/(:num)'] = 'Course/publicCourse/$1';
 $route['courses']       = 'Course/publicCourses';
 $route['courses/(workouts|nutritions)(/(:num))?'] = 'Course/publicCourses/$1/$3';
+$route['courses/promocode/(:any)'] = 'Course/publicCourses/promocode/$1';
 
 $route['sortCourses'] = 'Course/getSortCourses';
 

@@ -12,18 +12,21 @@ $(document).ready(function(){
     if($('.kurs_block_val').length > 0 && $('.content_block_container').length > 0)
     {
         $(function(){
-            var fxTopCont = $('.content_block_container'),
+            var winHeight = $(window).height(),
+                fxTopCont = $('.content_block_container'),
                 fxTopContWrap = $('.content_block_container_wrap'),
                 parTopContWidth = fxTopContWrap.outerWidth(),
                 parTopContHeight = fxTopContWrap.outerHeight(),
                 fxButCont = $('.admin_form_buts_wrap'),
-                parButContWidth = $('.admin_form_buts_wrap_container').outerWidth(),
-                topPos = fxTopCont.offset().top;
+                fxButContWrap = $('.admin_form_buts_wrap_container'),
+                fxButContHeight = fxButCont.outerHeight(),
+                parButContWidth = fxButContWrap.outerWidth(),
+                topPos = fxTopCont.offset().top,
+                butTopHeight = fxTopCont.outerHeight() + fxButContHeight;
             $(window).scroll(function() {
-                var top = $(document).scrollTop(),
-                    kursBlockValHeight = $('.kurs_block_val').height();
+                var top = $(document).scrollTop();
 
-                if (top > topPos && kursBlockValHeight > 500)
+                if (top > topPos && winHeight > 500 && butTopHeight < 250)
                 {
                     fxTopCont.addClass('fixed');
                     fxTopCont.width(parTopContWidth);
@@ -31,6 +34,7 @@ $(document).ready(function(){
                     if(fxButCont.length == 1)
                     {
                         fxButCont.addClass('fixed');
+                        fxButContWrap.height(fxButContHeight);
                         fxButCont.css({ top: parTopContHeight + 'px' });
                         fxButCont.css({ width: parButContWidth + 'px' });
                     }

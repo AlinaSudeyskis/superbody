@@ -13,11 +13,14 @@ use YandexCheckout\Client;
  */
 class Store_model extends CI_Model
 {
-    const SHOPID = 188363;
-    const SHOP_SECRET = 'live_ant_14AylFl7dwPp3StFpDUJWBuqo9i0ijeyZm8A5dk';
-    //const SHOP_SECRET = 'live_yB_n1qwrD5q3SPgdu3EtwzINTrpL8Tmn7bFCYG-eBd4';
-    const SCID = 715012;
-    const TEST_SCID = 561490;
+    const CURRENCY = 'RUB';
+    const PAYMENT_METHOD = 'bank_card';
+    // LIVE
+    /*const SHOPID = 618322;
+    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';*/
+    // TEST
+    const SHOPID = 621847;
+    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';
 
     /**
      * Выборка всех категорий
@@ -2758,7 +2761,7 @@ class Store_model extends CI_Model
             $and_where = ' and `o_status`='.$order_status;
         }
 
-        $sel_orders = $this->db->query('
+        $sel_orders = $this->db->query("
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
                 `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
                 `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`,
@@ -2767,9 +2770,9 @@ class Store_model extends CI_Model
             LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
             LEFT JOIN `orders_payment` ON `op_o_id`=`o_id`
             LEFT JOIN `users` ON `o_u_id`=`user_id`
-            WHERE `op_number`=0 and `op_status`=? ' . $and_where . '
+            WHERE `op_number`=0 and `op_status`=? " . $and_where . "
             GROUP BY `o_id`
-            ORDER BY `o_id` ASC', $payment_status);
+            ORDER BY `o_id` ASC", $payment_status);
 
         if ($sel_orders !== false and 0 < $sel_orders->num_rows())
         {
@@ -2873,7 +2876,7 @@ class Store_model extends CI_Model
 
             unset($row);
 
-            // Даннаые оплаты заказа
+            // Данные оплаты заказа
             $result['order']['payments'] = self::getOrderPayments($order_id);
 
             // Выборка товаров заказа
@@ -3019,22 +3022,101 @@ class Store_model extends CI_Model
 
         $sel_orders = $this->db->query('
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
-                `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
-                `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
+                `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`, `ouc_p_price`, `ouc_p_id`, `p_course_id`,
+                `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_count_weeks`, `crs_count_days`
             FROM `orders`
-            LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
+            LEFT JOIN `orders_users_cart` ON `ouc_o_id` = `o_id`
+            LEFT JOIN `products` ON `p_id` = `ouc_p_id`
+            LEFT JOIN `courses` ON `crs_id` = `p_course_id`
             WHERE `o_u_id`=?
+            GROUP BY `o_id`
             ORDER BY `o_id` DESC', $user_id);
+        /*
+         * LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
+         * `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
+         * */
 
         if ($sel_orders !== false and 0 < $sel_orders->num_rows())
         {
             $i = 0;
-
             foreach($sel_orders->result() as $row)
             {
-                $result['orders'][$i] = self::parseOrderData($row);
+                if(!empty($row->crs_id))
+                {
+                    $result['orders'][$i] = self::parseOrderData($row);
+                    $result['orders'][$i]['percent_workouts_done'] = 0;
+                    $result['orders'][$i]['couches'] = array();
 
-                $i++;
+                    // Курс пользователя
+                    $sel_crs = $this->db->query('SELECT `uc_id` FROM `users_courses` 
+                        WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? and `uc_attached_uc_id`=0 LIMIT 1',
+                            array($user_id, $row->o_id, $row->crs_id));
+                    if($sel_crs !== false and 1 == $sel_crs->num_rows())
+                    {
+                        $row2 = $sel_crs->row();
+
+                        $result['orders'][$i]['uc_id'] = $row2->uc_id;
+
+                        // Выборка расписания тренировок
+                        $sel_workouts = $this->db->query('
+                            SELECT `utw_status` FROM `users_training_weeks` WHERE `utw_uc_id`=?
+                            ORDER BY `utw_date` ASC', $row2->uc_id);
+                        if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
+                        {
+                            $workouts_done = 0;
+                            $total_count_workouts = $row->crs_count_weeks * $row->crs_count_days;
+                            foreach ($sel_workouts->result() as $row3)
+                            {
+                                $workouts_done = ($row3->utw_status == 'done') ? ($workouts_done + 1) : $workouts_done;
+                            }
+                            unset($row3);
+
+                            $result['orders'][$i]['percent_workouts_done'] = (is_numeric($workouts_done)) ? ($workouts_done * 100 / $total_count_workouts) : 0;
+                        }
+                        elseif ($sel_workouts === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+                    elseif($sel_crs === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
+                    // Тренеры курса
+                    $sel_coaches = $this->db->query('
+                        SELECT `cc_coach_id`, `user_name`, `user_id`, `user_image`, `cd_specialization` 
+                        FROM `courses_coaches` 
+                        LEFT JOIN `users` ON `user_id`=`cc_coach_id`
+                        LEFT JOIN `coach_data` ON `cd_u_id`=`cc_coach_id`
+                        WHERE `cc_course_id`=?', $row->crs_id);
+                    if ($sel_coaches !== false and 0 < $sel_coaches->num_rows())
+                    {
+                        $coaches = array();
+                        $ci = 0;
+                        foreach ($sel_coaches->result() as $row4)
+                        {
+                            $coaches[$ci]['id'] = $row4->user_id;
+
+                            $user_name = (!empty($row4->user_name)) ? explode(' ', $row4->user_name) : '';
+                            $coaches[$ci]['f_name']  = (!empty($row4->user_name)) ? $row4->user_name : 'Тренер';
+                            $coaches[$ci]['name']    = $user_name[0];
+                            $coaches[$ci]['surname'] = (!empty($user_name[1])) ? $user_name[1] : '';
+                            $coaches[$ci]['image']   = (is_file($row4->user_image)) ? mb_substr($row4->user_image, 1) : '';
+                            $coaches[$ci]['special'] = $row4->cd_specialization;
+
+                            $ci++;
+                        }
+                        unset($row4);
+                        $result['orders'][$i]['coaches'] = $coaches;
+                    }
+                    elseif($sel_coaches === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
+                    $i++;
+                }
             }
             unset($row);
         }
@@ -3368,21 +3450,21 @@ class Store_model extends CI_Model
             try {
                 $payment = $client->getPaymentInfo($payment_id);
             } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', __METHOD__ . ' ' . $e->getMessage());
             } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', __METHOD__ . ' ' . $e->getMessage());
             } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', __METHOD__ . ' ' . $e->getMessage());
             } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', __METHOD__ . ' ' . $e->getMessage());
             } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', __METHOD__ . ' ' . $e->getMessage());
             } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', __METHOD__ . ' ' . $e->getMessage());
             } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', __METHOD__ . ' ' . $e->getMessage());
             } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-                log_message('error', $e->getMessage());
+                log_message('error', __METHOD__ . ' ' . $e->getMessage());
             }
         }
 
@@ -3411,29 +3493,29 @@ class Store_model extends CI_Model
                     'amount' => array(
                         'value' => $value,
                         'currency' => $currency,
-                    ),
+                    )
                 ),
                 $payment_id,
                 $idempotenceKey
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
 
         return $response;
@@ -3455,23 +3537,23 @@ class Store_model extends CI_Model
                 uniqid('', true)
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
     }
 
@@ -3482,9 +3564,12 @@ class Store_model extends CI_Model
      * @param float $value
      * @param string $currency
      * @param string $description
+     * @param $payment_option
+     * @param $customer_email
+     * @param $order_items
      * @return \YandexCheckout\Request\Refunds\CreateRefundResponse
      */
-    public function refundPayment($payment_id, $value, $currency, $description)
+    public function refundPayment($payment_id, $value, $currency, $description, $payment_option, $customer_email, $order_items)
     {
         $response = false;
         $idempotenceKey = uniqid('', true);
@@ -3499,28 +3584,41 @@ class Store_model extends CI_Model
                         'value' => $value,
                         'currency' => $currency,
                     ),
+                    'receipt' => array(
+                        'customer' => array(
+                            'email' => $customer_email
+                        ),
+                        'items' => array(
+                            'description' => $order_items['name'],
+                            'quantity' => $order_items['cart_quantity'],
+                            'amount' => $order_items['price'],
+                            'vat_code' => 1,
+                            'payment_subject' => 'service',
+                            'payment_mode' => $payment_option
+                        )
+                    ),
                     'description' => $description,
                 ),
                 $idempotenceKey
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         } catch (Exception $e) {
-            log_message('error', $e->getMessage());
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
         }
 
         return $response;
@@ -3855,14 +3953,14 @@ class Store_model extends CI_Model
         $result['payment']  = 'Банковская карта';
         $result['payments'] = array();
 
-        $result['payment_status'] = '';
+        $result['payment_status'] = ($row->o_payment_status == 1) ? 'Оплачено' : 'Не оплачено';
         $result['status']         = ($row->o_status == 1) ? 'Выполнен' : 'Не выполнен';
 
         // Дата добавления
-        setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $date     = DateTime::createFromFormat('Y-m-d H:i:s', $row->o_date_add);
-        $date_add = ($row->o_date_add != '0000-00-00 00:00:00' and $date !== false)
-            ? strftime('%d %B %G, %H:%M', strtotime($row->o_date_add))
+        // setlocale(LC_ALL, 'ru_RU.UTF-8');
+        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $row->o_date_add);
+        $date_add = ($row->o_date_add != '0000-00-00 00:00:00' and $tmp_date !== false)
+            ? $tmp_date->format('d.m.Y')
             : '';
         $result['date'] = $date_add;
 
@@ -3881,6 +3979,12 @@ class Store_model extends CI_Model
         $house    = (!empty($row->oud_house)) ? $row->oud_house : '';
 
         $result['address'] = $postcode . $country . $city . $street . $building . $house;
+
+        $result['crs_id']    = (!empty($row->crs_id)) ? $row->crs_id : null;
+        $result['price']     = (!empty($row->ouc_p_price)) ? $row->ouc_p_price : null;
+        $result['crs_name']  = (!empty($row->crs_name)) ? $row->crs_name : null;
+        $result['crs_image'] = (is_file($row->crs_image)) ? mb_substr($row->crs_image, 1) : null;
+        $result['crs_desc']  = (!empty($row->crs_description)) ? $row->crs_description : null;
 
         $result['products'] = array();
 

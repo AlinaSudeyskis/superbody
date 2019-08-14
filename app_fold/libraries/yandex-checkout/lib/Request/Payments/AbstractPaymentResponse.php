@@ -26,8 +26,14 @@
 
 namespace YandexCheckout\Request\Payments;
 
+use InvalidArgumentException;
+use YandexCheckout\Common\Exceptions\ApiException;
 use YandexCheckout\Model\AmountInterface;
+use YandexCheckout\Model\AuthorizationDetails;
 use YandexCheckout\Model\CancellationDetails;
+use YandexCheckout\Model\Confirmation\ConfirmationCodeVerification;
+use YandexCheckout\Model\Confirmation\ConfirmationDeepLink;
+use YandexCheckout\Model\Confirmation\ConfirmationEmbedded;
 use YandexCheckout\Model\Confirmation\ConfirmationRedirect;
 use YandexCheckout\Model\Confirmation\ConfirmationExternal;
 use YandexCheckout\Model\ConfirmationType;
@@ -58,6 +64,10 @@ abstract class AbstractPaymentResponse extends Payment implements PaymentInterfa
         $this->setAmount($this->factoryAmount($paymentInfo['amount']));
         $this->setCreatedAt($paymentInfo['created_at']);
         $this->setPaid($paymentInfo['paid']);
+        $this->setRefundable($paymentInfo['refundable']);
+        if (!empty($paymentInfo['test'])) {
+            $this->setTest($paymentInfo['test']);
+        }
         if (!empty($paymentInfo['payment_method'])) {
             $this->setPaymentMethod($this->factoryPaymentMethod($paymentInfo['payment_method']));
         }
@@ -68,8 +78,12 @@ abstract class AbstractPaymentResponse extends Payment implements PaymentInterfa
 
         if (!empty($paymentInfo['recipient'])) {
             $recipient = new Recipient();
-            $recipient->setAccountId($paymentInfo['recipient']['account_id']);
-            $recipient->setGatewayId($paymentInfo['recipient']['gateway_id']);
+            if (!empty($paymentInfo['recipient']['account_id'])) {
+                $recipient->setAccountId($paymentInfo['recipient']['account_id']);
+            }
+            if (!empty($paymentInfo['recipient']['gateway_id'])) {
+                $recipient->setGatewayId($paymentInfo['recipient']['gateway_id']);
+            }
             $this->setRecipient($recipient);
         }
         if (!empty($paymentInfo['captured_at'])) {
@@ -79,21 +93,45 @@ abstract class AbstractPaymentResponse extends Payment implements PaymentInterfa
             $this->setExpiresAt($paymentInfo['expires_at']);
         }
         if (!empty($paymentInfo['confirmation'])) {
-            if ($paymentInfo['confirmation']['type'] === ConfirmationType::REDIRECT) {
-                $confirmation = new ConfirmationRedirect();
-                $confirmation->setConfirmationUrl($paymentInfo['confirmation']['confirmation_url']);
-                if (empty($paymentInfo['confirmation']['enforce'])) {
-                    $confirmation->setEnforce(false);
-                } else {
-                    $confirmation->setEnforce($paymentInfo['confirmation']['enforce']);
-                }
-                if (!empty($paymentInfo['confirmation']['return_url'])) {
-                    $confirmation->setReturnUrl($paymentInfo['confirmation']['return_url']);
-                }
-            } else {
-                $confirmation = new ConfirmationExternal();
+            $confirmationType = $paymentInfo['confirmation']['type'];
+            switch ($confirmationType) {
+                case ConfirmationType::REDIRECT:
+                    $confirmation = new ConfirmationRedirect();
+                    if (!empty($paymentInfo['confirmation']['confirmation_url'])) {
+                        $confirmation->setConfirmationUrl($paymentInfo['confirmation']['confirmation_url']);
+                    }
+                    if (empty($paymentInfo['confirmation']['enforce'])) {
+                        $confirmation->setEnforce(false);
+                    } else {
+                        $confirmation->setEnforce($paymentInfo['confirmation']['enforce']);
+                    }
+                    if (!empty($paymentInfo['confirmation']['return_url'])) {
+                        $confirmation->setReturnUrl($paymentInfo['confirmation']['return_url']);
+                    }
+                    break;
+                case ConfirmationType::EMBEDDED:
+                    $confirmation = new ConfirmationEmbedded();
+
+                    if (!empty($paymentInfo['confirmation']['confirmation_token'])) {
+                        $confirmation->setConfirmationToken($paymentInfo['confirmation']['confirmation_token']);
+                    }
+                    break;
+                case ConfirmationType::EXTERNAL:
+                    $confirmation = new ConfirmationExternal();
+                    break;
+                case ConfirmationType::CODE_VERIFICATION:
+                    $confirmation = new ConfirmationCodeVerification();
+                    break;
+                case ConfirmationType::DEEPLINK:
+                    $confirmation = new ConfirmationDeepLink();
+                    break;
             }
-            $this->setConfirmation($confirmation);
+
+            if (isset($confirmation)) {
+                $this->setConfirmation($confirmation);
+            } else {
+                throw new InvalidArgumentException('confirmation type '.$confirmationType.' is incorrect');
+            }
         }
         if (!empty($paymentInfo['refunded_amount'])) {
             $this->setRefundedAmount($this->factoryAmount($paymentInfo['refunded_amount']));
@@ -109,9 +147,16 @@ abstract class AbstractPaymentResponse extends Payment implements PaymentInterfa
             $this->setMetadata($metadata);
         }
         if (!empty($paymentInfo['cancellation_details'])) {
-            $this->setCancellationDetails(new CancellationDetails(
-                $paymentInfo['cancellation_details']['party'], $paymentInfo['cancellation_details']['reason']
-            ));
+            $cancellationDetails = $paymentInfo['cancellation_details'];
+            $party               = isset($cancellationDetails['party']) ? $cancellationDetails['party'] : null;
+            $reason              = isset($cancellationDetails['reason']) ? $cancellationDetails['reason'] : null;
+            $this->setCancellationDetails(new CancellationDetails($party, $reason));
+        }
+        if (!empty($paymentInfo['authorization_details'])) {
+            $authorizationDetails = $paymentInfo['authorization_details'];
+            $rrn                  = isset($authorizationDetails['rrn']) ? $authorizationDetails['rrn'] : null;
+            $authCode             = isset($authorizationDetails['auth_code']) ? $authorizationDetails['auth_code'] : null;
+            $this->setAuthorizationDetails(new AuthorizationDetails($rrn, $authCode));
         }
     }
 

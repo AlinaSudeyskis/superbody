@@ -329,6 +329,33 @@ class Administrator_model extends CI_Model
     }
 
     /**
+     * Выборка данных cookies сайта
+     *
+     * @return bool
+     */
+    public function getSiteCookiesData()
+    {
+        $result = false;
+
+        $sel_cookies = $this->db->query('
+            SELECT `si_id`, `si_cookies_title`, `si_cookies_text`, `si_user_id`, `si_date` 
+            FROM `site_info` LIMIT 1');
+
+        if ($sel_cookies !== false and 1 == $sel_cookies->num_rows()) {
+            $row = $sel_cookies->row();
+
+            $result['si_id']       = $row->si_id;
+            $result['cookies_title'] = $row->si_cookies_title;
+            $result['cookies_text']  = $row->si_cookies_text;
+        }
+        elseif ($sel_cookies === false) {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка данных шапки и футера сайта
      *
      * @return bool
@@ -628,6 +655,35 @@ class Administrator_model extends CI_Model
         $up_info = $this->db->query('
             UPDATE `site_info` 
             SET `si_index_title`=?, `si_index_text`=?, `si_user_id`=?, `si_date`=? 
+            WHERE `si_id`=? LIMIT 1',
+            array($title, $text, $user_id, $date, 1));
+
+        if ($up_info !== false and 1 == $this->db->affected_rows()) {
+            return true;
+        }
+        elseif ($up_info === false) {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
+     * Сохранение данных о сайте
+     *
+     * @param $title
+     * @param $text
+     * @param $date
+     * @param $user_id
+     * @return bool
+     */
+    public function setSiteCookiesData($title, $text, $date, $user_id)
+    {
+        $up_info = $this->db->query('
+            UPDATE `site_info` 
+            SET `si_cookies_title`=?, `si_cookies_text`=?, `si_user_id`=?, `si_date`=? 
             WHERE `si_id`=? LIMIT 1',
             array($title, $text, $user_id, $date, 1));
 

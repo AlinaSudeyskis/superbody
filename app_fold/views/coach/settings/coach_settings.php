@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
                                         <input type="submit" name="bt_on_behalf_login" class="admin_form_reset" value="Авторизация"/>
-                                        <?php if ($user_blocked == 0) :?>
+                                        <?php if ($user_data['user_blocked'] == 0) :?>
                                             <input type="submit" name="bt_block_user" class="video_admin_form_block" value="Блокировать"/>
                                         <?php else :?>
                                             <input type="submit" name="bt_unblock_user" class="video_admin_form_block" value="Разблокировать"/>

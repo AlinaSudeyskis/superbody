@@ -12,10 +12,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Вопрос - Ответ</h3>
-                            <a href="/administration/question-answer/new" class="add_tab_but">Добавить статью</a>
+                            <div class="content_block_h_ref"><a href="/administration/question-answer/new" class="add_tab_but">Добавить статью</a>
                             <a href="/administration/question-answer/section/new" class="add_tab_but">Добавить раздел</a>
                             <a href="/administration/question-answer/subsection/new" class="add_tab_but">Добавить подраздел</a>
-                        </div>
+                        </div></div>
                         <ul class="anketa_block_nav parent">
                             <li>
                                 <a href="/administration/question-answer">

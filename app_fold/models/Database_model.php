@@ -2333,6 +2333,55 @@ class Database_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление базы данных август 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseAugust2019($date)
+    {
+        $result = false;
+
+        $date = '2019-08-06 16:04';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders_payment` CHANGE `op_payment_options` `op_payment_options` ENUM('full_payment','partial_payment','') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-10 11:16';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $ck_table = $this->db->query("CHECK TABLE `products`");
+            foreach($ck_table->result() as $row)
+            {
+                log_message('debug', 'Table: ' . $row->Table);
+                log_message('debug', 'Op: ' . $row->Op);
+                log_message('debug', 'Msg_type: ' . $row->Msg_type);
+                log_message('debug', 'Msg_text: ' . $row->Msg_text);
+                log_message('debug', '');
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-13 20:42';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_cookies_title` VARCHAR(40) NOT NULL AFTER `si_spec_url_text`, 
+                ADD `si_cookies_text` VARCHAR(255) NOT NULL AFTER `si_cookies_title`");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Поиск даты обновления в БД

@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div class="prezent_head hide_chart">
+<div class="prezent_head">
     <h1 class="prezent_h1">контактные данные</h1>
     <div class="container">
         <div class="row">
@@ -59,7 +59,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
     </div>
-    <div class="up_but up_but_bot hide_chart"></div>
+    <div class="up_but up_but_bot"></div>
 </div><!-- prezent_head -->
 <div id="content" class="container">
     <?php include_once('./app_fold/views/site/content/coaches_reviews_block.php'); ?>

@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Промокоды</h3>
-                            <a href="/profile/promocode/new" class="add_tab_but" short="">Доб. промокод</a>
+                            <div class="content_block_h_ref"><a href="/profile/promocode/new" class="add_tab_but" short="">Доб. промокод</a></div>
                         </div>
                     </div>
                 </div>

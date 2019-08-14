@@ -8,7 +8,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="footer">
     <div class="container">
         <div class="row">
-            <?php $block2 = (is_array($user_session) and array_key_exists('subscribed', $user_session) and $user_session['subscribed'] === true) ? 'col-lg-9 col-md-9 col-sm-12 col-xs-12' : 'col-lg-5 col-md-5 col-sm-6 col-xs-12';
+            <?php $block2 = (!empty($user_session) and is_array($user_session) and
+                array_key_exists('subscribed', $user_session) and $user_session['subscribed'] === true)
+                ? 'col-lg-9 col-md-9 col-sm-12 col-xs-12'
+                : 'col-lg-5 col-md-5 col-sm-6 col-xs-12';
             ?>
             <?php if(empty($user_session['subscribed']) or (is_array($user_session) and array_key_exists('subscribed', $user_session) and $user_session['subscribed'] === false)): ?>
                 <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 footer_subscribe_wrap">
@@ -110,6 +113,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </div><!-- check-promocode-form -->
 
 <?php include_once('./app_fold/views/course/payment_form_up.php'); ?>
+
+<?php if (!isset($_COOKIE["disclaimer"])): ?>
+    <div id="cookie_disclaimer">
+        <?php echo $site_info['cookies_text']; ?>
+        <span id="cookie_stop">Ok</span>
+    </div>
+<?php endif; ?>
 
 <script src="/js/lightbox.js"></script>
 <script src="/js/vimeo_player.js"></script>

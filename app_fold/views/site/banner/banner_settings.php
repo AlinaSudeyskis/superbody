@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Информация о сайте</h3>
-                            <a href="/administration/site/banner/new" class="add_tab_but">Добавить баннер</a>
+                            <div class="content_block_h_ref"><a href="/administration/site/banner/new" class="add_tab_but">Добавить баннер</a></div>
                         </div>
                         <?php include_once('./app_fold/views/site/menu.php');?>
                     </div>

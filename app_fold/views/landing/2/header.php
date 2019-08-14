@@ -15,13 +15,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link rel="stylesheet" href="/css/font-awesome.min.css">
     <link rel="stylesheet" href="/css/jquery.formstyler.css">
     <link rel="stylesheet" href="/css/lightbox.css">
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/styles.css">
 
     <script src="/js/jquery.min.js"></script>
     <script src="/js/slick.min.js"></script>
     <script src="/js/jquery.formstyler.js"></script>
-    <script src="/js/lp_script.js"></script>
+
+    <!-- version 1 (?version=1) -->
+    <link rel="stylesheet" href="/css/style.css?version=1">
+    <link rel="stylesheet" href="/css/styles.css?version=1">
+    <script src="/js/lp_script.js?version=1"></script>
 </head>
 <body class="dark_lp lp_page">
 

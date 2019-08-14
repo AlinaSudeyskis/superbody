@@ -628,6 +628,11 @@ class Administrator extends CI_Controller
             $result = $this->Administrator_model->getSiteMetaData();
             $this->page_data['page_submenu'] = 'a_meta';
         }
+        elseif($page == 'cookies')
+        {
+            $result = $this->Administrator_model->getSiteCookiesData();
+            $this->page_data['page_submenu'] = 'a_cookies';
+        }
 
         // Сохранение изменений
         if ($this->input->post('bt_save_index', true))
@@ -830,6 +835,26 @@ class Administrator extends CI_Controller
             }
 
             header('Location: /administration/site/meta');
+        }
+        elseif ($this->input->post('bt_save_cookies', true))
+        {
+            $title = mb_substr(strip_tags($this->input->post('i_cookies_title', true)), 0, 40);
+            $text  = mb_substr(strip_tags($this->input->post('ta_cookies_text', true)), 0, 255);
+
+            $result = $this->Administrator_model->setSiteCookiesData($title, $text, $this->date, $this->user_id);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 111, 60);
+            }
+
+            header('Location: /administration/site/cookies');
         }
 
         // Объединенные данные страница

@@ -425,9 +425,10 @@ $(document).ready(function() {
             kurs_length_in = $(this).parents("form").find("select.kurs_length_in").val(),
             kurs_length_out = $(this).parents("form").find(".practice_block").length,
             kurs_length_weeks = $(this).parents("form").find(".practice_weeks").length,
+            kurs_length_days = $(this).parents("form").find(".practice_day").length,
             active_practice_block = $('.practice_day.active').attr('id'),
             video_list = $(".form_video_list").html(),
-            index, rez, html_table = '', html = '', option, num,
+            index, rez_w, rez_d, rez, html_table = '', html = '', option, num,
             i = 1, tr_week = 1, tr_day = 1,
             block_id, active_class = "", a;
 
@@ -463,8 +464,9 @@ $(document).ready(function() {
         }
         else if(kurs_time_in !== 0 && kurs_length_in !== 0 && kurs_length_weeks >= 1)
         {
-            rez = kurs_time_in - kurs_length_weeks;
-            if(rez>0){
+            rez_w = kurs_time_in - kurs_length_weeks;
+            rez_d = kurs_length_in - kurs_length_days;
+            if(rez_w > 0){
                 tr_week = kurs_length_weeks + 1;
                 i = kurs_length_weeks * kurs_length_in + 1;
                 while (tr_week <= kurs_time_in)
@@ -483,12 +485,29 @@ $(document).ready(function() {
                 }
                 $(".practice_block_table").append(html_table);
             }
-            else if(rez<0){
+            else if(rez_w < 0){
                 i = 0;
-                while (i > rez) {
+                while (i > rez_w) {
                     $(this).parents("form").find(".practice_weeks:nth-of-type("+(kurs_length_weeks + i)+")").remove();
                     i--;
                 }
+            }
+
+            if(rez_d != 0 && rez_w == 0)
+            {
+                var tr_week_d = 1;
+                $(this).parents("form").find(".practice_weeks").each(function(){
+                    var this_week = $(this), html_table = '', i = 1;
+
+                    tr_day = 1;
+                    while(tr_day <= kurs_length_in)
+                    {
+                        html_table = html_table + '<div class="practice_day" id="practice'+i+'">Т '+tr_day+'</div>';
+                        tr_day++;
+                        i++;
+                    }
+                    this_week.children('.practice_days').html(html_table);
+                });
             }
         }
 

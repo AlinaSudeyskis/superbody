@@ -17,4 +17,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($video_menu == 'instructions'): ?> class="anketa_active" <?php endif;?>>Инструктажи</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/course/<?php echo $course_id;?>/video/uncategorized">
+            <span <?php if ($video_menu == 'uncategorized'): ?> class="anketa_active" <?php endif;?>>Без категории</span>
+        </a>
+    </li>
 </ul>

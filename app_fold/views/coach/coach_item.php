@@ -44,7 +44,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php if (!empty($coach['bbc_about'])):
                     $temp = (mb_strlen($coach['bbc_about']) > 130) ? mb_substr($coach['bbc_about'], 0, 130) : null ;
                     $coach_about = (!empty($temp))
-                        ? mb_substr($temp, 0, mb_strrpos($temp, ' ')) . '<a href="/profile/'.$coach['id'].'">...</a>'
+                        ? '<a href="/profile/'.$coach['id'].'">' . mb_substr($temp, 0, mb_strrpos($temp, ' ')) . '...</a>'
                         : $coach['bbc_about'];
                     echo $coach_about;
                 else: ?>
