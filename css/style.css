@@ -3040,6 +3040,7 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .trainers_txt a{
     text-decoration: none;
+    color: #00bff0;
 }
 .trainers_txt:last-child{
     margin-bottom: 0;

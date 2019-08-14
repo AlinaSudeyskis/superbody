@@ -27,7 +27,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link rel="stylesheet" href="/css/colorpicker/page.css">
 
     <!-- version 1 (?version=1) -->
-    <link rel="stylesheet" href="/css/style.css?version=1">
+    <link rel="stylesheet" href="/css/style.css?version=1.1">
     <link rel="stylesheet" href="/css/styles.css?version=1">
 
     <script src="/js/moment.min.js"></script>
