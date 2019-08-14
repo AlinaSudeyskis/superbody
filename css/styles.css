@@ -45,6 +45,7 @@ span#cookie_stop {
     background-color: #00bff0;
     border-radius: 5px;
     text-transform: uppercase;
+    cursor: pointer;
 }
 #purchase_pop-up #block-message{
     position: relative;

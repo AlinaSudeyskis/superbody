@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <!-- version 1 (?version=1) -->
     <link rel="stylesheet" href="/css/style.css?version=1">
-    <link rel="stylesheet" href="/css/styles.css?version=1">
+    <link rel="stylesheet" href="/css/styles.css?version=1.1">
     <script src="/js/lp_script.js?version=1"></script>
 </head>
 <body class="light_lp lp_page">
