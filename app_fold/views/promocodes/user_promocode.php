@@ -31,6 +31,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                 </div>
                                 <div class="video_admin_form">
+                                    <?php if(!empty($max_coach_percent) and $max_coach_percent > 0): ?>
+                                        <input type="hidden" name="coach_max_percent" id="coach-max-percent" value="<?php echo $max_coach_percent; ?>">
+                                    <?php endif; ?>
                                     <?php include_once('./app_fold/views/promocodes/settings_item.php');?>
                                 </div>
                             </form>

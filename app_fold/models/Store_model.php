@@ -2580,13 +2580,14 @@ class Store_model extends CI_Model
      * @param string $building
      * @param string $house
      * @param int|string $postcode
-     * @param string $delivery
+     * @param int $delivery
      * @param array $products
      * @param string $date
      * @return bool
      */
-    public function setOrder($user_id, $prev_address = '', $name, $surname, $email, $code, $phone, $country = '', $city = '',
-                             $street = '', $building = '', $house = '', $postcode = '', $delivery, $products, $date)
+    public function setOrder($user_id, $prev_address = '', $name = '', $surname = '', $email = '', $code = '', $phone = '',
+                             $country = '', $city = '', $street = '', $building = '', $house = '', $postcode = '',
+                             $delivery = 0, $products = array(), $date = '')
     {
         $result     = false;
         $address_id = !empty($prev_address) ? $prev_address : 0;
@@ -2629,17 +2630,21 @@ class Store_model extends CI_Model
             {
                 foreach ($products['products'] as $product)
                 {
-                    $price    = (is_numeric($product['discount_price']) and $product['discount_price'] > 0) ? $product['discount_price'] : $product['price'];
-                    $fc_price = (is_numeric($product['discount_fc_price']) and $product['discount_fc_price'] > 0) ? $product['discount_fc_price'] : $product['fc_price'];
-                    $pcu_id   = '';
+                    $full_price      = (is_numeric($product['discount_price']) and $product['discount_price'] > 0) ? (string) $product['discount_price'] : (string) $product['price'];
+                    $fc_price        = (is_numeric($product['discount_fc_price']) and $product['discount_fc_price'] > 0) ? (string) $product['discount_fc_price'] : (string) $product['fc_price'];
+                    $rec_first_price = (string) $product['rec_first_price'];
+                    $rec_months      = (string) $product['rec_months'];
+                    $rec_subsequent  = (string) $product['rec_subsequent'];
+
+                    $pcu_id = '';
 
                     // Добавление промокода как использованный
                     if(!empty($product['promo_id']) and !empty($product['promo_code']))
                     {
                         $ins_data = $this->db->query('
-                            INSERT INTO `promocodes_used` (`pcu_pc_id`, `pcu_code`, `pcu_o_id`, `pcu_p_id`, `pcu_u_id`, `pcu_date`)
-                            VALUES (?, ?, ?, ?, ?, ?)',
-                                array($product['promo_id'], $product['promo_code'], $order_id, $product['id'], $user_id, $date));
+                            INSERT INTO `promocodes_used` (`pcu_pc_id`, `pcu_code`, `pcu_discount`, `pcu_discount_type`, `pcu_o_id`, `pcu_p_id`, `pcu_u_id`, `pcu_date`)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+                                array($product['promo_id'], $product['promo_code'], $product['promo_discount'], $product['promo_discount_type'], $order_id, $product['id'], $user_id, $date));
                         if($ins_data !== false and 1 == $this->db->affected_rows())
                         {
                             $pcu_id = $this->db->insert_id();
@@ -2653,19 +2658,21 @@ class Store_model extends CI_Model
                     // Сохранение товара в таблице Заказов
                     $in_data = $this->db->query('
                         INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, 
-                            `ouc_p_price`, `ouc_p_fitcoin_price`, `ouc_promocode_id`) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?)',
-                            array($order_id, $user_id, $product['id'], $product['cart_quantity'], $price, $fc_price, $pcu_id));
+                            `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, 
+                            `ouc_p_fitcoin_price`, `ouc_promocode_id`) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            array($order_id, $user_id, $product['id'], $product['cart_quantity'], $full_price, $rec_months,
+                                $rec_first_price, $rec_subsequent, $fc_price, $pcu_id));
 
                     if ($in_data !== false and 1 == $this->db->affected_rows())
                     {
+                        $price = (!empty($full_price) and empty($rec_first_price)) ? $full_price : $rec_first_price;
                         $result['total_amount'] += ($product['cart_quantity'] * $price);
-                        $quantity = (($product['quantity'] - $product['cart_quantity']) > 0) ? ($product['quantity'] - $product['cart_quantity']) : 0;
+                        $residual = $product['quantity'] - $product['cart_quantity'];
+                        $quantity = ($residual > 0) ? $residual : 0;
 
                         // Изменение общего кол-ва товара в ИМ
-                        $up_data = $this->db->query('
-                            UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
-                                array($quantity, $product['id']));
+                        $up_data = $this->db->query('UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1', array($quantity, $product['id']));
                         if ($up_data === false)
                         {
                             parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -2688,19 +2695,26 @@ class Store_model extends CI_Model
 
                             foreach ($product['attached'] as $attached)
                             {
-                                $price = !empty($attached['discount_price']) ? $attached['discount_price'] : $attached['price'];
-                                $fc_price = !empty($attached['discount_fc_price']) ? $attached['discount_fc_price'] : $attached['fc_price'];
+                                $at_full_price = !empty($attached['discount_price']) ? (string) $attached['discount_price'] : (string) $attached['price'];
+                                $at_fc_price = !empty($attached['discount_fc_price']) ? (string) $attached['discount_fc_price'] : (string) $attached['fc_price'];
+                                $at_rec_first_price = (string) $attached['rec_first_price'];
+                                $at_rec_months      = (string) $attached['rec_months'];
+                                $at_rec_subsequent  = (string) $attached['rec_subsequent'];
 
                                 $in_data2 = $this->db->query('
                                     INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, 
-                                        `ouc_p_quantity`, `ouc_p_price`, `ouc_p_fitcoin_price`) 
-                                    VALUES (?, ?, ?, ?, ?, ?, ?)',
-                                        array($order_id, $user_id, $attached['id'], $product_id, $attached['cart_quantity'], $price, $fc_price));
+                                        `ouc_p_quantity`, `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, 
+                                        `ouc_p_recurrent_subsequent`, `ouc_p_fitcoin_price`) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                        array($order_id, $user_id, $attached['id'], $product_id, $attached['cart_quantity'], $at_full_price, $at_rec_months,
+                                            $at_rec_first_price, $at_rec_subsequent, $at_fc_price));
 
                                 if ($in_data2 !== false and 1 == $this->db->affected_rows())
                                 {
-                                    $result['total_amount'] += ($attached['cart_quantity'] * $price);
-                                    $quantity = (($attached['quantity'] - $attached['cart_quantity']) > 0) ? ($attached['quantity'] - $attached['cart_quantity']) : 0;
+                                    $at_price = (!empty($at_full_price) and empty($at_rec_first_price)) ? $at_full_price : $at_rec_first_price;
+                                    $result['total_amount'] += ($attached['cart_quantity'] * $at_price);
+                                    $residual = $attached['quantity'] - $attached['cart_quantity'];
+                                    $quantity = ($residual > 0) ? $residual : 0;
 
                                     // Изменение общего кол-ва товара в ИМ
                                     $up_data2 = $this->db->query('
@@ -2734,6 +2748,9 @@ class Store_model extends CI_Model
                 }
                 unset($product);
             }
+
+            $result['total_amount'] = number_format($result['total_amount'], 2, '.', '');
+            //log_message('debug', __METHOD__.' '.__LINE__.' Total amount:'. $result['total_amount']);
         }
         elseif ($in_data === false)
         {
@@ -2825,18 +2842,24 @@ class Store_model extends CI_Model
      * @param $order_id
      * @return bool|float|int
      */
-    protected function getOrderAmount($order_id)
+    public function getOrderAmount($order_id)
     {
         $result = false;
 
         if(is_numeric($order_id))
         {
-            $sel_data = $this->db->query('SELECT `ouc_p_quantity`, `ouc_p_price` FROM `orders_users_cart` WHERE `ouc_o_id`=?', $order_id);
+            $sel_data = $this->db->query('
+                SELECT `ouc_p_quantity`, `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent` 
+                FROM `orders_users_cart` WHERE `ouc_o_id`=?', $order_id);
             if($sel_data !== false and 0 < $sel_data->num_rows())
             {
                 foreach($sel_data->result() as $row)
                 {
-                    $result += ($row->ouc_p_quantity * $row->ouc_p_price);
+                    $full_price      = (is_numeric($row->ouc_p_price) and $row->ouc_p_price > 0) ? (string) $row->ouc_p_price : 0;
+                    $rec_first_price = (is_numeric($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first > 0) ? (string) $row->ouc_p_recurrent_first : 0;
+
+                    $price = (!empty($full_price) and empty($rec_first_price)) ? $full_price : $rec_first_price;
+                    $result += ($row->ouc_p_quantity * $price);
                 }
                 unset($row);
             }
@@ -2882,7 +2905,7 @@ class Store_model extends CI_Model
             // Выборка товаров заказа
             $sel_products = $this->db->query('
                 SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
-                    `ouc_p_fitcoin_price`,
+                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`,
                     `p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
                     `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`, 
                     `crs_name`, `crs_image`
@@ -3022,7 +3045,8 @@ class Store_model extends CI_Model
 
         $sel_orders = $this->db->query('
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
-                `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`, `ouc_p_price`, `ouc_p_id`, `p_course_id`,
+                `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`, `ouc_p_price`, `ouc_p_recurrent_months`, 
+                `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, `ouc_p_id`, `p_course_id`,
                 `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_count_weeks`, `crs_count_days`
             FROM `orders`
             LEFT JOIN `orders_users_cart` ON `ouc_o_id` = `o_id`
@@ -3121,6 +3145,88 @@ class Store_model extends CI_Model
             unset($row);
         }
         elseif ($sel_orders === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    public function getFreeWeeksOverUserOrder($user_id, $order_id)
+    {
+        $result['order'] = '';
+
+        $sel_order = $this->db->query('
+            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
+                `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`
+            FROM `orders` 
+            WHERE `o_u_id`=? and `o_id`=? LIMIT 1',
+            array($user_id, $order_id));
+
+        if ($sel_order !== false and 1 == $sel_order->num_rows())
+        {
+            $row = $sel_order->row();
+
+            // Данные заказа
+            $result['order'] = self::parseOrderData($row);
+            $result['order']['bought_course'] = 0;
+            $payment_status = $row->o_payment_status;
+            $bought_course  = 0;
+
+            unset($row);
+
+            // Даннаые оплаты заказа
+            $result['order']['payments'] = self::getOrderPayments($order_id);
+
+            // Выборка товаров заказа
+            $sel_products = $this->db->query('
+                SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
+                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`,
+                    `ouc_promocode_id`, `pcu_discount`, `pcu_discount_type`,
+                    `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
+                    `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`
+                FROM `orders_users_cart`
+                LEFT JOIN `products` ON `p_id`=`ouc_p_id`
+                LEFT JOIN `promocodes_used` ON `pcu_id`=`ouc_promocode_id`
+                WHERE `ouc_o_id`=? and `ouc_u_id`=?', array($order_id, $user_id));
+            if ($sel_products !== false and 0 < $sel_products->num_rows()) {
+                $i = 0;
+
+                foreach ($sel_products->result() as $row)
+                {
+                    if ($row->ouc_attached_p_id == 0)
+                    {
+                        $result['order']['products'][$i] = self::parseOrderProductData($row);
+                        $bought_course = ($payment_status == 1 and $bought_course == 0) ? $row->p_course_id : $bought_course;
+
+                        $i++;
+                    }
+                }
+                unset($row);
+            }
+            elseif ($sel_products === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            if($bought_course > 0)
+            {
+                $sel_uc = $this->db->query('SELECT `uc_id` FROM `users_courses` 
+                    WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1',
+                    array($user_id, $order_id, $bought_course));
+                if ($sel_uc !== false and 1 == $sel_uc->num_rows())
+                {
+                    $row = $sel_uc->row();
+                    $uc_id = $row->uc_id;
+                    $result['order']['bought_course'] = $uc_id;
+                }
+                elseif ($sel_uc === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
+        elseif ($sel_order === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -3231,11 +3337,12 @@ class Store_model extends CI_Model
 
             // Выборка курсов заказа
             $sel_courses = $this->db->query('
-                SELECT `orders_users_cart`.`ouc_p_id`, `products`.`p_course_id`, `crs_category`, `crs_count_weeks`, 
-                  `crs_count_days` 
+                SELECT `orders_users_cart`.`ouc_p_id`, `ouc_promocode_id`, `products`.`p_course_id`, `crs_category`, `crs_count_weeks`, 
+                  `crs_count_days`, `pcu_discount`, `pcu_discount_type` 
                 FROM `orders_users_cart` 
                 LEFT JOIN `products` ON `p_id`=`ouc_p_id`
                 LEFT JOIN `courses` ON `p_course_id`=`crs_id`
+                LEFT JOIN `promocodes_used` ON `pcu_id`=`ouc_promocode_id`
                 WHERE `ouc_o_id`=? and `ouc_u_id`=? and `p_course_id`>0', array($order_id, $user_id));
 
             if($sel_courses !== false and 0 < $sel_courses->num_rows())
@@ -3243,10 +3350,12 @@ class Store_model extends CI_Model
                 $i = 0;
                 foreach($sel_courses->result() as $row)
                 {
-                    $result['courses'][$i]['id']          = $row->p_course_id;
-                    $result['courses'][$i]['category']    = $row->crs_category;
-                    $result['courses'][$i]['count_weeks'] = $row->crs_count_weeks;
-                    $result['courses'][$i]['count_days']  = $row->crs_days;
+                    $result['courses'][$i]['id']               = $row->p_course_id;
+                    $result['courses'][$i]['category']         = $row->crs_category;
+                    $result['courses'][$i]['count_weeks']      = $row->crs_count_weeks;
+                    $result['courses'][$i]['count_days']       = $row->crs_days;
+                    $result['courses'][$i]['pc_discount']      = $row->pcu_discount;
+                    $result['courses'][$i]['pc_discount_type'] = $row->pcu_discount_type;
 
                     $i++;
                 }
@@ -3981,7 +4090,9 @@ class Store_model extends CI_Model
         $result['address'] = $postcode . $country . $city . $street . $building . $house;
 
         $result['crs_id']    = (!empty($row->crs_id)) ? $row->crs_id : null;
-        $result['price']     = (!empty($row->ouc_p_price)) ? $row->ouc_p_price : null;
+        $full_price = (!empty($row->ouc_p_price) and $row->ouc_p_price > 0) ? $row->ouc_p_price : 0;
+        $rec_price = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first > 0) ? $row->ouc_p_recurrent_first : 0;
+        $result['price']     = (!empty($full_price) and empty($rec_price)) ? $full_price : $rec_price;
         $result['crs_name']  = (!empty($row->crs_name)) ? $row->crs_name : null;
         $result['crs_image'] = (is_file($row->crs_image)) ? mb_substr($row->crs_image, 1) : null;
         $result['crs_desc']  = (!empty($row->crs_description)) ? $row->crs_description : null;
@@ -4007,15 +4118,23 @@ class Store_model extends CI_Model
         {
             $result['name'] = !empty($row->crs_name) ? $row->crs_name : 'Курс №'.$row->p_course_id;
 
-            $price    = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : '';
-            $fc_price = (!empty($row->ouc_p_fitcoin_price) and $row->ouc_p_fitcoin_price != '0.00') ? $row->ouc_p_fitcoin_price : '';
+            $price      = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : '';
+            $rec_first  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first != '0.00') ? $row->ouc_p_recurrent_first : '';
+            $rec_subseq = (!empty($row->ouc_p_recurrent_subsequent) and $row->ouc_p_recurrent_subsequent != '0.00') ? $row->ouc_p_recurrent_subsequent : '';
+            $price      = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : '';
+            $fc_price   = (!empty($row->ouc_p_fitcoin_price) and $row->ouc_p_fitcoin_price != '0.00') ? $row->ouc_p_fitcoin_price : '';
 
-            $result['price']             = $price;
-            $result['fc_price']          = $fc_price;
-            $result['discount_price']    = '';
-            $result['discount_fc_price'] = '';
-            $result['quantity']          = 1;
-            $result['cart_quantity']     = 1;
+            $result['price']               = $price;
+            $result['rec_first']           = $rec_first;
+            $result['rec_months']          = (!empty($row->ouc_p_recurrent_months)) ? $row->ouc_p_recurrent_months : '';
+            $result['rec_subseq']          = $rec_subseq;
+            $result['fc_price']            = $fc_price;
+            $result['discount_price']      = '';
+            $result['discount_fc_price']   = '';
+            $result['quantity']            = 1;
+            $result['cart_quantity']       = 1;
+            $result['promo_discount']      = (!empty($row->pcu_discount)) ? $row->pcu_discount : '';
+            $result['promo_discount_type'] = (!empty($row->pcu_discount_type)) ? $row->pcu_discount_type : '';
 
             // Изображения
             $result['image'] = (!empty($row->crs_image) and is_file($row->crs_image))

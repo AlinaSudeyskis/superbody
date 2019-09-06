@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
-if($landing['hide'] === false):
+?>
+<?php if($landing['hide'] === false):
     $bl1_bg_color = (!empty($landing['bg_color'])) ? 'background: ' . $landing['bg_color'] . ';' : '';?>
     <div class="lp_header_wrap" style="<?php echo $bl1_bg_color; ?>">
         <div class="lp_header_bg">
@@ -54,7 +54,7 @@ if($landing['hide'] === false):
                 <?php if (!empty($landing['block2']['button'])):?>
                     <div class="lp_block_buts_wrap">
                         <a href="#" class="lp_block_but lp_block0_but parent"><?php echo $landing['block2']['button']; ?></a>
-                        <?php if(!empty($course['recur_first'])): ?>
+                        <?php if(!empty($course['recur_first']) and !empty($course['price'])): ?>
                             <div class="video_col_but">
                                 <div class="video_col_but_left">
                                     <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
@@ -62,6 +62,12 @@ if($landing['hide'] === false):
                                 <div class="video_col_but_right">или</div>
                                 <div class="video_col_but_right">
                                     <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                                </div>
+                            </div>
+                        <?php elseif($course['price'] == 0): ?>
+                            <div class="video_col_but">
+                                <div class="video_col_but_right">
+                                    <a href="#" class="lp_block_but_rec_crs">Добавить в "Мои курсы"</a>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -116,7 +122,7 @@ if($landing['hide'] === false):
                 <?php if (!empty($landing['block4']['button'])):?>
                     <div class="lp_block_buts_wrap">
                         <a href="#" class="lp_block_but lp_block3_but parent"><?php echo $landing['block4']['button']; ?></a>
-                        <?php if(!empty($course['recur_first'])): ?>
+                        <?php if(!empty($course['recur_first']) and !empty($course['price'])): ?>
                             <div class="video_col_but">
                                 <div class="video_col_but_left">
                                     <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
@@ -124,6 +130,12 @@ if($landing['hide'] === false):
                                 <div class="video_col_but_right">или</div>
                                 <div class="video_col_but_right">
                                     <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                                </div>
+                            </div>
+                        <?php elseif($course['price'] == 0): ?>
+                            <div class="video_col_but">
+                                <div class="video_col_but_right">
+                                    <a href="#" class="lp_block_but_rec_crs">Добавить в "Мои курсы"</a>
                                 </div>
                             </div>
                         <?php endif; ?>
@@ -161,7 +173,7 @@ if($landing['hide'] === false):
                     <?php if (!empty($landing['block5']['button'])):?>
                         <div class="lp_block_buts_wrap">
                             <a href="#" class="lp_block_but lp_block4_but disable"><?php echo $landing['block5']['button']; ?></a>
-                            <?php if(!empty($course['recur_first'])): ?>
+                            <?php if(!empty($course['recur_first']) and !empty($course['price'])): ?>
                                 <div class="video_col_but">
                                     <div class="video_col_but_left">
                                         <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
@@ -169,6 +181,12 @@ if($landing['hide'] === false):
                                     <div class="video_col_but_right">или</div>
                                     <div class="video_col_but_right">
                                         <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                                    </div>
+                                </div>
+                            <?php elseif($course['price'] == 0): ?>
+                                <div class="video_col_but">
+                                    <div class="video_col_but_right">
+                                        <a href="#" class="lp_block_but_rec_crs">Добавить в "Мои курсы"</a>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -210,7 +228,7 @@ if($landing['hide'] === false):
                     <?php if (!empty($landing['block6']['button'])):?>
                         <div class="lp_block_buts_wrap">
                             <a href="#" class="lp_block_but lp_block5_but parent"><?php echo $landing['block6']['button']; ?></a>
-                            <?php if(!empty($course['recur_first'])): ?>
+                            <?php if(!empty($course['recur_first']) and !empty($course['price'])): ?>
                                 <div class="video_col_but">
                                     <div class="video_col_but_left">
                                         <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
@@ -218,6 +236,12 @@ if($landing['hide'] === false):
                                     <div class="video_col_but_right">или</div>
                                     <div class="video_col_but_right">
                                         <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                                    </div>
+                                </div>
+                            <?php elseif($course['price'] == 0): ?>
+                                <div class="video_col_but">
+                                    <div class="video_col_but_right">
+                                        <a href="#" class="lp_block_but_rec_crs">Добавить в "Мои курсы"</a>
                                     </div>
                                 </div>
                             <?php endif; ?>
@@ -292,7 +316,7 @@ if($landing['hide'] === false):
             <?php if (!empty($landing['block7']['button'])):?>
                 <div class="lp_block_buts_wrap">
                     <a href="#" class="lp_block_but lp_block6_but parent"><?php echo $landing['block7']['button']; ?></a>
-                    <?php if(!empty($course['recur_first'])): ?>
+                    <?php if(!empty($course['recur_first']) and !empty($course['price'])): ?>
                         <div class="video_col_but">
                             <div class="video_col_but_left">
                                 <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
@@ -300,6 +324,12 @@ if($landing['hide'] === false):
                             <div class="video_col_but_right">или</div>
                             <div class="video_col_but_right">
                                 <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                            </div>
+                        </div>
+                    <?php elseif($course['price'] == 0): ?>
+                        <div class="video_col_but">
+                            <div class="video_col_but_right">
+                                <a href="#" class="lp_block_but_rec_crs">Добавить в "Мои курсы"</a>
                             </div>
                         </div>
                     <?php endif; ?>
@@ -331,7 +361,7 @@ if($landing['hide'] === false):
             <?php if (!empty($landing['block8']['button'])):?>
                 <div class="lp_block_buts_wrap">
                     <a href="#" class="lp_block_but lp_block7_but"><?php echo $landing['block8']['button']; ?></a>
-                    <?php if(!empty($course['recur_first'])): ?>
+                    <?php if(!empty($course['recur_first']) and !empty($course['price'])): ?>
                         <div class="video_col_but">
                             <div class="video_col_but_left">
                                 <a href="#" class="lp_block_but_crs"><?php echo $course['price']; ?> РУБ / КУРС</a>
@@ -339,6 +369,12 @@ if($landing['hide'] === false):
                             <div class="video_col_but_right">или</div>
                             <div class="video_col_but_right">
                                 <a href="#" class="lp_block_but_rec_crs"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                            </div>
+                        </div>
+                    <?php elseif($course['price'] == 0): ?>
+                        <div class="video_col_but">
+                            <div class="video_col_but_right">
+                                <a href="#" class="lp_block_but_rec_crs">Добавить в "Мои курсы"</a>
                             </div>
                         </div>
                     <?php endif; ?>

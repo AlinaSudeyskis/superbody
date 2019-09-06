@@ -31,8 +31,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php endif;
                             endforeach;
                             unset($notification); ?>
-                            <?php include('./app_fold/views/pagination.php');?>
                         </div>
+                        <?php include('./app_fold/views/pagination.php');?>
                     <?php endif; ?>
                 </div>
             </div>

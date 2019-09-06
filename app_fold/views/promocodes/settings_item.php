@@ -1,7 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<?php $disabled = (!empty($promocode) and $promocode['id'] == 1) ? 'disabled' : ''; ?>
+<?php
+$coach_promocode = ($page_menu == 'c_promocodes') ? true : false;
+$disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
+?>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Наименование:</div>
     <input type="text" name="i_code_name" class="anketa_form_in anketa_form_in_long <?php echo $disabled; ?>" value="<?php if(!empty($promocode['name'])): echo $promocode['name']; endif; ?>" maxlength="255"/>
@@ -10,24 +13,32 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="kurs_block_h">Описание:</div>
     <input type="text" name="i_code_desc" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['description'])): echo $promocode['description']; endif; ?>" maxlength="255"/>
 </div>
-<div class="parent kurs_cur_wrap">
+<div class="parent kurs_cur_wrap" id="pc-discount">
     <div class="kurs_block_h">Скидка:</div>
     <div class="kurs_block_two_all parent">
         <div class="anketa_form_two_wrap">
             <input type="number" name="i_code_discount" step="1" min="1" class="anketa_form_in" value="<?php if(!empty($promocode['discount'])): echo $promocode['discount']; endif; ?>"/>
         </div>
         <div class="anketa_form_two_wrap">
-            <select name="s_discount_type" class="anketa_form_select">
+            <select name="s_discount_type" class="anketa_form_select <?php if($coach_promocode === true): echo 'disabled'; endif; ?>">
                 <option value="percent" <?php if(!empty($promocode['discount_type']) and $promocode['discount_type'] == 'percent'): ?>selected="selected"<?php endif; ?>>Процент</option>
                 <option value="currency" <?php if(!empty($promocode['discount_type']) and $promocode['discount_type'] == 'currency'): ?>selected="selected"<?php endif; ?>>Руб.</option>
+                <option value="free_week" <?php if(!empty($promocode['discount_type']) and $promocode['discount_type'] == 'free_week'): ?>selected="selected"<?php endif; ?>>Бесплатная неделя</option>
             </select>
         </div>
     </div>
 </div>
+<?php if(!empty($promocode['coach_course_id'])): ?>
+    <div class="parent kurs_cur_wrap" id="coach-discount">
+        <div class="kurs_block_h">Заработок:</div>
+        <div class="kurs_block_h" id="diff-percent"><?php echo $promocode['coach_course_diff']; ?>%</div>
+    </div>
+<?php endif; ?>
 <?php $display = (!empty($promocode) and $promocode['discount_type'] == 'currency') ? 'block' : 'none'; ?>
 <div class="parent kurs_cur_wrap" style="display: <?php echo $display; ?>;" id="pc-relative-percent">
     <div class="kurs_block_h">Относительный %:</div>
-    <input type="number" name="i_relative_percent" step="1" min="1" max="100" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['relative_percent'])): echo $promocode['relative_percent']; endif; ?>"/>
+    <?php $relative_percent = (!empty($promocode['relative_percent']) and empty($max_coach_percent)) ? $promocode['relative_percent'] : '';?>
+    <input type="number" name="i_relative_percent" step="1" min="1" max="100" class="anketa_form_in anketa_form_in_long" value="<?php echo $relative_percent; ?>"/>
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Тип периода действия:</div>
@@ -77,8 +88,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="kurs_block_h">Не использовался</div>
         </div>
     <?php endif; ?>
-    <?php $coach_promocode = ($page_menu == 'c_promocodes') ? true : false; ?>
-    <?php if(empty($extend_new_promocode) and $coach_promocode == false): ?>
+    <?php if(empty($extend_new_promocode) and $coach_promocode === false): ?>
         <div class="parent kurs_cur_wrap">
             <div class="practice_block_h">Курсы</div>
         </div>
@@ -109,7 +119,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php endif;?>
             </div>
         </div>
-        <?php if(!empty($types) and $coach_promocode === false):?>
+        <?php if(!empty($types)):?>
             <div class="parent kurs_cur_wrap" id="cg-cats" <?php if($promocode['type'] != 'categories'): ?>style="display: none;"<?php endif; ?>>
                 <div class="kurs_block_h">
                     Категории курсов:
@@ -123,30 +133,43 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </select>
             </div>
         <?php endif; ?>
-        <?php if($coach_promocode == false): ?>
-            <div class="parent kurs_cur_wrap">
-                <div class="kurs_block_h">Поиск курсов:</div>
-                <div class="add_tov_in_total anketa_form_in_long">
-                    <div class="add_tov_in pc_course">
-                        <input type="text" name="name_course" class="admin_form_txt" placeholder="Введите наименование или ID курса" autocomplete="off">
-                        <div class="add_tov_list"></div>
-                    </div>
-                    <div class="add_tov_val">
-                        <?php if(!empty($promocode['courses'])): ?>
-                            <?php foreach ($promocode['courses'] as $course):?>
-                                <div id="pc-course-<?php echo $course['id']; ?>course" class="add_tov_val_item pc_course parent">
-                                    <div class="add_kurs_val_video_wrap parent">
-                                        <a href="/administration/course/<?php echo $course['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $course['name']; ?></span></a>
-                                        <input type="hidden" name="pc_courses[]" value="<?php echo $course['id']; ?>" >
-                                        <div class="del_tov"></div>
-                                    </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Поиск курсов:</div>
+            <div class="add_tov_in_total anketa_form_in_long">
+                <div class="add_tov_in pc_course">
+                    <input type="text" name="name_course" class="admin_form_txt <?php echo $coach_promocode; ?>" placeholder="Введите наименование или ID курса" autocomplete="off">
+                    <div class="add_tov_list"></div>
+                </div>
+                <div class="add_tov_val">
+                    <?php if(!empty($promocode['courses'])): ?>
+                        <?php foreach ($promocode['courses'] as $course):?>
+                            <div id="pc-course-<?php echo $course['id']; ?>course" class="add_tov_val_item pc_course parent">
+                                <div class="add_kurs_val_video_wrap parent">
+                                    <a href="/administration/course/<?php echo $course['id']; ?>" class="add_tov_val_cont parent"><span class="add_tov_val_h"><?php echo $course['name']; ?></span></a>
+                                    <input type="hidden" name="pc_courses[]" value="<?php echo $course['id']; ?>" >
+                                    <div class="del_tov"></div>
                                 </div>
-                            <?php endforeach;
-                            unset($course);?>
-                        <?php endif; ?>
-                    </div>
+                            </div>
+                        <?php endforeach;
+                        unset($course);?>
+                    <?php endif; ?>
                 </div>
             </div>
-        <?php endif;?>
+        </div>
+    <?php elseif($coach_promocode === true and !empty($courses)): ?>
+        <div class="parent kurs_cur_wrap">
+            <div class="practice_block_h">Курсы</div>
+        </div>
+        <div class="block_radio_all parent coach_courses">
+            <?php foreach($courses as $course):?>
+                <div class="block_radio_wrap">
+                    <input type="hidden" name="coach_crs_per[<?php echo $course['course_id']; ?>]" id="c-crs-per<?php echo $course['course_id']; ?>" value="<?php echo $course['coach_percent']; ?>">
+                    <input type="radio" name="promo_coach_course" class="block_radio" value="<?php echo $course['course_id']; ?>" id="promo_coach_course_<?php echo $course['course_id']; ?>"
+                           <?php if(!empty($promocode['coach_course_id']) and $course['course_id'] == $promocode['coach_course_id']): ?>checked="checked"<?php endif; ?>>
+                    <label for="promo_coach_course_<?php echo $course['course_id']; ?>"><?php echo $course['name']; ?></label>
+                </div>
+            <?php endforeach;
+            unset($course); ?>
+        </div>
     <?php endif;?>
 <?php endif;?>

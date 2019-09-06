@@ -38,6 +38,7 @@ include_once('./app_fold/views/breadcrumb.php');
     <?php if($page_submenu == 'sections'):
         include_once('./app_fold/views/question-answer/public_qa_sections.php');
     elseif($page_submenu == 'section'):
+        $url_path = '/support/';
         include_once('./app_fold/views/question-answer/public_qa_section.php');
     elseif($page_submenu == 'article'):
         include_once('./app_fold/views/question-answer/public_qa_article.php');

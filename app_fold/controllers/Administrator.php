@@ -565,8 +565,10 @@ class Administrator extends CI_Controller
         $result = $this->Administrator_model->getSublist();
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Подписчики';
-        $this->page_data['page_menu'] = 'sublist';
+        $this->page_data['title']         = 'АП - Подписчики';
+        $this->page_data['page_menu']     = 'users';
+        $this->page_data['page_submenu']  = 'a_users';
+        $this->page_data['page_2submenu'] = 'eu_sublist';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -685,6 +687,7 @@ class Administrator extends CI_Controller
 
             $agreement = mb_substr(strip_tags($this->input->post('agreement', true)), 0, 255);
             $private_policy = mb_substr(strip_tags($this->input->post('private_policy', true)), 0, 255);
+            $personal_data_text = mb_substr(strip_tags($this->input->post('personal_data_text', true)), 0, 255);
             $personal_data = mb_substr(strip_tags($this->input->post('personal_data', true)), 0, 255);
             $rights = mb_substr(strip_tags($this->input->post('rights', true)), 0, 300);
             $footer = mb_substr(strip_tags($this->input->post('footer', true)), 0, 300);
@@ -699,9 +702,9 @@ class Administrator extends CI_Controller
             $soc_vk        = mb_substr(strip_tags($this->input->post('soc_vk', true)), 0, 255);
             $soc_youtube   = mb_substr(strip_tags($this->input->post('soc_youtube', true)), 0, 255);
 
-            $result = $this->Administrator_model->setSiteHeader($logotype, $agreement, $private_policy, $personal_data,
-                $rights, $footer, $soc_facebook, $soc_twitter, $soc_pinterest, $soc_google, $soc_tumblr, $soc_instagram,
-                $soc_ok, $soc_vk, $soc_youtube, $this->date, $this->user_id);
+            $result = $this->Administrator_model->setSiteHeader($logotype, $agreement, $private_policy, $personal_data_text,
+                $personal_data, $rights, $footer, $soc_facebook, $soc_twitter, $soc_pinterest, $soc_google, $soc_tumblr,
+                $soc_instagram, $soc_ok, $soc_vk, $soc_youtube, $this->date, $this->user_id);
 
             if ($result === true) {
                 // Изменения сохранены

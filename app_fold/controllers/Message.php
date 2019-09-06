@@ -449,7 +449,7 @@ class Message extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
-        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_articles';
         $this->page_data['page_type']    = 'articles';
 
@@ -503,7 +503,7 @@ class Message extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
-        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'new_section';
 
@@ -590,7 +590,7 @@ class Message extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
-        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'section';
 
@@ -614,7 +614,7 @@ class Message extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
-        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'sections';
 
@@ -671,7 +671,7 @@ class Message extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
-        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'new_subsection';
 
@@ -700,11 +700,12 @@ class Message extends CI_Controller
         {
             $section_id = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
             $sub_name   = mb_substr(strip_tags($this->input->post('subsection_name', true)), 0, 255);
+            $old_db_section = $subsection['subsection']['section_id'];
 
             if(!empty($section_id) and !empty($sub_name)
                 and ($sub_name !== $subsection['subsection']['name'] or $section_id != $subsection['subsection']['section_id']))
             {
-                $res_up = $this->Message_model->setQaSubsection($subsection_id, $section_id, $sub_name, $this->user_id, $this->date);
+                $res_up = $this->Message_model->setQaSubsection($subsection_id, $section_id, $old_db_section, $sub_name, $this->user_id, $this->date);
 
                 if($res_up === true)
                 {
@@ -759,7 +760,7 @@ class Message extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
-        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'subsection';
 
@@ -789,7 +790,7 @@ class Message extends CI_Controller
             $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
             $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
             $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
-            $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span>');
+            $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span><a>');
             $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
 
             $cb_ug      = $this->input->post('cb_users_group');
@@ -830,7 +831,7 @@ class Message extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
-        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_articles';
         $this->page_data['page_type']    = 'new_article';
 
@@ -866,7 +867,7 @@ class Message extends CI_Controller
             $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
             $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
             $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
-            $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span>');
+            $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span><a>');
             $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
 
             $cb_ug      = $this->input->post('cb_users_group');
@@ -940,7 +941,7 @@ class Message extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Вопрос - Ответ';
-        $this->page_data['page_menu']    = 'question-answer';
+        $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_articles';
         $this->page_data['page_type']    = 'article';
 

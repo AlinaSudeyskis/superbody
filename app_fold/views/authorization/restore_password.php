@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="sing-in page_form">
             <div class="sing-in_h">введите e-mail:</div>
             <form action="" class="sing-in_form" method="post">
-                <input type="text" class="sing-in_in valid_email" placeholder="e-mail" name="email" value="" maxlength="255"/>
+                <input type="text" class="sing-in_in valid_email" placeholder="e-mail" name="email" value="" maxlength="255" required/>
                 <input type="submit" value="Восстановить" class="sing-in_but" name="bt_restore"/>
             </form>
             <div class="reg_in_link_wrap">

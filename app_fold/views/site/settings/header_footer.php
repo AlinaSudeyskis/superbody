@@ -42,6 +42,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Политика обработки персональных данных</div></div>
+            <textarea name="personal_data_text" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($personal_data_text)) { echo $personal_data_text; }?></textarea>
+        </div>
+        <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка политики обработки персональных данных</div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="personal_data" value="<?php if (!empty($personal_data)) { echo $personal_data; }?>" maxlength="255"/>
         </div>
 
@@ -54,6 +58,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="text" class="anketa_form_in anketa_form_in_long" name="footer" value="<?php if (!empty($footer)) { echo $footer; }?>" maxlength="255"/>
         </div>
 
+        <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Соц. сети</div></div>
+        </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-facebook" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_facebook" value="<?php if (!empty($soc_facebook)) { echo $soc_facebook; }?>" maxlength="255"/>

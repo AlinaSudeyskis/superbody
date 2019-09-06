@@ -1561,12 +1561,13 @@ class Message_model extends CI_Model
      *
      * @param $subsection_id
      * @param $section_id
+     * @param $old_db_section_id
      * @param $subsection_name
      * @param $admin_id
      * @param $date
      * @return bool
      */
-    public function setQaSubsection($subsection_id, $section_id, $subsection_name, $admin_id, $date)
+    public function setQaSubsection($subsection_id, $section_id, $old_db_section_id, $subsection_name, $admin_id, $date)
     {
         $result = false;
 
@@ -1575,6 +1576,30 @@ class Message_model extends CI_Model
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
+            if($section_id != $old_db_section_id)
+            {
+                $sel_data = $this->db->query('SELECT COUNT(`qa_id`) as `count_qa` FROM `question_answer` WHERE `qa_qas_id`=? and `qa_qass_id`=?', array($old_db_section_id, $subsection_id));
+                if($sel_data !== false and 1 == $sel_data->num_rows())
+                {
+                    $row = $sel_data->row();
+                    if($row->count_qa > 0)
+                    {
+                        $row->count_qa = (int) $row->count_qa;
+
+                        $up_data = $this->db->query('UPDATE `question_answer` SET `qa_qas_id`=? WHERE `qa_qas_id`=? and `qa_qass_id`=? LIMIT ?',
+                            array($section_id, $old_db_section_id, $subsection_id, $row->count_qa));
+                        if($up_data === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+
             $result = true;
         }
         elseif($up_data === false)

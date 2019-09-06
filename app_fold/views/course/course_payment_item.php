@@ -3,29 +3,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <form action="" method="post" class="anketa_form video_admin_form">
     <input type="hidden" name="crs_id" id="crs-id" value="<?php if (!empty($course['id'])) { echo $course['id']; }?>" />
-    <div class="parent kurs_cur_wrap">
-        <div class="kurs_block_h">Стоимость курса:</div>
-        <div class="pf_price_wrap">
-            <?php if ($course['new_price'] == 0 and $course['price'] == 0):?>
-                <div class="kurs_block_h">Бесплатно</div>
-            <?php else:
-                if (empty($course['new_price'])): ?>
-                    <div class="kurs_block_h" id="course-price"><?php echo $course['price']; ?></div>
-                <?php elseif (!empty($course['new_price'])): ?>
-                    <div class="kurs_block_h strikeout" id="course-price"><?php echo $course['price'];?></div>
-                    <div class="kurs_cur" id="course-new-price"><?php echo $course['new_price'];?></div>
-                <?php endif;?>
-                <div class="kurs_cur"> руб.</div>
-            <?php endif;?>
-        </div>
-    </div>
+    <input type="hidden" name="ord_id" id="ord-id" value="<?php if (!empty($course['order_id'])) { echo $course['order_id']; }?>" />
+    <input type="hidden" name="user_id" value="<?php if (!empty($user_session)) { echo $user_session['id']; }?>" id="user-id">
     <?php if ($course['price'] != 0 and $course['recurrent'] === true):?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h"><label for="payment-options">Вариант оплаты:</label></div>
             <select name="s_payment_options" class="journal_form_select" required="required" id="payment-options">
-                <option value="">Выберите вариант</option>
                 <option value="full_payment">Полная оплата стоимости</option>
-                <option value="installments">Разделить оплату на <?php echo $course['recur_months']; ?> мес.</option>
+                <option value="partial_payment">Разделить оплату на <?php echo $course['recur_months']; ?> мес.</option>
             </select>
         </div>
         <div class="line_parent" id="recurrent-block">
@@ -44,8 +29,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
         </div>
-    <?php endif;
-    if($course['new_price'] != 0 or $course['price'] != 0):?>
+    <?php endif; ?>
+    <div class="parent kurs_cur_wrap">
+        <div class="kurs_block_h">Стоимость курса:</div>
+        <div class="pf_price_wrap">
+            <?php if ($course['new_price'] == 0 and $course['price'] == 0):?>
+                <div class="kurs_block_h">Бесплатно</div>
+            <?php else:
+                if (empty($course['new_price'])): ?>
+                    <div class="kurs_block_h" id="course-price"><?php echo $course['price']; ?></div>
+                <?php elseif (!empty($course['new_price'])): ?>
+                    <div class="kurs_block_h strikeout" id="course-price"><?php echo $course['price'];?></div>
+                    <div class="kurs_cur" id="course-new-price"><?php echo $course['new_price'];?></div>
+                <?php endif;?>
+                <div class="kurs_cur"> руб.</div>
+            <?php endif;?>
+        </div>
+    </div>
+    <?php if($course['new_price'] != 0 or $course['price'] != 0):?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h"><label for="payment-methods">Способ оплаты:</label></div>
             <select name="s_payment_method" class="journal_form_select" required="required" id="payment-methods">

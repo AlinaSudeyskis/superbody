@@ -39,6 +39,7 @@
     display: block;
     bottom: 0;
     top: unset;
+    height: auto;
 }
 span#cookie_stop {
     padding: 3px 15px;

@@ -7,18 +7,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
+            <div class="content_block new_content_block">
                 <div class="content_block_container_wrap">
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Подписчики [<?php echo $count_users; ?>]</h3>
                         </div>
+                        <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="admin_list">
-                        <?php if (!empty($users)) :
-                            foreach ($users as $u) : ?>
+                    <?php if (!empty($users)) : ?>
+                        <div class="admin_list">
+                            <?php foreach ($users as $u) : ?>
                                 <div class="admin_item parent">
                                     <div class="admin_cont">
                                         <div class="admin_name">
@@ -33,10 +34,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                 </div>
                             <?php endforeach;
-                            unset($u);
-                        endif;?>
-                    </div>
-                    <?php include_once('./app_fold/views/pagination.php'); ?>
+                            unset($u); ?>
+                        </div>
+                        <?php include_once('./app_fold/views/pagination.php'); ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div><!-- content_col -->

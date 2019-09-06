@@ -62,9 +62,13 @@ class User extends CI_Controller
      *
      * @param $user_id
      * @return void
+     * @throws Exception
      */
     private function userProfile($user_id)
     {
+        // Исходная страница
+        $return_url = '/profile/'.$user_id;
+
         $this->load->model('Coach_model');
         $this->load->model('Blog_model');
         $this->load->model('Course_model');
@@ -77,11 +81,40 @@ class User extends CI_Controller
         $anthrop_data     = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
         $user_social      = $this->User_model->getUserSocial($user_id);
         $u_data           = $this->User_model->getUser($user_id);
+        //$this->Course_model->shiftUserCourseWorkouts(4, 80, 6, $this->date);
         $friend_promocode = $this->Course_model->getPromocodeForFriend($user_id);
 
         $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data, $friend_promocode);
 
-        if($this->input->post('bt_save_postpone', true))
+        if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
+        {
+            $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            if(!empty($course_id))
+            {
+                // Данные курса
+                $course = $this->Course_model->getAvailableCourse($course_id, $this->date);
+                $course_coaches = $this->Course_model->getCourseCoachesId($course_id);
+                $db_data = $course['course'];
+                // Выбранный тренер
+                $id_coach = $this->input->post('user_coach', true);
+                // Вариант оплаты (полный, разделить на месяцы)
+                $s_payment_options = $this->input->post('s_payment_options', true);
+                // Способ оплаты
+                $s_payment_method = $this->input->post('s_payment_method', true);
+                // Данные для способа оплаты
+                $i_phone = $this->input->post('i_phone', true);
+                $i_login = $this->input->post('i_login', true);
+                $i_email = $this->input->post('email', true);
+                // Введенный промокод
+                $i_promocode = $this->input->post('promocode', true);
+
+                parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
+                    $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url, $order_id);
+            }
+        }
+        elseif($this->input->post('bt_save_postpone', true))
         {
             $update_days     = array();
             $current_num_day = date("N", strtotime($this->date));
@@ -517,6 +550,18 @@ class User extends CI_Controller
                         $this->page_data['course_notification'][$user_course_id]['non_started']['course_weeks'] = $notif['course_weeks'];
                         $this->page_data['course_notification'][$user_course_id]['non_started']['course_days']  = $notif['course_days'];
                         $this->page_data['course_notification'][$user_course_id]['non_started']['course_rest']  = $notif['course_rest'];
+                    }
+
+                    // Закончились бесплатные недели
+                    if(is_numeric($code) and $code == 204)
+                    {
+                        $notification = $this->Notification_model->getNotification($code);
+
+                        $this->page_data['course_notification'][$user_course_id]['free_weeks_over']['text']        = $notification['notification']['text'];
+                        $this->page_data['course_notification'][$user_course_id]['free_weeks_over']['course_name'] = $notif['course_name'];
+                        $this->page_data['course_notification'][$user_course_id]['free_weeks_over']['uc_id']       = $notif['uc_id'];
+                        $this->page_data['course_notification'][$user_course_id]['free_weeks_over']['course_id']   = $notif['course_id'];
+                        $this->page_data['course_notification'][$user_course_id]['free_weeks_over']['order_id']    = $notif['order_id'];
                     }
                 }
             }
@@ -1956,18 +2001,27 @@ class User extends CI_Controller
      *
      * @return void
      */
-    public function users()
+    public function users($users_category = 'auth')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->User_model->getUsersData();
+        if($users_category == 'bought')
+        {
+            $result = $this->User_model->getBoughtUsersData();
+        }
+        else
+        {
+            $result = $this->User_model->getUsersData();
+        }
+
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Пользователи';
-        $this->page_data['page_menu']    = 'users';
-        $this->page_data['page_submenu'] = 'a_users';
+        $this->page_data['title']         = 'АП - Пользователи';
+        $this->page_data['page_menu']     = 'users';
+        $this->page_data['page_submenu']  = 'a_users';
+        $this->page_data['page_2submenu'] = ($users_category == 'bought') ? 'eu_bought' : 'eu_auth';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -2324,6 +2378,21 @@ class User extends CI_Controller
 
                 header('Location: /administration/users/archive/'.$user_id);
             }
+        }
+        elseif($this->input->post('bt_delete_user', true))
+        {
+            $del_user = $this->User_model->deleteUser($user_id);
+
+            if ($del_user === true)
+            {
+                // Отправка уведомления на почту пользователя
+                parent::sendEmail(19, $user_data['user_email']);
+
+                // Письмо отправлено
+                $this->session->set_tempdata('message', 179, 60);
+            }
+
+            header('Location: /administration/users/archive');
         }
 
         // Объединенные данные страница

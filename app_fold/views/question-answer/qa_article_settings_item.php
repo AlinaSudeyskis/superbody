@@ -6,9 +6,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="anketa_form_one_wrap anketa_form_three_wrap">
         <?php $disabled = (empty($sections)) ? 'disabled' : ''; ?>
         <select name="s_section" class="anketa_form_select" <?php echo $disabled; ?>>
-            <?php if(!empty($sections)): ?>
+            <?php if(!empty($sections)):
+                $selected_section = ''; ?>
                 <?php foreach($sections as $section): ?>
                     <option value="<?php echo $section['id']; ?>" <?php if(!empty($qa_article['section_id']) and $section['id'] == $qa_article['section_id']): ?>selected<?php endif; ?>><?php echo $section['name']; ?></option>
+                    <?php if((empty($qa_article['section_id']) and empty($selected_section)) or $section['id'] == $qa_article['section_id']):
+                        $selected_section = $section['id'];
+                    endif; ?>
                 <?php endforeach;
                 unset($section); ?>
             <?php else: ?>
@@ -17,16 +21,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </select>
     </div>
 </div>
-<?php if(!empty($subsections)):
-    $selected_section = array_shift($sections);?>
-    <?php foreach($subsections as $section_id => $sections):
-        $style = ($section_id == $selected_section['id']) ? 'style="display:block;"' : ''; ?>
-        <div class="anketa_form_line parent subsections" id="subsection-<?php echo $section_id; ?>" <?php echo $style; ?>>
+<?php if(!empty($subsections) and !empty($sections)): ?>
+    <?php foreach($sections as $section):
+        $style = ($section['id'] == $selected_section or $section['id'] == $qa_article['section_id']) ? 'style="display:block;"' : ''; ?>
+        <div class="anketa_form_line parent subsections" id="subsection-<?php echo $section['id']; ?>" <?php echo $style; ?>>
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Подраздел:</div></div>
             <div class="anketa_form_one_wrap anketa_form_three_wrap">
-                <select name="s_subsection[<?php echo $section_id; ?>]" class="anketa_form_select">
+                <select name="s_subsection[<?php echo $section['id']; ?>]" class="anketa_form_select">
                     <option value="">Выберите подраздел</option>
-                    <?php foreach($sections as $subsection): ?>
+                    <?php foreach($subsections[$section['id']] as $subsection): ?>
                         <option value="<?php echo $subsection['id']; ?>" <?php if(!empty($qa_article['subsection_id']) and $subsection['id'] == $qa_article['subsection_id']): ?>selected<?php endif; ?>><?php echo $subsection['name']; ?></option>
                     <?php endforeach;
                     unset($subsection); ?>
@@ -35,7 +38,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     <?php endforeach;
     unset($sections);
-    unset($section_id);
 endif; ?>
 <div class="anketa_form_line parent">
     <div class="anketa_form_h"><div class="anketa_form_h_cell">Граппа пользователей:</div></div>
@@ -71,10 +73,11 @@ endif; ?>
             statusbar: false,
             theme: 'silver',
             language_url : '/js/tinymce/langs/ru.js',
-            plugins: "image imagetools autoresize",
-            toolbar: "undo redo | bold italic | forecolor | alignleft aligncenter alignright alignjustify | image",
+            plugins: "image imagetools autoresize link paste",
+            toolbar: "undo redo | bold italic | forecolor | alignleft aligncenter alignright alignjustify | image | link",
             max_chars_indicator: "pageLength",
-            relative_urls : false
+            relative_urls : false,
+            paste_auto_cleanup_on_paste: true
         });
     </script>
 </div>

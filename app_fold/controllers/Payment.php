@@ -100,10 +100,12 @@ class Payment extends CI_Controller
     public function paymentNotifications()
     {
         $response = json_decode(file_get_contents("php://input"));
+        //log_message('debug', __METHOD__.':'.__LINE__.' Response input:'. print_r($response, true));
 
         if ($response->type == 'notification')
         {
             $payment = $response->object;
+            //log_message('debug', __METHOD__.':'.__LINE__.' Response object:'. print_r($payment, true));
 
             $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
             $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
@@ -131,6 +133,7 @@ class Payment extends CI_Controller
                 {
                     // Подтверждение платежа
                     $result = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
+                    //log_message('debug', __METHOD__.':'.__LINE__.' Capture response object:'. print_r($result, true));
 
                     if($result !== false and $result->status == 'succeeded')
                     {
@@ -237,6 +240,8 @@ class Payment extends CI_Controller
                         $end_date = '';
                         $training_days = '';
                         $user_coach = '';
+                        $free_weeks = ($course['pc_discount_type'] == 'free_week') ? $course['pc_discount'] : 0;
+                        $free_weeks_end_date = '';
 
                         // Даты начала и окончания курса
                         if($course['category'] == 'nutrition')
@@ -246,12 +251,20 @@ class Payment extends CI_Controller
 
                             $start_date = $this->date;
 
-                            $tmp_date = new DateTime($this->date);
+                            $tmp_date = new DateTime($start_date);
                             $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
                             $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                            if($free_weeks > 0)
+                            {
+                                $free_weeks_days = $free_weeks*7;
+                                $tmp_date = new DateTime($start_date);
+                                $tmp_date->add(new DateInterval("P" . $free_weeks_days . "D"));
+                                $free_weeks_end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                            }
                         }
 
-                        $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $user_id, $start_date, $end_date, $training_days, $user_coach, $this->date);
+                        $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
                     }
 
                     // Изменение статуса заказа как "Выполненный"
@@ -268,7 +281,7 @@ class Payment extends CI_Controller
      * @param float $value
      * @param string $currency
      * @param string $payment_type ('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank')
-     * @param string $payment_option ('full_payment', 'installments')
+     * @param string $payment_option ('full_payment', 'partial_payment')
      * @param string $payment_method_id
      * @param int|string $method_phone
      * @param string $method_login
@@ -277,7 +290,7 @@ class Payment extends CI_Controller
      * @return \YandexCheckout\Request\Payments\CreatePaymentResponse
      */
     public function createPayment($order_id, $value, $currency, $payment_type = 'bank_card', $payment_option = 'full_payment',
-                                  $payment_method_id = '', $method_phone = '', $method_login = '', $customer_email, $order_items)
+                                  $payment_method_id = '', $method_phone = '', $method_login = '', $customer_email = '', $order_items = array())
     {
         $response       = false;
         $external_types = array('sberbank', 'alfabank');
@@ -290,6 +303,8 @@ class Payment extends CI_Controller
 
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        $order_price = ($order_items['price'] > 0) ? $order_items['price'] : $order_items['rec_first_price'];
 
         try {
             $response = $client->createPayment(
@@ -306,7 +321,7 @@ class Payment extends CI_Controller
                             array(
                                 'description' => $order_items['name'],
                                 'quantity' => $order_items['cart_quantity'],
-                                'amount' => $order_items['price'],
+                                'amount' => $order_price,
                                 'vat_code' => 1,
                                 'payment_subject' => 'service',
                                 'payment_mode' => $payment_option,

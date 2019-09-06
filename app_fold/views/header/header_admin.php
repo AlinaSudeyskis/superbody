@@ -22,9 +22,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link rel="stylesheet" href="/css/colorpicker/colorpicker.css">
     <link rel="stylesheet" href="/css/colorpicker/page.css">
 
-    <!-- version 1 (?version=1) -->
-    <link rel="stylesheet" href="/css/style.css?version=1">
-    <link rel="stylesheet" href="/css/styles.css?version=1.1">
 
     <script src="/js/moment.min.js"></script>
     <script src="/js/jquery.min.js"></script>
@@ -45,9 +42,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/tinymce/tinymce.min.js" type="text/javascript"></script>
     <script src="/js/js.cookie.js" type="text/javascript"></script>
 
-    <script src="/js/script.js?version=1"></script>
-    <script src="/js/scripts.js?version=1"></script>
-    <script src="/js/ex_script.js?version=1"></script>
+    <?php include_once('./app_fold/views/header/styles_scripts.php'); ?>
+    <script src="/js/ex_script.js?version=1.1"></script>
 
     <script src="/js/colorpicker/colorpicker.min.js"></script>
     <!--<script src="/js/colorpicker/eye.js"></script>
@@ -56,20 +52,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
 </head>
 <body>
-<span id="block-message" <?php if (!empty($message)){ echo 'class="show"';}?>>
-    <?php if (!empty($message)) :
-        echo $message;
-    endif;?>
-</span>
 
-<div id="policy_pop-up">
-    <div class="policy_pop-up_cont">
-        <div class="policy_pop-up_close"></div>
-        <div class="policy_pop-up_h">Подтверждая данное действие, я (Клиент) даю своё согласие ООО «Лайф Технолоджи Рус.» на обработку моих персональных данных, в соответствии с Федеральным законом от 27.07.2006 года №152-ФЗ «О персональных данных», на условиях и для целей, определенных
-            <a href="<?php if (!empty($site_info['personal_data'])): echo $site_info['personal_data']; endif;?>" class="policy" target="_blank">Политикой обработки персональных данных</a>
-        </div>
-    </div>
-</div><!-- home_pop-up -->
+<?php include_once('./app_fold/views/header/block_message.php'); ?>
+
+<?php include_once('./app_fold/views/header/policy_pop_up.php'); ?>
 <!--<p id="page-info">Page rendered in <strong>{elapsed_time}</strong> seconds. Memory usage <strong>{memory_usage}</strong>. <?php /*echo  (ENVIRONMENT === 'development') ?  'PHP Version <strong>' . phpversion() . '</strong>' : '' */?></p>-->
 <?php
 /*<!-- Google -->

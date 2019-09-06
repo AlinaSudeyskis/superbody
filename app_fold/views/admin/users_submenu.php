@@ -39,3 +39,22 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </li>
     </ul>
 <?php endif; ?>
+<?php if($page_submenu == 'a_users'): ?>
+    <ul class="anketa_block_nav parent">
+        <li>
+            <a href="/administration/users/sublist">
+                <span <?php if($page_2submenu == 'eu_sublist'): ?>class="anketa_active"<?php endif;?>>Подписка</span>
+            </a>
+        </li>
+        <li>
+            <a href="/administration/users/auth">
+                <span <?php if($page_2submenu == 'eu_auth'): ?>class="anketa_active"<?php endif;?>>Авторизованные</span>
+            </a>
+        </li>
+        <li>
+            <a href="/administration/users/bought">
+                <span <?php if($page_2submenu == 'eu_bought'): ?>class="anketa_active"<?php endif;?>>Купили курс</span>
+            </a>
+        </li>
+    </ul>
+<?php endif; ?>

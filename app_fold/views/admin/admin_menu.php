@@ -93,15 +93,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </a>
     </li>
     <li>
-        <a href="/administration/question-answer" <?php if ($page_menu == 'question-answer') { echo 'class="active"'; } ?>>
+        <a href="/administration/question-answer" <?php if ($page_menu == 'e-question-answer') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico30.png" alt=""></span><span>Вопрос - Ответ</span>
         </a>
     </li>
-    <li>
-        <a href="/administration/sublist" <?php if ($page_menu == 'sublist') { echo 'class="active"'; } ?>>
+    <!--<li>
+        <a href="/administration/sublist" <?php /*if ($page_menu == 'sublist') { echo 'class="active"'; } */?>>
             <span><img src="/img/menu_ico1.png" alt=""></span><span>Подписчики</span>
         </a>
-    </li>
+    </li>-->
     <li>
         <a href="/administration/notifications" <?php if ($page_menu == 'notifications') { echo 'class="active"'; } ?>>
             <span><img src="/img/menu_ico22.png" alt=""></span><span>Уведомления</span>

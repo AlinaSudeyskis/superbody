@@ -27,6 +27,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         if($non_started === true and !empty($non_started_info)): // and !empty($non_started_courses)?>
             <h3 class="info"><?php echo $non_started_info; ?></h3>
         <?php endif;
+        if($free_weeks_over === true and !empty($free_weeks_over_info)): ?>
+            <h3 class="info"><?php echo $free_weeks_over_info; ?></h3>
+            <a href="#" class="add_tab_but fix_width buy_course" data-cid="<?php echo $notif['course_id']; ?>" data-oid="<?php echo $notif['free_weeks_over']['order_id']; ?>">Оплатить</a>
+        <?php endif;
     endif;
 
     // Отсчет времени окончания курса

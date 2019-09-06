@@ -19,7 +19,7 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col
         </a>
     </div>
     <?php $ci_disabled = (!empty($available_workout) and $available_workout === true) ? '' : 'disabled';
-    $cd_height = (!empty($courses)) ? 56 : 80; ?>
+    $cd_height = (!empty($available_postpone) and $available_postpone === true) ? 56 : 80; ?>
     <div class="cat_item_wrap">
         <div class="cat_item <?php echo $ci_disabled; ?>" id="s-t-wo">
             <div class="cat_img"><img src="/img/cat3.png" alt=""></div>
@@ -29,7 +29,7 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col
                     <div class="cat_subdesk">Сл. тренировка: <?php echo $next_training; ?></div>
                 <?php endif; ?>
             </div>
-            <?php if(!empty($courses)):?>
+            <?php if(!empty($available_postpone) and $available_postpone === true):?>
                 <div class="cat_but" id="wo-pp">Перенести</div>
             <?php endif; ?>
         </div>

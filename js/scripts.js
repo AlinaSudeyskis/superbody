@@ -1,6 +1,3 @@
-/**
- * @author Alina Sudeyskis <alina.sudeyskis@gmail.com>
- */
 $(document).ready(function() {
     jQuery(
         function($) {
@@ -160,6 +157,170 @@ $(document).ready(function() {
             return false;
         });
 
+
+            $('select[name=s_discount_type]').on('change', function(){
+                var type = $(this).val(),
+                    pcrp = $('#pc-relative-percent');
+
+                if(type === 'currency')
+                {
+                    pcrp.show();
+                }
+                else
+                {
+                    pcrp.hide();
+                }
+            });
+            /* выпадающий список курсов */
+            $(document).on('input', '.add_tov_in.pc_course input:text', function () {
+                if($(this).val() !== '' && $(this).val().length < 255){
+                    var input_search = $(this).val(),
+                        tov_in = $(this),
+                        cp;
+                    if(tov_in.hasClass('coach_courses'))
+                    {
+                        cp = 1;
+                    }
+                    $.ajax({
+                        url: '/searchCourses',
+                        type: 'post',
+                        dataType: 'json',
+                        data: {
+                            search_text: input_search,
+                            cp: cp
+                        },
+                        complete: function (result) {
+                            var data = result.responseJSON;
+                            tov_in.parents(".add_tov_in").find(".add_tov_list").html(data.courses);
+                            tov_in.parents(".add_tov_in").find(".add_tov_list").show();
+                        }
+                    });
+                } else{
+                    $(this).parents(".add_tov_in").find(".add_tov_list").hide();
+                }
+            });
+            $(document).on("click", ".add_tov_item.pc_course", function() {
+                if(!$(this).hasClass("disable")){
+                    var link = $(this).find(".add_tov_cont").attr("href"),
+                        name = $(this).find(".add_tov_h").text(),
+                        price = $(this).find(".add_tov_price").text(),
+                        number = $(this).attr("id");
+                    if($(this).parents("form").hasClass("edit_kurs_form") || $(this).parents("form").hasClass("add_kurs_form")){
+                        $(this).parents(".add_tov_in_total").find(".add_tov_val")
+                            .append('<div id="'+number+'tov" class="add_tov_val_item parent">' +
+                                '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                                '<div class="add_tov_val_sale">' +
+                                '<div class="admin_form_h">Процент, %</div>' +
+                                '<input type="hidden" name="coaches['+number+']" value="'+number+'" />' +
+                                '<input type="text" name="coaches_percent['+number+']" class="admin_form_txt coaches_percent" placeholder="0" value=""/>' +
+                                '</div>' +
+                                '<div class="del_tov"></div></div>');
+                    } else if($(this).parents("form").hasClass("landing_admin_form")){
+                        $(this).parents(".add_tov_in_total").find(".add_tov_val")
+                            .append('<div id="'+number+'tov" class="add_tov_val_item parent">' +
+                                '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                                '<div class="del_tov"></div></div>');
+                    }
+                    $(this).parents(".add_tov_list").hide();
+                    $(this).parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');
+                    $(this).addClass("disable");
+                }
+                return false;
+            });
+            $(document).on('click', '.add_tren_item.pc_course', function () {
+                if(!$(this).hasClass("disable")){
+                    var link = $(this).find(".add_tov_cont").attr("href"),
+                        name = $(this).find(".add_tov_h").text(),
+                        number = $(this).attr("id"),
+                        parent_block = $(this).parents(".add_tov_in_total").find(".add_tov_val"),
+                        crsid = $(this).data('crsid');
+
+                    if(parent_block.find('#'+number+'course').length === 0)
+                    {
+                        parent_block.append('<div id="'+number+'course" class="add_tov_val_item pc_course parent">' +
+                            '<div class="add_kurs_val_video_wrap parent">' +
+                            '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                            '<input type="hidden" name="pc_courses[]" value="'+crsid+'" >' +
+                            '<div class="del_tov"></div>' +
+                            '</div>' +
+                            '</div>');
+                    }
+                    $(this).parents(".add_tov_list").hide();
+                    $(this).parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');
+                    $(this).addClass("disable");
+                }
+                return false;
+            });
+            $(document).on('click', '.del_tov', function () {
+                var id = $(this).parents(".add_tov_val_item").attr("id"),
+                    video_id = $(this).parents(".add_tov_in_total").children("#id-video"+parseFloat(id)),
+                    inst_id = $(this).parents(".add_tov_in_total").children("#id-video-instruction"),
+                    ml_type_block = $(this).parents(".add_tov_val_item").parent(),
+                    meal_block = $("#" + id),
+                    course_block = $("#" + id + ".pc_course");
+
+                if (video_id.length == 1 || inst_id.length == 1)
+                {
+                    $(this).parents(".add_tov_in_total").find("#"+id).removeClass("disable");
+                    $(this).parents(".add_tov_val_item").remove();
+                    video_id.val('');
+                    inst_id.val('');
+                }
+                else if(course_block.length === 1)
+                {
+                    course_block.remove();
+                }
+                // Удалить блок блюда
+                else if(meal_block.length == 1)
+                {
+                    meal_block.remove();
+
+                    // Удалить блок категории блюда
+                    if(ml_type_block.find('.add_tov_val_item').length == 0)
+                    {
+                        ml_type_block.remove();
+                    }
+                }
+                // Пересчет ВКБЖУ
+                else if($(this).parents('.ingredients_data').length == 1)
+                {
+                    calcWCPFC();
+                    if($(".add_tov_in_total").children('.add_tov_val').length == 0)
+                    {
+                        $('#meal-calories-100').prop('readonly', false);
+                        $('#meal-proteins-100').prop('readonly', false);
+                        $('#meal-fats-100').prop('readonly', false);
+                        $('#meal-carbohydrates-100').prop('readonly', false);
+                        $('#meal-weight').prop('readonly', false);
+                    }
+                }
+            });
+
+            $('.coach_courses input.block_radio').on('click', function(){
+                var crs  = $(this),
+                    crsid = crs.val(),
+                    crsper = crs.siblings('#c-crs-per'+crsid),
+                    pc_disc = $('input[name=i_code_discount]').val();
+
+                if(crsper.length === 1 && pc_disc > 0 && crsper.val() > 0)
+                {
+                    var diff = crsper.val() - pc_disc;
+
+                    if($('#coach-discount').length === 0)
+                    {
+                        $('#pc-discount').after(
+                            '<div class="parent kurs_cur_wrap" id="coach-discount">\n' +
+                            '    <div class="kurs_block_h">Заработок:</div>\n' +
+                            '    <div class="kurs_block_h" id="diff-percent">' + diff + '%</div>\n' +
+                            '</div>');
+                    }
+                    else
+                    {
+                        $('#coach-discount').find('#diff-percent').html(diff + '%');
+                    }
+                }
+            });
+
             // Сложность пароля, подтверждение пароля
             var old_pass = $('#old-pass'),
                 new_pass = $('#new-pass'),
@@ -243,7 +404,7 @@ $(document).ready(function() {
                     {
                         blockWeekDays(count_rest, next_element, prev_element, element);
 
-                        if(this_el_t.length == 1)
+                        if(this_el_t.length === 1)
                         {
                             this_el_t.removeClass('disabled');
                             this_el_t.prop('disabled', false);
@@ -257,7 +418,7 @@ $(document).ready(function() {
                         prev_element.prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked):not(.wo_dis)').removeClass('disabled');
 
 
-                        if(this_el_t.length == 1)
+                        if(this_el_t.length === 1)
                         {
                             this_el_t.addClass('disabled');
                             this_el_t.prop('disabled', true);
@@ -270,7 +431,7 @@ $(document).ready(function() {
                         prev_element = $(this).parent();
 
                         // Блокировать все остальные checkbox
-                        if (checkboxes.length == count_days)
+                        if (checkboxes.length === count_days)
                         {
                             $(this).parent().nextUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').addClass('disabled');
                             $(this).parent().prevUntil('.cb_week_day > input:checkbox:checked').children('input:checkbox:not(:checked)').addClass('disabled');
@@ -281,7 +442,7 @@ $(document).ready(function() {
                         }
                     });
                     // Разблокировать checkbox
-                    if (checkboxes.length == 0) {
+                    if (checkboxes.length === 0) {
                         element.nextAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').removeClass('disabled');
                         element.prevAll('.cb_week_day').children('input[type=checkbox]:not(.wo_dis)').removeClass('disabled');
                     }
@@ -397,7 +558,7 @@ $(document).ready(function() {
                                     var this_i = $(this),
                                         default_value = this_i.prop('defaultValue'),
                                         cur_value = this_i.val();
-                                    if(default_value == cur_value)
+                                    if(default_value === cur_value)
                                     {
                                         fl_days_warn = true;
                                         pop_up.find('#bt-save-postpone').prop('disabled', true);
@@ -1726,73 +1887,6 @@ $(document).ready(function() {
                 calc_recurrent();
             });
 
-            $("#payment-options").on('change', function(){
-                if ($(this).val() == 'installments')
-                {
-                    $("#recurrent-block").show();
-                    if ($("#course-new-price").length == 1)
-                    {
-                        $("#course-new-price").hide();
-                        $("#course-price").children(".anketa_form_h_cell").removeClass('strikeout');
-                    }
-                    $("#payment-methods option[value!='bank_card']").attr('disabled', true );
-                    $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
-
-                    if($('.promo_block').length == 1)
-                    {
-                        $('.promo_info').show();
-                        $('.promo_line').hide();
-                        if($('#i-promocode').length == 1)
-                        {
-                            $('#i-promocode').hide();
-                        }
-                    }
-                }
-                else
-                {
-                    $("#recurrent-block").hide();
-                    if ($("#course-new-price").length == 1)
-                    {
-                        $("#course-new-price").show();
-                        $("#course-price").children(".anketa_form_h_cell").addClass('strikeout');
-                    }
-                    $("#payment-methods option[value!='bank_card']").attr('disabled', false );
-                    $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
-
-                    if($('.promo_block').length == 1)
-                    {
-                        $('.promo_info').hide();
-                        if($('#i-promocode').length == 1 && $('#i-promocode').val() != '')
-                        {
-                            $('#i-promocode').show();
-                        }
-                        else
-                        {
-                            $('.promo_line').show();
-                            $('.promo_block').find('.kurs_block_h').html('');
-                        }
-                    }
-                }
-            });
-
-            $("#payment-methods").on('change', function(){
-                if ($(this).val() == 'qiwi' || $(this).val() == 'sberbank')
-                {
-                    $("#method-phone").show();
-                    $("#method-login").hide();
-                }
-                else if($(this).val() == 'alfabank')
-                {
-                    $("#method-phone").hide();
-                    $("#method-login").show();
-                }
-                else
-                {
-                    $("#method-phone").hide();
-                    $("#method-login").hide();
-                }
-            });
-
             $('#show-check-promocode').on('click', function(event)
             {
                 event.preventDefault();
@@ -1863,12 +1957,13 @@ $(document).ready(function() {
             subsequent = $("#recurrent-subsequent"),
             month_price = 0;
 
-        if (price != '' && first != '' && num_month != '')
+        if (price > 0 && first > 0 && num_month > 1)
         {
             num_month = num_month - 1;
             month_price = (price - first) / num_month;
-            subsequent.val(parseFloat(month_price.toFixed(2)));
+            month_price = parseFloat(month_price.toFixed(2));
         }
+        subsequent.val(month_price);
     }
 
     /**

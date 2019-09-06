@@ -1226,9 +1226,9 @@ class Course extends CI_Controller
             // Рекуррентная стоимость
             $recur_price      = $price;
             $recur_months     = (is_numeric($this->input->post('s_recurrent_months', true))) ? $this->input->post('s_recurrent_months', true) : '';
-            $recur_first      = (is_numeric($this->input->post('i_recurrent_first', true))) ? $this->input->post('i_recurrent_first', true) : '';
+            $recur_first      = (is_numeric($this->input->post('i_recurrent_first', true)) and $price > 0) ? $this->input->post('i_recurrent_first', true) : '';
             $recur_subsequent = '';
-            if (!empty($recur_price) and !empty($recur_months) and !empty($recur_first))
+            if (!empty($recur_price) and !empty($recur_months) and $recur_months > 1 and !empty($recur_first))
             {
                 $num_month = $recur_months - 1;
                 $month_price = ($recur_price - $recur_first) / $num_month;
@@ -1513,7 +1513,7 @@ class Course extends CI_Controller
             header('Location: /administration/course/' . $course_id);
         }
 
-        $result = array_merge($course_types, $course, $course_coaches, $course_schedule);
+        $result = array_merge($course_types, $course, $course_coaches);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Редактирование данных курса';
@@ -6146,10 +6146,13 @@ class Course extends CI_Controller
 
         if($this->input->post('bt_save_new_promocode', true))
         {
+            $pc_types = array('percent', 'currency', 'free_week');
+
             $name           = $this->input->post('i_code_name', true);
             $desc           = $this->input->post('i_code_desc', true);
             $discount       = $this->input->post('i_code_discount', true);
-            $discount_type  = ($this->input->post('s_discount_type', true) == 'percent') ? 'percent' : 'currency';
+            $s_pc_type      = $this->input->post('s_discount_type', true);
+            $discount_type  = (in_array($s_pc_type, $pc_types)) ? $s_pc_type : 'percent';
             $rel_percent    = (is_numeric($this->input->post('i_relative_percent', true))) ? $this->input->post('i_relative_percent', true) : 0;
             $validity_type  = $this->input->post('s_pv_type', true);
             $date_start     = $this->input->post('i_validity_date_start', true);
@@ -6192,6 +6195,7 @@ class Course extends CI_Controller
      * Форма редактирования промокода курса
      *
      * @param $promocode_id
+     * @throws Exception
      */
     public function promocode($promocode_id)
     {
@@ -6201,13 +6205,15 @@ class Course extends CI_Controller
 
         if($this->input->post('bt_save_promocode', true))
         {
-            $db_data = $promocode['promocode'];
+            $db_data  = $promocode['promocode'];
+            $pc_types = array('percent', 'currency', 'free_week');
 
-            $name     = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
-            $desc     = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
-            $discount = (is_numeric($this->input->post('i_code_discount', true))) ? $this->input->post('i_code_discount', true) : null;
-            $discount_type = ($this->input->post('s_discount_type', true) == 'percent') ? 'percent' : 'currency';
-            $rel_percent = (is_numeric($this->input->post('i_relative_percent', true))) ? $this->input->post('i_relative_percent', true) : 0;
+            $name          = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
+            $desc          = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
+            $discount      = (is_numeric($this->input->post('i_code_discount', true))) ? $this->input->post('i_code_discount', true) : null;
+            $s_pc_type     = $this->input->post('s_discount_type', true);
+            $discount_type = (in_array($s_pc_type, $pc_types)) ? $s_pc_type : 'percent';
+            $rel_percent   = (is_numeric($this->input->post('i_relative_percent', true))) ? $this->input->post('i_relative_percent', true) : 0;
 
             $validity_type = ($this->input->post('s_pv_type', true) == 'unlimited') ? 'unlimited' : 'date_range';
             $tmp_ds        = new DateTime($this->input->post('i_validity_date_start', true));
@@ -6727,40 +6733,56 @@ class Course extends CI_Controller
 
     /**
      * Вывод списка курсов, доступных всем пользователям
-     * @param $courses_category
-     * @param $courses_type
+     * @param null|string $courses_category (Workouts|nutritions)
+     * @param null|int $category_id Id категории курсов
+     * @param null|string $page_category Тип страницы (Курсы тренеров|курсы промокода)
+     * @param null|string|int $page_cat_string (Id тренера|Промокод)
+     * @throws Exception
      */
-    public function publicCourses($courses_category = null, $courses_type = null)
+    public function publicCourses($courses_category = null, $category_id = null, $page_category = null, $page_cat_string = null)
     {
+        $this->load->model('Coach_model');
+
         // Исходная страница
         $return_url = '/courses/';
 
         // Проверка промокода
         $pc_data = null;
-        if($courses_category == 'promocode' and !empty($courses_type))
+
+        $courses_categories = array('workouts', 'nutritions');
+        $pages_categories   = array('promocode', 'crs_coaches');
+        $courses_category   = (in_array($courses_category, $courses_categories)) ? $courses_category : null;
+        $page_category      = (in_array($page_category, $pages_categories)) ? $page_category : null;
+        $category_id        = (!empty($courses_category) and is_numeric($category_id))
+            ? $category_id : null;
+        $page_cat_string    = (is_numeric($page_cat_string)) ? $page_cat_string : strip_tags($page_cat_string);
+
+        //echo $courses_category.PHP_EOL.$courses_type.PHP_EOL.$coaches_crs_cat.PHP_EOL.$coaches_crs_type;
+
+        if(!empty($page_category) and $page_category == 'promocode' and !empty($page_cat_string))
         {
-            $promocode = $courses_type;
+            $promocode = $page_cat_string;
             $pc_data = $this->Course_model->getAvailablePromocode($promocode, $this->user_id, $this->date);
-            if(is_numeric($pc_data['id']))
-            {
-                $courses_type = $pc_data['id'];
-            }
-            else
+            if(!is_numeric($pc_data['id']))
             {
                 $pc_data = null;
             }
         }
 
-        $courses_categories = array('workouts', 'nutritions', 'promocode');
-        $courses_category   = (in_array($courses_category, $courses_categories)) ? $courses_category : null;
-        $courses_type       = (($courses_category == 'promocode' or $courses_category == 'workouts') and is_numeric($courses_type))
-            ? $courses_type : null;
-
-        $this->load->model('Coach_model');
-
-
         // Получение списка добавленных курсов
-        $courses = $this->Course_model->getAvailableCourses($courses_category, $courses_type, null, null, $pc_data);
+        if(!empty($page_category) and $page_category == 'crs_coaches' and empty($page_cat_string))
+        {
+            $courses = $this->Course_model->getAvailableCoursesCoaches();
+        }
+        elseif(!empty($page_category) and $page_category == 'crs_coaches' and is_numeric($page_cat_string))
+        {
+            $coach_id = $page_cat_string;
+            $courses = $this->Course_model->getAvailableCoachCourses($coach_id, $courses_category, $category_id);
+        }
+        else
+        {
+            $courses = $this->Course_model->getAvailableCourses($courses_category, $category_id, null, null, $pc_data);
+        }
         $gallery = $this->Coach_model->getGallery();
         $reviews = $this->Course_model->getAvaliableReviews();
 
@@ -6770,6 +6792,7 @@ class Course extends CI_Controller
         if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
         {
             $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
 
             if(!empty($course_id))
             {
@@ -6791,7 +6814,7 @@ class Course extends CI_Controller
                 $i_promocode = $this->input->post('promocode', true);
 
                 parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
-                    $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
+                    $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url, $order_id);
             }
         }
         elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
@@ -6824,18 +6847,124 @@ class Course extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = $this->page_data['metadata'][5]['title'];
-        $this->page_data['keywords']     = $this->page_data['metadata'][5]['keywords'];
-        $this->page_data['description']  = $this->page_data['metadata'][5]['description'];
-        $this->page_data['page_menu']    = 'courses';
-        $this->page_data['page_submenu'] = $courses_category;
-        $this->page_data['courses_type'] = $courses_type;
-        $this->page_data['pc_type']      = (!empty($pc_data)) ? $pc_data['pc_type'] : null;
+        $this->page_data['title']           = $this->page_data['metadata'][5]['title'];
+        $this->page_data['keywords']        = $this->page_data['metadata'][5]['keywords'];
+        $this->page_data['description']     = $this->page_data['metadata'][5]['description'];
+        $this->page_data['page_menu']       = 'courses';
+        $this->page_data['page_filter']     = (!empty($page_category)) ? $page_category : $courses_category;
+        $this->page_data['course_category'] = $courses_category;
+        $this->page_data['category_id']     = $category_id;
+        $this->page_data['pc_type']         = (!empty($pc_data)) ? $pc_data['pc_type'] : null;
+        $this->page_data['page_category']   = $page_category;
+        $this->page_data['page_cat_string'] = $page_cat_string;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');
         $this->load->view('course/public_courses', $result);
         $this->load->view('footer/footer');
+    }
+
+    /**
+     * Страница курса.
+     *
+     * Просмотр данных курса, возможность купить курс.
+     *
+     * @param $course_id
+     * @return void
+     * @throws Exception
+     */
+    public function publicCourse($course_id)
+    {
+        // Выборка данных курса
+        $course         = $this->Course_model->getAvailableCourse($course_id, $this->date);
+        $course_coaches = $this->Course_model->getCourseCoachesId($course_id);
+        $user_courses   = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
+        $landing        = array();
+        // Исходная страница
+        $return_url = '/course/'.$course_id;
+
+        if (!empty($course['course']) and !empty($course['course']['landing']['id']))
+        {
+            $landing = $this->Course_model->getLandingPage($course_id);
+        }
+
+        // Покупка курса
+        if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
+        {
+            // Данные курса
+            $db_data = $course['course'];
+            // Выбранный тренер
+            $id_coach   = $this->input->post('user_coach', true);
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = $this->input->post('s_payment_options', true);
+            // Способ оплаты
+            $s_payment_method = $this->input->post('s_payment_method', true);
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            // Введенный промокод
+            $i_promocode = $this->input->post('promocode', true);
+
+            parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
+                $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
+        }
+        elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_facebook_login = $this->input->post('bt_facebook_login');
+
+            parent::ctrlFacebookLogin($i_email, $return_url, $bt_facebook_login);
+        }
+        elseif($this->input->post('bt_ok_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_ok_login = $this->input->post('bt_ok_login');
+
+            parent::ctrlOkLogin($i_email, $return_url, $bt_ok_login);
+        }
+        elseif($this->input->post('bt_vk_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_vk_login = $this->input->post('bt_vk_login');
+
+            parent::ctrlVkLogin($i_email, $return_url, $bt_vk_login);
+        }
+        elseif($this->input->post('bt_insta_login', true) and $this->input->post('cb_politics', true))
+        {
+            $i_email = $this->input->post('email', true);
+            $bt_insta_login = $this->input->post('bt_insta_login');
+
+            parent::ctrlInstagramLogin($i_email, $return_url, $bt_insta_login);
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']       = (!empty($course['course']['name'])) ? $course['course']['name'] : 'Курс №' . $course_id;
+        $this->page_data['description'] = $course['course']['meta_description'];
+        $this->page_data['keywords']    = $course['course']['meta_keywords'];
+        $this->page_data['page_menu']   = 'courses';
+        $this->page_data['course_id']   = $course_id;
+        $this->page_data['purchase_up'] = ($this->input->get('ref', true)) ? true : false;
+
+        $result = array_merge($course, $course_coaches, $user_courses, $landing, $this->page_data);
+
+        if (!empty($landing['landing']['html_page']))
+        {
+            $this->load->view($landing['landing']['html_page'].'header', $result);
+            $this->load->view($landing['landing']['html_page'].'content');
+            $this->load->view($landing['landing']['html_page'].'footer');
+        }
+        elseif (!empty($course['course']))
+        {
+            $this->load->view('header/header', $this->page_data);
+            $this->load->view('header/secondary');
+            $this->load->view('course/public_course', $result);
+            $this->load->view('footer/footer');
+        }
+        else
+        {
+            $this->load->view('errors/html/error_404', $this->page_data);
+        }
     }
 
     /**
@@ -7543,7 +7672,7 @@ class Course extends CI_Controller
 
                 if(!empty($db_training_days))
                 {
-                    // Добавление тренировок пользователя в БД
+                    // Обновление времени тренировок пользователя
                     $count_workouts = $course_weeks * $course_days;
                     $this->Course_model->setUserTrainingWeeksTime($uc_id, $array_training_times, $count_workouts, $this->date);
                 }
@@ -8152,109 +8281,6 @@ class Course extends CI_Controller
     }
 
     /**
-     * Страница курса.
-     *
-     * Просмотр данных курса, возможность купить курс.
-     *
-     * @param $course_id
-     * @return void
-     * @throws Exception
-     */
-    public function publicCourse($course_id)
-    {
-        // Выборка данных курса
-        $course         = $this->Course_model->getAvailableCourse($course_id, $this->date);
-        $course_coaches = $this->Course_model->getCourseCoachesId($course_id);
-        $user_courses   = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
-        $landing        = array();
-        // Исходная страница
-        $return_url = '/course/'.$course_id;
-
-        if (!empty($course['course']) and !empty($course['course']['landing']['id']))
-        {
-            $landing = $this->Course_model->getLandingPage($course_id);
-        }
-
-        // Покупка курса
-        if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
-        {
-            // Данные курса
-            $db_data = $course['course'];
-            // Выбранный тренер
-            $id_coach   = $this->input->post('user_coach', true);
-            // Вариант оплаты (полный, разделить на месяцы)
-            $s_payment_options = $this->input->post('s_payment_options', true);
-            // Способ оплаты
-            $s_payment_method = $this->input->post('s_payment_method', true);
-            // Данные для способа оплаты
-            $i_phone = $this->input->post('i_phone', true);
-            $i_login = $this->input->post('i_login', true);
-            $i_email = $this->input->post('email', true);
-            // Введенный промокод
-            $i_promocode = $this->input->post('promocode', true);
-
-            parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
-                $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
-        }
-        elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
-        {
-            $i_email = $this->input->post('email', true);
-            $bt_facebook_login = $this->input->post('bt_facebook_login');
-
-            parent::ctrlFacebookLogin($i_email, $return_url, $bt_facebook_login);
-        }
-        elseif($this->input->post('bt_ok_login', true) and $this->input->post('cb_politics', true))
-        {
-            $i_email = $this->input->post('email', true);
-            $bt_ok_login = $this->input->post('bt_ok_login');
-
-            parent::ctrlOkLogin($i_email, $return_url, $bt_ok_login);
-        }
-        elseif($this->input->post('bt_vk_login', true) and $this->input->post('cb_politics', true))
-        {
-            $i_email = $this->input->post('email', true);
-            $bt_vk_login = $this->input->post('bt_vk_login');
-
-            parent::ctrlVkLogin($i_email, $return_url, $bt_vk_login);
-        }
-        elseif($this->input->post('bt_insta_login', true) and $this->input->post('cb_politics', true))
-        {
-            $i_email = $this->input->post('email', true);
-            $bt_insta_login = $this->input->post('bt_insta_login');
-
-            parent::ctrlInstagramLogin($i_email, $return_url, $bt_insta_login);
-        }
-
-        // Объединенные данные страница
-        $this->page_data['title']       = (!empty($course['course']['name'])) ? $course['course']['name'] : 'Курс №' . $course_id;
-        $this->page_data['description'] = $course['course']['meta_description'];
-        $this->page_data['keywords']    = $course['course']['meta_keywords'];
-        $this->page_data['page_menu']   = 'courses';
-        $this->page_data['course_id']   = $course_id;
-        $this->page_data['purchase_up'] = ($this->input->get('ref', true)) ? true : false;
-
-        $result = array_merge($course, $course_coaches, $user_courses, $landing, $this->page_data);
-
-        if (!empty($landing['landing']['html_page']))
-        {
-            $this->load->view($landing['landing']['html_page'].'header', $result);
-            $this->load->view($landing['landing']['html_page'].'content');
-            $this->load->view($landing['landing']['html_page'].'footer');
-        }
-        elseif (!empty($course['course']))
-        {
-            $this->load->view('header/header', $this->page_data);
-            $this->load->view('header/secondary');
-            $this->load->view('course/public_course', $result);
-            $this->load->view('footer/footer');
-        }
-        else
-        {
-            $this->load->view('errors/html/error_404', $this->page_data);
-        }
-    }
-
-    /**
      * Landing page со стандартным заполнением
      * @param $lp_id
      */
@@ -8308,16 +8334,37 @@ class Course extends CI_Controller
 
     /* БЛОК ФУНКЦИЙ ПРИЕМОВ ПИЩИ ПОЛЬЗОВАТЕЛЕЙ */
 
-    public function userMeals()
+    public function userMeals($section_id = 1, $subsection_id = '', $article_id = '')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        $user_bmr = $this->User_model->getUserBMR($this->user_id);
+        $section_id    = 1;
+        $subsection_id = (is_numeric($subsection_id)) ? $subsection_id : null;
+        $article_id    = (is_numeric($article_id)) ? $article_id : null;
+        $users_types = array('user' => 1, 'coach' => 2, 'admin' => 3);
+        $user_type   = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
+        $this->load->model('Message_model');
+
+        $user_bmr        = $this->User_model->getUserBMR($this->user_id);
         $meals_last_week = $this->Course_model->getLastWeekMeals($this->user_id, $this->date);
-        $result = array_merge($user_bmr, $meals_last_week);
+
+        if(is_numeric($section_id) and is_numeric($subsection_id))
+        {
+            $section       = $this->Message_model->getPublicQaSection(1, $user_type);
+            $subsection    = $this->Message_model->getPublicQaSubsection(1, $subsection_id, $user_type);
+            $articles      = $this->Message_model->getPublicQaSubsectionArticles(1, $subsection_id, $user_type);
+            $article       = (is_numeric($article_id)) ? $this->Message_model->getPublicQaArticle(1, $subsection_id, $article_id, $user_type) : array();
+            $def_nutrition = array_merge($section, $subsection, $articles, $article);
+        }
+        else
+        {
+            $def_nutrition = $this->Message_model->getPublicQaSection(1, $user_type);
+        }
+
+        $result = array_merge($user_bmr, $meals_last_week, $def_nutrition);
 
         // Объединенные данные страница
         $this->page_data['title']             = 'Питание';
@@ -8886,6 +8933,10 @@ class Course extends CI_Controller
                 {
                     $pc_info['disc_type'] = '%';
                 }
+                elseif($pc_info['discount_type'] == 'free_week')
+                {
+                    $pc_info['disc_type'] = 'бесплатные недели';
+                }
 
                 ob_start();
                     include('./app_fold/views/promocodes/info.php');
@@ -9269,6 +9320,10 @@ class Course extends CI_Controller
         $course_id  = (!empty($this->input->post('cid', true)) and is_numeric($this->input->post('cid', true)))
             ? $this->input->post('cid', true)
             : null;
+        $order_id   = (!empty($this->input->post('oid', true)) and is_numeric($this->input->post('oid', true)))
+            ? $this->input->post('oid', true)
+            : null;
+        $promocode  = mb_substr($this->input->post('pc_s', true), 0, 25);
 
         if(!empty($course_id))
         {
@@ -9281,6 +9336,7 @@ class Course extends CI_Controller
                 $site_info    = $this->page_data['site_info'];
                 $course       = $course_data['course'];
                 $courses_id   = $user_courses['courses_id'];
+                $course['order_id'] = $order_id;
 
                 $result['crsd'] = '<div class="parent kurs_cur_wrap" style="justify-content: center; ">
                         <div class="kurs_cur_h">'.$course['name'].'</div>
@@ -9301,20 +9357,20 @@ class Course extends CI_Controller
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 
+    /**
+     * AJAX. Поиск курсов по наименованию или id
+     */
     public function searchCourses()
     {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
-        {
-            parent::pageNotFound($this->page_url);
-        }
-
         $result['courses'] = false;
 
-        $search_text = mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255);
+        $search_text   = mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255);
+        //$coach_courses = (is_numeric($this->input->post('cp', true))) ? true: false;
 
         if (!empty($search_text))
         {
+            //$coach_id = ($coach_courses === true and $this->session->user['type'] == 2) ? $this->user_id : null;
+
             $result['courses'] = $this->Course_model->searchCourses($search_text);
         }
 

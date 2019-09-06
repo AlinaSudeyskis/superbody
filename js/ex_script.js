@@ -31,7 +31,7 @@ $(document).ready(function(){
                     fxTopCont.addClass('fixed');
                     fxTopCont.width(parTopContWidth);
                     fxTopContWrap.height(parTopContHeight);
-                    if(fxButCont.length == 1)
+                    if(fxButCont.length === 1)
                     {
                         fxButCont.addClass('fixed');
                         fxButContWrap.height(fxButContHeight);
@@ -994,7 +994,7 @@ $(document).ready(function(){
 
     /* выпадающий список курсов */
     $(document).on('input', '.add_tov_in.pc_course input:text', function () {
-        if($(this).val() != '' && $(this).val().length < 255){
+        if($(this).val() !== '' && $(this).val().length < 255){
             var input_search = $(this).val(),
                 tov_in = $(this);
             $.ajax({

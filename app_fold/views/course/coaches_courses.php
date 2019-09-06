@@ -11,17 +11,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="kurs_block_val">
         <?php if (!empty($courses)) :?>
-            <div class="admin_list">
-                <?php foreach ($courses as $course): ?>
-                    <div class="admin_item parent">
-                        <div class="admin_cont">
-                            <div class="admin_name">
-                                <a href="/course/<?php echo $course['course_id']; ?>"><?php echo $course['name']; ?></a>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach;
+            <div class="kurs_page_row row" style="padding: 15px;">
+                <?php foreach ($courses as $course):
+                    include('./app_fold/views/course/course_item.php');
+                endforeach;
                 unset($course);?>
+
+                <script>
+                    $('.kurs_page_block_slider').slick({
+                        dots: true,
+                        infinite: true,
+                        autoplaySpeed: 5000,
+                        speed: 500,
+                        autoplay: true,
+                        arrows: false,
+                        pauseOnFocus: false
+                    });
+                </script>
             </div>
             <?php include_once('./app_fold/views/pagination.php');?>
         <?php else: ?>

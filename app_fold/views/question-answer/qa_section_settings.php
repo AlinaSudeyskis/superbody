@@ -2,6 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <?php if(!empty($section)): ?>
+    <?php $disable = ($section['id'] == 1) ? 'disabled' : '';?>
     <div class="anketa_block">
         <div class="anketa_block_cont">
             <form action="" method="post" enctype="multipart/form-data">
@@ -12,14 +13,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php else :?>
                             <input type="submit" name="bt_unblock_section" class="video_admin_form_block" value="Разблокировать"/>
                         <?php endif;?>
-                        <input type="submit" name="bt_save_section" value="Сохранить" class="video_admin_form_send" />
+                        <input type="submit" name="bt_save_section" value="Сохранить" class="video_admin_form_send" <?php echo $disable; ?> />
                     </div>
                 </div>
                 <div class="video_admin_form">
                     <div class="anketa_block_item_h">Редактирование раздела</div>
                     <div class="anketa_form_line parent">
                         <div class="anketa_form_h"><div class="anketa_form_h_cell">Наименование:</div></div>
-                        <input type="text" class="anketa_form_in anketa_form_in_long" name="section_name" value="<?php echo $section['name'] ?>" maxlength="255"/>
+                        <input type="text" class="anketa_form_in anketa_form_in_long" name="section_name" value="<?php echo $section['name'] ?>" maxlength="255" <?php echo $disable; ?> />
                     </div>
 
                     <?php if(!empty($subsections)): ?>

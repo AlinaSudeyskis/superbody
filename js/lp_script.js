@@ -39,7 +39,7 @@ $(document).ready(function(){
             shadow2 = $("#shadow2");
         }
 
-        purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2}).fadeIn(600);
+        //purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2}).fadeIn(600);
 
         if(pm_op)
         {
@@ -50,7 +50,7 @@ $(document).ready(function(){
             }
             else if(pm_op == 'rec')
             {
-                p_o.val('installments');
+                p_o.val('partial_payment');
             }
             else
             {
@@ -59,10 +59,25 @@ $(document).ready(function(){
             p_o.change();
         }
 
-        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
+        var user_id = $('#user-id').val();
+        if(user_id)
+        {
+            $('input[name="cb_politics"]').prop('checked', true);
+            $('input[name="bt_buy_course"]').click();
+        }
+        else
+        {
+            purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2}).fadeIn(600);
+            $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
+                shadow2.fadeOut(600);
+                purchase.fadeOut(600);
+            });
+        }
+
+        /*$("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function() {
             shadow2.fadeOut(600);
             purchase.fadeOut(600);
-        });
+        });*/
     }
 
     $('.anketa_form_select, .journal_form_select').styler();
@@ -219,7 +234,7 @@ $(document).ready(function(){
     }
 
     $("#payment-options").on('change', function(){
-        if ($(this).val() == 'installments')
+        if ($(this).val() == 'partial_payment')
         {
             $("#recurrent-block").show();
             if ($("#course-new-price").length == 1)

@@ -79,7 +79,7 @@ $route['account/restore']        = 'Authorization/restoreAccount';
 $route['account/restored']       = 'Authorization/restoreAccount/1';
 
 // Страницы пользователя
-$route['profile/meals']                       = 'Course/userMeals';
+$route['profile/meals(/(:num)(/(:num)(/(:num))?)?)?']   = 'Course/userMeals/$2/$4/$6';
 $route['profile/courses']                     = 'Course/usersCourses/active';
 $route['profile/courses/finished']            = 'Course/usersCourses/finished';
 $route['profile/course/(:num)']               = 'Course/usersCourse/$1';
@@ -153,9 +153,11 @@ $route['administration/coach/(:num)']             = 'Coach/coachSettings/$1';
 $route['administration/coaches/portfolio']        = 'Coach/coachesPortfolioPosts';
 $route['administration/coaches/portfolio/(:num)'] = 'Coach/coachesPortfolioPost/$1';
 // Пользователи
-$route['administration/users']                 = 'User/users';
-$route['administration/user/(:num)/personal']  = 'User/userASettings/$1/personal';
-$route['administration/user/(:num)']           = 'User/userASettings/$1';
+$route['administration/users(/(auth|bought))?'] = 'User/users/$2';
+$route['administration/user/(:num)/personal']   = 'User/userASettings/$1/personal';
+$route['administration/user/(:num)']            = 'User/userASettings/$1';
+// Подписчики
+$route['administration/users/sublist'] = 'Administrator/sublist';
 // Архив
 $route['administration/users/archive(/(:num))?'] = 'User/archive/$2';
 $route['users/delete'] = 'User/deleteUsers';
@@ -281,8 +283,6 @@ $route['upload_qa_images'] = 'Message/eQaUploadImage';
 $route['support'] = 'Message/QaSections';
 $route['support/(:num)(/(:num))?']     = 'Message/QaSection/$1/$3';
 $route['support/(:num)/(:num)/(:num)'] = 'Message/QaArticle/$1/$2/$3';
-// Подписчики
-$route['administration/sublist'] = 'Administrator/sublist';
 // Информация о сайте
 $route['administration/site'] = 'Administrator/siteInfo';
 $route['administration/site/(header|banner|about|contacts|auth|spec|meta|cookies)'] = 'Administrator/siteInfo/$1';
@@ -359,7 +359,10 @@ $route['coaches']                  = 'Coach/publicCoaches';
 $route['course/(:num)'] = 'Course/publicCourse/$1';
 $route['courses']       = 'Course/publicCourses';
 $route['courses/(workouts|nutritions)(/(:num))?'] = 'Course/publicCourses/$1/$3';
-$route['courses/promocode/(:any)'] = 'Course/publicCourses/promocode/$1';
+$route['courses/coaches/(:num)/(workouts|nutritions)/(:num)'] = 'Course/publicCourses/$2/$3/crs_coaches/$1';
+$route['courses/coaches(/(:num))?'] = 'Course/publicCourses///crs_coaches/$2';
+$route['courses/promocode/(:any)/(workouts|nutritions)/(:num)'] = 'Course/publicCourses/$2/$3/promocode/$1';
+$route['courses/promocode/(:any)'] = 'Course/publicCourses///promocode/$1';
 
 $route['sortCourses'] = 'Course/getSortCourses';
 

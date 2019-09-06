@@ -24,11 +24,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="admin_form_buts_wrap parent">
                                         <?php if($user_data['user_restoring_account'] === false): ?>
                                             <input type="submit" name="bt_restore_user" class="video_admin_form_send" value="Восстановить"/>
-                                        <?php else: ?>
-                                            <h3 class="tip">Восстановление аккаунта ожидает подтверждение пользователем.</h3>
                                         <?php endif; ?>
+                                        <input type="submit" name="bt_delete_user" class="video_admin_form_block" value="Удалить"/>
                                     </div>
                                 </div>
+                                <?php if($user_data['user_restoring_account'] === true): ?>
+                                    <h3 class="tip">Восстановление аккаунта ожидает подтверждение пользователем.</h3>
+                                <?php endif; ?>
                                 <?php if($user_data['user_deleted'] == 1): ?>
                                     <h3 class="info">Удаление: <?php echo $user_data['user_delete_date']; ?></h3>
                                 <?php endif; ?>

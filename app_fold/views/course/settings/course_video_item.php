@@ -9,8 +9,8 @@ include_once('./app_fold/views/course/settings/course_video_menu.php');
     <div class="admin_list">
         <?php foreach ($video as $vd) :?>
             <div class="admin_item parent">
-                <div class="admin_video"><img src="<?php echo $vd['poster']?>" alt=""></div>
-                <div class="admin_video_cont">
+                <div class="admin_ava"><img src="<?php echo $vd['poster']?>" alt=""></div>
+                <div class="admin_cont">
                     <div class="admin_name">
                         <a href="/administration/course/<?php echo $course_id; ?>/video/<?php echo $vd['id']; ?>"><?php echo $vd['name']; ?></a>
                     </div>
@@ -20,7 +20,7 @@ include_once('./app_fold/views/course/settings/course_video_menu.php');
                 </div>
                 <?php if($video_menu == 'promo' or $video_menu == 'instructions'): ?>
                     <div class="admin_cont f_right">
-                        <div class="admin_set">
+                        <div class="admin_name">
                             <div class="my_kurs_radio_wrap">
                                 <input type="hidden" name="i_video_active" value="<?php echo $vd['active']; ?>" id="i-video-active-<?php echo $vd['id']; ?>"/>
                                 <?php if ($vd['active'] == 1): ?>

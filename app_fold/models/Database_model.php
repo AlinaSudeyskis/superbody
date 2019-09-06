@@ -2379,6 +2379,83 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-08-26 15:32';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `emails` (`e_id`, `e_name`, `e_ea_id`, `e_subject`, `e_text`, `e_images`, `e_admin_id`, `e_date`) 
+                VALUES (19, 'Аккаунт удален 2', '1', 'Аккаунт удален с сайта SuperBody', 'Ваш аккаунт удален.', '', '4', '2018-04-25 11:41:46')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-28 14:15';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_personal_data_text` VARCHAR(300) NOT NULL AFTER `si_personal_data`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-28 20:04';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `q_a_sections` (`qas_id`, `qas_name`, `qas_blocked`, `qas_update`, `qas_admin_id`) VALUES ('1', 'Питание', '0', '2019-08-28 20:03:00', '4')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-30 14:32';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` CHANGE `pc_discount_type` `pc_discount_type` ENUM('percent','currency','free_week') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'percent'");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-30 15:32';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` ADD `uc_free_weeks` TINYINT(3) UNSIGNED NOT NULL AFTER `uc_ends_email`, ADD `uc_free_weeks_end_date` DATE NOT NULL AFTER `uc_free_weeks`");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (204, 'Бесплатные недели курса завершены. Оплатите курс, чтобы продолжить тренировки.', 'Бесплатные недели курса завершены. Оплатите курс, чтобы продолжить тренировки.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-30 16:32';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders_users_cart` ADD `ouc_p_recurrent_months` TINYINT(2) UNSIGNED NOT NULL AFTER `ouc_p_price`, 
+                ADD `ouc_p_recurrent_first` DECIMAL(10,2) NOT NULL AFTER `ouc_p_recurrent_months`, 
+                ADD `ouc_p_recurrent_subsequent` DECIMAL(10,2) NOT NULL AFTER `ouc_p_recurrent_first`");
+            $this->db->query("ALTER TABLE `promocodes_used` ADD `pcu_discount_type` ENUM('', 'percent','currency','free_week') NOT NULL DEFAULT '' AFTER `pcu_discount`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-30 16:47';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_blocked_reason` `uc_blocked_reason` ENUM('','payment_refunded','payment_succeeded','payment_canceled','free_weeks_over') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-08-30 17:47';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` CHANGE `pc_type` `pc_type` ENUM('all','workouts','nutritions','categories','courses','course') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'all'");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

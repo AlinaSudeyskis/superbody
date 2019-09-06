@@ -1092,7 +1092,7 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
-        log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
+        //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_vk_login', true) or $this->input->post('bt_connect_vk', true))
         {

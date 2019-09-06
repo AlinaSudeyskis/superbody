@@ -85,10 +85,13 @@ class User_model extends CI_Model
         $result = array('users' => array());
         
         $sel_data = $this->db->query('
-            SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked` 
+            SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id` 
             FROM `users` 
-            WHERE `user_type`=1 and `user_deleted`=0');
+            LEFT JOIN `users_courses` ON `uc_user_id`=`user_id`
+            WHERE `user_type`=1 and `user_deleted`=0 and `uc_course_id` IS NULL
+            GROUP BY `user_id`');
 
+        log_message('debug', print_r($sel_data, true));
         if ($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $i = 0;
@@ -103,6 +106,39 @@ class User_model extends CI_Model
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
+        return $result;
+    }
+
+    /**
+     * Получение данных пользователей, купившие курс
+     *
+     * @return array
+     */
+    public function getBoughtUsersData()
+    {
+        $result = array('users' => array());
+
+        $sel_data = $this->db->query('
+            SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id` 
+            FROM `users` 
+            LEFT JOIN `users_courses` ON `uc_user_id`=`user_id`
+            WHERE `user_type`=1 and `user_deleted`=0 and `uc_course_id` IS NOT NULL
+            GROUP BY `user_id`');
+
+        if ($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['users'][$i] = self::parseUserData($row);
+
+                $i++;
+            }
+        }
+        elseif ($sel_data === false) {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
         return $result;
     }
 
@@ -220,6 +256,9 @@ class User_model extends CI_Model
 
             $result['user_data']['user_birthday']   = $birthday;
             $user_gender = (!empty($row->user_gender)) ? $row->user_gender : null;
+            $result['user_data']['user_gender']     = '';
+            $result['user_data']['user_gender_eng'] = '';
+            $result['user_data']['user_gender_rus'] = '';
             if(!empty($user_gender))
             {
                 $result['user_data']['user_gender']     = ($row->user_gender == 'female') ? 'Женщина' : 'Мужчина';
@@ -622,6 +661,38 @@ class User_model extends CI_Model
     }
 
     /**
+     * Удаление польвазователя.
+     *
+     * @param $user_id
+     * @return bool
+     */
+    public function deleteUser($user_id)
+    {
+        $result = false;
+
+        if(is_numeric($user_id))
+        {
+            $sel_data = $this->db->query('SELECT `user_email` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+            if($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
+
+                $user_email = $row->user_email;
+
+                self::deleteUserData($user_id, $user_email);
+
+                $result = true;
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Удаление польвазователя из БД.
      * Удаление всех данных связанных с пользователем.
      *
@@ -641,89 +712,7 @@ class User_model extends CI_Model
                 $user_email = $row->user_email;
                 $user_id    = $row->user_id;
 
-                // Удаление антропометрических данных
-                $del_data = $this->db->query('DELETE FROM `anthropometric` WHERE `user_id`=?', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление комментариев блога
-                $del_data = $this->db->query('DELETE FROM `blog_comments` WHERE `bc_u_id`=?', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных корзины
-                $del_data = $this->db->query('DELETE FROM `cart` WHERE `c_user_id`=?', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных блога тренера
-                $del_data = $this->db->query('DELETE FROM `coach_blog` WHERE `cb_u_id`=?', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных тренера
-                $del_data = $this->db->query('DELETE FROM `coach_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных портфолио тренера
-                $del_data = $this->db->query('DELETE FROM `coach_portfolio` WHERE `cp_u_id`=?', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных анкеты
-                $del_data = $this->db->query('DELETE FROM `questionnaire` WHERE `user_id`=? LIMIT 1', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных подписки
-                $del_data = $this->db->query('UPDATE `subscription` SET `s_unsubscribe`=1 WHERE `s_email`=? LIMIT 1', $user_email);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление регистрационных данных
-                $del_data = $this->db->query('DELETE FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных курсов пользователя
-                $del_data = $this->db->query('DELETE FROM `users_courses` WHERE `uc_user_id`=?', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных питания
-                $del_data = $this->db->query('DELETE FROM `users_day_meals` WHERE `udm_u_id`=?', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                // Удаление данных соц. сетей
-                $del_data = $this->db->query('DELETE FROM `users_social` WHERE `us_u_id`=?', $user_id);
-                if($del_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
+                self::deleteUserData($user_id, $user_email);
             }
             unset($row);
         }
@@ -733,6 +722,99 @@ class User_model extends CI_Model
         }
 
         return $result;
+    }
+
+    /**
+     * Удаление данных пользователя
+     *
+     * @param $user_id
+     * @param $user_email
+     */
+    protected function deleteUserData($user_id, $user_email)
+    {
+        // Удаление антропометрических данных
+        $del_data = $this->db->query('DELETE FROM `anthropometric` WHERE `user_id`=?', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление комментариев блога
+        $del_data = $this->db->query('DELETE FROM `blog_comments` WHERE `bc_u_id`=?', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных корзины
+        $del_data = $this->db->query('DELETE FROM `cart` WHERE `c_user_id`=?', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных блога тренера
+        $del_data = $this->db->query('DELETE FROM `coach_blog` WHERE `cb_u_id`=?', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных тренера
+        $del_data = $this->db->query('DELETE FROM `coach_data` WHERE `cd_u_id`=? LIMIT 1', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных портфолио тренера
+        $del_data = $this->db->query('DELETE FROM `coach_portfolio` WHERE `cp_u_id`=?', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных анкеты
+        $del_data = $this->db->query('DELETE FROM `questionnaire` WHERE `user_id`=? LIMIT 1', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных подписки
+        $del_data = $this->db->query('UPDATE `subscription` SET `s_unsubscribe`=1 WHERE `s_email`=? LIMIT 1', $user_email);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление регистрационных данных
+        $del_data = $this->db->query('DELETE FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных курсов пользователя
+        $del_data = $this->db->query('DELETE FROM `users_courses` WHERE `uc_user_id`=?', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных питания
+        $del_data = $this->db->query('DELETE FROM `users_day_meals` WHERE `udm_u_id`=?', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Удаление данных соц. сетей
+        $del_data = $this->db->query('DELETE FROM `users_social` WHERE `us_u_id`=?', $user_id);
+        if($del_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
     }
 
     /**

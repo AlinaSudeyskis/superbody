@@ -1201,13 +1201,15 @@ class Coach extends CI_Controller
 
         $this->load->model('Course_model');
 
+        $coach_courses = $this->Course_model->getCoachCourses($this->user_id);
+
         if($this->input->post('bt_save_new_promocode', true))
         {
             $name           = $this->input->post('i_code_name', true);
             $desc           = $this->input->post('i_code_desc', true);
             $discount       = $this->input->post('i_code_discount', true);
-            $discount_type  = ($this->input->post('s_discount_type', true) == 'percent') ? 'percent' : 'currency';
-            $rel_percent    = (is_numeric($this->input->post('i_relative_percent', true))) ? $this->input->post('i_relative_percent', true) : 0;
+            $discount_type  = 'percent';
+            $rel_percent    = 0;
             $validity_type  = $this->input->post('s_pv_type', true);
             $date_start     = $this->input->post('i_validity_date_start', true);
             $date_end       = $this->input->post('i_validity_date_end', true);
@@ -1217,6 +1219,14 @@ class Coach extends CI_Controller
             $courses        = '';
             $crs_group      = 'all';
             $crs_categories = '';
+
+            $coach_course_id = (is_numeric($this->input->post('promo_coach_course', true))) ? $this->input->post('promo_coach_course', true) : null;
+            $max_coach_percent = (!empty($coach_courses['coach_courses']) and !empty($coach_courses['coach_courses'][$coach_course_id]))
+                ? $coach_courses['coach_courses'][$coach_course_id]['coach_percent'] : null;
+
+            $courses[0] = (!empty($coach_course_id)) ? $coach_course_id : null;
+
+            $discount = ($discount > $max_coach_percent) ? $max_coach_percent : $discount;
 
             $res_ins = parent::saveNewCoursePromocode($name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
                 $date_start, $date_end, $use_type, $ua_number, $promocode, $crs_group, $crs_categories, $courses, 0, $this->user_id);
@@ -1242,7 +1252,7 @@ class Coach extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('promocodes/user_new_promocode');
+        $this->load->view('promocodes/user_new_promocode', $coach_courses);
         $this->load->view('footer/footer');
     }
 
@@ -1258,7 +1268,124 @@ class Coach extends CI_Controller
         }
 
         $this->load->model('Course_model');
-        $result = $this->Course_model->getCoachPromocode($this->user_id, $promocode_id, $this->date);
+        $coach_courses   = $this->Course_model->getCoachCourses($this->user_id);
+        $coach_promocode = $this->Course_model->getCoachPromocode($this->user_id, $promocode_id, $this->date);
+        $result = array_merge($coach_courses, $coach_promocode);
+
+        if($this->input->post('bt_save_promocode', true))
+        {
+            $db_data = $coach_promocode['promocode'];
+
+            $name          = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
+            $desc          = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
+            $discount      = (is_numeric($this->input->post('i_code_discount', true))) ? $this->input->post('i_code_discount', true) : null;
+            $discount_type = 'percent';
+            $rel_percent   = 0;
+
+            $validity_type = ($this->input->post('s_pv_type', true) == 'unlimited') ? 'unlimited' : 'date_range';
+            $tmp_ds        = new DateTime($this->input->post('i_validity_date_start', true));
+            $tmp_de        = new DateTime($this->input->post('i_validity_date_end', true));
+            $pv_date_start = ($tmp_ds !== false and $validity_type == 'date_range') ? $tmp_ds->format('Y-m-d') : '';
+            $pv_date_end   = ($tmp_de !== false and $validity_type == 'date_range') ? $tmp_de->format('Y-m-d') : '';
+
+            $use_type  = ($this->input->post('s_ua_type', true) == 'unlimited') ? 'unlimited' : 'number';
+            $ua_number = (is_numeric($this->input->post('i_ua_number', true)) and $use_type == 'number')
+                ? $this->input->post('i_ua_number', true) : '';
+
+            $generated_code = strtoupper(mb_substr(strip_tags($this->input->post('i_promocode', true)), 0, 25));
+
+            $coach_course_id = (is_numeric($this->input->post('promo_coach_course', true))) ? $this->input->post('promo_coach_course', true) : null;
+            $max_coach_percent = (!empty($coach_courses['coach_courses']) and !empty($coach_courses['coach_courses'][$coach_course_id]))
+                ? $coach_courses['coach_courses'][$coach_course_id]['coach_percent'] : null;
+
+            if(!empty($db_data['coach_course_id']) and $coach_course_id != $db_data['coach_course_id'])
+            {
+                $courses['update'][0] = $coach_course_id;
+            }
+            elseif(empty($db_data['coach_course_id'] and !empty($coach_course_id)))
+            {
+                $courses['insert'][0] = $coach_course_id;
+            }
+
+            $discount = ($discount > $max_coach_percent) ? $max_coach_percent : $discount;
+
+            // Группы курсов, на которые распространяется промокод
+            $pc_type = 'course';
+
+            // Категории курсов, на которые распространяется промокод
+            $crs_categories = '';
+
+            if((!empty($discount) and $discount != $db_data['discount'])
+                or (!empty($generated_code) and $generated_code != $db_data['code']) or $name != $db_data['name']
+                or $desc != $db_data['description'] or $validity_type != $db_data['validity_type']
+                or $pv_date_start != $db_data['pv_date_start'] or $pv_date_end != $db_data['pv_date_end']
+                or $use_type != $db_data['use_type'] or $ua_number != $db_data['ua_number'])
+            {
+                $res_up = $this->Course_model->updateCoachPromocode($this->user_id, $promocode_id, $pc_type, $name, $desc, $discount, $discount_type,
+                    $rel_percent, $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $generated_code,
+                    $crs_categories, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 145, 60);
+                }
+            }
+            elseif($coach_course_id != $db_data['coach_course_id'])
+            {
+                $res_up = $this->Course_model->updatePromocodeCourses($promocode_id, $courses, 0, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 145, 60);
+                }
+            }
+
+            header('Location: /profile/promocode/' . $promocode_id);
+        }
+        elseif($this->input->post('bt_block_promocode', true))
+        {
+            $up_data = $this->Course_model->blockPromocode($promocode_id, 1, 0, $this->user_id, $this->date);
+
+            if ($up_data === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 147, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 145, 60);
+            }
+            header('Location: /profile/promocode/' . $promocode_id);
+        }
+        elseif($this->input->post('bt_unblock_promocode', true))
+        {
+            $up_data = $this->Course_model->blockPromocode($promocode_id, 0, 0, $this->user_id, $this->date);
+
+            if ($up_data === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 148, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 145, 60);
+            }
+            header('Location: /profile/promocode/' . $promocode_id);
+        }
 
         // Объединенные данные страница
         $this->page_data['title']     = 'Промокоды';

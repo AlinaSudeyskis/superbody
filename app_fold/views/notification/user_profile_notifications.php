@@ -19,6 +19,7 @@ if(!empty($user_notification)):?>
             $course_finished = false;
             $count_ends_down = false;
             $workout_missed  = false;
+            $free_weeks_over = false;
             $extends         = array();
 
             // Аккаунт пользователя заблокирован
@@ -50,7 +51,7 @@ if(!empty($user_notification)):?>
                 foreach($course_notification as $user_course_id => $notif):
                     if(is_numeric($user_course_id) and (!empty($notif['course_blocked']) or !empty($notif['course_ends'])
                         or (!empty($notif['course_finished']) and !empty($notif['course_finished']['extends']))
-                        or !empty($notif['workout_missed']) or !empty($notif['non_started']))):
+                        or !empty($notif['workout_missed']) or !empty($notif['non_started']) or !empty($notif['free_weeks_over']))):
                         $notif_block_h   = '<a href="/profile/course/' . $user_course_id . '">' . $notif['course_name'] . '</a>';
 
                         // Курс заморожен (оплата не прошла)
@@ -98,6 +99,15 @@ if(!empty($user_notification)):?>
                             $non_started_info   = $notif['non_started']['text'];
                             include('notification_block.php');
                             $non_started = false;
+                        endif;
+
+                        // Закончились бесплатные недели
+                        if(!empty($notif['free_weeks_over'])):
+                            $free_weeks_over        = true;
+                            $free_weeks_over_course = $notif['free_weeks_over'];
+                            $free_weeks_over_info   = $notif['free_weeks_over']['text'];
+                            include('notification_block.php');
+                            $free_weeks_over = false;
                         endif;
                     endif;
                 endforeach;

@@ -1252,7 +1252,7 @@ class Store extends CI_Controller
 
             header('Location: /ordering');
         }
-        elseif ($this->input->post('bt_to_order', true))
+        /*elseif ($this->input->post('bt_to_order', true))
         {
             // Выбранный адрес доставки из предыдущих
             $prev_address = is_numeric($this->input->post('s_o_address', true)) ? $this->input->post('s_o_address', true) : '';
@@ -1290,8 +1290,8 @@ class Store extends CI_Controller
             $a_p = array(1 => 'Оплата наличными при получении', 2 => 'Онлайн оплата', 3 => 'Банковский перевод');
             $payment_type = 'bank_card';
 
-            // Варианты оплаты. full_payment - полная оплата стоимостиж; installments - оплата частями
-            $options = array('full_payment', 'installments');
+            // Варианты оплаты. full_payment - полная оплата стоимостиж; partial_payment - оплата частями
+            $options = array('full_payment', 'partial_payment');
             $payment_option = 'full_payment';
 
             // Если есть доступные товары
@@ -1340,7 +1340,7 @@ class Store extends CI_Controller
                     header('Location: /ordering');
                 }
             }
-        }
+        }*/
 
         // Объединенные данные страница
         $this->page_data['title']       = $this->page_data['metadata'][10]['title'];

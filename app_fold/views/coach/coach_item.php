@@ -1,8 +1,11 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-
-<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
+<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12"
+     <?php if(!empty($crs_coaches) and $crs_coaches === true): ?>
+         onclick="location.href='/courses/coaches/<?php echo $coach['id'] ?>'"
+         style="cursor:pointer;"
+     <?php endif; ?>>
     <div class="trainers_block parent">
         <div class="tren_item">
             <div class="tren_ava">

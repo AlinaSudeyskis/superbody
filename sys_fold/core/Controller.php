@@ -1454,11 +1454,14 @@ class CI_Controller {
      * @param $i_email
      * @param $i_promocode
      * @param $return_url
+     * @param string $order_id
      * @throws Exception
      */
     public function buyCourse($course_id, $course_data, $course_coaches, $id_coach, $s_payment_options,
-                              $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url)
+                              $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url, $order_id = '')
     {
+        $products['products'] = array();
+
         // Количество тренировок за курс
         $count_workouts = $course_data['count_weeks'] * $course_data['count_days'];
 
@@ -1555,23 +1558,32 @@ class CI_Controller {
         $login        = strip_tags($i_login);
         $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
 
+        $full_course_price = '';
+        $rec_months = '';
+        $rec_first_course_price = '';
+        $rec_subseq_course_price = '';
+
         // Стоимость курса в зависимости от варианта оплаты и доступности такой оплаты в настройка курса
         if($payment_option == 'partial_payment' and $course_data['recurrent'] === true)
         {
-            $course_price = $course_data['db_recur_first'];
+            $rec_months = $course_data['recur_months'];
+            $rec_first_course_price = $course_data['db_recur_first'];
+            $rec_subseq_course_price = $course_data['db_recur_subsequent'];
         }
         else
         {
-            $course_price = $course_data['db_price'];
+            $full_course_price = $course_data['db_price'];
         }
 
         // Проверка данных пользователя
-        $user_id = null;
-        $email   = null;
+        $user_id   = null;
+        $email     = null;
+        $user_type = null;
         if(is_numeric($this->user_id))
         {
-            $user_id = $this->user_id;
-            $email   = $this->session->user['email'];
+            $user_id   = $this->user_id;
+            $email     = $this->session->user['email'];
+            $user_type = $this->session->user['type'];
         }
         else
         {
@@ -1589,72 +1601,166 @@ class CI_Controller {
             $this->session->set_tempdata('message', 6, 60);
         }
 
-        if(!empty($user_id))
+        if(!empty($user_id) and $user_type !== 2)
         {
-            // Введенный промокод
-            $i_promocode  = mb_substr(strip_tags($i_promocode), 0, 25);
             $promocode_id = '';
-            // Проверка промокода
-            if(!empty($i_promocode) and $payment_option == 'full_payment')
-            {
-                $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $user_id, $this->date);
+            $promocode    = array();
+            $promocode_discount      = '';
+            $promocode_discount_type = '';
 
-                // Вычислеие цены со скидкой
-                if($promocode['discount'] !== false and !empty($promocode['id']))
+            if(empty($order_id))
+            {
+                // Введенный промокод
+                $i_promocode  = mb_substr(strip_tags($i_promocode), 0, 25);
+
+                // Проверка промокода
+                if(!empty($i_promocode))
                 {
-                    $course_price = $course_data['db_price'] - ($course_data['db_price']*$promocode['discount']/100);
-                    $promocode_id = $promocode['id'];
+                    $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $user_id, $this->date);
+                    if($promocode['discount'] !== false and !empty($promocode['id']))
+                    {
+                        $promocode_id = $promocode['id'];
+                        $promocode_discount      = $promocode['discount'];
+                        $promocode_discount_type = $promocode['discount_type'];
+
+                        if($payment_option == 'full_payment')
+                        {
+                            // Вычислеие цены со скидкой
+                            // Скидка - процент
+                            if($promocode_discount_type == 'percent')
+                            {
+                                $full_course_price = $course_data['db_price'] - ($course_data['db_price']*$promocode_discount/100);
+                            }
+                            // Скидка - сумма без процентного ограничения
+                            elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] = 0)
+                            {
+                                $new_price = $course_data['db_price'] - $promocode_discount;
+                                $full_course_price = ($new_price < 1) ? 1 : $new_price;
+                            }
+                            // Скидка - сумма с процентным ограничением
+                            elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] > 0)
+                            {
+                                $full_course_price  = $course_data['db_price'] - ($course_data['db_price']*$promocode['rel_percent']/100);
+                                $promocode_discount = $promocode['rel_percent'];
+                            }
+                            // Скидка - бесплатные недели
+                            elseif($promocode_discount_type == 'free_week' and $promocode_discount > 0 and $course_data['count_weeks'] >= $promocode_discount)
+                            {
+                                $week_price        = $course_data['db_price'] / $course_data['count_weeks'];
+                                $free_weeks_price  = $week_price * $promocode_discount;
+                                $new_price         = $course_data['db_price'] - $free_weeks_price;
+                                $full_course_price = ($new_price < 1) ? 1 : $new_price;
+                            }
+                        }
+                    }
                 }
+
+                // Добавление товара в заказы пользователя
+                $full_course_price = (!empty($full_course_price)) ? number_format($full_course_price, 2, '.', '') : '';
+                $rec_first_course_price = (!empty($rec_first_course_price)) ? number_format($rec_first_course_price, 2, '.', '') : '';
+                //log_message('debug', __METHOD__.' '.__LINE__.' Course price:'. $course_price);
+
+                $products['products'] = array( 0 => array(
+                    'id' => $course_data['p_id'],
+                    'name' => $course_data['name'],
+                    'cart_quantity' => 1,
+                    'price' => $full_course_price,
+                    'rec_first_price' => $rec_first_course_price,
+                    'rec_months' => $rec_months,
+                    'rec_subsequent' => $rec_subseq_course_price,
+                    'fc_price' => '',
+                    'discount_price' => '',
+                    'discount_fc_price' => '',
+                    'promo_id' => $promocode_id,
+                    'promo_code' => $i_promocode,
+                    'promo_discount' => $promocode_discount,
+                    'promo_discount_type' => $promocode_discount_type)
+                );
+
+                $prev_address = '';
+                $name = '';
+                $surname = '';
+                $code = '';
+                $phone = '';
+                $country = '';
+                $city = '';
+                $street = '';
+                $building = '';
+                $house = '';
+                $postcode = '';
+                $delivery = '';
+
+                $this->load->model('Store_model');
+
+                $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $code, $phone,
+                    $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
+            }
+            elseif(is_numeric($order_id))
+            {
+                $this->load->model('Store_model');
+                $order = $this->Store_model->getOrder($order_id);
+
+                if(!empty($order))
+                {
+                    $order = $order['order'];
+                    if(!empty($order['products']))
+                    {
+                        $i = 0;
+                        foreach ($order['products'] as $product)
+                        {
+                            $products['products'][$i]['id'] = $product['course_id'];
+                            $products['products'][$i]['name'] = $product['name'];
+                            $products['products'][$i]['cart_quantity'] = $product['cart_quantity'];
+                            $products['products'][$i]['price'] = $product['price'];
+                            $products['products'][$i]['rec_first_price'] = $product['rec_first'];
+                            $products['products'][$i]['rec_months'] = $product['rec_months'];
+                            $products['products'][$i]['rec_subsequent'] = $product['rec_subseq'];
+                            $products['products'][$i]['fc_price'] = $product['fc_price'];
+                            $products['products'][$i]['discount_price'] = $product['discount_price'];
+                            $products['products'][$i]['discount_fc_price'] = $product['discount_fc_price'];
+                            $products['products'][$i]['promo_id'] = '';
+                            $products['products'][$i]['promo_code'] = '';
+                            $products['products'][$i]['promo_discount'] = '';
+                            $products[$i]['promo_discount_type'] = '';
+
+                            $i++;
+                        }
+                        unset($product);
+                    }
+                }
+
+                $this->load->model('Store_model');
+                $order_amount = $this->Store_model->getOrderAmount($order_id);
+                $res_order['order_id']     = $order_id;
+                $res_order['total_amount'] = (!empty($order)) ? $order_amount : null;
             }
 
-            // Добавление товара в заказы пользователя
-            $this->load->model('Store_model');
-
-            $products['products'] = array( 0 => array(
-                'id' => $course_data['p_id'],
-                'name' => $course_data['name'],
-                'cart_quantity' => 1,
-                'price' => $course_price,
-                'fc_price' => '',
-                'discount_price' => '',
-                'discount_fc_price' => '',
-                'promo_id' => $promocode_id,
-                'promo_code' => $i_promocode)
-            );
-
-            $prev_address = '';
-            $name = '';
-            $surname = '';
-            $code = '';
-            $phone = '';
-            $country = '';
-            $city = '';
-            $street = '';
-            $building = '';
-            $house = '';
-            $postcode = '';
-            $delivery = '';
-
-            $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $code, $phone,
-                $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
-
-            if ($res_order !== false and is_numeric($res_order['order_id']))
+            if (!empty($res_order) and $res_order !== false and is_numeric($res_order['order_id']))
             {
                 // Кол-во товаров в корзине
                 self::updateSessionCart(0);
 
-                $payment_data = array(
-                    'oid' => $res_order['order_id'],
-                    'amount' => $res_order['total_amount'],
-                    'type' => $payment_type,
-                    'option' => $payment_option,
-                    'phone' => $method_phone,
-                    'login' => $method_login,
-                    'customer_email' => $email,
-                    'order_items' => $products['products'][0]
-                );
+                if($res_order['total_amount'] >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
+                {
+                    $payment_data = array(
+                        'oid' => $res_order['order_id'],
+                        'amount' => $res_order['total_amount'],
+                        'type' => $payment_type,
+                        'option' => $payment_option,
+                        'phone' => $method_phone,
+                        'login' => $method_login,
+                        'customer_email' => $email,
+                        'order_items' => $products['products'][0]
+                    );
 
-                header('Location: /payment?' .http_build_query($payment_data));
+                    header('Location: /payment?' .http_build_query($payment_data));
+                }
+                elseif($res_order['total_amount'] == 0 or (!empty($promocode) and $promocode_discount_type == 'free_week' and $promocode_discount > 0))
+                {
+                    $free_weeks = ($promocode_discount_type == 'free_week') ? $promocode_discount : 0;
+                    $free_weeks_end_date = '';
+                    $this->Course_model->setNewUserCourse($res_order['order_id'], $course_id, $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
+                }
 
                 /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_coach, $this->date);
 
@@ -1847,6 +1953,7 @@ class CI_Controller {
      * @param int $coach_id
      * @param int $admin_id
      * @return array
+     * @throws Exception
      * @internal param $course_id
      * @internal param $s_category
      */
@@ -1856,11 +1963,12 @@ class CI_Controller {
                                           $i_courses, $admin_id, $coach_id = 0)
     {
         $result = array('error' => false, 'promocode_id' => null);
+        $pc_types = array('percent', 'currency', 'free_week');
 
         $name          = mb_substr(strip_tags($i_code_name), 0, 255);
         $desc          = mb_substr(strip_tags($i_code_desc), 0, 255);
         $discount      = (is_numeric($i_code_discount)) ? $i_code_discount : null;
-        $discount_type = ($i_discount_type == 'percent') ? 'percent' : 'currency';
+        $discount_type  = (in_array($i_discount_type, $pc_types)) ? $i_discount_type : 'percent';
         $rel_percent   = (is_numeric($i_rel_percent)) ? $i_rel_percent : 0;
         $validity_type = ($s_pv_type == 'unlimited') ? 'unlimited' : 'date_range';
         $tmp_ds        = new DateTime($i_validity_date_start);
@@ -1876,7 +1984,7 @@ class CI_Controller {
         $discount = ($discount_type == 'percent' and $discount > 100) ? 100 : $discount;
 
         // Группы курсов, на которые распространяется промокод
-        $crs_groups = array('all', 'workouts', 'nutritions', 'categories', 'courses');
+        $crs_groups = array('all', 'workouts', 'nutritions', 'categories', 'courses', 'course');
         $pc_type = (in_array($r_crs_group, $crs_groups)) ? $r_crs_group : 'all';
 
         // Категории курсов, на которые распространяется промокод
