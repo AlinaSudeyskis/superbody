@@ -13385,6 +13385,9 @@ input.tren_form_block_check{
 		margin-right: auto;
 		margin-top: 25px;
 	}
+    .dark_lp .lp_block0_but+.video_col_but {
+        margin: 0 auto;
+    }
 	.dark_lp .lp_block1{
 		padding-bottom: 360px;
 	}

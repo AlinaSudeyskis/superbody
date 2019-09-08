@@ -2403,6 +2403,13 @@ class Course_model extends CI_Model
     {
         $result['course'] = array();
 
+        /*$del_data = $this->db->query('DELETE FROM `courses_training_weeks` WHERE `ctw_id`>=5677 and `ctw_id`<=6092');
+        $del_data = $this->db->query('DELETE FROM `courses_training_weeks` WHERE `ctw_id`>=5469 and `ctw_id`<=5676');
+        $del_data = $this->db->query('DELETE FROM `courses_training_weeks` WHERE `ctw_id`>=5310 and `ctw_id`<=5466');
+        $del_data = $this->db->query('DELETE FROM `courses_training_weeks` WHERE `ctw_id`>=4059 and `ctw_id`<=4994');
+        $del_data = $this->db->query('DELETE FROM `courses_training_weeks` WHERE `ctw_id`>=3747 and `ctw_id`<=3902');
+        $del_data = $this->db->query('DELETE FROM `courses_training_weeks` WHERE `ctw_id`>=3275 and `ctw_id`<=3379');*/
+
         $sel_course = $this->db->query('
             SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`,
               `crs_meta_keywords`, `crs_meta_description`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, 
@@ -3158,14 +3165,23 @@ class Course_model extends CI_Model
         // Добавление новых тренировок
         if (!empty($schedule['insert'])) {
             $values = '';
-            foreach ($schedule['insert'] as $num_workout => $workout) {
-                if (!empty($values)) {
-                    $values .= ', ';
-                }
+            foreach ($schedule['insert'] as $num_workout => $workout)
+            {
+                $sel_data = $this->db->query('SELECT `ctw_id` FROM `courses_training_weeks` WHERE `ctw_course_id`=? and `ctw_num_workout`=? LIMIT 1', array($course_id, $num_workout));
+                if($sel_data !== false and 0 == $sel_data->num_rows())
+                {
+                    if (!empty($values)) {
+                        $values .= ', ';
+                    }
 
-                $values .= '(' . $course_id .', ' . $num_workout . ', "' . $workout['description'] . '", '
-                    . $workout['video_id'] . ', ' . $workout['repeat_workout'] . ', "' . $user_id . '", "'
-                    . $date . '", "' . $date . '")';
+                    $values .= '(' . $course_id .', ' . $num_workout . ', "' . $workout['description'] . '", '
+                        . $workout['video_id'] . ', ' . $workout['repeat_workout'] . ', "' . $user_id . '", "'
+                        . $date . '", "' . $date . '")';
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
             unset($workout);
 
