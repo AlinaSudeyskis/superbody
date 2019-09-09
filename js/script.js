@@ -1239,15 +1239,17 @@ $(document).ready(function() {
     }
     function promo_line_func(this_el)
     {
+        var this_par = this_el.parent('.promo_block'),
+            i_promocode = this_par.find('#i-promocode');
         this_el.hide();
-        this_el.parent('.promo_block').find('.kurs_block_h').html('Промокод:');
-        if($('#i-promocode').length == 1)
+        this_par.find('.kurs_block_h').html('Промокод:');
+        if(i_promocode.length === 1)
         {
-            $('#i-promocode').show();
+            i_promocode.show();
         }
         else
         {
-            this_el.parent('.promo_block').find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
+            this_par.find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
         }
         purchase.css({marginLeft:-purchase.width()/2,marginTop:-purchase.height()/2})
     }
