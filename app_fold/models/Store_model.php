@@ -16,11 +16,11 @@ class Store_model extends CI_Model
     const CURRENCY = 'RUB';
     const PAYMENT_METHOD = 'bank_card';
     // LIVE
-    /*const SHOPID = 618322;
-    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';*/
+    const SHOPID = 618322;
+    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';
     // TEST
-    const SHOPID = 621847;
-    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';
+    /*const SHOPID = 621847;
+    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';*/
 
     /**
      * Выборка всех категорий
