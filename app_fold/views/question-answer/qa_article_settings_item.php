@@ -29,10 +29,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="anketa_form_one_wrap anketa_form_three_wrap">
                 <select name="s_subsection[<?php echo $section['id']; ?>]" class="anketa_form_select">
                     <option value="">Выберите подраздел</option>
-                    <?php foreach($subsections[$section['id']] as $subsection): ?>
-                        <option value="<?php echo $subsection['id']; ?>" <?php if(!empty($qa_article['subsection_id']) and $subsection['id'] == $qa_article['subsection_id']): ?>selected<?php endif; ?>><?php echo $subsection['name']; ?></option>
-                    <?php endforeach;
-                    unset($subsection); ?>
+                    <?php if(!empty($subsections[$section['id']])):
+                        foreach($subsections[$section['id']] as $subsection): ?>
+                            <option value="<?php echo $subsection['id']; ?>" <?php if(!empty($qa_article['subsection_id']) and $subsection['id'] == $qa_article['subsection_id']): ?>selected<?php endif; ?>><?php echo $subsection['name']; ?></option>
+                        <?php endforeach;
+                        unset($subsection);
+                    endif;?>
                 </select>
             </div>
         </div>

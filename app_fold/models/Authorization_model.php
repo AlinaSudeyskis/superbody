@@ -400,6 +400,8 @@ class Authorization_model extends CI_Model
                                                $user_soc_email = '', $user_soc_name = '', $user_soc_image = '',
                                                $user_soc_bd = '', $user_soc_gender = '', $user_profile_url = '')
     {
+        $user_soc_email = (!empty($user_soc_email)) ? $user_soc_email : '';
+
         $this->db->query('
             INSERT INTO `users` (`user_email`, `user_auth_via`, `user_name`, `user_soc_image`, `user_date_reg`, `user_activated`, 
               `user_date_update`) 

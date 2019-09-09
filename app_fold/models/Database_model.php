@@ -2456,6 +2456,41 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-08-30 23:59';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            /*$this->db->query("UPDATE `q_a_sections` SET `qas_name`='Питание' WHERE `qas_id`=1 LIMIT 1");
+            $this->db->query("UPDATE `q_a_sections` SET `qas_name`='Начинающим' WHERE `qas_id`=3 LIMIT 1");
+            $this->db->query("UPDATE `q_a_subsections` SET `qass_qas_id`=3 WHERE `qass_qas_id`=1");
+            $this->db->query("UPDATE `question_answer` SET `qa_qas_id`=3 WHERE `qa_id`=1 LIMIT 1");
+            $this->db->query("UPDATE `question_answer` SET `qa_qas_id`=3 WHERE `qa_id`=2 LIMIT 1");*/
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных август 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseSeptember2019($date)
+    {
+        $result = false;
+
+        $date = '2019-09-09 17:31';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE `users` WHERE `user_id`=57 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
