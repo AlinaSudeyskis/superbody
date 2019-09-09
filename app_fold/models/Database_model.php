@@ -2486,7 +2486,17 @@ class Database_model extends CI_Model
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
-            $this->db->query("DELETE `users` WHERE `user_id`=57 LIMIT 1");
+            $this->db->query("DELETE FROM `users` WHERE `user_id`=57 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-09-09 17:32';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE FROM `database_update` WHERE `db_date`='2019-09-09 17:31:00' LIMIT 1");
+            $this->db->query("DELETE FROM `users` WHERE `user_id`=57 LIMIT 1");
 
             self::setDbUpdate($date);
         }
