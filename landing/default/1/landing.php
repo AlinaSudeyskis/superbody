@@ -4,16 +4,7 @@
         <meta charset="UTF-8">
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
         <title>Super Body</title>
-        <link rel="stylesheet" href="/css/google_fonts.css">
-        <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i&amp;subset=cyrillic">-->
-        <link rel="stylesheet" href="/css/grid.css">
-        <link rel="stylesheet" href="/css/slick.css">
-        <link rel="stylesheet" href="/css/font-awesome.min.css">
-        <link rel="stylesheet" href="/css/lightbox.css">
-        <link rel="stylesheet" href="/css/style.css">
-        <script src="/js/jquery.min.js"></script>
-        <script src="/js/slick.min.js"></script>
-        <script src="/js/lp_script.js"></script>
+        <?php include_once('./app_fold/views/header/lp_styles_scripts.php'); ?>
     </head>
     <body class="light_lp lp_page">
 
