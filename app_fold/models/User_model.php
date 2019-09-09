@@ -91,7 +91,6 @@ class User_model extends CI_Model
             WHERE `user_type`=1 and `user_deleted`=0 and `uc_course_id` IS NULL
             GROUP BY `user_id`');
 
-        log_message('debug', print_r($sel_data, true));
         if ($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $i = 0;
@@ -229,16 +228,19 @@ class User_model extends CI_Model
 
             $result['user_data']['user_subscribed'] = false;
 
-            $sel_subscr = $this->db->query('
-                SELECT `s_id` FROM `subscription` WHERE `s_email`=? LIMIT 1', $row->user_email);
+            if(!empty($row->user_email))
+            {
+                $sel_subscr = $this->db->query('
+                    SELECT `s_id` FROM `subscription` WHERE `s_email`=? LIMIT 1', $row->user_email);
 
-            if ($sel_subscr !== false and 1 == $sel_subscr->num_rows())
-            {
-                $result['user_data']['user_subscribed'] = true;
-            }
-            elseif($sel_subscr === false)
-            {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                if ($sel_subscr !== false and 1 == $sel_subscr->num_rows())
+                {
+                    $result['user_data']['user_subscribed'] = true;
+                }
+                elseif($sel_subscr === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
 
             $date = DateTime::createFromFormat('Y-m-d', $row->user_birthday);

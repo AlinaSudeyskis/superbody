@@ -416,7 +416,7 @@ class Authorization_model extends CI_Model
             $this->db->query('
                 INSERT INTO `users_social` (`us_u_id`, `us_social`, `us_social_id`, `us_url_profile`, `us_token`, `us_expires_at`, 
                     `us_issued_at`, `us_expires_in`, `us_update`) 
-                VALUES(?, ?, ?, ?, ?, ?, ?, ?)',
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)',
                     array($user_id, $soc, $user_soc_id, $user_profile_url, $access_token, $expires_at, $issued_at, $expires_in, $date));
 
             // Добавляем данные пользователя в таблицу анкеты
