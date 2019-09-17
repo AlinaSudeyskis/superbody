@@ -81,8 +81,10 @@ class User extends CI_Controller
         $anthrop_data     = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
         $user_social      = $this->User_model->getUserSocial($user_id);
         $u_data           = $this->User_model->getUser($user_id);
-        //$this->Course_model->shiftUserCourseWorkouts(4, 80, 6, $this->date);
         $friend_promocode = $this->Course_model->getPromocodeForFriend($user_id);
+
+        //$courses[0]['id'] = 6;
+        //$this->Course_model->unblockUserOrderCourses(80, 4, $courses, 'payment_succeeded', $this->date);
 
         $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data, $friend_promocode);
 
@@ -443,6 +445,47 @@ class User extends CI_Controller
 
             header('Location: /profile/'.$user_id);
         }
+        elseif($this->input->post('bt_save_email', true))
+        {
+            // Валидация E-mail
+            $email = ($u_data['user_data']['user_email_empty'] === true and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+                ? $this->input->post('email', true)
+                : null;
+
+            if(!empty($email))
+            {
+                $this->load->model('Authorization_model');
+
+                $res_check = $this->Authorization_model->checkEmail($email);
+                if($res_check === false)
+                {
+                    $email_hash = (!empty($email)) ? password_hash($email, PASSWORD_DEFAULT) : null;
+
+                    // Сохранение данных по смене email в БД
+                    $set_change = $this->Authorization_model->fillUserEmptyEmail($this->user_id, $email, $email_hash, $this->date);
+
+                    if($set_change === true)
+                    {
+                        self::sendEActivateEmail($email, $email_hash);
+
+                        // Данные о смене были сохранены
+                        $this->session->set_tempdata('message', 206, 60);
+                    }
+                    else
+                    {
+                        // Данные о смене не были сохранены
+                        $this->session->set_tempdata('message', 190, 60);
+                    }
+                }
+                else
+                {
+                    // Пользователь с таким email уже зарегистрирован
+                    $this->session->set_tempdata('message', 1, 60);
+                }
+            }
+
+            header('Location: /profile/'.$user_id);
+        }
 
         $this->load->model('Notification_model');
         // Уведомления курсов
@@ -600,6 +643,13 @@ class User extends CI_Controller
             $notification = $this->Notification_model->getNotification(153);
 
             $this->page_data['user_notification']['anthrop']['text'] = $notification['notification']['text'];
+        }
+        // Не указан email
+        if($u_data['user_data']['user_email_empty'] === true)
+        {
+            $notification = $this->Notification_model->getNotification(205);
+
+            $this->page_data['user_notification']['empty_email']['text'] = $notification['notification']['text'];
         }
 
         // Объединенные данные страница
@@ -1182,15 +1232,9 @@ class User extends CI_Controller
             {
                 if($res_check['availability_send_email'] === true)
                 {
-                    // Отправка письма с активацией новой почты
-                    $system_message['text'] = '<b><a href="https://superbody.pro/activate?e=' . $res_check['user_email'] . '&ac=' . $res_check['activate_code']
-                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                    $system_message['text'] .= 'Активировать';
-                    $system_message['text'] .= '</a></b>';
+                    self::sendEActivateEmail($res_check['user_email'], $res_check['activate_code']);
 
-                    parent::sendEmail(17, $res_check['user_email'], $system_message);
-
-                    $this->Authorization_model->setResendingActivateEmailDate($this->user_id, $this->date);
+                    //$this->Authorization_model->setResendingActivateEmailDate($this->user_id, $this->date);
 
                     // Данные о смене были сохранены
                     $this->session->set_tempdata('message', 202, 60);
@@ -1999,6 +2043,7 @@ class User extends CI_Controller
     /**
      * АП. Вывод списка пользователей
      *
+     * @param string $users_category
      * @return void
      */
     public function users($users_category = 'auth')
@@ -2460,5 +2505,21 @@ class User extends CI_Controller
 
         // Отправка письма с подтверждением смены email на текущий email.
         parent::sendEmail(15, $user_email, $system_message);
+    }
+
+    /**
+     * Отправка эл. письма по смене email пользователю
+     *
+     * @param $user_email
+     * @param $activate_code
+     */
+    protected function sendEActivateEmail($user_email, $activate_code)
+    {
+        $system_message['text'] = '<b><a href="https://superbody.pro/activate?e=' . $user_email . '&ac=' . $activate_code
+            . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+        $system_message['text'] .= 'Активировать';
+        $system_message['text'] .= '</a></b>';
+
+        parent::sendEmail(17, $user_email, $system_message);
     }
 }

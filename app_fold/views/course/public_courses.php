@@ -76,17 +76,18 @@ include_once('./app_fold/views/breadcrumb.php');?>
     <?php if((!empty($courses['workouts']) or !empty(!empty($courses['nutritions']))) and !empty($courses_categories)): ?>
         <?php if(!empty($courses['workouts'])): ?>
             <?php foreach($courses['workouts'] as $cat_id => $workouts):?>
+                <?php $kurs_slider = ''; ?>
                 <h2 class="block_h">
+                    <?php echo $courses_categories[$cat_id]['name']; ?>
                     <?php if(empty($page_filter) or ($page_filter == 'workouts' and empty($category_id)) or
                         ($page_filter == 'workouts' and is_numeric($category_id) and $category_id != $cat_id) or
                         ($page_filter == 'promocode' and !empty($pc_type) and ($pc_type == 'categories' or $pc_type == 'workouts') and empty($course_category)) or
                         ($page_filter == 'crs_coaches' and empty($course_category))): ?>
-                        <a href="<?php echo $page_url; ?>workouts/<?php echo $cat_id; ?>"><?php echo $courses_categories[$cat_id]['name']; ?></a>
-                    <?php else: ?>
-                        <?php echo $courses_categories[$cat_id]['name']; ?>
+                        <span><a href="<?php echo $page_url; ?>workouts/<?php echo $cat_id; ?>">Посмотреть все курсы категории</a></span>
+                        <?php $kurs_slider = 'kurs_page_row_slider'; ?>
                     <?php endif; ?>
                 </h2>
-                <div class="kurs_page_row row">
+                <div class="kurs_page_row row <?php echo $kurs_slider; ?>">
                     <?php foreach($workouts as $course):
                         include('./app_fold/views/course/course_item.php');
                     endforeach;
@@ -106,13 +107,12 @@ include_once('./app_fold/views/breadcrumb.php');?>
 
         <?php if(!empty($courses['nutritions'])): ?>
             <h2 class="block_h">
+                Курсы питания
                 <?php if(empty($page_filter)): ?>
-                    <a href="<?php echo $page_url; ?>nutritions">Курсы питания</a>
-                <?php else: ?>
-                    Курсы питания
+                    <span><a href="<?php echo $page_url; ?>nutritions">Посмотреть все курсы категории</a></span>
                 <?php endif; ?>
             </h2>
-            <div class="kurs_page_row row">
+            <div class="kurs_page_row row kurs_page_row_slider">
                 <?php foreach($courses['nutritions'] as $course):
                     include('./app_fold/views/course/course_item.php');
                 endforeach;
@@ -125,13 +125,66 @@ include_once('./app_fold/views/breadcrumb.php');?>
 
         <script>
             $('.kurs_page_block_slider').slick({
-                dots: true,
+                dots: false,
                 infinite: true,
                 autoplaySpeed: 5000,
                 speed: 500,
                 autoplay: true,
                 arrows: false,
                 pauseOnFocus: false
+            });
+            $('.kurs_page_row_slider').slick({
+                dots: false,
+                infinite: true,
+                speed: 500,
+                autoplay: false,
+                arrows: true,
+                slidesToShow: 3,
+                slidesToScroll: 1,
+                responsive: [
+                    {
+                        breakpoint: 1420,
+                        settings: {
+                            slidesToShow: 2,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 1140,
+                        settings: {
+                            slidesToShow: 2,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 992,
+                        settings: {
+                            slidesToShow: 4,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 767,
+                        settings: {
+                            slidesToShow: 3,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 520,
+                        settings: {
+                            slidesToShow: 2,
+                            slidesToScroll: 1
+                        }
+                    },
+                    {
+                        breakpoint: 480,
+                        settings: {
+                            slidesToShow: 1,
+                            slidesToScroll: 1
+                        }
+                    }
+                ]
             });
         </script>
     <?php elseif(!empty($coaches)): ?>

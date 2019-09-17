@@ -79,7 +79,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     <?php endif; ?>
     <div class="sing-in_h tren_form_block_check_wrap">
-        <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-3" required="required">
+        <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-3" required="required" checked="checked">
         <label for="cb-politics-3">согласие на
             <a href="#" class="reg_in_link policy">обработку персональных данных</a>
         </label>

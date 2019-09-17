@@ -978,6 +978,43 @@ class Authorization_model extends CI_Model
     }
 
     /**
+     * Сохранение данных для смены email
+     *
+     * @param $user_id
+     * @param $email
+     * @param $email_hash
+     * @param $date
+     * @return bool
+     */
+    public function fillUserEmptyEmail($user_id, $email, $email_hash, $date)
+    {
+        $result = false;
+
+        if(is_numeric($user_id))
+        {
+            $res_check = self::checkEmail($email);
+            if($res_check === false)
+            {
+                $up_data = $this->db->query('
+                    UPDATE `users` 
+                    SET `user_email`=?, `user_activated`=0, `user_activate_code`=?, `user_date_update`=? 
+                    WHERE `user_id`=? LIMIT 1', array($email, $email_hash, $date, $user_id));
+
+                if($up_data !== false and 1 == $this->db->affected_rows())
+                {
+                    $result = true;
+                }
+                elseif($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Проверка наличия пользователя с указанными данными для изменения email.
      *
      * @param $email

@@ -2,7 +2,6 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div id="content" class="container">
-    <?php if (!empty($login_mess)) { echo $login_mess; } ?>
     <div class="sing-in page_form">
         <form action="" class="sing-in_form" method="post">
             <div class="sing-in_h">через социальную сеть:</div>

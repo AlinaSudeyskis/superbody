@@ -14,9 +14,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php endif;?>
     <?php endforeach;
     unset($si_banner); ?>
-    <!--<div class="sing-in_bg">
-        <video class="g-section-video" autoplay="" loop="" muted="">
-            <source id="xVideoMp4" src="https://player.vimeo.com/video/248651771?app_id=122963" type="video/mp4">
-        </video>
-    </div>-->
 <?php endif;?>
+<!--<div class="sing-in_bg">
+    <video class="g-section-video" autoplay="" loop="" muted="">
+        <source id="xVideoMp4" src="/banners/de7cca5d89.mp4" type="video/mp4">
+    </video>
+</div>-->

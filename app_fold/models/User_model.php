@@ -1637,6 +1637,7 @@ class User_model extends CI_Model
         $result['user_changing_email']     = false;
         $result['user_restoring_account']  = false;
         $result['availability_send_email'] = false;
+        $result['user_email_empty']        = false;
 
         if(!empty($row->user_soc_image))
         {
@@ -1672,6 +1673,12 @@ class User_model extends CI_Model
         if(!empty($row->user_restore_account_idempotent))
         {
             $result['user_restoring_account'] = true;
+        }
+
+        // Email пользователя пуст
+        if(empty($row->user_email))
+        {
+            $result['user_email_empty'] = true;
         }
 
         return $result;

@@ -31,9 +31,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <h3 class="info"><?php echo $free_weeks_over_info; ?></h3>
             <a href="#" class="add_tab_but fix_width buy_course" data-cid="<?php echo $notif['course_id']; ?>" data-oid="<?php echo $notif['free_weeks_over']['order_id']; ?>">Оплатить</a>
         <?php endif;
-    endif;
+    endif; ?>
 
-    // Отсчет времени окончания курса
+    <?php if($empty_email === true):?>
+        <form action="" method="post" class="mini_form">
+            <input type="text" name="email" value="" autocomplete="false" autofocus="autofocus" class="anketa_form_in anketa_form_in_long valid_email"/>
+            <input type="submit" name="bt_save_email" value="Сохранить" class="video_admin_form_send" />
+        </form>
+    <?php endif; ?>
+
+    <?php // Отсчет времени окончания курса
     if($course_ends === true and $count_ends_down === true and !empty($course_ends_countdown)):?>
         <div class="countdown_wrap">
             <input type="hidden" value="<?php echo $course_ends_countdown; ?>" class="date_countdown"/>

@@ -20,8 +20,17 @@ if(!empty($user_notification)):?>
             $count_ends_down = false;
             $workout_missed  = false;
             $free_weeks_over = false;
+            $empty_email     = false;
             $extends         = array();
 
+            // Не указан email
+            if(!empty($user_notification['empty_email'])):
+                $empty_email = true;
+                $notif_block_h = '<a href="/settings">Настройки</a>';
+                $h3_info = $user_notification['empty_email']['text'];
+                include('notification_block.php');
+                $empty_email = false;
+            endif;
             // Аккаунт пользователя заблокирован
             if(!empty($user_notification['blocked'])):
                 $h3_info = $user_notification['blocked']['text'];

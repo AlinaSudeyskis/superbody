@@ -982,7 +982,7 @@ div.info{
 .countdown_wrap{}
 .countdown {
     text-align: center;
-    padding-bottom: 15px;
+    padding: 15px 0;
     font-size: 30px;
     color: #00bff0;
     font-weight: 100;
@@ -2216,6 +2216,27 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .kurs_page .block_h:first-child{
     margin-top: 20px;
+}
+h2.block_h>span {
+    display: block;
+    font-size: 12px;
+}
+
+h2.block_h>span>a {
+    text-transform: initial;
+}
+.mini_form {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.notification_block .mini_form .video_admin_form_send {
+    margin: unset;
+}
+
+.mini_form input {
+    margin-right: 20px;
 }
 .new_kurs_buts{
     cursor: default;
@@ -3643,11 +3664,14 @@ tr:first-child > td > .fc-day-grid-event{
     float: right;
     width: 280px;
     height: 270px;
-    padding: 15px 5px 0 15px;
     overflow: hidden;
     font-size: 12px;
     line-height: 14px;
     position: relative;
+
+    /*padding: 15px 5px 0 15px;*/
+    display: flex;
+    flex-direction: column;
 }
 .kurs_page_block_img{
     height: 270px;
@@ -3672,16 +3696,18 @@ tr:first-child > td > .fc-day-grid-event{
     color: #f6f6f6;
     text-align: center;
     font-weight: 300;
-    margin-bottom: 7px;
+    margin-bottom: 15px; /*7px*/
     text-transform: uppercase;
     /*white-space: nowrap;*/
     overflow: hidden;
+    padding: 15px 15px 0;
 }
 .kurs_page_block_desk{
     color: #fff;
-    margin-bottom: 20px;
-    height: 42px;
+    margin-bottom: 0;
+    flex-basis: 45px;
     overflow: hidden;
+    padding: 15px 15px 0;
 }
 .kurs_page_block_slide_stat{
     font-weight: bold;
@@ -3728,6 +3754,8 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .kurs_page_block_slider{
     margin-bottom: 22px;
+    margin-top: auto;
+    padding: 15px 15px 0;
 }
 .kurs_page_block_slider .slick-dots{
     width: 100%;
@@ -3762,15 +3790,18 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .kurs_page_block_but{
     /*padding-right: 10px;*/
-    position: absolute;
-    width: 90%;
-    bottom: 25px;
+    /*position: absolute;*/
+    width: 100%; /*100%*/
+    bottom: 0; /*25px*/
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 .kurs_page_block_more, .kurs_page_block_tab{
     width: 100px;
-    height: 20px;
-    line-height: 18px;
-    border: 1px solid #c9f1fc;
+    height: 24px;
+    line-height: 22px;
+    border-top: 1px solid #c9f1fc;
     font-size: 10px;
     color: #f4f4f4;
     font-weight: bold;
@@ -3778,14 +3809,17 @@ tr:first-child > td > .fc-day-grid-event{
     text-align: center;
     text-decoration: none;
     display: block;
-    float: left;
+    /*float: left;*/
 }
 .kurs_page_block_tab{
-    float: right;
+    /*float: right;*/
 }
 .kurs_page_block_tab.red_tab{
     border-color: #e25050;
-    color: #e25050;
+    /*color: #e25050;*/
+    color: #ffffff;
+    background-color: #e25050;
+    flex-basis: calc(50% - 20px);
 }
 .kurs_page_row>div:nth-of-type(2n) .kurs_page_block_h,
 .kurs_page_row>div:nth-of-type(2n) .kurs_page_block_desk,
@@ -3804,15 +3838,74 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .kurs_page_row>div:nth-of-type(2n) .kurs_page_block_more,
 .kurs_page_row>div:nth-of-type(2n) .kurs_page_block_tab{
-    border-color: #90daf6;
-    color: #72d0f4;
+    /*border-color: #90daf6;*/
+    color: #00bff0;
+}
+.kurs_page_row>div:nth-of-type(2n) .kurs_page_block_more{
+    border-top: 1px solid #00bff0;
 }
 .kurs_page_row>div:nth-of-type(2n) .kurs_page_block_tab.red_tab{
-    border-color: #e25050;
-    color: #e25050;
+    /*border-color: #e25050;*/
+    /*color: #e25050;*/
+    color: #ffffff;
+    background-color: #e25050;
+}
+.kurs_page_row_slider .slick-track{
+    margin: unset;
+}
+.kurs_page_row_slider .slick-arrow{
+    position: absolute;
+    display: block;
+    border: none;
+    width: 0;
+    height: calc(100% - 30px);
+    padding: 0 0 0 60px;
+    top: calc(50% - 150px);
+    left: 7px;
+    background: url(/img/prev.png) 50% 50% no-repeat;
+    z-index: 10;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0.4;
+}
+.kurs_page_row_slider .slick-next{
+    left: auto;
+    right: 7px;
+    background: url(/img/next.png) 50% 50% no-repeat;
 }
 .kurs_page_reg_wrap{
     margin-top: 45px;
+}
+.kurs_page_block_tabs {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+.kurs_page_row>div:nth-of-type(2n) .kurs_page_block_tabs {
+    background-color: #e25050;
+}
+.kurs_page_block_tabs .kurs_page_block_tab {
+    background-color: #e25050;
+    border-right: 1px solid #ffa8a8;
+    font-weight: 400;
+    font-size: 11px;
+}
+.kurs_page_block_tabs .kurs_page_block_tab:only-child{
+    flex-basis: 100%;
+}
+.kurs_page_block_more {
+    width: 100%;
+    -webkit-box-shadow: 0 3px 5px rgba(0,0,0,.12);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.19);
+    z-index: 1;
+}
+.kurs_page_block_tabs .kurs_page_block_tab:nth-of-type(2) {
+    flex-basis: 40px;
+    font-weight: 100;
+    font-size: 8px;
+    letter-spacing: 2px;
+    pointer-events: none;
 }
 
 .g-recaptcha{

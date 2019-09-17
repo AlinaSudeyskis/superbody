@@ -1859,6 +1859,7 @@ class Course_model extends CI_Model
         $result['courses'] = array();
 
         $and_crs_id = '';
+        $limit      = 9;
         //echo $promocode_data['pc_type'].'<br/>';
 
         $categories = self::getAvailableCourseTypes();
@@ -1877,8 +1878,6 @@ class Course_model extends CI_Model
 
                 if($courses_category == 'workouts' and is_numeric($courses_type))
                 {
-                    $limit = 9;
-
                     $category = self::getAvailableCourseType($courses_type);
                     $result['courses_categories'] = $category['course_type'];
 
@@ -1895,7 +1894,7 @@ class Course_model extends CI_Model
                     }
 
                     $sel_courses = $this->db->query('
-                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
                         FROM `courses` 
                         LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
                         WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout"'.$and_where.' '.$and_crs_id.'
@@ -1934,11 +1933,11 @@ class Course_model extends CI_Model
                     foreach($categories['course_types'] as $category)
                     {
                         $sel_courses = $this->db->query('
-                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
                         FROM `courses` 
                         LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
                         WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout" '.$and_crs_id.' 
-                        LIMIT 3', $category['id']);
+                        LIMIT ?', array($category['id'], $limit));
 
                         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
                         {
@@ -1973,10 +1972,10 @@ class Course_model extends CI_Model
                 }
 
                 $sel_courses = $this->db->query('
-                    SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                    SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
                     FROM `courses` 
                     LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-                    WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_category`="nutrition" '.$and_crs_id.' LIMIT 3');
+                    WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_category`="nutrition" '.$and_crs_id.' LIMIT ?', $limit);
 
                 if ($sel_courses !== false and 0 < $sel_courses->num_rows())
                 {
@@ -2000,18 +1999,18 @@ class Course_model extends CI_Model
             }
 
         }
-        elseif($courses_category == 'promocode' and !empty($promocode_data) and ($promocode_data['pc_type'] == 'courses' or $promocode_data['pc_type'] == 'categories'))
+        elseif(!empty($promocode_data) and ($promocode_data['pc_type'] == 'course' or $promocode_data['pc_type'] == 'courses' or $promocode_data['pc_type'] == 'categories'))
         {
             if($promocode_data['pc_type'] == 'categories' and is_array($promocode_data['crs_cats']))
             {
                 foreach($promocode_data['crs_cats'] as $category)
                 {
                     $sel_courses = $this->db->query('
-                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `clp_id`, `clp_activated` 
+                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
                         FROM `courses` 
                         LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
                         WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout" 
-                        LIMIT 3', $category);
+                        LIMIT ?', array($category, $limit));
 
                     if ($sel_courses !== false and 0 < $sel_courses->num_rows())
                     {
@@ -2035,15 +2034,20 @@ class Course_model extends CI_Model
                 }
                 unset($category);
             }
-            elseif($promocode_data['pc_type'] == 'courses')
+            elseif($promocode_data['pc_type'] == 'courses' or $promocode_data['pc_type'] == 'course')
             {
                 $sel_courses = $this->db->query('
-                    SELECT `pcc_crs_id`, `crs_id`, `crs_type_id`, `crs_name`, `crs_image`, `crs_description`, `crs_blocked`, 
+                    SELECT `pcc_crs_id`, `crs_id`, `crs_type_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `crs_blocked`, 
                            `crs_archive`, `clp_id`, `clp_activated` 
                     FROM `promocode_courses`
                     LEFT JOIN `courses` ON `crs_id`=`pcc_crs_id`
                     LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
                     WHERE `pcc_pc_id`=? and `crs_blocked`=0 and `crs_archive`=0', $promocode_data['id']);
+
+                if($promocode_data['pc_type'] == 'course')
+                {
+                    $this->db->limit(1);
+                }
 
                 if ($sel_courses !== false and 0 < $sel_courses->num_rows())
                 {
@@ -3040,10 +3044,7 @@ class Course_model extends CI_Model
                 $result['num_workout'][$num_workout]    = $row->ctw_num_workout;
                 $result['repeat_workout'][$num_workout] = $row->ctw_repeat_workout;
                 $result['description'][$num_workout]    = $row->ctw_description;
-
-                $video_id = $row->ctw_repeat_workout > 0 ? $result['video_id'][$row->ctw_repeat_workout] : $row->ctw_video_id;
-
-                $result['video_id'][$num_workout] = $video_id;
+                $result['video_id'][$num_workout]       = $row->ctw_video_id;
             }
             unset($row);
         }
@@ -3185,14 +3186,17 @@ class Course_model extends CI_Model
             }
             unset($workout);
 
-            $up_data = $this->db->query('
+            if(!empty($values))
+            {
+                $up_data = $this->db->query('
                 INSERT INTO `courses_training_weeks` 
                   (`ctw_course_id`, `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, 
                   `ctw_admin_add`, `ctw_date_add`, `ctw_date_update`) 
                 VALUES ' . $values);
-            if ($up_data === false)
-            {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                if ($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
         }
 
@@ -7242,6 +7246,7 @@ class Course_model extends CI_Model
     {
         $result = false;
         $values = '';
+        $new_course_end = '';
 
         $sel_data = $this->db->query('SELECT `uc_id`, `uc_days`, `uc_time` FROM `users_courses` WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1', array($user_id, $order_id, $course_id));
         if($sel_data !== false and 1 == $sel_data->num_rows())
@@ -7279,8 +7284,8 @@ class Course_model extends CI_Model
                     unset($row);
 
                     $sel_all = $this->db->query('
-                        SELECT `utw_id`, `utw_workout` FROM `users_training_weeks` 
-                        WHERE `utw_uc_id`=? and ((`utw_date`<? and `utw_status`="") or (`utw_date`>=?))
+                        SELECT `utw_id`, `utw_workout`, `utw_date`, `utw_time` FROM `users_training_weeks` 
+                        WHERE `utw_uc_id`=? and ((`utw_date`<? and `utw_status`="") or (`utw_date`>=? and `utw_status`=""))
                         ORDER BY `utw_workout`', array($user_course_id, $today, $today));
                     if($sel_all !== false and 0 < $sel_all->num_rows())
                     {
@@ -7326,9 +7331,8 @@ class Course_model extends CI_Model
                         }
 
                         $training_date = $new_course_start;
-                        $training_days  = $array_training_days;
-                        $count_days     = count($training_days);
-                        $new_course_end = '';
+                        $training_days = $array_training_days;
+                        $count_days    = count($training_days);
 
                         // Смещение тренировок
                         foreach($sel_all->result() as $row)
@@ -7339,7 +7343,15 @@ class Course_model extends CI_Model
                                 $cur_num_week  = date('N', strtotime($training_date));
                                 $training_time = (!empty($arr_training_times[$cur_num_week])) ? $arr_training_times[$cur_num_week] : '';
 
-                                $values .= '(' . $row->utw_id . ', ' . $row->utw_workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")<br/>';
+                                $values .= '(' . $row->utw_id . ', ' . $row->utw_workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
+
+                                $up_data = $this->db->query('
+                                    UPDATE `users_training_weeks` SET `utw_date`=?, `utw_time`=?, `utw_date_update`=? 
+                                    WHERE `utw_id`=? LIMIT 1', array($training_date, $training_time, $date, $row->utw_id));
+                                if($up_data === false)
+                                {
+                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                }
                             }
                             else
                             {
@@ -7372,15 +7384,69 @@ class Course_model extends CI_Model
                                     $cur_num_week  = date('N', strtotime($training_date));
                                     $training_time = (!empty($arr_training_times[$cur_num_week])) ? $arr_training_times[$cur_num_week] : '';
 
-                                    $values .= '(' . $row->utw_id . ', ' . $row->utw_workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")<br/>';
+                                    $values .= '(' . $row->utw_id . ', ' . $row->utw_workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
+
+                                    $up_data = $this->db->query('
+                                        UPDATE `users_training_weeks` SET `utw_date`=?, `utw_time`=?, `utw_date_update`=? 
+                                        WHERE `utw_id`=? LIMIT 1', array($training_date, $training_time, $date, $row->utw_id));
+                                    if($up_data === false)
+                                    {
+                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                    }
                                 }
                             }
 
                             $new_course_end = (empty($new_course_end) or $new_course_end < $training_date) ? $training_date : $new_course_end;
                         }
                         unset($row);
+                        
+                        // Сохранение новой даты окончания курса
+                        if(!empty($new_course_end))
+                        {
+                            $up_data = $this->db->query('
+                                UPDATE `users_courses` SET `uc_date_end`=? WHERE `uc_id`=? LIMIT 1', array($new_course_end, $user_course_id));
+                            if($up_data === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+                        }
 
-                        //
+                        // Дата начала паузы курса
+                        $course_pause_start = '';
+                        $sel_date = $this->db->query('
+                            SELECT `utw_date` FROM `users_training_weeks` 
+                            WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`<>"" 
+                            ORDER BY `utw_workout` DESC LIMIT 1',
+                                array($user_course_id, $today));
+                        if($sel_date !== false and 1 == $sel_date->num_rows())
+                        {
+                            $row = $sel_date->row();
+
+                            $tmp_date = new DateTime($row->utw_date);
+                            $tmp_date->add(new DateInterval('P1D'));
+                            $course_pause_start = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                        }
+                        elseif($sel_date === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+
+                        // Дата окончания паузы курса
+                        $tmp_date = new DateTime($today);
+                        $tmp_date->sub(new DateInterval('P1D'));
+                        $course_pause_end = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                        // Сохранение паузы курса
+                        if(!empty($course_pause_start) and !empty($course_pause_end))
+                        {
+                            $up_data = $this->db->query('
+                                INSERT INTO `users_courses_pauses`(`ucp_uc_id`, `ucp_pause_start`, `ucp_pause_end`) VALUES (?, ?, ?)',
+                                    array($user_course_id, $course_pause_start, $course_pause_end));
+                            if($up_data === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+                        }
                     }
                     elseif($sel_all === false)
                     {
@@ -7397,9 +7463,6 @@ class Course_model extends CI_Model
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
-
-        log_message('debug', $values);
-        log_message('debug', $new_course_end);
 
         return $result;
     }
@@ -9103,6 +9166,7 @@ class Course_model extends CI_Model
      * @param array $courses
      * @param string $reason
      * @param string $date
+     * @throws Exception
      */
     public function unblockUserOrderCourses($order_id, $user_id, $courses, $reason, $date)
     {
@@ -9110,16 +9174,37 @@ class Course_model extends CI_Model
         {
             foreach ($courses as $course)
             {
-                $up_data = $this->db->query('
-                    UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_date`=?, `uc_blocked_reason`=?  
-                    WHERE `uc_o_id`=? and `uc_course_id`=? and `uc_user_id`=? LIMIT 1',
-                        array($date, $reason, $order_id, $course['id'], $user_id));
-                if($up_data !== false and 1 == $this->db->affected_rows())
+                $sel_data = $this->db->query('SELECT `uc_blocked_reason` FROM `users_courses` WHERE `uc_o_id`=? and `uc_course_id`=? and `uc_user_id`=? LIMIT 1',
+                    array($order_id, $course['id'], $user_id));
+                if($sel_data !== false and 1 == $sel_data->num_rows())
                 {
-                    // Проверка и смещение тренировок
-                    //self::shiftUserCourseWorkouts($user_id, $order_id, $course['id'], $date);
+                    $row = $sel_data->row();
+                    if($row->uc_blocked_reason == 'free_weeks_over')
+                    {
+                        $up_data = $this->db->query('
+                            UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_date`=?, `uc_blocked_reason`=?, `uc_free_weeks_end_date`="0000-00-00"  
+                            WHERE `uc_o_id`=? and `uc_course_id`=? and `uc_user_id`=? LIMIT 1',
+                                array($date, $reason, $order_id, $course['id'], $user_id));
+                    }
+                    else
+                    {
+                        $up_data = $this->db->query('
+                            UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_date`=?, `uc_blocked_reason`=?  
+                            WHERE `uc_o_id`=? and `uc_course_id`=? and `uc_user_id`=? LIMIT 1',
+                                array($date, $reason, $order_id, $course['id'], $user_id));
+                    }
+
+                    if($up_data !== false and 1 == $this->db->affected_rows())
+                    {
+                        // Проверка и смещение тренировок
+                        self::shiftUserCourseWorkouts($user_id, $order_id, $course['id'], $date);
+                    }
+                    elseif ($up_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
                 }
-                elseif ($up_data === false)
+                elseif($sel_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
@@ -10603,6 +10688,27 @@ class Course_model extends CI_Model
 
                 $result = self::parseCheckPromocodeData($promocode_data, $row);
 
+                // Информация о курсе
+                if($row->pc_type == 'course')
+                {
+                    $sel_data = $this->db->query('
+                        SELECT `pcc_pc_id`, `pcc_crs_id`, `crs_id`, `crs_name` 
+                        FROM `promocode_courses`
+                        LEFT JOIN `courses` ON `crs_id`=`pcc_crs_id`
+                        WHERE `pcc_pc_id`=? LIMIT 1', $row->pc_id);
+                    if($sel_data !== false and 1 == $sel_data->num_rows())
+                    {
+                        $row = $sel_data->row();
+
+                        $result['type']   = (!empty($row->crs_name)) ? $row->crs_name : 'Курс №'.$row->crs_id;
+                        $result['crs_id'] = $row->crs_id;
+                    }
+                    elseif($sel_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+
                 unset($row);
             }
             elseif($sel_promo_data === false)
@@ -10670,7 +10776,7 @@ class Course_model extends CI_Model
 
         // Действует на
         $pc_types = array('Все курсы' => 'all', 'Курсы тренировок' => 'workouts', 'Курсы питания' => 'nutritions',
-            'Категории курсов' => 'categories', 'Некоторые курсы' => 'courses');
+            'Категории курсов' => 'categories', 'Некоторые курсы' => 'courses', 'Курс' => 'course');
         $key_type          = array_search($row->pc_type, $pc_types);
         $result['type']    = (!empty($key_type)) ? $key_type : '';
         $result['pc_type'] = $row->pc_type;

@@ -1174,7 +1174,7 @@ class Course extends CI_Controller
         $course          = $this->Course_model->getCourse($course_id);
 
         $course_coaches  = $this->Course_model->getCourseCoachesId($course_id);
-        $course_schedule = $this->Course_model->getCourseSchedules($course_id);
+        $course_schedule = $this->Course_model->getCourseSchedule($course_id);
 
         // Валидация и сохранение данных
         if ($this->input->post('bt_save_course', true))
@@ -1288,7 +1288,7 @@ class Course extends CI_Controller
             }
 
             // Инструктаж
-            $db_instruction = (!empty($course['instruction']) and $course['instruction']['video_id'] > 0) ? $course['instruction']['video_id'] : false;
+            /*$db_instruction = (!empty($course['instruction']) and $course['instruction']['video_id'] > 0) ? $course['instruction']['video_id'] : false;
             $instruction    = (is_numeric($this->input->post('video_instruction', true))) ? $this->input->post('video_instruction', true) : 0;
             $schedule['workouts'][0]['video_id'] = $instruction;
             $schedule['workouts'][0]['repeat_workout'] = 0;
@@ -1302,7 +1302,7 @@ class Course extends CI_Controller
             elseif ($db_instruction === false and $instruction != 0)
             {
                 $schedule['insert'][0] = $schedule['workouts'][0];
-            }
+            }*/
 
             // Заполнение занятий
             $workout = 1;
@@ -1333,14 +1333,13 @@ class Course extends CI_Controller
                 $sw = $schedule['workouts'][$workout];
 
                 // Поиск в массиве сохраненных тренировок
-                $search_key = (!empty($course_schedule['num_workout'])) ? array_search($workout, $course_schedule['num_workout']) : false;
+                $search_key = (!empty($course_schedule['num_workout']) and array_key_exists($workout, $course_schedule['num_workout'])) ? $workout : false;
 
                 // Если нашел тренировку и хотя бы одно значение данных отличается, обновить данные
                 if (is_numeric($search_key) and ($course_schedule['repeat_workout'][$search_key] != $sw['repeat_workout']
                         or $course_schedule['description'][$search_key] != $sw['description']
                         or $course_schedule['video_id'][$search_key] != $sw['video_id']))
                 {
-
                     $schedule['update'][$workout] = $sw;
                 }
                 // Если не нашел тренировку, добавить данные
@@ -1355,7 +1354,6 @@ class Course extends CI_Controller
             }
             // Удаление тренировок
             $schedule['delete'] = (!empty($course_schedule['num_workout'])) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
-
 
             /* СОХРАНЕНИЕ ИЗМНЕНИЙ */
             $result_settings  = null;
@@ -6757,7 +6755,7 @@ class Course extends CI_Controller
             ? $category_id : null;
         $page_cat_string    = (is_numeric($page_cat_string)) ? $page_cat_string : strip_tags($page_cat_string);
 
-        //echo $courses_category.PHP_EOL.$courses_type.PHP_EOL.$coaches_crs_cat.PHP_EOL.$coaches_crs_type;
+        //echo $courses_category.PHP_EOL.$page_category.PHP_EOL.$category_id.PHP_EOL.$page_cat_string;
 
         if(!empty($page_category) and $page_category == 'promocode' and !empty($page_cat_string))
         {

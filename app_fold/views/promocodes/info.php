@@ -28,10 +28,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="pcbi_detail_val"><?php echo $pc_info['use_amount']; ?></div>
         </div>
         <div class="pcbi_details">
+            <?php
+            $crs_url = ($pc_info['pc_type'] != 'all') ? '/courses/promocode/' . $pc_info['promocode'] : '/courses';
+            $crs_url = ($pc_info['pc_type'] == 'course') ? '/course/'.$pc_info['crs_id'] : $crs_url;
+            $valid_for = ($pc_info['pc_type'] == 'course') ? ' курс' : '';
+            ?>
             <div class="pcbi_detail_h">Действует</div>
-            <div class="pcbi_detail_sh">на</div>
+            <div class="pcbi_detail_sh">на<?php echo $valid_for; ?></div>
             <div class="pcbi_detail_val">
-                <?php $crs_url = ($pc_info['type']  != 'Все курсы') ? '/courses/promocode/' . $pc_info['promocode'] : '/courses'; ?>
                 <a href="<?php echo $crs_url; ?>"><?php echo $pc_info['type']; ?></a>
             </div>
         </div>

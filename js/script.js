@@ -108,8 +108,9 @@ $(document).ready(function () {
 
         $(".buy_course").on('click', function (event) {
             event.preventDefault();
-            var cid = $(this).data('cid'),
-                oid = $(this).data('oid'),
+            var cid  = $(this).data('cid'),
+                oid  = $(this).data('oid'),
+                po   = $(this).data('po'),
                 pc_s = $('#pc-string').val();
             purchase_form = $('.purchase_form');
 
@@ -127,7 +128,7 @@ $(document).ready(function () {
                     if (data.crs) {
                         purchase_form.html(data.crsd);
 
-                        purchase_up();
+                        purchase_up(po);
                         $('.anketa_form_select, .journal_form_select').styler();
 
                         purchase_form.find(".promo_line").on('click', function () {
@@ -1217,6 +1218,7 @@ $(document).ready(function () {
             if (pm_op === 'rec') {
                 payment_options.val('partial_payment');
                 $('#course-price').parents('.kurs_cur_wrap').hide();
+                $('#recurrent-block').show();
             }
             payment_options.change();
             payment_options.parents('.kurs_cur_wrap').hide();
