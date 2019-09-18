@@ -8407,94 +8407,110 @@ class Course_model extends CI_Model
 
             if($sel_user_course !== false and 0 == $sel_user_course->num_rows())
             {
-                // Добавление нового курса
-                $up_data = $this->db->query('
+
+                $sel_duplicates = $this->db->query('
+                    SELECT `uc_id` FROM `users_courses` 
+                    WHERE `uc_user_id`=? and `uc_course_id`=? and `uc_blocked`=0 and `uc_date_start`="0000-00-00" LIMIT 1', array($user_id, $course_id));
+                if($sel_duplicates !== false and 0 == $sel_duplicates->num_rows())
+                {
+                    // Добавление нового курса
+                    $up_data = $this->db->query('
                     INSERT INTO `users_courses` 
                       (`uc_o_id`, `uc_user_id`, `uc_course_id`, `uc_coach_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_free_weeks`, `uc_free_weeks_end_date`, `uc_date_update`) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                         array($order_id, $user_id, $course_id, $user_coach, $training_days, $start_date, $end_date, $free_weeks, $free_weeks_end_date, $date));
 
-                /* Если курс успешно добавлен, то:
-                 * - добавляем дни недели тренировок в другую таблицу (для вывода реальных дат тренировок при изменении дней недели тренировок пользователем)
-                 * - добавляем каждую тренировку по отдельности в другую таблицу (для статистики выполненных тренировок)
-                */
-                if ($up_data !== false and 1 == $this->db->affected_rows())
-                {
-                    // ID курса в таблице курсов пользователей
-                    $uc_id = $this->db->insert_id();
-
-                    if($course_category == 'workout')
+                    /* Если курс успешно добавлен, то:
+                     * - добавляем дни недели тренировок в другую таблицу (для вывода реальных дат тренировок при изменении дней недели тренировок пользователем)
+                     * - добавляем каждую тренировку по отдельности в другую таблицу (для статистики выполненных тренировок)
+                    */
+                    if ($up_data !== false and 1 == $this->db->affected_rows())
                     {
-                        // Добавляем дни недели тренировок
-                        if (!empty($training_days))
+                        // ID курса в таблице курсов пользователей
+                        $uc_id = $this->db->insert_id();
+
+                        if($course_category == 'workout')
                         {
-                            $up_data = $this->db->query('
+                            // Добавляем дни недели тренировок
+                            if (!empty($training_days))
+                            {
+                                $up_data = $this->db->query('
                                 INSERT INTO `users_training_days` (`utd_uc_id`, `utd_days`, `utd_date_update`) 
                                 VALUES (?, ?, ?)', array($uc_id, $training_days, $date));
-                            if ($up_data === false)
-                            {
-                                parent::logDbMessages(__METHOD__.':'.__LINE__);
-                            }
-                        }
-
-                        // Проверка на существование прикрепленных курсов
-                        $sel_attached = $this->db->query('
-                            SELECT `ca_attached_crs_id`, `crs_count_weeks`, `crs_count_days` 
-                            FROM `courses_attached`
-                            LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
-                            WHERE `ca_crs_id`=? and `ca_blocked`=0', $course_id);
-                        if($sel_attached !== false and 0 < $sel_attached->num_rows())
-                        {
-                            // Если курс один, прикрепляем.
-                            if($sel_attached->num_rows() == 1)
-                            {
-                                $row = $sel_attached->row();
-
-                                // Добавляем прикрепленный курс
-                                self::setAttachedCourseOfUserCourse($order_id, $user_id,  $row->ca_attached_crs_id, $uc_id, $user_coach, $training_days, $start_date, $end_date, $date);
-                            }
-
-                            /*$start_date = (empty($start_date)) ? $date : $start_date;
-
-                            foreach($sel_attached->result() as $row)
-                            {
-                                $count_nutritions = $row->crs_count_weeks * $row->crs_count_days;
-                                $tmp_date = new DateTime($start_date);
-                                $tmp_date->add(new DateInterval("P" . $count_nutritions . "D"));
-                                $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
-
-                                // Добавляем прикрепленные курсы
-                                $ins_data = $this->db->query('
-                                    INSERT INTO `users_courses`
-                                      (`uc_o_id`, `uc_user_id`, `uc_course_id`, `uc_attached_uc_id`, `uc_coach_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_date_update`)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                        array($order_id, $user_id, $row->ca_attached_crs_id, $uc_id, $user_coach, $training_days, $start_date, $end_date, $date));
-                                if($ins_data !== false and 1 == $this->db->affected_rows())
-                                {
-                                    $nuc_id = $this->db->insert_id();
-
-                                    // Сохранение расписания курса питания
-                                    self::setUserNutritionSchedule($row->ca_attached_crs_id, $nuc_id, $start_date, $date);
-                                }
-                                elseif ($ins_data === false)
+                                if ($up_data === false)
                                 {
                                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                                 }
                             }
-                            unset($row);*/
-                        }
-                        elseif($sel_attached === false)
-                        {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
-                        }
-                    }
-                    elseif($course_category == 'nutrition' and !empty($start_date))
-                    {
-                        // Сохранение расписания курса питания
-                        self::setUserNutritionSchedule($course_id, $uc_id, $start_date, $date);
-                    }
 
-                    $result = $uc_id;
+                            // Проверка на существование прикрепленных курсов
+                            $sel_attached = $this->db->query('
+                            SELECT `ca_attached_crs_id`, `crs_count_weeks`, `crs_count_days` 
+                            FROM `courses_attached`
+                            LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
+                            WHERE `ca_crs_id`=? and `ca_blocked`=0', $course_id);
+                            if($sel_attached !== false and 0 < $sel_attached->num_rows())
+                            {
+                                // Если курс один, прикрепляем.
+                                if($sel_attached->num_rows() == 1)
+                                {
+                                    $row = $sel_attached->row();
+
+                                    // Добавляем прикрепленный курс
+                                    self::setAttachedCourseOfUserCourse($order_id, $user_id,  $row->ca_attached_crs_id, $uc_id, $user_coach, $training_days, $start_date, $end_date, $date);
+                                }
+
+                                /*$start_date = (empty($start_date)) ? $date : $start_date;
+
+                                foreach($sel_attached->result() as $row)
+                                {
+                                    $count_nutritions = $row->crs_count_weeks * $row->crs_count_days;
+                                    $tmp_date = new DateTime($start_date);
+                                    $tmp_date->add(new DateInterval("P" . $count_nutritions . "D"));
+                                    $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                                    // Добавляем прикрепленные курсы
+                                    $ins_data = $this->db->query('
+                                        INSERT INTO `users_courses`
+                                          (`uc_o_id`, `uc_user_id`, `uc_course_id`, `uc_attached_uc_id`, `uc_coach_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_date_update`)
+                                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                            array($order_id, $user_id, $row->ca_attached_crs_id, $uc_id, $user_coach, $training_days, $start_date, $end_date, $date));
+                                    if($ins_data !== false and 1 == $this->db->affected_rows())
+                                    {
+                                        $nuc_id = $this->db->insert_id();
+
+                                        // Сохранение расписания курса питания
+                                        self::setUserNutritionSchedule($row->ca_attached_crs_id, $nuc_id, $start_date, $date);
+                                    }
+                                    elseif ($ins_data === false)
+                                    {
+                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                    }
+                                }
+                                unset($row);*/
+                            }
+                            elseif($sel_attached === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+                        }
+                        elseif($course_category == 'nutrition' and !empty($start_date))
+                        {
+                            // Сохранение расписания курса питания
+                            self::setUserNutritionSchedule($course_id, $uc_id, $start_date, $date);
+                        }
+
+                        $result = $uc_id;
+                    }
+                }
+                elseif($sel_duplicates === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                else
+                {
+                    // Очистка заказа
+                    self::cleanOrder($order_id, $user_id);
                 }
             }
             elseif ($sel_user_course === false)
@@ -8507,6 +8523,48 @@ class Course_model extends CI_Model
                 $reason = 'payment_succeeded';
                 // Разблокировка курса
                 $result = self::unblockUserOrderCourses($order_id, $user_id, $courses, $reason, $date);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка наличия курса в использовании у пользователя
+     *
+     * @param $course_id
+     * @param $user_id
+     * @param $order_id
+     * @param $date
+     * @return bool
+     * @throws Exception
+     */
+    public function checkUserCourse($course_id, $user_id, $order_id, $date)
+    {
+        $result = false;
+
+        if(is_numeric($course_id) and is_numeric($user_id))
+        {
+            if(is_numeric($order_id))
+            {
+                $sel_duplicates = $this->db->query('
+                    SELECT `uc_id` FROM `users_courses` 
+                    WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1', array($user_id, $order_id, $course_id));
+            }
+            else
+            {
+                $tmp_date = new DateTime($date);
+                $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+                $sel_duplicates = $this->db->query('
+                    SELECT `uc_id` FROM `users_courses` 
+                    WHERE `uc_user_id`=? and `uc_course_id`=? and `uc_blocked`=0 and (`uc_date_start`="0000-00-00" or `uc_date_end`>?) LIMIT 1',
+                        array($user_id, $course_id, $today));
+            }
+
+            if($sel_duplicates !== false and 0 == $sel_duplicates->num_rows())
+            {
+                $result = true;
             }
         }
 

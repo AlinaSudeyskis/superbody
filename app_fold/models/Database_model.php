@@ -2542,6 +2542,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-09-18 19:11';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (207, 'Курс уже добавлен в Ваш профиль.', 'Курс уже добавлен в Ваш профиль.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
