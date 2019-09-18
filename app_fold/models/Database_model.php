@@ -2520,7 +2520,7 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2019-09-13 15:43';
+        $date = '2019-09-18 12:45';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
