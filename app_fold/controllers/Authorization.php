@@ -1587,6 +1587,8 @@ class Authorization extends CI_Controller
         $result['return'] = parse_url($return, PHP_URL_QUERY);
         $result['fail_return'] = parse_url($fail_return, PHP_URL_QUERY);
 
+        log_message('debug', 'Return and fail return url: ' . $result['return'] .' '. $result['fail_return']);
+
         return $result;
     }
 
