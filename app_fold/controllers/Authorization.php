@@ -910,7 +910,6 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
-        $return = (!empty($return) and $return != '/profile/') ? $return : '/';
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_insta_login', true) or $this->input->post('bt_connect_instagram', true)) {
@@ -974,7 +973,7 @@ class Authorization extends CI_Controller
                         parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                             $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                        $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
+                        $return = ($return == '/profile/' and !empty($this->session->user['id'])) ? $return . $this->session->user['id'] : $return;
 
                         parent::deleteSessionReturnUrl();
 
@@ -1091,7 +1090,6 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
-        $return = (!empty($return) and $return != '/profile/') ? $return : '/';
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_vk_login', true) or $this->input->post('bt_connect_vk', true))
@@ -1177,7 +1175,7 @@ class Authorization extends CI_Controller
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                                 $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            $return = ($return == '/profile/') ? ($return . $this->session->user['id']) : $return;
+                            $return = ($return == '/profile/' and !empty($this->session->user['id'])) ? $return . $this->session->user['id'] : $return;
 
                             parent::deleteSessionReturnUrl();
 
@@ -1308,7 +1306,6 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
-        $return = (!empty($return) and $return != '/profile/') ? $return : '/';
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_facebook_login', true) or $this->input->post('bt_connect_facebook', true))
@@ -1371,7 +1368,7 @@ class Authorization extends CI_Controller
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                                 $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
+                            $return = ($return == '/profile/' and !empty($this->session->user['id'])) ? $return . $this->session->user['id'] : $return;
 
                             parent::deleteSessionReturnUrl();
 
@@ -1589,8 +1586,6 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
-        $return = (!empty($return) and $return != '/profile/') ? $return : '/';
-
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_ok_login', true) or $this->input->post('bt_connect_ok', true))
@@ -1677,7 +1672,7 @@ class Authorization extends CI_Controller
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                                 $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            $return = ($return == '/profile/') ? $return . $this->session->user['id'] : $return;
+                            $return = ($return == '/profile/' and !empty($this->session->user['id'])) ? $return . $this->session->user['id'] : $return;
 
                             parent::deleteSessionReturnUrl();
 
