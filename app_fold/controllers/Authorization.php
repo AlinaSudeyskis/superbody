@@ -1355,6 +1355,7 @@ class Authorization extends CI_Controller
                     if (empty($this->session->user))
                     {
                         $fb_u_data['user_email'] = (!empty($email)) ? $email : $fb_u_data['user_email'];
+                        log_message('debug', __METHOD__.':'.__LINE__. ' User email: ' . $fb_u_data['user_email']);
 
                         $result = $this->Authorization_model->validSocLoginId('facebook', $this->date, $fb_u_data['user_access_token'],
                             $fb_u_data['user_soc_id'], $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in'],
@@ -1372,8 +1373,6 @@ class Authorization extends CI_Controller
 
                             $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
                                 ? $return . $this->session->user['id'] : $return;
-                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session id: ' . $this->session->user['id']);
-                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' Return url: ' . $return);
 
                             parent::deleteSessionReturnUrl();
 
@@ -1503,6 +1502,7 @@ class Authorization extends CI_Controller
             curl_close($myCurl4);
             $resp_debug_token = json_decode($response);
 
+            log_message('debug', 'Facebook response ' . print_r($resp_debug_token, true));
             if (!empty($resp_debug_token->data) and $resp_debug_token->data->is_valid === true)
             {
                 $result['user_soc_id']   = $resp_debug_token->data->user_id;
