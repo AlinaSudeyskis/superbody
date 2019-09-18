@@ -358,7 +358,7 @@ class Authorization_model extends CI_Model
                         $user_soc_bd, $user_soc_gender, $user_profile_url, $access_token, $expires_at, $issued_at, $expires_in, $date);
 
                     // Авторизуем пользователя
-                    $result = self::userSocialAuthorization($row->us_u_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id,
+                    $result = self::userSocialAuthorization($row->user_id, $access_token, $expires_at, $issued_at, $expires_in, $soc, $user_soc_id,
                         $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender, $user_profile_url, $date);
                 }
                 elseif($sel_user === false)
