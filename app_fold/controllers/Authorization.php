@@ -1314,7 +1314,7 @@ class Authorization extends CI_Controller
         {
             header(
                 sprintf(
-                    'Location:%s?client_id=%s&redirect_uri=%s&state=%s&response_type=code',
+                    'Location:%s?client_id=%s&redirect_uri=%s&state=%s&scope=%s&response_type=code',
                     $url_authorize,
                     $client_id,
                     $redirect_uri,
@@ -1372,6 +1372,8 @@ class Authorization extends CI_Controller
 
                             $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
                                 ? $return . $this->session->user['id'] : $return;
+                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session id: ' . $this->session->user['id']);
+                            log_message('debug', __METHOD__ . ':' . __LINE__ . ' Return url: ' . $return);
 
                             parent::deleteSessionReturnUrl();
 
