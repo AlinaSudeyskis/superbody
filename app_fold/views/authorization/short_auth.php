@@ -5,7 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <form action="" method="post" class="anketa_form video_admin_form">
         <?php include_once('./app_fold/views/authorization/auth_soc_item.php'); ?>
         <div class="sing-in_h tren_form_block_check_wrap">
-            <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-4" required="required" />
+            <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-4" required="required" checked="checked"/>
             <label for="cb-politics-4">согласие на
                 <a href="#" class="reg_in_link policy">обработку персональных данных</a>
             </label>

@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="password" name="password" placeholder="пароль" value="" maxlength="255" minlength="8" autocomplete="off" class="sing-in_in"/>
             <input type="password" name="password_confirm" placeholder="подтвердить пароль" value="" maxlength="255" minlength="8" autocomplete="off" class="sing-in_in"/>
             <div class="sing-in_h tren_form_block_check_wrap">
-                <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics" required="required" />
+                <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics" required="required" checked="checked" />
                 <label for="cb-politics">согласие на
                     <a href="#" class="reg_in_link policy">обработку персональных данных</a>
                 </label>

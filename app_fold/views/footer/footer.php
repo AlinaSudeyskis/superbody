@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="text" name="subscribe_email" class="subscribe_form_in valid_email" placeholder="УКАЖИТЕ EMAIL" required="required" maxlength="255" />
                             <input type="text" name="subscribe_name" class="subscribe_form_in" placeholder="ВАШЕ ИМЯ" required="required" maxlength="255" />
                             <div class="sing-in_h tren_form_block_check_wrap">
-                                <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-2" required="required" />
+                                <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-2" required="required" checked="checked" />
                                 <label for="cb-politics-2">согласие на
                                     <a href="#" class="reg_in_link policy">обработку персональных данных</a>
                                 </label>
