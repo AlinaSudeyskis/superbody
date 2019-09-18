@@ -895,6 +895,12 @@ class Authorization extends CI_Controller
         $return      = $pars_return['return'];
         $fail_return = $pars_return['fail_return'];
 
+        if(empty($this->session->return_url))
+        {
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
+        }
+
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_insta_login', true) or $this->input->post('bt_connect_instagram', true)) {
@@ -1021,6 +1027,12 @@ class Authorization extends CI_Controller
         $pars_return = self::parseSocialReturnUrl($this->input->post('hi_return', true), $this->input->get('hi_return', true), $return);
         $return      = $pars_return['return'];
         $fail_return = $pars_return['fail_return'];
+
+        if(empty($this->session->return_url))
+        {
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
+        }
 
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
@@ -1184,6 +1196,12 @@ class Authorization extends CI_Controller
         $pars_return = self::parseSocialReturnUrl($this->input->post('hi_return', true), $this->input->get('hi_return', true), $return);
         $return      = $pars_return['return'];
         $fail_return = $pars_return['fail_return'];
+
+        if(empty($this->session->return_url))
+        {
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
+        }
 
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
@@ -1417,6 +1435,12 @@ class Authorization extends CI_Controller
         $return      = $pars_return['return'];
         $fail_return = $pars_return['fail_return'];
 
+        if(empty($this->session->return_url))
+        {
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
+        }
+
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_ok_login', true) or $this->input->post('bt_connect_ok', true))
@@ -1574,9 +1598,6 @@ class Authorization extends CI_Controller
 
             $return      = $this->session->return_url;
             $fail_return = $this->session->fail_return_url;
-
-            $user_data['input_email'] = $email;
-            $this->session->set_userdata($user_data);
         }
         else
         {
