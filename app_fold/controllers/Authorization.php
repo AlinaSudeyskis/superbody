@@ -973,7 +973,8 @@ class Authorization extends CI_Controller
                         parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                             $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                        $return = ($return == '/profile/' and !empty($this->session->user['id'])) ? $return . $this->session->user['id'] : $return;
+                        $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
+                            ? $return . $this->session->user['id'] : $return;
 
                         parent::deleteSessionReturnUrl();
 
@@ -1175,7 +1176,8 @@ class Authorization extends CI_Controller
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                                 $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            $return = ($return == '/profile/' and !empty($this->session->user['id'])) ? $return . $this->session->user['id'] : $return;
+                            $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
+                                ? $return . $this->session->user['id'] : $return;
 
                             parent::deleteSessionReturnUrl();
 
@@ -1368,7 +1370,8 @@ class Authorization extends CI_Controller
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                                 $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            $return = ($return == '/profile/' and !empty($this->session->user['id'])) ? $return . $this->session->user['id'] : $return;
+                            $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
+                                ? $return . $this->session->user['id'] : $return;
 
                             parent::deleteSessionReturnUrl();
 
@@ -1672,7 +1675,8 @@ class Authorization extends CI_Controller
                             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
                                 $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
-                            $return = ($return == '/profile/' and !empty($this->session->user['id'])) ? $return . $this->session->user['id'] : $return;
+                            $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
+                                ? $return . $this->session->user['id'] : $return;
 
                             parent::deleteSessionReturnUrl();
 
