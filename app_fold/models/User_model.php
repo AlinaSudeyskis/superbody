@@ -332,6 +332,38 @@ class User_model extends CI_Model
     }
 
     /**
+     * Сохранение изменений регистрационных данных пользователя
+     *
+     * @param int $user_id ID пользователя
+     * @param string $name Ф.И.О. пользователя
+     * @param string $email
+     * @param string $path_avatar Путь к изображению пользователя
+     * @param datetime $date Текущая дата
+     * @return bool
+     */
+    public function setAUserSettingsData($user_id, $email, $name, $path_avatar, $date)
+    {
+        $up_data = $this->db->query('
+            UPDATE `users` SET `user_email`=?, `user_name`=?, `user_image`=?, `user_date_update`=?
+            WHERE `user_id`=? LIMIT 1',
+                array($email, $name, $path_avatar, $date, $user_id));
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            return true;
+        }
+        elseif ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            return false;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    /**
      * Сохранение изменений пола и даты рождения пользователя
      *
      * @param int $user_id ID пользователя
@@ -784,10 +816,13 @@ class User_model extends CI_Model
         }
 
         // Удаление данных подписки
-        $del_data = $this->db->query('UPDATE `subscription` SET `s_unsubscribe`=1 WHERE `s_email`=? LIMIT 1', $user_email);
-        if($del_data === false)
+        if(!empty($user_email))
         {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $del_data = $this->db->query('UPDATE `subscription` SET `s_unsubscribe`=1 WHERE `s_email`=? LIMIT 1', $user_email);
+            if($del_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
 
         // Удаление регистрационных данных

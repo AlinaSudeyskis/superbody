@@ -2103,14 +2103,13 @@ class User extends CI_Controller
                 && filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
             {
                 $email = $this->input->post('email', true);
-            } else {
+            }
+            else {
                 $email = $user_data['user_email'];
             }
 
             // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
-
-            $password_hash = $user_data['user_password_hash'];
 
             // Загрузка изображения на сервер
             $path_avatar = '.' . $user_data['user_image'];
@@ -2147,7 +2146,7 @@ class User extends CI_Controller
             }
 
             // Сохранение данных в БД
-            $result = $this->User_model->setUserSettingsData($user_id, $email, $name, $password_hash, $path_avatar, $this->date);
+            $result = $this->User_model->setAUserSettingsData($user_id, $email, $name, $path_avatar, $this->date);
 
             if ($result === true) {
                 // Сохранено

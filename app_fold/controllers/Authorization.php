@@ -910,6 +910,7 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
+        $return = (!empty($return) and $return != '/profile/') ? $return : '/';
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_insta_login', true) or $this->input->post('bt_connect_instagram', true)) {
@@ -1090,6 +1091,7 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
+        $return = (!empty($return) and $return != '/profile/') ? $return : '/';
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_vk_login', true) or $this->input->post('bt_connect_vk', true))
@@ -1306,6 +1308,7 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
+        $return = (!empty($return) and $return != '/profile/') ? $return : '/';
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_facebook_login', true) or $this->input->post('bt_connect_facebook', true))
@@ -1586,7 +1589,9 @@ class Authorization extends CI_Controller
             $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
         }
 
-        log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
+        $return = (!empty($return) and $return != '/profile/') ? $return : '/';
+
+        //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
         if ($this->input->post('bt_ok_login', true) or $this->input->post('bt_connect_ok', true))
         {

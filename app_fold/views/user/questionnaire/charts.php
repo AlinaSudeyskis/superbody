@@ -29,7 +29,7 @@ $prefix = ($gender === 'female') ? 'w amcharts' : 'amcharts';?>
             <?php if (!empty($anthropometric)) :
                 foreach ($anthropometric as $key => $anthrop_data) :
                     $prev_value = ($key > 0) ? $anthropometric[$key-1]['weight'] : $anthrop_data['weight'];
-                    $percent = (!empty($prev_value) and !empty($prev_value)) ? (round($anthrop_data['weight'] * 100 / $prev_value) - 100) : null;
+                    $percent = (!empty($prev_value) and !empty($anthrop_data['weight'])) ? (round($anthrop_data['weight'] * 100 / $prev_value) - 100) : null;
                     if ($percent > 0) {
                         $mark = "<span class='plas_chart'></span>";
                     }
@@ -53,7 +53,7 @@ $prefix = ($gender === 'female') ? 'w amcharts' : 'amcharts';?>
                     });
 
                     <?php $prev_value = ($key > 0) ? $anthropometric[$key-1]['chest'] : $anthrop_data['chest'];
-                    $percent = (!empty($prev_value) and !empty($prev_value)) ? (round($anthrop_data['chest'] * 100 / $prev_value) - 100) : null;
+                    $percent = (!empty($prev_value) and !empty($anthrop_data['chest'])) ? (round($anthrop_data['chest'] * 100 / $prev_value) - 100) : null;
                     if ($percent > 0) {
                         $mark = "<span class='plas_chart'></span>";
                     }
@@ -75,7 +75,7 @@ $prefix = ($gender === 'female') ? 'w amcharts' : 'amcharts';?>
                     });
 
                     <?php $prev_value = ($key > 0) ? $anthropometric[$key-1]['waist'] : $anthrop_data['waist'];
-                    $percent = (!empty($prev_value) and !empty($prev_value)) ? (round($anthrop_data['waist'] * 100 / $prev_value) - 100) : null;
+                    $percent = (!empty($prev_value) and !empty($anthrop_data['waist'])) ? (round($anthrop_data['waist'] * 100 / $prev_value) - 100) : null;
                     if ($percent > 0) {
                         $mark = "<span class='plas_chart'></span>";
                     }
@@ -97,7 +97,7 @@ $prefix = ($gender === 'female') ? 'w amcharts' : 'amcharts';?>
                     });
 
                     <?php $prev_value = ($key > 0) ? $anthropometric[$key-1]['buttocks'] : $anthrop_data['buttocks'];
-                    $percent = (!empty($prev_value) and !empty($prev_value)) ? (round($anthrop_data['buttocks'] * 100 / $prev_value) - 100) : null;
+                    $percent = (!empty($prev_value) and !empty($anthrop_data['buttocks'])) ? (round($anthrop_data['buttocks'] * 100 / $prev_value) - 100) : null;
                     if ($percent > 0) {
                         $mark = "<span class='plas_chart'></span>";
                     }
