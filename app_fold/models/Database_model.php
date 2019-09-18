@@ -2533,6 +2533,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-09-18 15:27';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE FROM `users_social` WHERE `us_id`=20 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

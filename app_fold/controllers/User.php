@@ -30,6 +30,7 @@ class User extends CI_Controller
      *
      * @param $user_id
      * @return void
+     * @throws Exception
      */
     public function profile($user_id)
     {

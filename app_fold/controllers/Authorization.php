@@ -886,29 +886,14 @@ class Authorization extends CI_Controller
         $grant_type    = 'authorization_code';
         $scope         = array( 'basic' );
         $email         = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-            ? $this->input->post('email', true)
-            : $email;
+            ? $this->input->post('email', true) : $email;
+        $email         = (!empty($this->session->input_email) and filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL))
+            ? $this->session->input_email : $email;
 
         // Обработка ссылки для возврата
-        if(empty($this->session->return_url))
-        {
-            // Данные POST или GET
-            $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
-
-            parent::setSessionReturnUrl($return_data, $return);
-
-            $return      = $this->session->return_url;
-            $fail_return = $this->session->fail_return_url;
-
-            $user_data['input_email'] = $email;
-            $this->session->set_userdata($user_data);
-        }
-        else
-        {
-            $return      = $this->session->return_url;
-            $fail_return = $this->session->fail_return_url;
-            $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
-        }
+        $pars_return = self::parseSocialReturnUrl($this->input->post('hi_return', true), $this->input->get('hi_return', true), $return);
+        $return      = $pars_return['return'];
+        $fail_return = $pars_return['fail_return'];
 
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
@@ -958,54 +943,15 @@ class Authorization extends CI_Controller
 
                 if (empty($this->session->user))
                 {
-                    //echo $resp_data->user->id;
                     // Сравнение данных соц. сети с данными БД -> авторизация (обновление данных) или регистрация
-                    $result = $this->Authorization_model->validSocLoginId('instagram', $this->date, $user_access_token,
-                        $user_soc_id, $expires_at, $issued_at, $expires_in, $user_email, $user_name, $user_image,
-                        $user_birthday, $user_gender, $user_profile_url);
-
-                    if (!empty($result['user']))
-                    {
-                        $user = $result['user'];
-
-                        $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
-
-                        parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
-                            $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
-
-                        $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
-                            ? $return . $this->session->user['id'] : $return;
-
-                        parent::deleteSessionReturnUrl();
-
-                        // Отправляем письмо с уведомлением об регистрации
-                        if (!empty($user_email) and filter_var($user_email, FILTER_VALIDATE_EMAIL))
-                        {
-                            $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                            $system_message['text']  .= 'Перейти на сайт';
-                            $system_message['text']  .= '</a></b>';
-
-                            parent::sendEmail(2, $user_email, $system_message);
-                        }
-
-                        header('Location: ' . $return);
-                    }
-                    else
-                    {
-                        // Не удалось авторизоваться. Повторите попытку
-                        $this->session->set_tempdata('message', 5, 60);
-
-                        log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
-
-                        parent::deleteSessionReturnUrl();
-
-                        header('Location: ' . $fail_return);
-                    }
+                    self::validationSocialLogin('instagram', $user_access_token, $user_soc_id, $expires_at, $issued_at, $expires_in,
+                        $user_email, $user_name, $user_image, $user_birthday, $user_gender, $user_profile_url, $return, $fail_return);
                 }
                 else
                 {
                     $result = $this->Authorization_model->connectSocial($this->user_id, 'instagram', $this->date, $user_access_token,
-                        $user_soc_id, $user_profile_url, $expires_at, $issued_at, $expires_in);
+                        $user_soc_id, $user_email, $user_name, $user_image, $user_birthday, $user_gender, $user_profile_url,
+                        $expires_at, $issued_at, $expires_in);
 
                     if($result === true)
                     {
@@ -1067,29 +1013,14 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/vk_login';
         $scope         = array( 'email', 'offline' );
         $email         = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-            ? $this->input->post('email', true)
-            : $email;
+            ? $this->input->post('email', true) : $email;
+        $email         = (!empty($this->session->input_email) and filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL))
+            ? $this->session->input_email : $email;
 
         // Обработка ссылки для возврата
-        if(empty($this->session->return_url))
-        {
-            // Данные POST или GET
-            $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
-
-            parent::setSessionReturnUrl($return_data, $return);
-
-            $return      = $this->session->return_url;
-            $fail_return = $this->session->fail_return_url;
-
-            $user_data['input_email'] = $email;
-            $this->session->set_userdata($user_data);
-        }
-        else
-        {
-            $return      = $this->session->return_url;
-            $fail_return = $this->session->fail_return_url;
-            $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
-        }
+        $pars_return = self::parseSocialReturnUrl($this->input->post('hi_return', true), $this->input->get('hi_return', true), $return);
+        $return      = $pars_return['return'];
+        $fail_return = $pars_return['fail_return'];
 
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
@@ -1121,6 +1052,7 @@ class Authorization extends CI_Controller
             curl_close($myCurl);
 
             $resp_data = json_decode($response);
+            log_message('debug', 'VK response ' . print_r($resp_data, true));
 
             // Получен ACCESS_TOKEN для дальнейшей работы
             if (!empty($resp_data->access_token))
@@ -1147,68 +1079,28 @@ class Authorization extends CI_Controller
                 $response = curl_exec($myCurl);
                 curl_close($myCurl);
                 $resp_info = json_decode($response);
+                log_message('debug', 'VK response 2 ' . print_r($resp_info, true));
 
                 if (!empty($resp_info->response))
                 {
-                    //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Данные ответа соц. сети. $resp_info:' . print_r($resp_info, true));
-
                     $user_soc_id     = $resp_info->response[0]->id;
                     $user_soc_name   = $resp_info->response[0]->last_name . ' ' . $resp_info->response[0]->first_name;
                     $user_soc_image  = is_file($resp_info->response[0]->photo_200) ? $resp_info->response[0]->photo_200 : '';
                     $user_soc_bd     = !empty($resp_info->response[0]->bdate) ? $resp_info->response[0]->bdate : '';
                     $user_soc_gender = !empty($resp_info->response[0]->sex) ? $resp_info->response[0]->sex : '';
-
-                    //echo $user_name .' '. $user_image .' '. $user_bd .'<br/>';
+                    $user_soc_url    = '';
 
                     if (empty($this->session->user))
                     {
                         // Сравнение данных соц. сети с данными БД -> авторизация (обновление данных) или регистрация
-                        $result = $this->Authorization_model->validSocLoginId('vk', $this->date, $user_access_token,
-                            $user_soc_id, $expires_at, $issued_at, $expires_in, $user_soc_email, $user_soc_name,
-                            $user_soc_image, $user_soc_bd, $user_soc_gender);
-                        //echo $user_id;
-                        if (!empty($result['user']))
-                        {
-                            $user = $result['user'];
-
-                            $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
-
-                            parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
-                                $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
-
-                            $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
-                                ? $return . $this->session->user['id'] : $return;
-
-                            parent::deleteSessionReturnUrl();
-
-                            // Отправляем письмо с уведомлением об регистрации
-                            if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
-                            {
-                                $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                                $system_message['text']  .= 'Перейти на сайт';
-                                $system_message['text']  .= '</a></b>';
-
-                                parent::sendEmail(2, $user_soc_email, $system_message);
-                            }
-
-                            header('Location: ' . $return);
-                        }
-                        else
-                        {
-                            // Не удалось авторизоваться. Повторите попытку
-                            $this->session->set_tempdata('message', 5, 60);
-
-                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
-
-                            parent::deleteSessionReturnUrl();
-
-                            header('Location: ' . $fail_return);
-                        }
+                        self::validationSocialLogin('vk', $user_access_token, $user_soc_id, $expires_at, $issued_at, $expires_in,
+                            $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender, $user_soc_url, $return, $fail_return);
                     }
                     else
                     {
                         $result = $this->Authorization_model->connectSocial($this->user_id, 'vk', $this->date, $user_access_token,
-                            $user_soc_id, '', $expires_at, $issued_at, $expires_in);
+                            $user_soc_id, $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender,
+                            $user_soc_url, $expires_at, $issued_at, $expires_in);
 
                         if($result === true)
                         {
@@ -1284,29 +1176,14 @@ class Authorization extends CI_Controller
         $scope           = array( 'public_profile', 'email' );
         $state           = uniqid('', true);
         $email           = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-            ? $this->input->post('email', true)
-            : $email;
+            ? $this->input->post('email', true) : $email;
+        $email           = (!empty($this->session->input_email) and filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL))
+            ? $this->session->input_email : $email;
 
         // Обработка ссылки для возврата
-        if(empty($this->session->return_url))
-        {
-            // Данные POST или GET
-            $return_data = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
-
-            parent::setSessionReturnUrl($return_data, $return);
-
-            $return      = $this->session->return_url;
-            $fail_return = $this->session->fail_return_url;
-
-            $user_data['input_email'] = $email;
-            $this->session->set_userdata($user_data);
-        }
-        else
-        {
-            $return      = $this->session->return_url;
-            $fail_return = $this->session->fail_return_url;
-            $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
-        }
+        $pars_return = self::parseSocialReturnUrl($this->input->post('hi_return', true), $this->input->get('hi_return', true), $return);
+        $return      = $pars_return['return'];
+        $fail_return = $pars_return['fail_return'];
 
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
@@ -1357,53 +1234,17 @@ class Authorization extends CI_Controller
                         $fb_u_data['user_email'] = (!empty($email)) ? $email : $fb_u_data['user_email'];
                         log_message('debug', __METHOD__.':'.__LINE__. ' User email: ' . $fb_u_data['user_email']);
 
-                        $result = $this->Authorization_model->validSocLoginId('facebook', $this->date, $fb_u_data['user_access_token'],
-                            $fb_u_data['user_soc_id'], $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in'],
-                            $fb_u_data['user_email'], $fb_u_data['user_name'], $fb_u_data['user_image'], $fb_u_data['user_birthday'],
-                            $fb_u_data['user_gender'], $fb_u_data['user_profile_url']);
-
-                        if (!empty($result['user']))
-                        {
-                            $user = $result['user'];
-
-                            $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
-
-                            parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
-                                $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
-
-                            $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
-                                ? $return . $this->session->user['id'] : $return;
-
-                            parent::deleteSessionReturnUrl();
-
-                            // Отправляем письмо с уведомлением об регистрации
-                            if (!empty($fb_u_data['user_email']) and filter_var($fb_u_data['user_email'], FILTER_VALIDATE_EMAIL))
-                            {
-                                $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                                $system_message['text']  .= 'Перейти на сайт';
-                                $system_message['text']  .= '</a></b>';
-
-                                parent::sendEmail(2, $fb_u_data['user_email'], $system_message);
-                            }
-
-                            header('Location: ' . $return);
-                        }
-                        else
-                        {
-                            // Не удалось авторизоваться. Повторите попытку
-                            $this->session->set_tempdata('message', 5, 60);
-
-                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
-
-                            parent::deleteSessionReturnUrl();
-
-                            header('Location: ' . $fail_return);
-                        }
+                        // Сравнение данных соц. сети с данными БД -> авторизация (обновление данных) или регистрация
+                        self::validationSocialLogin('facebook', $user_access_token, $fb_u_data['user_soc_id'], $fb_u_data['expires_at'],
+                            $fb_u_data['issued_at'], $expires_in, $fb_u_data['user_email'], $fb_u_data['user_name'], $fb_u_data['user_image'],
+                            $fb_u_data['user_birthday'], $fb_u_data['user_gender'], $fb_u_data['user_profile_url'], $return, $fail_return);
                     }
                     else
                     {
                         $result = $this->Authorization_model->connectSocial($this->user_id, 'facebook', $this->date, $fb_u_data['user_access_token'],
-                            $fb_u_data['user_soc_id'], $fb_u_data['user_profile_url'], $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in']);
+                            $fb_u_data['user_soc_id'], $fb_u_data['user_email'], $fb_u_data['user_name'], $fb_u_data['user_image'],
+                            $fb_u_data['user_birthday'], $fb_u_data['user_gender'], $fb_u_data['user_profile_url'],
+                            $fb_u_data['expires_at'], $fb_u_data['issued_at'], $fb_u_data['expires_in']);
 
                         if($result === true)
                         {
@@ -1532,7 +1373,7 @@ class Authorization extends CI_Controller
                 curl_close($myCurl2);
                 $resp_info = json_decode($response);
 
-                log_message('debug', 'Facebook response ' . print_r($resp_info, true));
+                log_message('debug', 'Facebook response 2 ' . print_r($resp_info, true));
                 if (!empty($resp_info->id))
                 {
                     // Данные пользователя в соц. сети
@@ -1566,30 +1407,15 @@ class Authorization extends CI_Controller
         $redirect_uri  = 'https://superbody.pro/ok_login';
         $grant_type    = 'authorization_code';
         $scope         = array( 'VALUABLE_ACCESS', 'GET_EMAIL' );
-        $email         = (filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-            ? $this->input->post('email', true)
-            : $email;
+        $email         = (!empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+            ? $this->input->post('email', true) : $email;
+        $email         = (!empty($this->session->input_email) and filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL))
+            ? $this->session->input_email : $email;
 
         // Обработка ссылки для возврата
-        if(empty($this->session->return_url))
-        {
-            // Данные POST или GET
-            $return_data   = (!empty($this->input->post('hi_return', true))) ? $this->input->post('hi_return', true) : $this->input->get('hi_return', true);
-
-            parent::setSessionReturnUrl($return_data, $return);
-
-            $return      = $this->session->return_url;
-            $fail_return = $this->session->fail_return_url;
-
-            $user_data['input_email'] = $email;
-            $this->session->set_userdata($user_data);
-        }
-        else
-        {
-            $return      = $this->session->return_url;
-            $fail_return = $this->session->fail_return_url;
-            $email       = (filter_var($this->session->input_email, FILTER_VALIDATE_EMAIL)) ? $this->session->input_email : $email;
-        }
+        $pars_return = self::parseSocialReturnUrl($this->input->post('hi_return', true), $this->input->get('hi_return', true), $return);
+        $return      = $pars_return['return'];
+        $fail_return = $pars_return['fail_return'];
 
         //log_message('debug', __METHOD__ . ':' . __LINE__ . ' Session return url: ' . print_r($this->session->return_url, true));
 
@@ -1646,6 +1472,7 @@ class Authorization extends CI_Controller
                 curl_close($myCurl);
 
                 $resp_info = json_decode($response);
+                log_message('debug', 'OK response ' . print_r($resp_info, true));
 
                 if (!empty($resp_info->uid))
                 {
@@ -1662,54 +1489,15 @@ class Authorization extends CI_Controller
 
                     if (empty($this->session->user))
                     {
-
                         // Сравнение данных соц. сети с данными БД -> авторизация (обновление данных) или регистрация
-                        $result = $this->Authorization_model->validSocLoginId('ok', $this->date, $user_access_token, $user_soc_id,
-                            $expires_at, $issued_at, $expires_in, $user_soc_email, $user_soc_name, $user_soc_image,
-                            $user_soc_bd, $user_soc_gender, $user_soc_url);
-
-                        if (!empty($result['user']))
-                        {
-                            $user = $result['user'];
-
-                            $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
-
-                            parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
-                                $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
-
-                            $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
-                                ? $return . $this->session->user['id'] : $return;
-
-                            parent::deleteSessionReturnUrl();
-
-                            // Отправляем письмо с уведомлением об регистрации
-                            if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
-                            {
-                                $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                                $system_message['text']  .= 'Перейти на сайт';
-                                $system_message['text']  .= '</a></b>';
-
-                                parent::sendEmail(2, $user_soc_email, $system_message);
-                            }
-
-                            header('Location: ' . $return);
-                        }
-                        else
-                        {
-                            // Не удалось авторизоваться. Повторите попытку
-                            $this->session->set_tempdata('message', 5, 60);
-
-                            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
-
-                            parent::deleteSessionReturnUrl();
-
-                            header('Location: ' . $fail_return);
-                        }
+                        self::validationSocialLogin('ok', $user_access_token, $user_soc_id, $expires_at, $issued_at, $expires_in,
+                            $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender, $user_soc_url, $return, $fail_return);
                     }
                     else
                     {
                         $result = $this->Authorization_model->connectSocial($this->user_id, 'ok', $this->date, $user_access_token,
-                            $user_soc_id, $user_soc_url, $expires_at, $issued_at, $expires_in);
+                            $user_soc_id, $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd, $user_soc_gender,
+                            $user_soc_url, $expires_at, $issued_at, $expires_in);
 
                         if($result === true)
                         {
@@ -1760,6 +1548,107 @@ class Authorization extends CI_Controller
             $this->session->set_tempdata('message', 103, 60);
 
             log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка авторизации. GET:' . print_r($this->input->get(), true));
+
+            parent::deleteSessionReturnUrl();
+
+            header('Location: ' . $fail_return);
+        }
+    }
+
+    /**
+     * Обработка ссылки для возврата
+     *
+     * @param $post_hi_return
+     * @param $get_hi_return
+     * @param $return
+     * @return mixed
+     */
+    protected function parseSocialReturnUrl($post_hi_return, $get_hi_return, $return)
+    {
+        if(empty($this->session->return_url))
+        {
+            // Данные POST или GET
+            $return_data = (!empty($post_hi_return)) ? $post_hi_return : $get_hi_return;
+
+            parent::setSessionReturnUrl($return_data, $return);
+
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+
+            $user_data['input_email'] = $email;
+            $this->session->set_userdata($user_data);
+        }
+        else
+        {
+            $return      = $this->session->return_url;
+            $fail_return = $this->session->fail_return_url;
+        }
+
+        $result['return'] = $return;
+        $result['fail_return'] = $fail_return;
+
+        return $result;
+    }
+
+    /**
+     * Сохранение данных соц. сетей
+     *
+     * @param $soc
+     * @param $user_access_token
+     * @param $user_soc_id
+     * @param $expires_at
+     * @param $issued_at
+     * @param $expires_in
+     * @param $user_soc_email
+     * @param $user_soc_name
+     * @param $user_soc_image
+     * @param $user_soc_bd
+     * @param $user_soc_gender
+     * @param $user_soc_url
+     * @param $return
+     * @param $fail_return
+     */
+    protected function validationSocialLogin($soc, $user_access_token, $user_soc_id, $expires_at, $issued_at, $expires_in,
+                                             $user_soc_email, $user_soc_name, $user_soc_image, $user_soc_bd,
+                                             $user_soc_gender, $user_soc_url, $return, $fail_return)
+    {
+        // Сравнение данных соц. сети с данными БД -> авторизация (обновление данных) или регистрация
+        $result = $this->Authorization_model->validSocLoginId($soc, $this->date, $user_access_token, $user_soc_id,
+            $expires_at, $issued_at, $expires_in, $user_soc_email, $user_soc_name, $user_soc_image,
+            $user_soc_bd, $user_soc_gender, $user_soc_url);
+
+        if (!empty($result['user']))
+        {
+            $user = $result['user'];
+
+            $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
+
+            parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['name'],
+                $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+
+            $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
+                ? $return . $this->session->user['id'] : $return;
+
+            parent::deleteSessionReturnUrl();
+
+            // Отправляем письмо с уведомлением об регистрации
+            if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
+            {
+                $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                $system_message['text']  .= 'Перейти на сайт';
+                $system_message['text']  .= '</a></b>';
+
+                parent::sendEmail(2, $user_soc_email, $system_message);
+            }
+
+            header('Location: ' . $return);
+        }
+        else
+        {
+            // Не удалось авторизоваться. Повторите попытку
+            $this->session->set_tempdata('message', 5, 60);
+
+            log_message('error', __METHOD__ . ':' . __LINE__ . ' Ошибка сохранения данных. $result:' . print_r($result, true));
 
             parent::deleteSessionReturnUrl();
 
