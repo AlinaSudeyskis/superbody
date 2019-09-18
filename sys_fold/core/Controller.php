@@ -1658,7 +1658,6 @@ class CI_Controller {
                 // Добавление товара в заказы пользователя
                 $full_course_price = (!empty($full_course_price)) ? number_format($full_course_price, 2, '.', '') : '';
                 $rec_first_course_price = (!empty($rec_first_course_price)) ? number_format($rec_first_course_price, 2, '.', '') : '';
-                //log_message('debug', __METHOD__.' '.__LINE__.' Course price:'. $course_price);
 
                 $products['products'] = array( 0 => array(
                     'id' => $course_data['p_id'],
@@ -1759,7 +1758,18 @@ class CI_Controller {
                 {
                     $free_weeks = ($promocode_discount_type == 'free_week') ? $promocode_discount : 0;
                     $free_weeks_end_date = '';
-                    $this->Course_model->setNewUserCourse($res_order['order_id'], $course_id, $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
+                    $res_course = $this->Course_model->setNewUserCourse($res_order['order_id'], $course_id, $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
+
+                    if(is_numeric($res_course))
+                    {
+                        header('Location: /profile/course/'.$res_course);
+                    }
+                    else
+                    {
+                        // Не сохранено
+                        $this->session->set_tempdata('message', 101, 60);
+                        header('Location: ' . $return_url . '?ref=1');
+                    }
                 }
 
                 /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_coach, $this->date);

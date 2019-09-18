@@ -2110,6 +2110,7 @@ tr:first-child > td > .fc-day-grid-event{
     height: 35px;
     background: #72d0f4;
     display: flex;
+    justify-content: center;
 }
 .video_col_but_right{
     width: 50%;
