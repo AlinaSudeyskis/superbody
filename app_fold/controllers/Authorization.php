@@ -1605,10 +1605,8 @@ class Authorization extends CI_Controller
             $fail_return = $this->session->fail_return_url;
         }
 
-        $result['return'] = parse_url($return, PHP_URL_QUERY);
-        $result['fail_return'] = parse_url($fail_return, PHP_URL_QUERY);
-
-        log_message('debug', 'Return and fail return url: ' . $result['return'] .' '. $result['fail_return']);
+        $result['return'] = $return;
+        $result['fail_return'] = $fail_return;
 
         return $result;
     }
@@ -1651,7 +1649,6 @@ class Authorization extends CI_Controller
 
             $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
                 ? $return . $this->session->user['id'] : $return;
-            $return = parse_url($return, PHP_URL_QUERY);
 
             parent::deleteSessionReturnUrl();
 
