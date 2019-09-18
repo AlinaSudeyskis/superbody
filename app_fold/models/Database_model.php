@@ -2501,6 +2501,38 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-09-13 14:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (205, 'К Вашему аккаунту не привязан email. Для получения уведомлений укажите и активируйте email.', 'К Вашему аккаунту не привязан email. Для получения уведомлений укажите и активируйте email.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-09-13 15:43';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (206, 'Письмо с подтверждением активации email отравлено на текущую почту.', 'Письмо с подтверждением активации email отравлено на текущую почту.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("UPDATE `notifications` SET `n_name` = 'Ошибка! Некорректные данные для авторизации.', `n_text` = 'Ошибка! Некорректные данные для авторизации.' WHERE `notifications`.`n_id` = 6");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-09-13 15:43';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_social` ADD `us_email` VARCHAR(255) NOT NULL AFTER `us_social_id`, 
+                ADD `us_name` VARCHAR(255) NOT NULL AFTER `us_email`, 
+                ADD `us_image` VARCHAR(255) NOT NULL AFTER `us_name`, 
+                ADD `us_birthday` DATE NOT NULL AFTER `us_image`, 
+                ADD `us_gender` ENUM('','male','female') NOT NULL AFTER `us_birthday`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
