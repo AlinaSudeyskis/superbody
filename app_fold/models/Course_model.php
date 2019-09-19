@@ -3706,33 +3706,32 @@ class Course_model extends CI_Model
     {
         $result = array('coaches' => array());
 
-        $sel_coaches = $this->db->query('
-                SELECT `cc_coach_id`, `user_name`, `user_email`, `user_image`, `cd_specialization` 
-                FROM `courses_coaches`
-                LEFT JOIN `users` ON `cc_coach_id`=`user_id`
-                LEFT JOIN `coach_data` ON `cd_u_id`=`user_id`
-                WHERE `cc_course_id`=?', $course_id);
-
-        if ($sel_coaches !== false and 0 < $sel_coaches->num_rows())
+        if(is_numeric($course_id))
         {
-            $i = 0;
-            foreach ($sel_coaches->result() as $row) {
-                $result['coaches'][$i]['id']      = $row->cc_coach_id;
-                $result['coaches'][$i]['name']    = !empty($row->user_name) ? $row->user_name : 'Тренер #'.$row->cc_coach_id;
-                $result['coaches'][$i]['image']   = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
-                $result['coaches'][$i]['special'] = $row->cd_specialization;
+            $sel_coaches = $this->db->query('
+            SELECT `cc_coach_id`, `user_name`, `user_email`, `user_image`, `cd_specialization` 
+            FROM `courses_coaches`
+            LEFT JOIN `users` ON `cc_coach_id`=`user_id`
+            LEFT JOIN `coach_data` ON `cd_u_id`=`user_id`
+            WHERE `cc_course_id`=?', $course_id);
 
-                $i++;
+            if ($sel_coaches !== false and 0 < $sel_coaches->num_rows())
+            {
+                $i = 0;
+                foreach ($sel_coaches->result() as $row) {
+                    $result['coaches'][$i]['id']      = $row->cc_coach_id;
+                    $result['coaches'][$i]['name']    = !empty($row->user_name) ? $row->user_name : 'Тренер #'.$row->cc_coach_id;
+                    $result['coaches'][$i]['image']   = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                    $result['coaches'][$i]['special'] = $row->cd_specialization;
+
+                    $i++;
+                }
+                unset($row);
             }
-            unset($row);
-        }
-        elseif ($sel_coaches === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
-        else
-        {
-            $result['coaches'] = null;
+            elseif ($sel_coaches === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
 
         return $result;
@@ -11598,10 +11597,10 @@ class Course_model extends CI_Model
 
         $sel_courses = $this->db->query('
             SELECT `cc_id`, `cc_course_id`, `cc_coach_id`, `cc_percent`, `cc_discount`, `cc_date_add`, `cc_date_update`,
-              `crs_image`, `crs_name`, `crs_description`
+              `crs_id`, `crs_image`, `crs_name`, `crs_description`, `crs_price`, `crs_recurrent_first`
             FROM `courses_coaches`
             LEFT JOIN `courses` ON `crs_id`=`cc_course_id`
-            WHERE `cc_coach_id`=?', $user_id);
+            WHERE `cc_coach_id`=? and `crs_blocked`=0 and `crs_archive`=0', $user_id);
 
         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
         {
@@ -11609,10 +11608,11 @@ class Course_model extends CI_Model
 
             foreach($sel_courses->result() as $row)
             {
-                $result['courses'][$i]['course_id'] = $row->cc_course_id;
-                $result['courses'][$i]['name']      = $row->crs_name;
-                $result['courses'][$i]['image']     = !empty($row->crs_image) ? mb_substr($row->crs_image, 1) : '';
-                $result['courses'][$i]['desc']      = $row->crs_description;
+                $result['courses'][$i] = self::parseCourseData($row);
+
+                // Тренеры курса
+                $coaches = self::getCourseCoaches($row->crs_id);
+                $result['courses'][$i] = array_merge($result['courses'][$i], $coaches);
 
                 $result['courses'][$i]['coach_percent']  = $row->cc_percent;
                 $result['courses'][$i]['coach_discount'] = $row->cc_discount;
@@ -11623,12 +11623,6 @@ class Course_model extends CI_Model
                 $i++;
             }
             unset($row);
-
-            // Тренеры курса
-            foreach ($result['courses'] as $key => $course)
-            {
-                $result['courses'][$key] = array_merge($result['courses'][$key], self::getCourseCoaches($course['course_id']));
-            }
         }
         elseif ($sel_courses === false)
         {

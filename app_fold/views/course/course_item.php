@@ -28,10 +28,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="kurs_page_block_but parent">
                 <a href="/course/<?php echo $course['id'];?>" class="kurs_page_block_more">Узнать больше</a>
                 <div class="kurs_page_block_tabs">
-                    <a href="#" class="kurs_page_block_tab red_tab buy_course" data-cid="<?php echo $course['id']; ?>" data-po="full"><?php echo $course['price']; ?> РУБ / КУРС</a>
-                    <?php if(!empty($course['recur_first'])): ?>
-                        <a href="#" class="kurs_page_block_tab red_tab">ИЛИ</a>
-                        <a href="#" class="kurs_page_block_tab red_tab buy_course" data-cid="<?php echo $course['id']; ?>" data-po="rec"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                    <?php if(!empty($course['recur_first']) or !empty($course['price'])): ?>
+                        <a href="#" class="kurs_page_block_tab red_tab buy_course" data-cid="<?php echo $course['id']; ?>" data-po="full"><?php echo $course['price']; ?> РУБ / КУРС</a>
+                        <?php if(!empty($course['recur_first'])): ?>
+                            <a href="#" class="kurs_page_block_tab red_tab">ИЛИ</a>
+                            <a href="#" class="kurs_page_block_tab red_tab buy_course" data-cid="<?php echo $course['id']; ?>" data-po="rec"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <a href="#" class="kurs_page_block_tab red_tab buy_course" data-cid="<?php echo $course['id']; ?>" data-po="full">Добавить в "Мои курсы"</a>
                     <?php endif; ?>
                 </div>
             </div>

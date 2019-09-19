@@ -19,7 +19,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                 <script>
                     $('.kurs_page_block_slider').slick({
-                        dots: true,
+                        dots: false,
                         infinite: true,
                         autoplaySpeed: 5000,
                         speed: 500,
