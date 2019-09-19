@@ -437,7 +437,9 @@ audio, canvas, progress, video{
     margin-top: -5px;
     border-top: 5px solid #00bff0;
 }
-.submenu_li>a:hover:before, .menu .submenu_li:hover>a:before,
+.submenu_li>a:hover:before, .menu .submenu_li:hover>a:before{
+    border-top: 5px solid #72d0f4;
+}
 .active + .more_submenu{
     background: #4dd2f5;
 }
@@ -2792,6 +2794,7 @@ h2.block_h>span>a {
 	display: block;
 	/*width: 100%;*/
 	height: 100%;
+    margin: 0 auto;
 }
 .revive_cont{
 	margin-left: 90px;
