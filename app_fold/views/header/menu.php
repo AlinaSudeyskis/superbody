@@ -15,6 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <li><a href="/coaches" <?php if ($page_menu == 'coaches') { echo 'class="active"'; } ?>>ТРЕНЕРЫ</a></li>
         <li <?php if (!empty($menu_courses['course_types'])) :?> class="submenu_li" <?php endif;?>>
             <a href="/courses" <?php if ($page_menu == 'courses') { echo 'class="active"'; } ?>>КУРСЫ</a>
+            <span class="more_submenu"></span>
             <?php if (!empty($menu_courses['course_types'])) :?>
                 <ul class="submenu">
                     <?php foreach ($menu_courses['course_types'] as $m_course) :?>

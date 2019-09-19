@@ -545,6 +545,9 @@ $(document).ready(function () {
             event.stopPropagation();
         });
     }
+    $('.more_submenu').on('click', function(){
+        $(this).parents('.submenu_li').children('.submenu').toggle();
+    });
 
     /* скрытие блоков */
 

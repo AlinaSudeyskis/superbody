@@ -402,25 +402,46 @@ audio, canvas, progress, video{
     position: relative;
     padding-left: 40px !important;
 }
-.submenu_li>a:before{
+.more_submenu{
+    display: none;
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.submenu_li>a:before, .submenu_li>a:after{
     content: ''; 
     position: absolute;
-    left: 20px; 
+    left: 18px;
     top: 50%;
     border: 4px solid transparent;
     border-top: 5px solid #fff;
-    margin-top: -1px;
-}
-.submenu_li>a:after{
-    content: ''; 
-    position: absolute;
-    left: 20px; 
-    top: 50%;
-    border: 4px solid transparent;
-    border-top: 5px solid #72d0f4;
     margin-top: -3px;
 }
-.submenu_li>a:hover:before, .menu .submenu_li:hover>a:before{
+.submenu_li>a:after{
+    margin-top: -5px;
+    border-top: 5px solid #72d0f4;
+}
+.more_submenu::before, .more_submenu::after{
+    display: none;
+    content: '';
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    border: 4px solid transparent;
+    border-top: 5px solid #fff;
+    margin-top: -3px;
+}
+.more_submenu::after{
+    margin-top: -5px;
+    border-top: 5px solid #00bff0;
+}
+.submenu_li>a:hover:before, .menu .submenu_li:hover>a:before,
+.active + .more_submenu{
+    background: #4dd2f5;
+}
+.active + .more_submenu::after{
     border-top: 5px solid #72d0f4;
 }
 .submenu_li>a:hover:after, .menu .submenu_li:hover>a:after{
@@ -11280,12 +11301,14 @@ input.tren_form_block_check{
     .shop_cat .submenu_li > a, .menu .submenu_li > a{
         padding-left: 25px;
     }
-    .submenu_li > a::before{
-        left: 10px;
+    /*.submenu_li > a::before{
+        left: 18px;
+        margin-top: -3px;
     }
     .submenu_li > a::after{
-        left: 10px;
-    }
+        left: 18px;
+        margin-top: -5px;
+    }*/
     .menu .submenu a{
         padding-left: 20px;
     }
@@ -11989,8 +12012,6 @@ input.tren_form_block_check{
     }
     .submenu{
         position: relative;
-        display: block !important;
-        opacity: 1 !important;
         border-radius: 0;
         padding: 0;
     }
@@ -12012,16 +12033,24 @@ input.tren_form_block_check{
     }
     .shop_cat .submenu_li > a, .menu .submenu_li > a{
         padding-left: 35px;
-        background: #4dd2f5;
+        width: calc(100% - 50px);
+        /*background: #4dd2f5;*/
     }
     .submenu_li > a::before, .submenu_li > a::after,
     .submenu_li > a:hover::before, .submenu_li > a:hover::after{
-        left: 260px;
+        display: none;
+        left: 250px;
         border-width: 6px 5px 5px !important;
         border-color: #fff transparent transparent !important;
+        margin: 20px;
+        top: calc(50% - 25px);
     }
     .submenu_li > a::after, .submenu_li > a:hover::after{
-        border-color: #4dd2f5 transparent transparent !important;
+        border-color: #00bff0 transparent transparent !important;
+        margin-top: 18px;
+    }
+    .more_submenu, .more_submenu::before, .more_submenu::after{
+        display: block;
     }
     .menu .submenu a:hover{
         background: #c9f1fc;
@@ -12768,6 +12797,12 @@ input.tren_form_block_check{
         padding: 0;
         text-align: center;
         float: none;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .shop_sort_in_wrap label, .shop_sort_in_wrap a{
+        margin: 7px 15px;
     }
     .shop_line{
         padding-top: 15px;
@@ -12929,8 +12964,8 @@ input.tren_form_block_check{
     }
     .kurs_page_block_cont{
         width: 100%;
-        max-width: 290px;
-        padding-right: 15px;
+        /*max-width: 290px;
+        padding-right: 15px;*/
         margin: 0 auto;
         float: none;
     }
@@ -13197,6 +13232,13 @@ input.tren_form_block_check{
     }
     .add_tab_but{
         margin: 9px 3px;
+    }
+    .kurs_page_block_cont {
+        float: right;
+        width: 280px;
+    }
+    .kurs_page_block_img{
+        display: block;
     }
 }
 
@@ -15126,6 +15168,17 @@ input.tren_form_block_check{
     .admin_form_buts_wrap .video_admin_form_send{
         font-size: 12px;
         min-width: 110px;
+    }
+
+    .kurs_page_block_img{
+        display: none;
+    }
+    .kurs_page_block_cont{
+        width: 100%;
+        /*max-width: 290px;
+        padding-right: 15px;*/
+        margin: 0 auto;
+        float: none;
     }
 }
 
