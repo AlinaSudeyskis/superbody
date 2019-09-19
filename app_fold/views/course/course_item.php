@@ -34,7 +34,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <a href="#" class="kurs_page_block_tab red_tab">ИЛИ</a>
                             <a href="#" class="kurs_page_block_tab red_tab buy_course" data-cid="<?php echo $course['id']; ?>" data-po="rec"><?php echo $course['recur_first']; ?> РУБ / МЕС</a>
                         <?php endif; ?>
-                    <?php else: ?>
+                    <?php elseif($course['price'] == 0): ?>
                         <a href="#" class="kurs_page_block_tab red_tab buy_course" data-cid="<?php echo $course['id']; ?>" data-po="full">Добавить в "Мои курсы"</a>
                     <?php endif; ?>
                 </div>

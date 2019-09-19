@@ -4221,6 +4221,7 @@ h2.block_h>span>a {
 }
 .user_prog .calendar_info_desk_cont{
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     margin-top: auto;
 }
@@ -14863,6 +14864,9 @@ input.tren_form_block_check{
     .calendar_info_desk_item{
         float: none;
         margin-right: 0;
+    }
+    .user_prog .calendar_info_desk_item{
+        margin-right: 25px;
     }
 
     .profile_menu{
