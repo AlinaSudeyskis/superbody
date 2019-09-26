@@ -89,7 +89,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="submit" name="bought" value="Куплен" class="anketa_form_but disabled"/>
         <?php else: ?>
             <?php $but_text = ($course['new_price'] != 0 or $course['price'] != 0) ? 'Купить' : 'Добавить в "Мои курсы"'; ?>
-            <input type="submit" name="bt_buy_course" value='<?php echo $but_text; ?>' class="anketa_form_but"/>
+            <input type="submit" name="bt_buy_course" value='<?php echo $but_text; ?>' class="anketa_form_but red"/>
         <?php endif; ?>
     </div>
 

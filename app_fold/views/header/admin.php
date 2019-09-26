@@ -9,3 +9,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
 </div><!-- header -->
+<?php if(!empty($user_session) and $user_session['id'] == 4): ?>
+    <p id="page-info">Page rendered in <strong>{elapsed_time}</strong> seconds. Memory usage <strong>{memory_usage}</strong>. <?php echo  (ENVIRONMENT === 'development') ?  'PHP Version <strong>' . phpversion() . '</strong>' : '' ?></p>
+<?php endif; ?>

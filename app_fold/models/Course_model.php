@@ -5522,12 +5522,11 @@ class Course_model extends CI_Model
         $result = array();
 
         $sel_video = $this->db->query('
-            SELECT `video_id`, `video_name`, `video_path`, `video_poster`, `video_remove_url`, `video_crs_id`, 
+            SELECT `video_id`, `video_name`, `video_path`, `video_poster`, `video_remove_url`, `video_crs_id`, `video_date_add`, 
               `crs_name`, `crs_blocked`
             FROM `video`
             LEFT JOIN `courses` ON `crs_id`=`video_crs_id`
             WHERE `video_blocked`=0 and `video_type`=1 and `video_crs_id`>0 and `crs_blocked`=0 and `video_active`=1
-            GROUP BY `video_crs_id`
             ORDER BY `video_date_add` DESC');
 
         if ($sel_video !== false and 0 < $sel_video->num_rows())
@@ -7678,11 +7677,11 @@ class Course_model extends CI_Model
             FROM `users_courses`
             LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
             WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_date_end`<? and `uc_date_end`<>"0000-00-00"
-            GROUP BY `uc_course_id`
-            ORDER BY `uc_id` DESC', array($user_id, $today));
+            GROUP BY `uc_course_id`', array($user_id, $today));
         if($sel_courses3 !== false and 0 < $sel_courses3->num_rows())
         {
             $i = 0;
+
             foreach($sel_courses3->result() as $row)
             {
                 // Данные курса
@@ -11888,7 +11887,7 @@ class Course_model extends CI_Model
                     SELECT `crs_id`, `crs_name`, `crs_category`, `cc_coach_id` 
                     FROM `courses`
                     LEFT JOIN `courses_coaches` ON `cc_course_id`=`crs_id`
-                    WHERE `crs_id`=? and `cc_coach_id`=?', array($search_text, $coach_id));
+                    WHERE `crs_id`=? and `cc_coach_id`=? and `crs_archive`=0', array($search_text, $coach_id));
             }
             else
             {
@@ -11898,21 +11897,21 @@ class Course_model extends CI_Model
                     SELECT `crs_id`, `crs_name`, `crs_category`, `cc_coach_id` 
                     FROM `courses` 
                     LEFT JOIN `courses_coaches` ON `cc_course_id`=`crs_id`
-                    WHERE MATCH (`crs_name`) AGAINST (? IN BOOLEAN MODE) and `cc_coach_id`=?',  array($search_text, $coach_id));
+                    WHERE MATCH (`crs_name`) AGAINST (? IN BOOLEAN MODE) and `cc_coach_id`=? and `crs_archive`=0',  array($search_text, $coach_id));
             }
         }
         else
         {
             if (is_numeric($search_text))
             {
-                $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category` FROM `courses` WHERE `crs_id`=?', $search_text);
+                $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category` FROM `courses` WHERE `crs_id`=? and `crs_archive`=0', $search_text);
             }
             else
             {
                 $search_text = $search_text.'*';
 
                 $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category` FROM `courses` 
-                WHERE MATCH (`crs_name`) AGAINST (? IN BOOLEAN MODE)', $search_text);
+                WHERE MATCH (`crs_name`) AGAINST (? IN BOOLEAN MODE) and `crs_archive`=0', $search_text);
             }
         }
 

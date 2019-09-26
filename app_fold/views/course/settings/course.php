@@ -15,7 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php include_once('./app_fold/views/course/settings/course_buts.php');?>
                         </div>
                         <?php include_once('./app_fold/views/course/settings/course_menu.php');
-                        if ($page_submenu == 'video'):
+                        if (!empty($page_submenu) and $page_submenu == 'video'):
                             include_once('./app_fold/views/course/settings/course_video_menu.php');
                         endif;?>
                     </div>

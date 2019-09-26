@@ -2,6 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 use YandexCheckout\Client;
+use YandexCheckout\Model\PaymentInterface;
+use YandexCheckout\Request\Refunds\CreateRefundResponse;
 
 /**
  * Класс Store_model
@@ -3461,7 +3463,7 @@ class Store_model extends CI_Model
 
                 if ($row->op_status != 'succeeded' and $row->op_status != 'canceled')
                 {
-                    $payment = self::getPaymentInfo($row->op_payment_id);
+                    $res_pay = self::getPaymentInfo($row->op_payment_id);
 
                     /*if (!empty($payment->_status) and $row->op_status != $payment->_status)
                     {
@@ -3480,9 +3482,9 @@ class Store_model extends CI_Model
                             $expires_at, $captured_at, $method_id, $method_saved);
                     }*/
 
-                    if ($payment !== false and $payment->_status == 'pending')
+                    if ($res_pay['payment'] !== false and $res_pay['payment']->_status == 'pending')
                     {
-                        $confirm_url = !empty($payment->_confirmation->_confirmationUrl) ? $payment->_confirmation->_confirmationUrl : '';
+                        $confirm_url = !empty($res_pay['payment']->_confirmation->_confirmationUrl) ? $res_pay['payment']->_confirmation->_confirmationUrl : '';
                     }
                 }
 
@@ -3545,11 +3547,11 @@ class Store_model extends CI_Model
      * Получение данных о платеже
      *
      * @param $payment_id
-     * @return bool|\YandexCheckout\Model\PaymentInterface
+     * @return array
      */
     public function getPaymentInfo($payment_id)
     {
-        $payment = false;
+        $result = array('payment' => false, 'error' => false);
 
         if(!empty($payment_id))
         {
@@ -3557,27 +3559,35 @@ class Store_model extends CI_Model
             $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
             try {
-                $payment = $client->getPaymentInfo($payment_id);
+                $result['payment'] = $client->getPaymentInfo($payment_id);
             } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-                log_message('error', __METHOD__ . ' ' . $e->getMessage());
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
             } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-                log_message('error', __METHOD__ . ' ' . $e->getMessage());
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
             } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-                log_message('error', __METHOD__ . ' ' . $e->getMessage());
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
             } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-                log_message('error', __METHOD__ . ' ' . $e->getMessage());
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
             } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-                log_message('error', __METHOD__ . ' ' . $e->getMessage());
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
             } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-                log_message('error', __METHOD__ . ' ' . $e->getMessage());
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
             } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-                log_message('error', __METHOD__ . ' ' . $e->getMessage());
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
             } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-                log_message('error', __METHOD__ . ' ' . $e->getMessage());
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
             }
         }
 
-        return $payment;
+        return $result;
     }
 
     /**
@@ -3586,18 +3596,18 @@ class Store_model extends CI_Model
      * @param string $payment_id
      * @param float $value
      * @param string $currency
-     * @return bool|\YandexCheckout\Request\Payments\Payment\CreateCaptureResponse
+     * @return array
      */
     public function capturePayment($payment_id, $value, $currency)
     {
-        $response = false;
+        $result = array('response' => false, 'error' => false);
         $idempotenceKey = uniqid('', true);
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         // Подтверждение платежа
         try {
-            $response = $client->capturePayment(
+            $result['response'] = $client->capturePayment(
                 array(
                     'amount' => array(
                         'value' => $value,
@@ -3608,62 +3618,84 @@ class Store_model extends CI_Model
                 $idempotenceKey
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (Exception $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
 
-        return $response;
+        return $result;
     }
 
     /**
      * Отмена платежа
      *
      * @param string $payment_id
+     * @return array
      */
     public function cancelPayment($payment_id)
     {
+        $result = array('response' => false, 'error' => false);
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         try {
-            $client->cancelPayment(
+            $result['response'] = $client->cancelPayment(
                 $payment_id,
                 uniqid('', true)
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (Exception $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
+
+        return $result;
     }
 
     /**
@@ -3676,61 +3708,96 @@ class Store_model extends CI_Model
      * @param $payment_option
      * @param $customer_email
      * @param $order_items
-     * @return \YandexCheckout\Request\Refunds\CreateRefundResponse
+     * @return array
      */
     public function refundPayment($payment_id, $value, $currency, $description, $payment_option, $customer_email, $order_items)
     {
-        $response = false;
+        $result = array('response' => false, 'error' => false);
         $idempotenceKey = uniqid('', true);
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         try {
-            $response = $client->createRefund(
-                array(
-                    'payment_id' => $payment_id,
-                    'amount' => array(
-                        'value' => $value,
-                        'currency' => $currency,
-                    ),
-                    'receipt' => array(
-                        'customer' => array(
-                            'email' => $customer_email
+            if(is_numeric($value) and $value > 1)
+            {
+                $result['response'] = $client->createRefund(
+                    array(
+                        'payment_id' => $payment_id,
+                        'amount' => array(
+                            'value' => $value,
+                            'currency' => $currency,
                         ),
-                        'items' => array(
-                            'description' => $order_items['name'],
-                            'quantity' => $order_items['cart_quantity'],
-                            'amount' => $order_items['price'],
-                            'vat_code' => 1,
-                            'payment_subject' => 'service',
-                            'payment_mode' => $payment_option
-                        )
+                        'receipt' => array(
+                            'customer' => array(
+                                'email' => $customer_email
+                            ),
+                            'items' => array(
+                                'description' => $order_items['name'],
+                                'quantity' => $order_items['cart_quantity'],
+                                'amount' => $order_items['price'],
+                                'vat_code' => 1,
+                                'payment_subject' => 'service',
+                                'payment_mode' => $payment_option
+                            )
+                        ),
+                        'description' => $description,
                     ),
-                    'description' => $description,
-                ),
-                $idempotenceKey
-            );
+                    $idempotenceKey
+                );
+            }
+            else
+            {
+                $result['response'] = $client->createRefund(
+                    array(
+                        'payment_id' => $payment_id,
+                        'receipt' => array(
+                            'customer' => array(
+                                'email' => $customer_email
+                            ),
+                            'items' => array(
+                                'description' => $order_items['name'],
+                                'quantity' => $order_items['cart_quantity'],
+                                'amount' => $order_items['price'],
+                                'vat_code' => 1,
+                                'payment_subject' => 'service',
+                                'payment_mode' => $payment_option
+                            )
+                        ),
+                        'description' => $description,
+                    ),
+                    $idempotenceKey
+                );
+            }
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (Exception $e) {
-            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
 
-        return $response;
+        return $result;
     }
 
     /**

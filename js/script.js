@@ -1173,7 +1173,7 @@ $(document).ready(function () {
                 }
             }
         }
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2})
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
     }
 
     function payment_methods_func(this_el) {
@@ -1187,7 +1187,7 @@ $(document).ready(function () {
             $("#method-phone").hide();
             $("#method-login").hide();
         }
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2})
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
     }
 
     function promo_line_func(this_el) {
@@ -1200,7 +1200,7 @@ $(document).ready(function () {
         } else {
             this_par.find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
         }
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2})
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
     }
 
     function purchase_up(pm_op) {
@@ -1333,6 +1333,10 @@ $(document).ready(function () {
 
         }, 50);
     }
+
+    $(window).resize(function() {
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+    });
 
 
     $('.otziv_row').masonry({

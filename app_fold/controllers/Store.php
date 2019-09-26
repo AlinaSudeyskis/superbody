@@ -834,9 +834,9 @@ class Store extends CI_Controller
         $order_courses = $this->Store_model->getOrderCourses('', $order_id);
         $order = $this->Store_model->getOrder($order_id);
 
-        $paymentId = '24DCC2E3-000F-5000-9000-100694672556';
-        $payment = $this->Store_model->getPaymentInfo($paymentId);
-        print_r($payment);
+        //$paymentId = '24DCC2E3-000F-5000-9000-100694672556';
+        //$payment = $this->Store_model->getPaymentInfo($paymentId);
+        //print_r($payment);
 
         if ($this->input->post('bt_capture', true))
         {
@@ -844,16 +844,20 @@ class Store extends CI_Controller
 
             if (!empty($payment_id))
             {
-                $payment = $this->Store_model->getPaymentInfo($payment_id);
+                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
 
                 //log_message('debug', 'Payment info: ' . print_r($payment, true));
 
-                if ($payment->_status == 'waiting_for_capture')
+                if (!empty($res_pay['payment']) and $res_pay['payment']->_status == 'waiting_for_capture')
                 {
-                    $response = $this->Store_model->capturePayment($payment->_id, $payment->_amount->_value, $payment->_amount->_currency);
-                    if($response !== false)
+                    $res_capture = $this->Store_model->capturePayment($res_pay['payment']->_id, $res_pay['payment']->_amount->_value, $res_pay['payment']->_amount->_currency);
+                    if($res_capture['response'] !== false)
                     {
-                        log_message('debug', 'Response capturePayment' . print_r($response, true));
+                        //log_message('debug', 'Response capturePayment' . print_r($res_capture['response'], true));
+                    }
+                    elseif(!empty($res_capture['error']))
+                    {
+                        $this->session->set_tempdata('message', $res_capture['error'], 60);
                     }
                     else
                     {
@@ -861,10 +865,14 @@ class Store extends CI_Controller
                         $this->session->set_tempdata('message', 189, 60);
                     }
                 }
-                else
+                elseif(!empty($res_pay['payment']))
                 {
                     // Статус платежа не ожидает подтверждения
                     $this->session->set_tempdata('message', 188, 60);
+                }
+                elseif(!empty($res_pay['error']))
+                {
+                    $this->session->set_tempdata('message', $res_pay['error'], 60);
                 }
             }
             header('Location: /administration/order/' . $order_id);
@@ -875,11 +883,20 @@ class Store extends CI_Controller
 
             if (!empty($payment_id))
             {
-                $payment = $this->Store_model->getPaymentInfo($payment_id);
+                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
 
-                if ($payment->_status == 'waiting_for_capture')
+                if (!empty($res_pay['payment']) and $res_pay['payment']->_status == 'waiting_for_capture')
                 {
-                    $this->Store_model->cencelPayment($payment->_id);
+                    $res_cancel = $this->Store_model->cancelPayment($res_pay['payment']->_id);
+
+                    if(!empty($res_cancel['error']))
+                    {
+                        $this->session->set_tempdata('message', $res_cancel['error'], 60);
+                    }
+                }
+                elseif(!empty($res_pay['error']))
+                {
+                    $this->session->set_tempdata('message', $res_pay['error'], 60);
                 }
             }
 
@@ -891,33 +908,46 @@ class Store extends CI_Controller
             $payment_id    = strip_tags($this->input->post('i_payment_id', true));
             $description   = strip_tags($this->input->post('i_description', true));
 
-            if (!empty($refund_amount) and !empty($payment_id))
+            if (!empty($payment_id))
             {
-                $payment = $this->Store_model->getPaymentInfo($payment_id);
+                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
 
-                if(!empty($payment->_id))
+                if(!empty($res_pay['payment']) and !empty($res_pay['payment']->_id))
                 {
-                    $response = $this->Store_model->refundPayment($payment->_id, $refund_amount, self::CURRENCY, $description,
-                        $payment->_payment_method->type, $order['order']['user_email'], $order['order']['products'][0]);
+                    $res_refund = $this->Store_model->refundPayment($res_pay['payment']->_id, $refund_amount, self::CURRENCY, $description,
+                        $res_pay['payment']->_payment_method->type, $order['order']['user_email'], $order['order']['products'][0]);
 
-                    if (!empty($response->_id))
+                    if (!empty($res_refund['response']))
                     {
-                        $created_at = $response->_created_at->_date . $response->_created_at->_timezone;
+                        $response = $res_refund['response'];
 
-                        $this->Store_model->setPaymentRefund($response->_payment_id, $response->_id, $refund_amount, $response->_status, $description, $created_at);
-
-                        if ($response->_status == 'succeeded')
+                        if(!empty($response->_id))
                         {
-                            $this->load->model('Course_model');
-                            $this->load->model('Message_model');
+                            $created_at = $response->_created_at->_date . $response->_created_at->_timezone;
 
-                            $reason = 'payment_refunded';
+                            $this->Store_model->setPaymentRefund($response->_payment_id, $response->_id, $refund_amount, $response->_status, $description, $created_at);
 
-                            // Блокировка курсов пользователя
-                            $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
-                            $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
+                            if ($response->_status == 'succeeded')
+                            {
+                                $this->load->model('Course_model');
+                                $this->load->model('Message_model');
+
+                                $reason = 'payment_refunded';
+
+                                // Блокировка курсов пользователя
+                                $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                                $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
+                            }
                         }
                     }
+                    elseif(!empty($res_refund['error']))
+                    {
+                        $this->session->set_tempdata('message', $res_refund['error'], 60);
+                    }
+                }
+                elseif(!empty($res_pay['error']))
+                {
+                    $this->session->set_tempdata('message', $res_pay['error'], 60);
                 }
             }
 

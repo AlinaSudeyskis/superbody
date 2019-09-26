@@ -41,22 +41,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/tinymce/jquery.tinymce.min.js" type="text/javascript"></script>
     <script src="/js/tinymce/tinymce.min.js" type="text/javascript"></script>
     <script src="/js/js.cookie.js" type="text/javascript"></script>
+    <script src="/js/colorpicker/colorpicker.min.js"></script>
 
     <?php include_once('./app_fold/views/header/styles_scripts.php'); ?>
-    <script src="/js/ex_script.js?version=1.1"></script>
+    <script src="/js/ex_script.js?version=<?php echo $js_version; ?>"></script>
 
-    <script src="/js/colorpicker/colorpicker.min.js"></script>
     <!--<script src="/js/colorpicker/eye.js"></script>
     <script src="/js/colorpicker/utils.js"></script>
-    <script src="/js/colorpicker/layout.js"></script>-->
-    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>
+    <script src="/js/colorpicker/layout.js"></script>
+    <script src='https://cdn.firebase.com/js/client/2.2.1/firebase.js'></script>-->
 </head>
 <body>
 
 <?php include_once('./app_fold/views/header/block_message.php'); ?>
 
 <?php include_once('./app_fold/views/header/policy_pop_up.php'); ?>
-<!--<p id="page-info">Page rendered in <strong>{elapsed_time}</strong> seconds. Memory usage <strong>{memory_usage}</strong>. <?php /*echo  (ENVIRONMENT === 'development') ?  'PHP Version <strong>' . phpversion() . '</strong>' : '' */?></p>-->
 <?php
 /*<!-- Google -->
 <!-- <script type="text/javascript">

@@ -21,7 +21,6 @@ $message = '';
         <link rel="stylesheet" href="/css/colorpicker/page.css">
 
         <link rel="stylesheet" href="/css/style.css">
-        <link rel="stylesheet" href="/css/styles.css">
 
         <script src="/js/moment.min.js"></script>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>

@@ -514,7 +514,7 @@ class CI_Controller {
         // Сообщение о результатах действий пользователя
         if (!empty($this->session->tempdata('message')))
         {
-            $this->page_message = $this->list_errors[$this->session->tempdata('message')];
+            $this->page_message = (is_numeric($this->session->tempdata('message'))) ? $this->list_errors[$this->session->tempdata('message')] : $this->session->tempdata('message');
 
             // Удаление значения сообщения
             $this->session->unset_tempdata('message');
@@ -1754,7 +1754,8 @@ class CI_Controller {
                                 'phone' => $method_phone,
                                 'login' => $method_login,
                                 'customer_email' => $email,
-                                'order_items' => $products['products'][0]
+                                'order_items' => $products['products'][0],
+                                'return_url' => $return_url . '?ref=1'
                             );
 
                             header('Location: /payment?' .http_build_query($payment_data));
@@ -1801,11 +1802,11 @@ class CI_Controller {
                 else
                 {
                     log_message('debug', __METHOD__.':'.__LINE__.' User is coach');
+                    header('Location: ' . $return_url . '?ref=1');
                 }
             }
             else
             {
-                // Пользователь не авторизован
                 $this->session->set_tempdata('message', 207, 60);
                 header('Location: ' . $return_url . '?ref=1');
             }

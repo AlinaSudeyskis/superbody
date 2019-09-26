@@ -2,6 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 use YandexCheckout\Client;
+use YandexCheckout\Request\Payments\CreatePaymentResponse;
+use YandexCheckout\Request\Payments\Payment\CreateCaptureResponse;
 
 /**
  * Класс Payment
@@ -64,7 +66,9 @@ class Payment extends CI_Controller
         $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
 
         $customer_email = $this->input->get('customer_email', true);
-        $order_items = $this->input->get('order_items', true);
+        $order_items    = $this->input->get('order_items', true);
+
+        $return_url = $this->input->get('return_url', true);
 
         /*log_message('debug', __METHOD__ . ' ' . __LINE__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
             . $payment_type . ' ' . $payment_option . ' ' . $method_phone . ' ' . $method_login);*/
@@ -73,13 +77,15 @@ class Payment extends CI_Controller
 
         if (!empty($order_id) and !empty($total_amount) and !empty($payment_option))
         {
-
             // Создание платежа
-            $response = self::createPayment($order_id, $total_amount, self::CURRENCY, $payment_type, $payment_option, '',
+            $res_create = self::createPayment($order_id, $total_amount, self::CURRENCY, $payment_type, $payment_option, '',
                 $method_phone, $method_login, $customer_email, $order_items);
 
-            if (!empty($response->_id)) {
-                if ($response->_status == 'pending')
+            if (!empty($res_create['response']))
+            {
+                $response = $res_create['response'];
+
+                if (!empty($response->_id) and $response->_status == 'pending')
                 {
                     $created_at = $response->_createdAt->_date . $response->_createdAt->_timezone;
 
@@ -90,7 +96,30 @@ class Payment extends CI_Controller
                     // Перенаправление пользователя на страницу оплаты
                     header('Location: ' . $response->_confirmation->confirmation_url);
                 }
+                else
+                {
+                    log_message('error', __METHOD__.':'.__LINE__);
+                    $this->session->set_tempdata('message', 'Payment status error', 60);
+                    header('Location: '.$return_url);
+                }
             }
+            elseif(!empty($res_create['error']))
+            {
+                log_message('error', __METHOD__.':'.__LINE__.' '.$res_create['error']);
+                $this->session->set_tempdata('message', $res_create['error'], 60);
+                header('Location: '.$return_url);
+            }
+            else
+            {
+                log_message('error', __METHOD__.':'.__LINE__);
+                header('Location: '.$return_url);
+            }
+        }
+        else
+        {
+            log_message('error', __METHOD__.':'.__LINE__);
+            $this->session->set_tempdata('message', 'Order parameters error', 60);
+            header('Location: '.$return_url);
         }
     }
 
@@ -105,7 +134,9 @@ class Payment extends CI_Controller
         if ($response->type == 'notification')
         {
             $payment = $response->object;
-            //log_message('debug', __METHOD__.':'.__LINE__.' Response object:'. print_r($payment, true));
+            $payment_object = $response->getObject();
+            log_message('debug', __METHOD__.':'.__LINE__.' Response->object:'. print_r($payment, true));
+            log_message('debug', __METHOD__.':'.__LINE__.' Response->getObject():'. print_r($payment_object, true));
 
             $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
             $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
@@ -132,32 +163,56 @@ class Payment extends CI_Controller
                 if ($payment->paid === true)
                 {
                     // Подтверждение платежа
-                    $result = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
+                    $res_capture = self::capturePayment($payment->id, $payment->amount);
                     //log_message('debug', __METHOD__.':'.__LINE__.' Capture response object:'. print_r($result, true));
 
-                    if($result !== false and $result->status == 'succeeded')
+                    if(!empty($res_capture['response']))
                     {
-                        $payment_saved = ($result->payment_method->saved === true) ? 'true' : 'false';
-                        $payment_paid  = ($result->paid === true) ? 'true' : 'false';
+                        $result = $res_capture['response'];
+                        if($result->status == 'succeeded')
+                        {
+                            $payment_saved = ($result->payment_method->saved === true) ? 'true' : 'false';
+                            $payment_paid  = ($result->paid === true) ? 'true' : 'false';
 
-                        $payment_data = array(
-                            'pid' => $result->id,
-                            'ps' => $result->status,
-                            'pp' => $payment_paid,
-                            'pcr' => $result->created_at,
-                            'pe' => $result->expires_at,
-                            'pc' => $result->captured_at,
-                            'pmid' => $result->payment_method->id,
-                            'pms' => $payment_saved
-                        );
+                            $payment_data = array(
+                                'pid' => $result->id,
+                                'ps' => $result->status,
+                                'pp' => $payment_paid,
+                                'pcr' => $result->created_at,
+                                'pe' => $result->expires_at,
+                                'pc' => $result->captured_at,
+                                'pmid' => $result->payment_method->id,
+                                'pms' => $payment_saved
+                            );
 
-                        $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
+                            $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
 
-                        $handle = fopen($url, "r");
-                        fclose($handle);
+                            $handle = fopen($url, "r");
+                            fclose($handle);
+                        }
+                        else
+                        {
+                            log_message('error', __METHOD__.':'.__LINE__.' Payment status != succeeded '.$payment->id.' '.$result->status);
+                        }
+                    }
+                    elseif(!empty($res_capture['error']))
+                    {
+                        log_message('error', __METHOD__.':'.__LINE__.' '.$payment->id.' '.$res_capture['error']);
                     }
                 }
+                else
+                {
+                    log_message('error', __METHOD__.':'.__LINE__.' Payment paid != true '.$payment->id);
+                }
             }
+            else
+            {
+                log_message('error', __METHOD__.':'.__LINE__.' Payment status != waiting_for_capture '.$payment->id.' '.$payment->status);
+            }
+        }
+        else
+        {
+            log_message('error', __METHOD__.':'.__LINE__.' Response type != notification '. print_r($response));
         }
 
         header("HTTP/1.0 200 OK");
@@ -285,14 +340,14 @@ class Payment extends CI_Controller
      * @param string $payment_method_id
      * @param int|string $method_phone
      * @param string $method_login
-     * @param $customer_email
-     * @param $order_items
-     * @return \YandexCheckout\Request\Payments\CreatePaymentResponse
+     * @param string $customer_email
+     * @param array $order_items
+     * @return array
      */
     public function createPayment($order_id, $value, $currency, $payment_type = 'bank_card', $payment_option = 'full_payment',
                                   $payment_method_id = '', $method_phone = '', $method_login = '', $customer_email = '', $order_items = array())
     {
-        $response       = false;
+        $result         = array('response' => false, 'error' => false);
         $external_types = array('sberbank', 'alfabank');
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
@@ -307,7 +362,7 @@ class Payment extends CI_Controller
         $order_price = ($order_items['price'] > 0) ? $order_items['price'] : $order_items['rec_first_price'];
 
         try {
-            $response = $client->createPayment(
+            $result['response'] = $client->createPayment(
                 array(
                     'amount' => array(
                         'value' => $value,
@@ -345,50 +400,56 @@ class Payment extends CI_Controller
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (Exception $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
 
-        return $response;
+        return $result;
     }
 
     /**
      * Подтверждение платежа
      *
      * @param string $payment_id
-     * @param float $value
-     * @param string $currency
-     * @return bool|\YandexCheckout\Request\Payments\Payment\CreateCaptureResponse
+     * @param $payment_amount
+     * @return array|bool|CreateCaptureResponse
      */
-    public function capturePayment($payment_id, $value, $currency)
+    public function capturePayment($payment_id, $payment_amount)
     {
-        $response = false;
+        $result         = array('response' => false, 'error' => false);
         $idempotenceKey = uniqid('', true);
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         // Подтверждение платежа
         try {
-            $response = $client->capturePayment(
+            $result['response'] = $client->capturePayment(
                 array(
-                    'amount' => array(
-                        'value' => $value,
-                        'currency' => $currency,
-                    )/*,
+                    'amount' => $payment_amount
+                    /*,
                     'receipt' => array(
                         'customer' => array(
                             'email' => $customer_email
@@ -409,68 +470,90 @@ class Payment extends CI_Controller
         }
         catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
         catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
         catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
         catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
         catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
         catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
         catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
         catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (Exception $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
 
-        return $response;
+        return $result;
     }
 
     /**
      * Отмена платежа
      *
      * @param string $payment_id
+     * @return array
      */
     public function cancelPayment($payment_id)
     {
+        $result = array('response' => false, 'error' => false);
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         try {
-            $client->cancelPayment(
+            $result['response'] = $client->cancelPayment(
                 $payment_id,
                 uniqid('', true)
             );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         } catch (Exception $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
         }
+
+        return $result;
     }
 
     /**
@@ -495,48 +578,57 @@ class Payment extends CI_Controller
             foreach($subsequent['payments'] as $payment)
             {
                 // Создание запроса платежа и его выпонение
-                $response = self::createPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['type'],
+                $res_create = self::createPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['type'],
                     '', $payment['method_id']);
 
-                if(!empty($response->_id))
+                if(!empty($res_create['response']))
                 {
-                    $created_at     = $response->_createdAt->_date . $response->_createdAt->_timezone;
-                    $payment_method = $response->_payment_method;
-                    $paid = ($response->_paid === true) ? 1 : 0;
-
-                    // Сохранение данных оплаты в БД
-                    $this->Payment_model->updateSubsequentPayment($payment['id'], $payment['order_id'], $response->_id,
-                        $response->_status, $payment_method->_type, $paid, $created_at);
-
-                    // Заморозить курс
-                    if($response->_status === 'canceled')
+                    $response = $res_create['response'];
+                    if(!empty($response->_id))
                     {
-                        $this->load->model('Course_model');
-                        $this->load->model('Store_model');
+                        $created_at     = $response->_createdAt->_date . $response->_createdAt->_timezone;
+                        $payment_method = $response->_payment_method;
+                        $paid = ($response->_paid === true) ? 1 : 0;
 
-                        $reason = 'payment_canceled';
+                        // Сохранение данных оплаты в БД
+                        $this->Payment_model->updateSubsequentPayment($payment['id'], $payment['order_id'], $response->_id,
+                            $response->_status, $payment_method->_type, $paid, $created_at);
 
-                        // Курсы заказа
-                        $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
-                        // Блокировка курсов
-                        $this->Course_model->blockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                        // Заморозить курс
+                        if($response->_status === 'canceled')
+                        {
+                            $this->load->model('Course_model');
+                            $this->load->model('Store_model');
+
+                            $reason = 'payment_canceled';
+
+                            // Курсы заказа
+                            $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
+                            // Блокировка курсов
+                            $this->Course_model->blockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                        }
+                        // Разморозить курс
+                        elseif($payment['status'] === 'canceled' and $response->_status === 'succeeded')
+                        {
+                            $this->load->model('Course_model');
+                            $this->load->model('Store_model');
+
+                            $reason = 'payment_succeeded';
+
+                            // Курсы заказа
+                            $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
+                            // Блокировка курсов
+                            $this->Course_model->unblockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                        }
                     }
-                    // Разморозить курс
-                    elseif($payment['status'] === 'canceled' and $response->_status === 'succeeded')
+                    else
                     {
-                        $this->load->model('Course_model');
-                        $this->load->model('Store_model');
-
-                        $reason = 'payment_succeeded';
-
-                        // Курсы заказа
-                        $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
-                        // Блокировка курсов
-                        $this->Course_model->unblockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                        log_message('debug', __METHOD__ . __LINE__ . ' empty $response->_id: ' . $payment['method_id'] . ' ' .print_r($res_create, true));
                     }
                 }
-                else{
-                    log_message('debug', __METHOD__ . __LINE__ . ' empty $response->_id: ' . print_r($response, true));
+                else
+                {
+                    log_message('debug', __METHOD__ . __LINE__ . ' Payment create error: ' . $payment['method_id'] . ' ' .print_r($res_create, true));
                 }
             }
             unset($payment);

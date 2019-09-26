@@ -151,8 +151,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
                                                 <div class="video_admin_form_buts parent">
                                                     <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
-                                                    <input type="submit" name="bt_capture" value="Подтвердить платеж" class="video_admin_form_send" />
-                                                    <input type="submit" name="bt_cancel" value="Отменить платеж" class="video_admin_form_block" />
+                                                    <input type="submit" name="bt_capture" value="Подтвердить платеж" class="anketa_form_but" />
+                                                    <input type="submit" name="bt_cancel" value="Отменить платеж" class="anketa_form_but red" />
                                                 </div>
                                             </form>
                                         <?php endif;?>
@@ -184,6 +184,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php //if ($max_refund >= 1.01 and $refund_amount >= 1.01) :?>
                                             <div class="ordering_block_side_cont">
                                                 <div class="ordering_block_side_cont_h info_ordering_pay"></div>
+                                                <div class="ordering_block_side_cont_txt">*Для полного возврата не указывайте сумму.</div>
+                                                <div class="ordering_block_side_cont_txt">*Сумма частичного возврата и остаток должны быть больше 1 рубля.</div>
+                                                <div class="ordering_block_side_cont_h info_ordering_pay"></div>
                                                 <div class="anketa_block_cont">
                                                     <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
                                                         <div class="anketa_block_item_cont">
@@ -198,12 +201,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                             <div class="parent kurs_cur_wrap">
                                                                 <!--min="1.01" max="<?php /*echo $max_refund; */?>" value="<?php /*echo $current_refund; */?>"-->
                                                                 <input type="number" name="i_refund_amount" class="admin_form_txt admin_form_txt_short" step="0.01"
-                                                                       min="0" max="<?php echo $amount; ?>" placeholder="Сумма возврата" required="required"/>
+                                                                       min="0" max="<?php echo $amount; ?>" placeholder="Сумма возврата"/>
                                                                 <div class="kurs_cur">Руб.</div>
                                                             </div>
                                                             <input type="text" name="i_description" class="admin_form_txt admin_form_txt_short" value="" placeholder="Причина возврата" />
                                                             <div class="video_admin_form_buts parent">
-                                                                <input type="submit" name="bt_refund" value="Вернуть платеж" class="video_admin_form_send" />
+                                                                <input type="submit" name="bt_refund" value="Вернуть платеж" class="anketa_form_but" />
                                                             </div>
                                                         </div>
                                                     </form>

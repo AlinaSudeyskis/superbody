@@ -4,9 +4,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <title><?php echo $title; ?><?php echo $metadata[1]['title']; ?></title>
-    <meta name="keywords" content="<?php echo $keywords; ?>">
-    <meta name="description" content="<?php echo $description; ?>">
+    <title><?php if(!empty($title)): echo $title; endif; ?><?php if(!empty($metadata[1]['title'])): echo $metadata[1]['title'];  endif; ?></title>
+    <meta name="keywords" content="<?php if(!empty($keywords)): echo $keywords; endif; ?>">
+    <meta name="description" content="<?php if(!empty($description)): echo $description; endif; ?>">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="/favicon.ico" />
@@ -26,6 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link rel="stylesheet" href="/css/colorpicker/colorpicker.css">
     <link rel="stylesheet" href="/css/colorpicker/page.css">
 
+    <!-- TODO-me Раскомментировать перед загрузкой на сервер TestSB -->
     <!--<script charset="UTF-8" src="//cdn.sendpulse.com/js/push/2b45b28120dd22639aa19427eabaedab_1.js" async></script>-->
 
     <script src="/js/moment.min.js"></script>
@@ -83,7 +84,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="ml_img_pop-up_h"></div>
     </div>
 </div><!-- ml_img_pop-up -->
-<!--<p id="page-info">Page rendered in <strong>{elapsed_time}</strong> seconds. Memory usage <strong>{memory_usage}</strong>. <?php /*echo  (ENVIRONMENT === 'development') ?  'PHP Version <strong>' . phpversion() . '</strong>' : '' */?></p>-->
 <?php
 /*<!-- Google -->
 <!-- <script type="text/javascript">

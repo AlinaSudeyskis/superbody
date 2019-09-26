@@ -110,9 +110,17 @@ $(document).ready(function() {
                 setTimeout(function(){
                     block_message.show();
                     block_message.animate({"top": "+=40px"}, "slow");
+                    var timer1 = setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000),
+                        timer2 = setTimeout(function(){block_message.hide()},10500);
+                    block_message.mouseenter(function() {
+                            if (timer1 != null) clearTimeout(timer1);
+                            if (timer2 != null) clearTimeout(timer2);
+                        })
+                        .mouseleave(function() {
+                            timer1 = setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000);
+                            timer2 = setTimeout(function(){block_message.hide()},10500);
+                        });
                 },500);
-                setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000);
-                setTimeout(function(){block_message.hide()},10500);
             }
 
             $(document).on('input', '.add_tov_in.users input:text', function () {
