@@ -3718,56 +3718,35 @@ class Store_model extends CI_Model
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
         try {
-            if(is_numeric($value) and $value > 1)
-            {
-                $result['response'] = $client->createRefund(
-                    array(
-                        'payment_id' => $payment_id,
-                        'amount' => array(
-                            'value' => $value,
-                            'currency' => $currency,
+            $result['response'] = $client->createRefund(
+                array(
+                    'payment_id' => $payment_id,
+                    'amount' => array(
+                        'value' => $value,
+                        'currency' => $currency,
+                    ),
+                    'receipt' => array(
+                        'customer' => array(
+                            'email' => $customer_email
                         ),
-                        'receipt' => array(
-                            'customer' => array(
-                                'email' => $customer_email
-                            ),
-                            'items' => array(
+                        'items' => array(
+                            array(
                                 'description' => $order_items['name'],
                                 'quantity' => $order_items['cart_quantity'],
-                                'amount' => $order_items['price'],
+                                'amount' => array(
+                                    'value' => $order_items['price'],
+                                    'currency' => $currency,
+                                ),
                                 'vat_code' => 1,
                                 'payment_subject' => 'service',
                                 'payment_mode' => $payment_option
                             )
-                        ),
-                        'description' => $description,
+                        )
                     ),
-                    $idempotenceKey
-                );
-            }
-            else
-            {
-                $result['response'] = $client->createRefund(
-                    array(
-                        'payment_id' => $payment_id,
-                        'receipt' => array(
-                            'customer' => array(
-                                'email' => $customer_email
-                            ),
-                            'items' => array(
-                                'description' => $order_items['name'],
-                                'quantity' => $order_items['cart_quantity'],
-                                'amount' => $order_items['price'],
-                                'vat_code' => 1,
-                                'payment_subject' => 'service',
-                                'payment_mode' => $payment_option
-                            )
-                        ),
-                        'description' => $description,
-                    ),
-                    $idempotenceKey
-                );
-            }
+                    'description' => $description,
+                ),
+                $idempotenceKey
+            );
         } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();

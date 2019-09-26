@@ -134,9 +134,7 @@ class Payment extends CI_Controller
         if ($response->type == 'notification')
         {
             $payment = $response->object;
-            $payment_object = $response->getObject();
-            log_message('debug', __METHOD__.':'.__LINE__.' Response->object:'. print_r($payment, true));
-            log_message('debug', __METHOD__.':'.__LINE__.' Response->getObject():'. print_r($payment_object, true));
+            //log_message('debug', __METHOD__.':'.__LINE__.' Response->object:'. print_r($payment, true));
 
             $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
             $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
@@ -163,7 +161,7 @@ class Payment extends CI_Controller
                 if ($payment->paid === true)
                 {
                     // Подтверждение платежа
-                    $res_capture = self::capturePayment($payment->id, $payment->amount);
+                    $res_capture = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currecy);
                     //log_message('debug', __METHOD__.':'.__LINE__.' Capture response object:'. print_r($result, true));
 
                     if(!empty($res_capture['response']))
@@ -204,6 +202,11 @@ class Payment extends CI_Controller
                 {
                     log_message('error', __METHOD__.':'.__LINE__.' Payment paid != true '.$payment->id);
                 }
+            }
+            elseif($payment->status == 'succeeded')
+            {
+                $handle = fopen($url, "r");
+                fclose($handle);
             }
             else
             {
@@ -434,10 +437,11 @@ class Payment extends CI_Controller
      * Подтверждение платежа
      *
      * @param string $payment_id
-     * @param $payment_amount
+     * @param $value
+     * @param $currency
      * @return array|bool|CreateCaptureResponse
      */
-    public function capturePayment($payment_id, $payment_amount)
+    public function capturePayment($payment_id, $value, $currency)
     {
         $result         = array('response' => false, 'error' => false);
         $idempotenceKey = uniqid('', true);
@@ -448,7 +452,10 @@ class Payment extends CI_Controller
         try {
             $result['response'] = $client->capturePayment(
                 array(
-                    'amount' => $payment_amount
+                    'amount' => array(
+                        'value' => $value,
+                        'currency' => $currency,
+                    )
                     /*,
                     'receipt' => array(
                         'customer' => array(
