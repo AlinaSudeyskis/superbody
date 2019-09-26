@@ -3737,9 +3737,7 @@ class Store_model extends CI_Model
                                     'value' => $order_items['price'],
                                     'currency' => $currency,
                                 ),
-                                'vat_code' => 1,
-                                'payment_subject' => 'service',
-                                'payment_mode' => $payment_option
+                                'vat_code' => 1
                             )
                         )
                     ),

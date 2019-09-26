@@ -181,7 +181,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 <div class="ordering_block_side_cont payment_info"><!--(<?php /*echo $refund_info; */?>)--></div>
                                             </div>
                                         </div>
-                                        <?php //if ($max_refund >= 1.01 and $refund_amount >= 1.01) :?>
+                                        <?php if ($amount > 0) :?>
                                             <div class="ordering_block_side_cont">
                                                 <div class="ordering_block_side_cont_h info_ordering_pay"></div>
                                                 <div class="ordering_block_side_cont_txt">*Сумма частичного возврата и остаток должны быть больше 1 рубля.</div>
@@ -211,7 +211,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                     </form>
                                                 </div>
                                             </div>
-                                        <?php //endif;
+                                        <?php endif;
                                     endif;
                                     if(!empty($order['payments'][0]['refunds'])):?>
                                         <div class="ordering_block_side_info_h_wrap parent"></div>
