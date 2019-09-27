@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>
     <li>
         <a href="/profile/course/<?php echo $course['id']; ?>/reviews">
-            <span <?php if ($page_submenu == 'reviews'): ?> class="anketa_active" <?php endif;?>>Отзывы</span>
+            <span <?php if ($page_submenu == 'reviews'): ?> class="anketa_active" <?php endif;?>>Мои отзывы</span>
         </a>
     </li>
     <?php if($course['category'] == 'nutrition'): ?>

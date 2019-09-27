@@ -3154,6 +3154,59 @@ class Store_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Отзыв разрешения на повтор платежей
+     *
+     * @param $order_id
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function revokeRepaymentPermission($order_id, $user_id, $date)
+    {
+        $result = false;
+
+        if(is_numeric($order_id) and is_numeric($user_id))
+        {
+            $sel_data = $this->db->query('SELECT `o_id` FROM `orders` WHERE `o_id`=? and `o_u_id`=? LIMIT 1', array($order_id, $user_id));
+            if($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                // Отметка об отзыве разрешения
+                $up_data = $this->db->query('
+                    UPDATE `orders_payment` SET `op_revoke_permission`=1 
+                    WHERE `op_o_id`=? and `op_number`=0 and `op_payment_method_saved`=1 LIMIT 1', $order_id);
+                if($up_data !== false and 1 == $this->db->affected_rows())
+                {
+                    // Удаление будущих платежей
+                    $del_data = $this->db->query('DELETE FROM `orders_payment` WHERE `op_o_id`=? and `op_number`>0 and `op_following_date`>?', array($order_id, $date));
+                    if($del_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
+                    $result = true;
+                }
+                elseif($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     *
+     * @param $user_id
+     * @param $order_id
+     * @return mixed
+     */
     public function getFreeWeeksOverUserOrder($user_id, $order_id)
     {
         $result['order'] = '';
@@ -3451,7 +3504,8 @@ class Store_model extends CI_Model
 
         $sel_payments = $this->db->query('
             SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, `op_captured_at`
-                `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_payment_method_id`, `op_following_date`
+                `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_revoke_permission`, 
+               `op_payment_method_id`, `op_following_date`
             FROM `orders_payment`
             WHERE `op_o_id`=?', $order_id);
         if ($sel_payments !== false and 0 < $sel_payments->num_rows())
@@ -3464,23 +3518,6 @@ class Store_model extends CI_Model
                 if ($row->op_status != 'succeeded' and $row->op_status != 'canceled')
                 {
                     $res_pay = self::getPaymentInfo($row->op_payment_id);
-
-                    /*if (!empty($payment->_status) and $row->op_status != $payment->_status)
-                    {
-                        $created_at   = !empty($payment->_createdAt->_date) ? $payment->_createdAt->_date . $payment->_createdAt->_timezone : $row->op_created_at;
-                        $expires_at   = !empty($payment->_expiresAt->_date) ? $payment->_expiresAt->_date . $payment->_expiresAt->_timezone : $row->op_expires_at;
-                        $captured_at  = !empty($payment->_capturedAt->_date) ? $payment->_capturedAt->_date : '';
-                        $method_id    = $payment->_paymentMethod->_id;
-                        $method_saved = $payment->_paymentMethod->_saved;
-
-                        $row->op_status = $payment->_status;
-                        $row->op_paid = $payment->_paid;
-                        $row->op_payment_method_id = $method_id;
-                        $row->op_payment_method_saved = $method_saved;
-
-                        self::updatePaymentStatus($order_id, $payment->_id, $payment->_status, $payment->_paid, $created_at,
-                            $expires_at, $captured_at, $method_id, $method_saved);
-                    }*/
 
                     if ($res_pay['payment'] !== false and $res_pay['payment']->_status == 'pending')
                     {
@@ -4220,6 +4257,7 @@ class Store_model extends CI_Model
         $result['status_code']  = $row->op_status;
         $result['paid']         = ($row->op_paid == 1) ? 'Оплачено' : 'Не оплачено';
         $result['method_saved'] = $row->op_payment_method_saved;
+        $result['revoke']       = $row->op_revoke_permission;
         $result['method_id']    = $row->op_payment_method_id;
 
         setlocale(LC_ALL, 'ru_RU.UTF-8');

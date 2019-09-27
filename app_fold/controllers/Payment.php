@@ -281,7 +281,7 @@ class Payment extends CI_Controller
                     $user_id = $courses['user_id'];
 
                     // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
-                    if (!empty($payment) and $payment['option'] == 'partial_payment')
+                    if (!empty($payment) and $payment['option'] == 'partial_payment' and $payment_method_saved == 'true')
                     {
                         // Выборка рекуррентных данных
                         $recurrent_data = $this->Course_model->getCourseRecurrentData($courses);

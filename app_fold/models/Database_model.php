@@ -2551,6 +2551,19 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-09-26 16:32';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (208, 'Возврат платежа успешно завершен.', 'Возврат платежа успешно завершен.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (209, 'Ошибка! Статус возврата платежа - canceled.', 'Ошибка! Статус возврата платежа - canceled.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("ALTER TABLE `orders_payment` ADD `op_revoke_permission` TINYINT(1) UNSIGNED NOT NULL AFTER `op_payment_method_saved`");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (210, 'Разрешение на повторы платежей отозвано.', 'Разрешение на повторы платежей отозвано.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (211, 'Ошибка! Разрешение на повторы платежей не отозвано.', 'Ошибка! Разрешение на повторы платежей не отозвано.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

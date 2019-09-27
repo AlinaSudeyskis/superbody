@@ -144,6 +144,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 </div>
                                             </form>
                                         <?php endif;?>
+                                        <?php //print_r($order['payments'][0]); ?>
+                                        <?php if($order['payments'][0]['method_saved'] == 1): ?>
+                                            <div class="ordering_block_side_cont_h"></div>
+                                            <?php if(!empty($order['payments'][0]['revoke']) and $order['payments'][0]['revoke'] == 1): ?>
+                                                <div class="ordering_block_side_cont_h">Автоматический повтор платежей: <span class="canceled">Отменено</span></div>
+                                            <?php else: ?>
+                                                <div class="ordering_block_side_cont_h">Автоматический повтор платежей: <span class="succeeded">Разрешено</span></div>
+                                                <div class="ordering_block_side_cont_txt">* При отмене автоматических платежей, Вам необходимо будет оплатить остаточную стоимость одним платежом.</div>
+                                                <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
+                                                    <div class="video_admin_form_buts parent">
+                                                        <input type="submit" name="bt_payment_revoke_permission" value="Отозвать разрешение на повторы платежей" class="anketa_form_but red" />
+                                                    </div>
+                                                </form>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
                                     </div>
                                     <?php if(!empty($order['payments'][0]['refunds'])):?>
                                         <div class="ordering_block_side_info_h_wrap parent"></div>
@@ -161,7 +176,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                             <div class="ordering_block_side_cont_h info_ordering_pay"></div>
                                                             <div class="ordering_block_side_cont_txt">Сумма: <?php echo $refund['amount'] . ' RUB';?></div>
                                                             <div class="ordering_block_side_cont_txt">Статус: <span class="<?php echo $refund['status_code']; ?>"><?php echo $refund['status'];?></span></div>
-                                                            <div class="ordering_block_side_cont_txt">Создан: <?php echo $refund['created_at'];?></div>
+                                                            <?php if(!empty($refund['created_at'])): ?>
+                                                                <div class="ordering_block_side_cont_txt">Создан: <?php echo $refund['created_at'];?></div>
+                                                            <?php endif;?>
                                                         </div>
                                                     </div>
                                                 <?php endforeach;

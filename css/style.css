@@ -4074,6 +4074,9 @@ h2.block_h>span>a {
     letter-spacing: 2px;
     pointer-events: none;
 }
+.video_admin_form_buts{
+    margin: 15px 0;
+}
 
 .g-recaptcha{
     width: 305px;
@@ -6208,7 +6211,7 @@ span.mess_block_full_time {
 .kurs_block_h .h_subtitle{
     margin-top: -16px;
 }
-.ordering_block_side_cont_txt .succeeded{
+.ordering_block_side_cont_txt .succeeded, .ordering_block_side_cont_h > .succeeded{
     color: #3cb878;
 }
 .ordering_block_side_cont_txt .canceled{
@@ -7192,6 +7195,12 @@ span.mess_block_full_time {
 .ordering_block_side_cont_h{
 	text-transform: uppercase;
 	padding: 11px 0;
+}
+.ordering_block_side_cont_h > .succeeded{
+    color: #3cb878;
+}
+.ordering_block_side_cont_h > .canceled{
+    color: #dd5c5c;
 }
 .ordering_block_side_cont_line{
 	padding-bottom: 11px;

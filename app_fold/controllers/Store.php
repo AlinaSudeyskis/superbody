@@ -875,6 +875,10 @@ class Store extends CI_Controller
                     $this->session->set_tempdata('message', $res_pay['error'], 60);
                 }
             }
+            else
+            {
+                log_message('error', __METHOD__.':'.__LINE__.' Payment ID error: ' . $payment_id);
+            }
             header('Location: /administration/order/' . $order_id);
         }
         elseif($this->input->post('bt_cancel', true))
@@ -937,7 +941,18 @@ class Store extends CI_Controller
                                 // Блокировка курсов пользователя
                                 $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
                                 $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
+
+                                $this->session->set_tempdata('message', 208, 60);
                             }
+                            else
+                            {
+                                log_message('error', __METHOD__.':'.__LINE__.' Refund response status: ' . $response->_status);
+                                $this->session->set_tempdata('message', 209, 60);
+                            }
+                        }
+                        else
+                        {
+                            log_message('error', __METHOD__.':'.__LINE__.' Refund response ID error: ' . print_r($response, true));
                         }
                     }
                     elseif(!empty($res_refund['error']))
@@ -1438,6 +1453,21 @@ class Store extends CI_Controller
         if($after_payment === true and $order['order']['bought_course'] > 0)
         {
             header('Location: /profile/course/'.$order['order']['bought_course']);
+        }
+
+        if($this->input->post('bt_payment_revoke_permission', true))
+        {
+            $res_revoke = $this->Store_model->revokeRepaymentPermission($order_id, $this->user_id, $this->date);
+            if($res_revoke === true)
+            {
+                $this->session->set_tempdata('message', 210, 60);
+            }
+            else
+            {
+                $this->session->set_tempdata('message', 211, 60);
+            }
+
+            header('Location: /order/'. $order_id);
         }
 
         // Объединенные данные страница
