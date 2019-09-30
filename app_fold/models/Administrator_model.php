@@ -806,16 +806,17 @@ class Administrator_model extends CI_Model
      * Сохранение нового баннера
      *
      * @param $banner_image
+     * @param $banner_video
      * @param $banner_url
      * @param $user_id
      * @param $date
      * @return bool
      */
-    public function setNewBanner($banner_image, $banner_url, $user_id, $date)
+    public function setNewBanner($banner_image, $banner_video, $banner_url, $user_id, $date)
     {
         $up_data = $this->db->query('
-            INSERT INTO `site_banners` (`sb_image`, `sb_url`, `sb_u_id`, `sb_update`) VALUES (?, ?, ?, ?)',
-                array($banner_image, $banner_url, $user_id, $date));
+            INSERT INTO `site_banners` (`sb_image`, `sb_video_url`, `sb_url`, `sb_u_id`, `sb_update`) VALUES (?, ?, ?, ?, ?)',
+                array($banner_image, $banner_video, $banner_url, $user_id, $date));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -837,16 +838,17 @@ class Administrator_model extends CI_Model
      *
      * @param $banner_id
      * @param $banner_image
+     * @param $banner_video
      * @param $banner_url
      * @param $user_id
      * @param $date
      * @return bool
      */
-    public function setBannerSettings($banner_id, $banner_image, $banner_url, $user_id, $date)
+    public function setBannerSettings($banner_id, $banner_image, $banner_video, $banner_url, $user_id, $date)
     {
         $up_data = $this->db->query('
-            UPDATE `site_banners` SET `sb_image`=?, `sb_url`=?, `sb_update`=? WHERE `sb_id`=? LIMIT 1',
-            array($banner_image, $banner_url, $date, $banner_id));
+            UPDATE `site_banners` SET `sb_image`=?, `sb_video_url`=?, `sb_url`=?, `sb_update`=? WHERE `sb_id`=? LIMIT 1',
+            array($banner_image, $banner_video, $banner_url, $date, $banner_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -941,7 +943,7 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_banner = $this->db->query('
-            SELECT `sb_id`, `sb_image`, `sb_url`, `sb_u_id`, `sb_update`, `sb_blocked` 
+            SELECT `sb_id`, `sb_image`, `sb_video_url`, `sb_url`, `sb_u_id`, `sb_update`, `sb_blocked` 
             FROM `site_banners` 
             WHERE `sb_id`=? LIMIT 1', $banner_id);
 
@@ -949,20 +951,16 @@ class Administrator_model extends CI_Model
         {
             $row = $sel_banner->row();
 
-            $result['banner']['id']      = $row->sb_id;
-            $result['banner']['image']   = is_file($row->sb_image) ? mb_substr($row->sb_image, 1) : '';
-            $result['banner']['url']     = $row->sb_url;
-            $result['banner']['blocked'] = $row->sb_blocked;
-            $result['banner']['date']    = $row->sb_update;
+            $result['banner']['id']        = $row->sb_id;
+            $result['banner']['image']     = (is_file($row->sb_image)) ? mb_substr($row->sb_image, 1) : '';
+            $result['banner']['video_url'] = (!empty($row->sb_video_url)) ? $row->sb_video_url : '';
+            $result['banner']['url']       = $row->sb_url;
+            $result['banner']['blocked']   = $row->sb_blocked;
+            $result['banner']['date']      = $row->sb_update;
         }
         elseif ($sel_banner === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            $result = false;
-        }
-        else
-        {
-            $result = false;
         }
 
         return $result;

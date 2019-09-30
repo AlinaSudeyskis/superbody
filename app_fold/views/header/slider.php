@@ -7,7 +7,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <a href="<?php echo $si_banner['url'];?>">
         <?php endif;?>
 
-        <div class="sing-in_bg"><img src="<?php echo $si_banner['image'];?>" alt=""></div>
+        <div class="sing-in_bg">
+            <?php if(!empty($si_banner['video_url'])):
+                $remove_url = $si_banner['video_url'];
+                $key = 0;
+                include('./app_fold/views/video/player/vimeo_player_item.php');
+            else: ?>
+                <img src="<?php echo $si_banner['image'];?>" alt="">
+            <?php endif; ?>
+        </div>
 
         <?php if (!empty($si_banner['url'])):?>
             </a>
@@ -19,4 +27,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <video class="g-section-video" autoplay="" loop="" muted="">
         <source id="xVideoMp4" src="/banners/de7cca5d89.mp4" type="video/mp4">
     </video>
+</div>
+<div class="sing-in_bg">
+    <?php /*$remove_url = 'https://vimeo.com/248651771';
+    $key = 0;
+    include('./app_fold/views/video/player/vimeo_player_item.php');*/?>
 </div>-->

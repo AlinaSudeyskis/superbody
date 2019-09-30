@@ -8330,6 +8330,84 @@ class Course extends CI_Controller
         }
     }
 
+    /**
+     * Проверка, перенос и изменение статуса тренировок пользователей
+     */
+    public function checkUsersWorkouts()
+    {
+        $this->Course_model->checkUsersWorkouts($this->date);
+    }
+
+    /**
+     * Проверка и блокировка курсов, с завершенным бесплатным периодом промокода
+     */
+    public function checkUsersCoursesFreeWeeks()
+    {
+        $this->Course_model->checkUsersCoursesFreeWeeks($this->date);
+    }
+
+    /**
+     * Проверка наличия завершенных курсов пользователей и отправка уведомления на почту
+     */
+    public function checkUsersExpiringCourses()
+    {
+        $result = $this->Course_model->checkUsersExpiringCourses($this->date);
+        if(!empty($result))
+        {
+            $notification = $this->Notification_model->getNotification(143);
+
+            foreach($result as $uc_id => $course)
+            {
+                $system_message['text'] = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
+                    . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
+                $system_message['text'] .= '<a href="https://superbody.pro/profile/course/' . $uc_id . '" '
+                    . 'style="text-transform: uppercase; font-weight: 300; font-size: 24px; line-height: 28px; '
+                    . 'padding: 20px 0 20px 30px; margin:0; color: #72d0f4; text-decoration: none;">'
+                    . $course['course_name'] . '</a>';
+                $system_message['text'] .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
+                $system_message['text'] .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
+                    . 'font-weight: 300; border: none; white-space: normal; font-size: 18px; line-height: 22px;">'
+                    . $notification['notification']['text'] . '</p>';
+                $system_message['text'] .= '</td></tr>';
+                // Курсы продления
+                if(!empty($course['extends']))
+                {
+                    $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0;">ПРОДЛИТЕ КУРС ИЛИ КУПИТЕ НОВЫЙ:</td></tr>';
+                    $system_message['text'] .= '<tr>';
+                    foreach($course['extends'] as $extend)
+                    {
+                        $system_message['text'] .= '<td style="padding:0; margin:0;"><table>';
+                        $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0;"><a href="https://superbody.pro/course/' . $extend['course_id'] . '" '
+                            . 'style="text-transform: uppercase; font-weight: 600; font-size: 16px; line-height: 28px; '
+                            . 'padding: 0; margin:0; color: #72d0f4; text-decoration: none;">'
+                            . $extend['course_name'] . '</a></td></tr>';
+                        $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">' . $extend['promocode'] . '</td></tr>';
+                        $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">';
+                        if(!empty($extend['new_price']))
+                        {
+                            $system_message['text'] .= '<s>' . $extend['price'] . ' руб.</s> ' . $extend['new_price'] . ' руб.';
+                        }
+                        else
+                        {
+                            $system_message['text'] .= $extend['price'] . ' руб.';
+                        }
+                        $system_message['text'] .= '</td></tr></table>';
+                        $system_message['text'] .= '</table></td>';
+                    }
+                    unset($extend);
+                    $system_message['text'] .= '</tr>';
+                }
+
+                $system_message['text'] .= '</table>';
+
+                parent::sendEmail(11, $course['user_email'], $system_message);
+
+                $this->Course_model->setEmailSentUserExpiringCourse($uc_id);
+            }
+            unset($course);
+        }
+    }
+
     /* БЛОК ФУНКЦИЙ ПРИЕМОВ ПИЩИ ПОЛЬЗОВАТЕЛЕЙ */
 
     public function userMeals($section_id = 1, $subsection_id = '', $article_id = '')

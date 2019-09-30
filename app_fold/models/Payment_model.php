@@ -188,9 +188,10 @@ class Payment_model extends CI_Model
         // Выборка текущих платежей для оплаты
         // Выборка не выполненных платежей
         $sel_data = $this->db->query('
-            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_status` 
+            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_status`, `o_user_email` 
             FROM `orders_payment`
-            WHERE (`op_following_date`=? or (`op_following_date`<? and `op_status`="canceled")) and `op_payment_method_id`<>""', $today);
+            LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            WHERE (`op_following_date`=? or (`op_following_date`<? and `op_status`="canceled")) and `op_payment_method_id`<>""', array($today, $today));
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             foreach($sel_data->result() as $row)
@@ -198,20 +199,21 @@ class Payment_model extends CI_Model
                 $sel_first = $this->db->query('
                     SELECT `op_revoke_permission` 
                     FROM `orders_payment`
-                    WHERE `op_payment_method_id`=? LIMIT 1', $row->op_payment_method_id);
+                    WHERE `op_payment_id`=? LIMIT 1', $row->op_payment_method_id);
                 if($sel_first !== false and 1 == $sel_first->num_rows())
                 {
                     $f_row = $sel_first->row();
 
                     if($f_row->op_revoke_permission == 0)
                     {
-                        $result['payments'][$i]['id']        = $row->op_id;
-                        $result['payments'][$i]['order_id']  = $row->op_o_id;
-                        $result['payments'][$i]['type']      = $row->op_payment_type;
-                        $result['payments'][$i]['amount']    = $row->op_amount;
-                        $result['payments'][$i]['currency']  = $row->op_currency;
-                        $result['payments'][$i]['method_id'] = $row->op_payment_method_id;
-                        $result['payments'][$i]['status']    = $row->op_status;
+                        $result['payments'][$i]['id']         = $row->op_id;
+                        $result['payments'][$i]['order_id']   = $row->op_o_id;
+                        $result['payments'][$i]['type']       = $row->op_payment_type;
+                        $result['payments'][$i]['amount']     = $row->op_amount;
+                        $result['payments'][$i]['currency']   = $row->op_currency;
+                        $result['payments'][$i]['method_id']  = $row->op_payment_method_id;
+                        $result['payments'][$i]['status']     = $row->op_status;
+                        $result['payments'][$i]['user_email'] = $row->o_user_email;
 
                         $i++;
                     }

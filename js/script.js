@@ -135,14 +135,14 @@ $(document).ready(function () {
                             promo_line_func($(this));
                         });
 
-                        purchase_form.on('paste', ' #i-promocode', function () {
+                        /*purchase_form.on('paste', ' #i-promocode', function () {
                             var pc_input = $(this);
                             searchPromo(pc_input);
                         });
                         purchase_form.on('keyup', ' #i-promocode', function () {
                             var pc_input = $(this);
                             searchPromo(pc_input);
-                        });
+                        });*/
 
                         purchase_form.on('change', '#payment-options', function () {
                             payment_options_func($(this));
@@ -1243,8 +1243,20 @@ $(document).ready(function () {
         }
     }
 
+    var dots = 0, search_dots;
+    /*function throttle(func, milliseconds) {
+        var lastCall = 0;
+        return function () {
+            var now = Date.now();
+            if (lastCall + milliseconds < now) {
+                lastCall = now;
+                return func.apply(this, arguments);
+            }
+        };
+    }*/
+    var isEvent = false;
     function searchPromo(pc_input) {
-        setTimeout(function () {
+        setTimeout(function(){
             var this_form = pc_input.parents('.purchase_form'),
                 input_search = pc_input.val(),
                 crs_id = this_form.find('#crs-id').val(),
@@ -1252,85 +1264,130 @@ $(document).ready(function () {
                 new_price_block = this_form.find('#course-new-price'),
                 promo_block = this_form.find('.promo_block'),
                 course_price = parseFloat(price_block.html()),
-                promo_block_info = promo_block.next('.promo_block_info'), promo_info = '';
+                promo_block_info = promo_block.next('.promo_block_info'), promo_info = '',
+                bt_buy = this_form.find('input[name=bt_buy_course]');
 
-            if (input_search.length >= 1 && input_search.length <= 25) {
-                $.ajax({
-                    url: '/searchPromo',
-                    type: 'post',
-                    dataType: 'json',
-                    data: {input_search: input_search, crs_id: crs_id},
-                    complete: function (result) {
-                        var data = result.responseJSON;
+            if ( !isEvent ) {
+                if (input_search.length >= 1 && input_search.length <= 25) {
+                    $.ajax({
+                        url: '/searchPromo',
+                        type: 'post',
+                        dataType: 'json',
+                        data: {input_search: input_search, crs_id: crs_id},
+                        complete: function (result) {
+                            clearInterval(search_dots);
+                            var data = result.responseJSON;
 
-                        if (data.discount) {
-                            var new_price,
-                                discount_type = 'руб.',
-                                rel_per_block = '';
+                            bt_buy.val('Купить');
 
-                            if (data.discount_type === 'percent') {
-                                new_price = course_price - (course_price * data.discount / 100);
-                                discount_type = '%';
-                            } else if (data.discount_type === 'currency') {
-                                new_price = course_price - data.discount;
-                            } else if (data.discount_type === 'free_week') {
-                                discount_type = ' беспл. нед.';
-                                $('input[name=bt_buy_course]').val('Добавить в "Мои курсы"');
-                            }
+                            if(data && data.discount)
+                            {
+                                var new_price,
+                                    discount_type = 'руб.',
+                                    rel_per_block = '';
 
-                            if (data.rel_percent) {
-                                new_price = course_price - (course_price * data.rel_percent / 100);
-                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
-                                    '<div class="kurs_block_h">Ограничение:</div>' +
-                                    '<div class="pbi_h">' + data.rel_percent + '%</div>' +
-                                    '</div>';
-                            }
+                                if (data.discount_type === 'percent') {
+                                    new_price = course_price - (course_price * data.discount / 100);
+                                    discount_type = '%';
+                                } else if (data.discount_type === 'currency') {
+                                    new_price = course_price - data.discount;
+                                } else if (data.discount_type === 'free_week') {
+                                    discount_type = ' беспл. нед.';
+                                    bt_buy.val('Добавить в "Мои курсы"');
+                                }
 
-                            if (new_price < 1 && !data.rel_percent) {
-                                new_price = 1;
-                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
-                                    '<div class="kurs_block_h">Ограничение:</div>' +
-                                    '<div class="pbi_h">Минимальная сумма к оплате 1 руб.</div>' +
-                                    '</div>';
-                            }
-                            promo_info = '<div class="parent kurs_cur_wrap">' +
-                                '<div class="kurs_block_h">Скидка:</div>' +
-                                '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
-                                '</div>' + rel_per_block;
+                                if (data.rel_percent) {
+                                    new_price = course_price - (course_price * data.rel_percent / 100);
+                                    rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                        '<div class="kurs_block_h">Ограничение:</div>' +
+                                        '<div class="pbi_h">' + data.rel_percent + '%</div>' +
+                                        '</div>';
+                                }
 
-                            if (new_price) {
-                                new_price = parseFloat(new_price).toFixed(2);
-                                price_block.addClass('strikeout');
-                                if (price_block.next('#course-new-price').length == 0) {
-                                    price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
-                                    new_price_block = $('#course-new-price');
-                                } else {
-                                    new_price_block.html(new_price);
-                                    new_price_block.show();
+                                if (new_price < 1 && !data.rel_percent && data.discount < 100 && data.discount_type === 'percent') {
+                                    new_price = 1;
+                                    rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                        '<div class="kurs_block_h">Ограничение:</div>' +
+                                        '<div class="pbi_h">Минимальная сумма к оплате 1 руб.</div>' +
+                                        '</div>';
+                                }
+                                promo_info = '<div class="parent kurs_cur_wrap">' +
+                                    '<div class="kurs_block_h">Скидка:</div>' +
+                                    '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
+                                    '</div>' + rel_per_block;
+
+
+                                if (new_price) {
+                                    new_price = parseFloat(new_price).toFixed(2);
+                                    price_block.addClass('strikeout');
+                                    if (price_block.next('#course-new-price').length === 0) {
+                                        price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
+                                        new_price_block = $('#course-new-price');
+                                    } else {
+                                        new_price_block.html(new_price);
+                                        new_price_block.show();
+                                    }
+                                }
+                                else if(new_price === 0)
+                                {
+                                    bt_buy.val('Добавить в "Мои курсы"');
                                 }
                             }
-                        } else {
-                            price_block.removeClass('strikeout');
-                            new_price_block.hide();
-                            promo_info = '<div class="parent kurs_cur_wrap">' +
-                                '<div class="kurs_block_h"></div>' +
-                                '<div class="pbi_h">Промокод не найден</div>' +
-                                '</div>';
-                        }
+                            else
+                            {
+                                price_block.removeClass('strikeout');
+                                new_price_block.hide();
+                                promo_info = '<div class="parent kurs_cur_wrap">' +
+                                    '<div class="kurs_block_h"></div>' +
+                                    '<div class="pbi_h">Промокод не найден</div>' +
+                                    '</div>';
+                            }
 
-                        if (promo_block.next('.promo_block_info').length == 0) {
-                            promo_block.after('<div class="promo_block_info"></div>');
-                            promo_block_info = promo_block.next('.promo_block_info');
+                            if (promo_block.next('.promo_block_info').length === 0) {
+                                promo_block.after('<div class="promo_block_info"></div>');
+                                promo_block_info = promo_block.next('.promo_block_info');
+                            }
+                            promo_block_info.html(promo_info);
                         }
-                        promo_block_info.html(promo_info);
-                    }
-                });
-            } else {
-                price_block.removeClass('strikeout');
-                new_price_block.hide();
-                promo_block_info.hide();
+                    });
+                }
+                else
+                {
+                    price_block.removeClass('strikeout');
+                    new_price_block.hide();
+                    promo_block_info.hide();
+                    bt_buy.val('Купить');
+                }
+
+                isEvent = true;
+                setTimeout( function() {
+                    isEvent = false;
+                }, 1000 );
             }
+            /*else
+            {
+                if (promo_block_info.length === 0) {
+                    promo_block.after('<div class="promo_block_info"></div>');
+                    promo_block_info = promo_block.next('.promo_block_info');
+                }
 
+                search_dots = setInterval (function(){
+                    var promo_info = '<div class="parent kurs_cur_wrap">' +
+                        '<div class="kurs_block_h"></div>' +
+                        '<div class="pbi_h">Поиск</div>' +
+                        '</div>';
+
+                    promo_block_info.html(promo_info);
+                    if (dots < 3) {
+                        promo_block_info.find('.pbi_h').append('.');
+                        dots++;
+                    }
+                    else {
+                        promo_block_info.find('.pbi_h').html('Поиск');
+                        dots = 0;
+                    }
+                }, 600);
+            }*/
         }, 50);
     }
 

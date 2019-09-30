@@ -91,7 +91,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <!--<source src="http://leanbackplayer.com/videos/360p/elephants_dream_640x360_2.30.webm" type='video/webm; codecs="vp8, vorbis"' />
                 <source src="http://leanbackplayer.com/videos/360p/elephants_dream_640x360_2.30.ogv" type='video/ogg; codecs="theora, vorbis"' />-->
             </video>
-        </div>
+        <!--</div>
     </div>-->
 <?php endif;?>
 <!--<div class="admin_form_file_line parent">

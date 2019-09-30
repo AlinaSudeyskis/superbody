@@ -6103,7 +6103,7 @@ class Course_model extends CI_Model
             'courses_percent_done' => false);
 
         // Проверка курсов на закончившиеся бесплатные недели
-        self::checkUserCoursesFreeWeeks($user_id, $date);
+        //self::checkUserCoursesFreeWeeks($user_id, $date);
 
         $color = array(42, 202, 242);
         // Флаг следующего тренировочного дня
@@ -6416,294 +6416,6 @@ class Course_model extends CI_Model
             $set_start_date = true;
             //log_message('debug', 'Array training days: ' . print_r($array_training_days, true));
 
-            // Добавление пропущенный тренировок в БД
-            if($course['blocked'] == 0)
-            {
-                $up_missed = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="missed", `utw_date_update`=? 
-                    WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`=""', array($date, $course['id'], $today));
-                if($up_missed !== false and 0 < $this->db->affected_rows())
-                {
-                    // Изменение нумерации тренировок
-                    $up_workouts = $this->db->query('UPDATE `users_training_weeks` SET `utw_crs_workout`=(`utw_crs_workout`-1), `utw_date_update`=? 
-                        WHERE `utw_uc_id`=? and `utw_date`>=?', array($date, $course['id'], $today));
-                    if($up_workouts === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
-                }
-                elseif($up_missed === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-
-                /*$sel_f_workout = $this->db->query('
-                    SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
-                    FROM `users_training_weeks`
-                    WHERE `utw_uc_id`=? and `utw_date`<? and `utw_done`=0 and `utw_duplicate`=0
-                    ORDER BY `utw_date` ASC
-                    LIMIT 1', array($course['id'], $today));
-                if ($sel_f_workout !== false and 1 == $sel_f_workout->num_rows())
-                {
-                    $row = $sel_f_workout->row();
-
-                    $start_missed_date = $row->utw_date;
-                    $missed_dates = array(); // Массив дат пропущенных дней тренировок
-                    //log_message('debug', 'Start missed date: ' . print_r($start_missed_date, true));
-
-                    // Разница между датами
-                    $datetime1   = new DateTime($today);
-                    $datetime2   = new DateTime($start_missed_date);
-                    $interval    = $datetime1->diff($datetime2);
-                    $days_missed = $interval->format('%a');
-                    //log_message('debug', 'Days missed: ' . print_r($days_missed, true));
-
-                    $training_date = $start_missed_date;
-                    for ($i = 0; $i <= $days_missed; $i++)
-                    {
-                        // Если дата тренировки меньше текущей, заносим как пропущенная. Иначе прерываем цикл
-                        if ($training_date < $today)
-                        {
-                            // Сравнения номера дня недели с днями недели тренировок. Номер дня недели текущей тренировки
-                            $current_num_day = date("N", strtotime($training_date));
-                            // Новая дата пропущенной тренировки
-                            $new_training_date = $training_date;
-                            //log_message('debug', 'New training date: ' . print_r($new_training_date, true));
-
-                            // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
-                            // то вычисляем дату следующего дня недели тренировки.
-                            if (!in_array($current_num_day, $array_training_days))
-                            {
-                                // Поиск большего номера дня недели
-                                foreach ($array_training_days as $training_day)
-                                {
-                                    if ($training_day > $current_num_day)
-                                    {
-                                        $diff_days = $training_day - $current_num_day;
-
-                                        $tmp_date = DateTime::createFromFormat('Y-m-d', $training_date);
-                                        $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
-                                        $new_training_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : $training_date;
-                                        break;
-                                    }
-                                }
-                                unset($training_day);
-
-                                // Если дата тренировки осталась не измененной, выбираем первый день недели тренировки
-                                // пользователя и вычисляем её дату
-                                if ($new_training_date == $training_date)
-                                {
-                                    // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                    $diff_days = 7 - $current_num_day + $array_training_days[0];
-
-                                    // Временная дата предыдущей тренивроки
-                                    $tem_date = new DateTime($training_date);
-
-                                    // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
-                                    $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
-
-                                    $new_training_date = $tem_date->format('Y-m-d');
-                                }
-                            }
-                            //log_message('debug', 'New training date2: ' . print_r($new_training_date, true));
-
-                            // Следующая дата
-                            $tmp_date = new DateTime($new_training_date);
-                            $tmp_date->add(new DateInterval('P1D'));
-                            $training_date = $tmp_date->format('Y-m-d');
-                            //log_message('debug', 'Next training date: ' . print_r($training_date, true));
-
-                            if ($new_training_date < $today)
-                            {
-                                $missed_dates[$i] = $new_training_date;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-
-                    // Добавляем пропущенные тренировки курса
-                    //log_message('debug', 'Missed dates: ' . print_r($missed_dates, true));
-                    if (!empty($missed_dates))
-                    {
-                        $value = '';
-                        foreach ($missed_dates as $missed_date)
-                        {
-                            if (!empty($value))
-                            {
-                                $value .= ', ';
-                            }
-                            $value .= '(' . $course['id'] .', 1, 1, "' . $missed_date . '", "' . $date . '")';
-                        }
-
-                        if (!empty($value))
-                        {
-                            $up_data = $this->db->query('
-                            INSERT INTO `users_training_weeks`
-                                (`utw_uc_id`, `utw_workout`, `utw_duplicate`, `utw_date`, `utw_date_update`)
-                            VALUES ' . $value);
-                            if ($up_data === false)
-                            {
-                                parent::logDbMessages(__METHOD__.':'.__LINE__);
-                            }
-                        }
-                    }
-
-                    unset($row);
-                }
-                elseif ($sel_f_workout === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }*/
-
-                // Обработка тренировок, проверка на пропущенные занятия
-                // Изменение дат будущих тренировок (смещение курса)
-                /*$sel_workouts = $this->db->query('
-                SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_done`, `utw_date`
-                FROM `users_training_weeks`
-                WHERE `utw_uc_id`=? and `utw_duplicate`=0
-                ORDER BY `utw_date` ASC', $course['id']);
-                if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
-                {
-                    $i = 0;
-
-                    $training_date = $today;
-                    $next_workout  = false; // Флаг продолжения вычисления новых дат тренировок
-                    $update_date   = false; // Флаг обновления даты тренировки
-
-                    foreach ($sel_workouts->result() as $row)
-                    {
-                        $new_training_date = null; // Новая дата тренировки
-
-                        // Обновление дат тренировок
-                        if ($today > $row->utw_date and $row->utw_done == 0)
-                        {
-                            // Сравнения номера дня недели с днями недели тренировок
-                            $current_num_day = date("N", strtotime($training_date));
-
-                            // Изменение даты первой пропущенной тренировки.
-                            if ($next_workout === false)
-                            {
-                                // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
-                                // то вычисляем дату следующего дня недели тренировки.
-                                if (!in_array($current_num_day, $array_training_days))
-                                {
-                                    // Поиск большего номера дня недели и вычисление его новой даты
-                                    foreach ($array_training_days as $key => $training_day)
-                                    {
-                                        if ($training_day > $current_num_day)
-                                        {
-                                            $diff_days = $training_day - $current_num_day;
-
-                                            $tmp_date = DateTime::createFromFormat('Y-m-d', $training_date);
-                                            $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
-                                            $new_training_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
-                                            break;
-                                        }
-                                    }
-                                    unset($training_day);
-
-                                    // Если новая дата тренировки не вычислена, выбираем первый день недели тренировки
-                                    // пользователя и вычисляем её дату
-                                    if (empty($new_training_date))
-                                    {
-                                        // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                        $diff_days = 7 - $current_num_day + $array_training_days[0];
-                                        // Временная дата предыдущей тренивроки
-                                        $tem_date = new DateTime($training_date);
-                                        // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
-                                        $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
-
-                                        $new_training_date = ($tem_date !== false) ? $tem_date->format('Y-m-d') : null;
-                                    }
-                                }
-                                else
-                                {
-                                    $new_training_date = $training_date;
-                                }
-
-                                // Если новая дата тренировки вычислена, обновляем дату в БД
-                                if (!empty($new_training_date))
-                                {
-                                    $next_workout = true;
-                                    $training_date = $new_training_date;
-
-                                    $up_data = $this->db->query('
-                                    UPDATE `users_training_weeks` SET `utw_date`=?, `utw_date_update`=?
-                                    WHERE `utw_id`=? LIMIT 1', array($new_training_date, $date, $row->utw_id));
-                                    if ($up_data === false)
-                                    {
-                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                                    }
-
-                                }
-                            }
-                            // Изменение дат остальных тренировок
-                            elseif ($next_workout === true)
-                            {
-                                $new_training_date = self::setNewDateOfPrev($training_date, $array_training_days, $date, $row->utw_id);
-
-                                if (!empty($new_training_date))
-                                {
-                                    $training_date = $new_training_date;
-                                }
-                            }
-                        }
-                        // Изменение дат остальных тренировок
-                        elseif ($next_workout === true)
-                        {
-                            $new_training_date = self::setNewDateOfPrev($training_date, $array_training_days, $date, $row->utw_id);
-
-                            if (!empty($new_training_date))
-                            {
-                                $training_date = $new_training_date;
-                            }
-                        }
-
-                        $i++;
-                    }
-                    unset($row);
-                    unset($i);
-                }
-                elseif ($sel_workouts === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-                $sel_workouts->free_result();*/
-
-                // Изменение окончания даты тренировок курса
-                // Дата последней тренировки курса
-                /*$sel_last_w_date = $this->db->query('
-                SELECT `utw_uc_id`, `utw_date`
-                FROM `users_training_weeks`
-                WHERE `utw_duplicate`=0 and `utw_uc_id`=?
-                ORDER BY `utw_date` DESC LIMIT 1', $course['id']);
-                if ($sel_last_w_date !== false and 1 == $sel_last_w_date->num_rows())
-                {
-                    $row = $sel_last_w_date->row();
-                    $last_w_date = $row->utw_date;
-
-                    $up_data = $this->db->query('
-                    UPDATE `users_courses` SET `uc_date_end`=?
-                    WHERE `uc_id`=? and `uc_date_end`<? LIMIT 1', array($last_w_date, $course['id'], $last_w_date));
-                    if ($up_data === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
-
-                    unset($row);
-                }
-                elseif ($sel_last_w_date === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }*/
-            }
-
             // Выборка расписания тренировок
             $sel_workouts = $this->db->query('
                 SELECT `utw_id`, `utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date`, `utw_time`
@@ -6990,6 +6702,42 @@ class Course_model extends CI_Model
         $result['var_next_training_date'] = $next_training_date;
         $result['var_ei'] = $ei;
         $result['var_color'] = $color;
+
+        return $result;
+    }
+
+    /**
+     * Проверка и блокировка курсов пользователей, если бесплатные недели промокода закончились
+     *
+     * @param $date
+     * @return bool
+     * @throws Exception
+     */
+    public function checkUsersCoursesFreeWeeks($date)
+    {
+        $result     = true;
+        $tmp_date   = new DateTime($date);
+        $short_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+        $sel_data = $this->db->query('SELECT `uc_user_id` FROM `users_courses` 
+            WHERE `uc_blocked`=0 and `uc_free_weeks`>0 and `uc_free_weeks_end_date`<=? and `uc_free_weeks_end_date`<>"0000-00-00"', $short_date);
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach ($sel_data->result() as $row)
+            {
+                $up_data = self::checkUserCoursesFreeWeeks($row->uc_user_id, $date);
+                if($up_data === false)
+                {
+                    $result = false;
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
 
         return $result;
     }
@@ -9585,6 +9333,155 @@ class Course_model extends CI_Model
         }
         elseif($sel_courses === false)
         {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка, перенос и изменение статуса тренировок пользователей
+     *
+     * @param $date
+     * @return bool
+     * @throws Exception
+     */
+    public function checkUsersWorkouts($date)
+    {
+        $result   = true;
+        $tmp_date = new DateTime($date);
+        $today    = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+        $sel_data = $this->db->query('SELECT `uc_id` FROM `users_courses` 
+            WHERE `uc_blocked`=0 and `uc_date_start`<>"0000-00-00" and `uc_date_end`<>"0000-00-00" and `uc_date_end`>?', $today);
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach($sel_data->result() as $row)
+            {
+                // Добавление пропущенный тренировок в БД
+                $up_missed = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="missed", `utw_date_update`=? 
+                    WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`=""', array($date, $row->uc_id, $today));
+                if($up_missed !== false and 0 < $this->db->affected_rows())
+                {
+                    // Изменение нумерации тренировок
+                    $up_workouts = $this->db->query('UPDATE `users_training_weeks` SET `utw_crs_workout`=(`utw_crs_workout`-1), `utw_date_update`=? 
+                        WHERE `utw_uc_id`=? and `utw_date`>=?', array($date, $row->uc_id, $today));
+                    if($up_workouts === false)
+                    {
+                        $result = false;
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+                elseif($up_missed === false)
+                {
+                    $result = false;
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            unset($row);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка наличия заканчивающихся курсов
+     *
+     * @param $date
+     * @return bool
+     * @throws Exception
+     */
+    public function checkUsersExpiringCourses($date)
+    {
+        $result   = false;
+
+        // Курсы, которые заканчиваются через неделю или меньше + курсы продления
+        $tmp_date = new DateTime($date);
+        $today = $tmp_date->format('Y-m-d');
+        $tmp_date->add(new DateInterval('P8D'));
+        $next_week = $tmp_date->format('Y-m-d');
+
+        $sel_data = $this->db->query('
+            SELECT `uc_id`, `uc_course_id`, `uc_date_end`, `uc_ends_email`, `crs_name`, `user_email`
+            FROM `users_courses` 
+            LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
+            LEFT JOIN `users` ON `user_id`=`uc_user_id`
+            WHERE `uc_blocked`=0 and `uc_date_end`>=? and `uc_date_end`<? and `uc_ends_email`=0',
+                array($today, $next_week));
+        if ($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach ($sel_data->result() as $row)
+            {
+                // Отправка email с уведомлением о заканчивающемся курсе
+                if(!empty($row->user_email))
+                {
+                    $result[$row->uc_id]['user_email']  = $row->user_email;
+                    $result[$row->uc_id]['course_name'] = $row->crs_name;
+
+                    $sel_extends = self::getUserCourseExtends($row->uc_course_id, $date);
+
+                    if(!empty($sel_extends['extends']))
+                    {
+                        $a = 0;
+                        foreach($sel_extends['extends'] as $extend)
+                        {
+                            // Дата отсчета продления курса с промокодом
+                            $tmp_date3   = new DateTime($row->uc_date_end);
+                            $tmp_date3->add(new DateInterval('P' . ($extend['weeks_after']*7) . 'D'));
+                            $edcd        = $tmp_date3->format('Y-m-d');
+
+                            if($edcd == $today)
+                            {
+                                $tmp_date4      = new DateTime($edcd);
+                                $tmp_date4->add(new DateInterval("PT23H59M59S"));
+                                $ext_date_cd = $tmp_date4->format('U')*1000;
+                            }
+                            else
+                            {
+                                $ext_date_cd = $tmp_date3->format('U')*1000;
+                            }
+
+                            // Отображаем курс продления, если окончательная дата продления не наступила
+                            if(!empty($ext_date_cd))
+                            {
+                                $result[$row->uc_id]['extends'][$a]['course_id']      = $extend['extend_id'];
+                                $result[$row->uc_id]['extends'][$a]['course_name']    = $extend['course_name'];
+                                $result[$row->uc_id]['extends'][$a]['promocode']      = $extend['promocode'];
+                                $result[$row->uc_id]['extends'][$a]['price']          = $extend['course_price'];
+                                $result[$row->uc_id]['extends'][$a]['new_price']      = $extend['course_new_price'];
+
+                                $a++;
+                            }
+                        }
+                        unset($extend);
+                    }
+                    unset($sel_extends);
+                }
+            }
+            unset($row);
+        }
+        elseif ($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Отметка, что письмо было отправлено пользователю
+     *
+     * @param $user_course_id
+     * @return bool
+     */
+    public function setEmailSentUserExpiringCourse($user_course_id)
+    {
+        $result = true;
+
+        $up_data = $this->db->query('UPDATE `users_courses` SET `uc_ends_email`=1 WHERE `uc_id`=? LIMIT 1', $user_course_id);
+        if ($up_data === false)
+        {
+            $result = false;
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 

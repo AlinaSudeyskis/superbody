@@ -919,7 +919,7 @@ audio, canvas, progress, video{
     -webkit-flex-grow: 0;
     justify-content: center;
     -webkit-justify-content: center;
-    padding-right: 10px;
+    /*padding-right: 10px;*/
 }
 .content_block.notification_block{
     margin-bottom: 20px;
@@ -9060,6 +9060,7 @@ span.tip>.bt_link {
 	border: none;
 	background: #2acaf2;
 	font-size: 13px;
+    padding: 0 15px;
 	cursor: pointer;
 }
 .anketa_form_but.red{

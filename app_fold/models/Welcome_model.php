@@ -145,16 +145,17 @@ class Welcome_model extends CI_Model
             $result['cookies_text']       = $row->si_cookies_text;
 
             $sel_banners = $this->db->query('
-                SELECT `sb_image`, `sb_url` FROM `site_banners` WHERE `sb_blocked`=0');
+                SELECT `sb_image`, `sb_video_url`, `sb_url` FROM `site_banners` WHERE `sb_blocked`=0');
             if ($sel_banners !== false and 0 < $sel_banners->num_rows())
             {
                 $i = 0;
                 foreach ($sel_banners->result() as $row)
                 {
-                    if (is_file($row->sb_image))
+                    if (is_file($row->sb_image) or !empty($row->sb_video_url))
                     {
-                        $result['banners'][$i]['image'] = mb_substr($row->sb_image, 1);
-                        $result['banners'][$i]['url']   = $row->sb_url;
+                        $result['banners'][$i]['image']     = mb_substr($row->sb_image, 1);
+                        $result['banners'][$i]['video_url'] = $row->sb_video_url;
+                        $result['banners'][$i]['url']       = $row->sb_url;
 
                         $i++;
                     }

@@ -75,8 +75,9 @@ endif; ?>
             statusbar: false,
             theme: 'silver',
             language_url : '/js/tinymce/langs/ru.js',
-            plugins: "image imagetools autoresize link paste",
-            toolbar: "undo redo | bold italic | forecolor | alignleft aligncenter alignright alignjustify | image | link",
+            plugins: "image imagetools autoresize link paste lists charmap",
+            toolbar: "undo redo | bold italic underline | fontsizeselect forecolor | alignleft aligncenter alignright alignjustify | numlist bullist indent outdent | charmap | image link",
+            fontsize_formats: '8px 9px 10px 11px 12px 14px 16px 18px 24px 36px 48px',
             max_chars_indicator: "pageLength",
             relative_urls : false,
             paste_auto_cleanup_on_paste: true

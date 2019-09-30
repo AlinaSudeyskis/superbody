@@ -584,58 +584,95 @@ class Payment extends CI_Controller
         {
             foreach($subsequent['payments'] as $payment)
             {
-                // Создание запроса платежа и его выпонение
-                $res_create = self::createPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['type'],
-                    '', $payment['method_id']);
+                $this->load->model('Store_model');
+                $order = $this->Store_model->getOrder($payment['order_id']);
 
-                if(!empty($res_create['response']))
+                if(!empty($order))
                 {
-                    $response = $res_create['response'];
-                    if(!empty($response->_id))
+                    $order = $order['order'];
+                    $products = array();
+                    if(!empty($order['products']))
                     {
-                        $created_at     = $response->_createdAt->_date . $response->_createdAt->_timezone;
-                        $payment_method = $response->_payment_method;
-                        $paid = ($response->_paid === true) ? 1 : 0;
-
-                        // Сохранение данных оплаты в БД
-                        $this->Payment_model->updateSubsequentPayment($payment['id'], $payment['order_id'], $response->_id,
-                            $response->_status, $payment_method->_type, $paid, $created_at);
-
-                        // Заморозить курс
-                        if($response->_status === 'canceled')
+                        $i = 0;
+                        foreach ($order['products'] as $product)
                         {
-                            $this->load->model('Course_model');
-                            $this->load->model('Store_model');
+                            $products['products'][$i]['id'] = $product['course_id'];
+                            $products['products'][$i]['name'] = $product['name'];
+                            $products['products'][$i]['cart_quantity'] = $product['cart_quantity'];
+                            $products['products'][$i]['price'] = $product['price'];
+                            $products['products'][$i]['rec_first_price'] = $product['rec_first'];
+                            $products['products'][$i]['rec_months'] = $product['rec_months'];
+                            $products['products'][$i]['rec_subsequent'] = $product['rec_subseq'];
+                            $products['products'][$i]['fc_price'] = $product['fc_price'];
+                            $products['products'][$i]['discount_price'] = $product['discount_price'];
+                            $products['products'][$i]['discount_fc_price'] = $product['discount_fc_price'];
+                            $products['products'][$i]['promo_id'] = '';
+                            $products['products'][$i]['promo_code'] = '';
+                            $products['products'][$i]['promo_discount'] = '';
+                            $products[$i]['promo_discount_type'] = '';
 
-                            $reason = 'payment_canceled';
-
-                            // Курсы заказа
-                            $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
-                            // Блокировка курсов
-                            $this->Course_model->blockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                            $i++;
                         }
-                        // Разморозить курс
-                        elseif($payment['status'] === 'canceled' and $response->_status === 'succeeded')
+                        unset($product);
+
+                        // Создание запроса платежа и его выпонение
+                        $res_create = self::createPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['type'],
+                            '', $payment['method_id'], '', '', $payment['user_email'], $products['products'][0]);
+
+                        if(!empty($res_create['response']))
                         {
-                            $this->load->model('Course_model');
-                            $this->load->model('Store_model');
+                            $response = $res_create['response'];
+                            if(!empty($response->_id))
+                            {
+                                $created_at     = $response->_createdAt->_date . $response->_createdAt->_timezone;
+                                $payment_method = $response->_payment_method;
+                                $paid = ($response->_paid === true) ? 1 : 0;
 
-                            $reason = 'payment_succeeded';
+                                // Сохранение данных оплаты в БД
+                                $this->Payment_model->updateSubsequentPayment($payment['id'], $payment['order_id'], $response->_id,
+                                    $response->_status, $payment_method->_type, $paid, $created_at);
 
-                            // Курсы заказа
-                            $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
-                            // Блокировка курсов
-                            $this->Course_model->unblockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                                // Заморозить курс
+                                if($response->_status === 'canceled')
+                                {
+                                    $this->load->model('Course_model');
+                                    $this->load->model('Store_model');
+
+                                    $reason = 'payment_canceled';
+
+                                    // Курсы заказа
+                                    $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
+                                    // Блокировка курсов
+                                    $this->Course_model->blockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                                }
+                                // Разморозить курс
+                                elseif($payment['status'] === 'canceled' and $response->_status === 'succeeded')
+                                {
+                                    $this->load->model('Course_model');
+                                    $this->load->model('Store_model');
+
+                                    $reason = 'payment_succeeded';
+
+                                    // Курсы заказа
+                                    $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
+                                    // Блокировка курсов
+                                    $this->Course_model->unblockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                                }
+                            }
+                            else
+                            {
+                                log_message('debug', __METHOD__ . __LINE__ . ' empty $response->_id: ' . $payment['method_id'] . ' ' .print_r($res_create, true));
+                            }
                         }
-                    }
-                    else
-                    {
-                        log_message('debug', __METHOD__ . __LINE__ . ' empty $response->_id: ' . $payment['method_id'] . ' ' .print_r($res_create, true));
+                        else
+                        {
+                            log_message('debug', __METHOD__ . __LINE__ . ' Payment create error: ' . $payment['method_id'] . ' ' .print_r($res_create, true));
+                        }
                     }
                 }
                 else
                 {
-                    log_message('debug', __METHOD__ . __LINE__ . ' Payment create error: ' . $payment['method_id'] . ' ' .print_r($res_create, true));
+                    log_message('debug', __METHOD__.':'.__LINE__.' Order error: '. $payment['method_id'] . ' ' .print_r($order, true));
                 }
             }
             unset($payment);

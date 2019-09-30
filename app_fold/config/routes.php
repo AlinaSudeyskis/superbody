@@ -370,7 +370,6 @@ $route['sortCourses'] = 'Course/getSortCourses';
 $route['payment']               = 'Payment/payment';
 $route['payment/notifications'] = 'Payment/paymentNotifications';
 $route['payment/update']        = 'Payment/paymentUpdate';
-$route['payment/verification']  = 'Payment/verificationSubsequentPayments';
 
 // Журнал
 //$route['journal/articles']         = 'Journal/articles';
@@ -395,5 +394,11 @@ $route['updateCartProduct']      = 'Store/updateCartProduct';
 $route['sortProducts']           = 'Store/getSortProducts';
 $route['getSearchProducts']      = 'Store/getSearchProducts';
 $route['getSearchNotifications'] = 'Notification/getSearchNotifications';
+
+// Cron
+$route['payment/verification']        = 'Payment/verificationSubsequentPayments';
+$route['course/coursesFreeWeeks']     = 'Course/checkUsersCoursesFreeWeeks';
+$route['course/usersWorkouts']        = 'Course/checkUsersWorkouts';
+$route['course/usersExpiringCourses'] = 'Course/checkUsersExpiringCourses';
 
 

@@ -2564,6 +2564,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-09-27 11:29';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_banners` ADD `sb_video_url` VARCHAR(255) NOT NULL AFTER `sb_image`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

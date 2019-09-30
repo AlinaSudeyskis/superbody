@@ -32,39 +32,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <input type="submit" name="bt_save_banner" value="Сохранить" class="video_admin_form_send" />
                                     </div>
                                 </div>
-
-                                <div class="video_admin_form site_info">
-                                    <div class="anketa_form_line parent">
-                                        <div class="anketa_form_h">
-                                            <div class="anketa_form_h_cell">Файл баннера:</div>
-                                            <div class="h_subtitle">(1920х350)</div>
-                                        </div>
-                                        <div class="video_down_line parent">
-                                            <div class="parent kurs_cur_wrap">
-                                                <div class="video_down_line_but_wrap">
-                                                    <label for="video_down_line_but1cs" class="video_down_line_but">
-                                                        <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
-                                                        <input type="file" name="banner_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
-                                                        <span>Выберите файл</span>
-                                                    </label>
-                                                </div>
-                                                <div class="video_down_line_name" style="width:45% !important;">Файл не выбран</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php if (!empty($banner['image'])) : ?>
-                                        <div class="anketa_form_line parent">
-                                            <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
-                                            <div class="tren_set_form_img banner" id="settings_img">
-                                                <img src="<?php echo $banner['image'];?>" alt="">
-                                            </div>
-                                        </div>
-                                    <?php endif;?>
-                                    <div class="anketa_form_line parent">
-                                        <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка</div></div>
-                                        <input type="text" class="anketa_form_in anketa_form_in_long" name="banner_url" value="<?php if (!empty($banner['url'])) { echo $banner['url']; }?>" maxlength="255"/>
-                                    </div>
-                                </div>
+                                <?php include_once('./app_fold/views/site/banner/settings_item.php'); ?>
                             </form>
                         </div>
                     </div>

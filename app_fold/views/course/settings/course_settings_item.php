@@ -255,30 +255,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="hidden" name="id_video[<?php echo $num_workout;?>]" value="<?php echo $course['workouts'][$num_workout]['video_id'];?>" id="id-video<?php echo $num_workout;?>"/>
                         </div>
                         <textarea name="ta_workout_desc[<?php echo $num_workout; ?>]" class="tov_form_textarea" placeholder="Введите описание тренировки"><?php echo $course['workouts'][$num_workout]['description'];?></textarea>
-                        <?php if ($num_workout > 1) :?>
-                            <div class="tren_repeat_total">
+                        <?php /*if ($num_workout > 1) :*/?>
+                            <!--<div class="tren_repeat_total">
                                 <div class="tren_form_block_check_wrap">
-                                    <input type="checkbox" name="cb_repeat_workout[<?php echo $num_workout; ?>]" class="tren_form_block_check" id="tren_form_block_check<?php echo $num_workout; ?>e"
-                                           <?php if (0 < $course['workouts'][$num_workout]['repeat_workout']) : ?>checked="checked"<?php endif; ?>
-                                           value="<?php echo $num_workout; ?>" />
-                                    <label for="tren_form_block_check<?php echo $num_workout; ?>e">Повтор тренировок</label>
+                                    <input type="checkbox" name="cb_repeat_workout[<?php /*echo $num_workout; */?>]" class="tren_form_block_check" id="tren_form_block_check<?php /*echo $num_workout; */?>e"
+                                           <?php /*if (0 < $course['workouts'][$num_workout]['repeat_workout']) : */?>checked="checked"<?php /*endif; */?>
+                                           value="<?php /*echo $num_workout; */?>" />
+                                    <label for="tren_form_block_check<?php /*echo $num_workout; */?>e">Повтор тренировок</label>
                                 </div>
-                                <select name="s_repeat_workout[<?php echo $num_workout; ?>]" class="journal_form_select">
-                                    <?php for ($w = 0; $w < $num_workout-1; $w++) :?>
-                                        <option value="<?php echo $workout2; ?>"
-                                                <?php if ($course['workouts'][$num_workout]['repeat_workout'] == $workout2) :?>selected="selected"<?php endif; ?>
-                                        >Тренировка №<?php echo $workout2; ?></option>
-                                        <?php $workout2++;
-                                    endfor;?>
+                                <select name="s_repeat_workout[<?php /*echo $num_workout; */?>]" class="journal_form_select">-->
+                                    <?php /*for ($w = 0; $w < $num_workout-1; $w++) :*/?><!--
+                                        <option value="<?php /*echo $workout2; */?>"
+                                                <?php /*if ($course['workouts'][$num_workout]['repeat_workout'] == $workout2) :*/?>selected="selected"<?php /*endif; */?>
+                                        >Тренировка №<?php /*echo $workout2; */?></option>
+                                        --><?php /*$workout2++;
+                                    endfor;*/?>
                                     <?php /*foreach ($allow_repeat_workouts as $arw) :*/?><!--
                                         <option value="<?php /*echo $arw; */?>"
                                                 <?php /*if ($course['workouts'][$num_workout]['repeat_workout'] == $arw) :*/?>selected="selected"<?php /*endif; */?>
                                         >Тренировка №<?php /*echo $arw; */?></option>
                                     --><?php /*endforeach;
                                     unset($arw);*/ ?>
-                                </select>
-                            </div>
-                        <?php endif;?>
+                                <!--</select>
+                            </div>-->
+                        <?php /*endif;*/?>
                         <?php if ($course['workouts'][$num_workout]['video_id'] > 0 and $course['workouts'][$num_workout]['repeat_workout'] == 0):
                             $allow_repeat_workouts[$num_workout] = $num_workout;
                         endif; ?>

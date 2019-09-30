@@ -906,10 +906,13 @@ class Administrator extends CI_Controller
 
             $banner_url = filter_var($this->input->post('banner_url', true), FILTER_VALIDATE_URL);
 
-            if (!empty($banner_img))
-            {
-                $result = $this->Administrator_model->setNewBanner($banner_img, $banner_url, $this->user_id, $this->date);
+            $banner_video = !empty($this->input->post('banner_video_url', true))
+                ? mb_substr(strip_tags($this->input->post('banner_video_url', true)), 0, 255)
+                : '';
 
+            if (!empty($banner_img) or !empty($banner_video))
+            {
+                $result = $this->Administrator_model->setNewBanner($banner_img, $banner_video, $banner_url, $this->user_id, $this->date);
 
                 if (is_numeric($result))
                 {
@@ -962,8 +965,9 @@ class Administrator extends CI_Controller
         if ($this->input->post('bt_save_banner', true))
         {
             // Загрузка изображения на сервер
-            $banner_img = $result['banner']['image'];
-            if(is_uploaded_file($_FILES['banner_file']['tmp_name'])){
+            $banner_img = '.'.$result['banner']['image'];
+            if(is_uploaded_file($_FILES['banner_file']['tmp_name']))
+            {
                 $path = './banners/';
                 $this->load->helper('file');
 
@@ -988,11 +992,16 @@ class Administrator extends CI_Controller
             }
 
             $url = filter_var($this->input->post('banner_url', true), FILTER_VALIDATE_URL);
-            $banner_url = $url != $result['banner']['url'] ? $url : $result['banner']['url'];
+            $banner_url = ($url != $result['banner']['url']) ? $url : $result['banner']['url'];
 
-            if ((!empty($banner_img) and $result['banner']['image'] != $banner_img) or $banner_url != $result['banner']['url'])
+            $video_url = !empty($this->input->post('banner_video_url', true))
+                ? mb_substr(strip_tags($this->input->post('banner_video_url', true)), 0, 255)
+                : '';
+            $banner_video = ($video_url != $result['banner']['video_url']) ? $video_url : $result['banner']['video_url'];
+
+            if ((!empty($banner_img) and $result['banner']['image'] != $banner_img) or (!empty($banner_video) and $video_url != $result['banner']['video_url']) or $banner_url != $result['banner']['url'])
             {
-                $res_b = $this->Administrator_model->setNewBanner($banner_img, $banner_url, $this->user_id, $this->date);
+                $res_b = $this->Administrator_model->setBannerSettings($banner_id, $banner_img, $banner_video, $banner_url, $this->user_id, $this->date);
 
                 if ($res_b === true)
                 {
