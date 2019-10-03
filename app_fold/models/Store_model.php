@@ -2632,8 +2632,8 @@ class Store_model extends CI_Model
             {
                 foreach ($products['products'] as $product)
                 {
-                    $full_price      = (is_numeric($product['discount_price']) and $product['discount_price'] > 0) ? (string) $product['discount_price'] : (string) $product['price'];
-                    $fc_price        = (is_numeric($product['discount_fc_price']) and $product['discount_fc_price'] > 0) ? (string) $product['discount_fc_price'] : (string) $product['fc_price'];
+                    $full_price      = (string) $product['price'];
+                    $fc_price        = (string) $product['fc_price'];
                     $rec_first_price = (string) $product['rec_first_price'];
                     $rec_months      = (string) $product['rec_months'];
                     $rec_subsequent  = (string) $product['rec_subsequent'];

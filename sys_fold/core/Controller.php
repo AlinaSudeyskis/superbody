@@ -1629,7 +1629,7 @@ class CI_Controller {
                         $full_course_price = $course_data['db_price'] - ($course_data['db_price']*$promocode_discount/100);
                     }
                     // Скидка - сумма без процентного ограничения
-                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] = 0)
+                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] == 0)
                     {
                         $new_price = $course_data['db_price'] - $promocode_discount;
                         $full_course_price = ($new_price < 1) ? 1 : $new_price;
@@ -1759,8 +1759,6 @@ class CI_Controller {
                     {
                         // Кол-во товаров в корзине
                         self::updateSessionCart(0);
-                        //log_message('debug', __METHOD__.':'.__LINE__.' Res order: '. print_r($res_order, true));
-                        //log_message('debug', __METHOD__.':'.__LINE__.' Товары: '. print_r($products['products'], true));
 
                         if($res_order['total_amount'] >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
                         {
