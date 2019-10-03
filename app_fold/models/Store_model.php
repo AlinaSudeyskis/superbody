@@ -2907,13 +2907,14 @@ class Store_model extends CI_Model
             // Выборка товаров заказа
             $sel_products = $this->db->query('
                 SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
-                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`,
+                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, `ouc_promocode_id`
                     `p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
                     `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`, 
-                    `crs_name`, `crs_image`
+                    `crs_name`, `crs_image`, `pcu_pc_id`, `pcu_code`, `pcu_discount`, `pcu_discount_type`
                 FROM `orders_users_cart`
                 LEFT JOIN `products` ON `p_id`=`ouc_p_id`
                 LEFT JOIN `courses` ON `crs_id`=`p_course_id`
+                LEFT JOIN `promocodes_used` ON `pcu_id`=`ouc_promocode_id`
                 WHERE `ouc_o_id`=?', $order_id);
             if ($sel_products !== false and 0 < $sel_products->num_rows())
             {
@@ -4202,7 +4203,6 @@ class Store_model extends CI_Model
             $price      = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : '';
             $rec_first  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first != '0.00') ? $row->ouc_p_recurrent_first : '';
             $rec_subseq = (!empty($row->ouc_p_recurrent_subsequent) and $row->ouc_p_recurrent_subsequent != '0.00') ? $row->ouc_p_recurrent_subsequent : '';
-            $price      = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : '';
             $fc_price   = (!empty($row->ouc_p_fitcoin_price) and $row->ouc_p_fitcoin_price != '0.00') ? $row->ouc_p_fitcoin_price : '';
 
             $result['price']               = $price;
@@ -4214,6 +4214,8 @@ class Store_model extends CI_Model
             $result['discount_fc_price']   = '';
             $result['quantity']            = 1;
             $result['cart_quantity']       = 1;
+            $result['promo_id']            = (!empty($row->pcu_pc_id)) ? $row->pcu_pc_id : '';
+            $result['promo_code']          = (!empty($row->pcu_code)) ? $row->pcu_code : '';
             $result['promo_discount']      = (!empty($row->pcu_discount)) ? $row->pcu_discount : '';
             $result['promo_discount_type'] = (!empty($row->pcu_discount_type)) ? $row->pcu_discount_type : '';
 

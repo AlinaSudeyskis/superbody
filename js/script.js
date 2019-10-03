@@ -1219,8 +1219,12 @@ $(document).ready(function () {
         if (pm_op) {
             payment_options.val('full_payment');
             if (pm_op === 'rec') {
+                var promo_info = $('.promo_info');
                 payment_options.val('partial_payment');
                 $('#course-price').parents('.kurs_cur_wrap').hide();
+                $('.promo_line').hide();
+                promo_info.html('Промокод не доступен');
+                promo_info.show();
                 $('#recurrent-block').show();
             }
             payment_options.change();

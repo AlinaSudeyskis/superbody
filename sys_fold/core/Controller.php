@@ -1462,6 +1462,11 @@ class CI_Controller {
     {
         $products['products'] = array();
 
+        $promocode_id = '';
+        $promocode    = array();
+        $promocode_discount      = '';
+        $promocode_discount_type = '';
+
         // Проверка данных пользователя
         $user_id   = null;
         $email     = null;
@@ -1601,85 +1606,135 @@ class CI_Controller {
             $full_course_price = $course_data['db_price'];
         }
 
+        // Расчет стоимости
+        // Введенный промокод
+        $i_promocode  = mb_substr(strip_tags($i_promocode), 0, 25);
+
+        // Проверка промокода
+        if(!empty($i_promocode))
+        {
+            $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $user_id, $this->date);
+            if($promocode['discount'] !== false and !empty($promocode['id']))
+            {
+                $promocode_id = $promocode['id'];
+                $promocode_discount      = $promocode['discount'];
+                $promocode_discount_type = $promocode['discount_type'];
+
+                if($payment_option == 'full_payment')
+                {
+                    // Вычислеие цены со скидкой
+                    // Скидка - процент
+                    if($promocode_discount_type == 'percent')
+                    {
+                        $full_course_price = $course_data['db_price'] - ($course_data['db_price']*$promocode_discount/100);
+                    }
+                    // Скидка - сумма без процентного ограничения
+                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] = 0)
+                    {
+                        $new_price = $course_data['db_price'] - $promocode_discount;
+                        $full_course_price = ($new_price < 1) ? 1 : $new_price;
+                    }
+                    // Скидка - сумма с процентным ограничением
+                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] > 0)
+                    {
+                        $full_course_price  = $course_data['db_price'] - ($course_data['db_price']*$promocode['rel_percent']/100);
+                        $promocode_discount = $promocode['rel_percent'];
+                    }
+                    // Скидка - бесплатные недели
+                    elseif($promocode_discount_type == 'free_week' and $promocode_discount > 0 and $course_data['count_weeks'] >= $promocode_discount)
+                    {
+                        $week_price        = $course_data['db_price'] / $course_data['count_weeks'];
+                        $free_weeks_price  = $week_price * $promocode_discount;
+                        $new_price         = $course_data['db_price'] - $free_weeks_price;
+                        $full_course_price = ($new_price < 1) ? 1 : $new_price;
+                    }
+                }
+            }
+        }
+
+        // Добавление товара в заказы пользователя
+        $full_course_price = (!empty($full_course_price)) ? number_format($full_course_price, 2, '.', '') : '';
+        $rec_first_course_price = (!empty($rec_first_course_price)) ? number_format($rec_first_course_price, 2, '.', '') : '';
+
+        $supposed_products['products'] = array( 0 => array(
+            'id' => $course_data['p_id'],
+            'name' => $course_data['name'],
+            'cart_quantity' => 1,
+            'price' => $full_course_price,
+            'rec_first_price' => $rec_first_course_price,
+            'rec_months' => $rec_months,
+            'rec_subsequent' => $rec_subseq_course_price,
+            'fc_price' => '',
+            'discount_price' => '',
+            'discount_fc_price' => '',
+            'promo_id' => $promocode_id,
+            'promo_code' => $i_promocode,
+            'promo_discount' => $promocode_discount,
+            'promo_discount_type' => $promocode_discount_type)
+        );
+
         if(!empty($user_id))
         {
-            $res_check = $this->Course_model->checkUserCourse($course_id, $user_id, $order_id, $this->date);
-            if($res_check === true)
+            $res_check_uc = $this->Course_model->checkUserCourse($course_id, $user_id, $order_id, $this->date);
+            if($res_check_uc === true)
             {
+                //$res_check_order = $this->Store_model->checkUserOrder($user_id, $order_id, $supposed_products['products']);
                 if($user_type !== 2)
                 {
-                    $promocode_id = '';
-                    $promocode    = array();
-                    $promocode_discount      = '';
-                    $promocode_discount_type = '';
-
-                    if(empty($order_id))
+                    if(is_numeric($order_id))
                     {
-                        // Введенный промокод
-                        $i_promocode  = mb_substr(strip_tags($i_promocode), 0, 25);
+                        $this->load->model('Store_model');
+                        $order = $this->Store_model->getOrder($order_id);
 
-                        // Проверка промокода
-                        if(!empty($i_promocode))
+                        if(!empty($order))
                         {
-                            $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $user_id, $this->date);
-                            if($promocode['discount'] !== false and !empty($promocode['id']))
+                            $order = $order['order'];
+                            if(!empty($order['products']))
                             {
-                                $promocode_id = $promocode['id'];
-                                $promocode_discount      = $promocode['discount'];
-                                $promocode_discount_type = $promocode['discount_type'];
-
-                                if($payment_option == 'full_payment')
+                                $i = 0;
+                                foreach ($order['products'] as $product)
                                 {
-                                    // Вычислеие цены со скидкой
-                                    // Скидка - процент
-                                    if($promocode_discount_type == 'percent')
+                                    if($product['id'] == $supposed_products['products'][0]['id'] and
+                                        $product['cart_quantity'] == $supposed_products['products'][0]['cart_quantity'] and
+                                        $product['price'] == $supposed_products['products'][0]['price'] and
+                                        $product['rec_first'] == $supposed_products['products'][0]['rec_first_price'] and
+                                        $product['rec_months'] == $supposed_products['products'][0]['rec_months'] and
+                                        $product['rec_subseq'] == $supposed_products['products'][0]['rec_subsequent'] and
+                                        $product['promo_id'] == $supposed_products['products'][0]['promo_id'] and
+                                        $product['promo_code'] == $supposed_products['products'][0]['promo_code'] and
+                                        $product['promo_discount'] == $supposed_products['products'][0]['promo_discount'] and
+                                        $product['promo_discount_type'] == $supposed_products['products'][0]['promo_discount_type'])
                                     {
-                                        $full_course_price = $course_data['db_price'] - ($course_data['db_price']*$promocode_discount/100);
-                                    }
-                                    // Скидка - сумма без процентного ограничения
-                                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] = 0)
-                                    {
-                                        $new_price = $course_data['db_price'] - $promocode_discount;
-                                        $full_course_price = ($new_price < 1) ? 1 : $new_price;
-                                    }
-                                    // Скидка - сумма с процентным ограничением
-                                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] > 0)
-                                    {
-                                        $full_course_price  = $course_data['db_price'] - ($course_data['db_price']*$promocode['rel_percent']/100);
-                                        $promocode_discount = $promocode['rel_percent'];
-                                    }
-                                    // Скидка - бесплатные недели
-                                    elseif($promocode_discount_type == 'free_week' and $promocode_discount > 0 and $course_data['count_weeks'] >= $promocode_discount)
-                                    {
-                                        $week_price        = $course_data['db_price'] / $course_data['count_weeks'];
-                                        $free_weeks_price  = $week_price * $promocode_discount;
-                                        $new_price         = $course_data['db_price'] - $free_weeks_price;
-                                        $full_course_price = ($new_price < 1) ? 1 : $new_price;
+                                        $products['products'][$i]['id'] = $product['course_id'];
+                                        $products['products'][$i]['name'] = $product['name'];
+                                        $products['products'][$i]['cart_quantity'] = $product['cart_quantity'];
+                                        $products['products'][$i]['price'] = $product['price'];
+                                        $products['products'][$i]['rec_first_price'] = $product['rec_first'];
+                                        $products['products'][$i]['rec_months'] = $product['rec_months'];
+                                        $products['products'][$i]['rec_subsequent'] = $product['rec_subseq'];
+                                        $products['products'][$i]['fc_price'] = $product['fc_price'];
+                                        $products['products'][$i]['discount_price'] = $product['discount_price'];
+                                        $products['products'][$i]['discount_fc_price'] = $product['discount_fc_price'];
+                                        $products['products'][$i]['promo_id'] = '';
+                                        $products['products'][$i]['promo_code'] = '';
+                                        $products['products'][$i]['promo_discount'] = '';
+                                        $products['products'][$i]['promo_discount_type'] = '';
+
+                                        $i++;
                                     }
                                 }
+                                unset($product);
                             }
+
+                            $order_amount = $this->Store_model->getOrderAmount($order_id);
+                            $res_order['order_id']     = $order_id;
+                            $res_order['total_amount'] = (!empty($order)) ? $order_amount : null;
                         }
+                    }
 
-                        // Добавление товара в заказы пользователя
-                        $full_course_price = (!empty($full_course_price)) ? number_format($full_course_price, 2, '.', '') : '';
-                        $rec_first_course_price = (!empty($rec_first_course_price)) ? number_format($rec_first_course_price, 2, '.', '') : '';
-
-                        $products['products'] = array( 0 => array(
-                            'id' => $course_data['p_id'],
-                            'name' => $course_data['name'],
-                            'cart_quantity' => 1,
-                            'price' => $full_course_price,
-                            'rec_first_price' => $rec_first_course_price,
-                            'rec_months' => $rec_months,
-                            'rec_subsequent' => $rec_subseq_course_price,
-                            'fc_price' => '',
-                            'discount_price' => '',
-                            'discount_fc_price' => '',
-                            'promo_id' => $promocode_id,
-                            'promo_code' => $i_promocode,
-                            'promo_discount' => $promocode_discount,
-                            'promo_discount_type' => $promocode_discount_type)
-                        );
+                    if(empty($order_id) or empty($products['products']))
+                    {
+                        $products = $supposed_products;
 
                         $prev_address = '';
                         $name = '';
@@ -1699,50 +1754,13 @@ class CI_Controller {
                         $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $code, $phone,
                             $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
                     }
-                    elseif(is_numeric($order_id))
-                    {
-                        $this->load->model('Store_model');
-                        $order = $this->Store_model->getOrder($order_id);
-
-                        if(!empty($order))
-                        {
-                            $order = $order['order'];
-                            if(!empty($order['products']))
-                            {
-                                $i = 0;
-                                foreach ($order['products'] as $product)
-                                {
-                                    $products['products'][$i]['id'] = $product['course_id'];
-                                    $products['products'][$i]['name'] = $product['name'];
-                                    $products['products'][$i]['cart_quantity'] = $product['cart_quantity'];
-                                    $products['products'][$i]['price'] = $product['price'];
-                                    $products['products'][$i]['rec_first_price'] = $product['rec_first'];
-                                    $products['products'][$i]['rec_months'] = $product['rec_months'];
-                                    $products['products'][$i]['rec_subsequent'] = $product['rec_subseq'];
-                                    $products['products'][$i]['fc_price'] = $product['fc_price'];
-                                    $products['products'][$i]['discount_price'] = $product['discount_price'];
-                                    $products['products'][$i]['discount_fc_price'] = $product['discount_fc_price'];
-                                    $products['products'][$i]['promo_id'] = '';
-                                    $products['products'][$i]['promo_code'] = '';
-                                    $products['products'][$i]['promo_discount'] = '';
-                                    $products[$i]['promo_discount_type'] = '';
-
-                                    $i++;
-                                }
-                                unset($product);
-                            }
-                        }
-
-                        $this->load->model('Store_model');
-                        $order_amount = $this->Store_model->getOrderAmount($order_id);
-                        $res_order['order_id']     = $order_id;
-                        $res_order['total_amount'] = (!empty($order)) ? $order_amount : null;
-                    }
 
                     if (!empty($res_order) and $res_order !== false and is_numeric($res_order['order_id']))
                     {
                         // Кол-во товаров в корзине
                         self::updateSessionCart(0);
+                        //log_message('debug', __METHOD__.':'.__LINE__.' Res order: '. print_r($res_order, true));
+                        //log_message('debug', __METHOD__.':'.__LINE__.' Товары: '. print_r($products['products'], true));
 
                         if($res_order['total_amount'] >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
                         {
