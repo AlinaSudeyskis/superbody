@@ -37,7 +37,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php elseif ($course['archive'] == 1) :?>
                                             <input type="submit" name="bt_from_archive_course" value="Из архива" class="admin_form_reset"/>
                                         <?php endif;?>
-                                        <input type="submit" name="bt_save_course" value="Сохранить" class="video_admin_form_send" />
+                                        <input type="submit" name="bt_save_course" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                                     </div>
                                 </div>
                                 <div class="video_admin_form">
@@ -58,7 +58,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <form action="" method="post" enctype="multipart/form-data">
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
-                                        <input type="submit" name="bt_save_video" value="Сохранить" class="video_admin_form_send">
+                                        <input type="submit" name="bt_save_video" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send">
                                     </div>
                                 </div>
 
@@ -77,7 +77,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <input type="submit" name="bt_unblock_video" value="Разблокировать" class="video_admin_form_block"/>
                                         <?php endif;?>
                                         <input type="submit" name="bt_delete_video" value="Удалить" class="video_admin_form_block <?php echo $dis_delete; ?>"/>
-                                        <input type="submit" name="bt_save_video" value="Сохранить" class="video_admin_form_send">
+                                        <input type="submit" name="bt_save_video" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send">
                                     </div>
                                 </div>
 

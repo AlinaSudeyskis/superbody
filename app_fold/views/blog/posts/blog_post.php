@@ -27,7 +27,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <input type="submit" name="bt_block_post" class="video_admin_form_block" value="Заблокировать" />
                                     <?php endif;?>
                                     <input type="submit" name="bt_delete_post" class="video_admin_form_block" value="Удалить" />
-                                    <input type="submit" name="bt_save_post" class="video_admin_form_send" value="Сохранить" />
+                                    <input type="submit" name="bt_save_post" class="video_admin_form_send" value="Сохранить" id="defaultActionButton"  />
                                 </div>
                             </div>
                             <div class="comment_page_block">

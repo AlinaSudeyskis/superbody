@@ -31,9 +31,22 @@ $(document).ready(function() {
                 chat.scrollTop(chat[0].scrollHeight);
             }/**/
 
+            $("input").on("keydown", function(event) {
+                // track enter key
+                var keycode = (event.keyCode ? event.keyCode : (event.which ? event.which : event.charCode));
+                if (keycode === 13) { // keycode for enter key
+                    event.preventDefault();
+                    var parent_form = $(this).parents('form'),
+                        form_submit = parent_form.find('#defaultActionButton');
+                    if(form_submit.length === 1)
+                    {
+                        form_submit.click();
+                    }
+                }
+            });
+
             // Валидация email
-            var email_error = $('.email_error'),
-                timer;
+            var timer;
             $('.valid_email').keyup(function() {
                 var email_block = $(this),
                     e_p = email_block.position(),
@@ -41,14 +54,14 @@ $(document).ready(function() {
 
                 clearTimeout(timer);
 
-                if(email_error.length == 0)
+                if(email_error.length === 0)
                 {
                     $(this).after('<div class="email_error"></div>');
                     email_error = email_block.next('.email_error');
                     email_error.offset({top:e_p.top-20, left:(e_p.left+email_block.outerWidth(true)-30-parseInt(email_block.css('margin-right')))});
                 }
 
-                if($(this).val() != '')
+                if($(this).val() !== '')
                 {
                     var pattern = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
 
@@ -113,8 +126,8 @@ $(document).ready(function() {
                     var timer1 = setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000),
                         timer2 = setTimeout(function(){block_message.hide()},10500);
                     block_message.mouseenter(function() {
-                            if (timer1 != null) clearTimeout(timer1);
-                            if (timer2 != null) clearTimeout(timer2);
+                            if (timer1 !== null) clearTimeout(timer1);
+                            if (timer2 !== null) clearTimeout(timer2);
                         })
                         .mouseleave(function() {
                             timer1 = setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000);
@@ -124,7 +137,7 @@ $(document).ready(function() {
             }
 
             $(document).on('input', '.add_tov_in.users input:text', function () {
-                if($(this).val() != '' && $(this).val().length > 3 && $(this).val().length < 255){
+                if($(this).val() !== '' && $(this).val().length > 3 && $(this).val().length < 255){
                     var input_search = $(this).val(),
                         tov_in = $(this);
                     $.ajax({
@@ -132,7 +145,7 @@ $(document).ready(function() {
                         type: 'post',
                         data: {search_text: input_search},
                         complete: function (result) {
-                            if (result != "") {
+                            if (result !== "") {
                                 tov_in.parents(".add_tov_in").find(".add_tov_list").show();
                                 tov_in.parents(".add_tov_in").find(".add_tov_list").html(result.responseText);
                             }
@@ -211,7 +224,7 @@ $(document).ready(function() {
                 if(!$(this).hasClass("disable")){
                     var link = $(this).find(".add_tov_cont").attr("href"),
                         name = $(this).find(".add_tov_h").text(),
-                        price = $(this).find(".add_tov_price").text(),
+                        //price = $(this).find(".add_tov_price").text(),
                         number = $(this).attr("id");
                     if($(this).parents("form").hasClass("edit_kurs_form") || $(this).parents("form").hasClass("add_kurs_form")){
                         $(this).parents(".add_tov_in_total").find(".add_tov_val")
@@ -267,7 +280,7 @@ $(document).ready(function() {
                     meal_block = $("#" + id),
                     course_block = $("#" + id + ".pc_course");
 
-                if (video_id.length == 1 || inst_id.length == 1)
+                if (video_id.length === 1 || inst_id.length === 1)
                 {
                     $(this).parents(".add_tov_in_total").find("#"+id).removeClass("disable");
                     $(this).parents(".add_tov_val_item").remove();
@@ -279,21 +292,21 @@ $(document).ready(function() {
                     course_block.remove();
                 }
                 // Удалить блок блюда
-                else if(meal_block.length == 1)
+                else if(meal_block.length === 1)
                 {
                     meal_block.remove();
 
                     // Удалить блок категории блюда
-                    if(ml_type_block.find('.add_tov_val_item').length == 0)
+                    if(ml_type_block.find('.add_tov_val_item').length === 0)
                     {
                         ml_type_block.remove();
                     }
                 }
                 // Пересчет ВКБЖУ
-                else if($(this).parents('.ingredients_data').length == 1)
+                else if($(this).parents('.ingredients_data').length === 1)
                 {
                     calcWCPFC();
-                    if($(".add_tov_in_total").children('.add_tov_val').length == 0)
+                    if($(".add_tov_in_total").children('.add_tov_val').length === 0)
                     {
                         $('#meal-calories-100').prop('readonly', false);
                         $('#meal-proteins-100').prop('readonly', false);
@@ -308,13 +321,40 @@ $(document).ready(function() {
                 var crs  = $(this),
                     crsid = crs.val(),
                     crsper = crs.siblings('#c-crs-per'+crsid),
-                    pc_disc = $('input[name=i_code_discount]').val();
+                    pc_disc = $('input[name=i_code_discount]');
 
-                if(crsper.length === 1 && pc_disc > 0 && crsper.val() > 0)
+                if(pc_disc.val() > 0)
                 {
-                    var diff = crsper.val() - pc_disc;
+                    coachPC(crsper, pc_disc);
+                }
+            });
 
-                    if($('#coach-discount').length === 0)
+            $('input[name=i_code_discount]').on('keyup', function(){
+                var crs  = $('input[name=promo_coach_course]:checked');
+
+                if(crs.length === 1)
+                {
+                    var crsid = crs.val(),
+                        crsper = crs.siblings('#c-crs-per'+crsid);
+
+                    coachPC(crsper, $(this));
+                }
+            });
+
+            function coachPC(crsper, pc_disc)
+            {
+                if(crsper.length === 1 && pc_disc.val() > 0 && crsper.val() > 0)
+                {
+                    var diff = crsper.val() - pc_disc.val(),
+                        coach_discount = $('#coach-discount');
+
+                    if(diff < 0)
+                    {
+                        pc_disc.val(crsper.val());
+                        diff = 0;
+                    }
+
+                    if(coach_discount.length === 0)
                     {
                         $('#pc-discount').after(
                             '<div class="parent kurs_cur_wrap" id="coach-discount">\n' +
@@ -324,13 +364,14 @@ $(document).ready(function() {
                     }
                     else
                     {
-                        $('#coach-discount').find('#diff-percent').html(diff + '%');
+                        coach_discount.find('#diff-percent').html(diff + '%');
                     }
                 }
-            });
+
+            }
 
             // Сложность пароля, подтверждение пароля
-            var old_pass = $('#old-pass'),
+            var //old_pass = $('#old-pass'),
                 new_pass = $('#new-pass'),
                 confirm_pass = $('#confirm-pass');
 
@@ -342,7 +383,7 @@ $(document).ready(function() {
 
                 pass_info.hide();
 
-                if (false == enoughRegex.test($(this).val())) {
+                if (false === enoughRegex.test($(this).val())) {
                     pass_info.html('Пароль должен быть не менее 8 символов');
                     pass_info.show();
                 } else if (strongRegex.test($(this).val())) {
@@ -361,11 +402,11 @@ $(document).ready(function() {
 
             pass_info.hide();
 
-            if (new_pass.val() != '' && confirm_pass.val() != new_pass.val()) {
+            if (new_pass.val() !== '' && confirm_pass.val() !== new_pass.val()) {
                 pass_info.html('Не совпадает');
                 pass_info.show();
             }
-            else if (confirm_pass.val() == new_pass.val()) {
+            else if (confirm_pass.val() === new_pass.val()) {
                 pass_info.html('Совпадает');
                 pass_info.show();
             }
@@ -392,7 +433,7 @@ $(document).ready(function() {
                     prev_element = this_el.parent(),
                     element      = this_el.parent(),
                     this_wd      = this_el.parents('.week_days'),
-                    this_wt      = this_wd.next('.week_times'),
+                    //this_wt      = this_wd.next('.week_times'),
                     frm_postpone = this_el.parents('form.postpone'),
                     pop_up       = $("#pop-up_postpone"), error_info = '',
                     all_ch_cb    = $('.week_days').find("input:checkbox:checked"),
@@ -433,7 +474,7 @@ $(document).ready(function() {
                         }
                     }
 
-                    this_wd.find('input:checkbox:checked').each(function (indx, elm)
+                    this_wd.find('input:checkbox:checked').each(function ()
                     {
                         next_element = $(this).parent();
                         prev_element = $(this).parent();
@@ -458,11 +499,11 @@ $(document).ready(function() {
                     // Postpone form
                     if(checkboxes.length > 0)
                     {
-                        var prev_els     = element.prevUntil('.cb_week_day > input:checkbox.prev_workout').children('input:checkbox.prev_workout'),
-                            count_pels   = prev_els.length,
+                        var //prev_els     = element.prevUntil('.cb_week_day > input:checkbox.prev_workout').children('input:checkbox.prev_workout'),
+                            //count_pels   = prev_els.length,
                             prev_done    = element.prevUntil('.cb_week_day > input:checkbox').children('input:checkbox.prev_workout.done'),
-                            next_els     = element.nextUntil('.cb_week_day > input:checkbox').children('input:checkbox.prev_workout'),
-                            count_nels   = next_els.length,
+                            //next_els     = element.nextUntil('.cb_week_day > input:checkbox').children('input:checkbox.prev_workout'),
+                            //count_nels   = next_els.length,
                             diff_rest    = 0;
 
                         // Проверка на кол-во дней отдыха
@@ -505,7 +546,7 @@ $(document).ready(function() {
                         {
                             var prev_dn;
                             diff_rest = 0;
-                            this_wd.find('input:checkbox:checked').each(function (indx, elm)
+                            this_wd.find('input:checkbox:checked').each(function ()
                             {
                                 if(prev_dn)
                                 {
@@ -656,27 +697,32 @@ $(document).ready(function() {
             });
 
             /* Расчет BMI и BMR */
-            $('#height').keyup(function () {
+            var q_height = $('#height'),
+                q_weight = $('#weight');
+            q_height.keyup(function () {
                 calcBmiBmr();
             });
-            $('#height').on('change', function () {
+            q_height.on('change', function () {
                 calcBmiBmr();
             });
-            $('#weight').keyup(function () {
+            q_weight.keyup(function () {
+                calcBmiBmr();
+            });
+            q_weight.on('change', function () {
                 calcBmiBmr();
             });
             $('select[name=b_day], select[name=b_mon], select[name=b_year]').change(function () {
                 var b_day = $('select[name=b_day]').val(),
                     b_mon = $('select[name=b_mon]').val(),
                     b_year = $('select[name=b_year]').val();
-                if(b_day != '' && b_mon != '' && b_year != '')
+                if(b_day !== '' && b_mon !== '' && b_year !== '')
                 {
                     $('#birthday').val(b_day + '.' + b_mon + '.' + b_year);
                     calcBmiBmr();
                 }
             });
-            $('input[name=gender]').click(function () {
-                if($(this).val() == "female") $('#gender_male').attr('checked', false);
+            $('input[name=gender]').on('click', function () {
+                if($(this).val() === "female") $('#gender_male').attr('checked', false);
                 else $('#gender_female').attr('checked', false);
 
                 $(this).attr('checked', 'checked');
@@ -719,9 +765,9 @@ $(document).ready(function() {
                         },
                         complete: function (result) {
                             var data = result.responseJSON;
-                            if (data.video != '')
+                            if (data.video !== '')
                             {
-                                if (video_path.val() != '')
+                                if (video_path.val() !== '')
                                 {
                                     var file_path = video_path.val();
                                     $.ajax({
@@ -746,7 +792,7 @@ $(document).ready(function() {
                                     parent.after(data.video_block);
                                 }
                             }
-                            else if (data.error != '')
+                            else if (data.error !== '')
                             {
                                 parent.after(data.error);
                             }
@@ -791,9 +837,9 @@ $(document).ready(function() {
                         },
                         complete: function (result) {
                             var data = result.responseJSON;
-                            if (data.poster != '')
+                            if (data.poster !== '')
                             {
-                                if (poster_path.val() != '')
+                                if (poster_path.val() !== '')
                                 {
                                     var image_path = poster_path.val();
                                     $.ajax({
@@ -819,7 +865,7 @@ $(document).ready(function() {
                                     parent.after(data.poster_block);
                                 }
                             }
-                            else if (data.error != '')
+                            else if (data.error !== '')
                             {
                                 parent.after(data.error);
                             }
@@ -924,7 +970,7 @@ $(document).ready(function() {
                                 $(document).find('.anketa_form_select').styler();
                                 $.datetimepicker.setLocale('ru');
                                 $(document).find('#um-datetimepicker').datetimepicker({
-                                    onSelectDate:function(ct,$i){
+                                    onSelectDate:function(){
                                         calcUserMealsWCPFC();
                                     },
                                     format:'d.m.Y H:i',
@@ -977,10 +1023,10 @@ $(document).ready(function() {
                 event.preventDefault();
                 if(!$(this).hasClass("disable")){
                     var this_meal = $(this),
-                        link = this_meal.find(".add_tov_cont").attr("href"),
+                        //link = this_meal.find(".add_tov_cont").attr("href"),
                         name = this_meal.data('meal-name'),
                         number = this_meal.data('meal-id'),
-                        weight = this_meal.data('weight'),
+                        //weight = this_meal.data('weight'),
                         proteins = this_meal.data('proteins'),
                         fats = this_meal.data('fats'),
                         carbohydrates = this_meal.data('carbohydrates'),
@@ -1055,7 +1101,7 @@ $(document).ready(function() {
                     }
                 }
             });
-            $(document).on('click', '#bt-save-user-meal', function(event){
+            $(document).on('click', '#bt-save-user-meal', function(){
                 //event.preventDefault();
                 var um_block = $(this).parents('.user_meal_form'),
                     um_s_datetime = um_block.find('#u-meal-time').val(),
@@ -1092,10 +1138,6 @@ $(document).ready(function() {
             function calcUserMealsWCPFC()
             {
                 var total_weight = 0,
-                    total_calories = 0,
-                    total_proteins = 0,
-                    total_fats = 0,
-                    total_carbohydrates = 0,
                     calories_current = 0,
                     proteins_current = 0,
                     fats_current = 0,
@@ -1146,10 +1188,10 @@ $(document).ready(function() {
                     count_ingr++;
                 });
 
-                total_calories      = dt_meal_calories + calories_current;
-                total_proteins      = dt_meal_proteins + proteins_current;
-                total_fats          = dt_meal_fats + fats_current;
-                total_carbohydrates = dt_meal_carbohydrates + carbohydrates_current;
+                var total_calories      = dt_meal_calories + calories_current,
+                    total_proteins      = dt_meal_proteins + proteins_current,
+                    total_fats          = dt_meal_fats + fats_current,
+                    total_carbohydrates = dt_meal_carbohydrates + carbohydrates_current;
 
                 var sel_um_date = $(document).find('.user_meal_time #u-meal-time'),
                     dp = $('#um-datetimepicker').val(),
@@ -1242,11 +1284,11 @@ $(document).ready(function() {
                         calories      = $(this).find(".ingr_calories").html(),
                         koef = 0;
 
-                    if(weight == "") weight = 0;
-                    if(proteins == "") proteins = 0;
-                    if(fats == "") fats = 0;
-                    if(carbohydrates == "") carbohydrates = 0;
-                    if(calories == "") calories = 0;
+                    if(weight === "") weight = 0;
+                    if(proteins === "") proteins = 0;
+                    if(fats === "") fats = 0;
+                    if(carbohydrates === "") carbohydrates = 0;
+                    if(calories === "") calories = 0;
 
                     if(weight > 0)
                     {
@@ -1263,7 +1305,7 @@ $(document).ready(function() {
                     count_ingr++;
                 });
 
-                if(total_weight == 0 && count_ingr > 0)
+                if(total_weight === 0 && count_ingr > 0)
                 {
                     total_weight = 100 * count_ingr;
 
@@ -1273,10 +1315,10 @@ $(document).ready(function() {
                             carbohydrates = $(this).find(".ingr_carbohydrates").html(),
                             calories      = $(this).find(".ingr_calories").html();
 
-                        if(proteins == "") proteins = 0;
-                        if(fats == "") fats = 0;
-                        if(carbohydrates == "") carbohydrates = 0;
-                        if(calories == "") calories = 0;
+                        if(proteins === "") proteins = 0;
+                        if(fats === "") fats = 0;
+                        if(carbohydrates === "") carbohydrates = 0;
+                        if(calories === "") calories = 0;
 
 
                         total_proteins      = total_proteins + parseFloat(proteins);
@@ -1343,7 +1385,7 @@ $(document).ready(function() {
                         type: 'post',
                         data: {search_text: input_search},
                         complete: function (result) {
-                            if (result != "") {
+                            if (result !== "") {
                                 $("#search-result").fadeIn(); // Показываем блок с результатом.
                                 $("#search-result #list-search-result").html(result.responseText); // Добавляем в список результат поиска.
                             }
@@ -1365,7 +1407,7 @@ $(document).ready(function() {
                     coach_name = $(this).find("#res-coach-name").val(),
                     input = $(".select_coach .select_input input[type=hidden][value=" + coach_id + "]");
 
-                if (input.length == 0) {
+                if (input.length === 0) {
                     $("#select-coach .select_coach").append("<div class='select_input'>" +
                         "<input type='hidden' name='coaches[]' value='" + coach_id + "'/>" +
                         "<div class='input_name selected'>" + coach_name + "</div>" +
@@ -1395,7 +1437,7 @@ $(document).ready(function() {
                         type: 'post',
                         data: {search_text: input_search},
                         complete: function (result) {
-                            if (result != "") {
+                            if (result !== "") {
                                 $("#search-result").fadeIn(); // Показываем блок с результатом.
                                 $("#search-result #list-search-result").html(result.responseText); // Добавляем в список результат поиска.
                             }
@@ -1417,7 +1459,7 @@ $(document).ready(function() {
                     user_name = $(this).find("#res-user-name").val(),
                     input = $(".select_user .select_input input[type=hidden][value=" + user_id + "]");
 
-                if (input.length == 0) {
+                if (input.length === 0) {
                     $("#select-user .select_user").append("<div class='select_input'>" +
                         "<input type='hidden' name='users[]' value='" + user_id + "'/>" +
                         "<div class='input_name selected'>" + user_name + "</div>" +
@@ -1436,8 +1478,8 @@ $(document).ready(function() {
 
 
             // Поиск видео
-            var input_search_video;
-            $("#schedule").on('keyup', '#input-video-search', function ()
+            var input_search_video, schedule = $("#schedule");
+            schedule.on('keyup', '#input-video-search', function ()
             {
                 input_search_video = $(this);
                 var input_search = $(this).val(),
@@ -1450,7 +1492,7 @@ $(document).ready(function() {
                         type: 'post',
                         data: {search_text: input_search},
                         complete: function (result) {
-                            if (result.responseText != "")
+                            if (result.responseText !== "")
                             {
                                 div_video_result.fadeIn(); // Показываем блок с результатом.
                                 div_video_result.children("#list-search-result").html(result.responseText); // Добавляем в список результат поиска.
@@ -1470,7 +1512,7 @@ $(document).ready(function() {
             });
 
             // Выбор видео
-            $("#schedule").on('click', '#video-search-result #list-search-result li', function () {
+            schedule.on('click', '#video-search-result #list-search-result li', function () {
                 var video_id = $(this).find("#res-video-id").val(),
                     video_name = $(this).find("#res-video-name").val();
 
@@ -1494,7 +1536,7 @@ $(document).ready(function() {
 
                         // когда Web-сервер отвечает на запрос
                         function (result) {
-                            if (result != "") {
+                            if (result !== "") {
                                 $('#sub_cat').html('');
                                 $("#sub_cat").html(result); // Добавляем в список результат поиска.
                             }
@@ -1767,13 +1809,13 @@ $(document).ready(function() {
                     tov_number = $(this).parents(".ordering_block_tab_item").find("input.tov_number").val(),
                     currency = $(this).parents(".ordering_block_tab_item").find(".ordering_tov_summ #product_currency");
 
-                if (tov_number != 0) {
+                if (tov_number !== 0) {
                     $(this).parents(".ordering_block_tab_item").find(".ordering_tov_summ #product_sum").text($(this).val() * tov_number);
 
-                    if (id_radio == price_rub) {
+                    if (id_radio === price_rub) {
                         currency.text(' руб.');
                     }
-                    else if (id_radio == price_fc) {
+                    else if (id_radio === price_fc) {
                         currency.text(' FitCoin');
                     }
 
@@ -1783,9 +1825,9 @@ $(document).ready(function() {
 
             /* Видеоплеер Vimeo */
             var options = {
-                width: 640,
-                loop: true
-            },
+                    width: 640,
+                    loop: true
+                },
                 players = $(".vimeo_players"),
                 player, playerTwoPlayer;
 
@@ -1797,7 +1839,7 @@ $(document).ready(function() {
                     complete: function (result) {
                         var data = jQuery.parseJSON(result.responseText);
                         if (!data.error) {
-                            if(data.woid.length == 1)
+                            if(data.woid.length === 1)
                             {
                                 $('#event-' + data.woid[0] + '.fc-content').trigger('click');
                             }
@@ -1867,7 +1909,7 @@ $(document).ready(function() {
                         woid: woid
                     },
                     complete: function(result){
-                        if (result.responseText == 'true')
+                        if (result.responseText === 'true')
                         {
                             //calEvent.backgroundColor = 'rgba(159, 220, 39, .7)';
                             $('.fc-event[event_id_' + woid + ']').trigger('click');
@@ -1918,8 +1960,7 @@ $(document).ready(function() {
             function checkPromo(pc_input)
             {
                 var input_search = pc_input.val(),
-                    promo_block  = $('.promo_block'),
-                    p_b_i = '';
+                    promo_block  = $('.promo_block');
 
                 if(input_search.length >= 1 && input_search.length <= 25)
                 {
@@ -2031,14 +2072,15 @@ $(document).ready(function() {
                 last_price: last_price,
                 last_discount: last_discount},
             complete: function (result) {
-                var data = jQuery.parseJSON(result.responseText);
-                if (data.products != "false") {
-                    $(".shop_block_tov.parent").html(data.products);
-                    $(".shop_block_tov.parent").next("#pagination").remove();
-                    $(".shop_block_tov.parent").after(data.pagination);
+                var data = jQuery.parseJSON(result.responseText),
+                    shop_b_t = $(".shop_block_tov.parent");
+                if (data.products !== "false") {
+                    shop_b_t.html(data.products);
+                    shop_b_t.next("#pagination").remove();
+                    shop_b_t.after(data.pagination);
                 }
                 else {
-                    $(".shop_block_tov.parent").html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
+                    shop_b_t.html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
                 }
             }
         });
@@ -2064,7 +2106,7 @@ $(document).ready(function() {
             complete: function (result) {
                 var data = jQuery.parseJSON(result.responseText),
                     kurs_rows = $(".kurs_page_row.row");
-                if (data.courses != "false") {
+                if (data.courses !== "false") {
                     kurs_rows.html(data.courses);
                     kurs_rows.next("#pagination").remove();
                     kurs_rows.after(data.pagination);
@@ -2104,7 +2146,7 @@ $(document).ready(function() {
             schedule            = $('#schedule'),
             text                = '';
 
-        if (count_weeks > 0 && count_days > 0 && orig_count_weeks == 0 && orig_count_days == 0) {
+        if (count_weeks > 0 && count_days > 0 && orig_count_weeks === 0 && orig_count_days === 0) {
             schedule.html('');
             for (w = 0; w < count_workouts; w++) {
                 workout2 = 1;
@@ -2191,22 +2233,22 @@ $(document).ready(function() {
             sum_fc = 0;
 
         $(".ordering_tov_summ").each(function(){
-            if ($(this).children('#product_currency').text() == " руб.") {
+            if ($(this).children('#product_currency').text() === " руб.") {
                 sum_price += parseFloat($(this).children('#product_sum').text());
             }
-            else if ($(this).children('#product_currency').text() == " FitCoin") {
+            else if ($(this).children('#product_currency').text() === " FitCoin") {
                 sum_fc += parseFloat($(this).children('#product_sum').text());
             }
         });
 
-        if (sum_price == NaN || sum_price == 0) {
+        if (sum_price === NaN || sum_price === 0) {
             $(".info_ordering_price").text("");
             $(".info_ordering_currency").text("");
         } else {
             $(".info_ordering_price").text(String(sum_price).replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 '));
             $(".info_ordering_currency").text(" руб.");
         }
-        if (sum_fc == NaN || sum_fc == 0) {
+        if (sum_fc === NaN || sum_fc === 0) {
             $(".info_ordering_fc_price").text("");
             $("#info_ordering_fc_currency").text("");
         } else {
@@ -2231,7 +2273,7 @@ $(document).ready(function() {
             count_next_block = 0;
 
         // Блокировать предыдущий и следующий checkbox. в кол-ве дней отдыха
-        for (i = 0; i < count_rest; i++)
+        for (var i = 0; i < count_rest; i++)
         {
             if (n_e.length > 0 && !n_e.is(':checked'))
             {
@@ -2370,7 +2412,7 @@ $(document).ready(function() {
         scrollToID(scroll, 1000);
         Cookies.remove('scroll');
     }
-    $("a.scroll_to").click(function(event) {
+    $("a.scroll_to").on('click', function(event) {
         event.preventDefault();
         var id = $(this).data("id"),
             href = $(this).attr("href");
@@ -2397,7 +2439,7 @@ $(document).ready(function() {
     }
 
     /*Cookies.remove('disclaimer');*/
-    $('#cookie_stop').click(function(){
+    $('#cookie_stop').on('click', function(){
         $('#cookie_disclaimer').slideUp();
 
         var nDays = 999;

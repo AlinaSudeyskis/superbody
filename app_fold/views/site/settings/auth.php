@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <form action="" method="post">
     <div class="admin_form_buts_wrap_container">
         <div class="admin_form_buts_wrap parent">
-            <input type="submit" name="bt_save_auth" value="Сохранить" class="video_admin_form_send">
+            <input type="submit" name="bt_save_auth" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send">
         </div>
     </div>
     <div class="video_admin_form site_info">

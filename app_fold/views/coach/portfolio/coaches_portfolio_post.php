@@ -59,7 +59,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php else: ?>
                                         <input type="submit" name="bt_block_post" value="Блокировать" class="video_admin_form_block" />
                                     <?php endif; ?>
-                                    <input type="submit" name="bt_save_image" value="Сохранить" class="video_admin_form_send" />
+                                    <input type="submit" name="bt_save_image" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                                 </div>
                             </div>
                             <div class="tren_set_form">

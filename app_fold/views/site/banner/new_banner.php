@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <form action="" method="post" enctype="multipart/form-data">
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
-                                        <input type="submit" name="bt_save_banner" value="Сохранить" class="video_admin_form_send" />
+                                        <input type="submit" name="bt_save_banner" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                                     </div>
                                 </div>
                                 <?php include_once('./app_fold/views/site/banner/settings_item.php'); ?>

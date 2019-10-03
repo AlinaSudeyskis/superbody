@@ -19,10 +19,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <input type="hidden" name="hi_return" value="/profile/" />
             <input type="submit" value="Зарегистрироваться" class="sing-in_but" name="bt_registry"/>
+            <div class="reg_in_link_wrap">
+                <a href="/login" class="reg_in_link">авторизация</a>
+                <a href="/restore" class="reg_in_link">восстановление пароля</a>
+            </div>
         </form>
-        <div class="reg_in_link_wrap">
-            <a href="/login" class="reg_in_link">авторизация</a>
-            <a href="/restore" class="reg_in_link">восстановление пароля</a>
-        </div>
     </div>
 </div><!-- content -->

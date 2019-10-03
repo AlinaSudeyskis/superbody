@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <form action="" method="post" enctype="multipart/form-data">
                             <div class="admin_form_buts_wrap_container">
                                 <div class="admin_form_buts_wrap parent">
-                                    <input type="submit" value="Сохранить" class="video_admin_form_send" name="bt_save_video" />
+                                    <input type="submit" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" name="bt_save_video" />
                                 </div>
                             </div>
                             <div class="video_admin_form">

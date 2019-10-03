@@ -161,8 +161,8 @@ class Payment extends CI_Controller
                 if ($payment->paid === true)
                 {
                     // Подтверждение платежа
-                    $res_capture = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currecy);
-                    //log_message('debug', __METHOD__.':'.__LINE__.' Capture response object:'. print_r($result, true));
+                    $res_capture = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
+                    //log_message('debug', __METHOD__.':'.__LINE__.' Capture response object:'. print_r($payment, true));
 
                     if(!empty($res_capture['response']))
                     {

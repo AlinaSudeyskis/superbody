@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <input type="submit" name="bt_unblock_banner" class="video_admin_form_block" value="Разблокировать"/>
                                         <?php endif;?>
                                         <input type="submit" name="bt_delete_banner" class="video_admin_form_block" value="Удалить"/>
-                                        <input type="submit" name="bt_save_banner" value="Сохранить" class="video_admin_form_send" />
+                                        <input type="submit" name="bt_save_banner" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                                     </div>
                                 </div>
                                 <?php include_once('./app_fold/views/site/banner/settings_item.php'); ?>

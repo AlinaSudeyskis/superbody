@@ -53,7 +53,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="input_value"><?php echo $news['date']?></div>
                 </div>
                 <p>
-                    <input type="submit" name="bt_save_news" value="Сохранить"/>
+                    <input type="submit" name="bt_save_news" value="Сохранить" id="defaultActionButton" />
                     <?php if ($news['blocked'] == 0) : ?>
                         <input type="submit" name="bt_block_news" value="Заблокировать"/>
                     <?php else: ?>

@@ -156,6 +156,12 @@ audio, canvas, progress, video{
     white-space: normal;
 }
 .sing-in_soc_wrap{
+    display: flex;
+    display:-webkit-flex;
+    flex-direction: row;
+    -webkit-flex-direction: row;
+    justify-content: center;
+    -webkit-justify-content: center;
     text-align: center;
     margin-bottom: 10px;
 }
@@ -163,18 +169,19 @@ audio, canvas, progress, video{
     display: inline-block;
     width: 21px;
     height: 21px;
-    border: 1px solid #fff;
-    border-radius: 50%;
+    /*border: 1px solid #fff;
+    border-radius: 50%;*/
     text-align: center;
     line-height: 19px;
-    font-size: 12px;
+    font-size: 20px;
     color: #fff;
     margin: 0 5px;
     position: relative;
 }
 .sing-in_soc_ico:hover{
-    background: #fff;
-    color: #4a879c;
+    /*background: #fff;
+    color: #4a879c;*/
+    font-size: 25px;
 }
 .reg_in_link_wrap{
     text-align: center;
@@ -6130,7 +6137,7 @@ span.mess_block_full_time {
     padding: 10px;
 }
 
-.social_connect{
+.anketa_form_but.social_connect{
     text-align: center;
     line-height: 32px;
     border: 1px solid #c4c4c4;

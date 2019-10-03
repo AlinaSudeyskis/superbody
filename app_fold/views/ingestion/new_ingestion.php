@@ -27,7 +27,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php include_once('./app_fold/views/ingestion/settings_item.php'); ?>
 
                                     <div class="video_admin_form_buts parent">
-                                        <input type="submit" name="bt_save_new_ingestion" value="Сохранить" class="video_admin_form_send" />
+                                        <input type="submit" name="bt_save_new_ingestion" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                                     </div>
                                 </form>
                             </div>

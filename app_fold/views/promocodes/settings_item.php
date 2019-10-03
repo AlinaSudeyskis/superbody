@@ -17,7 +17,7 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
     <div class="kurs_block_h">Скидка:</div>
     <div class="kurs_block_two_all parent">
         <div class="anketa_form_two_wrap">
-            <input type="number" name="i_code_discount" step="1" min="1" class="anketa_form_in" value="<?php if(!empty($promocode['discount'])): echo $promocode['discount']; endif; ?>"/>
+            <input type="text" name="i_code_discount" class="anketa_form_in" value="<?php if(!empty($promocode['discount'])): echo $promocode['discount']; endif; ?>"/>
         </div>
         <div class="anketa_form_two_wrap">
             <select name="s_discount_type" class="anketa_form_select <?php if($coach_promocode === true): echo 'disabled'; endif; ?>">
@@ -161,12 +161,12 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
             <div class="practice_block_h">Курсы</div>
         </div>
         <div class="block_radio_all parent coach_courses">
-            <?php foreach($courses as $course):?>
+            <?php foreach($courses as $course): ?>
                 <div class="block_radio_wrap">
-                    <input type="hidden" name="coach_crs_per[<?php echo $course['course_id']; ?>]" id="c-crs-per<?php echo $course['course_id']; ?>" value="<?php echo $course['coach_percent']; ?>">
-                    <input type="radio" name="promo_coach_course" class="block_radio" value="<?php echo $course['course_id']; ?>" id="promo_coach_course_<?php echo $course['course_id']; ?>"
-                           <?php if(!empty($promocode['coach_course_id']) and $course['course_id'] == $promocode['coach_course_id']): ?>checked="checked"<?php endif; ?>>
-                    <label for="promo_coach_course_<?php echo $course['course_id']; ?>"><?php echo $course['name']; ?></label>
+                    <input type="hidden" name="coach_crs_per[<?php echo $course['id']; ?>]" id="c-crs-per<?php echo $course['id']; ?>" value="<?php echo $course['coach_percent']; ?>">
+                    <input type="radio" name="promo_coach_course" class="block_radio" value="<?php echo $course['id']; ?>" id="promo_coach_course_<?php echo $course['id']; ?>"
+                           <?php if(!empty($promocode['coach_course_id']) and $course['id'] == $promocode['coach_course_id']): ?>checked="checked"<?php endif; ?>>
+                    <label for="promo_coach_course_<?php echo $course['id']; ?>"><?php echo $course['name']; ?></label>
                 </div>
             <?php endforeach;
             unset($course); ?>

@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php include_once('./app_fold/views/coach/portfolio/settings_item.php');?>
                             <div class="anketa_form_buts_wrap parent">
                                 <?php if($post['approval'] == 0): ?>
-                                    <input type="submit" name="bt_save_image" value="Сохранить" class="video_admin_form_send" />
+                                    <input type="submit" name="bt_save_image" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                                 <?php endif; ?>
                                 <input type="submit" name="bt_del_post" value="Удалить" class="video_admin_form_block" />
                             </div>

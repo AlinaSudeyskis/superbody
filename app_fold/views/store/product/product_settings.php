@@ -26,7 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php else: ?>
                                         <input type="submit" name="bt_unblock_product" class="admin_form_block" value="Разблокировать"/>
                                     <?php endif;?>
-                                    <input type="submit" name="bt_save_product" value="Сохранить" class="video_admin_form_send" />
+                                    <input type="submit" name="bt_save_product" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                                 </div>
                             </div>
                             <div class="video_admin_form">

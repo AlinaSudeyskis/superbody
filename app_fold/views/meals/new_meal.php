@@ -26,7 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php include_once('./app_fold/views/meals/settings_item.php'); ?>
 
                                     <div class="anketa_form_buts_wrap parent">
-                                        <input type="submit" name="bt_save_new_meal" value="Сохранить" class="video_admin_form_send" />
+                                        <input type="submit" name="bt_save_new_meal" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                                     </div>
                                 </form>
                             </div>

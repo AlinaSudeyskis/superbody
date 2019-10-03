@@ -845,7 +845,7 @@ class Authorization_model extends CI_Model
     public function connectSocial($user_id, $social, $date, $access_token, $social_id, $social_email, $social_name,
                                   $social_image, $social_bd, $social_gender, $social_url, $expires_at, $issued_at, $expires_in)
     {
-        $result = false;
+        $result = true;
 
         $sel_social = $this->db->query('
             SELECT `us_u_id` FROM `users_social` 

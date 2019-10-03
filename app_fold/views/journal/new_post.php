@@ -56,7 +56,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="text" name="author" class="admin_form_txt" placeholder="Автор" maxlength="255" />
                         <input type="text" name="source" class="admin_form_txt" placeholder="Источник" maxlength="255" />
                         <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_new_post" value="Сохранить" class="video_admin_form_send" />
+                            <input type="submit" name="bt_save_new_post" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
                         </div>
                     </form>
                 </div>
