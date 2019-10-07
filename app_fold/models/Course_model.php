@@ -10425,7 +10425,7 @@ class Course_model extends CI_Model
                         $result['rel_percent']   = $promocode_data['relative_percent'];
                         $result['id']            = $promocode_data['id'];
                     }
-                    elseif($row->pc_type == 'courses')
+                    elseif($row->pc_type == 'courses' or $row->pc_type == 'course')
                     {
                         $sel_promo_courses = $this->db->query('
                             SELECT `pcc_pc_id`, `pcc_crs_id` FROM `promocode_courses` WHERE `pcc_crs_id`=? and `pcc_pc_id`=? LIMIT 1',
