@@ -127,12 +127,52 @@ $(document).ready(function () {
                     var data = result.responseJSON;
                     if (data.crs) {
                         purchase_form.html(data.crsd);
+                        var auth_form = purchase_form.next('.purchase_pop-up_h.auth_form');
+
+                        auth_form.toggle();
 
                         purchase_up(po);
                         $('.anketa_form_select, .journal_form_select').styler();
 
                         purchase_form.find(".promo_line").on('click', function () {
                             promo_line_func($(this));
+                        });
+
+                        purchase_form.find("a.policy").on('click', function (event) {
+                            event.preventDefault();
+                            show_policy();
+                        });
+
+                        purchase_form.find("input[name='bt_buy_course']").on('click', function (event) {
+                            event.preventDefault();
+                            var this_form = $(this).parents('form'),
+                                user_id = this_form.find('#user-id').val(),
+                                user_email = this_form.find('input[name="email"]').val();
+
+                            if(!$.isNumeric(user_id) && !user_email)
+                            {
+                                purchase_form.toggle();
+                                auth_form.toggle();
+                                purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+                            }
+                            else
+                            {
+                                this_form.submit();
+                            }
+                        });
+
+                        purchase_form.find('.turn_auth').on('click', function(e){
+                            e.preventDefault();
+                            purchase_form.toggle();
+                            auth_form.toggle();
+                            purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+                        });
+
+                        purchase.find('.return_purchase').on('click', function(e){
+                            e.preventDefault();
+                            purchase_form.toggle();
+                            auth_form.toggle();
+                            purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
                         });
 
                         /*purchase_form.on('paste', ' #i-promocode', function () {
@@ -1096,26 +1136,29 @@ $(document).ready(function () {
         searchPromo(pc_input);
     });
 
-    if ($("#policy_pop-up").length > 0) {
-        $(".policy").on('click', function (event) {
-            event.preventDefault();
-            var popup = $("#policy_pop-up"),
-                shadow = $("#shadow");
+    $(".policy").on('click', function (event) {
+        event.preventDefault();
+        show_policy();
+    });
 
-            if (shadow.length == 0) {
-                $("body").append("<div id='shadow'></div>");
-                shadow = $("#shadow");
-            }
+    function show_policy()
+    {
+        var popup = $("#policy_pop-up"),
+            shadow = $("#shadow");
 
-            if ($("#shadow2").is(':visible')) {
-                opacity = 0.6;
-            }
+        if (shadow.length === 0) {
+            $("body").append("<div id='shadow'></div>");
+            shadow = $("#shadow");
+        }
 
-            popup.css({marginLeft: -popup.width() / 2, marginTop: -popup.height() / 2}).fadeIn(600);
-            $("#shadow, .policy_pop-up_close").fadeTo(600, opacity).click(function () {
-                shadow.fadeOut(600);
-                popup.fadeOut(600);
-            });
+        if ($("#shadow2").is(':visible')) {
+            opacity = 0.6;
+        }
+
+        popup.css({marginLeft: -popup.width() / 2, marginTop: -popup.height() / 2}).fadeIn(600);
+        $("#shadow, .policy_pop-up_close").fadeTo(600, opacity).click(function () {
+            shadow.fadeOut(600);
+            popup.fadeOut(600);
         });
     }
 
@@ -1352,6 +1395,7 @@ $(document).ready(function () {
                                 promo_block_info = promo_block.next('.promo_block_info');
                             }
                             promo_block_info.html(promo_info);
+                            promo_block_info.show();
                         }
                     });
                 }
@@ -1692,15 +1736,21 @@ $(document).ready(function () {
     });
     $('.cg').on('click', function () {
         var this_id = $(this).attr('id'),
-            cats = $('#cg-cats');
+            cats = $('#cg-cats'),
+            crs_search = $('#cg-few-search');
         if (this_id === 'cg-categories') {
             cats.show();
             cats.find('.journal_form_select').trigger('refresh');
         } else {
             cats.hide();
         }
+        if(this_id === 'cg-few'){
+            crs_search.show();
+        } else {
+            crs_search.hide();
+        }
     });
-})
+});
 var options, playerTwoPlayer;
 options = {
     width: 640,

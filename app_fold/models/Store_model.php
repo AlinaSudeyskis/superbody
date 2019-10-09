@@ -2983,7 +2983,7 @@ class Store_model extends CI_Model
             // Выборка товаров заказа
             $sel_products = $this->db->query('
                 SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
-                    `ouc_p_fitcoin_price`,
+                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_first`,
                     `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
                     `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`, 
                     `crs_name`, `crs_image`
@@ -2991,9 +2991,9 @@ class Store_model extends CI_Model
                 LEFT JOIN `products` ON `p_id`=`ouc_p_id`
                 LEFT JOIN `courses` ON `crs_id`=`p_course_id`
                 WHERE `ouc_o_id`=? and `ouc_u_id`=?', array($order_id, $user_id));
-            if ($sel_products !== false and 0 < $sel_products->num_rows()) {
+            if ($sel_products !== false and 0 < $sel_products->num_rows())
+            {
                 $i = 0;
-
                 foreach ($sel_products->result() as $row)
                 {
                     if ($row->ouc_attached_p_id == 0)
@@ -3202,6 +3202,38 @@ class Store_model extends CI_Model
     }
 
     /**
+     * Проверка аккаунта пользователя, указанного номера платежа, на активацию
+     *
+     * @param $payment_id
+     * @return bool
+     */
+    public function checkPaymentAccount($payment_id)
+    {
+        $result = false;
+
+        $sel_data = $this->db->uery('
+            SELECT `op_payment_id`, `o_u_id`, `user_activated` 
+            FROM `orders_payment`
+            LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            LEFT JOIN `users` ON `user_id`=`o_u_id`
+            WHERE `op_payment_id`=? LIMIT 1', $payment_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+            if($row->user_activated == 1)
+            {
+                $result = true;
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      *
      *
      * @param $user_id
@@ -3300,6 +3332,8 @@ class Store_model extends CI_Model
      */
     public function updateOrderStatus($order_id, $payment_id, $status)
     {
+        $result = false;
+
         if (empty($order_id) and !empty($payment_id))
         {
             $sel_order_id = $this->db->query('SELECT `op_o_id` FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
@@ -3322,29 +3356,22 @@ class Store_model extends CI_Model
 
             if($up_data !== false and 1 == $this->db->affected_rows())
             {
-                return true;
+                $result = true;
             }
             elseif($up_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
-                return false;
-            }
-            else
-            {
-                return false;
             }
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
      * Выборка курсов заказа пользователя
      *
      * @param string $payment_id
-     * @param int $order_id
+     * @param string|int $order_id
      * @return mixed
      */
     public function getOrderCourses($payment_id = '', $order_id = '')

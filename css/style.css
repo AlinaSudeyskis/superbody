@@ -72,6 +72,18 @@ audio, canvas, progress, video{
 .sing-in_bg{
     overflow: hidden;
     height: 350px;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    flex-direction: column;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
+    justify-content: center;
+    -webkit-justify-content: center;
+    align-items: center;
+    -webkit-align-self: center;
 }
 .sing-in_bg>img{
     display: block;
@@ -80,6 +92,8 @@ audio, canvas, progress, video{
     position: relative;
     left: 50%;
     margin-left: -960px;
+    align-self: baseline;
+    -webkit-align-self: baseline;
 }
 .main_bg_wrap{
     position: relative;
@@ -1944,7 +1958,7 @@ tr:first-child > td > .fc-day-grid-event{
     width: 80%;
     max-width: 570px;
     max-height: 400px;
-    z-index: 114;
+    z-index: 115;
     left: 50%;
     top: 50%;
     position: fixed;
@@ -2059,6 +2073,51 @@ tr:first-child > td > .fc-day-grid-event{
     width: 100%;
     max-width: 280px;
 }
+.auth_form{
+    display: flex;
+    display:-webkit-flex;
+    flex-direction: column;
+    -webkit-flex-direction: column;
+    padding: 0;
+    height: 100%;
+}
+.turn_auth {
+    display: block;
+    width: 100px;
+    color: #000000;
+    font-size: 14px;
+    position: relative;
+    align-self: flex-end;
+    -webkit-align-self: flex-end;
+    margin: 10px 15px 0 0;
+}
+.turn_auth::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    border: 4px solid transparent;
+    border-left: 5px solid #72d0f4;
+    margin-top: -3px;
+}
+.return_purchase {
+    display: block;
+    width: 190px;
+    color: #000000;
+    font-size: 14px;
+    position: relative;
+    padding-left: 17px;
+    margin: auto 0 0;
+}
+.return_purchase::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    border: 4px solid transparent;
+    border-right: 5px solid #72d0f4;
+    margin-top: -3px;
+}
 .strikeout{
     text-decoration: line-through;
 }
@@ -2075,6 +2134,9 @@ tr:first-child > td > .fc-day-grid-event{
     width: 100%;
     z-index: 113;
     display: none;
+}
+#shadow{
+    z-index: 114;
 }
 #shadow2{
     z-index: 112;
@@ -4097,6 +4159,7 @@ h2.block_h>span>a {
     -webkit-flex-direction: column;
     align-items: center;
     -webkit-align-items: center;
+    margin-bottom: 15px;
 }
 .pcbi_h {
     font-size: 24px;
@@ -5418,11 +5481,8 @@ textarea.journal_post_comm_in{
 
 #block-message, #cookie_disclaimer{
     display: none;
-    /*position: absolute;*/
     position: fixed;
     top: -40px;
-    /*left: 50%;
-    max-width: 60%;*/
     width: 100%;
     height: 40px;
     text-align: center;
@@ -5433,6 +5493,7 @@ textarea.journal_post_comm_in{
     font-weight: lighter;
     z-index: 102;
 }
+#block-message.info {background-color: rgba(128, 210, 94, 0.85);}
 #cookie_disclaimer{
     display: block;
     bottom: 0;

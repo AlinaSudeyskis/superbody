@@ -7603,8 +7603,26 @@ class Course_model extends CI_Model
             // Дата через 4 недели от даты блокировки
             $next_three_weeks = $tmp_date2->format('Y-m-d');
 
+            if ($row->uc_blocked == 1)
+            {
+                $result['notifications'][$row->uc_course_id][214]['course_name']   = $row->crs_name;
+                $result['notifications'][$row->uc_course_id][214]['course_id']     = $row->uc_course_id;
+
+                if($row->uc_blocked_reason == 'payment_canceled')
+                {
+                    $result['notifications'][$row->uc_course_id][214]['reason'] = 215;
+                }
+                elseif($row->uc_blocked_reason == 'payment_refunded')
+                {
+                    $result['notifications'][$row->uc_course_id][214]['reason'] = 216;
+                }
+                elseif($row->uc_blocked_reason == 'free_weeks_over')
+                {
+                    $result['notifications'][$row->uc_course_id][214]['reason'] = 204;
+                }
+            }
             // Вывод уведомления в течении недели после первого безуспешного проведения оплаты
-            if ($row->uc_blocked == 1 and $row->uc_blocked_date >= $week_ago
+            /*if ($row->uc_blocked == 1 and $row->uc_blocked_date >= $week_ago
                 and $row->uc_blocked_reason == 'payment_canceled' and $next_week > $today)
             {
                 setlocale(LC_ALL, 'ru_RU.UTF-8');
@@ -7629,7 +7647,7 @@ class Course_model extends CI_Model
                 $result['notifications'][$row->uc_course_id][144]['date_attempts'] = $tmp_nw2;
                 $result['notifications'][$row->uc_course_id][144]['course_name']   = $row->crs_name;
                 $result['notifications'][$row->uc_course_id][144]['course_id']     = $row->uc_course_id;
-            }
+            }*/
 
             // Курс заканчивается через неделю или меньше
             $tmp_date3 = new DateTime($date);
@@ -7656,7 +7674,7 @@ class Course_model extends CI_Model
             }
 
             // Курс закончился
-            if($row->uc_date_end != '0000-00-00' and $row->uc_date_end < $today)
+            /*if($row->uc_date_end != '0000-00-00' and $row->uc_date_end < $today)
             {
                 // Данные курса
                 $result['notifications'][$row->uc_id][154]['course_name'] = $row->crs_name;
@@ -7701,7 +7719,7 @@ class Course_model extends CI_Model
                     }
                     unset($extend);
                 }
-            }
+            }*/
 
             unset($row);
         }
@@ -10390,15 +10408,14 @@ class Course_model extends CI_Model
      *
      * @param $course_id
      * @param $promocode
-     * @param $user_id
      * @param $date
      * @return array
      */
-    public function getAvailableCoursePromocode($course_id, $promocode, $user_id, $date)
+    public function getAvailableCoursePromocode($course_id, $promocode, $date)
     {
         $result = array('discount' => false, 'id' => null);
 
-        if(is_numeric($course_id) and is_numeric($user_id) and !empty($promocode) and strlen($promocode) >=1 and strlen($promocode) <= 25)
+        if(is_numeric($course_id) and !empty($promocode) and strlen($promocode) >=1 and strlen($promocode) <= 25)
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('

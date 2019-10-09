@@ -12,13 +12,20 @@ $display = (!empty($purchase_up) and $purchase_up === true) ? 'class="ref_pop-up
     <div class="purchase_pop-up_cont">
         <div class="purchase_pop-up_h purchase_form">
             <?php if(!empty($course)): ?>
-                <div class="parent kurs_cur_wrap" style="justify-content: center; ">
-                    <div class="kurs_cur_h"><?php if(!empty($course)): echo $course['name']; endif; ?></div>
-                </div>
-                <div class="parent kurs_cur_wrap separator"></div>
-                <?php include_once('./app_fold/views/authorization/short_auth.php'); ?>
-                <?php include_once('./app_fold/views/course/course_payment_item.php');?>
+                <?php include_once('./app_fold/views/course/purchase_form.php');?>
             <?php endif; ?>
         </div>
+        <?php if(empty($user_session)): ?>
+            <div class="purchase_pop-up_h auth_form">
+                <div class="parent kurs_cur_wrap" style="justify-content: center;  -webkit-justify-content: center;">
+                    <div class="kurs_cur_h">Авторизация</div>
+                </div>
+                <div class="parent kurs_cur_wrap separator"></div>
+                <div class="sing-in page_form">
+                    <?php include_once('./app_fold/views/authorization/auth_form.php');?>
+                </div>
+                <a href="#" class="return_purchase">Назад на форму покупки</a>
+            </div>
+        <?php endif; ?>
     </div>
 </div><!-- purchase_pop-up -->

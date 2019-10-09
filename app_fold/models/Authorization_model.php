@@ -167,7 +167,15 @@ class Authorization_model extends CI_Model
                 $email = $row->user_email;
 
                 // Добавляем данные пользователя в таблицу подписчиков
-                $this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($email, $date));
+                $sel_sub = $this->db->query('SELECT `s_email` FROM `subscription`  WHERE `s_email`=? LIMIT 1', $email);
+                if($sel_sub !== false and 0 == $sel_sub->num_rows())
+                {
+                    $this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($email, $date));
+                }
+                elseif($sel_sub === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
             elseif($sel_data === false)
             {
@@ -955,7 +963,20 @@ class Authorization_model extends CI_Model
         // Если email не найден в БД, регистрируем
         else
         {
-            $password   = '';
+            // Генерация пароля
+            $arr = array('a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','r','s',
+                't','u','v','x','y','z','A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','R','S',
+                'T','U','V','X','Y','Z','1','2','3','4','5','6','7','8','9','0','.',',','(',')','[',']','!','?',
+                '&','^','%','@','*','$','<','>','/','|','+','-','{','}','`','~');
+            $password = "";
+            for($i = 0; $i < 8; $i++)
+            {
+                // Вычисляем случайный индекс массива
+                $index = rand(0, count($arr) - 1);
+                $password .= $arr[$index];
+            }
+
+            $password   = password_hash($password, PASSWORD_DEFAULT);
             $email_hash = password_hash($email, PASSWORD_DEFAULT);
             $name       = $name . ' ' . $surname;
 

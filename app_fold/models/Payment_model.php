@@ -368,4 +368,45 @@ class Payment_model extends CI_Model
 
         return $result;
     }
+
+    /**
+     * Выборка платежей пользователя, ожидающих подтверждения магазином
+     *
+     * @param $user_id
+     * @param $user_email
+     * @return array
+     */
+    public function getUserWaitingPayments($user_id, $user_email = '')
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('
+            SELECT `o_id`, `o_u_id`, `o_user_email`, `op_payment_id`, `op_status`, `op_amount`, `op_currency` 
+            FROM `orders`
+            LEFT JOIN `orders_payment` ON `op_o_id`=`o_id`
+            WHERE `o_u_id`=? and `op_status`="waiting_for_capture"', $user_id);
+        if(!empty($user_email))
+        {
+            $this->db->where('o_user_email', $user_email);
+        }
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['waiting_payments'][$i]['id'] = $row->op_payment_id;
+                $result['waiting_payments'][$i]['amount'] = $row->op_amount;
+                $result['waiting_payments'][$i]['currency'] = $row->op_currency;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
 }

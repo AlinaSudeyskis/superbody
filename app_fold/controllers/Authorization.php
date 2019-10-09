@@ -325,6 +325,18 @@ class Authorization extends CI_Controller
 
                         if ($res_activate === true)
                         {
+                            // Проверка на наличие неподтверженных платежей
+                            $myCurl = curl_init();
+                            curl_setopt_array($myCurl, array(
+                                CURLOPT_URL => 'http://sb.theoutlines.ru/payment/userWaitingPayments', // https://superbody.pro/payment/userWaitingPayments
+                                CURLOPT_RETURNTRANSFER => true,
+                                CURLOPT_POST => true,
+                                CURLOPT_FOLLOWLOCATION => true,
+                                CURLOPT_POSTFIELDS => http_build_query(array('uid' => $user_id, 'ue' => $email))
+                            ));
+                            $response = curl_exec($myCurl);
+                            curl_close($myCurl);
+
                             parent::sendPulseAddEmails($email);
                             // Аккаунт активирован.
                             $this->session->set_tempdata('message', 20, 60);
@@ -1179,9 +1191,9 @@ class Authorization extends CI_Controller
     public function facebookLogin($email = '', $return = '')
     {
         // Instagram
-        $url_authorize   = 'https://www.facebook.com/v3.0/dialog/oauth';
-        $url_token       = 'https://graph.facebook.com/v3.0/oauth/access_token';
-        $url_debug_token = 'https://graph.facebook.com/v3.0/debug_token?';
+        $url_authorize   = 'https://www.facebook.com/v3.3/dialog/oauth';
+        $url_token       = 'https://graph.facebook.com/v3.3/oauth/access_token';
+        $url_debug_token = 'https://graph.facebook.com/v3.3/debug_token?';
         $client_id       = '817159398426245';
         $client_secret   = 'e9a5d05ef3fee31e53cedba7ff910d59';
         $redirect_uri    = 'https://superbody.pro/facebook_login';

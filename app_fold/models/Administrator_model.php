@@ -264,7 +264,7 @@ class Administrator_model extends CI_Model
             SELECT `si_id`, `si_logo`, `si_index_title`, `si_index_text`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinteres`, 
               `si_soc_google_plus`, `si_soc_tumblr`, `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, 
               `si_phone`, `si_email`, `si_rights`, `si_agreement`, `si_policy`, `si_personal_data`, `si_personal_data_text`, 
-              `si_footer`, `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_user_id`, `si_date` 
+              `si_offer_data`, `si_footer`, `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_user_id`, `si_date` 
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows()) {
@@ -290,6 +290,7 @@ class Administrator_model extends CI_Model
             $result['private_policy']     = $row->si_policy;
             $result['personal_data']      = $row->si_personal_data;
             $result['personal_data_text'] = $row->si_personal_data_text;
+            $result['offer_data']         = $row->si_offer_data;
             $result['footer']             = $row->si_footer;
             $result['about']              = $row->si_about;
             $result['contacts_text1']     = $row->si_contacts_text1;
@@ -368,7 +369,7 @@ class Administrator_model extends CI_Model
         $sel_info = $this->db->query('
             SELECT `si_id`, `si_logo`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinteres`, `si_soc_google_plus`, `si_soc_tumblr`, 
               `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, `si_rights`, `si_agreement`, `si_policy`, 
-              `si_personal_data`, `si_personal_data_text`, `si_footer`, `si_user_id`, `si_date` 
+              `si_personal_data`, `si_personal_data_text`, `si_offer_data`, `si_footer`, `si_user_id`, `si_date` 
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows()) {
@@ -390,6 +391,7 @@ class Administrator_model extends CI_Model
             $result['private_policy']     = $row->si_policy;
             $result['personal_data']      = $row->si_personal_data;
             $result['personal_data_text'] = $row->si_personal_data_text;
+            $result['offer_data']         = $row->si_offer_data;
             $result['footer']             = $row->si_footer;
         }
         elseif ($sel_info === false) {
@@ -604,6 +606,7 @@ class Administrator_model extends CI_Model
      * @param $private_policy
      * @param $personal_data_text
      * @param $personal_data
+     * @param $offer_data
      * @param $rights
      * @param $footer
      * @param $soc_facebook
@@ -619,29 +622,29 @@ class Administrator_model extends CI_Model
      * @param $user_id
      * @return bool
      */
-    public function setSiteHeader($logotype, $agreement, $private_policy, $personal_data_text, $personal_data, $rights, $footer, $soc_facebook,
-                                  $soc_twitter, $soc_pinterest, $soc_google, $soc_tumblr, $soc_instagram, $soc_ok,
-                                  $soc_vk, $soc_youtube, $date, $user_id)
+    public function setSiteHeader($logotype, $agreement, $private_policy, $personal_data_text, $personal_data, $offer_data,
+                                  $rights, $footer, $soc_facebook, $soc_twitter, $soc_pinterest, $soc_google, $soc_tumblr,
+                                  $soc_instagram, $soc_ok, $soc_vk, $soc_youtube, $date, $user_id)
     {
+        $result = false;
+
         $up_info = $this->db->query('
             UPDATE `site_info` 
             SET `si_logo`=?, `si_soc_facebook`=?, `si_soc_twitter`=?, `si_soc_pinteres`=?, `si_soc_google_plus`=?, `si_soc_tumblr`=?, 
               `si_soc_instagram`=?, `si_soc_ok`=?, `si_soc_vk`=?, `si_soc_youtube`=?, `si_rights`=?, `si_agreement`=?, 
-              `si_policy`=?, `si_personal_data`=?, `si_personal_data_text`=?, `si_footer`=?, `si_user_id`=?, `si_date`=? 
+              `si_policy`=?, `si_personal_data`=?, `si_personal_data_text`=?, `si_offer_data`=?, `si_footer`=?, `si_user_id`=?, `si_date`=? 
             WHERE `si_id`=? LIMIT 1',
             array($logotype, $soc_facebook, $soc_twitter, $soc_pinterest, $soc_google, $soc_tumblr, $soc_instagram, $soc_ok, $soc_vk,
-                $soc_youtube, $rights, $agreement, $private_policy, $personal_data, $personal_data_text, $footer, $user_id, $date, 1));
+                $soc_youtube, $rights, $agreement, $private_policy, $personal_data, $personal_data_text, $offer_data, $footer, $user_id, $date, 1));
 
         if ($up_info !== false and 1 == $this->db->affected_rows()) {
-            return true;
+            $result = true;
         }
         elseif ($up_info === false) {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else {
-            return false;
-        }
+
+        return $result;
     }
 
     /**

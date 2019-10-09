@@ -88,9 +88,9 @@ class Welcome_model extends CI_Model
         $sel_info = $this->db->query('
             SELECT `si_id`, `si_logo`, `si_index_title`, `si_index_text`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinteres`, 
               `si_soc_google_plus`, `si_soc_tumblr`, `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, 
-              `si_phone`, `si_email`, `si_rights`, `si_agreement`, `si_policy`, `si_personal_data`, `si_personal_data_text`, `si_footer`, 
-              `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_auth_display`, `si_auth_title1`, `si_auth_title2`, 
-              `si_auth_subtitle1`, `si_auth_subtitle2`, `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, 
+              `si_phone`, `si_email`, `si_rights`, `si_agreement`, `si_policy`, `si_personal_data`, `si_personal_data_text`, 
+              `si_offer_data`, `si_footer`, `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_auth_display`, `si_auth_title1`,
+              `si_auth_title2`, `si_auth_subtitle1`, `si_auth_subtitle2`, `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, 
               `si_auth_url_name1`, `si_auth_url_name2`, `si_spec_display`, `si_spec_name`, `si_spec_title`, `si_spec_text`, 
               `si_spec_url`, `si_spec_url_text`, `si_cookies_title`, `si_cookies_text`
             FROM `site_info` LIMIT 1');
@@ -119,6 +119,7 @@ class Welcome_model extends CI_Model
             $result['private_policy']     = $row->si_policy;
             $result['personal_data']      = $row->si_personal_data;
             $result['personal_data_text'] = $row->si_personal_data_text;
+            $result['offer_data']         = $row->si_offer_data;
             $result['footer']             = $row->si_footer;
             $result['about']              = nl2br(parent::showBBcodes($row->si_about));
             $result['contacts_text1']     = $row->si_contacts_text1;
@@ -175,6 +176,9 @@ class Welcome_model extends CI_Model
         return $result;
     }
 
+    /**
+     * @return bool
+     */
     public function getSiteMetaData()
     {
         $result = false;

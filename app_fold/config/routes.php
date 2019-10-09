@@ -85,6 +85,7 @@ $route['profile/courses/finished']            = 'Course/usersCourses/finished';
 $route['profile/course/(:num)']               = 'Course/usersCourse/$1';
 $route['profile/course/(:num)/reviews']       = 'Course/userCourseReviews/$1';
 $route['profile/course/(:num)/review/(:num)'] = 'Course/userCourseReview/$1/$2';
+$route['profile/course/(:num)/order/(:num)']  = 'Course/userCourseOrder/$1/$2';
 $route['profile/course/(:num)/menu']          = 'Course/userNutritionMenu/$1';
 $route['profile/(:num)']                      = 'User/profile/$1';
 $route['profile']                             = 'User/profile';
@@ -367,9 +368,11 @@ $route['courses/promocode/(:any)'] = 'Course/publicCourses///promocode/$1';
 $route['sortCourses'] = 'Course/getSortCourses';
 
 // Оплата
-$route['payment']               = 'Payment/payment';
-$route['payment/notifications'] = 'Payment/paymentNotifications';
-$route['payment/update']        = 'Payment/paymentUpdate';
+$route['payment']                     = 'Payment/payment';
+$route['payment/notifications']       = 'Payment/paymentNotifications';
+$route['payment/update']              = 'Payment/paymentUpdate';
+$route['payment/update']              = 'Payment/paymentUpdate';
+$route['payment/userWaitingPayments'] = 'Payment/checkUserWaitingPayments';
 
 // Журнал
 //$route['journal/articles']         = 'Journal/articles';

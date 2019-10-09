@@ -16,9 +16,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val notif_block">
-                    <?php if (!empty($notifications)): ?>
+                    <?php if (!empty($notifications['text'])): ?>
                         <div class="admin_list">
-                            <?php foreach ($notifications as $key => $notification) :
+                            <?php foreach ($notifications['text'] as $key => $notification) :
                                 if(!empty($notification)): ?>
                                     <div class="admin_item parent">
                                         <div class="admin_ava"></div>

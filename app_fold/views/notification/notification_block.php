@@ -13,6 +13,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php else:
         if($course_blocked === true and !empty($course_blocked_info)):?>
             <h3 class="info"><?php echo $course_blocked_info; ?></h3>
+            <?php if(!empty($course_blocked_reason)):?>
+                <h3 class="info">Причина блокировки: <?php echo $course_blocked_reason; ?></h3>
+            <?php endif;?>
         <?php endif;
         if($course_ends === true and !empty($course_ends_info)):?>
             <h3 class="info"><?php echo $course_ends_info; ?></h3>

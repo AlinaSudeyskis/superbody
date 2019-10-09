@@ -20,14 +20,15 @@ class Notification_model extends CI_Model
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `n_text` FROM `notifications`');
+        $sel_data = $this->db->query('SELECT `n_type`, `n_text` FROM `notifications` ORDER BY `n_id`');
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $i = 1;
             foreach($sel_data->result() as $row)
             {
-                $result[$i] = $row->n_text;
+                $result['text'][$i] = $row->n_text;
+                $result['type'][$i] = $row->n_type;
 
                 $i++;
             }
@@ -53,12 +54,13 @@ class Notification_model extends CI_Model
 
         if(is_numeric($notification_id))
         {
-            $sel_data = $this->db->query('SELECT `n_text`, `n_name` FROM `notifications` WHERE `n_id`=? LIMIT 1', $notification_id);
+            $sel_data = $this->db->query('SELECT `n_text`, `n_type`, `n_name` FROM `notifications` WHERE `n_id`=? LIMIT 1', $notification_id);
 
             if($sel_data !== false and 1 == $sel_data->num_rows())
             {
                 $row = $sel_data->row();
 
+                $result['notification']['type'] = $row->n_type;
                 $result['notification']['text'] = $row->n_text;
                 $result['notification']['name'] = $row->n_name;
             }
@@ -75,36 +77,32 @@ class Notification_model extends CI_Model
      * Изменение данных уведомления
      *
      * @param $notification_id
+     * @param $type
      * @param $description
      * @param $admin_id
      * @param $date
      * @return bool
      */
-    public function updateNotification($notification_id, $description, $admin_id, $date)
+    public function updateNotification($notification_id, $type, $description, $admin_id, $date)
     {
-        if(is_numeric($notification_id) and is_numeric($admin_id) and !empty($description))
+        $result = false;
+
+        if(is_numeric($notification_id) and is_numeric($admin_id) and !empty($description) and !empty($type))
         {
-            $up_data = $this->db->query('UPDATE `notifications` SET `n_text`=?, `n_admin_id`=?, `n_date`=? WHERE `n_id`=? LIMIT 1',
-                array($description, $admin_id, $date, $notification_id));
+            $up_data = $this->db->query('UPDATE `notifications` SET `n_type`=?, `n_text`=?, `n_admin_id`=?, `n_date`=? WHERE `n_id`=? LIMIT 1',
+                array($type, $description, $admin_id, $date, $notification_id));
 
             if($up_data !== false and 1 == $this->db->affected_rows())
             {
-                return true;
+                $result = true;
             }
             elseif($up_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
-                return false;
-            }
-            else
-            {
-                return false;
             }
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**

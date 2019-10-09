@@ -85,7 +85,7 @@ class Payment extends CI_Controller
             {
                 $response = $res_create['response'];
 
-                if (!empty($response->_id) and $response->_status == 'pending')
+                if (!empty($response->_id))
                 {
                     $created_at = $response->_createdAt->_date . $response->_createdAt->_timezone;
 
@@ -134,79 +134,42 @@ class Payment extends CI_Controller
         if ($response->type == 'notification')
         {
             $payment = $response->object;
-            //log_message('debug', __METHOD__.':'.__LINE__.' Response->object:'. print_r($payment, true));
-
-            $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
-            $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
-
-            $payment_data = array(
-                'pid' => $payment->id,
-                'ps' => $payment->status,
-                'pp' => $payment_paid,
-                'pcr' => $payment->created_at,
-                'pe' => $payment->expires_at,
-                'pc' => $payment->captured_at,
-                'pmid' => $payment->payment_method->id,
-                'pms' => $payment_saved
-            );
-
-            $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
-
-            $handle = fopen($url, "r");
-            fclose($handle);
+            // Обновление данных платежа
+            self::updatePaymentData($payment);
 
             // Подтверждение платежа
             if ($payment->status == 'waiting_for_capture')
             {
                 if ($payment->paid === true)
                 {
-                    // Подтверждение платежа
-                    $res_capture = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
-                    //log_message('debug', __METHOD__.':'.__LINE__.' Capture response object:'. print_r($payment, true));
-
-                    if(!empty($res_capture['response']))
+                    $this->load->model('Store_model');
+                    // Проверка аккаунта пользователя на активацию
+                    $check_account = $this->Store_model->checkPaymentAccount($payment->id);
+                    if($check_account === true)
                     {
-                        $result = $res_capture['response'];
-                        if($result->status == 'succeeded')
+                        // Подтверждение платежа
+                        $res_capture = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
+                        if(!empty($res_capture['response']))
                         {
-                            $payment_saved = ($result->payment_method->saved === true) ? 'true' : 'false';
-                            $payment_paid  = ($result->paid === true) ? 'true' : 'false';
+                            $result = $res_capture['response'];
 
-                            $payment_data = array(
-                                'pid' => $result->id,
-                                'ps' => $result->status,
-                                'pp' => $payment_paid,
-                                'pcr' => $result->created_at,
-                                'pe' => $result->expires_at,
-                                'pc' => $result->captured_at,
-                                'pmid' => $result->payment_method->id,
-                                'pms' => $payment_saved
-                            );
-
-                            $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
-
-                            $handle = fopen($url, "r");
-                            fclose($handle);
+                            // Обновление данных платежа
+                            self::updatePaymentData($result);
                         }
-                        else
+                        elseif(!empty($res_capture['error']))
                         {
-                            log_message('error', __METHOD__.':'.__LINE__.' Payment status != succeeded '.$payment->id.' '.$result->status);
+                            log_message('error', __METHOD__.':'.__LINE__.' '.$payment->id.' '.$res_capture['error']);
                         }
                     }
-                    elseif(!empty($res_capture['error']))
+                    else
                     {
-                        log_message('error', __METHOD__.':'.__LINE__.' '.$payment->id.' '.$res_capture['error']);
+                        log_message('error', __METHOD__.':'.__LINE__.' Check account = false '.$payment->id);
                     }
                 }
                 else
                 {
                     log_message('error', __METHOD__.':'.__LINE__.' Payment paid != true '.$payment->id);
                 }
-            }
-            elseif($payment->status == 'succeeded')
-            {
-                $handle = fopen($url, "r");
-                fclose($handle);
             }
             else
             {
@@ -326,7 +289,7 @@ class Payment extends CI_Controller
                     }
 
                     // Изменение статуса заказа как "Выполненный"
-                    $this->Store_model->updateOrderStatus('', $payment_id, 1);
+                    $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, 1);
                 }
             }
         }
@@ -680,6 +643,83 @@ class Payment extends CI_Controller
 
         // Выборка и удаление платежей, не прошедшие успешную оплату в течении последней недели
         $this->Payment_model->deleteCanceledPayments($week_ago);
+    }
+
+    /**
+     * Подтверждение платежей пользователя
+     *
+     * @param $payments
+     */
+    public function capturePayments($payments)
+    {
+        if(!empty($payments))
+        {
+            foreach ($payments as $payment)
+            {
+                // Подтверждение платежа
+                $res_capture = self::capturePayment($payment['id'], $payment['amount'], $payment['currency']);
+                // Обновление данных платежа
+                self::updatePaymentData($res_capture);
+            }
+            unset($payment);
+        }
+        else
+        {
+            log_message('error', __METHOD__.':'.__LINE__. ' Empty array $payments');
+        }
+    }
+
+    /**
+     * Обновление данных платежа
+     *
+     * @param $payment
+     */
+    public function updatePaymentData($payment)
+    {
+        $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
+        $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
+
+        $payment_data = array(
+            'pid' => $payment->id,
+            'ps' => $payment->status,
+            'pp' => $payment_paid,
+            'pcr' => $payment->created_at,
+            'pe' => $payment->expires_at,
+            'pc' => $payment->captured_at,
+            'pmid' => $payment->payment_method->id,
+            'pms' => $payment_saved
+        );
+
+        $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
+
+        $handle = fopen($url, "r");
+        fclose($handle);
+    }
+
+    /**
+     * Проверка наличия непотвержденных платежей пользователя
+     */
+    public function checkUserWaitingPayments()
+    {
+        $user_id    = (is_numeric($this->input->post('uid', true))) ? $this->input->post('uid', true) : null;
+        $user_email = (filter_var($this->input->post('ue', true), FILTER_VALIDATE_EMAIL)) ? $this->input->post('ue', true) : null;
+
+        if(!empty($user_id) and !empty($user_email))
+        {
+            $payments = $this->Payment_model->getUserWaitingPayments($user_id, $user_email);
+            if(!empty($payments['waiting_payments']))
+            {
+                self::capturePayments($payments['waiting_payments']);
+            }
+            else
+            {
+                log_message('error', __METHOD__.':'.__LINE__. ' Empty payments: ' . print_r($payments, true));
+            }
+        }
+        else
+        {
+            log_message('error', __METHOD__.':'.__LINE__. ' User data error: ' . $this->input->post('uid', true). ' ' .$this->input->post('ue', true));
+        }
     }
 
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ОПЛАТЫ */

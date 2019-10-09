@@ -23,9 +23,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </div>
                         <div class="video_admin_form">
+                            <?php if($notification['name'] != $notification['text']): ?>
+                                <div class="parent kurs_cur_wrap">
+                                    <div class="kurs_block_h">Исходное уведомление:</div>
+                                    <div class="info"><?php echo $notification['name']; ?></div>
+                                </div>
+                            <?php endif; ?>
                             <div class="parent kurs_cur_wrap">
-                                <div class="kurs_block_h">Исходное уведомление:</div>
-                                <div class="info"><?php echo $notification['name']; ?></div>
+                                <div class="kurs_block_h">Тип уведомления:</div>
+                                <select class="journal_form_select" name="s_type">
+                                    <option value="error" <?php if($notification['type'] == 'error'): ?>selected="selected"<?php endif; ?>>Ошибка</option>
+                                    <option value="info" <?php if($notification['type'] == 'info'): ?>selected="selected"<?php endif; ?>>Уведомление</option>
+                                </select>
                             </div>
                             <div class="parent kurs_cur_wrap">
                                 <div class="kurs_block_h">Текст уведомления:</div>

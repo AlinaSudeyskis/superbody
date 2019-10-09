@@ -5,6 +5,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <input type="hidden" name="crs_id" id="crs-id" value="<?php if (!empty($course['id'])) { echo $course['id']; }?>" />
     <input type="hidden" name="ord_id" id="ord-id" value="<?php if (!empty($course['order_id'])) { echo $course['order_id']; }?>" />
     <input type="hidden" name="user_id" value="<?php if (!empty($user_session)) { echo $user_session['id']; }?>" id="user-id">
+    <?php if(empty($user_session) or empty($user_session['email'])): ?>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Email:</div>
+            <input type="text" name="email" required="required" value="" class="admin_form_txt admin_form_txt_short valid_email" autocomplete="off"/>
+        </div>
+    <?php endif; ?>
     <?php if ($course['price'] != 0 and $course['recurrent'] === true):?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h"><label for="payment-options">Вариант оплаты:</label></div>
@@ -78,12 +84,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="promo_info">Промокод не доступен</div>
         </div>
     <?php endif; ?>
-    <div class="sing-in_h tren_form_block_check_wrap">
-        <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-3" required="required" checked="checked">
-        <label for="cb-politics-3">согласие на
-            <a href="#" class="reg_in_link policy">обработку персональных данных</a>
-        </label>
+    <div class="parent kurs_cur_wrap">
+        <div class="kurs_block_h"></div>
+        <div class="sing-in_h tren_form_block_check_wrap">
+            <input type="checkbox" name="cb_offer" class="tren_form_block_check" id="cb-politics-3" required="required" checked="checked">
+            <label for="cb-politics-3">согласие с
+                <a href="<?php if(!empty($site_info)): echo $site_info['offer_data']; endif; ?>" class="reg_in_link" target="_blank">договором оферты</a>
+            </label>
+        </div>
     </div>
+    <?php if(empty($user_session) or empty($user_session['email'])): ?>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h"></div>
+            <div class="sing-in_h tren_form_block_check_wrap">
+                <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics-4" required="required" checked="checked"/>
+                <label for="cb-politics-4">согласие на
+                    <a href="#" class="reg_in_link policy">обработку персональных данных</a>
+                </label>
+            </div>
+        </div>
+    <?php endif; ?>
     <div class="anketa_form_buts_wrap parent">
         <?php if (!empty($courses_id) and in_array($course['id'], $courses_id)): ?>
             <input type="submit" name="bought" value="Куплен" class="anketa_form_but disabled"/>
@@ -100,3 +120,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
     </div>
 </form>
+<?php if(empty($user_session)): ?>
+    <a href="#" class="turn_auth">Авторизация</a>
+<?php endif; ?>

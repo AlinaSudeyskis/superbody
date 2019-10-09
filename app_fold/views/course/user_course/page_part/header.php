@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div><!-- left_sidebar -->
     <div class="col-lg-10 content_col">
         <?php // Уведомления
-        include_once('./app_fold/views/notification/user_profile_notifications.php'); ?>
+        include_once('./app_fold/views/notification/user_course_notifications.php'); ?>
         <div class="content_block new_content_block">
         <div class="content_block_h parent">
             <?php $course_name = (!empty($course['name'])) ? ' - ' . $course['name'] : '';

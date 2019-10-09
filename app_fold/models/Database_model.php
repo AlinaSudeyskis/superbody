@@ -2473,7 +2473,7 @@ class Database_model extends CI_Model
     }
 
     /**
-     * Обновление базы данных август 2019
+     * Обновление базы данных сентябрь 2019
      *
      * @param $date
      * @return bool
@@ -2569,6 +2569,128 @@ class Database_model extends CI_Model
         if($fl_up_db === false)
         {
             $this->db->query("ALTER TABLE `site_banners` ADD `sb_video_url` VARCHAR(255) NOT NULL AFTER `sb_image`");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных октябрь 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseOctober2019($date)
+    {
+        $result = false;
+
+        $date = '2019-10-07 15:31';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_offer_data` VARCHAR(255) NOT NULL AFTER `si_personal_data_text`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-10-08 11:14';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `notifications` ADD `n_type` ENUM('error','info') NOT NULL DEFAULT 'error' AFTER `n_id`");
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-10-08 11:25';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 10");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 16");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 18");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 20");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 42");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 44");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 46");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 51");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 52");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 54");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 55");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 74");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 77");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 82");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 83");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 84");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 85");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 87");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 91");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 93");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 97");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 104");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 108");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 109");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 113");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 131");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 133");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 135");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 141");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 142");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 143");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 144");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 147");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 148");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 151");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 152");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 153");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 154");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 163");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 164");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 171");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 172");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 173");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 177");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 179");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 181");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 183");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 185");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 191");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 194");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 195");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 197");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 198");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 202");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 203");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 204");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 205");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 206");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 207");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 208");
+            $this->db->query("UPDATE `notifications` SET `n_type` = 'info' WHERE `notifications`.`n_id` = 210");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-10-09 10:28';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (212, 'Ошибка! Некорректные данные или данные не были изменены для сохранения.', 'Ошибка! Некорректные данные или данные не были изменены для сохранения.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (213, 'info', 'У Вас есть неподтвержденные магазином платежи, из-за отсутствия активации аккаунта. Активировав свой email, магазин автоматически потвердит оплату.', 'У Вас есть неподтвержденные магазином платежи, из-за отсутствия активации аккаунта. Активировав свой email, магазин автоматически потвердит оплату.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-10-09 14:14';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (214, 'info', 'Курс заблокирован.', 'Курс заблокирован.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("UPDATE `notifications` SET `n_text`='Оплата заказа не прошла. До [date_attempts] будут выполняться повторные попытки оплаты.', `n_name`='Оплата заказа не прошла. До [date_attempts] будут выполняться повторные попытки оплаты.' WHERE `n_id`=142");
+            $this->db->query("UPDATE `notifications` SET `n_text`=' Оплата заказа не прошла. До [date_attempts] у Вас есть возможность купить курс по остаточной стоимости единым платежом на странице настроек курса.', `n_name`=' Оплата заказа не прошла. До [date_attempts] у Вас есть возможность купить курс по остаточной стоимости единым платежом на странице настроек курса.' WHERE `n_id`=144");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (215, 'info', 'Не прошла оплата.', 'Не прошла оплата.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (216, 'info', 'Возвращён платеж.', 'Возвращён платеж.', 4, '2018-04-19 14:23:42')");
 
             self::setDbUpdate($date);
         }

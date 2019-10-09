@@ -33,29 +33,33 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         <?php endif;?>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell">Пользовательское соглашение</div></div>
-            <input type="text" class="anketa_form_in anketa_form_in_long" name="agreement" value="<?php if (!empty($agreement)) { echo $agreement; }?>" maxlength="255"/>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка на файл пользовательского соглашения</div></div>
+            <textarea name="agreement" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($agreement)) { echo $agreement; }?></textarea>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell">Политика конфиденциальности</div></div>
-            <input type="text" class="anketa_form_in anketa_form_in_long" name="private_policy" value="<?php if (!empty($private_policy)) { echo $private_policy; }?>" maxlength="255"/>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка на файл политики конфиденциальности</div></div>
+            <textarea name="private_policy" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($private_policy)) { echo $private_policy; }?></textarea>
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Политика обработки персональных данных</div></div>
             <textarea name="personal_data_text" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($personal_data_text)) { echo $personal_data_text; }?></textarea>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка политики обработки персональных данных</div></div>
-            <input type="text" class="anketa_form_in anketa_form_in_long" name="personal_data" value="<?php if (!empty($personal_data)) { echo $personal_data; }?>" maxlength="255"/>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка на файл политики обработки персональных данных</div></div>
+            <textarea name="personal_data" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($personal_data)) { echo $personal_data; }?></textarea>
+        </div>
+        <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка на файл договора оферты</div></div>
+            <textarea name="offer_data" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($offer_data)) { echo $offer_data; }?></textarea>
         </div>
 
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Copyright</div></div>
-            <input type="text" class="anketa_form_in anketa_form_in_long" name="rights" value="<?php if (!empty($rights)) { echo $rights; }?>" maxlength="255"/>
+            <textarea name="rights" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($rights)) { echo $rights; }?></textarea>
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Copyright (краткое)</div></div>
-            <input type="text" class="anketa_form_in anketa_form_in_long" name="footer" value="<?php if (!empty($footer)) { echo $footer; }?>" maxlength="255"/>
+            <textarea name="footer" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($footer)) { echo $footer; }?></textarea>
         </div>
 
         <div class="anketa_form_line parent">

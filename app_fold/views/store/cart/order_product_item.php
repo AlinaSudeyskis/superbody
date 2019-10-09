@@ -16,7 +16,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="busket_block_col">
         <div class="ordering_block_col_h">Цена</div>
         <div class="ordering_block_col_cont">
-            <div class="ordering_block_col_val ordering_tov_price"><?php echo $product_item['price'] .' руб.';?></div>
+            <div class="ordering_block_col_val ordering_tov_price"><?php echo $price .' руб.';?></div>
         </div>
     </div>
     <div class="busket_block_col">

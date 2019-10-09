@@ -6137,6 +6137,7 @@ class Course extends CI_Controller
 
     /**
      * Форма добавления промокода курса
+     * @throws Exception
      */
     public function newPromocode()
     {
@@ -6228,7 +6229,7 @@ class Course extends CI_Controller
             $discount = ($discount_type == 'percent' and $discount > 100) ? 100 : $discount;
 
             // Группы курсов, на которые распространяется промокод
-            $crs_groups = array('all', 'workouts', 'nutritions', 'categories', 'courses');
+            $crs_groups = array('all', 'workouts', 'nutritions', 'categories', 'courses', 'course');
             $r_crs_group = $this->input->post('r_courses_group', true);
             $pc_type = (in_array($r_crs_group, $crs_groups)) ? $r_crs_group : 'all';
 
@@ -6278,6 +6279,10 @@ class Course extends CI_Controller
             if($count_courses > 0)
             {
                 $pc_type = 'courses';
+            }
+            elseif($count_courses == 1)
+            {
+                $pc_type = 'course';
             }
 
             if((!empty($discount) and $discount != $db_data['discount'])
@@ -7905,20 +7910,24 @@ class Course extends CI_Controller
         {
             foreach($course_notifs['notifications'] as $user_course_id => $course_notif)
             {
-                foreach($course_notifs['notifications'][$user_course_id] as $code => $notif)
+                foreach($course_notif as $code => $notif)
                 {
                     $this->page_data['course_notification'][$user_course_id]['course_name'] = $notif['course_name'];
                     $this->page_data['course_notification'][$user_course_id]['course_id']   = $notif['course_id'];
 
                     // Оплата курса
-                    if(is_numeric($code) and ($code == 142 or $code == 144))
+                    if(is_numeric($code) and $code == 214)
                     {
                         $this->load->model('Notification_model');
                         $notification = $this->Notification_model->getNotification($code);
+
+                        $this->page_data['course_notification'][$user_course_id]['course_blocked']['text'] = $notification['notification']['text'];
+
+                        $notification = $this->Notification_model->getNotification($notif['reason']);
                         $pattern = '/\[date_attempts\]/';
                         $replacement = $notif['date_attempts'];
 
-                        $this->page_data['course_notification'][$user_course_id]['course_blocked']['text'] = preg_replace($pattern, $replacement, $notification['notification']['text']);
+                        $this->page_data['course_notification'][$user_course_id]['course_blocked']['addition_text'] = preg_replace($pattern, $replacement, $notification['notification']['text']);
                     }
 
                     // Завершение курса
@@ -7930,62 +7939,6 @@ class Course extends CI_Controller
                         $this->page_data['course_notification'][$user_course_id]['course_ends']['text']           = $notification['notification']['text'];
                         $this->page_data['course_notification'][$user_course_id]['course_ends']['date_countdown'] = $notif['date_countdown'];
                         $this->page_data['course_notification'][$user_course_id]['course_ends']['extends']        = $notif['extends'];
-
-                        if($notif['send_email'] === true)
-                        {
-                            $system_message['text'] = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
-                                . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
-                            $system_message['text'] .= '<a href="https://superbody.pro/profile/course/' . $notif['course_id'] . '" '
-                                . 'style="text-transform: uppercase; font-weight: 300; font-size: 24px; line-height: 28px; '
-                                . 'padding: 20px 0 20px 30px; margin:0; color: #72d0f4; text-decoration: none;">'
-                                . $notif['course_name'] . '</a>';
-                            $system_message['text'] .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
-                            $system_message['text'] .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
-                                . 'font-weight: 300; border: none; white-space: normal; font-size: 18px; line-height: 22px;">'
-                                . $notification['notification']['text'] . '</p>';
-                            $system_message['text'] .= '</td></tr>';
-                            // Курсы продления
-                            if(!empty($notif['extends']))
-                            {
-                                $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0;">ПРОДЛИТЕ КУРС ИЛИ КУПИТЕ НОВЫЙ:</td></tr>';
-                                $system_message['text'] .= '<tr>';
-                                foreach($notif['extends'] as $extend)
-                                {
-                                    $system_message['text'] .= '<td style="padding:0; margin:0;"><table>';
-                                    $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0;"><a href="https://superbody.pro/course/' . $extend['course_id'] . '" '
-                                        . 'style="text-transform: uppercase; font-weight: 600; font-size: 16px; line-height: 28px; '
-                                        . 'padding: 0; margin:0; color: #72d0f4; text-decoration: none;">'
-                                        . $extend['course_name'] . '</a></td></tr>';
-                                    $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">' . $extend['promocode'] . '</td></tr>';
-                                    $system_message['text'] .= '<tr><td style="width:100%; padding:0; margin:0; height: 25px;">';
-                                    if(!empty($extend['new_price']))
-                                    {
-                                        $system_message['text'] .= '<s>' . $extend['price'] . ' руб.</s> ' . $extend['new_price'] . ' руб.';
-                                    }
-                                    else
-                                    {
-                                        $system_message['text'] .= $extend['price'] . ' руб.';
-                                    }
-                                    $system_message['text'] .= '</td></tr></table>';
-                                    $system_message['text'] .= '</table></td>';
-                                }
-                                unset($extend);
-                                $system_message['text'] .= '</tr>';
-                            }
-
-                            $system_message['text'] .= '</table>';
-
-                            parent::sendEmail(11, $this->session->user['email'], $system_message);
-                        }
-                    }
-                    // Курс завершен
-                    elseif(is_numeric($code) and $code == 154)
-                    {
-                        $this->load->model('Notification_model');
-                        $notification = $this->Notification_model->getNotification($code);
-
-                        $this->page_data['course_notification'][$user_course_id]['course_finished']['text']    = $notification['notification']['text'];
-                        $this->page_data['course_notification'][$user_course_id]['course_finished']['extends'] = $notif['extends'];
                     }
                 }
             }
@@ -8096,7 +8049,7 @@ class Course extends CI_Controller
             header('Location: /profile/course/' . $user_course_id . '/reviews');
         }
 
-        $result      = array_merge($course_data, $reviews);
+        $result = array_merge($course_data, $reviews);
 
         // Объединенные данные страница
         $this->page_data['title']        = 'Мои курсы';
@@ -8179,6 +8132,180 @@ class Course extends CI_Controller
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
         $this->load->view('course/user_course/review', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * @param $user_course_id
+     * @param $order_id
+     */
+    public function userCourseOrder($user_course_id, $order_id)
+    {
+        if (!is_numeric($this->user_id))
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $this->load->model('Store_model');
+
+        $course_data   = $this->Course_model->getUserCourseSettings($user_course_id, $this->user_id);
+        $order         = $this->Store_model->getUserOrder($this->user_id, $order_id);
+        $order_courses = $this->Store_model->getOrderCourses('', $order_id);
+
+        //$paymentId = '24DCC2E3-000F-5000-9000-100694672556';
+        //$payment = $this->Store_model->getPaymentInfo($paymentId);
+        //print_r($payment);
+
+        if ($this->input->post('bt_capture', true))
+        {
+            $payment_id = strip_tags($this->input->post('i_payment_id', true));
+
+            if (!empty($payment_id))
+            {
+                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
+
+                //log_message('debug', 'Payment info: ' . print_r($payment, true));
+
+                if (!empty($res_pay['payment']) and $res_pay['payment']->_status == 'waiting_for_capture')
+                {
+                    $res_capture = $this->Store_model->capturePayment($res_pay['payment']->_id, $res_pay['payment']->_amount->_value, $res_pay['payment']->_amount->_currency);
+                    if($res_capture['response'] !== false)
+                    {
+                        //log_message('debug', 'Response capturePayment' . print_r($res_capture['response'], true));
+                    }
+                    elseif(!empty($res_capture['error']))
+                    {
+                        $this->session->set_tempdata('message', $res_capture['error'], 60);
+                    }
+                    else
+                    {
+                        // Не удалось подтвердить заказ
+                        $this->session->set_tempdata('message', 189, 60);
+                    }
+                }
+                elseif(!empty($res_pay['payment']))
+                {
+                    // Статус платежа не ожидает подтверждения
+                    $this->session->set_tempdata('message', 188, 60);
+                }
+                elseif(!empty($res_pay['error']))
+                {
+                    $this->session->set_tempdata('message', $res_pay['error'], 60);
+                }
+            }
+            else
+            {
+                log_message('error', __METHOD__.':'.__LINE__.' Payment ID error: ' . $payment_id);
+            }
+            header('Location: /administration/order/' . $order_id);
+        }
+        elseif($this->input->post('bt_cancel', true))
+        {
+            $payment_id = strip_tags($this->input->post('i_payment_id', true));
+
+            if (!empty($payment_id))
+            {
+                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
+
+                if (!empty($res_pay['payment']) and $res_pay['payment']->_status == 'waiting_for_capture')
+                {
+                    $res_cancel = $this->Store_model->cancelPayment($res_pay['payment']->_id);
+
+                    if(!empty($res_cancel['error']))
+                    {
+                        $this->session->set_tempdata('message', $res_cancel['error'], 60);
+                    }
+                }
+                elseif(!empty($res_pay['error']))
+                {
+                    $this->session->set_tempdata('message', $res_pay['error'], 60);
+                }
+            }
+
+            header('Location: /administration/order/' . $order_id);
+        }
+        elseif($this->input->post('bt_refund', true))
+        {
+            $refund_amount = is_numeric($this->input->post('i_refund_amount', true)) ? $this->input->post('i_refund_amount', true) : null;
+            $payment_id    = strip_tags($this->input->post('i_payment_id', true));
+            $description   = strip_tags($this->input->post('i_description', true));
+
+            if (!empty($payment_id))
+            {
+                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
+
+                if(!empty($res_pay['payment']) and !empty($res_pay['payment']->_id))
+                {
+                    $res_refund = $this->Store_model->refundPayment($res_pay['payment']->_id, $refund_amount, self::CURRENCY, $description,
+                        $res_pay['payment']->_payment_method->type, $order['order']['user_email'], $order['order']['products'][0]);
+
+                    if (!empty($res_refund['response']))
+                    {
+                        $response = $res_refund['response'];
+
+                        if(!empty($response->_id))
+                        {
+                            $created_at = $response->_created_at->_date . $response->_created_at->_timezone;
+
+                            $this->Store_model->setPaymentRefund($response->_payment_id, $response->_id, $refund_amount, $response->_status, $description, $created_at);
+
+                            if ($response->_status == 'succeeded')
+                            {
+                                $this->load->model('Course_model');
+                                $this->load->model('Message_model');
+
+                                $reason = 'payment_refunded';
+
+                                // Блокировка курсов пользователя
+                                $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
+                                $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
+
+                                $this->session->set_tempdata('message', 208, 60);
+                            }
+                            else
+                            {
+                                log_message('error', __METHOD__.':'.__LINE__.' Refund response status: ' . $response->_status);
+                                $this->session->set_tempdata('message', 209, 60);
+                            }
+                        }
+                        else
+                        {
+                            log_message('error', __METHOD__.':'.__LINE__.' Refund response ID error: ' . print_r($response, true));
+                        }
+                    }
+                    elseif(!empty($res_refund['error']))
+                    {
+                        $this->session->set_tempdata('message', $res_refund['error'], 60);
+                    }
+                }
+                elseif(!empty($res_pay['error']))
+                {
+                    $this->session->set_tempdata('message', $res_pay['error'], 60);
+                }
+            }
+
+            header('Location: /administration/order/' . $order_id);
+        }
+
+        /*$course_data = array();
+
+        if (!empty($order_courses['courses']))
+        {
+            // Кол-во пройденных пользователем тренировок курса
+            $course_data = $this->Course_model->getUserPassedWorkouts($order['user_id'], $order_courses['courses']);
+        }*/
+
+        $result = array_merge($order, $course_data);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'Курс';
+        $this->page_data['page_menu']    = 'u_courses';
+        $this->page_data['page_submenu'] = 'course_order';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/profile');
+        $this->load->view('user/profile_line');
+        $this->load->view('store/cart/user_course_order', $result);
         $this->load->view('footer/footer');
     }
 
@@ -8977,9 +9104,9 @@ class Course extends CI_Controller
         $promocode = mb_substr(strip_tags($this->input->post('input_search', true)), 0, 25);
         $course_id = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
 
-        if(!empty($course_id) and !empty($promocode) and strlen($promocode) >=1 and is_numeric($this->user_id))
+        if(!empty($course_id) and !empty($promocode) and strlen($promocode) >=1)
         {
-            $result = $this->Course_model->getAvailableCoursePromocode($course_id, $promocode, $this->user_id, $this->date);
+            $result = $this->Course_model->getAvailableCoursePromocode($course_id, $promocode, $this->date);
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
@@ -9414,17 +9541,11 @@ class Course extends CI_Controller
                 $courses_id   = $user_courses['courses_id'];
                 $course['order_id'] = $order_id;
 
-                $result['crsd'] = '<div class="parent kurs_cur_wrap" style="justify-content: center; ">
-                        <div class="kurs_cur_h">'.$course['name'].'</div>
-                    </div>
-                    <div class="parent kurs_cur_wrap separator"></div>';
-
                 ob_start();
-                    include('./app_fold/views/authorization/short_auth.php');
-                    include('./app_fold/views/course/course_payment_item.php');
+                    include('./app_fold/views/course/purchase_form.php');
                     $purchase_form = ob_get_contents();
                 ob_end_clean();
-                $result['crsd'] .= $purchase_form;
+                $result['crsd'] = $purchase_form;
 
                 $result['crs'] = true;
             }

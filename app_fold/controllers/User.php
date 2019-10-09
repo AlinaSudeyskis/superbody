@@ -73,12 +73,14 @@ class User extends CI_Controller
         $this->load->model('Coach_model');
         $this->load->model('Blog_model');
         $this->load->model('Course_model');
+        $this->load->model('Payment_model');
 
         $title = !empty($this->session->user['name']) ? $this->session->user['name'] . ' - пользователь' : 'Страница пользователя' ;
 
         $u_training_time  = $this->User_model->getUserTrainingTime($user_id); // Тренировочное время пользователя
         $user_courses     = $this->Course_model->getUserCourses($user_id, $this->date, 'active', $u_training_time); // Выборка курсов пользователя
         $course_notifs    = $this->Course_model->getUserCoursesNotifications($user_id, $this->date); // Выборка уведомлений курсов пользователя
+        $payment_notifs   = $this->Payment_model->getUserWaitingPayments($user_id); // Выборка неподтверженных платежей
         $anthrop_data     = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
         $user_social      = $this->User_model->getUserSocial($user_id);
         $u_data           = $this->User_model->getUser($user_id);
@@ -518,7 +520,7 @@ class User extends CI_Controller
                         $this->page_data['course_notification'][$user_course_id]['course_ends']['date_countdown'] = $notif['date_countdown'];
                         $this->page_data['course_notification'][$user_course_id]['course_ends']['extends']        = $notif['extends'];
 
-                        if($notif['send_email'] === true)
+                        /*if($notif['send_email'] === true)
                         {
                             $system_message['text'] = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
                                 . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
@@ -563,7 +565,7 @@ class User extends CI_Controller
                             $system_message['text'] .= '</table>';
 
                             parent::sendEmail(11, $this->session->user['email'], $system_message);
-                        }
+                        }*/
                     }
                     // Курс завершен
                     elseif(is_numeric($code) and $code == 154)
@@ -651,6 +653,13 @@ class User extends CI_Controller
             $notification = $this->Notification_model->getNotification(205);
 
             $this->page_data['user_notification']['empty_email']['text'] = $notification['notification']['text'];
+        }
+        // Есть неподтвержденные платежи
+        if($u_data['user_data']['user_activated'] == 0 and !empty($payment_notifs['waiting_payments']))
+        {
+            $notification = $this->Notification_model->getNotification(213);
+
+            $this->page_data['user_notification']['waiting_payments']['text'] = $notification['notification']['text'];
         }
 
         // Объединенные данные страница

@@ -88,7 +88,8 @@ class CI_Controller {
      * @var string $page_message Сообщения о результатах действиях пользователя
      */
     public $page_message;
-    
+    public $page_message_type;
+
     /**
      * @var int ID пользователя
      */
@@ -514,7 +515,8 @@ class CI_Controller {
         // Сообщение о результатах действий пользователя
         if (!empty($this->session->tempdata('message')))
         {
-            $this->page_message = (is_numeric($this->session->tempdata('message'))) ? $this->list_errors[$this->session->tempdata('message')] : $this->session->tempdata('message');
+            $this->page_message = (is_numeric($this->session->tempdata('message'))) ? $this->list_errors['text'][$this->session->tempdata('message')] : $this->session->tempdata('message');
+            $this->page_message_type = (is_numeric($this->session->tempdata('message'))) ? $this->list_errors['type'][$this->session->tempdata('message')] : 'error';
 
             // Удаление значения сообщения
             $this->session->unset_tempdata('message');
@@ -544,6 +546,7 @@ class CI_Controller {
             "user_subscribed" => ($this->session->user['subscribed'] === true) ? true : false,
             "cart_count" => (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0,
             "message" => $this->page_message,
+            "message_type" => $this->page_message_type,
             "page_menu" => '',
             "page_submenu" => '',
             "outsider" => false,
@@ -578,7 +581,7 @@ class CI_Controller {
      */
     public function uploadImage($file_tmp, $file_type, $path)
 	{
-        $valid_type = array('jpg' => 'image/jpeg', 'png' => 'image/png');
+        $valid_type = array('jpg' => 'image/jpeg', 'png' => 'image/png', 'gif' => 'image/gif');
 
         if (in_array($file_type, $valid_type)){
             $img_type = array_search($file_type, $valid_type); // Расширение файла
@@ -586,7 +589,7 @@ class CI_Controller {
             $md5_name = substr($md5_time, 0, 10); // Новое имя для файла
 
             $config['upload_path'] = $path;
-            $config['allowed_types'] = 'jpg|png';
+            $config['allowed_types'] = 'jpg|png|gif';
             $config['max_size']	= '2048';
             $config['file_name'] = $md5_name;
 
@@ -1333,7 +1336,15 @@ class CI_Controller {
                 // Отправление письма о подтвержении регистрации пользователю
                 if ($res_check['new_user'] === true and $res_check['auth_via'] == 'native')
                 {
-                    $email_to  = "<$email>";
+                    // Отправка письма с активацией почты
+                    $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
+                        . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                    $system_message['text']  .= 'Активировать';
+                    $system_message['text']  .= '</a></b>';
+
+                    self::sendEmail(17, $email, $system_message);
+
+                    /*$email_to  = "<$email>";
 
                     $subject   = "Подтвеждение регистрации на сайте SuperBody";
 
@@ -1346,7 +1357,7 @@ class CI_Controller {
                     $headers   .= "From: Support Superbody.pro <info@superbody.pro>\r\n";
                     $headers   .= "Reply-To: info@superbody.pro\r\n";
 
-                    mail($email_to, $subject, $message, $headers);
+                    mail($email_to, $subject, $message, $headers);*/
                 }
             }
         }
@@ -2066,6 +2077,10 @@ class CI_Controller {
             if($count_courses > 0)
             {
                 $pc_type = 'courses';
+            }
+            elseif($count_courses == 1)
+            {
+                $pc_type = 'course';
             }
         }
 

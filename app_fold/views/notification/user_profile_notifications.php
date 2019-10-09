@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 //$user_notification = null;
-if(!empty($user_notification)):?>
+if(!empty($user_notification) or !empty($course_notification)):?>
     <div class="content_block new_content_block notifications_block_wrap">
         <div class="content_block_h parent">
             <h3>Уведомления</h3>
@@ -12,16 +12,17 @@ if(!empty($user_notification)):?>
         </div>
         <div class="kurs_block_val notifications_block">
             <?php
-            $notif_block_h   = '';
-            $h3_info         = '';
-            $course_blocked  = false;
-            $course_ends     = false;
-            $course_finished = false;
-            $count_ends_down = false;
-            $workout_missed  = false;
-            $free_weeks_over = false;
-            $empty_email     = false;
-            $extends         = array();
+            $notif_block_h    = '';
+            $h3_info          = '';
+            $course_blocked   = false;
+            $course_ends      = false;
+            $course_finished  = false;
+            $count_ends_down  = false;
+            $workout_missed   = false;
+            $free_weeks_over  = false;
+            $empty_email      = false;
+            $waiting_payments = false;
+            $extends          = array();
 
             // Не указан email
             if(!empty($user_notification['empty_email'])):
@@ -30,6 +31,14 @@ if(!empty($user_notification)):?>
                 $h3_info = $user_notification['empty_email']['text'];
                 include('notification_block.php');
                 $empty_email = false;
+            endif;
+            // Не активирован аккаунт и есть непотвержденные платежи
+            if(!empty($user_notification['waiting_payments'])):
+                $waiting_payments = true;
+                $notif_block_h = '<a href="/settings">Настройки</a>';
+                $h3_info = $user_notification['waiting_payments']['text'];
+                include('notification_block.php');
+                $waiting_payments = false;
             endif;
             // Аккаунт пользователя заблокирован
             if(!empty($user_notification['blocked'])):

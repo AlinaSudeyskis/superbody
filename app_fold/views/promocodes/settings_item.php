@@ -101,6 +101,11 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
                     <label for="cg-all">Все курсы</label>
                 </div>
                 <div class="anketa_form_radio_wrap">
+                    <input type="radio" name="r_courses_group" class="anketa_form_radio cg" value="courses" id="cg-few"
+                           <?php if(empty($promocode['type']) or $promocode['type'] == 'course' or $promocode['type'] == 'courses'): ?>checked="checked"<?php endif; ?>>
+                    <label for="cg-few">Некоторые курсы</label>
+                </div>
+                <div class="anketa_form_radio_wrap">
                     <input type="radio" name="r_courses_group" class="anketa_form_radio cg" value="workouts" id="cg-workouts"
                            <?php if($promocode['type'] == 'workouts'): ?>checked="checked"<?php endif; ?>>
                     <label for="cg-workouts">Курсы тренировок</label>
@@ -133,9 +138,9 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
                 </select>
             </div>
         <?php endif; ?>
-        <div class="parent kurs_cur_wrap">
+        <div class="parent kurs_cur_wrap" id="cg-few-search" <?php if($promocode['type'] != 'course' and $promocode['type'] != 'courses'): ?>style="display: none;"<?php endif; ?>>
             <div class="kurs_block_h">Поиск курсов:</div>
-            <div class="add_tov_in_total anketa_form_in_long">
+            <div class="add_tov_in_total anketa_form_in_long" style="float: left;">
                 <div class="add_tov_in pc_course">
                     <input type="text" name="name_course" class="admin_form_txt <?php echo $coach_promocode; ?>" placeholder="Введите наименование или ID курса" autocomplete="off">
                     <div class="add_tov_list"></div>

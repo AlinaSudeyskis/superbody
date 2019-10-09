@@ -56,11 +56,14 @@ class Notification extends CI_Controller
 
         if($this->input->post('bt_save_notification', true))
         {
+            $types = array('error', 'info');
+
+            $type        = (in_array($this->input->post('s_type', true), $types)) ? $this->input->post('s_type', true) : 'error';
             $description = mb_substr(strip_tags($this->input->post('ta_description', true)), 0, 100);
 
-            if(!empty($description) and $description != $result['notification']['text'])
+            if((!empty($description) and $description != $result['notification']['text']) or (!empty($type) and $type != $result['notification']['type']))
             {
-                $res_up = $this->Notification_model->updateNotification($notification_id, $description, $this->user_id, $this->date);
+                $res_up = $this->Notification_model->updateNotification($notification_id, $type, $description, $this->user_id, $this->date);
 
                 if ($res_up === true)
                 {
@@ -72,6 +75,11 @@ class Notification extends CI_Controller
                     // Не сохранено
                     $this->session->set_tempdata('message', 137, 60);
                 }
+            }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 212, 60);
             }
 
             header('Location: /administration/notification/' . $notification_id);
