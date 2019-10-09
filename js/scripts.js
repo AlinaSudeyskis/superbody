@@ -1577,37 +1577,6 @@ $(document).ready(function() {
                 });
             });
 
-            // Добавление товара в корзину
-            /*$('.buy_course').on('click', function (event) {
-                event.preventDefault();
-                var cid = $(this).data('cid'),
-                    butt = $(this);
-                $.ajax({
-                    url: '/addCourseToCart',
-                    type: 'post',
-                    dataType: 'json',
-                    data: {
-                        cid: cid
-                    },
-                    complete: function (result) {
-                        var data = result.responseJSON;
-                        if (data.cart) {
-                            //butt.html(data.cart_info);
-
-                            if (data.cart_count > 0)
-                            {
-                                $('.shop_basket span').html('Корзина [' + data.cart_count + ']');
-                                window.location.href = "/cart";
-                            }
-                            else
-                            {
-                                $('.shop_basket span').html('Корзина');
-                            }
-                        }
-                    }
-                });
-            });*/
-
             $('#delete_product').on('click', function (event) {
                 event.preventDefault();
 

@@ -127,8 +127,8 @@ $(document).ready(function () {
                     var data = result.responseJSON;
                     if (data.crs) {
                         purchase_form.html(data.crsd);
-                        var auth_form = purchase_form.next('.purchase_pop-up_h.auth_form');
 
+                        var auth_form = purchase_form.next('.purchase_pop-up_h.auth_form');
                         auth_form.toggle();
 
                         purchase_up(po);
