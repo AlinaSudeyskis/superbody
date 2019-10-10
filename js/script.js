@@ -1313,7 +1313,7 @@ $(document).ready(function () {
             promo_block_info = promo_block.next('.promo_block_info'), promo_info = '',
             bt_buy = this_form.find('input[name=bt_buy_course]');
 
-        if ( !isEvent && prev_num !== input_search) {
+        if ( !isEvent || prev_num !== input_search) {
             prev_num = input_search;
             if (input_search.length >= 1 && input_search.length <= 25) {
                 $.ajax({
