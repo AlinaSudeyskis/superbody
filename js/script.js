@@ -1301,7 +1301,7 @@ $(document).ready(function () {
             }
         };
     }*/
-    var isEvent = false;
+    var isEvent = false, prev_num = '';
     function searchPromo(pc_input) {
         var this_form = pc_input.parents('.purchase_form'),
             input_search = pc_input.val(),
@@ -1313,7 +1313,8 @@ $(document).ready(function () {
             promo_block_info = promo_block.next('.promo_block_info'), promo_info = '',
             bt_buy = this_form.find('input[name=bt_buy_course]');
 
-        if ( !isEvent ) {
+        if ( !isEvent && prev_num !== input_search) {
+            prev_num = input_search;
             if (input_search.length >= 1 && input_search.length <= 25) {
                 $.ajax({
                     url: '/searchPromo',
@@ -1435,7 +1436,7 @@ $(document).ready(function () {
                 }
             }, 600);
         }*/
-    };
+    }
 
     $(window).resize(function() {
         purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
