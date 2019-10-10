@@ -91,7 +91,8 @@ class User extends CI_Controller
 
         $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data, $friend_promocode);
 
-        if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
+        if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
         {
             $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
             $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;

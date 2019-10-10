@@ -144,7 +144,6 @@ $(document).ready(function () {
                         });
 
                         purchase_form.find("input[name='bt_buy_course']").on('click', function (event) {
-                            event.preventDefault();
                             var this_form = $(this).parents('form'),
                                 user_id = this_form.find('#user-id').val(),
                                 user_email = this_form.find('input[name="email"]').val();
@@ -154,6 +153,7 @@ $(document).ready(function () {
                                 purchase_form.toggle();
                                 auth_form.toggle();
                                 purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+                                return false;
                             }
                             else
                             {

@@ -86,7 +86,8 @@ class Welcome extends CI_Controller
             header('Location: /');
         }
         // Покупка курса
-        elseif ($this->input->post('bt_buy_course', true) and $this->input->post('cb_politics', true))
+        elseif ($this->input->post('bt_buy_course', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
         {
             // Данные курса
             $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
