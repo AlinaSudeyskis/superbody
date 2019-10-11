@@ -1624,7 +1624,7 @@ class CI_Controller {
         // Проверка промокода
         if(!empty($i_promocode))
         {
-            $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $user_id, $this->date);
+            $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $this->date);
             if($promocode['discount'] !== false and !empty($promocode['id']))
             {
                 $promocode_id = $promocode['id'];

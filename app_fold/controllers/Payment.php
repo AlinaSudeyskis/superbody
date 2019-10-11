@@ -532,6 +532,7 @@ class Payment extends CI_Controller
      */
     public function verificationSubsequentPayments()
     {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
         $tmp_date = new DateTime($this->date);
         // Текущая дата
         $today = $tmp_date->format('Y-m-d');
@@ -629,7 +630,7 @@ class Payment extends CI_Controller
                         }
                         else
                         {
-                            log_message('debug', __METHOD__ . __LINE__ . ' Payment create error: ' . $payment['method_id'] . ' ' .print_r($res_create, true));
+                            log_message('debug', __METHOD__ .':'. __LINE__ . ' Payment create error: ' . $payment['method_id'] . ' ' .print_r($payment, true) . ' ' .print_r($res_create, true));
                         }
                     }
                 }

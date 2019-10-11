@@ -1857,9 +1857,7 @@ class Course_model extends CI_Model
                                         $promocode_data = null, $coach_courses = null)
     {
         $result['courses'] = array();
-
-        $and_crs_id = '';
-        $limit      = 9;
+        $limit = 9;
         //echo $promocode_data['pc_type'].'<br/>';
 
         $categories = self::getAvailableCourseTypes();
@@ -1871,35 +1869,37 @@ class Course_model extends CI_Model
                 (!empty($promocode_data) and ($promocode_data['pc_type'] == 'all' or $promocode_data['pc_type'] == 'workouts')) or
                 ($courses_category == 'workouts' and is_numeric($courses_type)))
             {
-                if(is_array($coach_courses))
-                {
-                    $and_crs_id = ' and `crs_id` IN ('. implode(",", $coach_courses  ) .')';
-                }
-
                 if($courses_category == 'workouts' and is_numeric($courses_type))
                 {
                     $category = self::getAvailableCourseType($courses_type);
                     $result['courses_categories'] = $category['course_type'];
 
-                    $and_where = '';
-                    // Если нажата "Следующая страница"
-                    if (!empty($last_id))
-                    {
-                        $and_where = ' and `crs_id`<'.$last_id;
-                    }
-                    // Если нажата "Предыдущая страница"
-                    elseif (!empty($first_id))
-                    {
-                        $and_where = ' and `crs_id`>'.$first_id;
-                    }
-
                     $sel_courses = $this->db->query('
                         SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
                         FROM `courses` 
                         LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-                        WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout"'.$and_where.' '.$and_crs_id.'
+                        WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout"
                         ORDER BY `crs_id` DESC
                         LIMIT ?', array($courses_type, $limit));
+
+                    // AND WHERE ...
+                    // Если нажата "Следующая страница"
+                    if (!empty($last_id))
+                    {
+                        $this->db->where('crs_id <', $last_id);
+                    }
+                    // Если нажата "Предыдущая страница"
+                    elseif (!empty($first_id))
+                    {
+                        $this->db->where('crs_id >', $first_id);
+                    }
+                    // Если массив курсов тренера не пуст
+                    if(is_array($coach_courses))
+                    {
+                        $this->db->where_in('crs_id', $coach_courses);
+
+                        //$and_crs_id = ' and `crs_id` IN ('. implode(",", $coach_courses  ) .')';
+                    }
 
                     if ($sel_courses !== false and 0 < $sel_courses->num_rows())
                     {
@@ -1933,11 +1933,18 @@ class Course_model extends CI_Model
                     foreach($categories['course_types'] as $category)
                     {
                         $sel_courses = $this->db->query('
-                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
-                        FROM `courses` 
-                        LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-                        WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout" '.$and_crs_id.' 
-                        LIMIT ?', array($category['id'], $limit));
+                            SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
+                            FROM `courses` 
+                            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+                            WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout" 
+                            LIMIT ?', array($category['id'], $limit));
+                        // Если массив курсов тренера не пуст
+                        if(is_array($coach_courses))
+                        {
+                            $this->db->where_in('crs_id', $coach_courses);
+
+                            //$and_crs_id = ' and `crs_id` IN ('. implode(",", $coach_courses  ) .')';
+                        }
 
                         if ($sel_courses !== false and 0 < $sel_courses->num_rows())
                         {
@@ -1966,16 +1973,16 @@ class Course_model extends CI_Model
             if(empty($courses_category) or $courses_category == 'nutritions' or
                 (!empty($promocode_data) and ($promocode_data['pc_type'] == 'all' or $promocode_data['pc_type'] == 'nutritions')))
             {
-                if(is_array($coach_courses))
-                {
-                    $and_crs_id = ' and `crs_id` IN ('. implode(",", $coach_courses  ) .')';
-                }
-
                 $sel_courses = $this->db->query('
                     SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
                     FROM `courses` 
                     LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-                    WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_category`="nutrition" '.$and_crs_id.' LIMIT ?', $limit);
+                    WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_category`="nutrition" LIMIT ?', $limit);
+                // Если массив курсов тренера не пуст
+                if(is_array($coach_courses))
+                {
+                    $this->db->where_in('crs_id', $coach_courses);
+                }
 
                 if ($sel_courses !== false and 0 < $sel_courses->num_rows())
                 {
@@ -9967,7 +9974,8 @@ class Course_model extends CI_Model
             SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
               `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
               `pc_admin_id`, `pc_date_add`, `pc_update` 
-            FROM `promocodes`');
+            FROM `promocodes`
+            WHERE `pc_coach_id`=0');
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -10410,6 +10418,7 @@ class Course_model extends CI_Model
      * @param $promocode
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getAvailableCoursePromocode($course_id, $promocode, $date)
     {
@@ -10630,12 +10639,11 @@ class Course_model extends CI_Model
      * Поиск промокода
      *
      * @param $promocode
-     * @param $user_id
      * @param $date
      * @return array
      * @throws Exception
      */
-    public function getAvailablePromocode($promocode, $user_id, $date)
+    public function getAvailablePromocode($promocode, $date)
     {
         $result = array('discount' => false, 'id' => null);
 
@@ -12679,6 +12687,7 @@ class Course_model extends CI_Model
      * @param $row
      * @param $date
      * @return mixed
+     * @throws Exception
      */
     protected function parsePromocodeData($row, $date = null)
     {

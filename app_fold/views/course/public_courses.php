@@ -93,7 +93,7 @@ include_once('./app_fold/views/breadcrumb.php');?>
                     endforeach;
                     unset($course);?>
                 </div>
-                <?php if(!empty($type) and !empty($category) and $category == 'Курсы тренировок'):
+                <?php if(!empty($category_name) and !empty($page_category) and $page_category == 'Курсы тренировок'):
                     $category_id = 'workouts';
                     $subcategory_id = $category_id;
                     include_once('./app_fold/views/pagination.php');

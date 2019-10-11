@@ -3620,7 +3620,7 @@ class Course extends CI_Controller
         }
         elseif($page_type == 'promocodes')
         {
-            self::coursePromocodes($course_id, 'nutrition');
+            //self::coursePromocodes($course_id, 'nutrition');
         }
         elseif($page_type == 'promocode_new')
         {
@@ -6765,7 +6765,7 @@ class Course extends CI_Controller
         if(!empty($page_category) and $page_category == 'promocode' and !empty($page_cat_string))
         {
             $promocode = $page_cat_string;
-            $pc_data = $this->Course_model->getAvailablePromocode($promocode, $this->user_id, $this->date);
+            $pc_data = $this->Course_model->getAvailablePromocode($promocode, $this->date);
             if(!is_numeric($pc_data['id']))
             {
                 $pc_data = null;
@@ -8464,6 +8464,7 @@ class Course extends CI_Controller
      */
     public function checkUsersWorkouts()
     {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
         $this->Course_model->checkUsersWorkouts($this->date);
     }
 
@@ -8472,6 +8473,7 @@ class Course extends CI_Controller
      */
     public function checkUsersCoursesFreeWeeks()
     {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
         $this->Course_model->checkUsersCoursesFreeWeeks($this->date);
     }
 
@@ -8480,6 +8482,7 @@ class Course extends CI_Controller
      */
     public function checkUsersExpiringCourses()
     {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
         $result = $this->Course_model->checkUsersExpiringCourses($this->date);
         if(!empty($result))
         {
@@ -9125,7 +9128,7 @@ class Course extends CI_Controller
 
         if(!empty($promocode) and strlen($promocode) >=1)
         {
-            $sel_pc = $this->Course_model->getAvailablePromocode($promocode, $this->user_id, $this->date);
+            $sel_pc = $this->Course_model->getAvailablePromocode($promocode, $this->date);
 
             if($sel_pc['status'] == 'Активен')
             {
