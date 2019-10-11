@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="anketa_block_item_cont site_info">
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-facebook" aria-hidden="true"></i></div></div>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-facebook-f" aria-hidden="true"></i></div></div>
         <?php if (!empty($user_social) and $user_social['facebook']['connect'] === true):?>
             <div class="anketa_form_but social_connect">Подключено</div>
         <?php else:?>
@@ -14,7 +14,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php endif;?>
     </div>
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-vk" aria-hidden="true"></i></div></div>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-vk" aria-hidden="true"></i></div></div>
         <?php if (!empty($user_social) and $user_social['vk']['connect'] === true):?>
             <div class="anketa_form_but social_connect">Подключено</div>
         <?php else:?>
@@ -25,7 +25,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php endif;?>
     </div>
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></div></div>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-odnoklassniki" aria-hidden="true"></i></div></div>
         <?php if (!empty($user_social) and $user_social['ok']['connect'] === true):?>
             <div class="anketa_form_but social_connect">Подключено</div>
         <?php else:?>
@@ -36,7 +36,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php endif;?>
     </div>
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-instagram" aria-hidden="true"></i></div></div>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-instagram" aria-hidden="true"></i></div></div>
         <?php if (!empty($user_social) and $user_social['instagram']['connect'] === true):?>
             <div class="anketa_form_but social_connect">Подключено</div>
         <?php else:?>

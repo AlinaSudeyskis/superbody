@@ -23,9 +23,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="tren_prof_page_name"><?php echo $user_data['split_name']['name'];?></div>
                                 <div class="tren_prof_page_surname"><?php echo $user_data['split_name']['surname'];?></div>
                                 <div class="tren_prof_page_soc">
-                                    <a href=""><i class="fa fa-vk" aria-hidden="true"></i></a>
-                                    <a href=""><i class="fa fa-facebook" aria-hidden="true"></i></a>
-                                    <a href=""><i class="fa fa-instagram" aria-hidden="true"></i></a>
+                                    <a href=""><i class="fab fa-vk" aria-hidden="true"></i></a>
+                                    <a href=""><i class="fab fa-facebook-f" aria-hidden="true"></i></a>
+                                    <a href=""><i class="fab fa-instagram" aria-hidden="true"></i></a>
                                 </div>
                             </div>
                             <div class="tren_prof_page_cont">

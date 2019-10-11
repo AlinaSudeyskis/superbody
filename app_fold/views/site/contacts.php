@@ -48,7 +48,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="col-lg-6 col-md-5 col-sm-5 col-xs-12 contact_desk">
                 <?php if (!empty($site_info['contacts_text2'])): echo $site_info['contacts_text2']; endif;
                 if (!empty($site_info['phone'])) :?>
-                    <div class="contact_tel"><i class="fa fa-mobile"></i><span><?php echo $site_info['phone']; ?></span></div>
+                    <div class="contact_tel">
+                        <i class="fab fa-telegram-plane" aria-hidden="true"></i>
+                        <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                        <i class="fab fa-viber" aria-hidden="true"></i>
+                        <span><?php echo $site_info['phone']; ?></span>
+                    </div>
                 <?php endif;
                 if (!empty($site_info['email'])):?>
                     <div class="contact_mail"><i class="fa fa-envelope"></i><span><?php echo $site_info['email']; ?></span></div>

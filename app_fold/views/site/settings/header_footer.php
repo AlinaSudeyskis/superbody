@@ -66,39 +66,39 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Соц. сети</div></div>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-facebook" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-facebook-f" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_facebook" value="<?php if (!empty($soc_facebook)) { echo $soc_facebook; }?>" maxlength="255"/>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-twitter" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-twitter" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_twitter" value="<?php if (!empty($soc_twitter)) { echo $soc_twitter; }?>" maxlength="255"/>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-pinterest" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-pinterest" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_pinterest" value="<?php if (!empty($soc_pinterest)) { echo $soc_pinterest; }?>" maxlength="255"/>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-google-plus" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-google-plus-g" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_google" value="<?php if (!empty($soc_google_p)) { echo $soc_google_p; }?>" maxlength="255"/>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-tumblr" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-tumblr" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_tumblr" value="<?php if (!empty($soc_tumblr)) { echo $soc_tumblr; }?>" maxlength="255"/>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-instagram" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-instagram" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_instagram" value="<?php if (!empty($soc_instagram)) { echo $soc_instagram; }?>" maxlength="255"/>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-odnoklassniki" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-odnoklassniki" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_ok" value="<?php if (!empty($soc_ok)) { echo $soc_ok; }?>" maxlength="255"/>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-vk" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-vk" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_vk" value="<?php if (!empty($soc_vk)) { echo $soc_vk; }?>" maxlength="255"/>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fa fa-youtube-play" aria-hidden="true"></i></div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-youtube" aria-hidden="true"></i></div></div>
             <input type="text" class="anketa_form_in anketa_form_in_long" name="soc_youtube" value="<?php if (!empty($soc_youtube)) { echo $soc_youtube; }?>" maxlength="255"/>
         </div>
     </div>

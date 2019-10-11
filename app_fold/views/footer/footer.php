@@ -39,11 +39,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="f_logo_desk"><?php if (!empty($site_info['rights'])): echo $site_info['rights']; endif;?></div>
                 <div class="f_contact">
                     <div class="f_contact_line">
-                        <div class="f_contact_name">Phone:</div>
+                        <div class="f_contact_name">
+                            <i class="fab fa-telegram-plane" aria-hidden="true"></i>
+                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
+                            <i class="fab fa-viber" aria-hidden="true"></i>
+                        </div>
                         <div class="f_contact_val"><?php if (!empty($site_info['phone'])): echo $site_info['phone']; endif;?></div>
                     </div>
                     <div class="f_contact_line">
-                        <div class="f_contact_name">e-mail:</div>
+                        <div class="f_contact_name"><i class="fa fa-envelope"></i></div>
                         <div class="f_contact_val"><?php if (!empty($site_info['email'])): echo $site_info['email']; endif;?></div>
                     </div>
                 </div>

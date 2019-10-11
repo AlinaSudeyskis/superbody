@@ -224,13 +224,20 @@ audio, canvas, progress, video{
     padding: 0 15px;
 }
 .header_tel{
-    font-size: 12px;
-    padding-left: 24px;
-    height: 27px;
-    line-height: 14px;
+    /*font-size: 12px;*/
+    /*padding-left: 24px;*/
+    height: 18px;
+    /*line-height: 14px;*/
     float: left;
-    background: url(/img/tel.png) 0 13px no-repeat;
-    padding-top: 13px;
+    /*background: url(/img/tel.png) 0 13px no-repeat;*/
+    margin-top: 9px;
+}
+.header_tel i{
+    font-size: 18px;
+    margin-right: 3px;
+}
+.header_tel span{
+    font-size: 12px;
 }
 .header_soc{
     float: right;
@@ -1773,10 +1780,11 @@ tr:first-child > td > .fc-day-grid-event{
     line-height: 20px;
 }
 .f_contact_name{
-    font-size: 13px;
+    font-size: 19px;
     line-height: 17px;
-    width: 60px;
+    width: 70px;
     display: inline-block;
+    text-align: center;
 }
 .f_contact_val{
     font-size: 20px;

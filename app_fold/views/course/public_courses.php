@@ -60,12 +60,12 @@ include_once('./app_fold/views/breadcrumb.php');?>
     <div class="parent">
         <div class="shop_sort_h">Фильтр:</div>
         <div class="shop_sort_in_wrap parent">
-            <a href="/courses/workouts" <?php if($page_filter == 'workouts'): ?>class="checked"<?php endif; ?>>Тренировки</a>
+            <a href="/courses/workouts" <?php if(!empty($page_filter) and $page_filter == 'workouts'): ?>class="checked"<?php endif; ?>>Тренировки</a>
             <?php if(!empty($user_session) and $user_session['type'] == 3): ?>
-                <a href="/courses/nutritions" <?php if($page_filter == 'nutritions'): ?>class="checked"<?php endif; ?>>Питание</a>
+                <a href="/courses/nutritions" <?php if(!empty($page_filter) and $page_filter == 'nutritions'): ?>class="checked"<?php endif; ?>>Питание</a>
             <?php endif; ?>
-            <a href="/courses/coaches" <?php if($page_filter == 'crs_coaches'): ?>class="checked"<?php endif; ?>>Тренеры</a>
-            <?php if($page_filter == 'promocode'): ?>
+            <a href="/courses/coaches" <?php if(!empty($page_filter) and $page_filter == 'crs_coaches'): ?>class="checked"<?php endif; ?>>Тренеры</a>
+            <?php if(!empty($page_filter) and $page_filter == 'promocode'): ?>
                 <a href="/courses/promocode" class="checked" disabled style="cursor: default; pointer-events: none;">Промокод: <?php echo $page_cat_string; ?></a>
                 <input type="hidden" name="pc_string" value="<?php echo $page_cat_string; ?>" id="pc-string">
             <?php endif; ?>
@@ -100,7 +100,7 @@ include_once('./app_fold/views/breadcrumb.php');?>
                 endif; ?>
             <?php endforeach;
             unset($workouts);?>
-        <?php elseif($page_filter == 'workouts' and is_numeric($category_id)): ?>
+        <?php elseif(!empty($page_filter) and $page_filter == 'workouts' and is_numeric($category_id)): ?>
             <h2 class="block_h"><?php echo $courses_categories[$category_id]['name']; ?></h2>
             <h3 class="info">Информация не найдена</h3>
         <?php endif; ?>
@@ -118,7 +118,7 @@ include_once('./app_fold/views/breadcrumb.php');?>
                 endforeach;
                 unset($course);?>
             </div>
-        <?php elseif($page_filter == 'nutritions'): ?>
+        <?php elseif(!empty($page_filter) and $page_filter == 'nutritions'): ?>
             <h2 class="block_h">Курсы питания</h2>
             <h3 class="info">Информация не найдена</h3>
         <?php endif; ?>

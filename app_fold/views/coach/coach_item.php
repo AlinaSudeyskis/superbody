@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <a href="" class="tw_but"></a>
                 </div>-->
                 <a href="/messages/<?php echo $coach['id']; ?>" class="tren_mess_link" title="Написать тренеру">
-                    <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                    <i class="fas fa-envelope" aria-hidden="true"></i>
                 </a>
             </div>
         </div>
