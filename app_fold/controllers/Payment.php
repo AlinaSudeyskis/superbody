@@ -91,7 +91,7 @@ class Payment extends CI_Controller
 
                     // Сохранение данных оплаты в БД
                     $this->Payment_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount,
-                        self::CURRENCY, $created_at, $payment_option);
+                        self::CURRENCY, $created_at, $payment_option, $payment_type, $method_phone, $method_login);
 
                     // Перенаправление пользователя на страницу оплаты
                     header('Location: ' . $response->_confirmation->confirmation_url);
@@ -397,6 +397,89 @@ class Payment extends CI_Controller
     }
 
     /**
+     * Создание повторного платежа
+     *
+     * @param int $order_id
+     * @param float $value
+     * @param string $currency
+     * @param string $payment_option ('full_payment', 'partial_payment')
+     * @param string $payment_method_id
+     * @param string $customer_email
+     * @param array $order_items
+     * @return array
+     */
+    public function createRepeatPayment($order_id, $value, $currency, $payment_option, $payment_method_id, $customer_email = '', $order_items = array())
+    {
+        $result         = array('response' => false, 'error' => false);
+        $idempotenceKey = uniqid('', true);
+        $description    = 'Оплата заказа №' . $order_id;
+        $method_id      = strip_tags($payment_method_id);
+
+        $client = new Client();
+        $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+
+        $order_price = ($order_items['price'] > 0) ? $order_items['price'] : $order_items['rec_first_price'];
+
+        try {
+            $result['response'] = $client->createPayment(
+                array(
+                    'amount' => array(
+                        'value' => $value,
+                        'currency' => $currency,
+                    ),
+                    'receipt' => array(
+                        'customer' => array(
+                            'email' => $customer_email,
+                        ),
+                        'items' => array(
+                            array(
+                                'description' => $order_items['name'],
+                                'quantity' => $order_items['cart_quantity'],
+                                'amount' => $order_price,
+                                'vat_code' => 1,
+                                'payment_subject' => 'service',
+                                'payment_mode' => $payment_option,
+                            ),
+                        ),
+                    ),
+                    'description' => $description,
+                    'payment_method_id' => $method_id,
+                ),
+                $idempotenceKey
+            );
+        } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        } catch (Exception $e) {
+            log_message('error', __METHOD__ . ' ' . $e->getMessage());
+            $result['error'] = $e->getMessage();
+        }
+
+        return $result;
+    }
+
+    /**
      * Подтверждение платежа
      *
      * @param string $payment_id
@@ -580,8 +663,8 @@ class Payment extends CI_Controller
                         unset($product);
 
                         // Создание запроса платежа и его выпонение
-                        $res_create = self::createPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['type'],
-                            '', $payment['method_id'], '', '', $payment['user_email'], $products['products'][0]);
+                        $res_create = self::createRepeatPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['options'],
+                            $payment['method_id'], $payment['user_email'], $products['products'][0]);
 
                         if(!empty($res_create['response']))
                         {

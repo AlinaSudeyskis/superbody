@@ -89,7 +89,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="sing-in_h tren_form_block_check_wrap">
             <input type="checkbox" name="cb_offer" class="tren_form_block_check" id="cb-politics-3" required="required" checked="checked">
             <label for="cb-politics-3">согласие с
-                <a href="<?php if(!empty($site_info)): echo $site_info['offer_data']; endif; ?>" class="reg_in_link" target="_blank">договором оферты</a>
+                <a href="<?php if(!empty($site_info)): echo $site_info['agreement']; endif; ?>" class="reg_in_link" target="_blank">пользовательским соглашением</a>
             </label>
         </div>
     </div>

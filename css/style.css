@@ -5514,7 +5514,8 @@ textarea.journal_post_comm_in{
     bottom: 0;
     top: auto;
     height: auto;
-    background-color: rgba(51, 54, 63, 0.4);
+    background-color: rgba(147, 149, 158, 0.94);
+    margin-bottom: 40px;
 }
 span#cookie_stop {
     padding: 3px 15px;

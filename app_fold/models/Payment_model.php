@@ -21,14 +21,18 @@ class Payment_model extends CI_Model
      * @param string $currency
      * @param string $created_at
      * @param string $payment_option (full_payment, partial_payment)
+     * @param $payment_type
+     * @param $method_phone
+     * @param $method_login
      * @return bool
      */
-    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at, $payment_option)
+    public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at,
+                                       $payment_option, $payment_type, $method_phone, $method_login)
     {
         $ins_data = $this->db->query('
-            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)',
-            array($order_id, $payment_id, $payment_status, $total_amount, $currency, $payment_option, $created_at));
+            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            array($order_id, $payment_type, $method_phone, $method_login, $payment_id, $payment_status, $total_amount, $currency, $payment_option, $created_at));
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
             return true;
@@ -188,7 +192,7 @@ class Payment_model extends CI_Model
         // Выборка текущих платежей для оплаты
         // Выборка не выполненных платежей
         $sel_data = $this->db->query('
-            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_status`, `o_user_email` 
+            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_payment_options`, `op_status`, `o_user_email` 
             FROM `orders_payment`
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
             WHERE (`op_following_date`=? or (`op_following_date`<? and `op_status`="canceled")) and `op_payment_method_id`<>""', array($today, $today));
@@ -212,6 +216,7 @@ class Payment_model extends CI_Model
                         $result['payments'][$i]['amount']     = $row->op_amount;
                         $result['payments'][$i]['currency']   = $row->op_currency;
                         $result['payments'][$i]['method_id']  = $row->op_payment_method_id;
+                        $result['payments'][$i]['options']    = $row->op_payment_options;
                         $result['payments'][$i]['status']     = $row->op_status;
                         $result['payments'][$i]['user_email'] = $row->o_user_email;
 

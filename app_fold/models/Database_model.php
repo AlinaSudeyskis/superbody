@@ -2695,6 +2695,16 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-10-15 14:34';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `orders_payment` SET `op_payment_type`='bank_card' WHERE `op_payment_type`=''");
+            $this->db->query("ALTER TABLE `orders_payment` ADD `op_pt_login` VARCHAR(255) NOT NULL AFTER `op_payment_type`, ADD `op_pt_phone` VARCHAR(255) NOT NULL AFTER `op_pt_login`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

@@ -48,10 +48,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка на файл политики обработки персональных данных</div></div>
             <textarea name="personal_data" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($personal_data)) { echo $personal_data; }?></textarea>
         </div>
-        <div class="anketa_form_line parent">
+        <!--<div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Ссылка на файл договора оферты</div></div>
-            <textarea name="offer_data" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php if (!empty($offer_data)) { echo $offer_data; }?></textarea>
-        </div>
+            <textarea name="offer_data" class="journal_form_textarea admin_form_txt_middle" maxlength="255"><?php /*if (!empty($offer_data)) { echo $offer_data; }*/?></textarea>
+        </div>-->
 
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Copyright</div></div>
