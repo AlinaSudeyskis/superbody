@@ -252,6 +252,8 @@ class Payment_model extends CI_Model
      */
     public function updateSubsequentPayment($subsequent_id, $order_id, $payment_id, $payment_status, $payment_method, $paid, $created_at)
     {
+        $result = false;
+
         if (is_numeric($subsequent_id))
         {
             $up_data = $this->db->query('
@@ -260,24 +262,17 @@ class Payment_model extends CI_Model
                 WHERE `op_id`=? and `op_o_id`=? LIMIT 1',
                     array($payment_method, $payment_id, $payment_status, $paid, $created_at, $subsequent_id, $order_id));
 
-            if($up_data !== false and 1 == $up_data->num_rows())
+            if($up_data !== false and 1 == $this->db->affected_rows())
             {
-                return true;
+                $result = true;
             }
             elseif($up_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
-                return false;
-            }
-            else
-            {
-                return false;
             }
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**

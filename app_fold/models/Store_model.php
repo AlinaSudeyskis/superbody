@@ -3211,7 +3211,7 @@ class Store_model extends CI_Model
     {
         $result = false;
 
-        $sel_data = $this->db->uery('
+        $sel_data = $this->db->query('
             SELECT `op_payment_id`, `o_u_id`, `user_activated` 
             FROM `orders_payment`
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
