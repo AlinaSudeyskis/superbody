@@ -2725,8 +2725,16 @@ class Database_model extends CI_Model
             VALUES ('240', 'bank_card', '', '', '25396854-000f-5000-9000-14ed80b7d587', 'pending', '299.00', 'RUB', 'partial_payment', '')");
             $this->db->query("INSERT INTO `orders_payment` (`op_o_id`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
             VALUES ('241', 'bank_card', '', '', '25396bb8-000f-5000-9000-1e16e0af5771', 'pending', '5.00', 'RUB', 'full_payment', '')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-10-17 11:51';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
             $this->db->query("INSERT INTO `orders_payment` (`op_o_id`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
-            VALUES ('242', 'bank_card', NULL, NULL, '25397097-000f-5000-9000-1ea1e61e0b61', 'pending', '1.00', 'RUB', 'full_payment', '')");
+            VALUES ('242', 'bank_card', '', '', '25397097-000f-5000-9000-1ea1e61e0b61', 'pending', '1.00', 'RUB', 'full_payment', '')");
 
             self::setDbUpdate($date);
         }
