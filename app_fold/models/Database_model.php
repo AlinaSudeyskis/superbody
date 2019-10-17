@@ -2705,6 +2705,32 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-10-15 18:28';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_blocked_reason` `uc_blocked_reason` ENUM('not_paid','payment_refunded','payment_succeeded','payment_canceled','free_weeks_over','not_activated_account') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'not_paid'");
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_blocked` `uc_blocked` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1'");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-10-17 11:33';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `orders_payment` (`op_o_id`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
+            VALUES ('239', 'bank_card', '', '', '25395ff3-000f-5000-a000-1256532efd7d', 'pending', '299.00', 'RUB', 'partial_payment', '')");
+            $this->db->query("INSERT INTO `orders_payment` (`op_o_id`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
+            VALUES ('240', 'bank_card', '', '', '25396854-000f-5000-9000-14ed80b7d587', 'pending', '299.00', 'RUB', 'partial_payment', '')");
+            $this->db->query("INSERT INTO `orders_payment` (`op_o_id`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
+            VALUES ('241', 'bank_card', '', '', '25396bb8-000f-5000-9000-1e16e0af5771', 'pending', '5.00', 'RUB', 'full_payment', '')");
+            $this->db->query("INSERT INTO `orders_payment` (`op_o_id`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
+            VALUES ('242', 'bank_card', NULL, NULL, '25397097-000f-5000-9000-1ea1e61e0b61', 'pending', '1.00', 'RUB', 'full_payment', '')");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
