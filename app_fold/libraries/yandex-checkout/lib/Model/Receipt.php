@@ -30,7 +30,6 @@ use YandexCheckout\Common\AbstractObject;
 use YandexCheckout\Common\Exceptions\EmptyPropertyValueException;
 use YandexCheckout\Common\Exceptions\InvalidPropertyValueException;
 use YandexCheckout\Common\Exceptions\InvalidPropertyValueTypeException;
-use YandexCheckout\Model\Receipt\ReceiptItemAmount;
 
 /**
  * Класс данных для формирования чека в онлайн-кассе (для соблюдения 54-ФЗ)
@@ -53,6 +52,11 @@ class Receipt extends AbstractObject implements ReceiptInterface
      * @var ReceiptItem[] Список товаров в заказе
      */
     private $_items = array();
+
+    /**
+     * @var Settlement[] Массив оплат, обеспечивающих выдачу товара
+     */
+    private $_settlements = array();
 
     /**
      * @var ReceiptItem[] Список айтемов в заказе, являющихся доставкой
@@ -142,6 +146,52 @@ class Receipt extends AbstractObject implements ReceiptInterface
     }
 
     /**
+     * Возвращает массив оплат, обеспечивающих выдачу товара.
+     *
+     * @return SettlementInterface[] Массив оплат, обеспечивающих выдачу товара.
+     */
+    public function getSettlements()
+    {
+        return $this->_settlements;
+    }
+
+    /**
+     * Возвращает массив оплат, обеспечивающих выдачу товара.
+     * @param SettlementInterface[] $value
+     */
+    public function setSettlements($value)
+    {
+        if ($value === null || $value === '') {
+            throw new EmptyPropertyValueException('Empty settlements value in receipt', 0, 'receipt.settlements');
+        }
+        if (!is_array($value) && !($value instanceof \Traversable)) {
+            throw new InvalidPropertyValueTypeException(
+                'Invalid settlements value type in receipt', 0, 'receipt.settlements', $value
+            );
+        }
+        $this->_settlements = array();
+        foreach ($value as $key => $val) {
+            if (is_object($val) && $val instanceof SettlementInterface) {
+                $this->addSettlement($val);
+            } else {
+                throw new InvalidPropertyValueTypeException(
+                    'Invalid settlements value type in receipt', 0, 'receipt.settlements['.$key.']', $val
+                );
+            }
+        }
+    }
+
+    /**
+     * Добавляет оплату в чек
+     *
+     * @param SettlementInterface $value Объект добавляемой в чек позиции
+     */
+    public function addSettlement($value)
+    {
+        $this->_settlements[] = $value;
+    }
+
+    /**
      * Возвращает код системы налогообложения
      *
      * @return int Код системы налогообложения. Число 1-6.
@@ -196,7 +246,6 @@ class Receipt extends AbstractObject implements ReceiptInterface
      * @param string $value Номер телефона плательщика в формате ITU-T E.164
      *
      * @throws InvalidPropertyValueTypeException Выбрасывается если в качестве значения была передана не строка
-     * @throws InvalidPropertyValueException Выбрасывается если телефон не соответствует формату ITU-T E.164
      */
     public function setPhone($value)
     {
@@ -382,17 +431,30 @@ class Receipt extends AbstractObject implements ReceiptInterface
         if (!empty($sourceArray['items'])) {
             foreach ($sourceArray['items'] as $i => $itemArray) {
                 if (is_array($itemArray)) {
-                    $item   = new ReceiptItem();
-                    $amount = new ReceiptItemAmount();
-                    $amount->fromArray($itemArray['amount']);
-                    $itemArray['price'] = $amount;
-                    unset($itemArray['amount']);
-                    $item->fromArray($itemArray);
-                    $sourceArray['items'][$i] = $item;
+                    $sourceArray['items'][$i] = new ReceiptItem($itemArray);
+                }
+            }
+        }
+
+        if (!empty($sourceArray['settlements'])) {
+            foreach ($sourceArray['settlements'] as $i => $itemArray) {
+                if (is_array($itemArray)) {
+                    $sourceArray['settlements'][$i] = new Settlement($itemArray);
                 }
             }
         }
 
         parent::fromArray($sourceArray);
     }
+
+    /**
+     * Возвращает Id объекта чека
+     *
+     * @return string Id объекта чека
+     */
+    public function getObjectId()
+    {
+        return null;
+    }
+
 }

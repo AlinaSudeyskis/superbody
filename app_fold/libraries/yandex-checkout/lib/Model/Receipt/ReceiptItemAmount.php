@@ -34,6 +34,12 @@ use YandexCheckout\Helpers\TypeCast;
 use YandexCheckout\Model\AmountInterface;
 use YandexCheckout\Model\CurrencyCode;
 
+/**
+ * Class ReceiptItemAmount
+ * @package YandexCheckout\Model\Receipt
+ *
+ * @method fromArray($sourceArray)
+ */
 class ReceiptItemAmount extends AbstractObject implements AmountInterface
 {
     /**
@@ -207,7 +213,7 @@ class ReceiptItemAmount extends AbstractObject implements AmountInterface
     public function jsonSerialize()
     {
         return array(
-            'value' => $this->_value / 100.0,
+            'value' => sprintf('%.2f',$this->_value / 100.0),
             'currency' => $this->_currency,
         );
     }

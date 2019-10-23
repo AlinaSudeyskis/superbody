@@ -26,10 +26,13 @@
 
 namespace YandexCheckout;
 
+use Exception;
 use InvalidArgumentException;
 use YandexCheckout\Client\BaseClient;
 use YandexCheckout\Common\Exceptions\ApiException;
+use YandexCheckout\Common\Exceptions\AuthorizeException;
 use YandexCheckout\Common\Exceptions\BadApiRequestException;
+use YandexCheckout\Common\Exceptions\ExtensionNotFoundException;
 use YandexCheckout\Common\Exceptions\ForbiddenException;
 use YandexCheckout\Common\Exceptions\InternalServerError;
 use YandexCheckout\Common\Exceptions\NotFoundException;
@@ -60,6 +63,11 @@ use YandexCheckout\Request\Payments\PaymentsRequest;
 use YandexCheckout\Request\Payments\PaymentsRequestInterface;
 use YandexCheckout\Request\Payments\PaymentsRequestSerializer;
 use YandexCheckout\Request\Payments\PaymentsResponse;
+use YandexCheckout\Request\Receipts\AbstractReceiptResponse;
+use YandexCheckout\Request\Receipts\CreatePostReceiptRequest;
+use YandexCheckout\Request\Receipts\CreatePostReceiptRequestInterface;
+use YandexCheckout\Request\Receipts\CreatePostReceiptRequestSerializer;
+use YandexCheckout\Request\Receipts\ReceiptResponseFactory;
 use YandexCheckout\Request\Receipts\ReceiptsResponse;
 use YandexCheckout\Request\Refunds\CreateRefundRequest;
 use YandexCheckout\Request\Refunds\CreateRefundRequestInterface;
@@ -84,50 +92,7 @@ class Client extends BaseClient
     /**
      * Текущая версия библиотеки
      */
-    const SDK_VERSION = '1.3.0';
-
-    /**
-     * Доступные способы оплаты.
-     * Используйте этот метод, чтобы получить способы оплаты и сценарии, доступные для вашего заказа.
-     *
-     * @param PaymentOptionsRequestInterface|array $paymentOptionsRequest
-     *
-     * @return PaymentOptionsResponse
-     * @throws ApiException
-     * @throws BadApiRequestException
-     * @throws ForbiddenException
-     * @throws InternalServerError
-     * @throws NotFoundException
-     * @throws ResponseProcessingException
-     * @throws TooManyRequestsException
-     * @throws UnauthorizedException
-     */
-    public function getPaymentOptions($paymentOptionsRequest = null)
-    {
-        $path = "/payment_options";
-
-        if ($paymentOptionsRequest === null) {
-            $queryParams = array();
-        } else {
-            if (is_array($paymentOptionsRequest)) {
-                $paymentOptionsRequest = PaymentOptionsRequest::builder()->build($paymentOptionsRequest);
-            }
-            $serializer  = new PaymentOptionsRequestSerializer();
-            $queryParams = $serializer->serialize($paymentOptionsRequest);
-        }
-
-        $response = $this->execute($path, HttpVerb::GET, $queryParams);
-
-        $result = null;
-        if ($response->getCode() == 200) {
-            $responseArray = $this->decodeData($response);
-            $result        = new PaymentOptionsResponse($responseArray);
-        } else {
-            $this->handleError($response);
-        }
-
-        return $result;
-    }
+    const SDK_VERSION = '1.5.4';
 
     /**
      * Получить список платежей магазина.
@@ -143,6 +108,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
+     * @throws ExtensionNotFoundException
      */
     public function getPayments($filter = null)
     {
@@ -172,6 +138,50 @@ class Client extends BaseClient
     }
 
     /**
+     * Доступные способы оплаты.
+     * Используйте этот метод, чтобы получить способы оплаты и сценарии, доступные для вашего заказа.
+     *
+     * @param PaymentOptionsRequestInterface|array $paymentOptionsRequest
+     *
+     * @return PaymentOptionsResponse
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
+     * @throws ExtensionNotFoundException
+     */
+    public function getPaymentOptions($paymentOptionsRequest = null)
+    {
+        $path = "/payment_options";
+
+        if ($paymentOptionsRequest === null) {
+            $queryParams = array();
+        } else {
+            if (is_array($paymentOptionsRequest)) {
+                $paymentOptionsRequest = PaymentOptionsRequest::builder()->build($paymentOptionsRequest);
+            }
+            $serializer  = new PaymentOptionsRequestSerializer();
+            $queryParams = $serializer->serialize($paymentOptionsRequest);
+        }
+
+        $response = $this->execute($path, HttpVerb::GET, $queryParams);
+
+        $result = null;
+        if ($response->getCode() == 200) {
+            $responseArray = $this->decodeData($response);
+            $result        = new PaymentOptionsResponse($responseArray);
+        } else {
+            $this->handleError($response);
+        }
+
+        return $result;
+    }
+
+    /**
      * Создание платежа.
      *
      * Чтобы принять оплату, необходимо создать объект платежа — `Payment`. Он содержит всю необходимую информацию
@@ -195,7 +205,7 @@ class Client extends BaseClient
      * </ul>
      *
      * @param CreatePaymentRequestInterface|array $payment
-     * @param string $idempotencyKey {@link https://kassa.yandex.ru/docs/checkout-api/?php#idempotentnost}
+     * @param string|null $idempotenceKey {@link https://kassa.yandex.ru/docs/checkout-api/?php#idempotentnost}
      *
      * @return CreatePaymentResponse
      * @throws ApiException
@@ -206,16 +216,16 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
-     * @throws \Exception
+     * @throws Exception
      */
-    public function createPayment($payment, $idempotencyKey = null)
+    public function createPayment($payment, $idempotenceKey = null)
     {
         $path = self::PAYMENTS_PATH;
 
         $headers = array();
 
-        if ($idempotencyKey) {
-            $headers[self::IDEMPOTENCY_KEY_HEADER] = $idempotencyKey;
+        if ($idempotenceKey) {
+            $headers[self::IDEMPOTENCY_KEY_HEADER] = $idempotenceKey;
         } else {
             $headers[self::IDEMPOTENCY_KEY_HEADER] = UUID::v4();
         }
@@ -256,6 +266,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
+     * @throws ExtensionNotFoundException
      */
     public function getPaymentInfo($paymentId)
     {
@@ -306,7 +317,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function capturePayment($captureRequest, $paymentId, $idempotencyKey = null)
     {
@@ -368,7 +379,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function cancelPayment($paymentId, $idempotencyKey = null)
     {
@@ -415,6 +426,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
+     * @throws ExtensionNotFoundException
      */
     public function getRefunds($filter = null)
     {
@@ -462,7 +474,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function createRefund($request, $idempotencyKey = null)
     {
@@ -510,6 +522,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
+     * @throws ExtensionNotFoundException
      */
     public function getRefundInfo($refundId)
     {
@@ -545,14 +558,14 @@ class Client extends BaseClient
      *
      * @throws ApiException
      * @throws BadApiRequestException
-     * @throws Common\Exceptions\AuthorizeException
+     * @throws AuthorizeException
      * @throws ForbiddenException
      * @throws InternalServerError
      * @throws NotFoundException
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function addWebhook($request, $idempotencyKey = null)
     {
@@ -608,7 +621,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
-     * @throws \Exception
+     * @throws Exception
      */
     public function removeWebhook($webhookId, $idempotencyKey = null)
     {
@@ -649,6 +662,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
+     * @throws ExtensionNotFoundException
      */
     public function getWebhooks()
     {
@@ -682,6 +696,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
+     * @throws ExtensionNotFoundException
      */
     public function getReceipts($filter = null)
     {
@@ -717,6 +732,58 @@ class Client extends BaseClient
     }
 
     /**
+     * @param CreatePostReceiptRequestInterface|array $receipt
+     * @param string|null $idempotenceKey
+     *
+     * @return AbstractReceiptResponse|null
+     *
+     * @throws ApiException
+     * @throws BadApiRequestException
+     * @throws Common\Exceptions\ApiConnectionException
+     * @throws Common\Exceptions\AuthorizeException
+     * @throws ForbiddenException
+     * @throws InternalServerError
+     * @throws NotFoundException
+     * @throws ResponseProcessingException
+     * @throws TooManyRequestsException
+     * @throws UnauthorizedException
+     * @throws Exception
+     */
+    public function createReceipt($receipt, $idempotenceKey = null)
+    {
+        $path = self::RECEIPTS_PATH;
+
+        $headers = array();
+
+        if ($idempotenceKey) {
+            $headers[self::IDEMPOTENCY_KEY_HEADER] = $idempotenceKey;
+        } else {
+            $headers[self::IDEMPOTENCY_KEY_HEADER] = UUID::v4();
+        }
+
+        if (is_array($receipt)) {
+            $receipt = CreatePostReceiptRequest::builder()->build($receipt);
+        }
+
+        $serializer     = new CreatePostReceiptRequestSerializer();
+        $serializedData = $serializer->serialize($receipt);
+        $httpBody       = $this->encodeData($serializedData);
+
+        $response = $this->execute($path, HttpVerb::POST, null, $httpBody, $headers);
+
+        $receiptResponse = null;
+        if ($response->getCode() == 200) {
+            $resultArray = $this->decodeData($response);
+            $factory = new ReceiptResponseFactory();
+            $receiptResponse = $factory->factory($resultArray);
+        } else {
+            $this->handleError($response);
+        }
+
+        return $receiptResponse;
+    }
+
+    /**
      * Информация о магазине
      * Запрос позволяет получить информацию о магазине для переданного OAuth-токена.
      *
@@ -731,6 +798,7 @@ class Client extends BaseClient
      * @throws ResponseProcessingException
      * @throws TooManyRequestsException
      * @throws UnauthorizedException
+     * @throws ExtensionNotFoundException
      */
     public function me()
     {
