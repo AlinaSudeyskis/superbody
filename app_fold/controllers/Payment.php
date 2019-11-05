@@ -19,11 +19,11 @@ class Payment extends CI_Controller
     const PAYMENT_METHOD = 'bank_card';
 
     // LIVE
-    /*const SHOPID = 618322;
-    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';*/
+    const SHOPID = 618322;
+    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';
     // TEST
-    const SHOPID = 621847;
-    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';
+    /*const SHOPID = 621847;
+    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';*/
 
     /**
      * Payment constructor.
@@ -131,7 +131,7 @@ class Payment extends CI_Controller
     public function paymentNotifications()
     {
         $response = json_decode(file_get_contents("php://input"), true);
-        log_message('debug', __METHOD__.':'.__LINE__.' Response input:'. print_r($response, true));
+        //log_message('debug', __METHOD__.':'.__LINE__.' Response input:'. print_r($response, true));
 
         if ($response->type == 'notification')
         {
