@@ -131,7 +131,7 @@ class Payment extends CI_Controller
     public function paymentNotifications()
     {
         $response = json_decode(file_get_contents("php://input"), true);
-        //log_message('debug', __METHOD__.':'.__LINE__.' Response input:'. print_r($response, true));
+        log_message('debug', __METHOD__.':'.__LINE__.' Response input:'. print_r($response, true));
 
         if ($response->type == 'notification')
         {
