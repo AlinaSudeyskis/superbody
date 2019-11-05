@@ -6430,10 +6430,6 @@ class Course_model extends CI_Model
 
                 $percent_workouts_done = (is_numeric($workouts_done)) ? round($workouts_done * 100 / $total_count_workouts) : 0;
 
-                $type_shade = ($key % 2 == 0 and $course['id'] % 2 == 1) ? 'lighter' : '';
-                $rgb = self::different_shade($color, $type_shade);
-                $color = $rgb;
-                $color_workouts_done = $rgb;
             }
             elseif ($sel_workouts === false)
             {
@@ -6676,6 +6672,12 @@ class Course_model extends CI_Model
                 unset($nutrition);
             }
         }
+
+
+        $type_shade = ($key % 2 == 0 and $course['id'] % 2 == 1) ? 'lighter' : '';
+        $rgb = self::different_shade($color, $type_shade);
+        $color = $rgb;
+        $color_workouts_done = $rgb;
 
         $result['pauses']       = (!empty($pauses)) ? $pauses : array();
         $result['workouts']     = (!empty($workouts)) ? $workouts : array();
