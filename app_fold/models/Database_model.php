@@ -2739,6 +2739,197 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-10-18 12:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders_payment` CHANGE `op_payment_options` `op_payment_options` ENUM('full_payment','partial_payment') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'full_payment'");
+            $this->db->query("ALTER TABLE `orders` ADD `o_payment_options` ENUM('full_payment','partial_payment') NOT NULL DEFAULT 'full_payment' AFTER `o_status`, ADD `o_total_amount` DECIMAL(10,2) NOT NULL AFTER `o_payment_options`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-10-28 17:01';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (217, 'error', 'Ошибка! Невозможно провести оплату. Email и/или имя пользователя некорректны или отсутствуют.', 'Ошибка! Невозможно провести оплату. Email и/или имя пользователя некорректны или отсутствуют.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("ALTER TABLE `orders_payment` ADD `op_customer_email` VARCHAR(255) NOT NULL AFTER `op_number`, ADD `op_customer_name` VARCHAR(255) NOT NULL AFTER `op_customer_email`");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных октябрь 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseNovember2019($date)
+    {
+        $result = false;
+
+        $date = '2019-11-01 11:41';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_data = $this->db->query('SELECT `o_id` FROM `orders` WHERE `o_total_amount`=0');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $sel_cart = $this->db->query('SELECT `ouc_p_quantity`, `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_subsequent`, `ouc_p_recurrent_first` 
+                        FROM `orders_users_cart` WHERE `ouc_o_id`=?', $row->o_id);
+                    if($sel_cart !== false and 0 < $sel_cart->num_rows())
+                    {
+                        $total_price = 0;
+                        foreach ($sel_cart->result() as $row2)
+                        {
+                            $full_price = (!empty($row2->ouc_p_price) and $row2->ouc_p_price > 0) ? $row2->ouc_p_price : 0;
+                            $rec_price = (!empty($row2->ouc_p_recurrent_first) and $row2->ouc_p_recurrent_first > 0) ? $row2->ouc_p_recurrent_first : 0;
+                            $price = (!empty($full_price) and empty($rec_price)) ? $full_price : $rec_price;
+                            $total_price += ($row2->ouc_p_quantity * $price);
+                        }
+                        unset($row2);
+
+                        if($total_price > 0)
+                        {
+                            $total_price = (string) $total_price;
+                            $this->db->query('UPDATE `orders` SET `o_total_amount`=? WHERE `o_id`=? LIMIT 1', array($total_price, $row->o_id));
+                        }
+                    }
+                }
+                unset($row);
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-01 15:35';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders_payment` ADD `op_date_add` DATETIME NOT NULL AFTER `op_following_date`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-01 17:17';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders` CHANGE `o_payment_status` `o_payment_status` ENUM('waiting_for_capture','succeeded','canceled','pending','refunded') NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-01 17:55';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_data = $this->db->query('SELECT `o_id` FROM `orders` WHERE `o_total_amount`=0');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $sel_cart = $this->db->query('SELECT `ouc_p_quantity`, `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_subsequent`, `ouc_p_recurrent_first` 
+                        FROM `orders_users_cart` WHERE `ouc_o_id`=?', $row->o_id);
+                    if($sel_cart !== false and 0 < $sel_cart->num_rows())
+                    {
+                        $total_price = 0;
+                        foreach ($sel_cart->result() as $row2)
+                        {
+                            $full_price = (!empty($row2->ouc_p_price) and $row2->ouc_p_price > 0) ? $row2->ouc_p_price : 0;
+                            $rec_price = (!empty($row2->ouc_p_recurrent_first) and $row2->ouc_p_recurrent_first > 0) ? $row2->ouc_p_recurrent_first : 0;
+                            $price = (!empty($full_price) and empty($rec_price)) ? $full_price : $rec_price;
+                            $total_price += ($row2->ouc_p_quantity * $price);
+                        }
+                        unset($row2);
+
+                        if($total_price > 0)
+                        {
+                            $total_price = (string) $total_price;
+                            $this->db->query('UPDATE `orders` SET `o_total_amount`=? WHERE `o_id`=? LIMIT 1', array($total_price, $row->o_id));
+                        }
+                    }
+                }
+                unset($row);
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-01 19:38';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_data = $this->db->query('SELECT `o_id` FROM `orders`');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $sel_payments = $this->db->query('SELECT `op_status` FROM `orders_payment` WHERE `op_o_id`=? ORDER BY `op_id`', $row->o_id);
+                    if($sel_payments !== false and 0 < $sel_payments->num_rows())
+                    {
+                        $row2 = $sel_payments->row();
+                        $this->db->query('UPDATE `orders` SET `o_payment_status`=? WHERE `o_id`=? LIMIT 1', array($row2->op_status, $row->o_id));
+                    }
+                }
+                unset($row);
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-01 19:44';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders` CHANGE `o_payment_status` `o_payment_status` ENUM('waiting_for_capture','succeeded','canceled','pending','refunded','not_paid') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-03 13:43';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders` CHANGE `o_payment_status` `o_payment_status` ENUM('waiting_for_capture','succeeded','canceled','pending','refunded','not_paid') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-03 13:46';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders` CHANGE `o_payment_status` `o_payment_status` ENUM('waiting_for_capture','succeeded','canceled','pending','refunded','not_paid','free') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-04 16:37';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (218, 'error', 'Аккаунт не активирован.', 'Аккаунт не активирован.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (219, 'info', 'Ожидает оплаты.', 'Ожидает оплаты.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-05 14:33';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders` CHANGE `o_payment_status` `o_payment_status` ENUM('waiting_for_capture','succeeded','canceled','pending','payment_refunded','not_paid','free') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
