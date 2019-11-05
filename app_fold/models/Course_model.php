@@ -8345,13 +8345,13 @@ class Course_model extends CI_Model
             $this->db->where('uc_blocked', 0);
 
 
-            if(is_numeric($order_id))
+            if(is_numeric($order_id) and $order_id > 0)
             {
                 $this->db->where('uc_o_id', $order_id);
             }
             else
             {
-                $this->db->where('(uc_date_start="0000-00-00" or uc_date_end>'.$today.')');
+                $this->db->where('(uc_date_start="0000-00-00" or uc_date_end>"'.$today.'")');
             }
             $this->db->limit(1);
             $sel_duplicates = $this->db->get();
