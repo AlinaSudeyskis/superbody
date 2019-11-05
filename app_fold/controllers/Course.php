@@ -6814,11 +6814,12 @@ class Course extends CI_Controller
                 $i_phone = $this->input->post('i_phone', true);
                 $i_login = $this->input->post('i_login', true);
                 $i_email = $this->input->post('email', true);
+                $i_name  = $this->input->post('name', true);
                 // Введенный промокод
                 $i_promocode = $this->input->post('promocode', true);
 
                 parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
-                    $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url, $order_id);
+                    $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url, $order_id);
             }
         }
         elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
@@ -6908,11 +6909,12 @@ class Course extends CI_Controller
             $i_phone = $this->input->post('i_phone', true);
             $i_login = $this->input->post('i_login', true);
             $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
             // Введенный промокод
             $i_promocode = $this->input->post('promocode', true);
 
             parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
-                $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
+                $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url);
         }
         elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))
         {
@@ -6971,6 +6973,8 @@ class Course extends CI_Controller
             $this->load->view('errors/html/error_404', $this->page_data);
         }
     }
+
+    public function buyCourseForm(){}
 
     /**
      * AJAX Вывод курсов
@@ -7060,11 +7064,19 @@ class Course extends CI_Controller
      *
      * @param string $courses_type Активные или завершенные курсы (active|finished)
      * @return void
+     * @throws Exception
      */
     protected function userCourses($courses_type)
     {
+        $this->load->model('Store_model');
+
+        // Исходная страница
+        $return_url = '/profile/courses/';
+
         $courses_type = ($courses_type == 'finished') ? 'finished' : 'active';
-        $course_data = $this->Course_model->getUserCourses($this->user_id, $this->date, $courses_type);
+        $courses_data = $this->Course_model->getUserCourses($this->user_id, $this->date, $courses_type);
+        $courses_data = $this->Store_model->getUserCoursesOrder($this->user_id, $courses_data);
+        //print_r($courses_data);
 
         //$this->Course_model->setNewUserCourse(25, 12, 4, '', '', '', '', $this->date);
         //$this->Course_model->setUserNutritionSchedule(12, 34, '2018-07-12', $this->date);
@@ -7082,6 +7094,38 @@ class Course extends CI_Controller
 
         $this->Course_model->setNewUserCourse(24, 14, 4, $start_date, $end_date, '', '', $this->date);*/
 
+        // Покупка курса
+        if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            if(!empty($course_id))
+            {
+                // Данные курса
+                $course = $this->Course_model->getAvailableCourse($course_id, $this->date);
+                $course_coaches = $this->Course_model->getCourseCoachesId($course_id);
+                $db_data = $course['course'];
+                // Выбранный тренер
+                $id_coach = $this->input->post('user_coach', true);
+                // Вариант оплаты (полный, разделить на месяцы)
+                $s_payment_options = $this->input->post('s_payment_options', true);
+                // Способ оплаты
+                $s_payment_method = $this->input->post('s_payment_method', true);
+                // Данные для способа оплаты
+                $i_phone = $this->input->post('i_phone', true);
+                $i_login = $this->input->post('i_login', true);
+                $i_email = $this->input->post('email', true);
+                $i_name  = $this->input->post('name', true);
+                // Введенный промокод
+                $i_promocode = $this->input->post('promocode', true);
+
+                parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
+                    $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url, $order_id);
+            }
+        }
+
         // Объединенные данные страница
         $this->page_data['title']        = 'Мои курсы';
         $this->page_data['page_menu']    = 'u_courses';
@@ -7090,7 +7134,7 @@ class Course extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('course/user_course/courses', $course_data);
+        $this->load->view('course/user_course/courses', $courses_data);
         $this->load->view('footer/footer');
     }
 
@@ -7852,6 +7896,7 @@ class Course extends CI_Controller
             {
                 $payment_data = array(
                     'oid' => $course_data['course']['order_id'],
+                    'ucid' => $course_id,
                     'amount' => $course_price,
                     'type' => $payment_type,
                     'option' => $payment_option,
@@ -9353,14 +9398,28 @@ class Course extends CI_Controller
      */
     public function displayUserCourse()
     {
-        $result = false;
+        $result['result'] = false;
+        $result['info']   = 'Ошибка! Курс не добавлен в календарь.';
 
         $user_course_id = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
         $display        = ($this->input->post('display', true) == 1) ? 1 : 0;
 
         if(!empty($user_course_id))
         {
-            $result = $this->Course_model->displayUserCourse($user_course_id, $display, $this->user_id, $this->date);
+            $result['result'] = $this->Course_model->displayUserCourse($user_course_id, $display, $this->user_id, $this->date);
+
+            if($result['result'] === true)
+            {
+                $result['info'] = 'Сохранено';
+            }
+            else
+            {
+                log_message('error', 'User course id error. User course id = '. $user_course_id .' User id = ' . $this->user_id);
+            }
+        }
+        else
+        {
+            log_message('error', 'User course id error. User course id = '. $user_course_id .' User id = ' . $this->user_id);
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
@@ -9525,13 +9584,16 @@ class Course extends CI_Controller
     {
         $result = array('crs' => false);
 
-        $course_id  = (!empty($this->input->post('cid', true)) and is_numeric($this->input->post('cid', true)))
+        $course_id = (!empty($this->input->post('cid', true)) and is_numeric($this->input->post('cid', true)))
             ? $this->input->post('cid', true)
             : null;
-        $order_id   = (!empty($this->input->post('oid', true)) and is_numeric($this->input->post('oid', true)))
+        $order_id = (!empty($this->input->post('oid', true)) and is_numeric($this->input->post('oid', true)))
             ? $this->input->post('oid', true)
             : null;
-        $promocode  = mb_substr($this->input->post('pc_s', true), 0, 25);
+        $uc_id = (!empty($this->input->post('oucid', true)) and is_numeric($this->input->post('ucid', true)))
+            ? $this->input->post('ucid', true)
+            : null;
+        $promocode = mb_substr($this->input->post('pc_s', true), 0, 25);
 
         if(!empty($course_id))
         {

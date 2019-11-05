@@ -222,13 +222,15 @@ audio, canvas, progress, video{
     background: #00bff0;
     color: #fff;
     padding: 0 15px;
+    display: flex;
+    display:-webkit-flex;
 }
 .header_tel{
     /*font-size: 12px;*/
     /*padding-left: 24px;*/
     height: 18px;
     /*line-height: 14px;*/
-    float: left;
+    /*float: left;*/
     /*background: url(/img/tel.png) 0 13px no-repeat;*/
     margin-top: 9px;
 }
@@ -239,8 +241,13 @@ audio, canvas, progress, video{
 .header_tel span{
     font-size: 12px;
 }
+.header_notification{
+    line-height: 40px;
+    margin: 0 auto;
+    font-size: 15px;
+}
 .header_soc{
-    float: right;
+    /*float: right;*/
     padding: 8px 0 0;
     margin: 0;
     text-align: right;
@@ -1181,6 +1188,7 @@ div.info{
     flex-basis: 35%;
     -webkit-flex-basis: 35%;
     overflow: hidden;
+    max-height: 425px;
 }
 .order_info_wrap {
     flex-grow: 1;
@@ -1309,10 +1317,10 @@ div.info{
     display: block;
     margin: 0 auto;
 }
-.oi_d_buy a, .oi_d_link a {
+.oi_d_buy a, .oi_d_link a, .oi_d_link a.calendar_course.active {
     background-color: #00bff0;
 }
-.oi_d_buy span, .oi_d_link span {
+.oi_d_buy span, .oi_d_link span, .oi_d_link a.calendar_course {
     background-color: #9c9c9c;
 }
 .oi_i_details_wrap>* {
@@ -2032,9 +2040,9 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .purchase_pop-up_cont{
     margin: 30px 40px;
-    height: calc(100% - 60px);
-    height: -moz-calc(100% - 60px);
-    height: -webkit-calc(100% - 60px);
+    height: calc(100% - 100px);
+    height: -moz-calc(100% - 100px);
+    height: -webkit-calc(100% - 100px);
     overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -5511,11 +5519,10 @@ textarea.journal_post_comm_in{
 #block-message.info {background-color: rgba(128, 210, 94, 0.85);}
 #cookie_disclaimer{
     display: block;
-    bottom: 0;
-    top: auto;
+    bottom: auto;
+    top: 0;
     height: auto;
     background-color: rgba(147, 149, 158, 0.94);
-    margin-bottom: 40px;
 }
 span#cookie_stop {
     padding: 3px 15px;
@@ -5525,12 +5532,14 @@ span#cookie_stop {
     cursor: pointer;
 }
 #purchase_pop-up #block-message{
+    display: block;
     position: relative;
     top: 0;
     left: 0;
     width: 100%;
     max-width: none;
     background-color: #e25050;
+    z-index: 0;
 }
 #page-info{font-size: 12px; height: 12px; margin-bottom: 10px; line-height: normal;}
 
@@ -7285,6 +7294,9 @@ span.mess_block_full_time {
 }
 .ordering_block_side_cont_h > .canceled{
     color: #dd5c5c;
+}
+.ordering_block_side_cont_txt {
+    margin-bottom: 3px;
 }
 .ordering_block_side_cont_line{
 	padding-bottom: 11px;
@@ -9571,7 +9583,7 @@ textarea.anketa_form_in{
 .email_error{
     display: none;
     position: absolute;
-    width: fit-content;
+    width: auto;
     padding: 5px 20px;
     content: '';
     line-height: 13px;
@@ -9581,7 +9593,7 @@ textarea.anketa_form_in{
     background: #fff;
     border-radius: 2px;
     font-weight: 300;
-    z-index: 10;
+    border: 1px solid #dddddd;
     text-transform: uppercase;
     white-space: nowrap;
 }
@@ -9592,7 +9604,7 @@ textarea.anketa_form_in{
     left: 6px;
     bottom: -9px;
     border: 4px solid transparent;
-    border-top: 5px solid #fff;
+    border-top: 5px solid #dddddd;
     z-index: 10;
 }
 .calendar_info{

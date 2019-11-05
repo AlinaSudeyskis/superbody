@@ -19,11 +19,11 @@ class Payment extends CI_Controller
     const PAYMENT_METHOD = 'bank_card';
 
     // LIVE
-    const SHOPID = 618322;
-    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';
+    /*const SHOPID = 618322;
+    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';*/
     // TEST
-    /*const SHOPID = 621847;
-    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';*/
+    const SHOPID = 621847;
+    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';
 
     /**
      * Payment constructor.
@@ -50,8 +50,9 @@ class Payment extends CI_Controller
         // Способы оплаты с доп. данными (логин)
         $login_methods = array('alfabank');
 
-        $order_id       = is_numeric($this->input->get('oid', true)) ? $this->input->get('oid', true) : null;
-        $total_amount   = is_numeric($this->input->get('amount', true)) ? $this->input->get('amount', true) : null;
+        $order_id       = (is_numeric($this->input->get('oid', true))) ? $this->input->get('oid', true) : null;
+        $user_course_id = (is_numeric($this->input->get('ucid', true))) ? $this->input->get('ucid', true) : null;
+        $total_amount   = (is_numeric($this->input->get('amount', true))) ? $this->input->get('amount', true) : null;
         $payment_option = (in_array($this->input->get('option', true), $options))
             ? $this->input->get('option', true)
             : 'full_payment';
@@ -60,12 +61,13 @@ class Payment extends CI_Controller
             : 'bank_card';
 
         // Данные для способа оплаты
-        $phone        = is_numeric($this->input->get('phone', true)) ? $this->input->post('phone', true) : null;
-        $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : null;
+        $phone        = is_numeric($this->input->get('phone', true)) ? $this->input->post('phone', true) : '';
+        $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : '';
         $login        = strip_tags($this->input->post('login', true));
-        $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
+        $method_login = (in_array($payment_type, $login_methods)) ? $login : '';
 
         $customer_email = $this->input->get('customer_email', true);
+        $customer_name  = $this->input->get('customer_name', true);
         $order_items    = $this->input->get('order_items', true);
 
         $return_url = $this->input->get('return_url', true);
@@ -78,8 +80,8 @@ class Payment extends CI_Controller
         if (!empty($order_id) and !empty($total_amount) and !empty($payment_option))
         {
             // Создание платежа
-            $res_create = self::createPayment($order_id, $total_amount, self::CURRENCY, $payment_type, $payment_option, '',
-                $method_phone, $method_login, $customer_email, $order_items);
+            $res_create = self::createPayment($order_id, $user_course_id, $total_amount, self::CURRENCY, $payment_type, $payment_option, '',
+                $method_phone, $method_login, $customer_email, $customer_name, $order_items);
 
             if (!empty($res_create['response']))
             {
@@ -90,8 +92,8 @@ class Payment extends CI_Controller
                     $created_at = $response->_createdAt->_date . $response->_createdAt->_timezone;
 
                     // Сохранение данных оплаты в БД
-                    $this->Payment_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount,
-                        self::CURRENCY, $created_at, $payment_option, $payment_type, $method_phone, $method_login);
+                    $this->Payment_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount, self::CURRENCY,
+                        $created_at, $payment_option, $payment_type, $customer_email, $customer_name, $method_phone, $method_login, $this->date);
 
                     // Перенаправление пользователя на страницу оплаты
                     header('Location: ' . $response->_confirmation->confirmation_url);
@@ -128,12 +130,13 @@ class Payment extends CI_Controller
      */
     public function paymentNotifications()
     {
-        $response = json_decode(file_get_contents("php://input"));
+        $response = json_decode(file_get_contents("php://input"), true);
         //log_message('debug', __METHOD__.':'.__LINE__.' Response input:'. print_r($response, true));
 
         if ($response->type == 'notification')
         {
             $payment = $response->object;
+            //log_message('debug', __METHOD__.':'.__LINE__.' '.print_r($payment, true));
             // Обновление данных платежа
             self::updatePaymentData($payment);
 
@@ -163,22 +166,18 @@ class Payment extends CI_Controller
                     }
                     else
                     {
-                        log_message('error', __METHOD__.':'.__LINE__.' Check account = false '.$payment->id);
+                        log_message('debug', __METHOD__.':'.__LINE__.' Account did not activate. Check account = false '.$payment->id);
                     }
                 }
                 else
                 {
-                    log_message('error', __METHOD__.':'.__LINE__.' Payment paid != true '.$payment->id);
+                    log_message('error', __METHOD__.':'.__LINE__.' Impossible to capture payment. Paid != true '.$payment->id. ' ' . print_r($response, true));
                 }
-            }
-            else
-            {
-                log_message('error', __METHOD__.':'.__LINE__.' Payment status != waiting_for_capture '.$payment->id.' '.$payment->status);
             }
         }
         else
         {
-            log_message('error', __METHOD__.':'.__LINE__.' Response type != notification '. print_r($response));
+            log_message('error', __METHOD__.':'.__LINE__.' Response type != notification '. print_r($response, true));
         }
 
         header("HTTP/1.0 200 OK");
@@ -229,69 +228,30 @@ class Payment extends CI_Controller
             $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
                 $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
 
+            $payment = $this->Payment_model->getOrderPayment($payment_id);
             if ($payment_status == 'succeeded')
             {
                 $this->load->model('Store_model');
                 $this->load->model('Course_model');
-
-                $payment = $this->Payment_model->getOrderPayment($payment_id);
 
                 // Выборка курса заказа по номеру платежа
                 $courses = $this->Store_model->getOrderCourses($payment_id);
 
                 if (!empty($courses['courses']))
                 {
-                    $user_id = $courses['user_id'];
+                    //$user_id = $courses['user_id'];
 
                     // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
-                    if (!empty($payment) and $payment['option'] == 'partial_payment' and $payment_method_saved == 'true')
+                    if (!empty($payment) and $payment['option'] == 'partial_payment' and $payment_method_saved == 1)
                     {
-                        // Выборка рекуррентных данных
-                        $recurrent_data = $this->Course_model->getCourseRecurrentData($courses);
-                        //log_message('debug', __METHOD__ . __LINE__ . ' Course_model->getCourseRecurrentData: ' . print_r($recurrent_data, true));
-
                         // Сохранение последующих платежей
-                        $this->Payment_model->setSubsequentPayments($payment['order_id'], self::PAYMENT_METHOD, $payment_method_id, $recurrent_data['courses'], $this->date);
+                        $this->Payment_model->setSubsequentPayments($payment['order_id'], $payment['customer_email'], $payment['customer_name'], $payment['type'], $payment['login'], $payment['phone'], $payment_method_id, $courses['courses'], $this->date);
                     }
-
-                    // Прикрепление курса(ов) к пользователю
-                    foreach($courses['courses'] as $course)
-                    {
-                        $start_date = '';
-                        $end_date = '';
-                        $training_days = '';
-                        $user_coach = '';
-                        $free_weeks = ($course['pc_discount_type'] == 'free_week') ? $course['pc_discount'] : 0;
-                        $free_weeks_end_date = '';
-
-                        // Даты начала и окончания курса
-                        if($course['category'] == 'nutrition')
-                        {
-                            // Количество тренировок за курс
-                            $count_workouts = $course['count_weeks'] * $course['count_days'];
-
-                            $start_date = $this->date;
-
-                            $tmp_date = new DateTime($start_date);
-                            $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
-                            $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
-
-                            if($free_weeks > 0)
-                            {
-                                $free_weeks_days = $free_weeks*7;
-                                $tmp_date = new DateTime($start_date);
-                                $tmp_date->add(new DateInterval("P" . $free_weeks_days . "D"));
-                                $free_weeks_end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
-                            }
-                        }
-
-                        $this->Course_model->setNewUserCourse($payment['order_id'], $course['id'], $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
-                    }
-
-                    // Изменение статуса заказа как "Выполненный"
-                    $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, 1);
                 }
             }
+
+            // Изменение статуса заказа
+            $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, $payment_status);
         }
     }
 
@@ -299,6 +259,7 @@ class Payment extends CI_Controller
      * Создание платежа
      *
      * @param int $order_id
+     * @param int|bool $user_course_id
      * @param float $value
      * @param string $currency
      * @param string $payment_type ('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank')
@@ -307,17 +268,19 @@ class Payment extends CI_Controller
      * @param int|string $method_phone
      * @param string $method_login
      * @param string $customer_email
+     * @param string $customer_name
      * @param array $order_items
      * @return array
      */
-    public function createPayment($order_id, $value, $currency, $payment_type = 'bank_card', $payment_option = 'full_payment',
-                                  $payment_method_id = '', $method_phone = '', $method_login = '', $customer_email = '', $order_items = array())
+    public function createPayment($order_id, $user_course_id, $value, $currency, $payment_type = 'bank_card', $payment_option = 'full_payment',
+                                  $payment_method_id = '', $method_phone = '', $method_login = '', $customer_email = '',
+                                  $customer_name = '', $order_items = array())
     {
         $result         = array('response' => false, 'error' => false);
         $external_types = array('sberbank', 'alfabank');
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
-        $return_url     = 'https://superbody.pro/order/' . $order_id . '?return=true';
+        $return_url     = 'https://superbody.pro/profile/course/' . $user_course_id . '/order/' . $order_id . '?return=true';
         $save           = ($payment_option == 'partial_payment') ? true : false;
         $method_id      = strip_tags($payment_method_id);
         $confirm_type   = (in_array($payment_type, $external_types)) ? 'external' : 'redirect';
@@ -337,12 +300,16 @@ class Payment extends CI_Controller
                     'receipt' => array(
                         'customer' => array(
                             'email' => $customer_email,
+                            'full_name' => $customer_name
                         ),
                         'items' => array(
                             array(
                                 'description' => $order_items['name'],
                                 'quantity' => $order_items['cart_quantity'],
-                                'amount' => $order_price,
+                                'amount' => array(
+                                    'value' => $order_price,
+                                    'currency' => $currency,
+                                ),
                                 'vat_code' => 1,
                                 'payment_subject' => 'service',
                                 'payment_mode' => $payment_option,
@@ -405,10 +372,12 @@ class Payment extends CI_Controller
      * @param string $payment_option ('full_payment', 'partial_payment')
      * @param string $payment_method_id
      * @param string $customer_email
+     * @param string $customer_name
      * @param array $order_items
      * @return array
      */
-    public function createRepeatPayment($order_id, $value, $currency, $payment_option, $payment_method_id, $customer_email = '', $order_items = array())
+    public function createRepeatPayment($order_id, $value, $currency, $payment_option, $payment_method_id, $customer_email,
+                                        $customer_name, $order_items = array())
     {
         $result         = array('response' => false, 'error' => false);
         $idempotenceKey = uniqid('', true);
@@ -430,12 +399,16 @@ class Payment extends CI_Controller
                     'receipt' => array(
                         'customer' => array(
                             'email' => $customer_email,
+                            'full_name' => $customer_name,
                         ),
                         'items' => array(
                             array(
                                 'description' => $order_items['name'],
                                 'quantity' => $order_items['cart_quantity'],
-                                'amount' => $order_price,
+                                'amount' => array(
+                                    'value' => $order_price,
+                                    'currency' => $currency,
+                                ),
                                 'vat_code' => 1,
                                 'payment_subject' => 'service',
                                 'payment_mode' => $payment_option,
@@ -502,20 +475,6 @@ class Payment extends CI_Controller
                         'value' => $value,
                         'currency' => $currency,
                     )
-                    /*,
-                    'receipt' => array(
-                        'customer' => array(
-                            'email' => $customer_email
-                        ),
-                        'items' => array(
-                            'description' => $order_items['name'],
-                            'quantity' => $order_items['cart_quantity'],
-                            'amount' => $order_items['price'],
-                            'vat_code' => 1,
-                            'payment_subject' => 'service',
-                            'payment_mode' => $payment_option
-                        )
-                    ),*/
                 ),
                 $payment_id,
                 $idempotenceKey
@@ -577,31 +536,40 @@ class Payment extends CI_Controller
                 $payment_id,
                 uniqid('', true)
             );
-        } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+        }
+        catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+        }
+        catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+        }
+        catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+        }
+        catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+        }
+        catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+        }
+        catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+        }
+        catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+        }
+        catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (Exception $e) {
+        }
+        catch (Exception $e) {
             log_message('error', __METHOD__ . ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
         }
@@ -664,7 +632,7 @@ class Payment extends CI_Controller
 
                         // Создание запроса платежа и его выпонение
                         $res_create = self::createRepeatPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['options'],
-                            $payment['method_id'], $payment['user_email'], $products['products'][0]);
+                            $payment['method_id'], $payment['customer_email'], $payment['customer_name'], $products['products'][0]);
 
                         if(!empty($res_create['response']))
                         {
@@ -693,7 +661,7 @@ class Payment extends CI_Controller
                                     $this->Course_model->blockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
                                 }
                                 // Разморозить курс
-                                elseif($payment['status'] === 'canceled' and $response->_status === 'succeeded')
+                                elseif($response->_status === 'succeeded')
                                 {
                                     $this->load->model('Course_model');
                                     $this->load->model('Store_model');
@@ -702,7 +670,7 @@ class Payment extends CI_Controller
 
                                     // Курсы заказа
                                     $order_courses = $this->Store_model->getOrderCourses('', $payment['op_id']);
-                                    // Блокировка курсов
+                                    // Разблокировка курсов
                                     $this->Course_model->unblockUserOrderCourses($payment['op_id'], $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
                                 }
                             }

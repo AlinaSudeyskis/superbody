@@ -44,9 +44,11 @@ if (!empty($user_session)) :
                 <span><img src="/img/menu_ico4.png" alt=""></span><span>Сообщения</span>
             </a>
         </li>
-        <li><a href="/orders" <?php if ($page_menu == 'orders') { echo 'class="active"'; } ?>>
-                <span><img src="/img/menu_ico10.png" alt=""></span><span>Покупки</span></a>
-        </li>
+        <!--<li>
+            <a href="/orders" <?php /*if ($page_menu == 'orders') { echo 'class="active"'; } */?>>
+                <span><img src="/img/menu_ico10.png" alt=""></span><span>Покупки</span>
+            </a>
+        </li>-->
         <?php if($user_session['type'] == 3): ?>
             <li>
                 <a href="/cart" <?php if ($page_menu == 'cart') { echo 'class="active"'; } ?>>

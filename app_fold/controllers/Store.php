@@ -939,6 +939,7 @@ class Store extends CI_Controller
                                 $reason = 'payment_refunded';
 
                                 // Блокировка курсов пользователя
+                                $this->Store_model->updateOrderStatus($order_id, '', $reason);
                                 $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
                                 $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
 

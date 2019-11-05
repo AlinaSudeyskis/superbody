@@ -76,7 +76,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </div>
                         <div class="ordering_block_side">
                             <div class="ordering_block_side_head">Детали Заказа</div>
-                            <div class="ordering_block_side_info">
+                            <!--<div class="ordering_block_side_info">
                                 <div class="ordering_block_side_info_h_wrap parent">
                                     <div class="ordering_block_side_info_h">адрес и способ доставки</div>
                                 </div>
@@ -84,109 +84,134 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="ordering_block_side_cont_h">адрес доставки</div>
                                     <div class="ordering_block_side_cont_txt">
                                         <div class="ordering_block_side_cont_line">
-                                            <span class="info_ordering_t_name"><?php echo $order['o_user_surname']; ?></span>
-                                            <span class="info_ordering_name"><?php echo $order['o_user_name']; ?></span>
+                                            <span class="info_ordering_t_name"><?php /*echo $order['o_user_surname']; */?></span>
+                                            <span class="info_ordering_name"><?php /*echo $order['o_user_name']; */?></span>
                                             <span class="info_ordering_s_name"></span>
                                         </div>
                                         <div class="ordering_block_side_cont_line">
-                                            <span class="info_ordering_t_name"><?php echo $order['user_phone']; ?></span>
+                                            <span class="info_ordering_t_name"><?php /*echo $order['user_phone']; */?></span>
                                         </div>
                                         <div class="ordering_block_side_cont_line">
-                                            <span class="info_ordering_t_name"><?php echo $order['user_email']; ?></span>
+                                            <span class="info_ordering_t_name"><?php /*echo $order['user_email']; */?></span>
                                         </div>
-                                        <span class="info_ordering_street"><?php echo $order['street']; ?></span>
-                                        <span class="info_ordering_house"><?php echo $order['house']; ?></span>
-                                        <span class="info_ordering_building"><?php echo $order['building']; ?></span><br>
-                                        <span class="info_ordering_index"><?php echo $order['postcode']; ?></span>
-                                        <span class="info_ordering_city"><?php echo $order['city']; ?></span><br>
-                                        <span class="info_ordering_country"><?php echo $order['country']; ?></span>
+                                        <span class="info_ordering_street"><?php /*echo $order['street']; */?></span>
+                                        <span class="info_ordering_house"><?php /*echo $order['house']; */?></span>
+                                        <span class="info_ordering_building"><?php /*echo $order['building']; */?></span><br>
+                                        <span class="info_ordering_index"><?php /*echo $order['postcode']; */?></span>
+                                        <span class="info_ordering_city"><?php /*echo $order['city']; */?></span><br>
+                                        <span class="info_ordering_country"><?php /*echo $order['country']; */?></span>
                                     </div>
                                     <div class="ordering_block_side_cont_h">способ доставки</div>
                                     <div class="ordering_block_side_cont_txt">
-                                        <span class="info_ordering_type"><?php echo $order['delivery']; ?></span>
+                                        <span class="info_ordering_type"><?php /*echo $order['delivery']; */?></span>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="ordering_block_side_info">
+                            </div>-->
+                            <!--<div class="ordering_block_side_info">
                                 <div class="ordering_block_side_info_h_wrap parent">
                                     <div class="ordering_block_side_info_h">Способ оплаты</div>
                                 </div>
                                 <div class="ordering_block_side_cont">
-                                    <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $order['payment']; ?></div>
-                                    <div class="ordering_block_side_cont_txt">Сумма: <span class="info_ordering_price"><?php echo sprintf("%.2f", $price_sum);?></span> pуб.</div>
+                                    <div class="ordering_block_side_cont_h info_ordering_pay"><?php /*echo $order['payment']; */?></div>
+                                    <div class="ordering_block_side_cont_txt">Сумма: <span class="info_ordering_price"><?php /*echo sprintf("%.2f", $price_sum);*/?></span> pуб.</div>
                                 </div>
-                            </div>
-                            <div class="ordering_block_side_info">
+                            </div>-->
+                            <!--<div class="ordering_block_side_info">
                                 <div class="ordering_block_side_info_h_wrap parent">
                                     <div class="ordering_block_side_info_h">Статус заказа</div>
                                 </div>
                                 <div class="ordering_block_side_cont">
-                                    <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $order['status']; ?></div>
+                                    <div class="ordering_block_side_cont_h info_ordering_pay"><?php /*echo $order['status']; */?></div>
+                                </div>
+                            </div>-->
+                            <div class="ordering_block_side_info">
+                                <div class="ordering_block_side_info_h_wrap parent">
+                                    <div class="ordering_block_side_info_h">Информация</div>
+                                </div>
+                                <div class="ordering_block_side_cont">
+                                    <div class="ordering_block_side_cont_h info_ordering_pay">№ <?php echo $order['id']; ?></div>
+                                    <div class="ordering_block_side_cont_txt">Дата заказа: <?php echo $order['date']; ?></div>
+                                    <div class="ordering_block_side_cont_txt"><?php echo $order['user_email']; ?></div>
+                                </div>
+                            </div>
+                            <div class="ordering_block_side_info">
+                                <div class="ordering_block_side_info_h_wrap parent">
+                                    <div class="ordering_block_side_info_h">Оплата</div>
+                                </div>
+                                <div class="ordering_block_side_cont">
+                                    <?php if($order['payment_status_eng'] == 'free'): ?>
+                                        <div class="ordering_block_side_cont_h info_ordering_pay">Без оплаты</div>
+                                    <?php endif; ?>
+                                    <div class="ordering_block_side_cont_h info_ordering_pay">Сумма: <span class="info_ordering_price"><?php echo $order['total_amount']; ?></span> pуб.</div>
+                                    <?php if(!empty($order['discount'])): ?>
+                                        <div class="ordering_block_side_cont_txt">Промокод: <span class="info_ordering_price"><?php echo $order['promocode']; ?></span></div>
+                                        <div class="ordering_block_side_cont_txt">Скидка: <span class="info_ordering_price"><?php echo $order['discount']; ?></span></div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
                         <?php if(!empty($order['payments'])): ?>
                             <div class="ordering_block_bottom">
                                 <div class="ordering_block_side_head">Данные о платеже</div>
-                                <div class="ordering_block_side_info">
-                                    <div class="ordering_block_side_info_h_wrap parent">
-                                        <div class="ordering_block_side_info_h">ID: <?php echo $order['payments'][0]['id'];?></div>
-                                    </div>
-                                    <div class="ordering_block_side_cont">
-                                        <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $order['payment']; ?></div>
-                                        <div class="ordering_block_side_cont_txt">Сумма: <?php echo $order['payments'][0]['amount'] . ' ' . $order['payments'][0]['currency'];?></div>
-                                        <div class="ordering_block_side_cont_txt">Статус: <span class="<?php echo $order['payments'][0]['status_code']; ?>"><?php echo $order['payments'][0]['status'];?></span></div>
-                                        <div class="ordering_block_side_cont_txt">Оплата: <?php echo $order['payments'][0]['paid'];?></div>
-                                        <?php if(empty($order['payments'][0]['captured_at'])):
-                                            if (!empty($order['payments'][0]['created_at'])): ?>
-                                                <div class="ordering_block_side_cont_txt">Создан: <?php echo $order['payments'][0]['created_at'];?></div>
-                                            <?php endif;
-                                            if (!empty($order['payments'][0]['expires_at'])): ?>
-                                                <div class="ordering_block_side_cont_txt">Истекает: <?php echo $order['payments'][0]['expires_at'];?></div>
-                                            <?php endif;
-                                        else:?>
-                                            <div class="ordering_block_side_cont_txt">Подтвержден: <?php echo $order['payments'][0]['captured_at'];?></div>
-                                        <?php endif;
-                                        if ($order['payments'][0]['status_code'] == 'waiting_for_capture'):?>
-                                            <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
-                                                <div class="video_admin_form_buts parent">
-                                                    <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
-                                                    <input type="submit" name="bt_capture" value="Подтвердить платеж" class="anketa_form_but" />
-                                                    <input type="submit" name="bt_cancel" value="Отменить платеж" class="anketa_form_but red" />
-                                                </div>
-                                            </form>
-                                        <?php endif;?>
-                                    </div>
-                                    <?php if($order['payments'][0]['status_code'] == 'succeeded'):?>
-                                        <div class="ordering_block_side_info_h_wrap parent"></div>
+                                <?php foreach($order['payments'] as $payment): ?>
+                                    <div class="ordering_block_side_info">
                                         <div class="ordering_block_side_info_h_wrap parent">
-                                            <?php $refund_info = 'Сумма возврата и остаток должны быть больше 1 рубля.';
-                                            $passed_price = 0;
-                                            if(!empty($courses)):
-                                                foreach($courses as $course):
-                                                    $passed_price += $course['passed_price'];?>
-                                                    <div class="ordering_block_side_cont_txt"><?php echo $course['name'] . ' (выполнено тренировок): ' .$course['workouts_passed'];?></div>
-                                                <?php endforeach;
-                                                unset($course);
-                                            endif;
-                                            $amount = $order['payments'][0]['amount'] - $order['payments'][0]['refunds_amount'];
-                                            $refund_amount  = number_format((($amount / 2) - $passed_price), 2, '.', '');
-                                            $max_refund     = number_format(($amount - 1.01), 2, '.', '');
-
-                                            if ($max_refund < 1.01 and $refund_amount < 1.01) :
-                                                $refund_info = 'Возврат платежа не возможен. ' . $refund_info;
-                                            endif;?>
-                                            <div class="ordering_block_side_info_h">
-                                                Возврат платежа
-                                                <div class="ordering_block_side_cont payment_info"><!--(<?php /*echo $refund_info; */?>)--></div>
-                                            </div>
+                                            <div class="ordering_block_side_info_h">ID: <?php echo $payment['id'];?></div>
                                         </div>
-                                        <?php if ($amount > 0) :?>
-                                            <div class="ordering_block_side_cont">
-                                                <div class="ordering_block_side_cont_h info_ordering_pay"></div>
-                                                <div class="ordering_block_side_cont_txt">*Сумма частичного возврата и остаток должны быть больше 1 рубля.</div>
-                                                <div class="ordering_block_side_cont_h info_ordering_pay"></div>
-                                                <div class="anketa_block_cont">
+                                        <div class="ordering_block_side_cont">
+                                            <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $payment['payment_type']; ?></div>
+                                            <div class="ordering_block_side_cont_txt">Сумма: <?php echo $payment['amount'] . ' ' . $payment['currency'];?></div>
+                                            <div class="ordering_block_side_cont_txt">Статус: <span class="<?php echo $payment['status_code']; ?>"><?php echo $payment['status'];?></span></div>
+                                            <div class="ordering_block_side_cont_txt">Оплата: <?php echo $payment['paid'];?></div>
+                                            <?php if(empty($payment['captured_at'])):
+                                                if (!empty($payment['created_at'])): ?>
+                                                    <div class="ordering_block_side_cont_txt">Создан: <?php echo $payment['created_at'];?></div>
+                                                <?php endif;
+                                                if (!empty($payment['expires_at'])): ?>
+                                                    <div class="ordering_block_side_cont_txt">Истекает: <?php echo $payment['expires_at'];?></div>
+                                                <?php endif;
+                                            else:?>
+                                                <div class="ordering_block_side_cont_txt">Подтвержден: <?php echo $payment['captured_at'];?></div>
+                                            <?php endif;
+                                            if ($payment['status_code'] == 'waiting_for_capture'):?>
+                                                <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
+                                                    <div class="video_admin_form_buts parent">
+                                                        <input type="hidden" name="i_payment_id" value="<?php echo $payment['id'];?>" />
+                                                        <input type="submit" name="bt_capture" value="Подтвердить платеж" class="anketa_form_but" />
+                                                        <input type="submit" name="bt_cancel" value="Отменить платеж" class="anketa_form_but red" />
+                                                    </div>
+                                                </form>
+                                            <?php endif;?>
+                                        </div>
+                                        <?php if($payment['status_code'] == 'succeeded'):?>
+                                            <div class="ordering_block_side_info_h_wrap parent"></div>
+                                            <div class="ordering_block_side_info_h_wrap parent">
+                                                <?php $refund_info = 'Сумма возврата и остаток должны быть больше 1 рубля.';
+                                                $passed_price = 0;
+                                                if(!empty($courses)):
+                                                    foreach($courses as $course):
+                                                        $passed_price += $course['passed_price'];?>
+                                                        <div class="ordering_block_side_cont_txt"><?php echo $course['name'] . ' (выполнено тренировок): ' .$course['workouts_passed'];?></div>
+                                                    <?php endforeach;
+                                                    unset($course);
+                                                endif;
+                                                $amount = $payment['amount'] - $payment['refunds_amount'];
+                                                $refund_amount  = number_format((($amount / 2) - $passed_price), 2, '.', '');
+                                                $max_refund     = number_format(($amount - 1.01), 2, '.', '');
+
+                                                if ($max_refund < 1.01 and $refund_amount < 1.01) :
+                                                    $refund_info = 'Возврат платежа не возможен. ' . $refund_info;
+                                                endif;?>
+                                                <div class="ordering_block_side_info_h">
+                                                    Возврат платежа
+                                                    <div class="ordering_block_side_cont payment_info"><!--(<?php /*echo $refund_info; */?>)--></div>
+                                                </div>
+                                            </div>
+                                            <?php if ($amount > 0) :?>
+                                                <div class="ordering_block_side_cont">
+                                                    <div class="ordering_block_side_cont_h info_ordering_pay"></div>
+                                                    <div class="ordering_block_side_cont_txt">*Сумма частичного возврата и остаток должны быть больше 1 рубля.</div>
+                                                    <div class="ordering_block_side_cont_h info_ordering_pay"></div>
                                                     <form action="" class="edit_kurs_form" id="1kurs_form" method="post">
                                                         <div class="anketa_block_item_cont">
                                                             <?php if(!empty($courses)):
@@ -196,7 +221,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                                 unset($course);
                                                             endif;
                                                             $current_refund = ($refund_amount < 1.01) ? 1.01 : $refund_amount;?>
-                                                            <input type="hidden" name="i_payment_id" value="<?php echo $order['payments'][0]['id'];?>" />
+                                                            <input type="hidden" name="i_payment_id" value="<?php echo $payment['id'];?>" />
                                                             <div class="parent kurs_cur_wrap">
                                                                 <!--min="1.01" max="<?php /*echo $max_refund; */?>" value="<?php /*echo $current_refund; */?>"-->
                                                                 <input type="number" name="i_refund_amount" class="admin_form_txt admin_form_txt_short" step="0.01"
@@ -210,34 +235,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                         </div>
                                                     </form>
                                                 </div>
+                                            <?php endif;
+                                        endif;
+                                        if(!empty($payment['refunds'])):?>
+                                            <div class="ordering_block_side_info_h_wrap parent"></div>
+                                            <div class="ordering_block_side_info_h_wrap parent">
+                                                <div class="ordering_block_side_info_h">Возвраты</div>
                                             </div>
-                                        <?php endif;
-                                    endif;
-                                    if(!empty($order['payments'][0]['refunds'])):?>
-                                        <div class="ordering_block_side_info_h_wrap parent"></div>
-                                        <div class="ordering_block_side_info_h_wrap parent">
-                                            <div class="ordering_block_side_info_h">Возвраты</div>
-                                        </div>
-                                        <div class="ordering_block_side_cont">
-                                            <div class="ordering_block_bottom">
-                                                <?php foreach($order['payments'][0]['refunds'] as $refund): ?>
-                                                    <div class="ordering_block_side_info">
-                                                        <div class="ordering_block_side_info_h_wrap parent">
-                                                            <div class="ordering_block_side_info_h">ID: <?php echo $refund['id'];?></div>
-                                                        </div>
-                                                        <div class="ordering_block_side_cont">
-                                                            <div class="ordering_block_side_cont_h info_ordering_pay"></div>
-                                                            <div class="ordering_block_side_cont_txt">Сумма: <?php echo $refund['amount'] . ' RUB';?></div>
-                                                            <div class="ordering_block_side_cont_txt">Статус: <span class="<?php echo $refund['status_code']; ?>"><?php echo $refund['status'];?></span></div>
-                                                            <div class="ordering_block_side_cont_txt">Создан: <?php echo $refund['created_at'];?></div>
-                                                        </div>
-                                                    </div>
-                                                <?php endforeach;
-                                                unset($refund);?>
+                                            <div class="ordering_block_side_cont">
+                                                <div class="ordering_block_bottom">
+                                                    <?php foreach($payment['refunds'] as $refund): ?>
+                                                        <?php include('./app_fold/views/store/cart/order_refund_item.php'); ?>
+                                                    <?php endforeach;
+                                                    unset($refund);?>
+                                                </div>
                                             </div>
-                                        </div>
-                                    <?php endif;?>
-                                </div>
+                                        <?php endif;?>
+                                    </div>
+                                <?php endforeach;
+                                unset($payment);?>
                             </div>
                         <?php endif;?>
                     <?php else: ?>

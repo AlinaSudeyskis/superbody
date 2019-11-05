@@ -20,16 +20,18 @@ class Authorization_model extends CI_Model
      */
     public function userRegistration($email, $password, $email_hash, $date, $name = '')
     {
+        $result = 'e2'; // Не удалось зарегестрировать E-mail
+
         $sel_user = $this->db->query('SELECT `user_id` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
         
         if ($sel_user !== false and $sel_user->num_rows() == 0)
         {
-            $this->db->query('
+            $ins_data = $this->db->query('
                 INSERT INTO `users`
                   (`user_email`, `user_password`, `user_activate_code`, `user_date_reg`, `user_activate_date`, `user_date_update`, `user_name`, `user_auth_via`)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)', array($email, $password, $email_hash, $date, $date, $date, $name, 'native'));
 
-            if ($this->db->affected_rows() == 1)
+            if ($ins_data !== false and $this->db->affected_rows() == 1)
             {
                 $user_id = $this->db->insert_id();
 
@@ -99,20 +101,21 @@ class Authorization_model extends CI_Model
                 
                 return $user_id;
             }
-            else
+            elseif($ins_data === false)
             {
-                return 'e2'; // Не удалось зарегестрировать E-mail
-            }            
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
         elseif($sel_user === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return 'e2'; // Не удалось зарегестрировать E-mail
         }
         else
         {
-            return 'e1'; // Пользователь с таким E-mail уже зарегистрирован.
+            $result = 'e1'; // Пользователь с таким E-mail уже зарегистрирован.
         }
+
+        return $result;
     }
 
     /**
@@ -944,15 +947,16 @@ class Authorization_model extends CI_Model
         $result = array('user_id' => null, 'new_user' => false);
 
         // Поиск email в БД
-        $sel_email = $this->db->query('SELECT `user_email`, `user_id`, `user_auth_via` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
+        $sel_email = $this->db->query('SELECT `user_email`, `user_name`, `user_id`, `user_auth_via` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
 
         if($sel_email !== false and 1 == $sel_email->num_rows())
         {
             $row = $sel_email->row();
 
             // Возвращаем ID пользователя введенного email
-            $result['user_id']  = $row->user_id;
-            $result['auth_via'] = $row->user_auth_via;
+            $result['user_id']   = $row->user_id;
+            $result['user_name'] = $row->user_name;
+            $result['auth_via']  = $row->user_auth_via;
 
             unset($row);
         }
@@ -983,9 +987,10 @@ class Authorization_model extends CI_Model
             $user_id = self::userRegistration($email, $password, $email_hash, $date, $name);
 
             // Возвращаем ID нового пользователя
-            $result['user_id']  = is_numeric($user_id) ? $user_id : null;
-            $result['new_user'] = is_numeric($user_id) ? $user_id : false;
-            $result['auth_via'] = is_numeric($user_id) ? 'native' : null;
+            $result['user_id']    = is_numeric($user_id) ? $user_id : null;
+            $result['new_user']   = is_numeric($user_id) ? $user_id : false;
+            $result['auth_via']   = is_numeric($user_id) ? 'native' : null;
+            $result['email_hash'] = is_numeric($user_id) ? $email_hash : null;
         }
 
         return $result;

@@ -77,6 +77,7 @@ $route['email/change']           = 'Authorization/confirmChangeEmail';
 $route['email/changed']          = 'Authorization/confirmChangeEmail/1';
 $route['account/restore']        = 'Authorization/restoreAccount';
 $route['account/restored']       = 'Authorization/restoreAccount/1';
+$route['checkUserEmail']         = 'Authorization/checkUserEmail';
 
 // Страницы пользователя
 $route['profile/meals(/(:num)(/(:num)(/(:num))?)?)?']   = 'Course/userMeals/$2/$4/$6';
@@ -333,8 +334,8 @@ $route['administration/store/product/(:num)'] = 'Store/product/$1';
 $route['administration/orders(/(capture|succeeded|canceled|pending))?'] = 'Store/orders/$2';
 $route['administration/orders/succeeded/(done|uncompleted)'] = 'Store/orders/succeeded/$1';
 $route['administration/order/(:num)']         = 'Store/order/$1';
-$route['orders']                              = 'Store/userOrders';
-$route['order/(:num)']                        = 'Store/userOrder/$1';
+//$route['orders']                              = 'Store/userOrders';
+//$route['order/(:num)']                        = 'Store/userOrder/$1';
 $route['getSubcategories']                    = 'Store/getSubcategories';
 $route['searchProduct']                       = 'Store/searchProduct';
 // Landing
@@ -364,6 +365,7 @@ $route['courses/coaches/(:num)/(workouts|nutritions)/(:num)'] = 'Course/publicCo
 $route['courses/coaches(/(:num))?'] = 'Course/publicCourses///crs_coaches/$2';
 $route['courses/promocode/(:any)/(workouts|nutritions)/(:num)'] = 'Course/publicCourses/$2/$3/promocode/$1';
 $route['courses/promocode/(:any)'] = 'Course/publicCourses///promocode/$1';
+$route['buy_course'] = 'Course/buyCourseForm';
 
 $route['sortCourses'] = 'Course/getSortCourses';
 

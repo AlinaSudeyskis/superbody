@@ -107,11 +107,12 @@ class Welcome extends CI_Controller
                 $i_phone = $this->input->post('i_phone', true);
                 $i_login = $this->input->post('i_login', true);
                 $i_email = $this->input->post('email', true);
+                $i_name  = $this->input->post('name', true);
                 // Введенный промокод
                 $i_promocode = $this->input->post('promocode', true);
 
                 parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
-                    $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url);
+                    $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url);
             }
         }
         elseif($this->input->post('bt_facebook_login', true) and $this->input->post('cb_politics', true))

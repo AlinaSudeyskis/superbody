@@ -22,30 +22,35 @@ class Payment_model extends CI_Model
      * @param string $created_at
      * @param string $payment_option (full_payment, partial_payment)
      * @param $payment_type
-     * @param $method_phone
-     * @param $method_login
+     * @param $customer_email
+     * @param $customer_name
+     * @param string $method_phone
+     * @param string $method_login
+     * @param $date
      * @return bool
      */
     public function setNewOrderPayment($order_id, $payment_id, $payment_status, $total_amount, $currency, $created_at,
-                                       $payment_option, $payment_type, $method_phone, $method_login)
+                                       $payment_option, $payment_type, $customer_email, $customer_name, $method_phone = '',
+                                       $method_login = '', $date = '')
     {
+        $result = false;
+
         $ins_data = $this->db->query('
-            INSERT INTO `orders_payment` (`op_o_id`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            array($order_id, $payment_type, $method_phone, $method_login, $payment_id, $payment_status, $total_amount, $currency, $payment_option, $created_at));
+            INSERT INTO `orders_payment` (`op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_phone`, `op_pt_login`, 
+                                          `op_payment_id`, `op_status`, `op_amount`, `op_currency`, `op_payment_options`, `op_created_at`, `op_date_add`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($order_id, $customer_email, $customer_name, $payment_type, $method_phone, $method_login, $payment_id,
+                    $payment_status, $total_amount, $currency, $payment_option, $created_at, $date));
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
         }
         elseif ($ins_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -119,13 +124,19 @@ class Payment_model extends CI_Model
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `op_o_id`, `op_payment_options` FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
+        $sel_data = $this->db->query('SELECT `op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_payment_options` 
+            FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
 
-            $result['order_id'] = $row->op_o_id;
-            $result['option']   = $row->op_payment_options;
+            $result['order_id']       = $row->op_o_id;
+            $result['customer_email'] = $row->op_customer_email;
+            $result['customer_name']  = $row->op_customer_name;
+            $result['option']         = $row->op_payment_options;
+            $result['type']           = $row->op_payment_type;
+            $result['login']          = $row->op_pt_login;
+            $result['phone']          = $row->op_pt_phone;
         }
         elseif($sel_data === false)
         {
@@ -139,12 +150,17 @@ class Payment_model extends CI_Model
      * Сохранение последующих платежей заказа
      *
      * @param $order_id
+     * @param $customer_email
+     * @param $customer_name
      * @param $payment_method
+     * @param $login
+     * @param $phone
      * @param $payment_method_id
      * @param $recurrent_data
      * @param $date
+     * @throws Exception
      */
-    public function setSubsequentPayments($order_id, $payment_method, $payment_method_id, $recurrent_data, $date)
+    public function setSubsequentPayments($order_id, $customer_email, $customer_name, $payment_method, $login, $phone, $payment_method_id, $recurrent_data, $date)
     {
         if (!empty($recurrent_data))
         {
@@ -152,27 +168,42 @@ class Payment_model extends CI_Model
             {
                 if ($course['recurrent'] === true)
                 {
-                    $months = $course['recur_months'] - 1;
+                    $months = $course['rec_months'] - 1;
                     $following_date = $date;
 
                     // Цикл добавления будущих платежей
-                    for($i = 1; $i <= $months; $i++)
+                    if($months >= 1)
                     {
-                        $tmp_date = new DateTime($following_date);
-                        $tmp_date->add(new DateInterval('P1M'));
-                        $following_date = $tmp_date->format('Y-m-d H:i:s');
-
-                        $ins_data = $this->db->query('
-                            INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_following_date`)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)',
-                                array($order_id, $i, $payment_method, $course['recur_subsequent'], 'RUB', $payment_method_id, $following_date));
-                        if($ins_data === false)
+                        for($i = 1; $i <= $months; $i++)
                         {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            $tmp_date = new DateTime($following_date);
+                            $tmp_date->add(new DateInterval('P1M'));
+                            $following_date = $tmp_date->format('Y-m-d');
+
+                            $ins_data = $this->db->query('
+                            INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_following_date`, `op_date_add`)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                array($order_id, $i, $customer_email, $customer_name, $payment_method, $login, $phone, $course['rec_subsequent'], 'RUB', $payment_method_id, $following_date, $date));
+                            if($ins_data === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
                         }
                     }
+                    else
+                    {
+                        log_message('debug', __METHOD__.':'.__LINE__.' Not enough amount of the recurrent months: ' . $course['rec_months']);
+                    }
+                }
+                else
+                {
+                    log_message('debug', __METHOD__.':'.__LINE__.' Impossibility of the recurrent payment: ' . $course['recurrent']);
                 }
             }
+        }
+        else
+        {
+            log_message('debug', __METHOD__.':'.__LINE__.' : Empty recurrent data');
         }
     }
 
@@ -192,10 +223,12 @@ class Payment_model extends CI_Model
         // Выборка текущих платежей для оплаты
         // Выборка не выполненных платежей
         $sel_data = $this->db->query('
-            SELECT `op_id`, `op_o_id`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_payment_options`, `op_status`, `o_user_email` 
+            SELECT `op_id`, `op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_payment_options`, `op_status`, `o_user_email` 
             FROM `orders_payment`
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
-            WHERE (`op_following_date`=? or (`op_following_date`<? and `op_status`="canceled")) and `op_payment_method_id`<>""', array($today, $today));
+            WHERE `op_payment_method_id`<>"" and `op_following_date`<>"0000-00-00" and `op_number`>0 and 
+                  (`op_following_date`=? or (`op_following_date`<? and `op_status`="canceled"))',
+                array($today, $today));
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             foreach($sel_data->result() as $row)
@@ -210,15 +243,17 @@ class Payment_model extends CI_Model
 
                     if($f_row->op_revoke_permission == 0)
                     {
-                        $result['payments'][$i]['id']         = $row->op_id;
-                        $result['payments'][$i]['order_id']   = $row->op_o_id;
-                        $result['payments'][$i]['type']       = $row->op_payment_type;
-                        $result['payments'][$i]['amount']     = $row->op_amount;
-                        $result['payments'][$i]['currency']   = $row->op_currency;
-                        $result['payments'][$i]['method_id']  = $row->op_payment_method_id;
-                        $result['payments'][$i]['options']    = $row->op_payment_options;
-                        $result['payments'][$i]['status']     = $row->op_status;
-                        $result['payments'][$i]['user_email'] = $row->o_user_email;
+                        $result['payments'][$i]['id']             = $row->op_id;
+                        $result['payments'][$i]['order_id']       = $row->op_o_id;
+                        $result['payments'][$i]['customer_email'] = $row->op_customer_email;
+                        $result['payments'][$i]['customer_name']  = $row->op_customer_name;
+                        $result['payments'][$i]['type']           = $row->op_payment_type;
+                        $result['payments'][$i]['amount']         = $row->op_amount;
+                        $result['payments'][$i]['currency']       = $row->op_currency;
+                        $result['payments'][$i]['method_id']      = $row->op_payment_method_id;
+                        $result['payments'][$i]['options']        = $row->op_payment_options;
+                        $result['payments'][$i]['status']         = $row->op_status;
+                        $result['payments'][$i]['user_email']     = $row->o_user_email;
 
                         $i++;
                     }

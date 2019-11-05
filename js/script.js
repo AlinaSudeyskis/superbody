@@ -108,11 +108,17 @@ $(document).ready(function () {
 
         $(".buy_course").on('click', function (event) {
             event.preventDefault();
+
             var cid  = $(this).data('cid'),
                 oid  = $(this).data('oid'),
+                ucid  = $(this).data('ucid'),
                 po   = $(this).data('po'),
-                pc_s = $('#pc-string').val();
+                pc_s = $('#pc-string').val(),
+                pattern = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
             purchase_form = $('.purchase_form');
+
+            purchase.find('#block-message').html();
+            purchase.find('#block-message').hide();
 
             $.ajax({
                 url: '/dataCourse',
@@ -121,15 +127,17 @@ $(document).ready(function () {
                 data: {
                     cid: cid,
                     oid: oid,
+                    ucid: ucid,
                     pc_s: pc_s
                 },
                 complete: function (result) {
                     var data = result.responseJSON;
                     if (data.crs) {
                         purchase_form.html(data.crsd);
+                        purchase_form.show();
 
                         var auth_form = purchase_form.next('.purchase_pop-up_h.auth_form');
-                        auth_form.toggle();
+                        auth_form.hide();
 
                         purchase_up(po);
                         $('.anketa_form_select, .journal_form_select').styler();
@@ -143,26 +151,82 @@ $(document).ready(function () {
                             show_policy();
                         });
 
-                        purchase_form.find("input[name='bt_buy_course']").on('click', function (event) {
-                            var this_form = $(this).parents('form'),
-                                user_id = this_form.find('#user-id').val(),
-                                user_email = this_form.find('input[name="email"]').val();
+                        purchase_form.on('keyup', 'input[name=email]', function(){
+                            auth_form.find('input[name=email]').val($(this).val());
+                        });
+                        purchase_form.on('paste', 'input[name=email]', function(){
+                            auth_form.find('input[name=email]').val($(this).val());
+                        });
 
-                            if(!$.isNumeric(user_id) && !user_email)
+                        purchase_form.find("input[name='bt_buy_course']").on('click', function (event) {
+                            var this_form  = $(this).parents('form'),
+                                user_id    = this_form.find('#user-id').val(),
+                                user_email = this_form.find('input[name="email"]'),
+                                user_name  = this_form.find('input[name="name"]');
+
+                            if($.isNumeric(user_id) && (user_email.length === 0 || (user_email.length === 1 && pattern.test(user_email.val()))) &&
+                                (user_name.length === 0 || (user_name.length === 1 && user_name.val())))
                             {
-                                purchase_form.toggle();
-                                auth_form.toggle();
-                                purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
-                                return false;
+                                this_form.submit();
                             }
                             else
                             {
-                                this_form.submit();
+                                var a_message = '';
+
+                                if(pattern.test(user_email.val()) && user_name)
+                                {
+                                    $.ajax({
+                                        url: '/checkUserEmail',
+                                        type: 'post',
+                                        dataType: 'json',
+                                        data: {
+                                            email: user_email,
+                                            name: user_name
+                                        },
+                                        complete: function (result)
+                                        {
+                                            var data = result.responseJSON;
+                                            if(data.result === false)
+                                            {
+                                                a_message = 'Для покупки необходимо зарегистрироваться';
+                                                auth_form.find('.kurs_cur_h').html('Регистрация');
+                                                auth_form.find('.page_form').html(data.form);
+
+                                                purchase_form.toggle();
+                                                auth_form.toggle();
+                                            }
+                                            else if(data.result === true)
+                                            {
+                                                a_message = 'Для покупки необходимо авторизоваться';
+                                                auth_form.find('.kurs_cur_h').html('Авторизация');
+                                                auth_form.find('.page_form').html(data.form);
+
+                                                purchase_form.toggle();
+                                                auth_form.toggle();
+                                            }
+
+                                            if(a_message !== '')
+                                            {
+                                                purchase.find('#block-message').html(a_message);
+                                                purchase.find('#block-message').show();
+                                            }
+
+                                            purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    user_email.checkValidity();
+                                    user_name.checkValidity();
+                                }
+                                return false;
                             }
                         });
 
                         purchase_form.find('.turn_auth').on('click', function(e){
                             e.preventDefault();
+                            $('.email_error').hide();
                             purchase_form.toggle();
                             auth_form.toggle();
                             purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
@@ -170,6 +234,7 @@ $(document).ready(function () {
 
                         purchase.find('.return_purchase').on('click', function(e){
                             e.preventDefault();
+                            $('.email_error').hide();
                             purchase_form.toggle();
                             auth_form.toggle();
                             purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
@@ -196,6 +261,327 @@ $(document).ready(function () {
             });
         });
     }
+
+    $(".promo_line").on('click', function () {
+        promo_line_func($(this));
+    });
+
+    var purchase_form = $('.purchase_form');
+    purchase_form.on('paste', ' #i-promocode', function () {
+        var pc_input = $(this);
+        searchPromo(pc_input);
+    });
+    purchase_form.on('keyup', ' #i-promocode', function () {
+        var pc_input = $(this);
+        searchPromo(pc_input);
+    });
+
+    $(".policy").on('click', function (event) {
+        event.preventDefault();
+        show_policy();
+    });
+
+    function show_policy()
+    {
+        var popup = $("#policy_pop-up"),
+            shadow = $("#shadow");
+
+        if (shadow.length === 0) {
+            $("body").append("<div id='shadow'></div>");
+            shadow = $("#shadow");
+        }
+
+        if ($("#shadow2").is(':visible')) {
+            opacity = 0.6;
+        }
+
+        popup.css({marginLeft: -popup.width() / 2, marginTop: -popup.height() / 2}).fadeIn(600);
+        $("#shadow, .policy_pop-up_close").fadeTo(600, opacity).click(function () {
+            shadow.fadeOut(600);
+            popup.fadeOut(600);
+        });
+    }
+
+    var payment_options = '';
+    $("#payment-options").on('change', function () {
+        payment_options_func($(this));
+    });
+
+    $("#payment-methods").on('change', function () {
+        payment_methods_func($(this));
+    });
+
+    function payment_options_func(this_el) {
+        var i_promocode = $('#i-promocode'),
+            course_price = $("#course-price"),
+            course_new_price = $("#course-new-price");
+        payment_options = $("#payment-options");
+
+        if (this_el.val() === 'partial_payment') {
+            $("#recurrent-block").show();
+            course_price.parents('.kurs_cur_wrap').hide();
+            if (course_new_price.length === 1) {
+                course_new_price.hide();
+                course_price.children(".anketa_form_h_cell").removeClass('strikeout');
+            }
+            $("#payment-methods").val('bank_card');
+            $("#payment-methods").change();
+            $("#payment-methods option[value!='bank_card']").attr('disabled', true);
+            $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
+
+            if ($('.promo_block').length === 1) {
+                $('.promo_info').show();
+                $('.promo_line').hide();
+                if (i_promocode.length === 1) {
+                    i_promocode.hide();
+                }
+            }
+        } else {
+            $("#recurrent-block").hide();
+            course_price.parents('.kurs_cur_wrap').show();
+            if (course_new_price.length === 1) {
+                course_new_price.show();
+                course_price.children(".anketa_form_h_cell").addClass('strikeout');
+            }
+            $("#payment-methods option[value!='bank_card']").attr('disabled', false);
+            $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
+
+            if ($('.promo_block').length === 1) {
+                $('.promo_info').hide();
+                if (i_promocode.length === 1 && i_promocode.val() !== '') {
+                    i_promocode.show();
+                } else {
+                    $('.promo_line').show();
+                    $('.promo_block').find('.kurs_block_h').html('');
+                }
+            }
+        }
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+    }
+
+    function payment_methods_func(this_el) {
+        if (this_el.val() === 'qiwi' || this_el.val() === 'sberbank') {
+            $("#method-phone").show();
+            $("#method-login").hide();
+        } else if (this_el.val() === 'alfabank') {
+            $("#method-phone").hide();
+            $("#method-login").show();
+        } else {
+            $("#method-phone").hide();
+            $("#method-login").hide();
+        }
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+    }
+
+    function promo_line_func(this_el) {
+        var this_par = this_el.parent('.promo_block'),
+            i_promocode = this_par.find('#i-promocode');
+        this_el.hide();
+        this_par.find('.kurs_block_h').html('Промокод:');
+        if (i_promocode.length === 1) {
+            i_promocode.show();
+        } else {
+            this_par.find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
+        }
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+    }
+
+    function purchase_up(pm_op) {
+        var payment_options = $('#payment-options');
+        if (shadow2.length === 0) {
+            $("body").append("<div id='shadow2'></div>");
+            shadow2 = $("#shadow2");
+        }
+
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2}).fadeIn(600);
+        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function () {
+            shadow2.fadeOut(600);
+            purchase.fadeOut(600);
+            $('.email_error').hide();
+        });
+
+        if (pm_op) {
+            payment_options.val('full_payment');
+            if (pm_op === 'rec') {
+                var promo_info = $('.promo_info');
+                payment_options.val('partial_payment');
+                $('#course-price').parents('.kurs_cur_wrap').hide();
+                $('.promo_line').hide();
+                promo_info.html('Промокод не доступен');
+                promo_info.show();
+                $('#recurrent-block').show();
+            }
+            payment_options.change();
+            payment_options.parents('.kurs_cur_wrap').hide();
+        }
+
+        var user_id = $('#user-id').val(),
+            pc_s = $('#pc-string').val(),
+            i_pc = purchase.find('input#i-promocode');
+        if (user_id) {
+            //$('input[name="cb_politics"]').prop('checked', true);
+            if (i_pc.length === 0 && pc_s) {
+                purchase.find('.promo_block').children('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
+                i_pc = purchase.find('input#i-promocode');
+            }
+            if (i_pc.length === 1 && pc_s) {
+                i_pc.val(pc_s);
+            }
+            //$('input[name="bt_buy_course"]').click();
+        }
+    }
+
+    var dots = 0, search_dots;
+    /*function throttle(func, milliseconds) {
+        var lastCall = 0;
+        return function () {
+            var now = Date.now();
+            if (lastCall + milliseconds < now) {
+                lastCall = now;
+                return func.apply(this, arguments);
+            }
+        };
+    }*/
+    var isEvent = false, prev_num = '';
+    function searchPromo(pc_input) {
+        var this_form = pc_input.parents('.purchase_form'),
+            input_search = pc_input.val(),
+            crs_id = this_form.find('#crs-id').val(),
+            price_block = this_form.find('#course-price'),
+            new_price_block = this_form.find('#course-new-price'),
+            promo_block = this_form.find('.promo_block'),
+            course_price = parseFloat(price_block.html()),
+            promo_block_info = promo_block.next('.promo_block_info'), promo_info = '',
+            bt_buy = this_form.find('input[name=bt_buy_course]');
+
+        if ( !isEvent || prev_num !== input_search) {
+            prev_num = input_search;
+            if (input_search.length >= 1 && input_search.length <= 25) {
+                $.ajax({
+                    url: '/searchPromo',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {input_search: input_search, crs_id: crs_id},
+                    complete: function (result) {
+                        clearInterval(search_dots);
+                        var data = result.responseJSON;
+
+                        bt_buy.val('Купить');
+
+                        if(data && data.discount)
+                        {
+                            var new_price,
+                                discount_type = 'руб.',
+                                rel_per_block = '';
+
+                            if (data.discount_type === 'percent') {
+                                new_price = course_price - (course_price * data.discount / 100);
+                                discount_type = '%';
+                            } else if (data.discount_type === 'currency') {
+                                new_price = course_price - data.discount;
+                            } else if (data.discount_type === 'free_week') {
+                                discount_type = ' беспл. нед.';
+                                bt_buy.val('Добавить в "Мои курсы"');
+                            }
+
+                            if (data.rel_percent) {
+                                new_price = course_price - (course_price * data.rel_percent / 100);
+                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                    '<div class="kurs_block_h">Ограничение:</div>' +
+                                    '<div class="pbi_h">' + data.rel_percent + '%</div>' +
+                                    '</div>';
+                            }
+
+                            if (new_price < 1 && !data.rel_percent && data.discount < 100 && data.discount_type === 'percent') {
+                                new_price = 1;
+                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
+                                    '<div class="kurs_block_h">Ограничение:</div>' +
+                                    '<div class="pbi_h">Минимальная сумма к оплате 1 руб.</div>' +
+                                    '</div>';
+                            }
+                            promo_info = '<div class="parent kurs_cur_wrap">' +
+                                '<div class="kurs_block_h">Скидка:</div>' +
+                                '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
+                                '</div>' + rel_per_block;
+
+
+                            if (new_price) {
+                                new_price = parseFloat(new_price).toFixed(2);
+                                price_block.addClass('strikeout');
+                                if (price_block.next('#course-new-price').length === 0) {
+                                    price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
+                                    new_price_block = $('#course-new-price');
+                                } else {
+                                    new_price_block.html(new_price);
+                                    new_price_block.show();
+                                }
+                            }
+                            else if(new_price === 0)
+                            {
+                                bt_buy.val('Добавить в "Мои курсы"');
+                            }
+                        }
+                        else
+                        {
+                            price_block.removeClass('strikeout');
+                            new_price_block.hide();
+                            promo_info = '<div class="parent kurs_cur_wrap">' +
+                                '<div class="kurs_block_h"></div>' +
+                                '<div class="pbi_h">Промокод не найден</div>' +
+                                '</div>';
+                        }
+
+                        if (promo_block.next('.promo_block_info').length === 0) {
+                            promo_block.after('<div class="promo_block_info"></div>');
+                            promo_block_info = promo_block.next('.promo_block_info');
+                        }
+                        promo_block_info.html(promo_info);
+                        promo_block_info.show();
+                    }
+                });
+            }
+            else
+            {
+                price_block.removeClass('strikeout');
+                new_price_block.hide();
+                promo_block_info.hide();
+                bt_buy.val('Купить');
+            }
+
+            isEvent = true;
+            setTimeout( function() {
+                isEvent = false;
+            }, 1000 );
+        }
+        /*else
+        {
+            if (promo_block_info.length === 0) {
+                promo_block.after('<div class="promo_block_info"></div>');
+                promo_block_info = promo_block.next('.promo_block_info');
+            }
+
+            search_dots = setInterval (function(){
+                var promo_info = '<div class="parent kurs_cur_wrap">' +
+                    '<div class="kurs_block_h"></div>' +
+                    '<div class="pbi_h">Поиск</div>' +
+                    '</div>';
+
+                promo_block_info.html(promo_info);
+                if (dots < 3) {
+                    promo_block_info.find('.pbi_h').append('.');
+                    dots++;
+                }
+                else {
+                    promo_block_info.find('.pbi_h').html('Поиск');
+                    dots = 0;
+                }
+            }, 600);
+        }*/
+    }
+
+    $(window).resize(function() {
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+    });
 
     /*function setVideoList(){
       if($(".form_video_list").length > 0 && $(".practice_block .add_tov_list").length > 0){
@@ -418,12 +804,16 @@ $(document).ready(function () {
     });
 
     /* Выбор курсов тренировок для отображения в календаре */
-    $("input:checkbox.calendar_course").on('click', function () {
-        if ($.isNumeric($(this).val())) {
-            var crs_id = $(this).val(),
-                display = 0;
+    $(".calendar_course").on('click', function (event) {
+        event.preventDefault();
+        var this_but = $(this),
+            crs_id = this_but.data('crsid');
 
-            if ($(this).is(':checked')) display = 1;
+        if ($.isNumeric(crs_id)) {
+            var display = 1,
+                block_message = $('#block-message');
+
+            if (this_but.hasClass('active')) display = 0;
 
             $.ajax({
                 url: '/displayCourse',
@@ -432,6 +822,27 @@ $(document).ready(function () {
                 data: {crs_id: crs_id, display: display},
                 complete: function (result) {
                     var data = result.responseJSON;
+
+                    if($(block_message).is(":visible"))
+                    {
+                        block_message.animate({"top": "-=40px"}, "slow");
+                        block_message.hide();
+                    }
+
+                    if(data.result === true)
+                    {
+                        this_but.toggleClass('active');
+                        block_message.html(data.info);
+                        block_message.removeClass('error');
+                        block_message.addClass('info');
+                    }
+                    else
+                    {
+                        block_message.html(data.info);
+                        block_message.removeClass('info');
+                        block_message.addClass('error');
+                    }
+                    showBlockMessage(block_message);
                 }
             });
         }
@@ -1001,23 +1412,9 @@ $(document).ready(function () {
         $(this).css('background', $(this).text()).text('');
     });
 
-
-    /* субменю */
-
-    $(".submenu_li").hover(
-        function () {
-            $(this).find(".submenu").fadeIn(200);
-        },
-        function () {
-            $(this).find(".submenu").stop(true, true);
-            $(this).find(".submenu").fadeOut(200);
-        }
-    );
-
-
     /* видео */
 
-    if (getInternetExplorerVersion() == -1) {
+    if (getInternetExplorerVersion() === -1) {
 
         if ($(".video_kurs.def_video").length > 0) {
             $(".video_kurs.def_video").each(function () {
@@ -1116,330 +1513,6 @@ $(document).ready(function () {
         speed: 500,
         autoplay: true,
         arrows: false
-    });
-
-    if (purchase.length > 0) {
-    }
-
-    $(".promo_line").on('click', function () {
-        promo_line_func($(this));
-    });
-
-
-    var purchase_form = $('.purchase_form');
-    purchase_form.on('paste', ' #i-promocode', function () {
-        var pc_input = $(this);
-        searchPromo(pc_input);
-    });
-    purchase_form.on('keyup', ' #i-promocode', function () {
-        var pc_input = $(this);
-        searchPromo(pc_input);
-    });
-
-    $(".policy").on('click', function (event) {
-        event.preventDefault();
-        show_policy();
-    });
-
-    function show_policy()
-    {
-        var popup = $("#policy_pop-up"),
-            shadow = $("#shadow");
-
-        if (shadow.length === 0) {
-            $("body").append("<div id='shadow'></div>");
-            shadow = $("#shadow");
-        }
-
-        if ($("#shadow2").is(':visible')) {
-            opacity = 0.6;
-        }
-
-        popup.css({marginLeft: -popup.width() / 2, marginTop: -popup.height() / 2}).fadeIn(600);
-        $("#shadow, .policy_pop-up_close").fadeTo(600, opacity).click(function () {
-            shadow.fadeOut(600);
-            popup.fadeOut(600);
-        });
-    }
-
-    var payment_options = '';
-    $("#payment-options").on('change', function () {
-        payment_options_func($(this));
-    });
-
-    $("#payment-methods").on('change', function () {
-        payment_methods_func($(this));
-    });
-
-    function payment_options_func(this_el) {
-        var i_promocode = $('#i-promocode'),
-            course_price = $("#course-price"),
-            course_new_price = $("#course-new-price");
-        payment_options = $("#payment-options");
-
-        if (this_el.val() === 'partial_payment') {
-            $("#recurrent-block").show();
-            course_price.parents('.kurs_cur_wrap').hide();
-            if (course_new_price.length === 1) {
-                course_new_price.hide();
-                course_price.children(".anketa_form_h_cell").removeClass('strikeout');
-            }
-            $("#payment-methods").val('bank_card');
-            $("#payment-methods").change();
-            $("#payment-methods option[value!='bank_card']").attr('disabled', true);
-            $("#payment-methods").parent().find("ul li[html!='Банковская карта']").addClass("disabled");
-
-            if ($('.promo_block').length === 1) {
-                $('.promo_info').show();
-                $('.promo_line').hide();
-                if (i_promocode.length === 1) {
-                    i_promocode.hide();
-                }
-            }
-        } else {
-            $("#recurrent-block").hide();
-            course_price.parents('.kurs_cur_wrap').show();
-            if (course_new_price.length === 1) {
-                course_new_price.show();
-                course_price.children(".anketa_form_h_cell").addClass('strikeout');
-            }
-            $("#payment-methods option[value!='bank_card']").attr('disabled', false);
-            $("#payment-methods").parent().find("ul li[html!='Банковская карта']").removeClass("disabled");
-
-            if ($('.promo_block').length === 1) {
-                $('.promo_info').hide();
-                if (i_promocode.length === 1 && i_promocode.val() !== '') {
-                    i_promocode.show();
-                } else {
-                    $('.promo_line').show();
-                    $('.promo_block').find('.kurs_block_h').html('');
-                }
-            }
-        }
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
-    }
-
-    function payment_methods_func(this_el) {
-        if (this_el.val() === 'qiwi' || this_el.val() === 'sberbank') {
-            $("#method-phone").show();
-            $("#method-login").hide();
-        } else if (this_el.val() === 'alfabank') {
-            $("#method-phone").hide();
-            $("#method-login").show();
-        } else {
-            $("#method-phone").hide();
-            $("#method-login").hide();
-        }
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
-    }
-
-    function promo_line_func(this_el) {
-        var this_par = this_el.parent('.promo_block'),
-            i_promocode = this_par.find('#i-promocode');
-        this_el.hide();
-        this_par.find('.kurs_block_h').html('Промокод:');
-        if (i_promocode.length === 1) {
-            i_promocode.show();
-        } else {
-            this_par.find('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
-        }
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
-    }
-
-    function purchase_up(pm_op) {
-        var payment_options = $('#payment-options');
-        if (shadow2.length === 0) {
-            $("body").append("<div id='shadow2'></div>");
-            shadow2 = $("#shadow2");
-        }
-
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2}).fadeIn(600);
-        $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function () {
-            shadow2.fadeOut(600);
-            purchase.fadeOut(600);
-        });
-
-        if (pm_op) {
-            payment_options.val('full_payment');
-            if (pm_op === 'rec') {
-                var promo_info = $('.promo_info');
-                payment_options.val('partial_payment');
-                $('#course-price').parents('.kurs_cur_wrap').hide();
-                $('.promo_line').hide();
-                promo_info.html('Промокод не доступен');
-                promo_info.show();
-                $('#recurrent-block').show();
-            }
-            payment_options.change();
-            payment_options.parents('.kurs_cur_wrap').hide();
-        }
-
-        var user_id = $('#user-id').val(),
-            pc_s = $('#pc-string').val(),
-            i_pc = purchase.find('input#i-promocode');
-        if (user_id) {
-            //$('input[name="cb_politics"]').prop('checked', true);
-            if (i_pc.length === 0 && pc_s) {
-                purchase.find('.promo_block').children('.kurs_block_h').after('<input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode"/>');
-                i_pc = purchase.find('input#i-promocode');
-            }
-            if (i_pc.length === 1 && pc_s) {
-                i_pc.val(pc_s);
-            }
-            //$('input[name="bt_buy_course"]').click();
-        }
-    }
-
-    var dots = 0, search_dots;
-    /*function throttle(func, milliseconds) {
-        var lastCall = 0;
-        return function () {
-            var now = Date.now();
-            if (lastCall + milliseconds < now) {
-                lastCall = now;
-                return func.apply(this, arguments);
-            }
-        };
-    }*/
-    var isEvent = false, prev_num = '';
-    function searchPromo(pc_input) {
-        var this_form = pc_input.parents('.purchase_form'),
-            input_search = pc_input.val(),
-            crs_id = this_form.find('#crs-id').val(),
-            price_block = this_form.find('#course-price'),
-            new_price_block = this_form.find('#course-new-price'),
-            promo_block = this_form.find('.promo_block'),
-            course_price = parseFloat(price_block.html()),
-            promo_block_info = promo_block.next('.promo_block_info'), promo_info = '',
-            bt_buy = this_form.find('input[name=bt_buy_course]');
-
-        if ( !isEvent || prev_num !== input_search) {
-            prev_num = input_search;
-            if (input_search.length >= 1 && input_search.length <= 25) {
-                $.ajax({
-                    url: '/searchPromo',
-                    type: 'post',
-                    dataType: 'json',
-                    data: {input_search: input_search, crs_id: crs_id},
-                    complete: function (result) {
-                        clearInterval(search_dots);
-                        var data = result.responseJSON;
-
-                        bt_buy.val('Купить');
-
-                        if(data && data.discount)
-                        {
-                            var new_price,
-                                discount_type = 'руб.',
-                                rel_per_block = '';
-
-                            if (data.discount_type === 'percent') {
-                                new_price = course_price - (course_price * data.discount / 100);
-                                discount_type = '%';
-                            } else if (data.discount_type === 'currency') {
-                                new_price = course_price - data.discount;
-                            } else if (data.discount_type === 'free_week') {
-                                discount_type = ' беспл. нед.';
-                                bt_buy.val('Добавить в "Мои курсы"');
-                            }
-
-                            if (data.rel_percent) {
-                                new_price = course_price - (course_price * data.rel_percent / 100);
-                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
-                                    '<div class="kurs_block_h">Ограничение:</div>' +
-                                    '<div class="pbi_h">' + data.rel_percent + '%</div>' +
-                                    '</div>';
-                            }
-
-                            if (new_price < 1 && !data.rel_percent && data.discount < 100 && data.discount_type === 'percent') {
-                                new_price = 1;
-                                rel_per_block = '<div class="parent kurs_cur_wrap">' +
-                                    '<div class="kurs_block_h">Ограничение:</div>' +
-                                    '<div class="pbi_h">Минимальная сумма к оплате 1 руб.</div>' +
-                                    '</div>';
-                            }
-                            promo_info = '<div class="parent kurs_cur_wrap">' +
-                                '<div class="kurs_block_h">Скидка:</div>' +
-                                '<div class="pbi_h">' + data.discount + discount_type + '</div>' +
-                                '</div>' + rel_per_block;
-
-
-                            if (new_price) {
-                                new_price = parseFloat(new_price).toFixed(2);
-                                price_block.addClass('strikeout');
-                                if (price_block.next('#course-new-price').length === 0) {
-                                    price_block.after('<div class="kurs_cur" id="course-new-price">' + new_price + '</div>');
-                                    new_price_block = $('#course-new-price');
-                                } else {
-                                    new_price_block.html(new_price);
-                                    new_price_block.show();
-                                }
-                            }
-                            else if(new_price === 0)
-                            {
-                                bt_buy.val('Добавить в "Мои курсы"');
-                            }
-                        }
-                        else
-                        {
-                            price_block.removeClass('strikeout');
-                            new_price_block.hide();
-                            promo_info = '<div class="parent kurs_cur_wrap">' +
-                                '<div class="kurs_block_h"></div>' +
-                                '<div class="pbi_h">Промокод не найден</div>' +
-                                '</div>';
-                        }
-
-                        if (promo_block.next('.promo_block_info').length === 0) {
-                            promo_block.after('<div class="promo_block_info"></div>');
-                            promo_block_info = promo_block.next('.promo_block_info');
-                        }
-                        promo_block_info.html(promo_info);
-                        promo_block_info.show();
-                    }
-                });
-            }
-            else
-            {
-                price_block.removeClass('strikeout');
-                new_price_block.hide();
-                promo_block_info.hide();
-                bt_buy.val('Купить');
-            }
-
-            isEvent = true;
-            setTimeout( function() {
-                isEvent = false;
-            }, 1000 );
-        }
-        /*else
-        {
-            if (promo_block_info.length === 0) {
-                promo_block.after('<div class="promo_block_info"></div>');
-                promo_block_info = promo_block.next('.promo_block_info');
-            }
-
-            search_dots = setInterval (function(){
-                var promo_info = '<div class="parent kurs_cur_wrap">' +
-                    '<div class="kurs_block_h"></div>' +
-                    '<div class="pbi_h">Поиск</div>' +
-                    '</div>';
-
-                promo_block_info.html(promo_info);
-                if (dots < 3) {
-                    promo_block_info.find('.pbi_h').append('.');
-                    dots++;
-                }
-                else {
-                    promo_block_info.find('.pbi_h').html('Поиск');
-                    dots = 0;
-                }
-            }, 600);
-        }*/
-    }
-
-    $(window).resize(function() {
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
     });
 
 
@@ -1962,474 +2035,3 @@ function handleVideo(playerStatus) {
 function onPlayerStateChange(event) {
     handleVideo(event.data);
 }
-
-
-
-/* график */
-
-/*$(document).ready(function(){
-
-AmCharts.ready(function () {
-				generateChartData();
-				createStockChart();
-			});
-
-			var chartData1 = [];
-			var chartData2 = [];
-			var chartData3 = [];
-			var chartData4 = [];
-
-			function generateChartData() {
-				var firstDate = new Date();
-				firstDate.setDate(firstDate.getDate()-38);
-				firstDate.setHours(0, 0, 0, 0);
-
-				for (var i = 20; i < 55; i++) {
-					var newDate = new Date(firstDate);
-					newDate.setDate(newDate.getDate() + i);
-
-					var a1 = Math.round(Math.random() * (100 - i) + i);
-					var b1 = Math.round(a1 / 60 * 100)-100;
-					if(b1>0){
-						var c1 = "<span class='plas_chart'></span>";
-					} else if(b1<0){
-						var c1 = "<span class='minus_chart'></span>";
-					} else{
-						var c1 = "";
-					}
-					
-
-					var a2 = Math.round(Math.random() * (100 - i) + i);
-					var b2 = Math.round(a2 / 60 * 100)-100;
-					if(b2>0){
-						var c2 = "<span class='plas_chart'></span>";
-					} else if(b2<0){
-						var c2 = "<span class='minus_chart'></span>";
-					} else{
-						var c2 = "";
-					}
-
-					var a3 = Math.round(Math.random() * (100 - i) + i);
-					var b3 = Math.round(a3 / 60 * 100)-100;
-					if(b3>0){
-						var c3 = "<span class='plas_chart'></span>";
-					} else if(b3<0){
-						var c3 = "<span class='minus_chart'></span>";
-					} else{
-						var c3 = "";
-					}
-
-					var a4 = Math.round(Math.random() * (100 - i) + i);
-					var b4 = Math.round(a4 / 60 * 100)-100;
-					if(b4>0){
-						var c4 = "<span class='plas_chart'></span>";
-					} else if(b4<0){
-						var c4 = "<span class='minus_chart'></span>";
-					} else{
-						var c4 = "";
-					}
-
-					chartData1.push({
-						date: newDate,
-						value: a1,
-						volume: b1,
-						tender: c1
-					});
-					chartData2.push({
-						date: newDate,
-						value: a2,
-						volume: b2,
-						tender: c2
-					});
-					chartData3.push({
-						date: newDate,
-						value: a3,
-						volume: b3,
-						tender: c3
-					});
-					chartData4.push({
-						date: newDate,
-						value: a4,
-						volume: b4,
-						tender: c4
-					});
-				}
-			}
-
-			function createStockChart() {
-				var chart = new AmCharts.AmStockChart();
-
-				// DATASETS //////////////////////////////////////////
-				// create data sets first
-				var dataSet1 = new AmCharts.DataSet();
-				dataSet1.title = "Вес";
-				dataSet1.fieldMappings = [{
-					fromField: "value",
-					toField: "value"
-				}, {
-					fromField: "volume",
-					toField: "volume"
-				}];
-				dataSet1.dataProvider = chartData1;
-				dataSet1.categoryField = "date";
-
-				var dataSet2 = new AmCharts.DataSet();
-				dataSet2.title = "Обхват груди";
-				dataSet2.compared = true;
-				dataSet2.fieldMappings = [{
-					fromField: "value",
-					toField: "value"
-				}, {
-					fromField: "volume",
-					toField: "volume"
-				}];
-				dataSet2.dataProvider = chartData2;
-				dataSet2.categoryField = "date";
-
-				var dataSet3 = new AmCharts.DataSet();
-				dataSet3.title = "Обхват талии";
-				dataSet3.compared = true;
-				dataSet3.fieldMappings = [{
-					fromField: "value",
-					toField: "value"
-				}, {
-					fromField: "volume",
-					toField: "volume"
-				}];
-				dataSet3.dataProvider = chartData3;
-				dataSet3.categoryField = "date";
-
-				var dataSet4 = new AmCharts.DataSet();
-				dataSet4.title = "Обхват бедер";
-				dataSet4.compared = true;
-				dataSet4.fieldMappings = [{
-					fromField: "value",
-					toField: "value"
-				}, {
-					fromField: "volume",
-					toField: "volume"
-				}];
-				dataSet4.dataProvider = chartData4;
-				dataSet4.categoryField = "date";
-
-				// set data sets to the chart
-				chart.dataSets = [dataSet1, dataSet2, dataSet3, dataSet4];
-
-				// PANELS ///////////////////////////////////////////
-				// first stock panel
-				var stockPanel1 = new AmCharts.StockPanel();
-				stockPanel1.showCategoryAxis = true;
-				stockPanel1.title = "Value";
-				stockPanel1.percentHeight = 70;
-
-				// graph of first stock panel
-				var graph1 = new AmCharts.StockGraph();
-
-
-				graph1.valueField = "value";
-				graph1.comparable = true;
-				graph1.compareField = "value";
-				graph1.bullet = "round";
-				graph1.bulletColor = "#FFFFFF";
-				graph1.bulletBorderAlpha = 1;
-				graph1.lineColor = "#00bff0";
-				graph1.useDataSetColors = false;
-				graph1.lineThickness = 1;
-				graph1.bulletSize = 10;
-				graph1.bulletBorderThickness = 1;
-				graph1.bulletBorderColor = "#00bff0";
-				graph1.fillAlphas = 0.2;
-				graph1.balloonText = "<div class='graf_desk'>[[category]]<br>[[title]]: [[value]]</div><div class='graf_procent'>[[tender]][[volume]]%</div>";
-
-				graph1.compareGraphBalloonText = "<div class='graf_desk'>[[category]]<br>[[title]]: [[value]]</div><div class='graf_procent'>[[tender]][[volume]]%</div>";
-				graph1.compareGraphBullet = "round";
-				graph1.compareGraphBulletBorderAlpha = 1;
-				graph1.compareGraphBulletColor = "#FFFFFF";
-
-				stockPanel1.addStockGraph(graph1);
-
-
-				// set panels to the chart
-				chart.panels = [stockPanel1];
-
-
-				// OTHER SETTINGS ////////////////////////////////////
-				var sbsettings = new AmCharts.ChartScrollbarSettings();
-				sbsettings.enabled = false;
-				chart.chartScrollbarSettings = sbsettings;
-
-				// CURSOR
-				var cursorSettings = new AmCharts.ChartCursorSettings();
-				cursorSettings.enabled = false;
-				chart.chartCursorSettings = cursorSettings;
-
-
-				// PERIOD SELECTOR ///////////////////////////////////
-				var periodSelector = new AmCharts.PeriodSelector();
-				periodSelector.position = "top";
-				periodSelector.inputFieldsEnabled = false;
-				periodSelector.periodsText = "";
-				periodSelector.periods = [{
-					period: "DD",
-			        count: 1,
-			        label: "День"},
-			        {
-			        period: "DD",
-			        count: 7,
-			        label: "Неделя"},
-			    	{
-			        period: "MM",
-			        selected: true,
-			        count: 1,
-			        label: "Месяц"
-				}];
-				chart.periodSelector = periodSelector;
-
-				var amBalloon = chart.balloon;
-				amBalloon.color = "#ffffff";
-				amBalloon.borderAlpha = 0;
-				amBalloon.cornerRadius = 0;
-				amBalloon.fillColor = "#4c4c4c";
-				amBalloon.fillAlpha = 1;
-			    amBalloon.fontSize = 12;
-			    amBalloon.shadowAlpha = 0;
-			    amBalloon.horizontalPadding = 0;
-			    amBalloon.verticalPadding = 0;
-
-			    chart.colors = ["#FF6600", "#FCD202", "#B0DE09", "#de6115", "#2A0CD0", "#CD0D74", "#CC0000", "#00CC00", "#0000CC", "#DDDDDD", "#999999", "#333333", "#990000"];
-
-
-				var categoryAxesSettings = new AmCharts.CategoryAxesSettings();
-				categoryAxesSettings.gridColor = "#ffffff";
-				chart.categoryAxesSettings = categoryAxesSettings;
-
-				var valueAxesSettings = new AmCharts.ValueAxesSettings();
-				valueAxesSettings.dashLength = 5;
-				valueAxesSettings.labelsEnabled = false;
-				chart.valueAxesSettings = valueAxesSettings;
-
-				// create stock legend
-				var stockLegend1 = new AmCharts.StockLegend();
-				stockLegend1.markerSize = 9;
-				stockLegend1.markerLabelGap = 10;
-				stockLegend1.divId = 'legend';
-				
-				stockPanel1.stockLegend = stockLegend1;
-
-				chart.write('chartdiv');
-			}
-
-
-});*/
-
-
-
-/* календарь */
-
-$(document).ready(function() {
-
- /*$('#calendar').fullCalendar({
-		locale: 'ru',
-		timeFormat: 'H:mm',
-		height: 620,
-		header: {
-			left: 'prev,next today',
-			center: 'title',
-			right: 'month,basicWeek,basicDay'
-		},
-		defaultDate: '2016-09-12',
-		navLinks: true, // can click day/week names to navigate views
-		editable: true,
-		eventLimit: true, // allow "more" link when too many events
-		events: [
-			{
-				title: 'Repeating Event',
-				url: 'https://www.paypalobjects.com/webstatic/mktg/videos/PayPal_AustinSMB_baseline.mp4',
-				start: '2016-09-09T16:00:00'
-			},
-			{
-				title: 'Repeating Event',
-				url: 'https://www.paypalobjects.com/webstatic/mktg/videos/PayPal_AustinSMB_baseline.mp4',
-				start: '2016-09-16T16:00:00'
-			},
-			{
-				title: 'Lunch',
-				url: 'https://www.paypalobjects.com/webstatic/mktg/videos/PayPal_AustinSMB_baseline.mp4',
-				start: '2016-09-12T12:00:00'
-			},
-			{
-				title: 'Birthday Party',
-				url: 'https://www.paypalobjects.com/webstatic/mktg/videos/PayPal_AustinSMB_baseline.mp4',
-				start: '2016-09-06T07:00:00'
-			},
-			{
-				title: 'Click for Google',
-				url: 'https://www.paypalobjects.com/webstatic/mktg/videos/PayPal_AustinSMB_baseline.mp4',
-				start: '2016-09-28T08:30:00'
-			}
-		]
-	});*/
-
-	/*$('#calendar_prof').fullCalendar({
-		locale: 'ru',
-		timeFormat: 'H:mm',
-		height: 620,
-		header: {
-			left: 'prev,next today',
-			center: 'title',
-			right: 'month,basicWeek,basicDay'
-		},
-		defaultDate: '2016-09-12',
-		navLinks: true, // can click day/week names to navigate views
-		editable: true,
-		eventLimit: true, // allow "more" link when too many events
-		events: [
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
-				start: '2016-08-29'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
-				start: '2016-08-30'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
-				start: '2016-08-31'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
-				start: '2016-09-01'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
-				start: '2016-09-02'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
-				start: '2016-09-03'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
-				start: '2016-09-04'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
-				start: '2016-09-05'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
-				start: '2016-09-06'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
-				start: '2016-09-07'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
-				start: '2016-09-08'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">30%</span></div></div>',
-				start: '2016-09-09'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
-				start: '2016-09-10'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
-				start: '2016-09-11'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
-				start: '2016-09-12'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
-				start: '2016-09-13'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
-				start: '2016-09-14'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
-				start: '2016-09-15'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
-				start: '2016-09-16'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
-				start: '2016-09-17'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
-				start: '2016-09-18'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
-				start: '2016-09-19'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
-				start: '2016-09-20'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
-				start: '2016-09-21'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
-				start: '2016-09-22'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">30%</span></div></div>',
-				start: '2016-09-23'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
-				start: '2016-09-24'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
-				start: '2016-09-25'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico1.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">65%</span></div></div>',
-				start: '2016-09-26'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico2.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_1"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">35%</span></div></div>',
-				start: '2016-09-27'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico3.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_2"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">85%</span></div></div>',
-				start: '2016-09-28'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico4.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_3"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">60%</span></div></div>',
-				start: '2016-09-29'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico5.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">40%</span></div></div>',
-				start: '2016-09-30'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico6.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_5"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">25%</span></div></div>',
-				start: '2016-10-01'
-			},
-			{
-				title: '<div class="calendar_prof_item"><div class="parent"><div class="calendar_prof_img"><img src="/img/sport_ico7.png" alt=""></div><div class="calendar_prof_cont"><div class="calendar_prof_time">00.30.00</div><div class="calendar_prof_load parent calendar_prof_load_4"><span></span><span></span><span></span><span></span><span></span></div></div></div><div class="calendar_prof_end"><span class="calendar_prof_end_line"></span><span class="calendar_prof_end_val">75%</span></div></div>',
-				start: '2016-10-02'
-			}
-		],
-	    eventAfterAllRender: function( view ) {
-	        $('.calendar_prof_end').each(function(){
-	        	$(this).find('.calendar_prof_end_line').css('width', $(this).find('.calendar_prof_end_val').text());
-	        });
-	    }
-	});*/
-	
-});

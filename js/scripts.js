@@ -47,18 +47,19 @@ $(document).ready(function() {
 
             // Валидация email
             var timer;
-            $('.valid_email').keyup(function() {
+            $(document).on('keyup paste click', '.valid_email', function(){
                 var email_block = $(this),
                     e_p = email_block.position(),
-                    email_error = email_block.next('.email_error');
+                    e_o = email_block.offset(),
+                    body = $('body'),
+                    email_error = body.find('.email_error');
 
                 clearTimeout(timer);
 
                 if(email_error.length === 0)
                 {
-                    $(this).after('<div class="email_error"></div>');
-                    email_error = email_block.next('.email_error');
-                    email_error.offset({top:e_p.top-20, left:(e_p.left+email_block.outerWidth(true)-30-parseInt(email_block.css('margin-right')))});
+                    body.append('<div class="email_error"></div>');
+                    email_error = body.find('.email_error');
                 }
 
                 if($(this).val() !== '')
@@ -69,6 +70,15 @@ $(document).ready(function() {
                     {
                         timer = setTimeout(function() {
                             email_error.text('Некорректный Email');
+                            if(email_block.parents('#purchase_pop-up'))
+                            {
+                                email_error.css('position', 'fixed');
+                            }
+                            else{
+                                email_error.css('position', 'absolute');
+                            }
+                            email_error.offset({top:e_o.top-20, left:(e_o.left+email_block.outerWidth()-30)});
+                            email_error.css('z-index', 114);
                             email_error.show();
                         }, 500);
                     }
@@ -76,10 +86,11 @@ $(document).ready(function() {
                 }
                 else
                 {
-                    timer = setTimeout(function() {
+                    email_error.hide();
+                    /*timer = setTimeout(function() {
                         email_error.text('Поле Email не должно быть пустым');
                         email_error.show();
-                    }, 500);
+                    }, 500);*/
                 }
             });
 
@@ -118,22 +129,7 @@ $(document).ready(function() {
             // Блок информации
             var block_message = $('#block-message');
             if (block_message.length > 0 && block_message.hasClass('show')) {
-                var parent = block_message.parent();
-                block_message.css("left", ((parent.outerWidth() / 2) - (block_message.outerWidth() / 2)));
-                setTimeout(function(){
-                    block_message.show();
-                    block_message.animate({"top": "+=40px"}, "slow");
-                    var timer1 = setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000),
-                        timer2 = setTimeout(function(){block_message.hide()},10500);
-                    block_message.mouseenter(function() {
-                            if (timer1 !== null) clearTimeout(timer1);
-                            if (timer2 !== null) clearTimeout(timer2);
-                        })
-                        .mouseleave(function() {
-                            timer1 = setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000);
-                            timer2 = setTimeout(function(){block_message.hide()},10500);
-                        });
-                },500);
+                showBlockMessage(block_message);
             }
 
             $(document).on('input', '.add_tov_in.users input:text', function () {
@@ -2419,3 +2415,24 @@ $(document).ready(function() {
         Cookies.set('disclaimer', 'true', { expires: expire });
     });
 });
+
+
+function showBlockMessage(block_message)
+{
+    var parent = block_message.parent();
+    block_message.css("left", ((parent.outerWidth() / 2) - (block_message.outerWidth() / 2)));
+    setTimeout(function(){
+        block_message.show();
+        block_message.animate({"top": "+=40px"}, "slow");
+        var timer1 = setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000),
+            timer2 = setTimeout(function(){block_message.hide()},10500);
+        block_message.mouseenter(function() {
+            if (timer1 !== null) clearTimeout(timer1);
+            if (timer2 !== null) clearTimeout(timer2);
+        })
+            .mouseleave(function() {
+                timer1 = setTimeout(function(){block_message.animate({"top": "-=40px"}, "slow")},10000);
+                timer2 = setTimeout(function(){block_message.hide()},10500);
+            });
+    },500);
+}

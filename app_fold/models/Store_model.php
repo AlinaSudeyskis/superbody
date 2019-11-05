@@ -18,11 +18,11 @@ class Store_model extends CI_Model
     const CURRENCY = 'RUB';
     const PAYMENT_METHOD = 'bank_card';
     // LIVE
-    const SHOPID = 618322;
-    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';
+    /*const SHOPID = 618322;
+    const SHOP_SECRET = 'live_2nfgVKxGM_SlkoxHTMP_ERbaAQnWTPqBTTujQEzY6gA';*/
     // TEST
-    /*const SHOPID = 621847;
-    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';*/
+    const SHOPID = 621847;
+    const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';
 
     /**
      * Выборка всех категорий
@@ -2584,12 +2584,15 @@ class Store_model extends CI_Model
      * @param int|string $postcode
      * @param int $delivery
      * @param array $products
+     * @param string $payment_status
+     * @param string $payment_option
+     * @param int $total_amount
      * @param string $date
      * @return bool
      */
     public function setOrder($user_id, $prev_address = '', $name = '', $surname = '', $email = '', $code = '', $phone = '',
                              $country = '', $city = '', $street = '', $building = '', $house = '', $postcode = '',
-                             $delivery = 0, $products = array(), $date = '')
+                             $delivery = 0, $products = array(), $payment_status = 'not_paid', $payment_option = 'full_payment', $total_amount = 0, $date = '')
     {
         $result     = false;
         $address_id = !empty($prev_address) ? $prev_address : 0;
@@ -2616,16 +2619,15 @@ class Store_model extends CI_Model
 
         // Создание заказа
         $in_data = $this->db->query('
-            INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, 
-                                  `o_user_phone`, `o_oud_id`, `o_delivery`, `o_date_add`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($user_id, $name, $surname, $email, $code, $phone, $address_id, $delivery, $date));
+            INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`, `o_oud_id`, `o_delivery`, 
+                                  `o_payment_status`, `o_payment_options`, `o_total_amount`, `o_date_add`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($user_id, $name, $surname, $email, $code, $phone, $address_id, $delivery, $payment_status, $payment_option, $total_amount, $date));
 
         if ($in_data !== false and 1 == $this->db->affected_rows())
         {
             $order_id = $this->db->insert_id();
-            $result['order_id']     = $order_id;
-            $result['total_amount'] = 0;
+            $result['order_id'] = $order_id;
 
             // Сохранение товаров заказа
             if (!empty($order_id) and !empty($products['products']))
@@ -2665,7 +2667,6 @@ class Store_model extends CI_Model
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                             array($order_id, $user_id, $product['id'], $product['cart_quantity'], $full_price, $rec_months,
                                 $rec_first_price, $rec_subsequent, $fc_price, $pcu_id));
-
                     if ($in_data !== false and 1 == $this->db->affected_rows())
                     {
                         $price = (!empty($full_price) and empty($rec_first_price)) ? $full_price : $rec_first_price;
@@ -2750,9 +2751,6 @@ class Store_model extends CI_Model
                 }
                 unset($product);
             }
-
-            $result['total_amount'] = number_format($result['total_amount'], 2, '.', '');
-            //log_message('debug', __METHOD__.' '.__LINE__.' Total amount:'. $result['total_amount']);
         }
         elseif ($in_data === false)
         {
@@ -2886,7 +2884,7 @@ class Store_model extends CI_Model
 
         $sel_order = $this->db->query('
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
-                `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
+                `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_payment_options`, `o_total_amount`, `o_date_add`,
                 `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
             FROM `orders`
             LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
@@ -2898,6 +2896,8 @@ class Store_model extends CI_Model
 
             // Данные заказа
             $result['order'] = self::parseOrderData($row);
+            $payment_status  = $row->o_payment_status;
+            $bought_course   = 0;
 
             unset($row);
 
@@ -2907,7 +2907,7 @@ class Store_model extends CI_Model
             // Выборка товаров заказа
             $sel_products = $this->db->query('
                 SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
-                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, `ouc_promocode_id`
+                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, `ouc_promocode_id`,
                     `p_id`, `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
                     `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`, 
                     `crs_name`, `crs_image`, `pcu_pc_id`, `pcu_code`, `pcu_discount`, `pcu_discount_type`
@@ -2918,19 +2918,51 @@ class Store_model extends CI_Model
                 WHERE `ouc_o_id`=?', $order_id);
             if ($sel_products !== false and 0 < $sel_products->num_rows())
             {
+                $total_order_price = 0;
+                $discount_percent = 0;
+                $discount_currency = 0;
+                $discount_free_weeks = 0;
+                $promocodes = '';
                 $i = 0;
-
                 foreach ($sel_products->result() as $row)
                 {
-                    if ($row->ouc_attached_p_id == 0)
-                    {
-                        // Данные
-                        $result['order']['products'][$i] = self::parseOrderProductData($row);
+                    $result['order']['products'][$i] = self::parseOrderProductData($row);
+                    $bought_course = (($payment_status == 'free' or $payment_status == 'succeeded') and $bought_course == 0) ? $row->p_course_id : $bought_course;
 
-                        $i++;
+                    $full_price = (!empty($row->ouc_p_price) and $row->ouc_p_price > 0) ? $row->ouc_p_price : 0;
+                    $rec_price  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first > 0) ? $row->ouc_p_recurrent_first : 0;
+                    $cart_product_price = (!empty($full_price) and empty($rec_price)) ? $full_price : $rec_price;
+
+                    $total_order_price += $cart_product_price*$row->ouc_p_quantity;
+
+                    if($row->pcu_discount_type == 'percent')
+                    {
+                        $discount_percent += $row->pcu_discount;
                     }
+                    elseif($row->pcu_discount_type == 'currency')
+                    {
+                        $discount_currency += $row->pcu_discount;
+                    }
+                    elseif($row->pcu_discount_type == 'free_weeks')
+                    {
+                        $discount_free_weeks += $row->pcu_discount;
+                    }
+
+                    $promocodes .= (!empty($row->pcu_code)) ? ' '.$row->pcu_code : '';
+
+                    $i++;
                 }
                 unset($row);
+
+                $discount_percent    = ($discount_percent > 0) ? $discount_percent.'% ' : '';
+                $discount_currency   = ($discount_currency > 0) ? $discount_currency.' руб. ' : '';
+                $discount_free_weeks = ($discount_free_weeks > 0) ? $discount_free_weeks.' беспл. нед. ' : '';
+
+                $total_order_discount = $discount_percent . $discount_currency . $discount_free_weeks;
+
+                $result['order']['price']     = $total_order_price;
+                $result['order']['promocode'] = $promocodes;
+                $result['order']['discount']  = $total_order_discount;
             }
             elseif ($sel_products === false)
             {
@@ -2956,82 +2988,8 @@ class Store_model extends CI_Model
     {
         $result['order'] = '';
 
-        $sel_order = $this->db->query('
-            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
-                `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
-                `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`
-            FROM `orders`
-            LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id` 
-            WHERE `o_u_id`=? and `o_id`=? LIMIT 1',
-                array($user_id, $order_id));
-
-        if ($sel_order !== false and 1 == $sel_order->num_rows())
-        {
-            $row = $sel_order->row();
-
-            // Данные заказа
-            $result['order'] = self::parseOrderData($row);
-            $result['order']['bought_course'] = 0;
-            $payment_status = $row->o_payment_status;
-            $bought_course  = 0;
-
-            unset($row);
-
-            // Даннаые оплаты заказа
-            $result['order']['payments'] = self::getOrderPayments($order_id);
-
-            // Выборка товаров заказа
-            $sel_products = $this->db->query('
-                SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
-                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_first`,
-                    `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
-                    `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`, 
-                    `crs_name`, `crs_image`
-                FROM `orders_users_cart`
-                LEFT JOIN `products` ON `p_id`=`ouc_p_id`
-                LEFT JOIN `courses` ON `crs_id`=`p_course_id`
-                WHERE `ouc_o_id`=? and `ouc_u_id`=?', array($order_id, $user_id));
-            if ($sel_products !== false and 0 < $sel_products->num_rows())
-            {
-                $i = 0;
-                foreach ($sel_products->result() as $row)
-                {
-                    if ($row->ouc_attached_p_id == 0)
-                    {
-                        $result['order']['products'][$i] = self::parseOrderProductData($row);
-                        $bought_course = ($payment_status == 1 and $bought_course == 0) ? $row->p_course_id : $bought_course;
-
-                        $i++;
-                    }
-                }
-                unset($row);
-            }
-            elseif ($sel_products === false)
-            {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
-            }
-
-            if($bought_course > 0)
-            {
-                $sel_uc = $this->db->query('SELECT `uc_id` FROM `users_courses` 
-                    WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1',
-                    array($user_id, $order_id, $bought_course));
-                if ($sel_uc !== false and 1 == $sel_uc->num_rows())
-                {
-                    $row = $sel_uc->row();
-                    $uc_id = $row->uc_id;
-                    $result['order']['bought_course'] = $uc_id;
-                }
-                elseif ($sel_uc === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-            }
-        }
-        elseif ($sel_order === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
+        $order_data = self::getUserOrderData($user_id, $order_id);
+        $result['order'] = (!empty($order_data['order'])) ? $order_data['order'] : array();
 
         return $result;
     }
@@ -3148,6 +3106,157 @@ class Store_model extends CI_Model
             unset($row);
         }
         elseif ($sel_orders === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных заказа курсов пользователя
+     *
+     * @param $user_id
+     * @param $courses
+     * @return array
+     */
+    public function getUserCoursesOrder($user_id, $courses)
+    {
+         if(is_array($courses['courses']))
+         {
+             foreach ($courses['courses'] as $key => $course)
+             {
+                 $order_data = self::getUserOrderData($user_id, $course['order_id']);
+                 $courses['courses'][$key]['order'] = (!empty($order_data['order'])) ? $order_data['order'] : array();
+             }
+             unset($course);
+         }
+
+         if(is_array($courses['blocked_courses']))
+         {
+             foreach ($courses['blocked_courses'] as $key => $course)
+             {
+                 $order_data = self::getUserOrderData($user_id, $course['order_id']);
+                 $courses['blocked_courses'][$key]['order'] = (!empty($order_data['order'])) ? $order_data['order'] : array();
+             }
+             unset($course);
+         }
+
+        return $courses;
+    }
+
+    /**
+     * Выборк данных заказа пользователя
+     *
+     * @param $user_id
+     * @param $order_id
+     * @return array
+     */
+    public function getUserOrderData($user_id, $order_id)
+    {
+        $result = array();
+
+        $sel_order = $this->db->query('
+            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
+                `o_delivery`, `o_payment_options`, `o_payment_status`, `o_total_amount`, `o_date_add`
+            FROM `orders` WHERE `o_u_id`=? and `o_id`=? LIMIT 1', array($user_id, $order_id));
+
+        if ($sel_order !== false and 1 == $sel_order->num_rows())
+        {
+            $row = $sel_order->row();
+            $order_payment_options = $row->o_payment_options;
+            $result['order'] = self::parseOrderData($row);
+            $result['order']['bought_course'] = 0;
+            $payment_status = $row->o_payment_status;
+            $bought_course  = 0;
+            unset($row);
+
+            // Товары заказа. Общая стоимость
+            $sel_cart = $this->db->query('
+                SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
+                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_first`, `ouc_promocode_id`, `pcu_discount_type`, `pcu_discount`, `pcu_code`,
+                    `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
+                    `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`, 
+                    `crs_name`, `crs_image`
+                FROM `orders_users_cart`
+                LEFT JOIN `products` ON `p_id`=`ouc_p_id`
+                LEFT JOIN `courses` ON `crs_id`=`p_course_id`
+                LEFT JOIN `promocodes_used` ON `pcu_id`=`ouc_promocode_id`
+                WHERE `ouc_o_id`=? and `ouc_u_id`=?', array($order_id, $user_id));
+            if($sel_cart !== false and 0 < $sel_cart->num_rows())
+            {
+                $total_order_price = 0;
+                $discount_percent = 0;
+                $discount_currency = 0;
+                $discount_free_weeks = 0;
+                $promocodes = '';
+                $i = 0;
+                foreach ($sel_cart->result() as $row)
+                {
+                    $result['order']['products'][$i] = self::parseOrderProductData($row);
+                    $bought_course = (($payment_status == 'free' or $payment_status == 'succeeded') and $bought_course == 0) ? $row->p_course_id : $bought_course;
+
+                    $full_price = (!empty($row->ouc_p_price) and $row->ouc_p_price > 0) ? $row->ouc_p_price : 0;
+                    $rec_price  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first > 0) ? $row->ouc_p_recurrent_first : 0;
+                    $cart_product_price = (!empty($full_price) and empty($rec_price)) ? $full_price : $rec_price;
+
+                    $total_order_price += $cart_product_price*$row->ouc_p_quantity;
+
+                    if($row->pcu_discount_type == 'percent')
+                    {
+                        $discount_percent += $row->pcu_discount;
+                    }
+                    elseif($row->pcu_discount_type == 'currency')
+                    {
+                        $discount_currency += $row->pcu_discount;
+                    }
+                    elseif($row->pcu_discount_type == 'free_weeks')
+                    {
+                        $discount_free_weeks += $row->pcu_discount;
+                    }
+
+                    $promocodes .= (!empty($row->pcu_code)) ? ' '.$row->pcu_code : '';
+
+                    $i++;
+                }
+                unset($row);
+
+                $discount_percent    = ($discount_percent > 0) ? $discount_percent.'% ' : '';
+                $discount_currency   = ($discount_currency > 0) ? $discount_currency.' руб. ' : '';
+                $discount_free_weeks = ($discount_free_weeks > 0) ? $discount_free_weeks.' беспл. нед. ' : '';
+
+                $total_order_discount = $discount_percent . $discount_currency . $discount_free_weeks;
+
+                $result['order']['price']     = $total_order_price;
+                $result['order']['promocode'] = $promocodes;
+                $result['order']['discount']  = $total_order_discount;
+            }
+            elseif ($sel_cart === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            if($bought_course > 0)
+            {
+                $sel_uc = $this->db->query('SELECT `uc_id` FROM `users_courses` 
+                    WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1',
+                    array($user_id, $order_id, $bought_course));
+                if ($sel_uc !== false and 1 == $sel_uc->num_rows())
+                {
+                    $row = $sel_uc->row();
+                    $uc_id = $row->uc_id;
+                    $result['order']['bought_course'] = $uc_id;
+                }
+                elseif ($sel_uc === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+
+            // Данные оплаты заказа
+            $result['order']['payments'] = self::getOrderPayments($order_id);
+        }
+        elseif ($sel_order === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -3327,7 +3436,7 @@ class Store_model extends CI_Model
      *
      * @param int $order_id
      * @param string $payment_id
-     * @param int $status
+     * @param string $status
      * @return bool
      */
     public function updateOrderStatus($order_id, $payment_id, $status)
@@ -3350,9 +3459,9 @@ class Store_model extends CI_Model
             }
         }
 
-        if (!empty($order_id))
+        if (!empty($order_id) and is_numeric($order_id))
         {
-            $up_data = $this->db->query('UPDATE `orders` SET `o_status`=? WHERE `o_id`=? LIMIT 1', array($status, $order_id));
+            $up_data = $this->db->query('UPDATE `orders` SET `o_payment_status`=? WHERE `o_id`=? LIMIT 1', array($status, $order_id));
 
             if($up_data !== false and 1 == $this->db->affected_rows())
             {
@@ -3420,13 +3529,13 @@ class Store_model extends CI_Model
 
             // Выборка курсов заказа
             $sel_courses = $this->db->query('
-                SELECT `orders_users_cart`.`ouc_p_id`, `ouc_promocode_id`, `products`.`p_course_id`, `crs_category`, `crs_count_weeks`, 
-                  `crs_count_days`, `pcu_discount`, `pcu_discount_type` 
+                SELECT `ouc_p_id`, `ouc_p_price`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, `ouc_p_recurrent_months`, `ouc_promocode_id`, 
+                       `p_course_id`, `crs_category`, `crs_count_weeks`, `crs_count_days`, `pcu_discount`, `pcu_discount_type` 
                 FROM `orders_users_cart` 
                 LEFT JOIN `products` ON `p_id`=`ouc_p_id`
                 LEFT JOIN `courses` ON `p_course_id`=`crs_id`
                 LEFT JOIN `promocodes_used` ON `pcu_id`=`ouc_promocode_id`
-                WHERE `ouc_o_id`=? and `ouc_u_id`=? and `p_course_id`>0', array($order_id, $user_id));
+                WHERE `ouc_o_id`=? and `ouc_u_id`=? and `p_course_id`>0 and `ouc_attached_p_id`=0', array($order_id, $user_id));
 
             if($sel_courses !== false and 0 < $sel_courses->num_rows())
             {
@@ -3439,6 +3548,16 @@ class Store_model extends CI_Model
                     $result['courses'][$i]['count_days']       = $row->crs_days;
                     $result['courses'][$i]['pc_discount']      = $row->pcu_discount;
                     $result['courses'][$i]['pc_discount_type'] = $row->pcu_discount_type;
+                    $result['courses'][$i]['price']            = $row->ouc_p_price;
+                    $result['courses'][$i]['rec_first']        = $row->ouc_p_recurrent_first;
+                    $result['courses'][$i]['rec_subsequent']   = $row->ouc_p_recurrent_subsequent;
+                    $result['courses'][$i]['rec_months']       = $row->ouc_p_recurrent_months;
+                    $result['courses'][$i]['recurrent']        = false;
+
+                    if($row->ouc_p_recurrent_first > 0 and $row->ouc_p_recurrent_subsequent > 0 and $row->ouc_p_recurrent_months > 0)
+                    {
+                        $result['courses'][$i]['recurrent'] = true;
+                    }
 
                     $i++;
                 }
@@ -3531,9 +3650,9 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_payments = $this->db->query('
-            SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, `op_captured_at`
-                `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, `op_revoke_permission`, 
-               `op_payment_method_id`, `op_following_date`
+            SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_payment_type`, `op_status`, `op_paid`, `op_created_at`, 
+                   `op_captured_at`, `op_expires_at`, `op_amount`, `op_currency`, `op_payment_method_saved`, 
+                   `op_revoke_permission`, `op_payment_method_id`, `op_following_date`
             FROM `orders_payment`
             WHERE `op_o_id`=?', $order_id);
         if ($sel_payments !== false and 0 < $sel_payments->num_rows())
@@ -3772,10 +3891,11 @@ class Store_model extends CI_Model
      * @param string $description
      * @param $payment_option
      * @param $customer_email
+     * @param $customer_name
      * @param $order_items
      * @return array
      */
-    public function refundPayment($payment_id, $value, $currency, $description, $payment_option, $customer_email, $order_items)
+    public function refundPayment($payment_id, $value, $currency, $description, $payment_option, $customer_email, $customer_name, $order_items)
     {
         $result = array('response' => false, 'error' => false);
         $idempotenceKey = uniqid('', true);
@@ -3792,7 +3912,8 @@ class Store_model extends CI_Model
                     ),
                     'receipt' => array(
                         'customer' => array(
-                            'email' => $customer_email
+                            'email' => $customer_email,
+                            'full_name' => $customer_name,
                         ),
                         'items' => array(
                             array(
@@ -4161,6 +4282,8 @@ class Store_model extends CI_Model
         $result['user_email']        = (!empty($row->o_user_email)) ? $row->o_user_email : '';
         $result['user_country_code'] = (!empty($row->o_user_country_code)) ? $row->o_user_country_code : '';
         $result['user_phone']        = (!empty($row->o_user_phone)) ? $row->o_user_phone : '';
+        $result['total_amount']      = (!empty($row->o_total_amount)) ? $row->o_total_amount : 0;
+        $result['payment_option']    = (!empty($row->o_payment_options)) ? $row->o_payment_options : 'full_payment';
 
         $delivery = 'Курьер';
         $delivery = $row->o_delivery == 2 ? 'Почта' : $row->o_delivery == 3 ? 'Самовывоз' : $delivery;
@@ -4171,7 +4294,10 @@ class Store_model extends CI_Model
         $result['payment']  = 'Банковская карта';
         $result['payments'] = array();
 
-        $result['payment_status'] = ($row->o_payment_status == 1) ? 'Оплачено' : 'Не оплачено';
+        $payment_statuses = array('Ожидает подтверждения оплаты магазином' => 'waiting_for_capture', 'Оплачен' => 'succeeded',
+            'Отменен' => 'canceled', 'Ожидает оплаты' => 'pending', 'Платеж возвращен' => 'payment_refunded', 'Пропущена оплата' => 'not_paid', 'Бесплатно' => 'free');
+        $result['payment_status'] = (!empty($row->o_payment_status) and array_search($row->o_payment_status, $payment_statuses)) ? array_search($row->o_payment_status, $payment_statuses) : '';
+        $result['payment_status_eng'] = (!empty($row->o_payment_status)) ? $row->o_payment_status : '';
         $result['status']         = ($row->o_status == 1) ? 'Выполнен' : 'Не выполнен';
 
         // Дата добавления
@@ -4227,10 +4353,10 @@ class Store_model extends CI_Model
         {
             $result['name'] = !empty($row->crs_name) ? $row->crs_name : 'Курс №'.$row->p_course_id;
 
-            $price      = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : '';
-            $rec_first  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first != '0.00') ? $row->ouc_p_recurrent_first : '';
-            $rec_subseq = (!empty($row->ouc_p_recurrent_subsequent) and $row->ouc_p_recurrent_subsequent != '0.00') ? $row->ouc_p_recurrent_subsequent : '';
-            $fc_price   = (!empty($row->ouc_p_fitcoin_price) and $row->ouc_p_fitcoin_price != '0.00') ? $row->ouc_p_fitcoin_price : '';
+            $price      = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : 0;
+            $rec_first  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first != '0.00') ? $row->ouc_p_recurrent_first : 0;
+            $rec_subseq = (!empty($row->ouc_p_recurrent_subsequent) and $row->ouc_p_recurrent_subsequent != '0.00') ? $row->ouc_p_recurrent_subsequent : 0;
+            $fc_price   = (!empty($row->ouc_p_fitcoin_price) and $row->ouc_p_fitcoin_price != '0.00') ? $row->ouc_p_fitcoin_price : 0;
 
             $result['price']               = $price;
             $result['rec_first']           = $rec_first;
@@ -4277,6 +4403,11 @@ class Store_model extends CI_Model
         $result['id']       = $row->op_payment_id;
         $result['amount']   = $row->op_amount;
         $result['currency'] = $row->op_currency;
+
+        $types = array('bank_card' => 'Банковская карта', 'yandex_money' => 'Яндекс.Деньги', 'sberbank' => 'Сбербанк Онлайн',
+            'qiwi' => 'QIWI Кошелек', 'webmoney' => 'Webmoney', 'alfabank' => 'Альфа-клик');
+        $result['payment_type'] = (array_key_exists($row->op_payment_type, $types) !== false)
+            ? $types[$row->op_payment_type] : '';
 
         $status = array('pending' => 'Платеж ожидает подтверждения пользователем', 'waiting_for_capture' => 'Платеж ожиданиет подтверждения или отмены магазином',
             'succeeded' => 'Платеж успешно завершен', 'canceled' => 'Платеж отменен', '' => '');

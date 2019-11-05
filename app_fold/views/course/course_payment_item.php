@@ -11,6 +11,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="text" name="email" required="required" value="" class="admin_form_txt admin_form_txt_short valid_email" autocomplete="off"/>
         </div>
     <?php endif; ?>
+    <?php if(empty($user_session) or empty($user_session['name'])): ?>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">ФИО:</div>
+            <input type="text" name="name" required="required" value="" class="admin_form_txt admin_form_txt_short" autocomplete="off"/>
+        </div>
+    <?php endif; ?>
     <?php if ($course['price'] != 0 and $course['recurrent'] === true):?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h"><label for="payment-options">Вариант оплаты:</label></div>

@@ -13,7 +13,7 @@ include_once('./app_fold/views/breadcrumb.php');
 
 <?php include_once('./app_fold/views/site/content/auth_info_block.php'); ?>
 
-<div class="container"><h2 class="block_h">Наши тренера</h2></div>
+<div class="container"><h2 class="block_h">Наши тренеры</h2></div>
 <div id="content" class="container">
     <div class="trainers_row row">
         <?php if (!empty($coaches)):

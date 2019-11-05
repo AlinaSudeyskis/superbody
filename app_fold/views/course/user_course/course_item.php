@@ -1,7 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div class="my_kurs_item parent">
+<?php
+/*<div class="my_kurs_item parent">
     <div class="my_kurs_img">
         <a href="">
             <?php if (!empty($course['image'])) :?>
@@ -14,7 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="my_kurs_name"><a href="/profile/course/<?php echo $course['id']?>"><?php echo $course['name'];?></a></div>
             <div class="my_kurs_but parent">
                 <a href="/course/<?php echo $course['course_id']?>" class="my_kurs_link">Узнать больше</a>
-                <!--<a href="#" class="my_kurs_link disabled">Расписание</a>-->
+                //<a href="#" class="my_kurs_link disabled">Расписание</a>
                 <?php if($course['category'] == 'workout' and $page_submenu != 'finished'): ?>
                     <div class="my_kurs_radio_wrap">
                         <input type="checkbox" name="cb_calendar_workout[]" class="anketa_form_radio calendar_course" value="<?php echo $course['id']; ?>" id="calendar_workout<?php echo $course['id']; ?>" <?php if($course['display'] == 1):?>checked="checked"<?php endif;?>>
@@ -44,6 +45,86 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     unset($coach);?>
                 </div>
             <?php endif;?>
+        </div>
+    </div>
+</div>*/
+?>
+
+
+<div class="orders_container">
+    <div class="order_image"><img src="<?php echo $course['image']; ?>" alt="" /></div>
+    <div class="order_info_wrap">
+        <div class="oi_title"><?php echo $course['name']; ?></div>
+        <div class="oi_subtitle"><?php echo $course['description']; ?></div>
+        <div class="oi_info">
+            <?php if (!empty($course['coaches'])): ?>
+                <div class="oi_i_coach">
+                    <div class="oi_i_title">Тренер</div>
+                    <div class="tren_block tren_order">
+                        <?php $coach = $course['coaches'][0]; ?>
+                        <div class="tren_item">
+                            <div class="tren_ava"><img src="<?php echo $coach['image']?>" alt=""></div>
+                            <a href="/profile/<?php echo $coach['id']?>" class="tren_link">
+                                <span class="tren_name"><?php echo $coach['name']?></span>
+                                <span class="tren_surname"><?php echo $coach['surname']?></span>
+                            </a>
+                            <div class="tren_desk"><?php echo $coach['special']?></div>
+                        </div>
+                        <?php unset($coach); ?>
+                    </div>
+                </div>
+            <?php endif;?>
+            <div class="oi_i_details">
+                <div class="oi_i_title">Информация о заказе</div>
+                <div class="oi_i_s_details_wrap">
+                    <div class="oi_i_s_details"><i class="fa fa-chevron-right" aria-hidden="true"></i>№ <?php echo $course['order']['id']; ?></div>
+                    <div class="oi_i_s_details"><i class="fa fa-chevron-right" aria-hidden="true"></i><?php echo $course['order']['date']; ?></div>
+                    <div class="oi_i_s_details"><i class="fa fa-chevron-right" aria-hidden="true"></i>Сумма: <?php echo $course['order']['total_amount']; ?> руб.</div>
+                    <?php if(!empty($course['order']['discount'])): ?>
+                        <div class="oi_i_s_details"><i class="fa fa-chevron-right" aria-hidden="true"></i>Скидка: <?php echo $course['order']['discount']; ?></div>
+                    <?php endif; ?>
+                    <?php if($course['order']['payment_status_eng'] != 'free'): ?>
+                        <div class="oi_i_s_details"><i class="fa fa-chevron-right" aria-hidden="true"></i><?php echo $course['order']['payment']; ?></div>
+                    <?php endif; ?>
+                    <div class="oi_i_s_details"><i class="fa fa-chevron-right" aria-hidden="true"></i><?php echo $course['order']['user_email']; ?></div>
+                </div>
+            </div>
+            <div class="oi_i_status">
+                <div class="oi_i_title">Статус</div>
+                <div class="oi_i_details_wrap">
+                    <?php $s_active = ($course['order']['payment_status_eng'] == 'succeeded' or $course['order']['payment_status_eng'] == 'free') ? 'active' : ''; ?>
+                    <div class="oi_d_status <?php echo $s_active; ?>"><?php echo $course['order']['payment_status']; ?></div>
+                    <div class="oi_d_buy">
+                        <?php if(empty($course['order']['payment_status_eng']) or $course['order']['payment_status_eng'] == 'pending' or $course['order']['payment_status_eng'] == 'not_paid' or
+                            $course['order']['payment_status_eng'] == 'canceled'): ?>
+                            <a href="#" class="buy_course" data-cid="<?php echo $course['course_id']; ?>" data-oid="<?php echo $course['order']['id']; ?>" data-ucid="<?php echo $course['id']; ?>">Оплатить</a>
+                        <?php else: ?>
+                            <span>Оплатить</span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="oi_d_prog">
+                        <div class="calendar_prof_item">
+                            <div class="calendar_prof_end">
+                                <span class="calendar_prof_end_line" style="width: <?php echo $course['percent_done']; ?>%; background-color: rgb(67,227,267);"></span>
+                                <span class="calendar_prof_end_val"><?php echo $course['percent_done']; ?>%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="oi_d_link">
+                        <?php $calendar_active = ($course['display'] == 1) ? 'active' : ''; ?>
+                        <?php if(($course['category'] == 'workout' or $course['category'] == 'workout') and $page_submenu != 'finished'): ?>
+                            <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>">Календарь</a>
+                        <?php endif;?>
+                    </div>
+                    <div class="oi_d_link">
+                        <?php if(!empty($course['id'])): ?>
+                            <a href="/profile/course/<?php echo $course['id']; ?>">Подробнее</a>
+                        <?php else: ?>
+                            <span>Продолжить</span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

@@ -28,7 +28,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </a>
                         </li>
                     </ul>
-                    <div class="my_kurs_block">
+                    <div class="orders_container_wrap">
                         <?php if(!empty($courses) or !empty($blocked_courses)):
                             if (!empty($courses)) :
                                 foreach ($courses as $course) :

@@ -68,10 +68,10 @@ class Authorization extends CI_Controller
                         // Отправка письма с активацией почты
                         $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
                             . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                        $system_message['text']  .= 'Активировать';
+                        $system_message['text']  .= 'Активировать аккаунт';
                         $system_message['text']  .= '</a></b>';
 
-                        parent::sendEmail(17, $email, $system_message);
+                        parent::sendEmail(1, $email, $system_message);
 
                         // Обновление данных сессии
                         $user_type = 1;
@@ -973,8 +973,7 @@ class Authorization extends CI_Controller
 
                     if($result === true)
                     {
-                        log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
-
+                        //log_message('debug', __METHOD__ . ':' . __LINE__ . ' $return:' . print_r($return, true));
                         parent::deleteSessionReturnUrl();
 
                         header('Location: ' . $return);
@@ -1662,15 +1661,15 @@ class Authorization extends CI_Controller
             $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
                 ? $return . $this->session->user['id'] : $return;
 
-            preg_match_all('/(#\w+)/', $return, $matches);
-            log_message('debug', __METHOD__.':'.__LINE__. ' Hashtags in var $return ' . print_r($matches, true));
-            $supposed_return = str_replace($matches, '', $return);
-            log_message('debug', __METHOD__.':'.__LINE__. ' Supposed $return ' . $supposed_return);
+            //preg_match_all('/(#\w+)/', $return, $matches);
+            //log_message('debug', __METHOD__.':'.__LINE__. ' Hashtags in var $return ' . print_r($matches, true));
+            //$supposed_return = str_replace($matches, '', $return);
+            //log_message('debug', __METHOD__.':'.__LINE__. ' Supposed $return ' . $supposed_return);
 
             parent::deleteSessionReturnUrl();
 
             // Отправляем письмо с уведомлением об регистрации
-            if (!empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
+            if ($result['registration'] === true and !empty($user_soc_email) and filter_var($user_soc_email, FILTER_VALIDATE_EMAIL))
             {
                 $system_message['text']  = '<b><a href="https://superbody.pro/" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
                 $system_message['text']  .= 'Перейти на сайт';
@@ -1692,5 +1691,42 @@ class Authorization extends CI_Controller
 
             header('Location: ' . $fail_return);
         }
+    }
+
+    /**
+     * AJAX. Проверка email
+     */
+    public function checkUserEmail()
+    {
+        $result = array('result' => null, 'form' => '');
+
+        $email = (!empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
+            ? $this->input->post('email', true)
+            : null;
+
+        if($email)
+        {
+            $res_check = $this->Authorization_model->checkEmail($email);
+            if($res_check === true)
+            {
+                ob_start();
+                include('./app_fold/views/authorization/auth_form.php');
+                $form = ob_get_contents();
+                ob_end_clean();
+                $result['result'] = true;
+                $result['form']   = $form;
+            }
+            else
+            {
+                ob_start();
+                include('./app_fold/views/authorization/reg_form.php');
+                $form = ob_get_contents();
+                ob_end_clean();
+                $result['result'] = false;
+                $result['form']   = $form;
+            }
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 }

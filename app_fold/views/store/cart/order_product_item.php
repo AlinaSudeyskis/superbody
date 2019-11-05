@@ -26,6 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php echo $product_item['cart_quantity']; ?>
             <?php elseif ($product_item['course_id'] > 0) :
                 $quantity = 1;
+                echo 1;
             endif;?>
         </div>
     </div>
@@ -33,16 +34,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="ordering_block_col_h">Итого</div>
         <div class="ordering_block_col_cont">
             <div class="ordering_block_col_val ordering_tov_summ">
-                <?php if (!empty($product_item['price']) and $product_item['quantity'] > 0 and $product_item['course_id'] == 0) :
-                    $product_item_sum = $price * $product_item['cart_quantity'];
-                    $product_item_currency = ' руб.';
-                elseif (!empty($product_item['price']) and $product_item['course_id'] > 0) :
-                    $product_item_sum = $price;
-                    $product_item_currency = ' руб.';
-                else :
-                    $product_item_sum = '';
-                    $product_item_currency = '';
-                endif;?>
+                <?php $product_item_sum = $price * $product_item['cart_quantity'];
+                    $product_item_currency = ' руб.'; ?>
                 <span id="product_sum"><?php echo $product_item_sum;?></span>
                 <span id="product_currency"><?php echo $product_item_currency;?></span>
             </div>

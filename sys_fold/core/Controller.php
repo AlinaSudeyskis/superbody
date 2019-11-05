@@ -415,7 +415,7 @@ class CI_Controller {
             //echo date('U');
             $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->session->user['date_auth']);
             $u_date = $tmp_date->format('U');
-            if ($u_date < '1560275974')
+            if ($u_date < '1572882473')
             {
                 header('Location: /logout');
             }
@@ -461,6 +461,7 @@ class CI_Controller {
             $user_session_data['user']['type']       = $user_data['user_data']['user_type'];
             $user_session_data['user']['blocked']    = $user_data['user_data']['user_blocked'];
             $user_session_data['user']['subscribed'] = $user_data['user_data']['user_subscribed'];
+            $user_session_data['user']['activated']  = $user_data['user_data']['user_activated'];
             //$user_session_data['user']['date_auth']  = $this->date;
 
             $this->session->set_userdata($user_session_data);
@@ -1330,14 +1331,13 @@ class CI_Controller {
             // Возвращаем ID пользователя
             if (is_numeric($res_check['user_id']))
             {
-                $result     = $res_check['user_id'];
-                $email_hash = password_hash($email, PASSWORD_DEFAULT);
+                $result = $res_check['user_id'];
 
                 // Отправление письма о подтвержении регистрации пользователю
                 if ($res_check['new_user'] === true and $res_check['auth_via'] == 'native')
                 {
                     // Отправка письма с активацией почты
-                    $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
+                    $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $res_check['email_hash']
                         . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
                     $system_message['text']  .= 'Активировать';
                     $system_message['text']  .= '</a></b>';
@@ -1359,6 +1359,10 @@ class CI_Controller {
 
                     mail($email_to, $subject, $message, $headers);*/
                 }
+            }
+            else
+            {
+                log_message('debug', __METHOD__.':'.__LINE__.' checkRegEmail user_id empty');
             }
         }
 
@@ -1463,13 +1467,14 @@ class CI_Controller {
      * @param $i_phone
      * @param $i_login
      * @param $i_email
+     * @param $i_name
      * @param $i_promocode
      * @param $return_url
      * @param string $order_id
      * @throws Exception
      */
-    public function buyCourse($course_id, $course_data, $course_coaches, $id_coach, $s_payment_options,
-                              $s_payment_method, $i_phone, $i_login, $i_email, $i_promocode, $return_url, $order_id = '')
+    public function buyCourse($course_id, $course_data, $course_coaches, $id_coach, $s_payment_options, $s_payment_method,
+                              $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url, $order_id = '')
     {
         $products['products'] = array();
 
@@ -1477,31 +1482,39 @@ class CI_Controller {
         $promocode    = array();
         $promocode_discount      = '';
         $promocode_discount_type = '';
+        $free_weeks = 0;
 
         // Проверка данных пользователя
+        $i_email   = (filter_var($i_email, FILTER_VALIDATE_EMAIL)) ? $i_email : null;
+        $i_name    = (mb_substr(strip_tags($i_name), 0, 255)) ? $i_name : null;
         $user_id   = null;
         $email     = null;
+        $name      = null;
         $user_type = null;
         if(is_numeric($this->user_id))
         {
             $user_id   = $this->user_id;
-            $email     = $this->session->user['email'];
+            $email     = (!empty($this->session->user['email'])) ? $this->session->user['email'] : $i_email;
+            $name      = (!empty($this->session->user['name'])) ? $this->session->user['name'] : $i_name;
             $user_type = $this->session->user['type'];
         }
         else
         {
-            $email = (filter_var($i_email, FILTER_VALIDATE_EMAIL)) ? $i_email : null;
+            $email = $i_email;
+            $name  = $i_name;
         }
 
         // Если пользователь не авторизован, проверяем введенный им email (нет в БД - регистрация)
-        if (empty($user_id) and !empty($email))
+        /*if (empty($user_id) and !empty($email))
         {
-            $user_id = self::checkEmail($email);
-        }
-        elseif(empty($user_id) and empty($email))
+            $user_id = self::checkEmail($email, $name);
+        }*/
+
+        if(empty($user_id) or empty($email) or empty($name))
         {
             // Некорректный email
-            $this->session->set_tempdata('message', 6, 60);
+            $this->session->set_tempdata('message', 217, 60);
+            header('Location: ' . $return_url . '?ref=1');
         }
 
         // Количество тренировок за курс
@@ -1528,14 +1541,7 @@ class CI_Controller {
         // Даты начала и окончания курса
         $start_date = '';
         $end_date   = '';
-        if($course_data['category'] == 'nutrition')
-        {
-            $start_date = $this->date;
-
-            $tmp_date = new DateTime($this->date);
-            $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
-            $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
-        }
+        $free_weeks_end_date = '';
         /*$array_training_days = str_split($training_days);
         $tem_date            = new DateTime($this->date);
         $start_date          = $tem_date->format('Y-m-d');
@@ -1595,10 +1601,10 @@ class CI_Controller {
         // Данные для способа оплаты
         $phone_methods = array('qiwi', 'sberbank');
         $login_methods = array('alfabank');
-        $phone        = (is_numeric($i_phone)) ? $i_phone : null;
-        $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : null;
+        $phone        = (is_numeric($i_phone)) ? $i_phone : '';
+        $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : '';
         $login        = strip_tags($i_login);
-        $method_login = (in_array($payment_type, $login_methods)) ? $login : null;
+        $method_login = (in_array($payment_type, $login_methods)) ? $login : '';
 
         $full_course_price = '';
         $rec_months = '';
@@ -1654,8 +1660,9 @@ class CI_Controller {
                     // Скидка - бесплатные недели
                     elseif($promocode_discount_type == 'free_week' and $promocode_discount > 0 and $course_data['count_weeks'] >= $promocode_discount)
                     {
+                        $free_weeks        = $promocode_discount;
                         $week_price        = $course_data['db_price'] / $course_data['count_weeks'];
-                        $free_weeks_price  = $week_price * $promocode_discount;
+                        $free_weeks_price  = $week_price * $free_weeks;
                         $new_price         = $course_data['db_price'] - $free_weeks_price;
                         $full_course_price = ($new_price < 1) ? 1 : $new_price;
                     }
@@ -1681,8 +1688,28 @@ class CI_Controller {
             'promo_id' => $promocode_id,
             'promo_code' => $i_promocode,
             'promo_discount' => $promocode_discount,
-            'promo_discount_type' => $promocode_discount_type)
-        );
+            'promo_discount_type' => $promocode_discount_type));
+
+        // Amount
+        $order_total_amount   = $course_data['db_price'];
+        $payment_total_amount = (!empty($full_course_price) or $full_course_price === 0) ? $full_course_price : $rec_first_course_price;
+
+        if($course_data['category'] == 'nutrition')
+        {
+            $start_date = $this->date;
+
+            $tmp_date = new DateTime($start_date);
+            $tmp_date->add(new DateInterval("P" . $count_workouts . "D"));
+            $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+            if($free_weeks > 0)
+            {
+                $free_weeks_days = $free_weeks*7;
+                $tmp_date = new DateTime($start_date);
+                $tmp_date->add(new DateInterval("P" . $free_weeks_days . "D"));
+                $free_weeks_end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+            }
+        }
 
         if(!empty($user_id))
         {
@@ -1692,6 +1719,8 @@ class CI_Controller {
                 //$res_check_order = $this->Store_model->checkUserOrder($user_id, $order_id, $supposed_products['products']);
                 if($user_type !== 2)
                 {
+                    $uc_id = false;
+
                     if(is_numeric($order_id))
                     {
                         $this->load->model('Store_model');
@@ -1737,9 +1766,7 @@ class CI_Controller {
                                 unset($product);
                             }
 
-                            $order_amount = $this->Store_model->getOrderAmount($order_id);
-                            $res_order['order_id']     = $order_id;
-                            $res_order['total_amount'] = (!empty($order)) ? $order_amount : null;
+                            $res_order['order_id'] = $order_id;
                         }
                     }
 
@@ -1748,10 +1775,10 @@ class CI_Controller {
                         $products = $supposed_products;
 
                         $prev_address = '';
-                        $name = '';
-                        $surname = '';
+                        $u_name = '';
+                        $u_surname = '';
                         $code = '';
-                        $phone = '';
+                        $o_phone = '';
                         $country = '';
                         $city = '';
                         $street = '';
@@ -1762,8 +1789,15 @@ class CI_Controller {
 
                         $this->load->model('Store_model');
 
-                        $res_order = $this->Store_model->setOrder($user_id, $prev_address, $name, $surname, $email, $code, $phone,
-                            $country, $city, $street, $building, $house, $postcode, $delivery, $products, $this->date);
+                        $payment_status = 'pending';
+
+                        $res_order = $this->Store_model->setOrder($user_id, $prev_address, $u_name, $u_surname, $email, $code, $o_phone,
+                            $country, $city, $street, $building, $house, $postcode, $delivery, $products, $payment_status, $payment_option, $order_total_amount, $this->date);
+
+                        if (!empty($res_order) and $res_order !== false and is_numeric($res_order['order_id']))
+                        {
+                            $uc_id = $this->Course_model->setNewUserCourse($res_order['order_id'], $course_id, $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
+                        }
                     }
 
                     if (!empty($res_order) and $res_order !== false and is_numeric($res_order['order_id']))
@@ -1771,31 +1805,35 @@ class CI_Controller {
                         // Кол-во товаров в корзине
                         self::updateSessionCart(0);
 
-                        if($res_order['total_amount'] >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
+                        if($payment_total_amount >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
                         {
                             $payment_data = array(
                                 'oid' => $res_order['order_id'],
-                                'amount' => $res_order['total_amount'],
+                                'ucid' => $uc_id,
+                                'amount' => $payment_total_amount,
                                 'type' => $payment_type,
                                 'option' => $payment_option,
                                 'phone' => $method_phone,
                                 'login' => $method_login,
                                 'customer_email' => $email,
+                                'customer_name' => $name,
                                 'order_items' => $products['products'][0],
                                 'return_url' => $return_url . '?ref=1'
                             );
 
                             header('Location: /payment?' .http_build_query($payment_data));
                         }
-                        elseif($res_order['total_amount'] == 0 or (!empty($promocode) and $promocode_discount_type == 'free_week' and $promocode_discount > 0))
+                        elseif($payment_total_amount == 0 or (!empty($promocode) and $promocode_discount_type == 'free_week' and $promocode_discount > 0))
                         {
                             $free_weeks = ($promocode_discount_type == 'free_week') ? $promocode_discount : 0;
                             $free_weeks_end_date = '';
-                            $res_course = $this->Course_model->setNewUserCourse($res_order['order_id'], $course_id, $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
+                            $payment_status = 'free';
 
-                            if(is_numeric($res_course))
+                            if(!empty($uc_id) and is_numeric($uc_id))
                             {
-                                header('Location: /profile/course/'.$res_course);
+                                $this->Course_model->updateNewUserCourse($uc_id, $free_weeks, $free_weeks_end_date, $this->date);
+                                $this->Store_model->updateOrderStatus($res_order['order_id'], '', $payment_status);
+                                header('Location: /profile/course/'.$uc_id);
                             }
                             else
                             {
@@ -1804,20 +1842,11 @@ class CI_Controller {
                                 header('Location: ' . $return_url . '?ref=1');
                             }
                         }
-
-                        /*$res_buy = $this->Course_model->setNewUserCourse($course_id, $this->user_id, $start_date, $end_date, $training_days, $user_coach, $this->date);
-
-                        if (is_numeric($res_buy))
+                        else
                         {
-                            $uc_id = $res_buy;
-
-                            if (!empty($training_days)) {
-                                $this->Course_model->setUserTrainingWeeks($uc_id, $start_date, $training_days, $count_workouts, $course['count_days'], $this->date);
-                            }
+                            log_message('debug', __METHOD__.':'.__LINE__);
+                            header('Location: ' . $return_url . '?ref=1');
                         }
-
-                        // Сохранено
-                        $this->session->set_tempdata('message', 10, 60);*/
                     }
                     else
                     {
