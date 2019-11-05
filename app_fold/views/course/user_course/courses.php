@@ -48,6 +48,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <h3 class="info">Информация не найдена</h3>
                         <?php endif;?>
                     </div>
+
+                    <script>
+                        $('.tren_block.tren_order').slick({
+                            dots: false,
+                            infinite: true,
+                            arrows: false,
+                            speed: 300,
+                            autoplay: true,
+                            slidesToShow: 1,
+                            slidesToScroll: 1
+                        });
+                    </script>
                     <?php include_once('./app_fold/views/pagination.php');?>
                 </div>
             </div>
