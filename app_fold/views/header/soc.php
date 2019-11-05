@@ -10,8 +10,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span><?php echo $site_info['phone']; ?></span>
         </div>
     <?php endif;?>
-    <?php if(!empty($user_session) and $user_session['activated'] == 0):?>
-        <span class="header_notification">Аккаунт не активирован.</span>
-    <?php endif;?>
+        <span class="header_notification">
+            <?php if(!empty($user_session) and $user_session['activated'] == 0):?>
+                Аккаунт не активирован.
+            <?php endif;?>
+        </span>
     <?php include('./app_fold/views/header/header_soc.php'); ?>
 </div>
