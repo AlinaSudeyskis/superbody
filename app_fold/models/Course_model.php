@@ -7800,7 +7800,7 @@ class Course_model extends CI_Model
     protected function different_shade($rgb, $type = '')
     {
         $newShade = array();
-        $percentageChange  = 60;
+        $percentageChange  = 30;
         $percentageChange2 = 25;
 
         if($type == 'lighter')
