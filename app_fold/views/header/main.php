@@ -20,7 +20,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="main_bg_wrap">
         <?php if (empty($user_session)) :?>
             <div class="sing-in">
-                <?php include_once('./app_fold/views/authorization/auth_form.php'); ?>
+                <?php include('./app_fold/views/authorization/auth_form.php'); ?>
             </div>
         <?php endif;?>
         <div class="header_bg header_bg_main">

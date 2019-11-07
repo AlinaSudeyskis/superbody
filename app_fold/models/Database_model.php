@@ -2930,6 +2930,25 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-11-06 11:37';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+
+            $this->db->query("TRUNCATE TABLE `orders`");
+            $this->db->query("TRUNCATE TABLE `orders_payment`");
+            $this->db->query("TRUNCATE TABLE `orders_payment_refund`");
+            $this->db->query("TRUNCATE TABLE `orders_users_cart`");
+            $this->db->query("TRUNCATE TABLE `orders_users_data`");
+            $this->db->query("TRUNCATE TABLE `promocodes_used`");
+            $this->db->query("TRUNCATE TABLE `users_courses`");
+            $this->db->query("TRUNCATE TABLE `users_courses_pauses`");
+            $this->db->query("TRUNCATE TABLE `users_training_days`");
+            $this->db->query("TRUNCATE TABLE `users_training_weeks`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

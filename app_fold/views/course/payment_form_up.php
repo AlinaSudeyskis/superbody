@@ -21,7 +21,7 @@ $display = (!empty($purchase_up) and $purchase_up === true) ? 'class="ref_pop-up
             </div>
             <div class="parent kurs_cur_wrap separator"></div>
             <div class="sing-in page_form">
-                <?php include_once('./app_fold/views/authorization/auth_form.php');?>
+                <?php include('./app_fold/views/authorization/auth_form.php');?>
             </div>
             <a href="#" class="return_purchase">Назад на форму покупки</a>
         </div>

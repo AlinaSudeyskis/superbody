@@ -162,10 +162,12 @@ $(document).ready(function () {
                             var this_form  = $(this).parents('form'),
                                 user_id    = this_form.find('#user-id').val(),
                                 user_email = this_form.find('input[name="email"]'),
-                                user_name  = this_form.find('input[name="name"]');
+                                user_name  = this_form.find('input[name="name"]'),
+                                email_val  = user_email.val(),
+                                name_val  = user_name.val();
 
-                            if($.isNumeric(user_id) && (user_email.length === 0 || (user_email.length === 1 && pattern.test(user_email.val()))) &&
-                                (user_name.length === 0 || (user_name.length === 1 && user_name.val())))
+                            if($.isNumeric(user_id) && (user_email.length === 0 || (user_email.length === 1 && pattern.test(email_val))) &&
+                                (user_name.length === 0 || (user_name.length === 1 && name_val.length > 0)))
                             {
                                 this_form.submit();
                             }
@@ -173,15 +175,15 @@ $(document).ready(function () {
                             {
                                 var a_message = '';
 
-                                if(pattern.test(user_email.val()) && user_name)
+                                if(pattern.test(email_val) && name_val.length > 0)
                                 {
                                     $.ajax({
                                         url: '/checkUserEmail',
                                         type: 'post',
                                         dataType: 'json',
                                         data: {
-                                            email: user_email,
-                                            name: user_name
+                                            email: email_val,
+                                            name: name_val
                                         },
                                         complete: function (result)
                                         {
@@ -215,11 +217,11 @@ $(document).ready(function () {
                                         }
                                     });
                                 }
-                                else
+                                /*else
                                 {
-                                    user_email.checkValidity();
-                                    user_name.checkValidity();
-                                }
+                                    var valid_email = user_email.checkValidity(),
+                                        valid_name = user_name.checkValidity();
+                                }*/
                                 return false;
                             }
                         });
