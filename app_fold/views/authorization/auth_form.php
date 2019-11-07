@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <form action="/login" class="sing-in_form" method="post">
     <div class="sing-in_h">через социальную сеть:</div>
-    <?php include_once('./app_fold/views/authorization/auth_soc_item.php'); ?>
+    <?php include('./app_fold/views/authorization/auth_soc_item.php'); ?>
     <div class="sing-in_h" style="margin-top: 10px;">или авторизуйтесь:</div>
     <input type="text" class="sing-in_in valid_email" placeholder="e-mail" name="email" value="<?php if(!empty($email)): echo $email; endif;?>" maxlength="255"/>
     <input type="password" class="sing-in_in" placeholder="пароль" name="password" value="" maxlength="255" minlength="8"/>
