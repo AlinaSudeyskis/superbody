@@ -18,7 +18,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <div id="header">
     <div class="main_bg_wrap">
-        <?php if (empty($user_session)) :?>
+        <?php if (empty($user_session)) :
+            $af_id = 0; ?>
             <div class="sing-in">
                 <?php include('./app_fold/views/authorization/auth_form.php'); ?>
             </div>
