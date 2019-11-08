@@ -224,6 +224,8 @@ class Payment extends CI_Controller
 
         if(!empty($payment_id))
         {
+            $this->load->model('Store_model');
+
             // Обновление данных платежа
             $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
                 $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
@@ -231,7 +233,6 @@ class Payment extends CI_Controller
             $payment = $this->Payment_model->getOrderPayment($payment_id);
             if ($payment_status == 'succeeded')
             {
-                $this->load->model('Store_model');
                 $this->load->model('Course_model');
 
                 // Выборка курса заказа по номеру платежа
