@@ -2767,16 +2767,10 @@ class Store_model extends CI_Model
      * @param int $order_status
      * @return array
      */
-    public function getOrders($payment_status = 'capture', $order_status = 0)
+    public function getOrders($payment_status = 'capture')
     {
         $result = array();
-
-        $and_where = '';
         $payment_status = ($payment_status == 'capture') ? 'waiting_for_capture' : $payment_status;
-        if($payment_status == 'succeeded')
-        {
-            $and_where = ' and `o_status`='.$order_status;
-        }
 
         $sel_orders = $this->db->query("
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
@@ -2787,9 +2781,8 @@ class Store_model extends CI_Model
             LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
             LEFT JOIN `orders_payment` ON `op_o_id`=`o_id`
             LEFT JOIN `users` ON `o_u_id`=`user_id`
-            WHERE `op_number`=0 and `op_status`=? " . $and_where . "
-            GROUP BY `o_id`
-            ORDER BY `o_id` ASC", $payment_status);
+            WHERE `o_payment_status`=?
+            GROUP BY `o_id` ORDER BY `o_id`", $payment_status);
 
         if ($sel_orders !== false and 0 < $sel_orders->num_rows())
         {

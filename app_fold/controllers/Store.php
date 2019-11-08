@@ -788,30 +788,22 @@ class Store extends CI_Controller
      * @param string $order_type
      * @return void
      */
-    public function orders($payment_type = 'capture', $order_type = 'uncompleted')
+    public function orders($payment_type = 'capture')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        $payment_type  = (empty($payment_type)) ? 'capture' : $payment_type;
-        $order_status  = '';
-        if($payment_type == 'succeeded')
-        {
-            $order_type    = (empty($order_type)) ? 'uncompleted' : $order_type;
-            $order_status  = ($order_type == 'uncompleted') ? 0 : 1;
-        }
         $payment_types = array('capture', 'succeeded', 'canceled', 'pending');
-        $order_types   = array('uncompleted', 'done');
+        $payment_type  = (in_array($payment_type, $payment_types)) ? $payment_type : 'capture';
 
-        $result = $this->Store_model->getOrders($payment_type, $order_status);
+        $result = $this->Store_model->getOrders($payment_type);
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Заказы';
         $this->page_data['page_menu']     = 'a_orders';
-        $this->page_data['page_submenu']  = (in_array($payment_type, $payment_types)) ? $payment_type : '';
-        $this->page_data['page_submenu2'] = (in_array($order_type, $order_types)) ? $order_type : '';
+        $this->page_data['page_submenu']  = $payment_type;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

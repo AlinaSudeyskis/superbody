@@ -332,7 +332,6 @@ $route['administration/store']                = 'Store/products';
 $route['administration/store/product/new']    = 'Store/newProduct';
 $route['administration/store/product/(:num)'] = 'Store/product/$1';
 $route['administration/orders(/(capture|succeeded|canceled|pending))?'] = 'Store/orders/$2';
-$route['administration/orders/succeeded/(done|uncompleted)'] = 'Store/orders/succeeded/$1';
 $route['administration/order/(:num)']         = 'Store/order/$1';
 //$route['orders']                              = 'Store/userOrders';
 //$route['order/(:num)']                        = 'Store/userOrder/$1';
