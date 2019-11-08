@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 foreach ($reviews as $review) : ?>
                     <div class="admin_item">
                         <a class="admin_feedback_link parent" href="/administration/<?php echo $path;?>/<?php echo $course_id;?>/review/<?php echo $review['id'];?>">
-                            <span class="admin_feedback_cont parent">
+                            <span class="admin_review_cont parent">
                                 <span class="admin_review_info parent">
                                     <span class="admin_review_info_dialog" title="<?php echo $review['user']['name']; ?>"><?php echo $review['user']['name']; ?></span>
                                 </span>

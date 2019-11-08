@@ -21,10 +21,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             foreach ($fb_messages as $conv) : ?>
                                 <div class="admin_item">
                                     <a class="admin_feedback_link parent" href="/administration/feedback/<?php echo $conv['url']; ?>">
-                                        <span class="admin_feedback_time_wrap parent">
-                                            <span class="admin_feedback_time"><?php echo $conv['time']; ?></span>
-                                            <span class="admin_feedback_date"><?php echo $conv['date']; ?></span>
-                                        </span>
                                         <span class="admin_feedback_cont parent">
                                             <span class="admin_feedback_info parent">
                                                 <span class="admin_feedback_info_dialog"><?php echo $conv['fb_new']; ?></span>
@@ -34,6 +30,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 <span class="admin_feedback_answer">Ответ: </span>
                                             <?php endif;?>
                                             <span class="admin_feedback_txt"><?php echo $conv['text']; ?></span>
+                                        </span>
+                                        <span class="admin_feedback_time_wrap parent">
+                                            <span class="admin_feedback_date"><?php echo $conv['date']; ?></span>
+                                            <span class="admin_feedback_time"><?php echo $conv['time']; ?></span>
                                         </span>
                                     </a>
                                 </div>

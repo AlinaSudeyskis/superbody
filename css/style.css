@@ -12036,32 +12036,63 @@ input.tren_form_block_check{
     flex-wrap: nowrap;
     /* flex-basis: 120px; */
     flex-shrink: 0;
+    -webkit-flex-shrink: 0;
 }
 .emails .admin_feedback_time_wrap{
-    width: 300px;
+    flex-shrink: 1;
+    -webkit-flex-shrink: 1;
 }
-.emails .admin_feedback_time{
+.emails .admin_feedback_time_wrap{
+    /*width: 300px;*/
+}
+.emails .admin_feedback_time, .promocodes .admin_feedback_time{
     width: inherit;
 }
 .emails .admin_feedback_info{
     width: 200px;
 }
 .emails .admin_feedback_txt{
-    margin-left: 200px;
+    margin-left: 0;
 }
-.admin_feedback_cont{
+.admin_review_cont{
     /*margin-right: 115px;*/
     overflow: hidden;
     display: block;
     margin: 0 auto 0 0;
 }
+.promocodes .admin_feedback_info{
+    width: 120px;
+    flex-basis: 120px;
+    -webkit-flex-basis: 120px;
+}
+.promocodes .admin_feedback_txt{
+    margin-left: 0;
+}
+.admin_feedback_cont{
+    overflow: hidden;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;
+    display: flex;
+    margin: 0 auto 0 0;
+}
 .admin_feedback_info{
-    float: left;
+    /*float: left;*/
     width: 320px;
     overflow: hidden;
+    flex-basis: 320px;
+    -webkit-flex-basis: 320px;
+    flex-shrink: 0;
+    -webkit-flex-shrink: 0;
+}
+.promocodes .admin_feedback_info, .emails .admin_feedback_info{
+    color: #00bff0;
+    text-decoration: underline;
+    font-weight: bold;
 }
 .admin_feedback_txt{
-    margin-left: 320px;
+    /*margin-left: 320px;*/
     overflow: hidden;
     -ms-text-overflow: ellipsis;
     text-overflow: ellipsis;
@@ -12077,6 +12108,7 @@ input.tren_form_block_check{
  }
 .admin_feedback_info_dialog,
 .admin_feedback_info_mail{
+    display: block;
     float: left;
     width: 120px;
     padding-right: 15px;
@@ -13594,6 +13626,23 @@ input.tren_form_block_check{
         max-width: -moz-calc(100% - 180px);
         max-width: -webkit-calc(100% - 180px);
     }
+    .admin_feedback_cont,
+    .emails .admin_feedback_cont{
+        flex-direction: column;
+        -webkit-flex-direction: column;
+    }
+    .admin_feedback_info{
+        flex-basis: auto;
+        -webkit-flex-basis: auto;
+    }
+    .admin_feedback_txt{
+        /*margin-top: 9px;*/
+    }
+    .promocodes .admin_feedback_cont{
+        flex-direction: row;
+        -webkit-flex-direction: row;
+        margin: 0 auto 0 0;
+    }
 }
 
 @media (max-width: 830px){
@@ -14419,9 +14468,9 @@ input.tren_form_block_check{
         float: none;
     }
     .admin_feedback_txt{
-        margin-left: 120px;
-        margin-top: 9px;
-        white-space: normal;
+        /*margin-left: 120px;*/
+        /*margin-top: 9px;*/
+        /*white-space: normal;*/
     }
     .video_down_line_name{
         clear: left;
@@ -14580,11 +14629,11 @@ input.tren_form_block_check{
     .kurs_page_block_img{
         display: block;
     }
-    .admin_feedback_cont{
+    .admin_feedback_cont, .admin_review_cont{
         margin: 0 auto;
     }
     .admin_feedback_link span {
-        text-align: center;
+        /*text-align: center;*/
     }
     .admin_review_info{
         float: unset;
@@ -14608,14 +14657,14 @@ input.tren_form_block_check{
         float: none;
     }
     .admin_feedback_info_mail{
-        margin-top: 9px;
+        /*margin-top: 9px;*/
     }
     .admin_feedback_txt{
-        margin-left: 0;
+        /*margin-left: 0;
         margin-right: -115px;
-        padding-right: 0;
+        padding-right: 0;*/
     }
-    .admin_feedback_cont{
+    .admin_feedback_cont, .admin_review_cont{
         /*overflow: visible;*/
     }
     .add_tov_val_cont{
@@ -16457,8 +16506,20 @@ input.tren_form_block_check{
     .admin_feedback_time_wrap{
         margin: 5px auto;
     }
-    .admin_feedback_cont{
+    .admin_feedback_cont, .admin_review_cont{
         width: 100%;
+    }
+    .promocodes .admin_feedback_cont, .emails .admin_feedback_cont{
+        flex-direction: column;
+        -webkit-flex-direction: column;
+        margin: 0 auto 0 0;
+    }
+    .promocodes .admin_feedback_txt, .emails .admin_feedback_txt,
+    .promocodes .admin_feedback_info, .emails .admin_feedback_info{
+        text-align: center;
+        width: auto;
+        flex-basis: auto;
+        padding: 0;
     }
 }
 

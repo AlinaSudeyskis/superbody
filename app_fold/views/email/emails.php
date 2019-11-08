@@ -23,17 +23,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             foreach ($emails as $email) : ?>
                                 <div class="admin_item emails">
                                     <a class="admin_feedback_link parent" href="/administration/email/<?php echo $email['id']; ?>">
-                                    <span class="admin_feedback_time_wrap parent">
-                                        <span class="admin_feedback_time"><?php echo $email['email']; ?></span>
-                                        <span class="admin_feedback_date"></span>
-                                    </span>
-                                    <span class="admin_feedback_cont parent">
-                                        <span class="admin_feedback_info parent">
-                                            <!--<span class="admin_feedback_info_dialog"><?php /*echo $email['fb_new']; */?></span>-->
-                                            <span class="admin_feedback_info_mail"><?php echo $email['name']; ?></span>
+                                        <span class="admin_feedback_cont parent">
+                                            <span class="admin_feedback_info parent"><?php echo $email['name']; ?></span>
+                                            <span class="admin_feedback_txt"><?php echo $email['subject']; ?></span>
                                         </span>
-                                        <span class="admin_feedback_txt"><?php echo $email['subject']; ?></span>
-                                    </span>
+                                            <span class="admin_feedback_time_wrap parent">
+                                            <span class="admin_feedback_time"><?php echo $email['email']; ?></span>
+                                        </span>
                                     </a>
                                 </div>
                             <?php endforeach;
