@@ -89,7 +89,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
     <div class="anketa_form_buts_wrap parent">
-        <input type="submit" name="bt_save_user_meal" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" id="bt-save-user-meal" />
+        <input type="submit" name="bt_save_user_meal" value="Сохранить" class="video_admin_form_send" id="bt-save-user-meal defaultActionButton" />
     </div>
     <div class="anketa_form_line parent current_meal_day">
         <div class="wpfcc_title">Сегодня</div>

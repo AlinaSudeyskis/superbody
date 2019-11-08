@@ -5,7 +5,7 @@ if (!empty($review)) :?>
     <form action="" method="post">
         <div class="admin_form_buts_wrap_container">
             <div class="admin_form_buts_wrap parent">
-                <input type="submit" name="bt_save_review" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                <input type="submit" name="bt_save_review" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                 <input type="submit" name="bt_delete_review" value="Удалить" class="video_admin_form_block" />
                 <?php if ($review['approval'] == 0):?>
                     <input type="submit" name="bt_approval_review" value="Одобрить" class="video_admin_form_block" />

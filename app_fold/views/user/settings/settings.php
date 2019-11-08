@@ -36,7 +36,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?>
                                         <div class="anketa_form_line parent">
                                             <div class="video_admin_form_buts parent">
-                                                <input type="submit" name="bt_save_data" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send">
+                                                <input type="submit" name="bt_save_data" value="Сохранить" class="video_admin_form_send defaultActionButton">
                                             </div>
                                         </div>
                                     </form>

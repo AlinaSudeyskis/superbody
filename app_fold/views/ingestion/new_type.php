@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <input type="text" name="name" class="admin_form_txt admin_form_txt_middle" value="" maxlength="255" required="required" />
                         </div>
                         <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_new_type" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                            <input type="submit" name="bt_save_new_type" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                         </div>
                     </form>
                 </div>

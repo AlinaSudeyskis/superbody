@@ -26,7 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="input_value"><input type="text" name="name" value="<?php echo $subcategory['name'];?>" maxlength="255" required="required"/></div>
                 </div>
                 <p>
-                    <input type="submit" name="bt_save_subcategory" value="Сохранить" id="defaultActionButton" />
+                    <input type="submit" name="bt_save_subcategory" value="Сохранить" class="defaultActionButton' />
                     <?php if ($subcategory['blocked'] == 0) : ?>
                         <input type="submit" name="bt_block_subcategory" value="Заблокировать"/>
                     <?php else: ?>

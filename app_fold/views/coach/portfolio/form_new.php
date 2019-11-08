@@ -21,7 +21,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php include_once('./app_fold/views/coach/portfolio/settings_item.php'); ?>
                         <div class="anketa_form_line parent">
                             <div class="video_admin_form_buts parent">
-                                <input type="submit" name="bt_save_post" value="Сохранить" id="defaultActionButton"  class="full_photo_comm_but" />
+                                <input type="submit" name="bt_save_post" value="Сохранить" class="full_photo_comm_but defaultActionButton" />
                             </div>
                         </div>
                     </form>

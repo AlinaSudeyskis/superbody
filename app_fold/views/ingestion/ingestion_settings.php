@@ -26,7 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <form action="" class="anketa_form" method="post">
                                         <?php include_once('./app_fold/views/ingestion/settings_item.php'); ?>
                                         <div class="anketa_form_buts_wrap parent">
-                                            <input type="submit" name="bt_save_ingestion_settings" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                                            <input type="submit" name="bt_save_ingestion_settings" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                             <?php if ($ingestion['blocked'] == 0) :?>
                                                 <input type="submit" name="bt_block_ingestion" value="Блокировать" class="video_admin_form_block"/>
                                             <?php elseif ($ingestion['blocked'] == 1) :?>

@@ -52,7 +52,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="input_name">Добавленно:</div>
                     <div class="input_value"><?php echo $interview['date']?></div>
                 </div>
-                <p><input type="submit" name="bt_save_interview" value="Сохранить" id="defaultActionButton" />
+                <p><input type="submit" name="bt_save_interview" value="Сохранить" class="defaultActionButton' />
                     <?php if ($interview['blocked'] == 0) : ?>
                         <input type="submit" name="bt_block_interview" value="Заблокировать"/>
                     <?php else: ?>

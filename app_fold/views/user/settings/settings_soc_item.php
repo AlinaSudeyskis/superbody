@@ -89,7 +89,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="anketa_block_item_cont" style="clear: both;">
         <div class="anketa_form_line parent">
             <div class="video_admin_form_buts parent">
-                <input type="submit" name="bt_save_soc_available" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                <input type="submit" name="bt_save_soc_available" value="Сохранить" class="video_admin_form_send defaultActionButton" />
             </div>
         </div>
     </div>

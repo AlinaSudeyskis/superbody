@@ -37,7 +37,7 @@ $(document).ready(function() {
                 if (keycode === 13) { // keycode for enter key
                     event.preventDefault();
                     var parent_form = $(this).parents('form'),
-                        form_submit = parent_form.find('#defaultActionButton');
+                        form_submit = parent_form.find('.defaultActionButton');
                     if(form_submit.length === 1)
                     {
                         form_submit.click();

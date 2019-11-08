@@ -35,7 +35,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
                                         <a href="/administration/email_sample/<?php echo $email['id']; ?>" target="_blank" class="full_photo_comm_reset">Предварительный просмотр</a>
-                                        <input type="submit" name="bt_save_email" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                                        <input type="submit" name="bt_save_email" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                     </div>
                                 </div>
 

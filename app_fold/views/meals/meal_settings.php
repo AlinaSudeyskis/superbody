@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php include_once('./app_fold/views/meals/settings_item.php'); ?>
 
                                         <div class="anketa_form_buts_wrap parent">
-                                            <input type="submit" name="bt_save_meal" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                                            <input type="submit" name="bt_save_meal" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                             <?php if ($meal['blocked'] == 0) :?>
                                                 <input type="submit" name="bt_block_meal" value="Блокировать" class="video_admin_form_block"/>
                                             <?php elseif ($meal['blocked'] == 1) :?>

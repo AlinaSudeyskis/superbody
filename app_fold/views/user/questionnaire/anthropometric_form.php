@@ -61,6 +61,6 @@
     </div>
     <div class="anketa_form_buts_wrap parent">
         <!--<input type="reset" value="Отмена" class="anketa_form_reset"/>-->
-        <input type="submit" name="bt_save_anthrop" value="Сохранить" id="defaultActionButton"  class="anketa_form_but"/>
+        <input type="submit" name="bt_save_anthrop" value="Сохранить" class="anketa_form_but defaultActionButton"/>
     </div>
 </form>

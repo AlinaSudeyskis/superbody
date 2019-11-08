@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
 
                                     <div class="anketa_form_buts_wrap parent">
-                                        <input type="submit" name="bt_save_new_meal_type" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                                        <input type="submit" name="bt_save_new_meal_type" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                     </div>
                                 </form>
                             </div>

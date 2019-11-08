@@ -21,7 +21,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <textarea name="ta_review_text" class="tov_form_textarea" placeholder="Оставить отзыв" required="required"><?php echo $review['text'];?></textarea>
 
                                 <div class="video_admin_form_buts parent">
-                                    <input type="submit" name="bt_save_review" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                                    <input type="submit" name="bt_save_review" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                     <input type="submit" name="bt_delete_review" value="Удалить" class="video_admin_form_block" />
                                 </div>
                             </form>

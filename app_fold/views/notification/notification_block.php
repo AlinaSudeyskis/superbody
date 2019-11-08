@@ -39,7 +39,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php if($empty_email === true):?>
         <form action="" method="post" class="mini_form">
             <input type="text" name="email" value="" autocomplete="false" class="anketa_form_in anketa_form_in_long valid_email"/>
-            <input type="submit" name="bt_save_email" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+            <input type="submit" name="bt_save_email" value="Сохранить" class="video_admin_form_send defaultActionButton" />
         </form>
     <?php endif; ?>
 
@@ -122,7 +122,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <div class="anketa_form_line parent">
                 <div class="video_admin_form_buts parent">
-                    <input type="submit" name="bt_save_start_courses" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send">
+                    <input type="submit" name="bt_save_start_courses" value="Сохранить" class="video_admin_form_send defaultActionButton">
                 </div>
             </div>
         </form>

@@ -134,7 +134,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <input type="submit" name="bt_unblock_course" class="admin_form_reset" value="Разморозить"/>
                                 <?php endif;
                                 if ($course['blocked'] == 0 and $course['finished'] === false):?>
-                                    <input type="submit" name="bt_save_course" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                                    <input type="submit" name="bt_save_course" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                 <?php endif;?>
                             </div>
                         </div>

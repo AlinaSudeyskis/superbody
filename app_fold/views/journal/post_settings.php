@@ -77,7 +77,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <input type="text" name="author" class="admin_form_txt" placeholder="Автор" maxlength="255" value="<?php echo $post['author'];?>" />
                         <input type="text" name="source" class="admin_form_txt" placeholder="Источник" maxlength="255" value="<?php echo $post['source'];?>" />
                         <div class="video_admin_form_buts parent">
-                            <input type="submit" name="bt_save_post" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                            <input type="submit" name="bt_save_post" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                         </div>
                     </form>
                 </div>

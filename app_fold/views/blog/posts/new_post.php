@@ -20,7 +20,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <form action="" class="video_admin_form" method="post">
                             <?php include_once('./app_fold/views/blog/posts/post_settings_item.php');?>
                             <div class="admin_form_bats parent">
-                                <input type="submit" name="bt_save_post" class="admin_form_submit" value="Сохранить" id="defaultActionButton" >
+                                <input type="submit" name="bt_save_post" class="admin_form_submit defaultActionButton" value="Сохранить"  >
                             </div>
                         </form>
                     </div>

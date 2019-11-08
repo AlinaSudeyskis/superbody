@@ -158,7 +158,8 @@ $(document).ready(function () {
                             auth_form.find('input[name=email]').val($(this).val());
                         });
 
-                        purchase_form.find("input[name='bt_buy_course']").on('click', function (event) {
+                        var bt_buy_course = purchase_form.find("input[name='bt_buy_course']");
+                        bt_buy_course.on('click', function (event) {
                             var this_form  = $(this).parents('form'),
                                 user_id    = this_form.find('#user-id').val(),
                                 user_email = this_form.find('input[name="email"]'),
@@ -214,6 +215,67 @@ $(document).ready(function () {
                                             }
 
                                             purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+
+                                            // Авторизация / Регистрация
+                                            var btLogin = purchase.find("input[name='bt_login']"),
+                                                btReg   = purchase.find("input[name='bt_registry']"),
+                                                lgData = null;
+                                            if(btLogin.length === 1)
+                                            {
+                                                var loginForm = btLogin.parents('form');
+                                                loginForm.on('submit', function() {
+                                                    var log_form = $(this),
+                                                        user_email = log_form.find("input[name='email']").val(),
+                                                        user_password = log_form.find("input[name='password']").val(),
+                                                        user_cb_pol = log_form.find("input[name='cb_politics']").val();
+                                                    $.ajax({
+                                                        url: '/aLogin',
+                                                        type: 'post',
+                                                        dataType: 'json',
+                                                        data: {
+                                                            email: user_email,
+                                                            password: user_password,
+                                                            cb_politics: user_cb_pol
+                                                        },
+                                                        complete: function (result)
+                                                        {
+                                                            lgData = result.responseJSON;
+                                                            parseLogin(lgData, this_form, auth_form, bt_buy_course);
+                                                        }
+                                                    });
+
+                                                    return false;
+                                                });
+                                            }
+                                            else if(btReg.length === 1)
+                                            {
+                                                var regForm = btReg.parents('form');
+                                                regForm.on('submit', function(){
+                                                    var reg_form = $(this),
+                                                        user_email = reg_form.find("input[name='email']").val(),
+                                                        user_password = reg_form.find("input[name='password']").val(),
+                                                        user_password_confirm = reg_form.find("input[name='password_confirm']").val(),
+                                                        user_cb_pol = reg_form.find("input[name='cb_politics']").val();
+                                                    $.ajax({
+                                                        url: '/aRegistry',
+                                                        type: 'post',
+                                                        dataType: 'json',
+                                                        data: {
+                                                            email: user_email,
+                                                            password: user_password,
+                                                            password_confirm: user_password_confirm,
+                                                            cb_politics: user_cb_pol
+                                                        },
+                                                        complete: function (result)
+                                                        {
+                                                            lgData = result.responseJSON;
+                                                            parseLogin(lgData, this_form, auth_form, bt_buy_course);
+                                                        }
+                                                    });
+
+                                                    return false;
+                                                });
+                                            }
                                         }
                                     });
                                 }
@@ -222,6 +284,7 @@ $(document).ready(function () {
                                     var valid_email = user_email.checkValidity(),
                                         valid_name = user_name.checkValidity();
                                 }*/
+
                                 return false;
                             }
                         });
@@ -262,6 +325,24 @@ $(document).ready(function () {
                 }
             });
         });
+    }
+
+    function parseLogin(lgData, this_form, auth_form, bt_buy_course)
+    {
+        if(lgData && !lgData.error && $.isNumeric(lgData.user_id))
+        {
+            this_form.find('#user-id').val(lgData.user_id);
+
+            purchase_form.toggle();
+            auth_form.toggle();
+
+            bt_buy_course.click();
+        }
+        else if(lgData && lgData.error)
+        {
+            purchase.find('#block-message').html(lgData.error);
+            purchase.find('#block-message').show();
+        }
     }
 
     $(".promo_line").on('click', function () {

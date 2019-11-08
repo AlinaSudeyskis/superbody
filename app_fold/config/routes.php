@@ -62,6 +62,8 @@ $route['unsubscribe'] = 'Welcome/unsubscribe';
 // Авторизация, регистрация
 $route['registry']               = 'Authorization/registration';
 $route['login']                  = 'Authorization/login';
+$route['aRegistry']              = 'Authorization/ajaxUserRegistration';
+$route['aLogin']                 = 'Authorization/ajaxUserLogin';
 $route['loginViaSocial']         = 'Authorization/loginViaSocial';
 $route['instagram_login']        = 'Authorization/instagramLogin';
 $route['vk_login']               = 'Authorization/vkLogin';

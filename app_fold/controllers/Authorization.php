@@ -39,73 +39,30 @@ class Authorization extends CI_Controller
         {
             if ($this->input->post('cb_politics', true))
             {
-                // Валидация E-mail
-                $email = (!empty($this->input->post('email', true))  and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-                    ? $this->input->post('email', true)
-                    : null;
-                $email_hash = (!empty($email)) ? password_hash($email, PASSWORD_DEFAULT) : null;
-
-                // Пароль
+                $email = (!empty($this->input->post('email', true))) ? $this->input->post('email', true) : null;
                 $password         = $this->input->post('password', true);
                 $password_confirm = $this->input->post('password_confirm', true);
-                $password_hash    = null;
 
-                // Хэширование пароля
-                if (!empty($password) and $password === $password_confirm)
+                $result = self::parseRegistration($email, $password, $password_confirm);
+
+                if (is_numeric($result))
                 {
-                    $password_hash = password_hash($password, PASSWORD_DEFAULT);
+                    // После успешной регистрации переход на страницу анкеты
+                    header('Location: /questionnaire');
                 }
-
-                // Сохранение данных в БД
-                if (!empty($email) and !empty($password_hash))
+                elseif ($result == 'e1')
                 {
-                    $result_registration = $this->Authorization_model->userRegistration($email, $password_hash, $email_hash, $this->date);
-
-                    if (is_numeric($result_registration))
-                    {
-                        $reg_user_id = $result_registration;
-
-                        // Отправка письма с активацией почты
-                        $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
-                            . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
-                        $system_message['text']  .= 'Активировать аккаунт';
-                        $system_message['text']  .= '</a></b>';
-
-                        parent::sendEmail(1, $email, $system_message);
-
-                        // Обновление данных сессии
-                        $user_type = 1;
-                        $user_blocked = 0;
-                        $user_name = '';
-                        $user_phone = '';
-                        $user_image = '';
-                        $access_token = '';
-                        $user_soc_via = 'native';
-                        $user_soc_id = 0;
-
-                        parent::updateSession($reg_user_id, $email, $user_type, $user_blocked, $user_name, $user_phone,
-                            $user_image, $access_token, $user_soc_via, $user_soc_id, $this->date);
-
-                        // После успешной регистрации переход на страницу анкеты
-                        header('Location: /questionnaire');
-                    }
-                    else
-                    {
-                        if ($result_registration == 'e1')
-                        {
-                            // Пользователь с таким E-mail существует
-                            $this->session->set_tempdata('message', 1, 60);
-                            header('Location: /registry');
-                        }
-                        else
-                        {
-                            // Не удалось сохранить запись в БД
-                            $this->session->set_tempdata('message', 2, 60);
-                            header('Location: /registry');
-                        }
-                    }
+                    // Пользователь с таким E-mail существует
+                    $this->session->set_tempdata('message', 1, 60);
+                    header('Location: /registry');
                 }
-                else
+                elseif ($result == 'e2')
+                {
+                    // Не удалось сохранить запись в БД
+                    $this->session->set_tempdata('message', 2, 60);
+                    header('Location: /registry');
+                }
+                elseif ($result == 'e8')
                 {
                     // Не все поля для регистрации были заполнены
                     $this->session->set_tempdata('message', 8, 60);
@@ -146,6 +103,97 @@ class Authorization extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    public function ajaxUserRegistration()
+    {
+        $result = array('error' => null);
+
+        $email = (!empty($this->input->post('email', true))) ? $this->input->post('email', true) : null;
+        $password         = $this->input->post('password', true);
+        $password_confirm = $this->input->post('password_confirm', true);
+
+        $reg_result = self::parseRegistration($email, $password, $password_confirm);
+
+        if (is_numeric($reg_result))
+        {
+            $result['user_id'] = $reg_result;
+            $result['user_email'] = $email;
+        }
+        elseif ($reg_result == 'e1')
+        {
+            $result['error'] = 'Ошибка! Пользователь с таким E-mail уже зарегистрирован.';
+        }
+        elseif ($reg_result == 'e2')
+        {
+            $result['error'] = 'Ошибка! Не удалось зарегестрировать E-mail.';
+        }
+        elseif ($reg_result == 'e8')
+        {
+            $result['error'] = 'Ошибка! Проверьте, пожалуйста, корректность и заполните все поля регистрации.';
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * Обработка данных для регистрации
+     *
+     * @param $email
+     * @param $password
+     * @param $password_confirm
+     * @return bool|int
+     */
+    protected function parseRegistration($email, $password, $password_confirm)
+    {
+        $result = true;
+
+        // Валидация E-mail
+        $email = (!empty($email) and filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : null;
+        $email_hash = (!empty($email)) ? password_hash($email, PASSWORD_DEFAULT) : null;
+
+        // Хэширование пароля
+        $password_hash = (!empty($password) and $password === $password_confirm) ? password_hash($password, PASSWORD_DEFAULT) : null;
+
+        // Сохранение данных в БД
+        if (!empty($email) and !empty($password_hash))
+        {
+            $result_registration = $this->Authorization_model->userRegistration($email, $password_hash, $email_hash, $this->date);
+
+            if (is_numeric($result_registration))
+            {
+                $reg_user_id = $result_registration;
+
+                // Отправка письма с активацией почты
+                $system_message['text']  = '<b><a href="https://superbody.pro/activate?e=' . $email . '&ac=' . $email_hash
+                    . '" style="display: inline-block; width:100%; text-align:center; padding:0; margin:0">';
+                $system_message['text']  .= 'Активировать аккаунт';
+                $system_message['text']  .= '</a></b>';
+
+                parent::sendEmail(1, $email, $system_message);
+
+                // Обновление данных сессии
+                $user_type = 1;
+                $user_blocked = 0;
+                $user_name = '';
+                $user_phone = '';
+                $user_image = '';
+                $access_token = '';
+                $user_soc_via = 'native';
+                $user_soc_id = 0;
+
+                parent::updateSession($reg_user_id, $email, $user_type, $user_blocked, $user_name, $user_phone,
+                    $user_image, $access_token, $user_soc_via, $user_soc_id, $this->date);
+            }
+
+            $result = $result_registration;
+        }
+        else
+        {
+            $result = 'e8';
+        }
+
+        return $result;
+    }
+
     /**
      * Авторизация пользователя
      *
@@ -162,7 +210,7 @@ class Authorization extends CI_Controller
         $reg_data     = null;
 
         // Проверка введенных данных, поиск пользователя в БД
-        if ($this->input->post('bt_login', true) and $this->input->post('cb_politics', true))
+        if ($this->input->post('bt_login', true))
         {
             if ($this->input->post('cb_politics', true))
             {
@@ -259,6 +307,50 @@ class Authorization extends CI_Controller
         }
 
         $this->load->view('footer/footer');
+    }
+
+    public function ajaxUserLogin()
+    {
+        $result = array('error' => null);
+
+        $email       = $this->input->post('email', true);
+        $password    = $this->input->post('password', true);
+        $cb_politics = $this->input->post('cb_politics', true);
+
+        // Валидация E-mail
+        $email = (!empty($email) and filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : null;
+
+        // Авторизация пользователя
+        if (!empty($email) and !empty($password) and $cb_politics)
+        {
+            $auth_result = $this->Authorization_model->userAuthorization($email, $password, $this->date);
+
+            if (is_array($auth_result))
+            {
+                $user_image = (!empty($auth_result['user_image'])) ? $auth_result['user_image'] : $auth_result['user_soc_image'];
+
+                parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'],
+                    $auth_result['user_name'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
+
+                $result['user_id']    = $auth_result['user_id'];
+                $result['user_email'] = $email;
+            }
+            elseif($auth_result == 'error_password')
+            {
+                $result['error'] = 'Ошибка! Неверный Email и/или пароль.';
+            }
+            elseif($auth_result == 'error_user')
+            {
+                $result['registration'] = true;
+                $result['user_email'] = $email;
+            }
+        }
+        else
+        {
+            $result['error'] = 'Ошибка! Некорректные данные для авторизации.';
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 
     /**

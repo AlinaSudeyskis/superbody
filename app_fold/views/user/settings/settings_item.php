@@ -96,7 +96,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <div class="anketa_form_line parent">
         <div class="video_admin_form_buts parent">
-            <input type="submit" name="bt_save_settings" value="Сохранить" class="video_admin_form_send" id="defaultActionButton" />
+            <input type="submit" name="bt_save_settings" value="Сохранить" class="video_admin_form_send defaultActionButton" />
             <input type="submit" name="bt_delete_account" value="Удалить аккаунт" class="video_admin_form_block" />
         </div>
     </div>

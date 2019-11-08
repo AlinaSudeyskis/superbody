@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php endif;?>
                                         <input type="submit" name="bt_delete_user" class="video_admin_form_block" value="Удалить"/>
                                         <input type="submit" name="bt_reset_password" class="admin_form_reset" value="Сбос пароля"/>
-                                        <input type="submit" name="bt_save_user_settings" class="video_admin_form_send" value="Сохранить" id="defaultActionButton" >
+                                        <input type="submit" name="bt_save_user_settings" class="video_admin_form_send defaultActionButton" value="Сохранить"  >
                                     </div>
                                 </div>
                                 <div class="video_admin_form">
@@ -41,7 +41,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <form action="" method="post">
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
-                                        <input type="submit" name="bt_save_data" class="admin_form_submit" value="Сохранить" id="defaultActionButton" >
+                                        <input type="submit" name="bt_save_data" class="admin_form_submit defaultActionButton" value="Сохранить"  >
                                     </div>
                                 </div>
                                 <div class="video_admin_form">

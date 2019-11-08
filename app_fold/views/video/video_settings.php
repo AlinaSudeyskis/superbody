@@ -6,7 +6,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <form action="" class="video_admin_form" method="post" enctype="multipart/form-data">
             <?php include_once('./app_fold/views/video/video_settings_item.php');?>
             <div class="video_admin_form_buts parent">
-                <input type="submit" name="bt_save_video" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send">
+                <input type="submit" name="bt_save_video" value="Сохранить" class="video_admin_form_send defaultActionButton">
                 <?php $dis_delete = (!empty($video['course_id']) and $video['course_id'] > 0) ? 'disabled' : '';?>
                 <input type="submit" name="bt_delete_video" value="Удалить" class="video_admin_form_block <?php echo $dis_delete; ?>"/>
                 <?php if ($video['blocked'] == 0) :?>

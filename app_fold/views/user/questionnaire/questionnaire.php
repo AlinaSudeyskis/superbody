@@ -83,7 +83,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                             <div class="anketa_form_buts_wrap parent">
                                                 <!--<input type="reset" value="Отмена" class="anketa_form_reset">-->
-                                                <input type="submit" name="bt_save_physical_param" value="Сохранить" id="defaultActionButton"  class="anketa_form_but">
+                                                <input type="submit" name="bt_save_physical_param" value="Сохранить" class="anketa_form_but defaultActionButton">
                                             </div>
                                         </form>
                                     </div>
@@ -158,7 +158,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                             <div class="anketa_form_buts_wrap parent">
                                                 <!--<input type="reset" value="Отмена" class="anketa_form_reset">-->
-                                                <input type="submit" name="bt_save_physical_condition" value="Сохранить" id="defaultActionButton"  class="anketa_form_but">
+                                                <input type="submit" name="bt_save_physical_condition" value="Сохранить" class="anketa_form_but defaultActionButton">
                                             </div>
                                         </form>
                                     </div>
@@ -219,7 +219,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             </div>
                                             <div class="anketa_form_buts_wrap parent">
                                                 <!--<input type="reset" value="Отмена" class="anketa_form_reset">-->
-                                                <input type="submit" name="bt_save_daily_regime" value="Сохранить" id="defaultActionButton"  class="anketa_form_but">
+                                                <input type="submit" name="bt_save_daily_regime" value="Сохранить" class="anketa_form_but defaultActionButton">
                                             </div>
                                         </form>
                                     </div>

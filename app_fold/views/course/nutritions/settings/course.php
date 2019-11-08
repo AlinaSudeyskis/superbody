@@ -38,7 +38,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             <?php elseif ($course['archive'] == 1) :?>
                                                 <input type="submit" name="bt_from_archive_course" value="Из архива" class="admin_form_reset"/>
                                             <?php endif;?>
-                                            <input type="submit" name="bt_save_course" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                                            <input type="submit" name="bt_save_course" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                         </div>
                                     </div>
                                     <div class="video_admin_form">

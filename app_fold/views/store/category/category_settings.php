@@ -21,7 +21,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <form action="" method="post">
                             <div class="admin_form_buts_wrap_container">
                                 <div class="admin_form_buts_wrap parent">
-                                    <input type="submit" name="bt_save_category" value="Сохранить" id="defaultActionButton"  class="video_admin_form_send" />
+                                    <input type="submit" name="bt_save_category" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                     <?php if ($category['blocked'] == 0) : ?>
                                         <input type="submit" name="bt_block_category" value="Заблокировать" class="video_admin_form_block"/>
                                     <?php else: ?>
