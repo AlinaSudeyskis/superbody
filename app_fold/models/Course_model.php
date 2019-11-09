@@ -9081,7 +9081,7 @@ class Course_model extends CI_Model
         {
             $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=?, `uc_blocked_reason`=?, `uc_blocked_date`=?, `uc_date_update`=? WHERE `uc_o_id`=?',
                 array($block, $block_reason, $block_date, $date, $order_id));
-            if($up_data !== false and 0 < $this->db->afeected_rows())
+            if($up_data !== false and 0 < $this->db->affected_rows())
             {
                 $result = true;
             }
