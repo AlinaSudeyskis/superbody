@@ -374,7 +374,6 @@ $route['sortCourses'] = 'Course/getSortCourses';
 $route['payment']                     = 'Payment/payment';
 $route['payment/notifications']       = 'Payment/paymentNotifications';
 $route['payment/update']              = 'Payment/paymentUpdate';
-$route['payment/update']              = 'Payment/paymentUpdate';
 $route['payment/userWaitingPayments'] = 'Payment/checkUserWaitingPayments';
 
 // Журнал

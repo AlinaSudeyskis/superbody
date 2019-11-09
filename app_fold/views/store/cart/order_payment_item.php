@@ -4,13 +4,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <div class="ordering_block_side_info">
     <div class="ordering_block_side_info_h_wrap parent">
-        <div class="ordering_block_side_info_h">ID: <?php echo $payment['id'];?></div>
+        <div class="ordering_block_side_info_h">
+            <?php if(!empty($payment['id'])):?>
+                ID: <?php echo $payment['id'];?>
+            <?php elseif(!empty($payment['following_date'])): ?>
+                Предстоящий платеж <span>(<?php echo $payment['following_date']; ?>)</span>
+            <?php endif; ?>
+        </div>
     </div>
     <div class="ordering_block_side_cont">
         <div class="ordering_block_side_cont_h info_ordering_pay"><?php echo $payment['payment_type']; ?></div>
         <div class="ordering_block_side_cont_txt">Сумма: <?php echo $payment['amount'] . ' ' . $payment['currency'];?></div>
-        <div class="ordering_block_side_cont_txt">Статус: <span class="<?php echo $payment['status_code']; ?>"><?php echo $payment['status'];?></span></div>
-        <div class="ordering_block_side_cont_txt">Оплата: <?php echo $payment['paid'];?></div>
+        <?php if(!empty($payment['status'])): ?>
+            <div class="ordering_block_side_cont_txt">Статус: <span class="<?php echo $payment['status_code']; ?>"><?php echo $payment['status'];?></span></div>
+        <?php endif; ?>
+        <?php if(!empty($payment['status'])): ?>
+            <div class="ordering_block_side_cont_txt">Оплата: <?php echo $payment['paid'];?></div>
+        <?php endif; ?>
         <?php if(!empty($order['payments'][0]['captured_at'])): ?>
             <div class="ordering_block_side_cont_txt">Подтвержден: <?php echo $payment['captured_at'];?></div>
         <?php endif;

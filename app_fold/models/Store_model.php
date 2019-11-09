@@ -4000,41 +4000,44 @@ class Store_model extends CI_Model
     {
         $result = array('refunds' => array(), 'refunds_amount' => 0);
 
-        $sel_refunds = $this->db->query('
+        if(!empty($payment_id) and is_string($payment_id))
+        {
+            $sel_refunds = $this->db->query('
             SELECT `opr_refund_id`, `opr_refund_amount`, `opr_refund_status`, `opr_refund_description`, `opr_refund_created_at` 
             FROM `orders_payment_refund` 
             WHERE `opr_payment_id`=?', $payment_id);
 
-        if ($sel_refunds !== false and 0 < $sel_refunds->num_rows())
-        {
-            $i = 0;
-            foreach($sel_refunds->result() as $row)
+            if ($sel_refunds !== false and 0 < $sel_refunds->num_rows())
             {
-                $result['refunds'][$i]['id']          = $row->opr_refund_id;
-                $result['refunds'][$i]['amount']      = $row->opr_refund_amount;
-                $result['refunds'][$i]['description'] = $row->opr_refund_description;
-                $result['refunds'][$i]['status_code'] = $row->opr_refund_status;
+                $i = 0;
+                foreach($sel_refunds->result() as $row)
+                {
+                    $result['refunds'][$i]['id']          = $row->opr_refund_id;
+                    $result['refunds'][$i]['amount']      = $row->opr_refund_amount;
+                    $result['refunds'][$i]['description'] = $row->opr_refund_description;
+                    $result['refunds'][$i]['status_code'] = $row->opr_refund_status;
 
-                $status = array('succeeded' => 'Возврат платежа успешно завершен', 'canceled' => 'Возврат платежа отменен');
-                $result['refunds'][$i]['status'] = (array_key_exists($row->opr_refund_status, $status) !== false)
-                    ? $status[$row->opr_refund_status] : '';
+                    $status = array('succeeded' => 'Возврат платежа успешно завершен', 'canceled' => 'Возврат платежа отменен');
+                    $result['refunds'][$i]['status'] = (array_key_exists($row->opr_refund_status, $status) !== false)
+                        ? $status[$row->opr_refund_status] : '';
 
-                setlocale(LC_ALL, 'ru_RU.UTF-8');
-                $dt_create = new DateTime($row->opr_refund_created_at);
-                $created_at = (!empty($row->opr_refund_created_at) and $dt_create !== false)
-                    ? $dt_create->format('d F Y, H:i')
-                    : '';
-                $result['refunds'][$i]['created_at'] = $created_at;
+                    setlocale(LC_ALL, 'ru_RU.UTF-8');
+                    $dt_create = new DateTime($row->opr_refund_created_at);
+                    $created_at = (!empty($row->opr_refund_created_at) and $dt_create !== false)
+                        ? $dt_create->format('d F Y, H:i')
+                        : '';
+                    $result['refunds'][$i]['created_at'] = $created_at;
 
-                $result['refunds_amount'] += $row->opr_refund_amount;
+                    $result['refunds_amount'] += $row->opr_refund_amount;
 
-                $i++;
+                    $i++;
+                }
+                unset($row);
             }
-            unset($row);
-        }
-        elseif ($sel_refunds === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            elseif ($sel_refunds === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
 
         return $result;
@@ -4390,6 +4393,7 @@ class Store_model extends CI_Model
      *
      * @param $row
      * @return mixed
+     * @throws Exception
      */
     protected function parsePaymentData($row)
     {
@@ -4422,11 +4426,15 @@ class Store_model extends CI_Model
         $expires_at = (!empty($row->op_expires_at) and $dt_expires !== false)
             ? $dt_expires->format('d F Y, H:i')
             : '';
+        $dt_follow = new DateTime($row->op_following_date);
+        $following = (!empty($row->op_following_date) and $dt_follow !== false)
+            ? $dt_follow->format('d.m.Y')
+            : '';
 
-        $result['following_date'] = $row->op_following_date;
-        $result['created_at']     = $created_at;
+        $result['following_date']  = (!empty($row->op_following_date) and $row->op_following_date != '0000-00-00') ? $following : '';
+        $result['created_at']      = $created_at;
         $result['created_at_orig'] = $row->op_created_at;
-        $result['expires_at']     = $expires_at;
+        $result['expires_at']      = $expires_at;
 
         return $result;
     }

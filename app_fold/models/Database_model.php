@@ -2934,7 +2934,6 @@ class Database_model extends CI_Model
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
-
             $this->db->query("TRUNCATE TABLE `orders`");
             $this->db->query("TRUNCATE TABLE `orders_payment`");
             $this->db->query("TRUNCATE TABLE `orders_payment_refund`");
@@ -2945,6 +2944,65 @@ class Database_model extends CI_Model
             $this->db->query("TRUNCATE TABLE `users_courses_pauses`");
             $this->db->query("TRUNCATE TABLE `users_training_days`");
             $this->db->query("TRUNCATE TABLE `users_training_weeks`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-09 17:30';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_blocked_reason` `uc_blocked_reason` ENUM('not_paid','payment_refunded','payment_succeeded','payment_canceled','free_weeks_over','not_activated_account','waiting_for_capture') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'not_paid'");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-09 18:20';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_payments = $this->db->query('
+                SELECT `op_id`, `op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_payment_id`, 
+                       `op_status`, `op_paid`, `op_created_at`, `op_captured_at`, `op_expires_at`, `op_amount`, `op_currency`, `op_payment_options`, `op_payment_method_saved`, 
+                       `op_revoke_permission`, `op_payment_method_id`, `op_following_date`, `op_date_add` 
+                FROM `orders_payment`
+                WHERE `op_number`=0');
+            if($sel_payments !== false and 0 < $sel_payments->num_rows())
+            {
+                foreach ($sel_payments->result() as $row)
+                {
+                    $payment_saved = ($row->op_payment_method_saved === true) ? 'true' : 'false';
+                    $payment_paid  = ($row->op_paid === true) ? 'true' : 'false';
+
+                    $payment_data = array(
+                        'event' => 'payment',
+                        'pid' => $row->op_payment_id,
+                        'ps' => $row->op_status,
+                        'rpid' => '',
+                        'pp' => $payment_paid,
+                        'pcr' => $row->op_created_at,
+                        'pe' => $row->op_expires_at,
+                        'pc' => $row->op_captured_at,
+                        'pmid' => $row->op_payment_method_id,
+                        'pms' => $payment_saved
+                    );
+
+                    $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
+
+                    $handle = fopen($url, "r");
+                    fclose($handle);
+                }
+                unset($row);
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-11-09 18:58';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_payments = $this->db->query('UPDATE `orders_payment` SET `op_status`="" WHERE `op_number`>0');
 
             self::setDbUpdate($date);
         }

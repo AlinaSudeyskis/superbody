@@ -7232,6 +7232,11 @@ span.mess_block_full_time {
     line-height: 15px;
     text-transform: uppercase;
 }
+.ordering_block_side_info_h span {
+    font-style: italic;
+    color: #b9b9b9;
+    padding-left: 5px;
+}
 .ordering_block_side_info_edit, .ordering_block_side_email_edit{
 	float: right;
 	color: #000;
@@ -12043,7 +12048,7 @@ input.tren_form_block_check{
     -webkit-flex-shrink: 1;
 }
 .emails .admin_feedback_time_wrap{
-    /*width: 300px;*/
+    width: 300px;
 }
 .emails .admin_feedback_time, .promocodes .admin_feedback_time{
     width: inherit;

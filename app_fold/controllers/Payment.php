@@ -135,10 +135,12 @@ class Payment extends CI_Controller
 
         if ($response->type == 'notification')
         {
+            $events = array('payment.waiting_for_capture', 'payment.succeeded', 'payment.canceled', 'refund.succeeded');
+            $payment_event = ($response->event == 'refund.succeeded') ? 'refund' : 'payment';
             $payment = $response->object;
             //log_message('debug', __METHOD__.':'.__LINE__.' '.print_r($payment, true));
             // Обновление данных платежа
-            self::updatePaymentData($payment);
+            self::updatePaymentData($payment, $payment_event);
 
             // Подтверждение платежа
             if ($payment->status == 'waiting_for_capture')
@@ -157,7 +159,7 @@ class Payment extends CI_Controller
                             $result = $res_capture['response'];
 
                             // Обновление данных платежа
-                            self::updatePaymentData($result);
+                            self::updatePaymentData($result, $payment_event);
                         }
                         elseif(!empty($res_capture['error']))
                         {
@@ -189,8 +191,11 @@ class Payment extends CI_Controller
      */
     public function paymentUpdate()
     {
+        log_message('debug', print_r($this->input->post(), true));
+        $payment_event        = strip_tags($this->input->get('event', true));
         $payment_id           = strip_tags($this->input->get('pid', true));
         $payment_status       = strip_tags($this->input->get('ps', true));
+        $refund_payment_id    = strip_tags($this->input->get('rpid', true));
         $payment_paid         = (strip_tags($this->input->get('pp', true)) == 'true') ? 1 : 0;
         $payment_method_id    = strip_tags($this->input->get('pmid', true));
         $payment_method_saved = (strip_tags($this->input->get('pms', true)) == 'true') ? 1 : 0;
@@ -225,35 +230,98 @@ class Payment extends CI_Controller
         if(!empty($payment_id))
         {
             $this->load->model('Store_model');
+            $this->load->model('Course_model');
 
-            // Обновление данных платежа
-            $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
-                $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
+            // Проверка аккаунта пользователя на активацию
+            $check_account = $this->Store_model->checkPaymentAccount($payment_id);
 
-            $payment = $this->Payment_model->getOrderPayment($payment_id);
-            if ($payment_status == 'succeeded')
+            if($payment_event == 'payment')
             {
-                $this->load->model('Course_model');
+                // Обновление данных платежа
+                $this->Payment_model->updatePaymentStatus('', $payment_id, $payment_status, $payment_paid, $created_at,
+                    $expires_at, $captured_at, $payment_method_id, $payment_method_saved);
 
-                // Выборка курса заказа по номеру платежа
-                $courses = $this->Store_model->getOrderCourses($payment_id);
+                $payment = $this->Payment_model->getOrderPayment($payment_id);
+            }
+            elseif($payment_event == 'refund')
+            {
+                // Обновление данных возврата платежа
+                $this->Payment_model->updateRefundStatus($payment_id, $refund_payment_id, $payment_status, $created_at);
 
-                if (!empty($courses['courses']))
+                $payment = $this->Payment_model->getOrderPayment($refund_payment_id);
+            }
+
+            if(!empty($payment))
+            {
+                // Изменение статуса заказа
+                $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, $payment_status);
+
+                // Изменение статуса курсов
+                $payment_statuses = array('waiting_for_capture' => 'waiting_for_capture', 'payment_succeeded' => 'succeeded', 'payment_canceled' => 'canceled', 'not_paid' => 'pending');
+                $courses_status   = (!empty($payment_status) and array_search($payment_status, $payment_statuses)) ? array_search($payment_status, $payment_statuses) : '';
+                $courses_status   = ($check_account === false and $payment_status == 'succeeded') ? 'not_activated_account' : $courses_status;
+                $courses_status   = ($payment_event == 'refund' and $payment_status == 'succeeded') ? 'payment_refunded' : $courses_status;
+                $block_date       = ($courses_status == 'succeeded') ? '' : $this->date;
+                $block            = ($courses_status == 'succeeded') ? 0 : 1;
+                $this->Course_model->updateOrderCoursesStatus($payment['order_id'], $courses_status, $block_date, $block, $this->date);
+
+                if ($payment_status == 'succeeded' and $payment_event == 'payment')
                 {
-                    //$user_id = $courses['user_id'];
-
                     // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
                     if (!empty($payment) and $payment['option'] == 'partial_payment' and $payment_method_saved == 1)
                     {
-                        // Сохранение последующих платежей
-                        $this->Payment_model->setSubsequentPayments($payment['order_id'], $payment['customer_email'], $payment['customer_name'], $payment['type'], $payment['login'], $payment['phone'], $payment_method_id, $courses['courses'], $this->date);
+                        // Выборка курса заказа по номеру платежа
+                        $courses = $this->Store_model->getOrderCourses($payment_id);
+
+                        if (!empty($courses['courses']))
+                        {
+                            //$user_id = $courses['user_id'];
+
+                            // Сохранение последующих платежей
+                            $this->Payment_model->setSubsequentPayments($payment['order_id'], $payment['customer_email'], $payment['customer_name'], $payment['type'], $payment['login'], $payment['phone'], $payment_method_id, $courses['courses'], $this->date);
+                        }
+                        else
+                        {
+                            log_message('error', __METHOD__.':'.__LINE__. ' Empty courses');
+                        }
                     }
                 }
             }
-
-            // Изменение статуса заказа
-            $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, $payment_status);
+            else
+            {
+                log_message('error', __METHOD__.':'.__LINE__. ' Empty payment');
+            }
         }
+    }
+
+    /**
+     * Обновление данных платежа
+     *
+     * @param $payment
+     * @param $payment_event
+     */
+    public function updatePaymentData($payment, $payment_event)
+    {
+        $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
+        $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
+
+        $payment_data = array(
+            'event' => $payment_event,
+            'pid' => $payment->id,
+            'ps' => $payment->status,
+            'rpid' => $payment->payment_id,
+            'pp' => $payment_paid,
+            'pcr' => $payment->created_at,
+            'pe' => $payment->expires_at,
+            'pc' => $payment->captured_at,
+            'pmid' => $payment->payment_method->id,
+            'pms' => $payment_saved
+        );
+
+        $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
+
+        $handle = fopen($url, "r");
+        fclose($handle);
     }
 
     /**
@@ -712,7 +780,7 @@ class Payment extends CI_Controller
                 // Подтверждение платежа
                 $res_capture = self::capturePayment($payment['id'], $payment['amount'], $payment['currency']);
                 // Обновление данных платежа
-                self::updatePaymentData($res_capture);
+                self::updatePaymentData($res_capture, 'payment');
             }
             unset($payment);
         }
@@ -720,33 +788,6 @@ class Payment extends CI_Controller
         {
             log_message('error', __METHOD__.':'.__LINE__. ' Empty array $payments');
         }
-    }
-
-    /**
-     * Обновление данных платежа
-     *
-     * @param $payment
-     */
-    public function updatePaymentData($payment)
-    {
-        $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
-        $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
-
-        $payment_data = array(
-            'pid' => $payment->id,
-            'ps' => $payment->status,
-            'pp' => $payment_paid,
-            'pcr' => $payment->created_at,
-            'pe' => $payment->expires_at,
-            'pc' => $payment->captured_at,
-            'pmid' => $payment->payment_method->id,
-            'pms' => $payment_saved
-        );
-
-        $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
-
-        $handle = fopen($url, "r");
-        fclose($handle);
     }
 
     /**

@@ -115,6 +115,46 @@ class Payment_model extends CI_Model
     }
 
     /**
+     * Обновление статуса возврата платежа
+     *
+     * @param $payment_id
+     * @param $refund_payment_id
+     * @param $payment_status
+     * @param $created_at
+     * @return bool
+     */
+    public function updateRefundStatus($payment_id, $refund_payment_id, $payment_status, $created_at)
+    {
+        $result = false;
+
+        $sel_payment = $this->db->query('
+            SELECT `opr_payment_id`, `opr_refund_id`, `opr_refund_amount`, `opr_refund_status`, `opr_refund_description`, `opr_refund_created_at` 
+            FROM `orders_payment_refund` 
+            WHERE `opr_refund_id`=? and `opr_payment_id`=? LIMIT 1', array($payment_id, $refund_payment_id));
+
+        if($sel_payment !== false and 1 == $sel_payment->num_rows())
+        {
+            $up_data = $this->db->query('UPDATE `orders_payment_refund` SET `opr_refund_status`=? WHERE `opr_refund_id`=? and `opr_payment_id`=? LIMIT 1',
+                array($payment_status, $payment_id, $refund_payment_id));
+
+            if ($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif ($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+        elseif($sel_payment === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка данных платежа
      *
      * @param $payment_id
@@ -181,9 +221,12 @@ class Payment_model extends CI_Model
                             $following_date = $tmp_date->format('Y-m-d');
 
                             $ins_data = $this->db->query('
-                            INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_following_date`, `op_date_add`)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                array($order_id, $i, $customer_email, $customer_name, $payment_method, $login, $phone, $course['rec_subsequent'], 'RUB', $payment_method_id, $following_date, $date));
+                                INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, 
+                                                              `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_status`, `op_amount`, `op_currency`, 
+                                                              `op_payment_method_id`, `op_following_date`, `op_date_add`)
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                    array($order_id, $i, $customer_email, $customer_name, $payment_method, $login, $phone, '',
+                                        $course['rec_subsequent'], 'RUB', $payment_method_id, $following_date, $date));
                             if($ins_data === false)
                             {
                                 parent::logDbMessages(__METHOD__.':'.__LINE__);

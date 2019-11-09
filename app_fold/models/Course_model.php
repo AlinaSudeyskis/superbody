@@ -9066,6 +9066,35 @@ class Course_model extends CI_Model
     }
 
     /**
+     * @param $order_id
+     * @param $block_reason
+     * @param $block_date
+     * @param $block
+     * @param $date
+     * @return bool
+     */
+    public function updateOrderCoursesStatus($order_id, $block_reason, $block_date, $block, $date)
+    {
+        $result = false;
+
+        if(!empty($block_reason))
+        {
+            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=?, `uc_blocked_reason`=?, `uc_blocked_date`=?, `uc_date_update`=? WHERE `uc_o_id`=?',
+                array($block, $block_reason, $block_date, $date, $order_id));
+            if($up_data !== false and 0 < $this->db->afeected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Проверка покупал ли пользователь курс
      *
      * @param $course_id
