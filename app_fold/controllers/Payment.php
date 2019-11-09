@@ -261,8 +261,8 @@ class Payment extends CI_Controller
                 $courses_status   = (!empty($payment_status) and array_search($payment_status, $payment_statuses)) ? array_search($payment_status, $payment_statuses) : '';
                 $courses_status   = ($check_account === false and $payment_status == 'succeeded') ? 'not_activated_account' : $courses_status;
                 $courses_status   = ($payment_event == 'refund' and $payment_status == 'succeeded') ? 'payment_refunded' : $courses_status;
-                $block_date       = ($courses_status == 'succeeded') ? '' : $this->date;
-                $block            = ($courses_status == 'succeeded') ? 0 : 1;
+                $block_date       = ($courses_status == 'payment_succeeded') ? '' : $this->date;
+                $block            = ($courses_status == 'payment_succeeded') ? 0 : 1;
                 $this->Course_model->updateOrderCoursesStatus($payment['order_id'], $courses_status, $block_date, $block, $this->date);
 
                 if ($payment_status == 'succeeded' and $payment_event == 'payment')
