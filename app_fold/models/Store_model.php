@@ -2767,10 +2767,9 @@ class Store_model extends CI_Model
      * @param int $order_status
      * @return array
      */
-    public function getOrders($payment_status = 'capture')
+    public function getOrders($payment_status = 'waiting_for_capture')
     {
         $result = array();
-        $payment_status = ($payment_status == 'capture') ? 'waiting_for_capture' : $payment_status;
 
         $sel_orders = $this->db->query("
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            

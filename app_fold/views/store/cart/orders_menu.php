@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <ul class="anketa_block_nav parent">
     <li>
         <a href="/administration/orders/capture">
-            <span <?php if ($page_submenu == 'capture') { echo 'class="anketa_active"'; } ?>>Ожидают подтверждения магазином</span>
+            <span <?php if ($page_submenu == 'waiting_for_capture') { echo 'class="anketa_active"'; } ?>>Ожидают подтверждения магазином</span>
         </a>
     </li>
     <li>
@@ -20,6 +20,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <li>
         <a href="/administration/orders/pending">
             <span <?php if ($page_submenu == 'pending') { echo 'class="anketa_active"'; } ?>>Ожидают оплаты пользователем</span>
+        </a>
+    </li>
+    <li>
+        <a href="/administration/orders/refunded">
+            <span <?php if ($page_submenu == 'refunded') { echo 'class="anketa_active"'; } ?>>Возвращены</span>
         </a>
     </li>
 </ul>

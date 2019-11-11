@@ -171,7 +171,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 <div class="ordering_block_side_cont_txt">Статус: <span class="<?php echo $payment['status_code']; ?>"><?php echo $payment['status'];?></span></div>
                                             <?php endif; ?>
                                             <?php if(!empty($payment['status'])): ?>
-                                                <div class="ordering_block_side_cont_txt">Оплата: <?php echo $payment['paid'];?></div>
+                                                <!--<div class="ordering_block_side_cont_txt">Оплата: <?php /*echo $payment['paid'];*/?></div>-->
                                             <?php endif; ?>
                                             <?php if(empty($payment['captured_at'])):
                                                 if (!empty($payment['created_at'])): ?>
