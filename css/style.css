@@ -8138,6 +8138,7 @@ span.mess_block_full_time {
 .chat_contacts_wrap{
     overflow: auto;
     max-height: 871px;
+    width: 100%;
 }
 .mess_block_full_time:hover .mess_block_short_time{
     display: inline;
