@@ -7828,6 +7828,7 @@ class Course_model extends CI_Model
      * @param $user_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getUserCourseSettings($user_course_id, $user_id, $date = null)
     {
@@ -7938,7 +7939,7 @@ class Course_model extends CI_Model
                     SELECT `cc_coach_id`, `user_name`, `user_email` 
                     FROM `courses_coaches`
                     LEFT JOIN `users` ON `cc_coach_id`=`user_id`
-                    WHERE `cc_course_id`=?', $result['course']['id']);
+                    WHERE `cc_course_id`=?', $result['course']['course_id']);
                 if ($sel_coaches !== false and 0 < $sel_coaches->num_rows()) {
                     $i = 0;
                     foreach ($sel_coaches->result() as $row) {
@@ -9063,6 +9064,30 @@ class Course_model extends CI_Model
             }
             unset($course);
         }
+    }
+
+    /**
+     * Разблокировка курсов активированного аккаунта пользователя
+     *
+     * @param $user_id
+     * @return bool
+     */
+    public function unblockActivatedUserCourses($user_id)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_date`="", `uc_blocked_reason`="payment_succeeded" 
+            WHERE `uc_user_id`=? and `uc_blocked_reason`="not_activated_account"', $user_id);
+        if($up_data !== false and 0 < $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
     }
 
     /**

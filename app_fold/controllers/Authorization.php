@@ -383,19 +383,64 @@ class Authorization extends CI_Controller
         $email         = (filter_var($this->input->get('e'), FILTER_VALIDATE_EMAIL)) ? $this->input->get('e') : null;
         $activate_code = strip_tags($this->input->get('ac'));
 
-        $account = $this->Authorization_model->getUserAccountData($email, $activate_code);
-
-        if (is_array($account) and $account['activated'] === true)
+        if(!empty($email) and !empty($activate_code))
         {
-            header('Location: /activated');
+            $account = $this->Authorization_model->getUserAccountData($email, $activate_code);
+
+            if (is_array($account) and $account['activated'] === true)
+            {
+                header('Location: /activated');
+            }
+            if (is_array($account) and $account['activated'] === false)
+            {
+                // Активация пользователя
+                $res_activate = $this->Authorization_model->activateUser($email, $this->date);
+
+                if (!empty($res_activate['user_id']) and is_numeric($res_activate['user_id']))
+                {
+                    $user_id = $res_activate['user_id'];
+
+                    // Проверка на наличие неподтверженных платежей
+                    $myCurl = curl_init();
+                    curl_setopt_array($myCurl, array(
+                        CURLOPT_URL => 'https://superbody.pro/payment/userWaitingPayments', // https://superbody.pro/payment/userWaitingPayments  http://sb.theoutlines.ru/
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_POST => true,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_POSTFIELDS => http_build_query(array('uid' => $user_id, 'ue' => $email))
+                    ));
+                    $response = curl_exec($myCurl);
+                    curl_close($myCurl);
+
+                    // Разблокировка курсов, которые были заблокированы из-за не активации аккаунта
+                    $this->load->model('Course_model');
+                    $this->Course_model->unblockActivatedUserCourses($user_id);
+
+                    parent::sendPulseAddEmails($email);
+
+                    // Аккаунт активирован.
+                    $this->session->set_tempdata('message', 20, 60);
+                    header('Location: /activated');
+                }
+                else
+                {
+                    // Аккаунт не активирован.
+                    $this->session->set_tempdata('message', 3, 60);
+                    header('Location: /activate');
+                }
+            }
+            elseif($account === false)
+            {
+                parent::pageNotFound($this->page_url);
+            }
         }
-        elseif($account === false)
+        elseif(empty($this->page_data['message']))
         {
             parent::pageNotFound($this->page_url);
         }
 
         // Валидация E-mail
-        if (!empty($email) and $this->input->post('bt_activate', true))
+        /*if (!empty($email) and $this->input->post('bt_activate', true))
         {
             // Получение ID и код активации пользователя
             $result = $this->Authorization_model->getActivateCode($email);
@@ -420,7 +465,7 @@ class Authorization extends CI_Controller
                             // Проверка на наличие неподтверженных платежей
                             $myCurl = curl_init();
                             curl_setopt_array($myCurl, array(
-                                CURLOPT_URL => 'http://sb.theoutlines.ru/payment/userWaitingPayments', // https://superbody.pro/payment/userWaitingPayments
+                                CURLOPT_URL => 'https://superbody.pro/payment/userWaitingPayments', // https://superbody.pro/payment/userWaitingPayments  http://sb.theoutlines.ru/
                                 CURLOPT_RETURNTRANSFER => true,
                                 CURLOPT_POST => true,
                                 CURLOPT_FOLLOWLOCATION => true,
@@ -430,6 +475,7 @@ class Authorization extends CI_Controller
                             curl_close($myCurl);
 
                             parent::sendPulseAddEmails($email);
+
                             // Аккаунт активирован.
                             $this->session->set_tempdata('message', 20, 60);
                             header('Location: /activated');
@@ -492,7 +538,7 @@ class Authorization extends CI_Controller
                 'ac' => $this->input->get('ac')
             );
             header('Location: /activate?' . http_build_query($url_data));
-        }
+        }*/
 
 
         // Объединенные данные страница
@@ -501,7 +547,7 @@ class Authorization extends CI_Controller
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');
-        $this->load->view('authorization/activate', $account);
+        $this->load->view('authorization/activate');
         $this->load->view('footer/footer');
     }
 

@@ -150,42 +150,42 @@ class Authorization_model extends CI_Model
     /**
      * Активация пользователя
      *
-     * @param $user_id
+     * @param $user_email
      * @param $date
      * @return bool
      */
-    public function activateUser($user_id, $date)
+    public function activateUser($user_email, $date)
     {
         $result = false;
 
-        $up_data = $this->db->query('UPDATE `users` SET `user_activated`=1, `user_activate_date`="0000-00-00 00:00:00", `user_date_update`=? 
-          WHERE `user_id`=? LIMIT 1', array($date, $user_id));
+        $up_data = $this->db->query('UPDATE `users` SET `user_activated`=1, `user_activate_date`="", `user_date_update`=? 
+          WHERE `user_email`=? LIMIT 1', array($date, $user_email));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            $sel_data = $this->db->query('SELECT `user_email` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+            $sel_data = $this->db->query('SELECT `user_id` FROM `users` WHERE `user_email`=? LIMIT 1', $user_email);
             if($sel_data !== false and 1 == $sel_data->num_rows())
             {
                 $row = $sel_data->row();
-                $email = $row->user_email;
+                $user_id = $row->user_id;
 
                 // Добавляем данные пользователя в таблицу подписчиков
-                $sel_sub = $this->db->query('SELECT `s_email` FROM `subscription`  WHERE `s_email`=? LIMIT 1', $email);
+                $sel_sub = $this->db->query('SELECT `s_email` FROM `subscription`  WHERE `s_email`=? LIMIT 1', $user_email);
                 if($sel_sub !== false and 0 == $sel_sub->num_rows())
                 {
-                    $this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($email, $date));
+                    $this->db->query('INSERT INTO `subscription` (`s_email`, `s_date`) VALUES (?, ?)', array($user_email, $date));
                 }
                 elseif($sel_sub === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
+
+                $result['user_id'] = $user_id;
             }
             elseif($sel_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
-
-            $result = true;
         }
         elseif($up_data === false)
         {
