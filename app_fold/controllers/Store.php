@@ -912,7 +912,7 @@ class Store extends CI_Controller
                 if(!empty($pay_info['payment']) and !empty($pay_info['payment']->_id))
                 {
                     $res_refund = $this->Store_model->refundPayment($payment_id, $refund_amount, self::CURRENCY, $description,
-                        $res_payment['customer_email'], $res_payment['customer_name'], $order['order']['products'][0]);
+                        $res_payment['payment']['customer_email'], $res_payment['payment']['customer_name'], $order['order']['products'][0]);
 
                     if (!empty($res_refund['response']))
                     {
