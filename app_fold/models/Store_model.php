@@ -3637,6 +3637,7 @@ class Store_model extends CI_Model
      *
      * @param $order_id
      * @return array
+     * @throws Exception
      */
     public function getOrderPayments($order_id)
     {
@@ -3678,6 +3679,37 @@ class Store_model extends CI_Model
             unset($row);
         }
         elseif ($sel_payments === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Данные платежа
+     *
+     * @param $payment_id
+     * @return array
+     * @throws Exception
+     */
+    public function getPayment($payment_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('
+            SELECT `op_id`, `op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, 
+                   `op_pt_phone`, `op_payment_id`, `op_status`, `op_paid`, `op_created_at`, `op_captured_at`, `op_expires_at`, 
+                   `op_amount`, `op_currency`, `op_payment_options`, `op_payment_method_saved`, `op_revoke_permission`, 
+                   `op_payment_method_id`, `op_following_date`, `op_date_add` 
+            FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+            $result['payment'] = self::parsePaymentData($row);
+        }
+        elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -3888,7 +3920,7 @@ class Store_model extends CI_Model
      * @param $order_items
      * @return array
      */
-    public function refundPayment($payment_id, $value, $currency, $description, $payment_option, $customer_email, $customer_name, $order_items)
+    public function refundPayment($payment_id, $value, $currency, $description, $customer_email, $customer_name, $order_items)
     {
         $result = array('response' => false, 'error' => false);
         $idempotenceKey = uniqid('', true);
@@ -4400,11 +4432,14 @@ class Store_model extends CI_Model
         $result['id']       = $row->op_payment_id;
         $result['amount']   = $row->op_amount;
         $result['currency'] = $row->op_currency;
+        $result['order_id'] = $row->op_o_id;
+        $result['number']   = $row->op_number;
 
         $types = array('bank_card' => 'Банковская карта', 'yandex_money' => 'Яндекс.Деньги', 'sberbank' => 'Сбербанк Онлайн',
             'qiwi' => 'QIWI Кошелек', 'webmoney' => 'Webmoney', 'alfabank' => 'Альфа-клик');
         $result['payment_type'] = (array_key_exists($row->op_payment_type, $types) !== false)
             ? $types[$row->op_payment_type] : '';
+        $result['payment_type_code'] = $row->op_payment_type;
 
         $status = array('pending' => 'Платеж ожидает подтверждения пользователем', 'waiting_for_capture' => 'Платеж ожиданиет подтверждения или отмены магазином',
             'succeeded' => 'Платеж успешно завершен', 'canceled' => 'Платеж отменен', '' => '');
@@ -4435,6 +4470,12 @@ class Store_model extends CI_Model
         $result['created_at']      = $created_at;
         $result['created_at_orig'] = $row->op_created_at;
         $result['expires_at']      = $expires_at;
+
+        $result['customer_email'] = $row->op_customer_email;
+        $result['customer_name']  = $row->op_customer_name;
+
+        $result['login'] = $row->op_pt_login;
+        $result['phone'] = $row->op_pt_phone;
 
         return $result;
     }

@@ -906,12 +906,13 @@ class Store extends CI_Controller
 
             if (!empty($payment_id))
             {
-                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
+                $res_payment = $this->Store_model->getPayment($payment_id);
+                $pay_info    = $this->Store_model->getPaymentInfo($payment_id);
 
-                if(!empty($res_pay['payment']) and !empty($res_pay['payment']->_id))
+                if(!empty($pay_info['payment']) and !empty($pay_info['payment']->_id))
                 {
-                    $res_refund = $this->Store_model->refundPayment($res_pay['payment']->_id, $refund_amount, self::CURRENCY, $description,
-                        $res_pay['payment']->_payment_method->type, $order['order']['user_email'], $order['order']['products'][0]);
+                    $res_refund = $this->Store_model->refundPayment($payment_id, $refund_amount, self::CURRENCY, $description,
+                        $res_payment['customer_email'], $res_payment['customer_name'], $order['order']['products'][0]);
 
                     if (!empty($res_refund['response']))
                     {
