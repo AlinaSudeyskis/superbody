@@ -254,7 +254,8 @@ class Payment extends CI_Controller
             if(!empty($payment))
             {
                 // Изменение статуса заказа
-                $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, $payment_status);
+                $order_status = ($payment_event == 'refund' and $payment_status == 'succeeded') ? 'payment_refunded' : $payment_status;
+                $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, $order_status);
 
                 // Изменение статуса курсов
                 $payment_statuses = array('waiting_for_capture' => 'waiting_for_capture', 'payment_succeeded' => 'succeeded', 'payment_canceled' => 'canceled', 'not_paid' => 'pending');
