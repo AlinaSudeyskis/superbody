@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>
     <li>
         <a href="/administration/orders/refunded">
-            <span <?php if ($page_submenu == 'refunded') { echo 'class="anketa_active"'; } ?>>Возвращены</span>
+            <span <?php if ($page_submenu == 'payment_refunded') { echo 'class="anketa_active"'; } ?>>Возвращены</span>
         </a>
     </li>
 </ul>

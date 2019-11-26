@@ -32,7 +32,7 @@ class User extends CI_Controller
      * @return void
      * @throws Exception
      */
-    public function profile($user_id)
+    public function profile($user_id = null)
     {
         $user_id = (empty($user_id)) ? $this->user_id : $user_id;
 

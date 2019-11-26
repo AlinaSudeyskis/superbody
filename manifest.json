@@ -1,0 +1,13 @@
+{
+  "name": "Superbody",
+  "short_name": "Superbody",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/logo/128.png",
+      "sizes": "128x128",
+      "type": "image/png"
+    }
+  ],
+  "gcm_sender_id": "103953800507"
+}

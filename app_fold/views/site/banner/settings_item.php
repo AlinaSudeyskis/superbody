@@ -11,7 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="parent kurs_cur_wrap">
                 <div class="video_down_line_but_wrap">
                     <label for="video_down_line_but1cs" class="video_down_line_but">
-                        <input type="hidden" name="MAX_FILE_SIZE" value="2097152" />
+                        <input type="hidden" name="MAX_FILE_SIZE" value="31457280" />
                         <input type="file" name="banner_file" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png,image/gif" />
                         <span>Выберите файл</span>
                     </label>

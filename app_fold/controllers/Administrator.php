@@ -1000,7 +1000,8 @@ class Administrator extends CI_Controller
                 : '';
             $banner_video = ($video_url != $result['banner']['video_url']) ? $video_url : $result['banner']['video_url'];
 
-            if ((!empty($banner_img) and $result['banner']['image'] != $banner_img) or (!empty($banner_video) and $video_url != $result['banner']['video_url']) or $banner_url != $result['banner']['url'])
+            if ((!empty($banner_img) and $result['banner']['image'] != $banner_img) or (!empty($banner_video) and $video_url != $result['banner']['video_url'])
+                or $banner_url != $result['banner']['url'])
             {
                 $res_b = $this->Administrator_model->setBannerSettings($banner_id, $banner_img, $banner_video, $banner_url, $this->user_id, $this->date);
 

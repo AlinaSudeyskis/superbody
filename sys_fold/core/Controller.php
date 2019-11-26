@@ -591,7 +591,7 @@ class CI_Controller {
 
             $config['upload_path'] = $path;
             $config['allowed_types'] = 'jpg|png|gif';
-            $config['max_size']	= '2048';
+            $config['max_size']	= '30720';
             $config['file_name'] = $md5_name;
 
             $this->load->library('upload', $config);

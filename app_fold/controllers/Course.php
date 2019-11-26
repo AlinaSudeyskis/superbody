@@ -2186,7 +2186,7 @@ class Course extends CI_Controller
             }
             elseif ($this->input->post('cb_photo2_block5', true))
             {
-                if($b5_image2)
+                if(is_file($b5_image2))
                 {
                     unlink($b5_image2);
                 }
@@ -2648,7 +2648,8 @@ class Course extends CI_Controller
             $img_type_id = (is_numeric(key($bt[$img_block_id]))) ? key($bt[$img_block_id]) : null;
             $img_type = (array_key_exists($img_type_id, $img_types)) ? $img_types[$img_type_id] : null;
             reset($bt[$img_block_id][$img_type_id]);
-            $img_id = (is_numeric(key($bt[$img_block_id][$img_type_id]))) ? '_'.key($bt[$img_block_id][$img_type_id]) : null;
+            $img_id = (is_array($bt[$img_block_id][$img_type_id]) and is_numeric(key($bt[$img_block_id][$img_type_id])))
+                ? '_'.key($bt[$img_block_id][$img_type_id]) : null;
             $img_path = (!empty($this->input->post('img_path_'.$img_block_id.'_'.$img_type_id.$img_id, true)))
                 ? '.'.$this->input->post('img_path_'.$img_block_id.'_'.$img_type_id.$img_id, true) : null;
 

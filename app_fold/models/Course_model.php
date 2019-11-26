@@ -3795,9 +3795,10 @@ class Course_model extends CI_Model
         if (!empty($coaches['insert'])) {
             $values = '';
             foreach ($coaches['insert'] as $coach_id => $percent) {
-                if (empty($values)) {
+                if (empty($values) and $percent > 0) {
                     $values = '(' . $course_id .', ' . $coach_id . ', ' . $percent . ', "' . $date . '", "' . $date . '")';
-                } else {
+                }
+                elseif(!empty($values) and $percent > 0) {
                     $values .= ', (' . $course_id .', ' . $coach_id . ', ' . $percent . ', "' . $date . '", "' . $date . '")';
                 }
             }

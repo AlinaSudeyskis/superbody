@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php endif;?>
         <span class="header_notification">
             <?php if(!empty($user_session) and $user_session['activated'] == 0):?>
-                Аккаунт не активирован.
+                <?php echo $this->list_errors['text'][218]; ?>
             <?php endif;?>
         </span>
     <?php include('./app_fold/views/header/header_soc.php'); ?>
