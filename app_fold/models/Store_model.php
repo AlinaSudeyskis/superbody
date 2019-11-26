@@ -2924,6 +2924,7 @@ class Store_model extends CI_Model
                     $full_price = (!empty($row->ouc_p_price) and $row->ouc_p_price > 0) ? $row->ouc_p_price : 0;
                     $rec_price  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first > 0) ? $row->ouc_p_recurrent_first : 0;
                     $cart_product_price = (!empty($full_price) and empty($rec_price)) ? $full_price : $rec_price;
+                    $result['order']['products'][$i]['cart_products_price'] = $cart_product_price;
 
                     $total_order_price += $cart_product_price*$row->ouc_p_quantity;
 
@@ -3913,7 +3914,6 @@ class Store_model extends CI_Model
      * @param float $value
      * @param string $currency
      * @param string $description
-     * @param $payment_option
      * @param $customer_email
      * @param $customer_name
      * @param $order_items
@@ -3925,6 +3925,31 @@ class Store_model extends CI_Model
         $idempotenceKey = uniqid('', true);
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
+        /*log_message('debug', print_r(array(
+            'payment_id' => $payment_id,
+            'amount' => array(
+                'value' => $value,
+                'currency' => $currency,
+            ),
+            'receipt' => array(
+                'customer' => array(
+                    'email' => $customer_email,
+                    'full_name' => $customer_name,
+                ),
+                'items' => array(
+                    array(
+                        'description' => $order_items['name'],
+                        'quantity' => $order_items['cart_quantity'],
+                        'amount' => array(
+                            'value' => $order_items['cart_products_price'],
+                            'currency' => $currency,
+                        ),
+                        'vat_code' => 1
+                    )
+                )
+            ),
+            'description' => $description,
+        ), true));*/
 
         try {
             $result['response'] = $client->createRefund(
@@ -3944,7 +3969,7 @@ class Store_model extends CI_Model
                                 'description' => $order_items['name'],
                                 'quantity' => $order_items['cart_quantity'],
                                 'amount' => array(
-                                    'value' => $order_items['price'],
+                                    'value' => $order_items['cart_products_price'],
                                     'currency' => $currency,
                                 ),
                                 'vat_code' => 1

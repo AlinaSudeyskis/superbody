@@ -30,7 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     $fc_price_sum = 0;
                                     if(!empty($order['products'])):
                                         foreach ($order['products'] as $product):
-                                            $price = !empty($product['discount_price']) ? $product['discount_price'] : $product['price'];
+                                            $price = !empty($product['discount_price']) ? $product['discount_price'] : $product['cart_products_price'];
                                             $product_sum = $price;
                                             // Общая итоговая сумма корзины
                                             if (!empty($product['price']) and $product['quantity'] > 0 and $product['course_id'] == 0) :

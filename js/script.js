@@ -476,7 +476,7 @@ $(document).ready(function () {
             shadow2 = $("#shadow2");
         }
 
-        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2}).fadeIn(600);
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2, display: 'flex'}).hide().fadeIn(600);
         $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function () {
             shadow2.fadeOut(600);
             purchase.fadeOut(600);

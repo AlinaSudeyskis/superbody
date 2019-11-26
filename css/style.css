@@ -2037,12 +2037,14 @@ tr:first-child > td > .fc-day-grid-event{
     top: 50%;
     position: fixed;
     display: none;
+    flex-direction: column;
 }
 .purchase_pop-up_cont{
-    margin: 30px 40px;
-    height: calc(100% - 100px);
+    margin: 5% 7%;
+    /*height: calc(100% - 100px);
     height: -moz-calc(100% - 100px);
-    height: -webkit-calc(100% - 100px);
+    height: -webkit-calc(100% - 100px);*/
+    height: 100%;
     overflow: hidden auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -11098,7 +11100,7 @@ textarea.anketa_form_in{
     width: 110px;
 }
 .purchase_form .anketa_form_buts_wrap {
-    padding: 0 0 40px;
+    padding: 0 0 10px;
     margin: 0 auto;
     width: 115px;
 }
