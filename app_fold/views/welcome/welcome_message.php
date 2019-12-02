@@ -55,7 +55,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="new_kurs_row row">
             <div class="col-lg-9 col-md-8 col-sm-12 col-xs-12 new_kurs_wrap">
                 <h2 class="block_h">НОВЫЕ КУРСЫ</h2>
-                <div class="new_kurs_block parent"data-info="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.">
+                <div class="new_kurs_block parent" data-info="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.">
                     <?php if (!empty($courses)) :
                         $count_courses = count($courses);
                         foreach ($courses as $key => $course) :?>

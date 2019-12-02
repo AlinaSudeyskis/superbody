@@ -1675,7 +1675,7 @@ $(document).ready(function () {
 
     $('.video_block').slick({
         dots: true,
-        infinite: true,
+        infinite: false,
         arrows: false,
         speed: 300,
         autoplay: false,

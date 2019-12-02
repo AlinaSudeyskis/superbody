@@ -2030,7 +2030,7 @@ tr:first-child > td > .fc-day-grid-event{
     background: #ffffff;
     width: 80%;
     max-width: 570px;
-    height: 680px;
+    height: 500px;
     max-height: 90%;
     z-index: 113;
     left: 50%;
@@ -2040,20 +2040,19 @@ tr:first-child > td > .fc-day-grid-event{
     flex-direction: column;
 }
 .purchase_pop-up_cont{
-    margin: 5% 7%;
-    /*height: calc(100% - 100px);
-    height: -moz-calc(100% - 100px);
-    height: -webkit-calc(100% - 100px);*/
-    height: 100%;
-    overflow: hidden auto;
-    -webkit-overflow-scrolling: touch;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 5% 7%;
+    height: 500px;
+    max-height: 100%;
+    overflow-y: auto;
 }
 .purchase_pop-up_h{
     font-size: 16px;
     line-height: 25px;
     color: #505961;
     padding: 16px 0;
-    /*overflow: hidden;*/
 }
 .purchase_pop-up_close{
     width: 40px;
@@ -2069,11 +2068,6 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .purchase_form{
     padding:0;
-    display: flex;
-    display:-webkit-flex;
-    flex-direction: column;
-    -webkit-flex-direction: column;
-    height: 100%;
 }
 .purchase_form .sing-in_soc_wrap{
     margin-top: 10px;
@@ -2099,12 +2093,7 @@ tr:first-child > td > .fc-day-grid-event{
     max-width: 280px;
 }
 .auth_form{
-    display: flex;
-    display:-webkit-flex;
-    flex-direction: column;
-    -webkit-flex-direction: column;
     padding: 0;
-    height: 100%;
 }
 .turn_auth {
     display: block;
