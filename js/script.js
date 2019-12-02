@@ -1680,34 +1680,34 @@ $(document).ready(function () {
         speed: 300,
         autoplay: false,
         slidesToShow: 4,
-        slidesToScroll: 1,
+        slidesToScroll: 4,
         responsive: [
             {
                 breakpoint: 1420,
                 settings: {
                     slidesToShow: 4,
-                    slidesToScroll: 1
+                    slidesToScroll: 4
                 }
             },
             {
                 breakpoint: 1140,
                 settings: {
                     slidesToShow: 3,
-                    slidesToScroll: 1
+                    slidesToScroll: 31
                 }
             },
             {
                 breakpoint: 992,
                 settings: {
                     slidesToShow: 3,
-                    slidesToScroll: 1
+                    slidesToScroll: 3
                 }
             },
             {
                 breakpoint: 767,
                 settings: {
                     slidesToShow: 2,
-                    slidesToScroll: 1
+                    slidesToScroll: 2
                 }
             },
             {
