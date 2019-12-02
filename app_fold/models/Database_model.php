@@ -3019,6 +3019,29 @@ class Database_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление базы данных декабрь 2019
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseDecember2019($date)
+    {
+        $result = false;
+
+        $date = '2019-12-02 12:17';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_blocked_reason` `uc_blocked_reason` ENUM('not_paid','payment_refunded','payment_succeeded','payment_canceled','free_weeks_over','not_activated_account','waiting_for_capture','revoke_permission') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'not_paid'");
+            $this->db->query("ALTER TABLE `orders` CHANGE `o_payment_status` `o_payment_status` ENUM('waiting_for_capture','succeeded','canceled','pending','payment_refunded','not_paid','free','revoke_permission') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Поиск даты обновления в БД

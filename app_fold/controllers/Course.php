@@ -8204,135 +8204,19 @@ class Course extends CI_Controller
         //$payment = $this->Store_model->getPaymentInfo($paymentId);
         //print_r($payment);
 
-        if ($this->input->post('bt_capture', true))
+        if($this->input->post('bt_payment_revoke_permission', true))
         {
-            $payment_id = strip_tags($this->input->post('i_payment_id', true));
-
-            if (!empty($payment_id))
+            $res_revoke = $this->Store_model->revokeRepaymentPermission($order_id, $this->user_id, $this->date);
+            if($res_revoke === true)
             {
-                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
-
-                //log_message('debug', 'Payment info: ' . print_r($payment, true));
-
-                if (!empty($res_pay['payment']) and $res_pay['payment']->_status == 'waiting_for_capture')
-                {
-                    $res_capture = $this->Store_model->capturePayment($res_pay['payment']->_id, $res_pay['payment']->_amount->_value, $res_pay['payment']->_amount->_currency);
-                    if($res_capture['response'] !== false)
-                    {
-                        //log_message('debug', 'Response capturePayment' . print_r($res_capture['response'], true));
-                    }
-                    elseif(!empty($res_capture['error']))
-                    {
-                        $this->session->set_tempdata('message', $res_capture['error'], 60);
-                    }
-                    else
-                    {
-                        // Не удалось подтвердить заказ
-                        $this->session->set_tempdata('message', 189, 60);
-                    }
-                }
-                elseif(!empty($res_pay['payment']))
-                {
-                    // Статус платежа не ожидает подтверждения
-                    $this->session->set_tempdata('message', 188, 60);
-                }
-                elseif(!empty($res_pay['error']))
-                {
-                    $this->session->set_tempdata('message', $res_pay['error'], 60);
-                }
+                $this->session->set_tempdata('message', 210, 60);
             }
             else
             {
-                log_message('error', __METHOD__.':'.__LINE__.' Payment ID error: ' . $payment_id);
-            }
-            header('Location: /administration/order/' . $order_id);
-        }
-        elseif($this->input->post('bt_cancel', true))
-        {
-            $payment_id = strip_tags($this->input->post('i_payment_id', true));
-
-            if (!empty($payment_id))
-            {
-                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
-
-                if (!empty($res_pay['payment']) and $res_pay['payment']->_status == 'waiting_for_capture')
-                {
-                    $res_cancel = $this->Store_model->cancelPayment($res_pay['payment']->_id);
-
-                    if(!empty($res_cancel['error']))
-                    {
-                        $this->session->set_tempdata('message', $res_cancel['error'], 60);
-                    }
-                }
-                elseif(!empty($res_pay['error']))
-                {
-                    $this->session->set_tempdata('message', $res_pay['error'], 60);
-                }
+                $this->session->set_tempdata('message', 211, 60);
             }
 
-            header('Location: /administration/order/' . $order_id);
-        }
-        elseif($this->input->post('bt_refund', true))
-        {
-            $refund_amount = is_numeric($this->input->post('i_refund_amount', true)) ? $this->input->post('i_refund_amount', true) : null;
-            $payment_id    = strip_tags($this->input->post('i_payment_id', true));
-            $description   = strip_tags($this->input->post('i_description', true));
-
-            if (!empty($payment_id))
-            {
-                $res_pay = $this->Store_model->getPaymentInfo($payment_id);
-
-                if(!empty($res_pay['payment']) and !empty($res_pay['payment']->_id))
-                {
-                    $res_refund = $this->Store_model->refundPayment($res_pay['payment']->_id, $refund_amount, self::CURRENCY, $description,
-                        $res_pay['payment']->_payment_method->type, $order['order']['user_email'], $order['order']['products'][0]);
-
-                    if (!empty($res_refund['response']))
-                    {
-                        $response = $res_refund['response'];
-
-                        if(!empty($response->_id))
-                        {
-                            $created_at = $response->_created_at->_date . $response->_created_at->_timezone;
-
-                            $this->Store_model->setPaymentRefund($response->_payment_id, $response->_id, $refund_amount, $response->_status, $description, $created_at);
-
-                            if ($response->_status == 'succeeded')
-                            {
-                                $this->load->model('Course_model');
-                                $this->load->model('Message_model');
-
-                                $reason = 'payment_refunded';
-
-                                // Блокировка курсов пользователя
-                                $this->Course_model->blockUserOrderCourses($order_id, $order_courses['user_id'], $order_courses['courses'], $reason, $this->date);
-                                $this->Message_model->sendUserMessage($order_courses['user_id'], $this->user_id, $this->date);
-
-                                $this->session->set_tempdata('message', 208, 60);
-                            }
-                            else
-                            {
-                                log_message('error', __METHOD__.':'.__LINE__.' Refund response status: ' . $response->_status);
-                                $this->session->set_tempdata('message', 209, 60);
-                            }
-                        }
-                        else
-                        {
-                            log_message('error', __METHOD__.':'.__LINE__.' Refund response ID error: ' . print_r($response, true));
-                        }
-                    }
-                    elseif(!empty($res_refund['error']))
-                    {
-                        $this->session->set_tempdata('message', $res_refund['error'], 60);
-                    }
-                }
-                elseif(!empty($res_pay['error']))
-                {
-                    $this->session->set_tempdata('message', $res_pay['error'], 60);
-                }
-            }
-
-            header('Location: /administration/order/' . $order_id);
+            header('Location: /profile/course/' . $user_course_id . '/order/'. $order_id);
         }
 
         /*$course_data = array();

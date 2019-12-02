@@ -3264,6 +3264,7 @@ class Store_model extends CI_Model
      * @param $user_id
      * @param $date
      * @return bool
+     * @throws Exception
      */
     public function revokeRepaymentPermission($order_id, $user_id, $date)
     {
@@ -3271,6 +3272,9 @@ class Store_model extends CI_Model
 
         if(is_numeric($order_id) and is_numeric($user_id))
         {
+            $tmp_date = new DateTime($date);
+            $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : $date;
+
             $sel_data = $this->db->query('SELECT `o_id` FROM `orders` WHERE `o_id`=? and `o_u_id`=? LIMIT 1', array($order_id, $user_id));
             if($sel_data !== false and 1 == $sel_data->num_rows())
             {
@@ -3280,8 +3284,38 @@ class Store_model extends CI_Model
                     WHERE `op_o_id`=? and `op_number`=0 and `op_payment_method_saved`=1 LIMIT 1', $order_id);
                 if($up_data !== false and 1 == $this->db->affected_rows())
                 {
+                    // Блокировка курсов
+                    $up_data2 = $this->db->query('UPDATE `orders` SET `o_payment_status`="revoke_permission" WHERE `o_id`=? LIMIT 1', $order_id);
+                    if($up_data2 === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
+                    $block_date = '';
+                    $sel_fol_pay = $this->db->query('SELECT `op_following_date` FROM `orders_payment` WHERE `op_o_id`=? and `op_number`>0 and `op_following_date`>=?', array($order_id, $today));
+                    if($sel_fol_pay !== false and 0 < $sel_fol_pay->num_rows())
+                    {
+                        foreach ($sel_fol_pay->result() as $row)
+                        {
+                            $block_date = (empty($block_date) or $block_date > $row->op_following_date) ? $row->op_following_date : $block_date;
+                        }
+                        unset($row);
+                    }
+                    elseif($sel_fol_pay === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
+                    // Блокировка курсов
+                    $up_data3 = $this->db->query('UPDATE `users_courses` SET `uc_blocked_date`=?, `uc_blocked_reason`="revoke_permission"
+                        WHERE `uc_o_id`=?', array($block_date, $order_id));
+                    if($up_data3 === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
                     // Удаление будущих платежей
-                    $del_data = $this->db->query('DELETE FROM `orders_payment` WHERE `op_o_id`=? and `op_number`>0 and `op_following_date`>?', array($order_id, $date));
+                    $del_data = $this->db->query('DELETE FROM `orders_payment` WHERE `op_o_id`=? and `op_number`>0 and `op_following_date`>=?', array($order_id, $today));
                     if($del_data === false)
                     {
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -3298,6 +3332,10 @@ class Store_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
+        }
+        else
+        {
+            log_message('error', "Order id and user id isn't numeric. " . print_r($order_id, true) . ' ' . print_r($user_id, true));
         }
 
         return $result;
@@ -4347,7 +4385,8 @@ class Store_model extends CI_Model
         $result['payments'] = array();
 
         $payment_statuses = array('Ожидает подтверждения оплаты магазином' => 'waiting_for_capture', 'Оплачен' => 'succeeded',
-            'Отменен' => 'canceled', 'Ожидает оплаты' => 'pending', 'Платеж возвращен' => 'payment_refunded', 'Пропущена оплата' => 'not_paid', 'Бесплатно' => 'free');
+            'Отменен' => 'canceled', 'Ожидает оплаты' => 'pending', 'Платеж возвращен' => 'payment_refunded', 'Пропущена оплата' => 'not_paid',
+            'Бесплатно' => 'free', 'Отозвано разрешение' => 'revoke_permission');
         $result['payment_status'] = (!empty($row->o_payment_status) and array_search($row->o_payment_status, $payment_statuses)) ? array_search($row->o_payment_status, $payment_statuses) : '';
         $result['payment_status_eng'] = (!empty($row->o_payment_status)) ? $row->o_payment_status : '';
         $result['status']         = ($row->o_status == 1) ? 'Выполнен' : 'Не выполнен';
