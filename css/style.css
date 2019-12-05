@@ -741,6 +741,14 @@ audio, canvas, progress, video{
     max-width: 860px;
     margin: 0 auto;
 }
+.cont_txt span {
+    display: block;
+    font-size: 12px;
+    margin-top: 10px;
+}
+.cont_txt span>a {
+    color: inherit;
+}
 .profile_menu{
     margin: 0;
     padding: 20px 0;

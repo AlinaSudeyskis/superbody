@@ -5,6 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="cont_txt">
         <h1 class="main_h"><?php if (!empty($site_info['index_title'])) { echo $site_info['index_title']; } ?></h1>
         <div class="cont_val"><?php if (!empty($site_info['index_text'])) { echo $site_info['index_text']; } ?></div>
+        <span><a href="/courses">Посмотреть все курсы</a></span>
     </div>
     <div class="video_row row video_block">
         <?php if (!empty($video)) :

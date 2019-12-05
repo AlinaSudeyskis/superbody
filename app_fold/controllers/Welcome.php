@@ -151,6 +151,7 @@ class Welcome extends CI_Controller
         $reviews = $this->Course_model->getAvaliableReviews();
         $coaches = $this->Coach_model->getCoaches();
         $video   = $this->Course_model->getAvaliablePromoVideo();
+        shuffle($video['video']);
         $gallery = $this->Coach_model->getGallery();
 
         $result = array_merge($courses, $coaches, $video, $gallery, $reviews);
