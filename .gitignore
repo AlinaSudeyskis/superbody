@@ -1,22 +1,24 @@
 .DS_Store
+/app_fold/sessions/
 
-app_fold/cache/*
-!app_fold/cache/index.html
-!app_fold/cache/.htaccess
+/app_fold/cache/
+!/app_fold/cache/index.html
+!/app_fold/cache/.htaccess
 
-app_fold/logs/*
-!app_fold/logs/index.html
-!app_fold/logs/.htaccess
+/app_fold/logs/
+!/app_fold/logs/index.html
+!/app_fold/logs/.htaccess
 
-banners/*
-course_files/*
-journal/*
-logo/*
-policy/*
-product_files/
-tests/*
-user_files/*
-video/*
+/banners/
+/course_files/
+/journal/
+/logo/
+/policy/
+/product_files/
+/tests/
+/user_files/
+/video/
+/xls/
 
 /vendor/
 
