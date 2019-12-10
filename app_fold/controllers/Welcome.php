@@ -148,9 +148,9 @@ class Welcome extends CI_Controller
         $this->load->model('Coach_model');
 
         $courses = $this->Course_model->getLastAddedCourses('workout');
-        $reviews = $this->Course_model->getAvaliableReviews();
+        $reviews = $this->Course_model->getAvailableReviews();
         $coaches = $this->Coach_model->getCoaches();
-        $video   = $this->Course_model->getAvaliablePromoVideo();
+        $video   = $this->Course_model->getAvailablePromoVideo();
         shuffle($video['video']);
         $gallery = $this->Coach_model->getGallery();
 
@@ -256,7 +256,7 @@ class Welcome extends CI_Controller
         $this->load->model('Coach_model');
         $gallery = $this->Coach_model->getGallery();
         $coaches = $this->Coach_model->getCoaches();
-        $reviews = $this->Course_model->getAvaliableReviews();
+        $reviews = $this->Course_model->getAvailableReviews();
 
         $result = array_merge($gallery, $coaches, $reviews);
 

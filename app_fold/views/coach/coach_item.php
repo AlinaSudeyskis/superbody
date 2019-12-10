@@ -28,6 +28,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <a href="" class="f_but"></a>
                     <a href="" class="tw_but"></a>
                 </div>-->
+                <?php if(!empty($coach['user_social'])):
+                    if($coach['user_social']['facebook']['connect'] === true and $coach['user_social']['facebook']['available'] == 1):
+                        $soc_profile_url = (!empty($coach['user_social']['facebook']['profile_url'])) ? $coach['user_social']['facebook']['profile_url'] : 'https://www.facebook.com/profile.php?id='.$coach['user_social']['facebook']['id']; ?>
+                        <a href="<?php echo $soc_profile_url; ?>"><i class="fab fa-facebook-f" aria-hidden="true"></i></a><!-- https://www.facebook.com/profile.php?id=<?php //echo $user_social['facebook']['id']; ?> -->
+                    <?php endif;
+                    if($coach['user_social']['vk']['connect'] === true and $coach['user_social']['vk']['available'] == 1): ?>
+                        <a href="https://vk.com/id<?php echo $coach['user_social']['vk']['id']; ?>"><i class="fab fa-vk" aria-hidden="true"></i></a>
+                    <?php endif;
+                    if($coach['user_social']['ok']['connect'] === true and $coach['user_social']['ok']['available'] == 1):  ?>
+                        <a href="https://ok.ru/profile/<?php echo $coach['user_social']['ok']['id']; ?>"><i class="fab fa-odnoklassniki" aria-hidden="true"></i></a>
+                    <?php endif;
+                    if($coach['user_social']['instagram']['connect'] === true and $coach['user_social']['instagram']['available'] == 1):?>
+                        <a href="<?php echo $coach['user_social']['instagram']['profile_url']; ?>">
+                            <i class="fab fa-instagram" aria-hidden="true"></i>
+                        </a><!--https://www.instagram.com/<?php //echo $user_social['instagram']['id']; ?> -->
+                    <?php endif;
+                endif;?>
                 <a href="/messages/<?php echo $coach['id']; ?>" class="tren_mess_link" title="Написать тренеру">
                     <i class="fas fa-envelope" aria-hidden="true"></i>
                 </a>

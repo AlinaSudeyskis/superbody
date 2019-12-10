@@ -8256,7 +8256,7 @@ span.mess_block_full_time {
 	text-align: center;
 }
 .tren_prof_page_cont{
-	margin-left: 195px;
+	margin-left: 20px; /*195*/
 }
 .tren_prof_page_block{
 	padding: 30px 70px;
@@ -8308,7 +8308,7 @@ span.mess_block_full_time {
 	cursor: default;
 	margin-top: 14px;
 }
-.tren_prof_page_soc a{
+.tren_prof_page_soc a, .tren_buts a{
 	text-decoration: none;
 	display: inline-block;
 	width: 25px;

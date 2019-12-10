@@ -22,13 +22,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <form action="" method="post">
                         <div class="admin_form_buts_wrap_container">
                             <div class="admin_form_buts_wrap parent">
+                                <?php if ($type['blocked'] == 0) :?>
+                                    <input type="submit" name="bt_block_course_type" value="Блокировать" class="video_admin_form_block"/>
+                                <?php elseif ($type['blocked'] == 1) :?>
+                                    <input type="submit" name="bt_unblock_course_type" value="Разблокировать" class="video_admin_form_block"/>
+                                <?php endif;?>
                                 <input type="submit" name="bt_save_type_settings" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                             </div>
                         </div>
                         <div class="video_admin_form">
                             <div class="parent kurs_cur_wrap">
                                 <div class="kurs_block_h">Наименование:</div>
-                                <input type="text" name="name" class="admin_form_txt kurs_form_txt_short" value="<?php echo $type_name;?>" maxlength="255" required="required" autofocus="autofocus"/>
+                                <input type="text" name="name" class="admin_form_txt kurs_form_txt_short" value="<?php echo $type['name'];?>" maxlength="255" required="required" autofocus="autofocus"/>
                             </div>
                         </div>
                     </form>

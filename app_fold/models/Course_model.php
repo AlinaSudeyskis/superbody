@@ -76,16 +76,16 @@ class Course_model extends CI_Model
      */
     public function getCourseType($type_id)
     {
-        // Результат
-        $result = array('type_name' => '');
+        $result = array();
 
-        $sel_course_type = $this->db->query('SELECT `ct_name` FROM `course_type` WHERE `ct_id`=? LIMIT 1', $type_id);
+        $sel_course_type = $this->db->query('SELECT `ct_name`, `ct_blocked` FROM `course_type` WHERE `ct_id`=? LIMIT 1', $type_id);
 
         if ($sel_course_type !== false and 1 == $sel_course_type->num_rows())
         {
             $row = $sel_course_type->row();
 
-            $result['type_name'] = $row->ct_name;
+            $result['type']['name']    = $row->ct_name;
+            $result['type']['blocked'] = $row->ct_blocked;
         }
         elseif ($sel_course_type === false)
         {
@@ -149,10 +149,14 @@ class Course_model extends CI_Model
             $i = 0;
             foreach ($sel_types->result() as $row)
             {
-                $result['course_types'][$row->ct_id]['id']   = $row->ct_id;
-                $result['course_types'][$row->ct_id]['name'] = $row->ct_name;
+                $count_active_courses = self::getCountCourseTypeActiveCourses($row->ct_id);
+                if($count_active_courses > 0)
+                {
+                    $result['course_types'][$row->ct_id]['id']   = $row->ct_id;
+                    $result['course_types'][$row->ct_id]['name'] = $row->ct_name;
 
-                $i++;
+                    $i++;
+                }
             }
             unset($row);
         }
@@ -177,19 +181,69 @@ class Course_model extends CI_Model
 
         $sel_types = $this->db->query('SELECT `ct_id`, `ct_name` FROM `course_type` WHERE `ct_blocked`=0 and `ct_id`=? LIMIT 1', $type_id);
 
-        if ($sel_types !== false and 0 < $sel_types->num_rows())
+        if ($sel_types !== false and 1 == $sel_types->num_rows())
         {
-            $i = 0;
-            foreach ($sel_types->result() as $row)
+            $row = $sel_types->row();
+            $count_active_courses = self::getCountCourseTypeActiveCourses($row->ct_id);
+            if($count_active_courses > 0)
             {
                 $result['course_type'][$row->ct_id]['id']   = $row->ct_id;
                 $result['course_type'][$row->ct_id]['name'] = $row->ct_name;
-
-                $i++;
             }
             unset($row);
         }
         elseif ($sel_types === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Блокировка/разблокировка категории курса
+     *
+     * @param $type_id
+     * @param $block
+     * @param $date
+     * @return bool
+     */
+    public function blockCourseType($type_id, $block, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `course_type` SET `ct_blocked`=?, `ct_date_update`=? WHERE `ct_id`=? LIMIT 1',
+            array($block, $date, $type_id));
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Кол-во активных курсов категории
+     *
+     * @param $type_id
+     * @return bool|integer
+     */
+    public function getCountCourseTypeActiveCourses($type_id)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT COUNT(`crs_id`) as `count_courses` FROM `courses` WHERE `crs_type_id`=? and `crs_blocked`=0', $type_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result = $row->count_courses;
+        }
+        elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -2228,11 +2282,12 @@ class Course_model extends CI_Model
             SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, 
               `crs_count_days`, `crs_meta_description`, `crs_meta_keywords`, `crs_price`, `crs_recurrent_price`, 
               `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
-              `crs_fitcoin_price`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`, `p_id`
+              `crs_fitcoin_price`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`, `p_id`, `ct_blocked`
             FROM `courses`
             LEFT JOIN `products` ON `p_course_id`=`crs_id`
             LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
-            WHERE `crs_id`=? and `crs_blocked`=0 and `crs_archive`=0 LIMIT 1', $course_id);
+            LEFT JOIN `course_type` ON `ct_id`=`crs_type_id`
+            WHERE `crs_id`=? and `crs_blocked`=0 and `crs_archive`=0 and `ct_blocked`=0 LIMIT 1', $course_id);
 
         if ($sel_course !== false and 1 == $sel_course->num_rows())
         {
@@ -5525,16 +5580,17 @@ class Course_model extends CI_Model
      *
      * @return array
      */
-    public function getAvaliablePromoVideo()
+    public function getAvailablePromoVideo()
     {
         $result = array();
 
         $sel_video = $this->db->query('
             SELECT `video_id`, `video_name`, `video_path`, `video_poster`, `video_remove_url`, `video_crs_id`, `video_date_add`, 
-              `crs_name`, `crs_blocked`
+              `crs_name`, `crs_blocked`, `crs_type_id`, `ct_blocked`
             FROM `video`
             LEFT JOIN `courses` ON `crs_id`=`video_crs_id`
-            WHERE `video_blocked`=0 and `video_type`=1 and `video_crs_id`>0 and `crs_blocked`=0 and `video_active`=1
+            LEFT JOIN `course_type` ON `ct_id`=`crs_type_id`
+            WHERE `video_blocked`=0 and `video_type`=1 and `video_crs_id`>0 and `crs_blocked`=0 and `ct_blocked`=0 and `video_active`=1
             ORDER BY `video_date_add` DESC');
 
         if ($sel_video !== false and 0 < $sel_video->num_rows())
@@ -10000,7 +10056,7 @@ class Course_model extends CI_Model
      *
      * @return array
      */
-    public function getAvaliableReviews()
+    public function getAvailableReviews()
     {
         $result = array();
         $sel_reviews = $this->db->query('

@@ -114,6 +114,9 @@ class Coach_model extends CI_Model
                 $row = $sel_data->row();
 
                 $result['user_data'] = self::parseCoachData($row, $today);
+
+                $coach_social = parent::getUserSocial($row->user_id);
+                $result['user_social'] = $coach_social['user_social'];
             }
             elseif($sel_data === false)
             {
@@ -264,7 +267,7 @@ class Coach_model extends CI_Model
             $i = 0;
             foreach ($sel_coaches->result() as $row)
             {
-                $result['coaches'][$i]['id']      = $row->user_id;
+                $result['coaches'][$i]['id'] = $row->user_id;
 
                 $user_name = explode(' ', $row->user_name);
                 $result['coaches'][$i]['f_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
@@ -276,6 +279,9 @@ class Coach_model extends CI_Model
                 $result['coaches'][$i]['titles_awards'] = $row->cd_titles_awards;
                 $result['coaches'][$i]['bbc_about']     = !empty($row->cd_about) ? parent::showBBcodes($row->cd_about) : '';
                 $result['coaches'][$i]['about']         = $row->cd_about;
+
+                $coach_social = parent::getUserSocial($row->user_id);
+                $result['coaches'][$i]['user_social'] = $coach_social['user_social'];
 
                 $i++;
             }

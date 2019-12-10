@@ -133,6 +133,38 @@ class Course extends CI_Controller
             }
             header('Location: /administration/courses/type/'.$type_id);
         }
+        elseif($this->input->post('bt_block_course_type', true))
+        {
+            $blocked = $this->Course_model->blockCourseType($type_id, 1, $this->date);
+
+            if ($blocked === true)
+            {
+                // Сохранено
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 220, 60);
+            }
+            header('Location: /administration/courses/type/' . $type_id);
+        }
+        elseif($this->input->post('bt_unblock_course_type', true))
+        {
+            $blocked = $this->Course_model->blockCourseType($type_id, 0, $this->date);
+
+            if ($blocked === true)
+            {
+                // Сохранено
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 220, 60);
+            }
+            header('Location: /administration/courses/type/' . $type_id);
+        }
 
         $result = $this->Course_model->getCourseType($type_id);
 
@@ -6788,7 +6820,7 @@ class Course extends CI_Controller
             $courses = $this->Course_model->getAvailableCourses($courses_category, $category_id, null, null, $pc_data);
         }
         $gallery = $this->Coach_model->getGallery();
-        $reviews = $this->Course_model->getAvaliableReviews();
+        $reviews = $this->Course_model->getAvailableReviews();
 
         $result = array_merge($courses, $gallery, $reviews);
 
