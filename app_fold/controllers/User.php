@@ -83,8 +83,21 @@ class User extends CI_Controller
         $payment_notifs   = $this->Payment_model->getUserWaitingPayments($user_id); // Выборка неподтверженных платежей
         $anthrop_data     = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
         $user_social      = $this->User_model->getUserSocial($user_id);
-        $u_data           = $this->User_model->getUser($user_id);
+        $u_data           = $this->User_model->getUserSettingsData($user_id);
         $friend_promocode = $this->Course_model->getPromocodeForFriend($user_id);
+
+        // Проверка активации аккаунта
+        if(empty($u_data['user_data']['user_activated']))
+        {
+            $this->load->model('Authorization_model');
+            $activate_check = $this->Authorization_model->checkActivateEmail($this->user_id, $this->date);
+
+            if($activate_check['availability_send_email'] === true)
+            {
+                $u_data['user_data']['activate_email']['availability_send_email'] = true;
+            }
+            $u_data['user_data']['activate_email']['availability_send_email_date'] = $activate_check['availability_send_email_date'];
+        }
 
         //$courses[0]['id'] = 6;
         //$this->Course_model->unblockUserOrderCourses(80, 4, $courses, 'payment_succeeded', $this->date);
@@ -491,6 +504,27 @@ class User extends CI_Controller
 
             header('Location: /profile/'.$user_id);
         }
+        elseif ($this->input->post('bt_e_activate_send_again', true))
+        {
+            $this->load->model('Authorization_model');
+
+            $res_check = $this->Authorization_model->checkActivateEmail($this->user_id, $this->date);
+
+            if(is_array($res_check))
+            {
+                if($res_check['availability_send_email'] === true)
+                {
+                    self::sendEActivateEmail($res_check['user_email'], $res_check['activate_code']);
+                    log_message('debug', print_r($res_check, true));
+
+                    $this->Authorization_model->setResendingActivateEmailDate($this->user_id, $this->date);
+
+                    // Данные о смене были сохранены
+                    $this->session->set_tempdata('message', 202, 60);
+                }
+            }
+            header('Location: /profile/' . $user_id);
+        }
 
         $this->load->model('Notification_model');
         // Уведомления курсов
@@ -662,6 +696,13 @@ class User extends CI_Controller
             $notification = $this->Notification_model->getNotification(213);
 
             $this->page_data['user_notification']['waiting_payments']['text'] = $notification['notification']['text'];
+        }
+        // Неактивирован аккаунт
+        if($u_data['user_data']['user_activated'] == 0)
+        {
+            $notification = $this->Notification_model->getNotification(218);
+
+            $this->page_data['user_notification']['not_activated']['text'] = $notification['notification']['text'];
         }
 
         // Объединенные данные страница
@@ -1246,7 +1287,7 @@ class User extends CI_Controller
                 {
                     self::sendEActivateEmail($res_check['user_email'], $res_check['activate_code']);
 
-                    //$this->Authorization_model->setResendingActivateEmailDate($this->user_id, $this->date);
+                    $this->Authorization_model->setResendingActivateEmailDate($this->user_id, $this->date);
 
                     // Данные о смене были сохранены
                     $this->session->set_tempdata('message', 202, 60);

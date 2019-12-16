@@ -217,7 +217,7 @@ class User_model extends CI_Model
                `user_new_email_idempotent`, `user_restore_account_idempotent`, `user_new_email_date`, `user_activate_date`
             FROM `users` 
             LEFT JOIN `questionnaire` ON `questionnaire`.`user_id`=`users`.`user_id`
-            WHERE `users`.`user_id`=? and CASE WHEN ?=1 THEN `user_deleted`=1 ELSE TRUE END 
+            WHERE `users`.`user_id`=? and IF(?=1, `user_deleted`=1, TRUE) 
             LIMIT 1', array($user_id, $archive_user));
 
         if ($sel_data !== false and 1 == $sel_data->num_rows())

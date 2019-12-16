@@ -1716,8 +1716,15 @@ class Course extends CI_Controller
             // Заголовк страницы
             $main_title_bbcode = mb_substr(strip_tags($this->input->post('ta_main_title'), '<span><br/><b><i><p>'), 0, 255);
 
+            // Видео url
+            $main_video_url = mb_substr(strip_tags($this->input->post('i_main_video_url', true)), 0, 255);
+            // Текст кнопки
+            $main_button_text = mb_substr(strip_tags($this->input->post('i_main_button_text', true)), 0, 26);
+            // Описание
+            $main_description = mb_substr(strip_tags($this->input->post('ta_main_description'), '<span><br/><b><i><p>'), 0, 1000);
+
             $up_res = $this->Course_model->setCourseLandingBlock1($course_id, $hide_block, $landing_style,
-                $b1_bg_color, $b1_bg_opacity, $slider_images, $main_title_bbcode, $this->date);
+                $b1_bg_color, $b1_bg_opacity, $slider_images, $main_title_bbcode, $main_video_url, $main_button_text, $main_description, $this->date);
 
             if ($up_res === true) {
                 // Изменения сохранены

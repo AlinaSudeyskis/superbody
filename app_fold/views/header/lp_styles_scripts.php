@@ -2,16 +2,18 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 
-<meta name="keywords" content="<?php echo $keywords; ?>">
-<meta name="description" content="<?php echo $description; ?>">
-<meta charset="UTF-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
-<link rel="stylesheet" href="/css/google_fonts.css">
-<link rel="stylesheet" href="/css/grid.css">
-<link rel="stylesheet" href="/css/slick.css">
-<link rel="stylesheet" href="/css/font-awesome.min.css">
-<link rel="stylesheet" href="/css/jquery.formstyler.css">
-<link rel="stylesheet" href="/css/lightbox.css">
+    <meta name="keywords" content="<?php echo $keywords; ?>">
+    <meta name="description" content="<?php echo $description; ?>">
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <link rel="stylesheet" href="/css/google_fonts.css">
+    <link rel="stylesheet" href="/css/px-video.css">
+    <link rel="stylesheet" href="/css/grid.css">
+    <link rel="stylesheet" href="/css/slick.css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/jquery.formstyler.css">
+    <link rel="stylesheet" href="/css/lightbox.css">
 
     <script src="/js/moment.min.js"></script>
     <script src="/js/jquery.min.js"></script>
@@ -31,4 +33,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/tinymce/tinymce.min.js" type="text/javascript"></script>
     <script src="/js/js.cookie.js" type="text/javascript"></script>
 
-<?php include_once('./app_fold/views/header/styles_scripts.php'); ?>
+    <?php include_once('./app_fold/views/header/styles_scripts.php'); ?>
+
+    <script src="https://player.vimeo.com/api/player.js"></script>

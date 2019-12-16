@@ -27,13 +27,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
         </div>
         <div class="content_block new_content_block">
-            <div class="notification_block_h"><a href="/message/<?php echo $user_data['user_id'];?>">Написать тренеру</a></div>
+            <div class="notification_block_h"><a href="/messages/<?php echo $user_data['user_id'];?>">Написать тренеру</a></div>
         </div>
     </div>
     <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12 user_prog">
         <div class="content_block new_content_block">
             <div class="content_block_h parent">
-                <h3></h3>
+                <h3>О тренере</h3>
                 <div class="content_block_h_buts">
                     <div class="content_block_h_slide kurs_slide"></div>
                     <div class="content_block_h_close"></div>

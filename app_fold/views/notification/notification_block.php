@@ -43,6 +43,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </form>
     <?php endif; ?>
 
+    <?php if($not_activated === true):?>
+        <form action="" method="post" class="mini_form">
+            <span class="tip">
+                <?php if($user_data['activate_email']['availability_send_email'] === true): ?>
+                    <input type="submit" name="bt_e_activate_send_again" value="Отправить снова" class="bt_link">
+                <?php elseif(!empty($user_data['activate_email']['availability_send_email_date'])): ?>
+                    Повторно отправить письмо можно будет через <?php echo $user_data['activate_email']['availability_send_email_date']; ?>.
+                <?php endif; ?>
+            </span>
+        </form>
+    <?php endif; ?>
+
     <?php // Отсчет времени окончания курса
     if($course_ends === true and $count_ends_down === true and !empty($course_ends_countdown)):?>
         <div class="countdown_wrap">

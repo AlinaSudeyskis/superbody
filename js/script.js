@@ -23,7 +23,7 @@ $(document).ready(function () {
         statusbar: false,
         theme: 'silver',
         language_url: '/js/tinymce/langs/ru.js',
-        plugins: "textcolor colorpicker bbcode",
+        plugins: "bbcode",
         toolbar: "undo redo | bold italic | forecolor",
         max_chars_indicator: "pageLength"
     });
@@ -1905,6 +1905,28 @@ $(document).ready(function () {
             crs_search.hide();
         }
     });
+
+    var pop_up_review = $("#pop-up_review");
+    $('.revive_item').on('click', function(){
+        if(pop_up_review.length === 0)
+        {
+            $('body').append('<div id="pop-up_review"></div>');
+            pop_up_review = $("#pop-up_review");
+        }
+        pop_up_review.html($(this).html()+'<div class="purchase_pop-up_close"></div>');
+        pop_up_home(pop_up_review);
+    });
+
+    var pop_up_video = $('#pop-up_video');
+    $('.lp_desc').on('click', function(){
+        if(pop_up_video.length === 0)
+        {
+            $('body').append('<div id="pop-up_video"></div>');
+            pop_up_video = $("#pop-up_video");
+        }
+        pop_up_video.html('<div class="lp_desc_wrap"><div class="lp_desc_text">' + $(this).data('desc') + '</div></div>' + '<div class="purchase_pop-up_close"></div>');
+        pop_up_home(pop_up_video);
+    });
 });
 var options, playerTwoPlayer;
 options = {
@@ -1951,7 +1973,12 @@ function pop_up_def(popup) {
 }
 function pop_up_home(popup) {
     var shadow = $("#shadow2");
-    popup.css({marginLeft:-(popup.width()/2),marginTop:-(popup.height()/2)}).fadeIn(600);
+    if(shadow.length === 0)
+    {
+        $('body').append('<div id="shadow2"></div>');
+        shadow = $("#shadow2");
+    }
+    popup.css({marginLeft:-(popup.outerWidth()/2),marginTop:-(popup.outerHeight()/2)}).fadeIn(600);
 
     // если необходимо делегирование событий, замените на mouseenter и mouseleave соответственно
     $(popup).hover(function() {
@@ -1960,7 +1987,7 @@ function pop_up_home(popup) {
         returnScroll();
     });
 
-    $("#shadow2, .home_pop-up_close, .close_meal, .close_user_meal").fadeTo(600,0.8).on('click', function() {
+    $("#shadow2, .home_pop-up_close, .close_meal, .close_user_meal, .purchase_pop-up_close").fadeTo(600,0.8).on('click', function() {
         shadow.fadeOut(600);
         popup.fadeOut(600);
         //popup.empty();

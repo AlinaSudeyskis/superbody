@@ -3048,6 +3048,24 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-12-13 12:29';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_mes_telegram` VARCHAR(255) NOT NULL AFTER `si_email`, ADD `si_mes_whatsapp` VARCHAR(255) NOT NULL AFTER `si_mes_telegram`, ADD `si_mes_viber` VARCHAR(255) NOT NULL AFTER `si_mes_whatsapp`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-12-13 14:46';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_main_video_url` VARCHAR(255) NOT NULL AFTER `clp_main_title`, ADD `clp_main_button_text` VARCHAR(26) NOT NULL AFTER `clp_main_video_url`, ADD `clp_main_description` VARCHAR(1000) NOT NULL AFTER `clp_main_button_text`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

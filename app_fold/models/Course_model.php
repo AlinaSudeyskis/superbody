@@ -3915,7 +3915,8 @@ class Course_model extends CI_Model
         $result = array('landing' => array());
 
         $sel_landing = $this->db->query('
-            SELECT `clp_lp_id`, `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, `clp_block1_bg_color`, `clp_slider_opacity`, 
+            SELECT `clp_lp_id`, `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, `clp_block1_bg_color`, `clp_slider_opacity`,
+              `clp_main_video_url`, `clp_main_button_text`, `clp_main_description`,
               `clp_block2_hide`, `clp_block2_background`, `clp_block2_background_top`, `clp_block2_image`, `clp_block2_bg_color`, 
               `clp_block2_title`, `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, `clp_block2_bg_opacity`, 
               `clp_block3_hide`, `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, `clp_block3_image_1`,
@@ -3972,32 +3973,36 @@ class Course_model extends CI_Model
      * @param $b1_bg_opacity
      * @param $slider_images
      * @param $main_title_bbcode
+     * @param $main_video_url
+     * @param $main_button_text
+     * @param $main_description
      * @param $date
      * @return bool
      */
     public function setCourseLandingBlock1($course_id, $hide_block, $landing_style, $b1_bg_color, $b1_bg_opacity,
-                                           $slider_images, $main_title_bbcode, $date)
+                                           $slider_images, $main_title_bbcode, $main_video_url, $main_button_text,
+                                           $main_description, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
             UPDATE `courses_landing_pages` 
             SET `clp_block1_hide`=?, `clp_block1_bg_color`=?, `clp_slider_opacity`=?, `clp_lp_id`=?, `clp_slider_images`=?, 
-                `clp_main_title`=?, `clp_date_update`=? 
+                `clp_main_title`=?, `clp_main_video_url`=?, `clp_main_button_text`=?, `clp_main_description`=?, `clp_date_update`=? 
             WHERE `clp_course_id`=? LIMIT 1',
-                array($hide_block, $b1_bg_color, $b1_bg_opacity, $landing_style, $slider_images, $main_title_bbcode, $date, $course_id));
+                array($hide_block, $b1_bg_color, $b1_bg_opacity, $landing_style, $slider_images, $main_title_bbcode,
+                    $main_video_url, $main_button_text, $main_description, $date, $course_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
 
@@ -4766,7 +4771,7 @@ class Course_model extends CI_Model
         $result = array('landing' => array());
 
         $sel_landing = $this->db->query('
-			SELECT `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, 
+			SELECT `clp_block1_hide`, `clp_slider_images`, `clp_main_title`, `clp_main_video_url`, `clp_main_button_text`, `clp_main_description`,
               `clp_block2_hide`, `clp_block2_background_top`, `clp_block2_background`, `clp_block2_image`, `clp_block2_title`, 
               `clp_block2_subtitle`, `clp_block2_text`, `clp_block2_button`, 
               `clp_block3_hide`, `clp_block3_background`, `clp_block3_title`, `clp_block3_subtitle`, `clp_block3_image_1`, 
@@ -12068,7 +12073,7 @@ class Course_model extends CI_Model
     protected function parseLandingData($row)
     {
         $result = array(
-            'html_page' => '', 'lp_id' => '', 'hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'slider_opacity' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true,
+            'html_page' => '', 'lp_id' => '', 'hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'slider_opacity' => '', 'slider_images' => array(), 'full_slider_images' => '', 'main_title' => '', 'slider_images_default' => true, 'main_video_url' => '', 'main_button' => '', 'main_description' => '',
             'block2' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg_top' => '', 'bg' => '', 'bg_opacity' => '', 'image' => '', 'title' => '', 'subtitle' => '', 'text' => '', 'bg_top_default' => true, 'bg_default' => true, 'image_default' => true, 'button' => ''),
             'block3' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'bg_opacity' => '', 'title' => '', 'subtitle' => '', 'image1' => '', 'image2' => '', 'image1_orig' => '', 'image2_orig' => '', 'r_title' => '', 'r_subtitle' => '', 'r_reviews' => '', 'bg_default' => true, 'image1_default' => true, 'image2_default' => true),
             'block4' => array('hide' => false, 'bg_color' => '', 'bg_color_orig' => '', 'bg' => '', 'bg_opacity' => '', 'title' => '', 'subtitle' => '', 'image' => '', 'r_title' => '', 'r_subtitle' => '', 'bg_default' => true, 'image_default' => true, 'button' => ''),
@@ -12149,6 +12154,12 @@ class Course_model extends CI_Model
 
         $result['main_title']     = parent::showBBcodes($row->clp_main_title);
         $result['bbc_main_title'] = $row->clp_main_title;
+
+        $result['main_video_url'] = $row->clp_main_video_url;
+        $result['main_button']    = $row->clp_main_button_text;
+
+        $result['main_description']     = parent::showBBcodes($row->clp_main_description);
+        $result['bbc_main_description'] = $row->clp_main_description;
 
         // БЛОК 2
 	    // Скрыть блок 2

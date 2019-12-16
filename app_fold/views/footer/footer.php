@@ -40,9 +40,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="f_contact">
                     <div class="f_contact_line">
                         <div class="f_contact_name">
-                            <i class="fab fa-telegram-plane" aria-hidden="true"></i>
-                            <i class="fab fa-whatsapp" aria-hidden="true"></i>
-                            <i class="fab fa-viber" aria-hidden="true"></i>
+                            <?php include('./app_fold/views/header/messengers.php'); ?>
                         </div>
                         <div class="f_contact_val"><?php if (!empty($site_info['phone'])): echo $site_info['phone']; endif;?></div>
                     </div>
@@ -92,7 +90,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="shadow"></div>
 <div id="shadow2"></div>
 
-<div id="pop-up_video"></div><!-- pop-up_video -->
+<div id="pop-up_video">
+    <div class="close_video"></div>
+</div><!-- pop-up_video -->
+<div id="pop-up_review">
+    <div class="close_video"></div>
+</div><!-- pop-up_review -->
 
 <div id="pop-up_postpone">
     <div class="close_video"></div>

@@ -234,6 +234,10 @@ audio, canvas, progress, video{
     /*background: url(/img/tel.png) 0 13px no-repeat;*/
     margin-top: 9px;
 }
+.header_tel a{
+    text-decoration: none;
+    color: inherit;
+}
 .header_tel i{
     font-size: 18px;
     margin-right: 3px;
@@ -1802,6 +1806,10 @@ tr:first-child > td > .fc-day-grid-event{
     display: inline-block;
     text-align: center;
 }
+.f_contact_name a{
+    text-decoration: none;
+    color: inherit;
+}
 .f_contact_val{
     font-size: 20px;
     line-height: 24px;
@@ -2176,7 +2184,9 @@ tr:first-child > td > .fc-day-grid-event{
     background: #fff;
     position: fixed;
     display: none;
-    min-height: 330px;
+    /*height: auto;*/
+    /*min-height: 330px;*/
+    max-height: 90%;
 }
 #pop-up_postpone{
     width: 90%;
@@ -2440,6 +2450,9 @@ h2.block_h>span>a {
 
 .mini_form input {
     margin-right: 20px;
+}
+.mini_form input.bt_link {
+    margin-right: 0;
 }
 .new_kurs_buts{
     cursor: default;
@@ -2980,15 +2993,31 @@ h2.block_h>span>a {
 	text-decoration: none;
 	border-radius: 3px;
 }
-.revive_block{
+.revive_block, #pop-up_review{
     display: block;
     text-decoration: none;
 	background: #d4d6d6;
 	padding: 14px 10px 4px 20px;
     height: 260px;
 }
+#pop-up_review{
+    display: none;
+    position: fixed;
+    height: auto;
+    width: 50%;
+    left: 50%;
+    top: 50%;
+    padding: 20px 10px;
+    z-index: 114;
+}
+#pop-up_review .revive_desk{
+    overflow: visible;
+    height: auto;
+    min-height: 40px;
+}
 .revive_item{
-	padding-bottom: 10px;
+	margin-bottom: 10px;
+    cursor: pointer;
 }
 .revive_ava{
 	width: 70px;
@@ -9061,6 +9090,9 @@ span.anketa_form_in{
     clear: both;
     margin-left: 180px;
 }
+.mini_form .tip{
+    margin-left: 0;
+}
 h3.tip{
     font-size: 13px;
     color: #949393;
@@ -9072,7 +9104,7 @@ h3.tip{
     margin-left: 0;
     font-weight: normal;
 }
-span.tip>.bt_link {
+span.tip>.bt_link, .bt_link {
     border: none;
     background: none;
     color: #72d0f4;
@@ -9645,6 +9677,12 @@ textarea.anketa_form_in{
 .dark_lp{
     background: #000;
 }
+.light_lp .video_col, .dark_lp .video_col{
+    position: absolute;
+    top: 35%;
+    left: -5%;
+    width: 45%;
+}
 .lp_header_wrap{
     background: #000;
     overflow: hidden;
@@ -9798,7 +9836,7 @@ textarea.anketa_form_in{
     color: #666;
     padding-top: 25px;
 }
-.lp_block_but{
+.lp_block_but, .lp_block_desc{
     display: block;
     width: 330px; /* 280px */
     height: 50px;
@@ -9828,6 +9866,11 @@ textarea.anketa_form_in{
 .lp_block0_but{
     margin-top: 45px;
     margin-left: -165px; /* -140px */
+}
+.lp_block1_but{
+    position: absolute;
+    bottom: 150px;
+    left: 41%;
 }
 .lp_block3_but+.video_col_but, .lp_block4_but+.video_col_but {
     margin: 0 auto;
@@ -10425,8 +10468,12 @@ textarea.anketa_form_in{
     color: #e6e6e6;
     padding-left: 40%;
 }
-.dark_lp .lp_block_but{
+.dark_lp .lp_block_but, .dark_lp .lp_block_desc{
     background: #ff5b51;
+}
+.dark_lp .lp_block1_but{
+    bottom: 45%;
+    left: calc(50% - 165px);
 }
 .dark_lp .lp_block0_but{
     margin: 70px auto 0;
@@ -12345,6 +12392,19 @@ input.tren_form_block_check{
 		font-size: 26px;
 		line-height: 34px;
 	}
+    .lp_block1_but {
+        bottom: 90px;
+    }
+    .dark_lp .lp_block1_but {
+        width: 270px;
+        height: 40px;
+        line-height: 42px;
+        font-size: 17px;
+        left: calc(50% - 135px);
+    }
+    .light_lp .video_col, .dark_lp .video_col {
+        top: 25%;
+    }
 
 	.tren_cat_item_cell{
 		padding-right: 0;
@@ -12424,6 +12484,14 @@ input.tren_form_block_check{
     }
 }
 
+@media (max-width: 1280px){
+    .light_lp .video_col, .dark_lp .video_col {
+        top: 32%;
+        left: -5px;
+        width: 40%;
+    }
+}
+
 @media (max-width: 1199px){
 
     .lp_dark_footer_cont{
@@ -12464,6 +12532,13 @@ input.tren_form_block_check{
     .dark_lp .lp_block0_but + .video_col_but{
         margin: 0 0 0 40%;
     }
+    .light_lp .video_col, .dark_lp .video_col {
+        display: none;
+    }
+    .lp_block1_but {
+        left: calc(50% - 165px);
+    }
+
 
     .comment_page_block, .tren_set_form{
         padding-left: 30px;
@@ -13766,6 +13841,21 @@ input.tren_form_block_check{
 		width: 282px;
 		height: 54px;
 	}
+    .lp_block1_but {
+        bottom: 68px;
+        width: 250px;
+        height: 40px;
+        line-height: 43px;
+        font-size: 16px;
+        left: calc(50% - 125px);
+    }
+    .dark_lp .lp_block1_but {
+        width: 200px;
+        height: 30px;
+        line-height: 31px;
+        font-size: 15px;
+        left: calc(50% - 100px);
+    }
 
 	.anketa_form_h, .anketa_form_info_h{
 		float: none;
@@ -15600,7 +15690,7 @@ input.tren_form_block_check{
 	.light_lp .lp_h1{
 		font-size: 24px;
 		line-height: 30px;
-		margin-top: -30px;
+		margin-top: -60px; /*-30*/
 	}
 	.lp_header_slide img{
 		width: 900px;
@@ -15617,6 +15707,14 @@ input.tren_form_block_check{
 	}
     .lp_header_mask{
         margin-bottom: -1px;
+    }
+    .lp_block1_but {
+        bottom: 68px;
+        width: 200px;
+        height: 30px;
+        line-height: 32px;
+        font-size: 15px;
+        left: calc(50% - 100px);
     }
 
     .otziv_col, .qa_col{
@@ -16635,6 +16733,10 @@ input.tren_form_block_check{
         min-width: 110px;
     }
 
+    .dark_lp .lp_header_cont .lp_block1_but{
+        bottom: 40%;
+    }
+
     .kurs_page_block_img{
         display: none;
     }
@@ -16663,6 +16765,14 @@ input.tren_form_block_check{
     .lp_block_buts_wrap .video_col_but_left,
     .lp_block_buts_wrap .video_col_but_right:nth-child(3){
         width: 50%;
+    }
+    .lp_header_cont .lp_block1_but {
+        bottom: 68px;
+        width: 200px;
+        height: 30px;
+        line-height: 31px;
+        font-size: 15px;
+        left: calc(50% - 100px);
     }
 }
 

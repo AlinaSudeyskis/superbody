@@ -30,6 +30,9 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
         <div class="lp_header_cont">
             <div class="lp_header container">
                 <h1 class="lp_h1"><?php echo $landing['main_title']; ?></h1>
+                <?php if(!empty($landing['main_button'])): ?>
+                    <span class="lp_block_desc lp_block1_but parent lp_desc" data-desc="<?php echo $landing['main_description']; ?>"><?php echo $landing['main_button']; ?></span>
+                <?php endif; ?>
                 <div class="lp_scroll_ico"><img src="/landing/default/1/lp_ico1.png" alt=""></div>
             </div>
         </div>

@@ -63,7 +63,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
 
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell">Соц. сети</div></div>
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Социальные сети:</div></div>
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-facebook-f" aria-hidden="true"></i></div></div>

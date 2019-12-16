@@ -19,6 +19,25 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
 
         <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell">Messengers:</div></div>
+        </div>
+        <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-telegram-plane" aria-hidden="true" title="Telegram"></i></div></div>
+            <input type="text" class="anketa_form_in anketa_form_in_long" name="mes_telegram" value="<?php if (!empty($mes_telegram)) { echo $mes_telegram; }?>" maxlength="255"/>
+        </div>
+        <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-whatsapp" aria-hidden="true" title="WhatsApp"></i></div></div>
+            <input type="text" class="anketa_form_in anketa_form_in_long" name="mes_whatsapp" value="<?php if (!empty($mes_whatsapp)) { echo $mes_whatsapp; }?>" maxlength="255"/>
+        </div>
+        <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"><i class="fab fa-viber" aria-hidden="true" title="Viber"></i></div></div>
+            <input type="text" class="anketa_form_in anketa_form_in_long" name="mes_viber" value="<?php if (!empty($mes_viber)) { echo $mes_viber; }?>" maxlength="255"/>
+        </div>
+        <div class="anketa_form_line parent">
+            <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
+        </div>
+
+        <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Контакты (текст 1)</div></div>
             <textarea name="contacts_text1" class="journal_form_textarea admin_form_txt_middle" maxlength="300"><?php if (!empty($contacts_text1)) { echo $contacts_text1; }?></textarea>
         </div>

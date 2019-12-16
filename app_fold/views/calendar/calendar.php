@@ -79,7 +79,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 element.find('.fc-content').attr("id", "event-" + calEvent.endParam);
             },
             eventClick: function(calEvent, jsEvent, view) {
-                if (calEvent.constraint == "workout" && calEvent.startParam != "")
+                if (calEvent.constraint === "workout" && calEvent.startParam !== "")
                 {
                     $.ajax({
                         url: '/show/video',
@@ -98,15 +98,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     pop_up_desc = pop_up_video.find('#wo-description').html(),
                                     viewed = false;
                                 if(pop_up_video.is(':empty')
-                                    || (pop_up_video.find('#vimeo-player-0').length == 0 && pop_up_video.find('#myvid').length == 0)
-                                    || (pop_up_video.find('#vimeo-player-0').length == 1 && (pop_up_video.find('#vimeo-player-0').data('vimeo-url') !== data.source || pop_up_desc !== data.description))
-                                    || (pop_up_video.find('#myvid').length == 1 && (pop_up_video.find('#myvid').data('video-url') !== data.source || pop_up_desc !== data.description)))
+                                    || (pop_up_video.find('#vimeo-player-0').length === 0 && pop_up_video.find('#myvid').length === 0)
+                                    || (pop_up_video.find('#vimeo-player-0').length === 1 && (pop_up_video.find('#vimeo-player-0').data('vimeo-url') !== data.source || pop_up_desc !== data.description))
+                                    || (pop_up_video.find('#myvid').length === 1 && (pop_up_video.find('#myvid').data('video-url') !== data.source || pop_up_desc !== data.description)))
                                 {
                                     pop_up_video.html(data.video);
                                 }
                                 pop_up_home(pop_up_video);
-                                if(getInternetExplorerVersion()==-1) {
-                                    if (data.player == 1) {
+                                if(getInternetExplorerVersion()===-1) {
+                                    if (data.player === 1) {
                                         $("#myvid").each(function () {
                                             new InitPxVideo({
                                                 "videoId": this,

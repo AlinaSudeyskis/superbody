@@ -735,12 +735,15 @@ class Administrator extends CI_Controller
         }
         elseif ($this->input->post('bt_save_contacts', true))
         {
-            $email = mb_substr(strip_tags($this->input->post('email', true)), 0, 255);
-            $phone = mb_substr(strip_tags($this->input->post('phone', true)), 0, 255);
+            $email    = mb_substr(strip_tags($this->input->post('email', true)), 0, 255);
+            $phone    = mb_substr(strip_tags($this->input->post('phone', true)), 0, 255);
+            $telegram = mb_substr(strip_tags($this->input->post('mes_telegram', true)), 0, 255);
+            $whatsapp = mb_substr(strip_tags($this->input->post('mes_whatsapp', true)), 0, 255);
+            $viber    = mb_substr(strip_tags($this->input->post('mes_viber', true)), 0, 255);
             $contacts_text1 = mb_substr(strip_tags($this->input->post('contacts_text1', true)), 0, 300);
             $contacts_text2 = mb_substr(strip_tags($this->input->post('contacts_text2', true)), 0, 300);
 
-            $result = $this->Administrator_model->setSiteContacts($email, $phone, $contacts_text1, $contacts_text2, $this->date, $this->user_id);
+            $result = $this->Administrator_model->setSiteContacts($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $this->date, $this->user_id);
 
             if ($result === true) {
                 // Изменения сохранены

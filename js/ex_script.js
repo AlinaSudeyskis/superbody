@@ -5,7 +5,7 @@ $(document).ready(function(){
         statusbar: false,
         theme: 'silver',
         language_url : '/js/tinymce/langs/ru.js',
-        plugins: "textcolor colorpicker bbcode",
+        plugins: "bbcode",
         toolbar: "undo redo | bold italic | forecolor",
         max_chars_indicator: "pageLength"
     });

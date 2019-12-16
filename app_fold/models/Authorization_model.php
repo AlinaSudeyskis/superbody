@@ -1161,6 +1161,7 @@ class Authorization_model extends CI_Model
      * @param $user_id
      * @param $date
      * @return bool
+     * @throws Exception
      */
     public function checkActivateEmail($user_id, $date)
     {

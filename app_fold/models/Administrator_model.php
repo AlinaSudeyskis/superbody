@@ -263,8 +263,9 @@ class Administrator_model extends CI_Model
         $sel_info = $this->db->query('
             SELECT `si_id`, `si_logo`, `si_index_title`, `si_index_text`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinteres`, 
               `si_soc_google_plus`, `si_soc_tumblr`, `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, 
-              `si_phone`, `si_email`, `si_rights`, `si_agreement`, `si_policy`, `si_personal_data`, `si_personal_data_text`, 
-              `si_offer_data`, `si_footer`, `si_about`, `si_contacts_text1`, `si_contacts_text2`, `si_user_id`, `si_date` 
+              `si_phone`, `si_mes_telegram`, `si_mes_whatsapp`, `si_mes_viber`, `si_email`, `si_rights`, `si_agreement`, 
+              `si_policy`, `si_personal_data`, `si_personal_data_text`, `si_offer_data`, `si_footer`, `si_about`, 
+              `si_contacts_text1`, `si_contacts_text2`, `si_user_id`, `si_date` 
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows()) {
@@ -284,6 +285,9 @@ class Administrator_model extends CI_Model
             $result['soc_vk']             = $row->si_soc_vk;
             $result['soc_youtube']        = $row->si_soc_youtube;
             $result['phone']              = $row->si_phone;
+            $result['mes_telegram']       = $row->si_mes_telegram;
+            $result['mes_whatsapp']       = $row->si_mes_whatsapp;
+            $result['mes_viber']          = $row->si_mes_viber;
             $result['email']              = $row->si_email;
             $result['rights']             = $row->si_rights;
             $result['agreement']          = $row->si_agreement;
@@ -437,7 +441,7 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_info = $this->db->query('
-            SELECT `si_id`, `si_phone`, `si_email`, `si_contacts_text1`, `si_contacts_text2`, `si_user_id`, `si_date` 
+            SELECT `si_id`, `si_phone`, `si_mes_telegram`, `si_mes_whatsapp`, `si_mes_viber`, `si_email`, `si_contacts_text1`, `si_contacts_text2`, `si_user_id`, `si_date` 
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -446,6 +450,9 @@ class Administrator_model extends CI_Model
 
             $result['si_id']          = $row->si_id;
             $result['phone']          = $row->si_phone;
+            $result['mes_telegram']   = $row->si_mes_telegram;
+            $result['mes_whatsapp']   = $row->si_mes_whatsapp;
+            $result['mes_viber']      = $row->si_mes_viber;
             $result['email']          = $row->si_email;
             $result['contacts_text1'] = $row->si_contacts_text1;
             $result['contacts_text2'] = $row->si_contacts_text2;
@@ -738,19 +745,22 @@ class Administrator_model extends CI_Model
      *
      * @param $email
      * @param $phone
+     * @param $telegram
+     * @param $whatsapp
+     * @param $viber
      * @param $contacts_text1
      * @param $contacts_text2
      * @param $date
      * @param $user_id
      * @return bool
      */
-    public function setSiteContacts($email, $phone, $contacts_text1, $contacts_text2, $date, $user_id)
+    public function setSiteContacts($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $date, $user_id)
     {
         $up_info = $this->db->query('
             UPDATE `site_info` 
-            SET `si_email`=?, `si_phone`=?, `si_contacts_text1`=?, `si_contacts_text2`=?, `si_user_id`=?, `si_date`=? 
+            SET `si_email`=?, `si_phone`=?, `si_mes_telegram`=?, `si_mes_whatsapp`=?, `si_mes_viber`=?, `si_contacts_text1`=?, `si_contacts_text2`=?, `si_user_id`=?, `si_date`=? 
             WHERE `si_id`=? LIMIT 1',
-            array($email, $phone, $contacts_text1, $contacts_text2, $user_id, $date, 1));
+            array($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $user_id, $date, 1));
 
         if ($up_info !== false and 1 == $this->db->affected_rows()) {
             return true;

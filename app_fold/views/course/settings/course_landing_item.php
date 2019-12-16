@@ -125,6 +125,30 @@ $lend_block_id = (is_numeric($lend_block_id)) ? $lend_block_id : 1;
                         <div class="journal_form_textarea_wrap journal_form_textarea_small">
                             <textarea id="area3" name="ta_main_title" class="journal_form_textarea formatted_textarea" placeholder="Заголовок страницы" maxlength="50"><?php echo $landing['main_title']; ?></textarea>
                         </div>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Vimeo URL:</div>
+                            <input type="text" name="i_main_video_url" class="admin_form_txt admin_form_txt_middle" maxlength="255" value="<?php echo $landing['main_video_url']; ?>" />
+                        </div>
+                        <div class="parent kurs_cur_wrap">
+                            <div class="kurs_block_h">Текст кнопки:</div>
+                            <input type="text" name="i_main_button_text" class="admin_form_txt admin_form_txt_middle" maxlength="26" value="<?php echo $landing['main_button']; ?>" />
+                        </div>
+                        <div class="lend_form_h">Описание:</div>
+                        <div class="journal_form_textarea_wrap journal_form_textarea_small">
+                            <textarea id="area4" name="ta_main_description" class="journal_form_textarea formatted_textarea1" placeholder="Описание" maxlength="50"><?php echo $landing['main_description']; ?></textarea>
+                        </div>
+                        <script>
+                            tinymce.init({
+                                selector: "textarea.formatted_textarea1",
+                                menubar: false,
+                                statusbar: false,
+                                theme: 'silver',
+                                language_url : '/js/tinymce/langs/ru.js',
+                                plugins: "bbcode",
+                                toolbar: "undo redo | bold italic | forecolor | alignleft aligncenter alignright alignjustify",
+                                max_chars_indicator: "pageLength"
+                            });
+                        </script>
                     </div>
                 <?php
                 elseif($lend_block_id == 2): ?>

@@ -21,6 +21,7 @@ if(!empty($user_notification) or !empty($course_notification)):?>
             $workout_missed   = false;
             $free_weeks_over  = false;
             $empty_email      = false;
+            $not_activated    = false;
             $waiting_payments = false;
             $extends          = array();
 
@@ -31,6 +32,14 @@ if(!empty($user_notification) or !empty($course_notification)):?>
                 $h3_info = $user_notification['empty_email']['text'];
                 include('notification_block.php');
                 $empty_email = false;
+            endif;
+            // Не активирован аккаунт
+            if(!empty($user_notification['not_activated'])):
+                $not_activated = true;
+                $notif_block_h = '<a href="/settings">Настройки</a>';
+                $h3_info = $user_notification['not_activated']['text'];
+                include('notification_block.php');
+                $not_activated = false;
             endif;
             // Не активирован аккаунт и есть непотвержденные платежи
             if(!empty($user_notification['waiting_payments'])):
