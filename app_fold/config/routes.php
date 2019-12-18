@@ -82,7 +82,8 @@ $route['account/restored']       = 'Authorization/restoreAccount/1';
 $route['checkUserEmail']         = 'Authorization/checkUserEmail';
 
 // Страницы пользователя
-$route['profile/meals(/(:num)(/(:num)(/(:num))?)?)?']   = 'Course/userMeals/$2/$4/$6';
+$route['profile/meals(/(:num)(/(:num)(/(:num))?)?)?'] = 'Course/userMeals/$2/$4/$6';
+$route['profile/e_meals']                     = 'Course/adminUserMeals';
 $route['profile/courses']                     = 'Course/usersCourses/active';
 $route['profile/courses/finished']            = 'Course/usersCourses/finished';
 $route['profile/course/(:num)']               = 'Course/usersCourse/$1';

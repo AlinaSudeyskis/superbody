@@ -8509,6 +8509,9 @@ class Course extends CI_Controller
         }
     }
 
+    /**
+     * Проверка курсов пользователя с отозванным разрешением на проведение оплаты. Блокировка курсов
+     */
     public function checkRevokedUsersCourses()
     {
         log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
@@ -8541,10 +8544,17 @@ class Course extends CI_Controller
 
     /* БЛОК ФУНКЦИЙ ПРИЕМОВ ПИЩИ ПОЛЬЗОВАТЕЛЕЙ */
 
+    /**
+     * Питание пользователя
+     *
+     * @param int $section_id
+     * @param string $subsection_id
+     * @param string $article_id
+     */
     public function userMeals($section_id = 1, $subsection_id = '', $article_id = '')
     {
         // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+        if (empty($this->user_id) or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
@@ -8555,8 +8565,8 @@ class Course extends CI_Controller
         $user_type   = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
         $this->load->model('Message_model');
 
-        $user_bmr        = $this->User_model->getUserBMR($this->user_id);
-        $meals_last_week = $this->Course_model->getLastWeekMeals($this->user_id, $this->date);
+        //$user_bmr        = $this->User_model->getUserBMR($this->user_id);
+        //$meals_last_week = $this->Course_model->getLastWeekMeals($this->user_id, $this->date);
 
         if(is_numeric($section_id) and is_numeric($subsection_id))
         {
@@ -8571,12 +8581,38 @@ class Course extends CI_Controller
             $def_nutrition = $this->Message_model->getPublicQaSection(1, $user_type);
         }
 
-        $result = array_merge($user_bmr, $meals_last_week, $def_nutrition);
+        $result = array_merge($def_nutrition); //$user_bmr, $meals_last_week,
 
         // Объединенные данные страница
         $this->page_data['title']             = 'Питание';
         $this->page_data['page_menu']         = 'u_meals';
         $this->page_data['page_submenu']      = '';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/profile');
+        $this->load->view('user/profile_line');
+        $this->load->view('meals/user/user_meals', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Питание пользователя для администраторов
+     */
+    public function adminUserMeals()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $user_bmr        = $this->User_model->getUserBMR($this->user_id);
+        $meals_last_week = $this->Course_model->getLastWeekMeals($this->user_id, $this->date);
+
+        $result = array_merge($user_bmr, $meals_last_week);
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'Питание';
+        $this->page_data['page_menu'] = 'e_meals';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');

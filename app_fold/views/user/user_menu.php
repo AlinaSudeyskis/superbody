@@ -62,8 +62,15 @@ if (!empty($user_session)) :
             </a>
         </li>
         <?php if($user_session['type'] == 3): ?>
-            <li><a href="/administration">
-                    <span><img src="/img/menu_ico25.png" alt=""></span><span>Админ. панель</span></a>
+            <li>
+                <a href="/profile/e_meals" <?php if ($page_menu == 'e_meals') { echo 'class="active"'; } ?>>
+                    <span><img src="/img/menu_ico24.png" alt=""></span><span>Питание (админ.)</span>
+                </a>
+            </li>
+            <li>
+                <a href="/administration">
+                    <span><img src="/img/menu_ico25.png" alt=""></span><span>Админ. панель</span>
+                </a>
             </li>
         <?php endif; ?>
         <!--<li><a href="#"><span><img src="/img/menu_ico11.png" alt=""></span><span>FitCoin</span></a></li>-->
