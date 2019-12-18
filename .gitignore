@@ -27,9 +27,6 @@
 
 /vendor/
 
-/app_fold/views/footer/jivo_script.php
-/app_fold/views/header/reporting_services.php
-/app_fold/views/header/reporting_services2.php
 
 *.[oa]
 *~
