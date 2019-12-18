@@ -13,15 +13,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </td>
                     </tr>
                 <?php endif;
-                if(!empty($email['text'])): ?>
+                if(!empty($system_message['text'])): ?>
                     <tr style="margin:0; padding:0">
                         <td style="width:100%; margin:0; padding-top:10px; padding-right:10px; padding-bottom:10px; padding-left:10px;">
                             <table border="0" cellpadding="0" cellspacing="0" style="width:100%; background-color:#ffffff; border-bottom: 3px solid #cdcdcd;">
-                                <tr style="margin:0; padding:0">
-                                    <td style="margin:0; padding-top:30px; padding-right:30px; padding-bottom:30px; padding-left:30px;">
-                                        <?php echo $email['text']; ?>
-                                    </td>
-                                </tr>
+                                <?php if(!empty($email['text'])): ?>
+                                    <tr style="margin:0; padding:0">
+                                        <td style="margin:0; padding-top:30px; padding-right:30px; padding-bottom:30px; padding-left:30px;">
+                                            <?php echo $email['text']; ?>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
                                 <?php if(!empty($system_message['text'])): ?>
                                     <tr style="margin:0; padding:0">
                                         <td style="margin:0; padding-top:30px; padding-right:30px; padding-bottom:30px; padding-left:30px;">

@@ -2869,6 +2869,7 @@ class Store_model extends CI_Model
      *
      * @param $order_id
      * @return array
+     * @throws Exception
      */
     public function getOrder($order_id)
     {
@@ -2894,7 +2895,9 @@ class Store_model extends CI_Model
             unset($row);
 
             // Данные оплаты заказа
-            $result['order']['payments'] = self::getOrderPayments($order_id);
+            $payments = self::getOrderPayments($order_id);
+            $payments['balance_amount'] = $result['order']['total_amount'] - $payments['succeeded_amount'];
+            $result['order'] = array_merge($result['order'], $payments);
 
             // Выборка товаров заказа
             $sel_products = $this->db->query('
@@ -2976,6 +2979,7 @@ class Store_model extends CI_Model
      * @param $user_id
      * @param $order_id
      * @return mixed
+     * @throws Exception
      */
     public function getUserOrder($user_id, $order_id)
     {
@@ -3112,6 +3116,7 @@ class Store_model extends CI_Model
      * @param $user_id
      * @param $courses
      * @return array
+     * @throws Exception
      */
     public function getUserCoursesOrder($user_id, $courses)
     {
@@ -3144,6 +3149,7 @@ class Store_model extends CI_Model
      * @param $user_id
      * @param $order_id
      * @return array
+     * @throws Exception
      */
     public function getUserOrderData($user_id, $order_id)
     {
@@ -3247,7 +3253,9 @@ class Store_model extends CI_Model
             }
 
             // Данные оплаты заказа
-            $result['order']['payments'] = self::getOrderPayments($order_id);
+            $payments = self::getOrderPayments($order_id);
+            $payments['balance_amount'] = $result['order']['total_amount'] - $payments['succeeded_amount'];
+            $result['order'] = array_merge($result['order'], $payments);
         }
         elseif ($sel_order === false)
         {
@@ -3379,6 +3387,7 @@ class Store_model extends CI_Model
      * @param $user_id
      * @param $order_id
      * @return mixed
+     * @throws Exception
      */
     public function getFreeWeeksOverUserOrder($user_id, $order_id)
     {
@@ -3404,7 +3413,8 @@ class Store_model extends CI_Model
             unset($row);
 
             // Даннаые оплаты заказа
-            $result['order']['payments'] = self::getOrderPayments($order_id);
+            $payments = self::getOrderPayments($order_id);
+            $result['order']['payments'] = $payments['payments'];
 
             // Выборка товаров заказа
             $sel_products = $this->db->query('
@@ -3679,7 +3689,7 @@ class Store_model extends CI_Model
      */
     public function getOrderPayments($order_id)
     {
-        $result = array();
+        $result = array('payments' => array());
 
         $sel_payments = $this->db->query('
             SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_payment_type`, `op_status`, `op_paid`, `op_created_at`, 
@@ -3689,6 +3699,8 @@ class Store_model extends CI_Model
             WHERE `op_o_id`=?', $order_id);
         if ($sel_payments !== false and 0 < $sel_payments->num_rows())
         {
+            $succeeded_amount = 0;
+            $balance_amount   = 0;
             $i = 0;
             foreach($sel_payments->result() as $row)
             {
@@ -3705,16 +3717,24 @@ class Store_model extends CI_Model
                 }
 
                 // Данные платежа
-                $result[$i] = self::parsePaymentData($row);
-                $result[$i]['confirm_url'] = $confirm_url;
+                $result['payments'][$i] = self::parsePaymentData($row);
+                $result['payments'][$i]['confirm_url'] = $confirm_url;
+
+                // Сумма оплаченный платежей
+                $succeeded_amount += ($row->op_status == 'succeeded') ? $row->op_amount : 0;
+                // Сумма не оплаченных платежей
+                $balance_amount += ($row->op_status != 'succeeded') ? $row->op_amount : 0;
 
                 // Данные возвратов
                 $refunds = self::getPaymentRefunds($row->op_payment_id);
-                $result[$i] = array_merge($result[$i], $refunds);
+                $result['payments'][$i] = array_merge($result['payments'][$i], $refunds);
 
                 $i++;
             }
             unset($row);
+
+            $result['succeeded_amount'] = $succeeded_amount;
+            $result['balance_amount']   = $balance_amount;
         }
         elseif ($sel_payments === false)
         {

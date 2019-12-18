@@ -96,7 +96,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="oi_d_status <?php echo $s_active; ?>"><?php echo $course['order']['payment_status']; ?></div>
                     <div class="oi_d_buy">
                         <?php if(empty($course['order']['payment_status_eng']) or $course['order']['payment_status_eng'] == 'pending' or $course['order']['payment_status_eng'] == 'not_paid' or
-                            $course['order']['payment_status_eng'] == 'canceled'): ?>
+                            $course['order']['payment_status_eng'] == 'canceled' or $course['order']['payment_status_eng'] == 'revoke_permission'): ?>
                             <a href="#" class="buy_course" data-cid="<?php echo $course['course_id']; ?>" data-oid="<?php echo $course['order']['id']; ?>" data-ucid="<?php echo $course['id']; ?>">Оплатить</a>
                         <?php else: ?>
                             <span>Оплатить</span>

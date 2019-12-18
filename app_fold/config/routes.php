@@ -405,5 +405,6 @@ $route['payment/verification']        = 'Payment/verificationSubsequentPayments'
 $route['course/coursesFreeWeeks']     = 'Course/checkUsersCoursesFreeWeeks';
 $route['course/usersWorkouts']        = 'Course/checkUsersWorkouts';
 $route['course/usersExpiringCourses'] = 'Course/checkUsersExpiringCourses';
+$route['course/revokedUsersCourses']  = 'Course/checkRevokedUsersCourses';
 
 

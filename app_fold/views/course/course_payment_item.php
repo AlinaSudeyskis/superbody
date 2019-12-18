@@ -45,14 +45,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="parent kurs_cur_wrap">
         <div class="kurs_block_h">Стоимость курса:</div>
         <div class="pf_price_wrap">
-            <?php if ($course['new_price'] == 0 and $course['price'] == 0):?>
+            <?php if ($course['new_price'] == 0 and $course['price'] == 0 and empty($course['balance_amount'])):?>
                 <div class="kurs_block_h">Бесплатно</div>
             <?php else:
-                if (empty($course['new_price'])): ?>
+                if (empty($course['new_price']) and empty($course['balance_amount'])): ?>
                     <div class="kurs_block_h" id="course-price"><?php echo $course['price']; ?></div>
-                <?php elseif (!empty($course['new_price'])): ?>
+                <?php elseif (!empty($course['new_price']) and empty($course['balance_amount'])): ?>
                     <div class="kurs_block_h strikeout" id="course-price"><?php echo $course['price'];?></div>
                     <div class="kurs_cur" id="course-new-price"><?php echo $course['new_price'];?></div>
+                <?php elseif (!empty($course['balance_amount'])): ?>
+                    <div class="kurs_block_h" id="course-price"><?php echo $course['balance_amount']; ?></div>
                 <?php endif;?>
                 <div class="kurs_cur"> руб.</div>
             <?php endif;?>
@@ -83,7 +85,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="text" name="i_login" value="" class="admin_form_txt admin_form_txt_short" />
         </div>
     <?php endif;?>
-    <?php if($course['promocode_availability'] === true): ?>
+    <?php if($course['promocode_availability'] === true and empty($course['balance_amount'])): ?>
         <div class="parent kurs_cur_wrap promo_block">
             <div class="kurs_block_h"></div>
             <div class="promo_line">У меня есть промокод</div>

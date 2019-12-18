@@ -9557,69 +9557,35 @@ class Course_model extends CI_Model
      */
     public function checkUsersExpiringCourses($date)
     {
-        $result   = false;
+        $result = false;
 
         // Курсы, которые заканчиваются через неделю или меньше + курсы продления
         $tmp_date = new DateTime($date);
         $today = $tmp_date->format('Y-m-d');
-        $tmp_date->add(new DateInterval('P8D'));
-        $next_week = $tmp_date->format('Y-m-d');
+        $tomorrow = $today . ' 23:59:59';
 
         $sel_data = $this->db->query('
             SELECT `uc_id`, `uc_course_id`, `uc_date_end`, `uc_ends_email`, `crs_name`, `user_email`
             FROM `users_courses` 
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
             LEFT JOIN `users` ON `user_id`=`uc_user_id`
-            WHERE `uc_blocked`=0 and `uc_date_end`>=? and `uc_date_end`<? and `uc_ends_email`=0',
-                array($today, $next_week));
+            WHERE `uc_blocked`=0 and `uc_blocked_reason`="revoke_permission" and `uc_blocked_date` BETWEEN STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s") AND STR_TO_DATE(?, "%Y-%m-%d %H:%i:%s")',
+                array($today, $tomorrow));
         if ($sel_data !== false and 0 < $sel_data->num_rows())
         {
             foreach ($sel_data->result() as $row)
             {
+                $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_date`=? WHERE `uc_id`=? LIMIT 1', array($date, $row->uc_id));
+                if($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
                 // Отправка email с уведомлением о заканчивающемся курсе
                 if(!empty($row->user_email))
                 {
                     $result[$row->uc_id]['user_email']  = $row->user_email;
                     $result[$row->uc_id]['course_name'] = $row->crs_name;
-
-                    $sel_extends = self::getUserCourseExtends($row->uc_course_id, $date);
-
-                    if(!empty($sel_extends['extends']))
-                    {
-                        $a = 0;
-                        foreach($sel_extends['extends'] as $extend)
-                        {
-                            // Дата отсчета продления курса с промокодом
-                            $tmp_date3   = new DateTime($row->uc_date_end);
-                            $tmp_date3->add(new DateInterval('P' . ($extend['weeks_after']*7) . 'D'));
-                            $edcd        = $tmp_date3->format('Y-m-d');
-
-                            if($edcd == $today)
-                            {
-                                $tmp_date4      = new DateTime($edcd);
-                                $tmp_date4->add(new DateInterval("PT23H59M59S"));
-                                $ext_date_cd = $tmp_date4->format('U')*1000;
-                            }
-                            else
-                            {
-                                $ext_date_cd = $tmp_date3->format('U')*1000;
-                            }
-
-                            // Отображаем курс продления, если окончательная дата продления не наступила
-                            if(!empty($ext_date_cd))
-                            {
-                                $result[$row->uc_id]['extends'][$a]['course_id']      = $extend['extend_id'];
-                                $result[$row->uc_id]['extends'][$a]['course_name']    = $extend['course_name'];
-                                $result[$row->uc_id]['extends'][$a]['promocode']      = $extend['promocode'];
-                                $result[$row->uc_id]['extends'][$a]['price']          = $extend['course_price'];
-                                $result[$row->uc_id]['extends'][$a]['new_price']      = $extend['course_new_price'];
-
-                                $a++;
-                            }
-                        }
-                        unset($extend);
-                    }
-                    unset($sel_extends);
                 }
             }
             unset($row);
@@ -9628,6 +9594,19 @@ class Course_model extends CI_Model
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
+
+        return $result;
+    }
+
+    /**
+     *
+     *
+     * @param $date
+     * @return bool|array
+     */
+    public function checkRevokedUsersCourses($date)
+    {
+        $result = false;
 
         return $result;
     }

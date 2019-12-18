@@ -8509,6 +8509,36 @@ class Course extends CI_Controller
         }
     }
 
+    public function checkRevokedUsersCourses()
+    {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+        $result = $this->Course_model->checkUsersExpiringCourses($this->date);
+        if(!empty($result))
+        {
+            $notification = $this->Notification_model->getNotification(214);
+
+            foreach($result as $uc_id => $course)
+            {
+                $system_message['text'] = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
+                    . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
+                $system_message['text'] .= '<a href="https://superbody.pro/profile/course/' . $uc_id . '" '
+                    . 'style="text-transform: uppercase; font-weight: 300; font-size: 18px; line-height: 22px; '
+                    . 'padding: 20px 0 20px 30px; margin:0; color: #72d0f4; text-decoration: none;">'
+                    . $course['course_name'] . '</a>';
+                $system_message['text'] .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
+                $system_message['text'] .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
+                    . 'font-weight: 300; border: none; white-space: normal; font-size: 18px; line-height: 22px;">'
+                    . $notification['notification']['text'] . '</p>';
+                $system_message['text'] .= '</td></tr>';
+
+                $system_message['text'] .= '</table>';
+
+                parent::sendEmail(11, $course['user_email'], $system_message);
+            }
+            unset($course);
+        }
+    }
+
     /* БЛОК ФУНКЦИЙ ПРИЕМОВ ПИЩИ ПОЛЬЗОВАТЕЛЕЙ */
 
     public function userMeals($section_id = 1, $subsection_id = '', $article_id = '')
@@ -9514,12 +9544,12 @@ class Course extends CI_Controller
         $order_id = (!empty($this->input->post('oid', true)) and is_numeric($this->input->post('oid', true)))
             ? $this->input->post('oid', true)
             : null;
-        $uc_id = (!empty($this->input->post('oucid', true)) and is_numeric($this->input->post('ucid', true)))
+        $uc_id = (!empty($this->input->post('ucid', true)) and is_numeric($this->input->post('ucid', true)))
             ? $this->input->post('ucid', true)
             : null;
         $promocode = mb_substr($this->input->post('pc_s', true), 0, 25);
 
-        if(!empty($course_id))
+        if(!empty($course_id) and is_numeric($course_id) and empty($uc_id))
         {
             $course_data  = $this->Course_model->getAvailableCourse($course_id, $this->date);
             $user_courses = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
@@ -9535,6 +9565,32 @@ class Course extends CI_Controller
                 ob_start();
                     include('./app_fold/views/course/purchase_form.php');
                     $purchase_form = ob_get_contents();
+                ob_end_clean();
+                $result['crsd'] = $purchase_form;
+
+                $result['crs'] = true;
+            }
+        }
+        elseif(!empty($course_id) and is_numeric($course_id) and !empty($uc_id) and is_numeric($uc_id))
+        {
+            $this->load->model('Store_model');
+
+            $course_data  = $this->Course_model->getAvailableCourse($course_id, $this->date);
+            $order_data   = $this->Store_model->getUserOrder($this->user_id, $order_id);
+            $user_courses = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
+
+            if(!empty($course_data) and !empty($order_data['order']))
+            {
+                $user_session = $this->page_data['user_session'];
+                $site_info    = $this->page_data['site_info'];
+                $course       = $course_data['course'];
+                $courses_id   = $user_courses['courses_id'];
+                $course['order_id'] = $order_id;
+                $course['balance_amount'] = $order_data['order']['balance_amount'];
+
+                ob_start();
+                include('./app_fold/views/course/purchase_form.php');
+                $purchase_form = ob_get_contents();
                 ob_end_clean();
                 $result['crsd'] = $purchase_form;
 
