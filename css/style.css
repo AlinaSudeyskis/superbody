@@ -9683,6 +9683,10 @@ textarea.anketa_form_in{
     left: -5%;
     width: 45%;
 }
+.dark_lp .video_col{
+    left: 27%;
+    top: 33%;
+}
 .lp_header_wrap{
     background: #000;
     overflow: hidden;
@@ -10439,7 +10443,7 @@ textarea.anketa_form_in{
     padding: 0 16px;
     text-transform: uppercase;
     text-align: center;
-    top: 38%;
+    top: 30%; /*38*/
 }
 .dark_lp .lp_h1 span{
     color: #ff5b51;
@@ -10472,7 +10476,7 @@ textarea.anketa_form_in{
     background: #ff5b51;
 }
 .dark_lp .lp_block1_but{
-    bottom: 45%;
+    bottom: 15%;
     left: calc(50% - 165px);
 }
 .dark_lp .lp_block0_but{
@@ -12391,9 +12395,10 @@ input.tren_form_block_check{
 	.dark_lp .lp_h1{
 		font-size: 26px;
 		line-height: 34px;
+        top: 34%;
 	}
     .lp_block1_but {
-        bottom: 90px;
+        bottom: 125px;
     }
     .dark_lp .lp_block1_but {
         width: 270px;
@@ -12402,8 +12407,13 @@ input.tren_form_block_check{
         font-size: 17px;
         left: calc(50% - 135px);
     }
-    .light_lp .video_col, .dark_lp .video_col {
+    .light_lp .video_col {
         top: 25%;
+    }
+    .dark_lp .video_col{
+        width: 34%;
+        top: 32%;
+        left: 32.7%;
     }
 
 	.tren_cat_item_cell{
@@ -12485,7 +12495,7 @@ input.tren_form_block_check{
 }
 
 @media (max-width: 1280px){
-    .light_lp .video_col, .dark_lp .video_col {
+    .light_lp .video_col {
         top: 32%;
         left: -5px;
         width: 40%;
@@ -12509,6 +12519,7 @@ input.tren_form_block_check{
 		padding-left: 15px;
 		padding-right: 15px;
 		text-align: center;
+        top: 32%;
 	}
 	.light_lp .lp_block1_img{
 		width: 40%;
@@ -12532,11 +12543,15 @@ input.tren_form_block_check{
     .dark_lp .lp_block0_but + .video_col_but{
         margin: 0 0 0 40%;
     }
-    .light_lp .video_col, .dark_lp .video_col {
-        display: none;
+    .light_lp .video_col{
+        left: 10%;
+        top: 42%;
+    }
+    .dark_lp .video_col{
+        top: 36%;
     }
     .lp_block1_but {
-        left: calc(50% - 165px);
+        left: 51%; /*calc(50% - 165px)*/
     }
 
 
@@ -12960,6 +12975,14 @@ input.tren_form_block_check{
 		padding-left: 15px;
 		padding-right: 15px;
 	}
+    .dark_lp .video_col{
+        width: 45%;
+        left: 27.5%;
+    }
+    .light_lp .video_col{
+        width: 50%;
+        left: 0;
+    }
 	.light_lp .lp_block2_cont_col:first-child span{
 		left: 35px;
 	}
@@ -13842,12 +13865,12 @@ input.tren_form_block_check{
 		height: 54px;
 	}
     .lp_block1_but {
-        bottom: 68px;
+        bottom: 100px;
         width: 250px;
         height: 40px;
         line-height: 43px;
         font-size: 16px;
-        left: calc(50% - 125px);
+        left: 51%;
     }
     .dark_lp .lp_block1_but {
         width: 200px;
@@ -13855,6 +13878,14 @@ input.tren_form_block_check{
         line-height: 31px;
         font-size: 15px;
         left: calc(50% - 100px);
+        bottom: 16%;
+    }
+    .light_lp .video_col{
+        width: 300px;
+        right: 48%;
+        left: unset;
+        bottom: 50px;
+        top: unset;
     }
 
 	.anketa_form_h, .anketa_form_info_h{
@@ -14735,6 +14766,12 @@ input.tren_form_block_check{
     }
     .admin_feedback_time_wrap{
         margin: auto 0;
+    }
+
+    .dark_lp .video_col{
+        width: 55%;
+        left: 22.3%;
+        top: 34%;
     }
 }
 
@@ -15690,8 +15727,12 @@ input.tren_form_block_check{
 	.light_lp .lp_h1{
 		font-size: 24px;
 		line-height: 30px;
-		margin-top: -60px; /*-30*/
+		margin-top: -15px;
 	}
+    .light_lp .video_col{
+        /*top: 45%;*/
+        width: 200px;
+    }
 	.lp_header_slide img{
 		width: 900px;
 		height: 281px;
@@ -15705,16 +15746,24 @@ input.tren_form_block_check{
 	    line-height: 28px;
 	    top: 147px;
 	}
+    .dark_lp .video_col{
+        width: 288px;
+        left: calc(50% - 144px);
+        top: 129px;
+    }
+    .dark_lp .lp_block1_but{
+        bottom: 17%;
+    }
     .lp_header_mask{
         margin-bottom: -1px;
     }
     .lp_block1_but {
-        bottom: 68px;
-        width: 200px;
+        bottom: 80px;
+        width: 45%;
         height: 30px;
         line-height: 32px;
         font-size: 15px;
-        left: calc(50% - 100px);
+        /*left: calc(50% - 100px);*/
     }
 
     .otziv_col, .qa_col{
@@ -16733,9 +16782,9 @@ input.tren_form_block_check{
         min-width: 110px;
     }
 
-    .dark_lp .lp_header_cont .lp_block1_but{
+    /*.dark_lp .lp_block1_but{
         bottom: 40%;
-    }
+    }*/
 
     .kurs_page_block_img{
         display: none;
@@ -16773,6 +16822,12 @@ input.tren_form_block_check{
         line-height: 31px;
         font-size: 15px;
         left: calc(50% - 100px);
+    }
+    .dark_lp .lp_block1_but{
+        bottom: 61px;
+    }
+    .light_lp .video_col{
+        display: none;
     }
 }
 
