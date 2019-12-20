@@ -47,7 +47,7 @@ $(document).ready(function() {
 
             // Валидация email
             var timer;
-            $(document).on('keyup paste click', '.valid_email', function(){
+            $('.valid_email').blur(function(){ // on keyup paste click
                 var email_block = $(this),
                     e_p = email_block.position(),
                     e_o = email_block.offset(),

@@ -1,4 +1,5 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
  * Created by Alina Sudeyskis (alina.sudeyskis@gmail.com).
@@ -3062,6 +3063,15 @@ class Database_model extends CI_Model
         if($fl_up_db === false)
         {
             $this->db->query("ALTER TABLE `courses_landing_pages` ADD `clp_main_video_url` VARCHAR(255) NOT NULL AFTER `clp_main_title`, ADD `clp_main_button_text` VARCHAR(26) NOT NULL AFTER `clp_main_video_url`, ADD `clp_main_description` VARCHAR(1000) NOT NULL AFTER `clp_main_button_text`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-12-09 15:13';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (221, 'error', 'Ошибка! Некорректный Email.', 'Ошибка! Некорректный Email.', 4, '2018-04-19 14:23:42')");
 
             self::setDbUpdate($date);
         }

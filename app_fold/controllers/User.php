@@ -501,6 +501,11 @@ class User extends CI_Controller
                     $this->session->set_tempdata('message', 1, 60);
                 }
             }
+            else
+            {
+                // Пользователь с таким email уже зарегистрирован
+                $this->session->set_tempdata('message', 221, 60);
+            }
 
             header('Location: /profile/'.$user_id);
         }
