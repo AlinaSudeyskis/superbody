@@ -251,31 +251,34 @@ class Message_model extends CI_Model
             unset($row);
             $sel_user_with->free_result();
 
-            $sel_mess = $this->db->query('
+            if(!empty($result['conv_id']) and is_numeric($result['conv_id']))
+            {
+                $sel_mess = $this->db->query('
                 SELECT `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `user_id`, `user_name`, `user_email`, `user_image`, `user_blocked` 
                 FROM `users_messages` 
                 LEFT JOIN `users` ON `um_from`=`user_id`
                 WHERE `um_conv_id`=? and `um_blocked`=0', $result['conv_id']);
 
-            if ($sel_mess !== false and 0 < $sel_mess->num_rows())
-            {
-                $i = 0;
-                foreach ($sel_mess->result() as $row)
+                if ($sel_mess !== false and 0 < $sel_mess->num_rows())
                 {
-                    $result['user_messages'][$i] = self::parseMessageData($row, $date);
-
-                    if($row->user_id == $user_with and $row->user_blocked == 1)
+                    $i = 0;
+                    foreach ($sel_mess->result() as $row)
                     {
-                        $result['user_with_blocked'] = 1;
-                    }
+                        $result['user_messages'][$i] = self::parseMessageData($row, $date);
 
-                    $i++;
+                        if($row->user_id == $user_with and $row->user_blocked == 1)
+                        {
+                            $result['user_with_blocked'] = 1;
+                        }
+
+                        $i++;
+                    }
+                    unset($row);
                 }
-                unset($row);
-            }
-            elseif($sel_mess === false)
-            {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                elseif($sel_mess === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
         }
 
@@ -595,7 +598,7 @@ class Message_model extends CI_Model
         $result = array();
 
         $sel_messages = $this->db->query('
-            SELECT `t_fb`.`fb_conv_id`, `fb_user_id`, `fb_user_name`, `fb_user_email`, `fb_text`, `fb_date_add`, 
+            SELECT `t_fb`.`fb_conv_id`, `fb_user_id`, `fb_user_name`, `fb_user_email`, `fb_text`, `t_fb`.`fb_date_add`, 
               `fb_admin_id`, `fb_new`, `fb_blocked`, `count_new`, `user_email` as `admin_email`, `user_name` as `admin_name`
             FROM `feedback` as `t_fb`
             LEFT JOIN 
@@ -604,7 +607,7 @@ class Message_model extends CI_Model
             LEFT JOIN `users` ON `fb_admin_id`=`user_id`
             WHERE `fb_date_add` IN 
                 (SELECT max(`fb_date_add`) FROM `feedback` GROUP BY `fb_conv_id`) 
-            GROUP BY `t_fb`.`fb_conv_id`
+            GROUP BY `t_fb`.`fb_conv_id`, `t_fb`.`fb_date_add`
             ORDER BY `t_fb`.`fb_date_add` DESC');
 
         if ($sel_messages !== false and 0 < $sel_messages->num_rows())

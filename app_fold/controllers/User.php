@@ -515,7 +515,7 @@ class User extends CI_Controller
                 if($res_check['availability_send_email'] === true)
                 {
                     self::sendEActivateEmail($res_check['user_email'], $res_check['activate_code']);
-                    log_message('debug', print_r($res_check, true));
+                    /*log_message('debug', print_r($res_check, true));*/
 
                     $this->Authorization_model->setResendingActivateEmailDate($this->user_id, $this->date);
 

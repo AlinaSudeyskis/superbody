@@ -191,7 +191,7 @@ class Payment extends CI_Controller
      */
     public function paymentUpdate()
     {
-        log_message('debug', print_r($this->input->post(), true));
+        /*log_message('debug', print_r($this->input->get(), true));*/
         $payment_event        = strip_tags($this->input->get('event', true));
         $payment_id           = strip_tags($this->input->get('pid', true));
         $payment_status       = strip_tags($this->input->get('ps', true));

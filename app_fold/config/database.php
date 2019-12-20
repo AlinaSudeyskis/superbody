@@ -75,7 +75,7 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost', // localhost db36.valuehost.ru
+	'hostname' => 'localhost', // localhost db40.valuehost.ru
 	'username' => 'u0847947_sb', // trivial_sb alinas1f_sb u0847947_sb
 	'password' => '@FF9*hrb', // Wasdfr12 @FF9*hrb @FF9*hrb
 	'database' => 'u0847947_sb', // trivial_sb alinas1f_sb u0847947_sb
