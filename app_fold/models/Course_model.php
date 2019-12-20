@@ -10546,7 +10546,7 @@ class Course_model extends CI_Model
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('
-                SELECT `pc_id`, `pc_type`, `pc_crs_cats`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
+                SELECT `pc_id`, `pc_code`, `pc_type`, `pc_crs_cats`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
                   `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, 
                   `pc_ua_number`, `pc_blocked` 
                 FROM `promocodes`
@@ -10560,13 +10560,15 @@ class Course_model extends CI_Model
                 $promocode_data = self::parsePromocodeData($row, $date);
 
                 // Промокод активен
+                log_message('debug', print_r($course_id, true));
+                log_message('debug', print_r($promocode_data, true));
                 if($promocode_data['active'] === true)
                 {
                     if($row->pc_type == 'all')
                     {
                         $result['discount']      = $promocode_data['discount'];
                         $result['discount_type'] = $promocode_data['discount_type'];
-                        $result['rel_percent']   = $promocode_data['relative_percent'];
+                        $result['rel_percent']   = ($promocode_data['discount_type'] == 'currency') ? $promocode_data['relative_percent'] : 0;
                         $result['id']            = $promocode_data['id'];
                     }
                     elseif($row->pc_type == 'courses' or $row->pc_type == 'course')
@@ -10578,7 +10580,7 @@ class Course_model extends CI_Model
                         {
                             $result['discount']      = $promocode_data['discount'];
                             $result['discount_type'] = $promocode_data['discount_type'];
-                            $result['rel_percent']   = $promocode_data['relative_percent'];
+                            $result['rel_percent']   = ($promocode_data['discount_type'] == 'currency') ? $promocode_data['relative_percent'] : 0;
                             $result['id']            = $promocode_data['id'];
                         }
                     }
@@ -10594,7 +10596,7 @@ class Course_model extends CI_Model
                         {
                             $result['discount']      = $promocode_data['discount'];
                             $result['discount_type'] = $promocode_data['discount_type'];
-                            $result['rel_percent']   = $promocode_data['relative_percent'];
+                            $result['rel_percent']   = ($promocode_data['discount_type'] == 'currency') ? $promocode_data['relative_percent'] : 0;
                             $result['id']            = $promocode_data['id'];
                         }
 

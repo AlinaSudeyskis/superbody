@@ -2383,6 +2383,38 @@ class User extends CI_Controller
                 header('Location: /administration/user/'.$user_id);
             }
         }
+        elseif ($this->input->post('bt_on_behalf_login', true))
+        {
+            $this->load->model('Authorization_model');
+            // Поиск тренера в БД
+            $search_coach = $this->Authorization_model->authorizationOnBehalfUser($user_id);
+
+            if ($search_coach !== false and is_array($search_coach))
+            {
+                // Завершение текущей сессии
+                if ($this->session->user['auth_via'] == 'native')
+                {
+                    $this->Authorization_model->userLogout($this->session->user['id'], $this->date);
+                }
+                else
+                {
+                    $this->Authorization_model->userSocialLogout($this->session->user['auth_via'], $this->session->user['social_id'], $this->date);
+                }
+
+                // Создание новой сессии
+                $user_image = (!empty($search_coach['user_image'])) ? $search_coach['user_image'] : $search_coach['user_soc_image'];
+
+                parent::updateSession($search_coach['user_id'], $search_coach['user_email'], $search_coach['user_type'], $search_coach['user_blocked'],
+                    $search_coach['user_name'], $search_coach['user_phone'], $user_image, '', 'native', 0, $this->date);
+
+                // После успешной авторизации переход на страницу тренера
+                header('Location: /profile/'.$search_coach['user_id']);
+            }
+            else
+            {
+                header('Location: /administration/user/'.$user_id);
+            }
+        }
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Редактирование данных пользователя';

@@ -3067,11 +3067,52 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2019-12-09 15:13';
+        $date = '2019-12-20 18:59';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
             $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (221, 'error', 'Ошибка! Некорректный Email.', 'Ошибка! Некорректный Email.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-12-20 19:00';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `orders` (`o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`, `o_oud_id`, `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_payment_options`, `o_total_amount`, `o_date_add`) 
+                                            VALUES (137, '', '', 'mrs_barbadin24@icloud.com', '', '', '0', '0', '0', 'succeeded', '0', 'full_payment', '3588', '2019-12-20 19:04:00')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-12-20 19:06';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `promocodes_used` (`pcu_pc_id`, `pcu_pff_id`, `pcu_code`, `pcu_discount`, `pcu_discount_type`, `pcu_o_id`, `pcu_p_id`, `pcu_u_id`, `pcu_date`) 
+                                                     VALUES (12, '', '4Y2Z73', 4, 'free_week', 133, 36, 137, '2019-12-20 19:05')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-12-20 19:07';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, `ouc_p_fitcoin_price`, `ouc_promocode_id`) 
+                                                            VALUES (133, 137, 36, 0, 1, 3588, 0, 0, 0, 0, 56)");
+            $this->db->query("INSERT INTO `users_courses` (`uc_user_id`, `uc_o_id`, `uc_course_id`, `uc_attached_uc_id`, `uc_coach_id`, `uc_days`, `uc_time`, `uc_date_start`, `uc_date_end`, `uc_blocked`, `uc_blocked_date`, `uc_blocked_reason`, `uc_display`, `uc_paused`, `uc_pause_days`, `uc_ends_email`, `uc_free_weeks`, `uc_free_weeks_end_date`, `uc_date_update`) 
+                                                        VALUES (137, 133, 34, '0', '0', '0', '', '0000-00-00', '0000-00-00', '0', '0000-00-00 00:00:00', 'payment_succeeded', '0', '0', '0', '0', '0', '0000-00-00', '2019-12-20 19:05:26')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-12-20 19:08';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_courses` SET `uc_free_weeks`=4 WHERE `uc_id`=134");
 
             self::setDbUpdate($date);
         }

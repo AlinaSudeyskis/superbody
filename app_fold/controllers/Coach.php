@@ -566,7 +566,7 @@ class Coach extends CI_Controller
         {
             $this->load->model('Authorization_model');
             // Поиск тренера в БД
-            $search_coach = $this->Authorization_model->authorizationOnBehalfCoach($user_id);
+            $search_coach = $this->Authorization_model->authorizationOnBehalfUser($user_id);
 
             if ($search_coach !== false and is_array($search_coach))
             {

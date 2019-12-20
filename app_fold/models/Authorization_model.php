@@ -613,12 +613,12 @@ class Authorization_model extends CI_Model
     }
 
     /**
-     * Авторизация администратора от имени тренера.
+     * Авторизация администратора от имени пользователя.
      *
-     * @param $coach_id
+     * @param $user_id
      * @return array | bool
      */
-    public function authorizationOnBehalfCoach($coach_id)
+    public function authorizationOnBehalfUser($user_id)
     {
         $result = false;
 
@@ -626,7 +626,7 @@ class Authorization_model extends CI_Model
             SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
               `user_image`, `user_soc_image` 
             FROM `users` 
-            WHERE `user_id`=? and `user_type`=2 LIMIT 1', $coach_id);
+            WHERE `user_id`=? LIMIT 1', $user_id);
 
         if ($sel_user !== false and 1 == $sel_user->num_rows())
         {

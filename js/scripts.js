@@ -46,13 +46,12 @@ $(document).ready(function() {
             });
 
             // Валидация email
-            var timer;
+            var timer, email_error = $('body').find('.email_error');
             $('.valid_email').blur(function(){ // on keyup paste click
                 var email_block = $(this),
                     e_p = email_block.position(),
                     e_o = email_block.offset(),
-                    body = $('body'),
-                    email_error = body.find('.email_error');
+                    body = $('body');
 
                 clearTimeout(timer);
 
@@ -92,6 +91,9 @@ $(document).ready(function() {
                         email_error.show();
                     }, 500);*/
                 }
+            });
+            $('.valid_email').focus(function(){
+                email_error.hide();
             });
 
             // Генерация промокода
