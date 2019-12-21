@@ -10560,8 +10560,6 @@ class Course_model extends CI_Model
                 $promocode_data = self::parsePromocodeData($row, $date);
 
                 // Промокод активен
-                log_message('debug', print_r($course_id, true));
-                log_message('debug', print_r($promocode_data, true));
                 if($promocode_data['active'] === true)
                 {
                     if($row->pc_type == 'all')

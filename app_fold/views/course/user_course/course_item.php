@@ -113,7 +113,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="oi_d_link">
                         <?php $calendar_active = ($course['display'] == 1) ? 'active' : ''; ?>
                         <?php if(($course['category'] == 'workout' or $course['category'] == 'workout') and $page_submenu != 'finished'): ?>
-                            <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>">Календарь</a>
+                            <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>">Добавить в календарь</a>
                         <?php endif;?>
                     </div>
                     <div class="oi_d_link">

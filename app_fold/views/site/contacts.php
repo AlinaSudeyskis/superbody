@@ -46,16 +46,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </form>
             </div>
             <div class="col-lg-6 col-md-5 col-sm-5 col-xs-12 contact_desk">
-                <?php if (!empty($site_info['contacts_text2'])): echo $site_info['contacts_text2']; endif;
-                if (!empty($site_info['phone'])) :?>
-                    <div class="contact_tel">
-                        <i class="fab fa-telegram-plane" aria-hidden="true"></i>
-                        <i class="fab fa-whatsapp" aria-hidden="true"></i>
-                        <i class="fab fa-viber" aria-hidden="true"></i>
+                <?php if (!empty($site_info['contacts_text2'])): echo $site_info['contacts_text2']; endif; ?>
+                <div class="contact_tel">
+                    <?php include('./app_fold/views/header/messengers.php'); ?>
+                    <?php if (!empty($site_info['phone'])) :?>
                         <span><?php echo $site_info['phone']; ?></span>
-                    </div>
-                <?php endif;
-                if (!empty($site_info['email'])):?>
+                    <?php endif;?>
+                </div>
+                <?php if (!empty($site_info['email'])):?>
                     <div class="contact_mail"><i class="fa fa-envelope"></i><span><?php echo $site_info['email']; ?></span></div>
                 <?php endif;?>
                 <?php $pm_contacts = true;

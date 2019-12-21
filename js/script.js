@@ -279,11 +279,11 @@ $(document).ready(function () {
                                         }
                                     });
                                 }
-                                /*else
+                                else
                                 {
                                     var valid_email = user_email.checkValidity(),
                                         valid_name = user_name.checkValidity();
-                                }*/
+                                }
 
                                 return false;
                             }
@@ -1914,6 +1914,8 @@ $(document).ready(function () {
             pop_up_review = $("#pop-up_review");
         }
         pop_up_review.html($(this).html()+'<div class="purchase_pop-up_close"></div>');
+        pop_up_review.find('.revive_ava').show();
+        pop_up_review.find('.revive_cont').css({'margin-left' : '90px'});
         pop_up_home(pop_up_review);
     });
 

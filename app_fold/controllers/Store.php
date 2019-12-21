@@ -795,7 +795,8 @@ class Store extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $payment_types = array('waiting_for_capture' => 'capture', 'succeeded' => 'succeeded', 'canceled' => 'canceled', 'pending' => 'pending', 'payment_refunded' => 'refunded');
+        $payment_types = array('waiting_for_capture' => 'capture', 'succeeded' => 'succeeded', 'canceled' => 'canceled',
+            'pending' => 'pending', 'payment_refunded' => 'refunded', 'revoke_permission' => 'revoke');
         $payment_type  = (array_search($payment_type, $payment_types)) ? array_search($payment_type, $payment_types) : 'waiting_for_capture';
 
         $result = $this->Store_model->getOrders($payment_type);

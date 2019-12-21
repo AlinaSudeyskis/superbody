@@ -3117,6 +3117,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-12-20 19:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `orders` SET `o_payment_status`='free' WHERE `o_id`=133");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

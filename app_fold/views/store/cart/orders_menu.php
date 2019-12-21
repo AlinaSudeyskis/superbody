@@ -27,6 +27,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'payment_refunded') { echo 'class="anketa_active"'; } ?>>Возвращены</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/orders/revoke">
+            <span <?php if ($page_submenu == 'revoke_permission') { echo 'class="anketa_active"'; } ?>>Отозвано разрешение</span>
+        </a>
+    </li>
 </ul>
 <?php if($page_submenu == 'succeeded'): ?>
     <!--<ul class="anketa_block_nav parent">
