@@ -1,18 +1,11 @@
 .DS_Store
-/app_fold/sessions/
 
 /app_fold/config/
 !/app_fold/config/routes.php
-!/app_fold/config/index.html
-!/app_fold/config/.htaccess
 
+/app_fold/sessions/
 /app_fold/cache/
-!/app_fold/cache/index.html
-!/app_fold/cache/.htaccess
-
 /app_fold/logs/
-!/app_fold/logs/index.html
-!/app_fold/logs/.htaccess
 
 /banners/
 /course_files/

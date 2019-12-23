@@ -374,10 +374,10 @@ $config['encryption_key'] = '';
 $config['sess_driver'] = 'files';
 $config['sess_cookie_name'] = 'ci_session';
 $config['sess_expiration'] = 0;
-$config['sess_save_path'] = '/var/www/u0847947/public_html/sb.theoutlines.ru/app_fold/sessions'; //  /pub/home/tstsbpro/app_fold/sessions
+$config['sess_save_path'] = '/var/www/u0847947/sb.theoutlines.ru/app_fold/sessions'; //  /pub/home/trivial/tstsbpro/app_fold/sessions
 $config['sess_match_ip'] = FALSE;
 $config['sess_time_to_update'] = 300;
-$config['sess_regenerate_destroy'] = FALSE;
+$config['sess_regenerate_destroy'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
