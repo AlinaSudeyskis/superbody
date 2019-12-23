@@ -1,0 +1,23 @@
+User-agent: *
+Disallow:/
+Allow:/course
+Allow:/about
+Allow:/couches
+Allow:/courses
+Allow:/profile/11
+Allow:/profile/31
+Allow:/profile/32
+Allow:/profile/46
+
+User-agent: YandexBot
+Disallow:/
+Allow:/course
+Allow:/about
+Allow:/couches
+Allow:/courses
+Allow:/profile/11
+Allow:/profile/31
+Allow:/profile/32
+Allow:/profile/46
+Host:https://superbody.pro/
+Sitemap:https://superbody.pro/sitemap.xml
