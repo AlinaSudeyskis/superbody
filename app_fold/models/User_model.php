@@ -74,23 +74,35 @@ class User_model extends CI_Model
 
         return $result;
     }
-    
+
     /**
      * Получение данных пользователей
      *
+     * @param null|string $search_text
      * @return array
      */
-    public function getUsersData()
+    public function getUsersData($search_text = null)
     {
         $result = array('users' => array());
-        
-        $sel_data = $this->db->query('
+
+        $this->db->select('`user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id`');
+        $this->db->from('users');
+        $this->db->join('users_courses', 'uc_user_id = user_id', 'left');
+        $where = "user_type=1 and user_deleted=0 and uc_course_id IS NULL";
+        if(!empty($search_text))
+        {
+            $where .= (is_numeric($search_text)) ? " and user_id=".$search_text : " and MATCH (user_name, user_email) AGAINST ('+".$search_text."*' IN BOOLEAN MODE) ";
+        }
+        $this->db->where($where);
+        $this->db->group_by('user_id');
+        $sel_data = $this->db->get();
+
+        /*$sel_data = $this->db->query('
             SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id` 
             FROM `users` 
             LEFT JOIN `users_courses` ON `uc_user_id`=`user_id`
             WHERE `user_type`=1 and `user_deleted`=0 and `uc_course_id` IS NULL
-            GROUP BY `user_id`');
-
+            GROUP BY `user_id`');*/
         if ($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $i = 0;
@@ -111,18 +123,31 @@ class User_model extends CI_Model
     /**
      * Получение данных пользователей, купившие курс
      *
+     * @param null|string $search_text
      * @return array
      */
-    public function getBoughtUsersData()
+    public function getBoughtUsersData($search_text= null)
     {
         $result = array('users' => array());
 
-        $sel_data = $this->db->query('
+        $this->db->select('`user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id`');
+        $this->db->from('users');
+        $this->db->join('users_courses', 'uc_user_id = user_id', 'left');
+        $where = "user_type=1 and user_deleted=0 and uc_course_id IS NOT NULL";
+        if(!empty($search_text))
+        {
+            $where .= (is_numeric($search_text)) ? " and user_id=".$search_text : " and MATCH (user_name, user_email) AGAINST ('+".$search_text."*' IN BOOLEAN MODE) ";
+        }
+        $this->db->where($where);
+        $this->db->group_by('user_id');
+        $sel_data = $this->db->get();
+
+        /*$sel_data = $this->db->query('
             SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id` 
             FROM `users` 
             LEFT JOIN `users_courses` ON `uc_user_id`=`user_id`
             WHERE `user_type`=1 and `user_deleted`=0 and `uc_course_id` IS NOT NULL
-            GROUP BY `user_id`');
+            GROUP BY `user_id`');*/
 
         if ($sel_data !== false and 0 < $sel_data->num_rows())
         {

@@ -6180,7 +6180,6 @@ class Course_model extends CI_Model
         $next_training_date = null;
         $ingestions = self::getIngestions();
 
-        // Активные курсы
         if(($courses_type == 'active' or $courses_type == 'finished') and is_numeric($user_id))
         {
             $tmp_date = new DateTime($date);

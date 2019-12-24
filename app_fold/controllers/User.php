@@ -812,10 +812,10 @@ class User extends CI_Controller
             self::outsiderAdminProfile($user_id);
         }*/
         // Страница пользователя
-        /*elseif ($result['user_data']['user_type'] == 1)
+        elseif ($result['user_data']['user_type'] == 1 and $this->session->user['type'] == 3)
         {
             self::outsiderUserProfile($user_id);
-        }*/
+        }
         else
         {
             // Объединенные данные страница
@@ -839,16 +839,36 @@ class User extends CI_Controller
      */
     public function outsiderUserProfile($user_id)
     {
+        $this->load->model('Course_model');
+
         // Данные пользователя
-        $result = $this->User_model->getUser($user_id);
+        $user_data    = $this->User_model->getUser($user_id);
+        $user_courses = $this->Course_model->getUserCourses($user_id, $this->date, 'active'); // Выборка курсов пользователя
+        $courses_data = $this->Store_model->getUserCoursesOrder($user_id, $user_courses);
+
+        $result = array_merge($user_courses, $user_data, $courses_data);
 
         // Уведомления пользователя
+        // Пользователь заблокирован
         if($result['user_data']['user_blocked'] == 1)
         {
-            $this->load->model('Notification_model');
             $notification = $this->Notification_model->getNotification(16);
 
             $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
+        }
+        // Не указан email
+        if($result['user_data']['user_email_empty'] === true)
+        {
+            $notification = $this->Notification_model->getNotification(205);
+
+            $this->page_data['user_notification']['empty_email']['text'] = $notification['notification']['text'];
+        }
+        // Неактивирован аккаунт
+        if($result['user_data']['user_activated'] == 0)
+        {
+            $notification = $this->Notification_model->getNotification(218);
+
+            $this->page_data['user_notification']['not_activated']['text'] = $notification['notification']['text'];
         }
 
         $title = !empty($result['user_data']['name']) ? $result['user_data']['name'] . ' - пользователь' : $result['user_data']['default_name'] ;
@@ -2111,14 +2131,22 @@ class User extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $search_text = null;
+
+        if($this->input->post('bt_users_search', true))
+        {
+            $search_text = mb_substr(strip_tags($this->input->post('search', true)), 0, 255);
+        }
+
         if($users_category == 'bought')
         {
-            $result = $this->User_model->getBoughtUsersData();
+            $result = $this->User_model->getBoughtUsersData($search_text);
         }
         else
         {
-            $result = $this->User_model->getUsersData();
+            $result = $this->User_model->getUsersData($search_text);
         }
+
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Пользователи';

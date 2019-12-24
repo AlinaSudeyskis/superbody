@@ -17,6 +17,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <div class="search_form_wrap">
+                        <div class="open_search_form"></div>
+                        <?php $url_paage = (empty($page_2submenu) or $page_2submenu == 'eu_auth') ? 'auth' : 'bought'; ?>
+                        <form action="/administration/users/<?php echo $url_paage; ?>" class="search_form parent" method="post">
+                            <input type="text" name="search" class="search_in" placeholder="Поиск" value="">
+                            <input type="submit" name="bt_users_search" class="search_but" value="Отправить">
+                        </form>
+                    </div>
                     <?php if (!empty($users)):?>
                         <div class="admin_list">
                             <?php foreach ($users as $u): ?>

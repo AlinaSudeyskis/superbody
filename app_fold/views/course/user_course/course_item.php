@@ -94,14 +94,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="oi_i_details_wrap">
                     <?php $s_active = ($course['order']['payment_status_eng'] == 'succeeded' or $course['order']['payment_status_eng'] == 'free') ? 'active' : ''; ?>
                     <div class="oi_d_status <?php echo $s_active; ?>"><?php echo $course['order']['payment_status']; ?></div>
-                    <div class="oi_d_buy">
-                        <?php if(empty($course['order']['payment_status_eng']) or $course['order']['payment_status_eng'] == 'pending' or $course['order']['payment_status_eng'] == 'not_paid' or
-                            $course['order']['payment_status_eng'] == 'canceled' or $course['order']['payment_status_eng'] == 'revoke_permission'): ?>
-                            <a href="#" class="buy_course" data-cid="<?php echo $course['course_id']; ?>" data-oid="<?php echo $course['order']['id']; ?>" data-ucid="<?php echo $course['id']; ?>">Оплатить</a>
-                        <?php else: ?>
-                            <span>Оплатить</span>
-                        <?php endif; ?>
-                    </div>
+                    <?php if(empty($outsider)): ?>
+                        <div class="oi_d_buy">
+                            <?php if(empty($course['order']['payment_status_eng']) or $course['order']['payment_status_eng'] == 'pending' or $course['order']['payment_status_eng'] == 'not_paid' or
+                                $course['order']['payment_status_eng'] == 'canceled' or $course['order']['payment_status_eng'] == 'revoke_permission'): ?>
+                                <a href="#" class="buy_course" data-cid="<?php echo $course['course_id']; ?>" data-oid="<?php echo $course['order']['id']; ?>" data-ucid="<?php echo $course['id']; ?>">Оплатить</a>
+                            <?php else: ?>
+                                <span>Оплатить</span>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
                     <div class="oi_d_prog">
                         <div class="calendar_prof_item">
                             <div class="calendar_prof_end">
@@ -110,15 +112,19 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </div>
                     </div>
+                    <?php if(empty($outsider)): ?>
+                        <div class="oi_d_link">
+                            <?php $calendar_active = ($course['display'] == 1) ? 'active' : ''; ?>
+                            <?php if(($course['category'] == 'workout' or $course['category'] == 'nutrition') and $page_submenu != 'finished'): ?>
+                                <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>">Добавить в календарь</a>
+                            <?php endif;?>
+                        </div>
+                    <?php endif; ?>
                     <div class="oi_d_link">
-                        <?php $calendar_active = ($course['display'] == 1) ? 'active' : ''; ?>
-                        <?php if(($course['category'] == 'workout' or $course['category'] == 'workout') and $page_submenu != 'finished'): ?>
-                            <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>">Добавить в календарь</a>
-                        <?php endif;?>
-                    </div>
-                    <div class="oi_d_link">
-                        <?php if(!empty($course['id'])): ?>
+                        <?php if(!empty($course['id']) and empty($outsider)): ?>
                             <a href="/profile/course/<?php echo $course['id']; ?>">Подробнее</a>
+                        <?php elseif(!empty($outsider)): ?>
+                            <a href="/administration/order/<?php echo $course['order']['id']; ?>">Подробнее</a>
                         <?php else: ?>
                             <span>Продолжить</span>
                         <?php endif; ?>

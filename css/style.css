@@ -1426,6 +1426,7 @@ div.info{
 }
 .content_block_container_wrap{
     height: auto;
+    margin-bottom: 15px;
 }
 .content_block_container.fixed{
     position: fixed;

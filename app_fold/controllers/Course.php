@@ -7114,8 +7114,8 @@ class Course extends CI_Controller
         $return_url = '/profile/courses/';
 
         $courses_type = ($courses_type == 'finished') ? 'finished' : 'active';
-        $courses_data = $this->Course_model->getUserCourses($this->user_id, $this->date, $courses_type);
-        $courses_data = $this->Store_model->getUserCoursesOrder($this->user_id, $courses_data);
+        $user_courses = $this->Course_model->getUserCourses($this->user_id, $this->date, $courses_type);
+        $courses_data = $this->Store_model->getUserCoursesOrder($this->user_id, $user_courses);
         //print_r($courses_data);
 
         //$this->Course_model->setNewUserCourse(25, 12, 4, '', '', '', '', $this->date);
