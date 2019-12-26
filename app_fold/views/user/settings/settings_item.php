@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <form action="" method="post" class="anketa_form" enctype="multipart/form-data">
     <div class="anketa_form_line parent">
-        <div class="anketa_form_h"><div class="anketa_form_h_cell">Польное имя:</div></div>
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Полное имя:</div></div>
         <input type="text" name="name" class="anketa_form_in anketa_form_in_long" placeholder="Полное имя" value="<?php if (!empty($user_data['user_name'])) { echo $user_data['user_name']; }?>" maxlength="255"/>
     </div>
     <div class="anketa_form_line parent">
