@@ -2193,7 +2193,7 @@ tr:first-child > td > .fc-day-grid-event{
 #pop-up_postpone{
     width: 90%;
     max-width: 900px;
-    z-index: 113;
+    z-index: 114;
     left: 50%;
     top: 50%;
     background: #fff;
