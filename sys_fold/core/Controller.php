@@ -379,6 +379,10 @@ class CI_Controller {
 		$this->load->initialize();
 		log_message('info', 'Controller Class Initialized');
 
+		// Database update
+        $this->load->model('Database_model');
+        $this->Database_model->updateDatabase();
+
 		$this->date = date("Y-m-d H:i:s");
 
 		$this->page_url = $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
@@ -390,6 +394,7 @@ class CI_Controller {
         $admin_new_fbs    = null;
         $admin_new_orders = null;
         //$urls = array('/administration/update/database');
+        //log_message('debug',  date('U'));
 
 		// Проверка данных авторизованного пользователя
         if (!empty($this->session->user) and is_numeric($this->session->user['id']) and
@@ -412,10 +417,9 @@ class CI_Controller {
 
             // Уничтожение сессии, для повтороной авторизации, если дата авторизации меньше метки,
             // заданной для обновления сессий пользователя
-            //echo date('U');
             $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->session->user['date_auth']);
             $u_date = $tmp_date->format('U');
-            if ($u_date < '1572882473')
+            if ($u_date < '1577449706')
             {
                 header('Location: /logout');
             }

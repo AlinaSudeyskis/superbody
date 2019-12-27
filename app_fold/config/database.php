@@ -75,10 +75,10 @@ $query_builder = TRUE;
 
 $db['default'] = array(
 	'dsn'	=> '',
-	'hostname' => 'localhost', // localhost db40.valuehost.ru
-	'username' => 'u0847947_sb', // trivial_sb alinas1f_sb u0847947_sb
-	'password' => '@FF9*hrb', // Wasdfr12 @FF9*hrb @FF9*hrb
-	'database' => 'u0847947_sb', // trivial_sb alinas1f_sb u0847947_sb
+	'hostname' => 'db40.valuehost.ru', // localhost db40.valuehost.ru
+	'username' => 'trivial_sb', // trivial_sb alinas1f_sb u0847947_sb
+	'password' => 'Wasdfr12', // Wasdfr12 @FF9*hrb @FF9*hrb
+	'database' => 'trivial_sb', // trivial_sb alinas1f_sb u0847947_sb
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

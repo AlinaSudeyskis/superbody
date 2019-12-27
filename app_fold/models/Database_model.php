@@ -11,9 +11,19 @@ class Database_model extends CI_Model
      * Обновление БД
      *
      * @param $date
-     * @return bool
      */
     public function updateDatabase($date)
+    {
+        self::updateDatabaseDecember2019($date);
+    }
+
+    /**
+     * Обновление базы данных июнь 2018
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseJune2018($date)
     {
         $result = false;
 
