@@ -12,7 +12,7 @@ class Database_model extends CI_Model
      *
      * @param $date
      */
-    public function updateDatabase($date)
+    public function updateDatabase($date = null)
     {
         self::updateDatabaseDecember2019($date);
     }

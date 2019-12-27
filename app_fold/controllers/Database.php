@@ -15,11 +15,6 @@ class Database extends CI_Controller
     {
         parent::__construct();
 
-        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
-        {
-            parent::pageNotFound($this->page_url);
-        }
-
         $this->load->model('Database_model');
     }
 
@@ -30,6 +25,11 @@ class Database extends CI_Controller
      */
     public function createTables()
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $users = "CREATE TABLE `alinas1f_sb`.`users` ( 
               `user_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
               `user_email` VARCHAR(255) NOT NULL , 
@@ -95,6 +95,11 @@ class Database extends CI_Controller
      */
     public function showTable($table)
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $result['table_data'] = $this->Database_model->showTable($table);
 
         // Объединенные данные страница
@@ -114,6 +119,11 @@ class Database extends CI_Controller
      */
     public function showDataTable($table)
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $result['table_info'] = $this->Database_model->showDataTable($table);
 
         // Объединенные данные страница
@@ -129,6 +139,11 @@ class Database extends CI_Controller
     // Просмотр Таблиц
     public function showTables()
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $result['tables_data'] = $this->Database_model->showTables();
 
         // Объединенные данные страница

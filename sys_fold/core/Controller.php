@@ -379,10 +379,6 @@ class CI_Controller {
 		$this->load->initialize();
 		log_message('info', 'Controller Class Initialized');
 
-		// Database update
-        $this->load->model('Database_model');
-        $this->Database_model->updateDatabase();
-
 		$this->date = date("Y-m-d H:i:s");
 
 		$this->page_url = $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
