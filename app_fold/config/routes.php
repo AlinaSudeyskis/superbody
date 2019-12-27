@@ -166,6 +166,7 @@ $route['administration/users/sublist'] = 'Administrator/sublist';
 // Архив
 $route['administration/users/archive(/(:num))?'] = 'User/archive/$2';
 $route['users/delete'] = 'User/deleteUsers';
+$route['getSearchUsers'] = 'User/getSearchUsers';
 // Видео
 /*$route['administration/video']                = 'Course/video/promo';
 $route['administration/video/promo']          = 'Course/video/promo';
@@ -407,5 +408,3 @@ $route['course/coursesFreeWeeks']     = 'Course/checkUsersCoursesFreeWeeks';
 $route['course/usersWorkouts']        = 'Course/checkUsersWorkouts';
 $route['course/usersExpiringCourses'] = 'Course/checkUsersExpiringCourses';
 $route['course/revokedUsersCourses']  = 'Course/checkRevokedUsersCourses';
-
-

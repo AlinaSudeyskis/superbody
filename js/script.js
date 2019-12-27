@@ -1913,7 +1913,7 @@ $(document).ready(function () {
             $('body').append('<div id="pop-up_review"></div>');
             pop_up_review = $("#pop-up_review");
         }
-        pop_up_review.html($(this).html()+'<div class="purchase_pop-up_close"></div>');
+        pop_up_review.html($(this).parent().html()+'<div class="purchase_pop-up_close"></div>');
         pop_up_review.find('.revive_ava').show();
         pop_up_review.find('.revive_cont').css({'margin-left' : '90px'});
         pop_up_home(pop_up_review);

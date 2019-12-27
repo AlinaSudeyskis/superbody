@@ -13,8 +13,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="tren_prof_page_block parent">
             <?php if(!empty($user_data)): ?>
                 <div class="tren_prof_page_img_wrap">
-                    <?php if (!empty($user_data['image'])) :?>
-                        <div class="tren_prof_page_img"><img src="<?php echo $user_data['image'];?>" alt=""></div>
+                    <?php if (!empty($user_data['image']) or !empty($user_data['user_image'])) :
+                        $user_image = (!empty($user_data['image'])) ? $user_data['image'] : $user_data['user_image'] ; ?>
+                        <div class="tren_prof_page_img"><img src="<?php echo $user_image;?>" alt=""></div>
                     <?php endif;?>
                     <div class="tren_prof_page_name"><?php echo $user_data['split_name']['name'];?></div>
                     <div class="tren_prof_page_surname"><?php if (!empty($user_data['split_name']['surname'])) { echo $user_data['split_name']['surname']; }?></div>

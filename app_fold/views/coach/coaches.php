@@ -16,9 +16,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <a href="/administration/coach/new/users" class="add_tab_but">Выбрать</a>
                         </div>
                     </div>
+                    <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     <div class="admin_list">
                         <?php if (!empty($coaches)) :
                             foreach ($coaches as $coach) : ?>

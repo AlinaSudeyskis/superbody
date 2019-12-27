@@ -211,7 +211,7 @@ $(document).ready(function(){
 
     /* Отображение и скрытие полей блюда и продукта соответственно */
     var meal_category = $('#meal-category');
-    if(meal_category.length == 1)
+    if(meal_category.length === 1)
     {
         meal_category.on('change', function(){
             var ingr_desc = $('#meal-ingredients-desc'),
@@ -1496,6 +1496,57 @@ $(document).ready(function(){
         }
     });
 
+    var users_block = $('.users_page');
+    users_block.on('click', '.shop_block_nav #prev_page', function (event) {
+        event.preventDefault();
+
+        var category_id    = $('#category_id').val(),
+            subcategory_id = $('#subcategory_id').val(),
+            first_id       = $('#i_first_id').val(),
+            search         = $('input[name=search]').val();
+
+        searchUsers(category_id, subcategory_id, search, first_id, null);
+    });
+    users_block.on('click', '.shop_block_nav #next_page', function (event) {
+        event.preventDefault();
+
+        var category_id    = $('#category_id').val(),
+            subcategory_id = $('#subcategory_id').val(),
+            last_id        = $('#i_last_id').val(),
+            search         = $('input[name=search]').val();
+
+        searchUsers(category_id, subcategory_id, search, null, last_id);
+    });
+
+    function searchUsers(category_id, subcategory_id, search, first_id, last_id)
+    {
+        var users_block = $(".admin_list.users");
+        $.ajax({
+            url: '/getSearchUsers',
+            type: 'post',
+            dataType: 'json',
+            data: {
+                category: category_id,
+                subcategory: subcategory_id,
+                first_id: first_id,
+                last_id: last_id,
+                search: search},
+            complete: function (result) {
+                var data = result.responseJSON;
+                if (data.users !== "false")
+                {
+                    users_block.html(data.users);
+                    users_block.next("#pagination").remove();
+                    users_block.after(data.pagination);
+                }
+                else
+                {
+                    users_block.html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
+                }
+            }
+        });
+    }
+
     /**
      * Поиск товаров
      * @param first_id
@@ -1521,7 +1572,7 @@ $(document).ready(function(){
                 last_discount: last_discount},
             complete: function (result) {
                 var data = result.responseJSON;
-                if (data.products != "false")
+                if (data.products !== "false")
                 {
                     tov_block.html(data.products);
                     tov_block.next("#pagination").remove();

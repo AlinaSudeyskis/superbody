@@ -78,24 +78,71 @@ class User_model extends CI_Model
     /**
      * Получение данных пользователей
      *
+     * @param string $users_category
      * @param null|string $search_text
+     * @param null|int $first_id
+     * @param null|int $last_id
      * @return array
      */
-    public function getUsersData($search_text = null)
+    public function getUsersData($users_category = 'auth', $search_text = null, $first_id = null, $last_id = null)
     {
-        $result = array('users' => array());
+        $result = array('users' => array(), 'first_id' => '', 'last_id' => '');
 
-        $this->db->select('`user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id`');
-        $this->db->from('users');
-        $this->db->join('users_courses', 'uc_user_id = user_id', 'left');
-        $where = "user_type=1 and user_deleted=0 and uc_course_id IS NULL";
+        $next_page = false;
+        $prev_page = false;
+        $limit = 16;
+
+        $first_id = (int) $first_id;
+        $last_id  = (int) $last_id;
+
+        $query = 'SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id`';
+        $query .= ' FROM `users`';
+        $query .= ' LEFT JOIN `users_courses` ON `uc_user_id`=`user_id`';
+
+        $query .= 'WHERE `user_type`=1 and `user_deleted`=0';
+        $query .= ($users_category == 'bought') ? " and `uc_course_id` IS NOT NULL" : " and `uc_course_id` IS NULL";
         if(!empty($search_text))
         {
-            $where .= (is_numeric($search_text)) ? " and user_id=".$search_text : " and MATCH (user_name, user_email) AGAINST ('+".$search_text."*' IN BOOLEAN MODE) ";
+            $query .= (is_numeric($search_text)) ? " and `user_id`=".$search_text : " and MATCH (`user_name`, `user_email`) AGAINST ('+".$search_text."*' IN BOOLEAN MODE)";
+        }
+        if(!empty($last_id))
+        {
+            $query .= " and `user_id`>".$last_id;
+        }
+        elseif(!empty($first_id))
+        {
+            $query .= " and `user_id`<=".$first_id;
+            $order_by = ' ORDER BY `user_id` DESC';
+        }
+        $query .= ' GROUP BY `user_id`';
+        $query .= (!empty($order_by)) ? $order_by : '';
+        $query .= ' LIMIT '.$limit;
+        $sel_data = $this->db->query($query);
+
+        /*$this->db->select('`user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id`');
+        $this->db->from('users');
+        $this->db->join('users_courses', '`uc_user_id` = `user_id`', 'left');
+
+        $where = "`user_type`=1 and `user_deleted`=0";
+        $where .= ($users_category == 'bought') ? " and `uc_course_id` IS NOT NULL" : " and `uc_course_id` IS NULL";
+        if(!empty($search_text))
+        {
+            $where .= (is_numeric($search_text)) ? " and `user_id`=".$search_text : " and MATCH (`user_name`, `user_email`) AGAINST ('+".$search_text."*' IN BOOLEAN MODE) ";
+        }
+        if(!empty($last_id))
+        {
+            $where .= " and `user_id`>".$last_id;
+        }
+        elseif(!empty($first_id))
+        {
+            $where .= " and `user_id`<=".$first_id;
+            $this->db->order_by('user_id', 'DESC');
         }
         $this->db->where($where);
+
         $this->db->group_by('user_id');
-        $sel_data = $this->db->get();
+        $this->db->limit($limit);
+        $sel_data = $this->db->get();*/
 
         /*$sel_data = $this->db->query('
             SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id` 
@@ -105,10 +152,54 @@ class User_model extends CI_Model
             GROUP BY `user_id`');*/
         if ($sel_data !== false and 0 < $sel_data->num_rows())
         {
+            $count_rows = $sel_data->num_rows();
+            $elements   = $sel_data->result();
+
+            // Если нажата "Предыдущая страница"
+            if (!empty($first_id))
+            {
+                if ($count_rows == $limit)
+                {
+                    // Извлекаем первый элемент массива
+                    array_shift($elements);
+                    krsort($elements);
+                    $count_rows--;
+                    $prev_page = true;
+                }
+                $next_page = true;
+            }
+            // Если нажата "Следующая страница"
+            elseif (!empty($last_id))
+            {
+                if ($count_rows == $limit)
+                {
+                    // Извлекаем последний элемент массива
+                    array_pop($elements);
+                    $count_rows--;
+                    $next_page = true;
+                }
+
+                $prev_page = true;
+            }
+            // Первая страница
+            elseif ($count_rows == $limit and empty($first_id) and empty($last_id))
+            {
+                // Извлекаем последний элемент массива
+                array_pop($elements);
+                $count_rows--;
+                $next_page = true;
+            }
+
             $i = 0;
-            foreach ($sel_data->result() as $row)
+            foreach ($elements as $key => $row)
             {
                 $result['users'][$i] = self::parseUserData($row);
+
+                // Данные пагинации
+                // Данные последнего элемента страницы
+                $result['last_id'] = ($next_page === true and ($result['last_id'] < $row->user_id or empty($result['last_id']))) ?  $row->user_id : $result['last_id'];
+                // Данные первого элемента страницы
+                $result['first_id'] = ($prev_page === true and ($result['first_id'] > $row->user_id or empty($result['first_id']))) ? $row->user_id : $result['first_id'];
 
                 $i++;
             }
@@ -117,52 +208,6 @@ class User_model extends CI_Model
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
         
-        return $result;
-    }
-
-    /**
-     * Получение данных пользователей, купившие курс
-     *
-     * @param null|string $search_text
-     * @return array
-     */
-    public function getBoughtUsersData($search_text= null)
-    {
-        $result = array('users' => array());
-
-        $this->db->select('`user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id`');
-        $this->db->from('users');
-        $this->db->join('users_courses', 'uc_user_id = user_id', 'left');
-        $where = "user_type=1 and user_deleted=0 and uc_course_id IS NOT NULL";
-        if(!empty($search_text))
-        {
-            $where .= (is_numeric($search_text)) ? " and user_id=".$search_text : " and MATCH (user_name, user_email) AGAINST ('+".$search_text."*' IN BOOLEAN MODE) ";
-        }
-        $this->db->where($where);
-        $this->db->group_by('user_id');
-        $sel_data = $this->db->get();
-
-        /*$sel_data = $this->db->query('
-            SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `uc_course_id` 
-            FROM `users` 
-            LEFT JOIN `users_courses` ON `uc_user_id`=`user_id`
-            WHERE `user_type`=1 and `user_deleted`=0 and `uc_course_id` IS NOT NULL
-            GROUP BY `user_id`');*/
-
-        if ($sel_data !== false and 0 < $sel_data->num_rows())
-        {
-            $i = 0;
-            foreach ($sel_data->result() as $row)
-            {
-                $result['users'][$i] = self::parseUserData($row);
-
-                $i++;
-            }
-        }
-        elseif ($sel_data === false) {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
-
         return $result;
     }
 
@@ -194,17 +239,32 @@ class User_model extends CI_Model
     /**
      * Получение списка удаленных пользователей
      *
+     * @param null|string $search_text
+     * @param null|int $first_id
+     * @param null|int $last_id
      * @return array
      */
-    public function getUsersArchive()
+    public function getUsersArchive($search_text = null, $first_id = null, $last_id = null)
     {
         $result = array('users' => array());
 
-        $sel_data = $this->db->query('
+        $this->db->select('`user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, `user_blocked`, `user_deleted`, `user_delete_date`');
+        $this->db->from('users');
+        $where = "user_deleted=1";
+        if(!empty($search_text))
+        {
+            $where .= (is_numeric($search_text)) ? " and user_id=".$search_text : " and MATCH (user_name, user_email) AGAINST ('+".$search_text."*' IN BOOLEAN MODE) ";
+        }
+        $this->db->where($where);
+        $this->db->order_by('user_delete_date');
+        $sel_data = $this->db->get();
+
+        /*$sel_data = $this->db->query('
             SELECT `user_id`, `user_name`, `user_email`, `user_password`, `user_image`, `user_soc_image`, 
                    `user_blocked`, `user_deleted`, `user_delete_date` 
             FROM `users` 
-            WHERE `user_deleted`=1 ORDER BY `user_delete_date` ASC');
+            WHERE `user_deleted`=1
+            ORDER BY `user_delete_date`');*/
 
         if ($sel_data !== false and 0 < $sel_data->num_rows())
         {

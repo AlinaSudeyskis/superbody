@@ -52,7 +52,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 
 <div class="orders_container">
-    <div class="order_image"><img src="<?php echo $course['image']; ?>" alt="" /></div>
+    <?php if(!empty($course['image'])): ?>
+        <div class="order_image"><img src="<?php echo $course['image']; ?>" alt="" /></div>
+    <?php endif; ?>
     <div class="order_info_wrap">
         <div class="oi_title"><?php echo $course['name']; ?></div>
         <div class="oi_subtitle"><?php echo $course['description']; ?></div>

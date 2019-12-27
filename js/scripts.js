@@ -46,12 +46,14 @@ $(document).ready(function() {
             });
 
             // Валидация email
-            var timer, email_error = $('body').find('.email_error');
-            $('.valid_email').blur(function(){ // on keyup paste click
+            var timer,
+                body = $('body'),
+                email_error = body.find('.email_error'),
+                valid_email = $('.valid_email');
+            valid_email.blur(function(){ // on keyup paste click
                 var email_block = $(this),
                     e_p = email_block.position(),
-                    e_o = email_block.offset(),
-                    body = $('body');
+                    e_o = email_block.offset();
 
                 clearTimeout(timer);
 
@@ -69,16 +71,17 @@ $(document).ready(function() {
                     {
                         timer = setTimeout(function() {
                             email_error.text('Некорректный Email');
-                            if(email_block.parents('#purchase_pop-up'))
+                            var pt_purchase = email_block.parents('#purchase_pop-up');
+                            if(pt_purchase.length === 1)
                             {
                                 email_error.css('position', 'fixed');
                             }
                             else{
                                 email_error.css('position', 'absolute');
                             }
+                            email_error.show();
                             email_error.offset({top:e_o.top-20, left:(e_o.left+email_block.outerWidth()-30)});
                             email_error.css('z-index', 114);
-                            email_error.show();
                         }, 500);
                     }
                     else{email_error.hide();}
@@ -92,7 +95,7 @@ $(document).ready(function() {
                     }, 500);*/
                 }
             });
-            $('.valid_email').focus(function(){
+            valid_email.focus(function(){
                 email_error.hide();
             });
 

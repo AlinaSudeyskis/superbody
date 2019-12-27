@@ -2132,32 +2132,97 @@ class User extends CI_Controller
         }
 
         $search_text = null;
+        $users_categories = array('auth', 'bought');
+        $users_category = (in_array($users_category, $users_categories)) ? $users_category : 'auth';
 
         if($this->input->post('bt_users_search', true))
         {
             $search_text = mb_substr(strip_tags($this->input->post('search', true)), 0, 255);
         }
 
-        if($users_category == 'bought')
-        {
-            $result = $this->User_model->getBoughtUsersData($search_text);
-        }
-        else
-        {
-            $result = $this->User_model->getUsersData($search_text);
-        }
-
+        $result = $this->User_model->getUsersData($users_category, $search_text);
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Пользователи';
         $this->page_data['page_menu']     = 'users';
         $this->page_data['page_submenu']  = 'a_users';
         $this->page_data['page_2submenu'] = ($users_category == 'bought') ? 'eu_bought' : 'eu_auth';
+        $this->page_data['search_text']   = $search_text;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('user/users', $result);
         $this->load->view('footer/footer');
+    }
+
+    /**
+     * AJAX. Пагинация пользователей
+     */
+    public function getSearchUsers()
+    {
+        $categories = array('users', 'admins', 'coaches', 'archive');
+        $subcategories = array('auth', 'bought');
+
+        $users_category = ($this->input->post('category', true) and in_array($this->input->post('category', true), $categories))
+            ? $this->input->post('category', true)
+            : null;
+        $subcategory = ($this->input->post('subcategory', true) and in_array($this->input->post('category', true), $subcategories))
+            ? $this->input->post('subcategory', true)
+            : null;
+        $search_text = $this->input->post('search', true) ? mb_substr(strip_tags($this->input->post('search', true)), 0, 255) : null;
+        $first_id = ($this->input->post('first_id', true) and is_numeric($this->input->post('first_id', true)))
+            ? $this->input->post('first_id', true)
+            : null;
+        $last_id = ($this->input->post('last_id', true) and is_numeric($this->input->post('last_id', true)))
+            ? $this->input->post('last_id', true)
+            : null;
+
+        $result['users']      = '';
+        $result['pagination'] = '';
+        $result['sql']        = '';
+        $result['sql_result'] = '';
+
+        if($users_category == 'users')
+        {
+            $result_users = $this->User_model->getUsersData($subcategory, $search_text, $first_id, $last_id);
+        }
+        elseif($users_category == 'archive')
+        {
+            $result_users = $this->User_model->getUsersArchive($search_text, $first_id, $last_id);
+        }
+
+        if (!empty($result_users['users']))
+        {
+            foreach ($result_users['users'] as $u)
+            {
+                ob_start();
+                include('./app_fold/views/user/users_item.php');
+                $user_item = ob_get_contents();
+                ob_end_clean();
+                $result['users'] .= $user_item;
+
+            }
+            unset($product);
+
+            $first_id = !empty($result_users['first_id']) ? $result_users['first_id'] : '';
+            $last_id  = !empty($result_users['last_id']) ? $result_users['last_id'] : '';
+            $category_id = $users_category;
+            $subcategory_id = $subcategory;
+
+            ob_start();
+            include_once('./app_fold/views/pagination.php');
+            $pagination = ob_get_contents();
+            ob_end_clean();
+
+            $result['pagination'] = $pagination;
+        }
+        else
+        {
+            $result['users'] = "false";
+        }
+
+        //echo $result;
+        echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -2483,12 +2548,20 @@ class User extends CI_Controller
      */
     protected function usersArchive()
     {
-        $result = $this->User_model->getUsersArchive();
+        $search_text = null;
+
+        if($this->input->post('bt_users_search', true))
+        {
+            $search_text = mb_substr(strip_tags($this->input->post('search', true)), 0, 255);
+        }
+
+        $result = $this->User_model->getUsersArchive($search_text);
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Удаленные пользователи';
-        $this->page_data['page_menu']    = 'users';
-        $this->page_data['page_submenu'] = 'a_users_archive';
+        $this->page_data['title']         = 'АП - Удаленные пользователи';
+        $this->page_data['page_menu']     = 'users';
+        $this->page_data['page_submenu']  = 'a_users_archive';
+        $this->page_data['page_2submenu'] = 'archive';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

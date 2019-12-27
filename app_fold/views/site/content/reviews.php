@@ -5,7 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="reviews_row row">
         <h2 class="block_h">ОТЗЫВЫ</h2>
         <?php foreach($reviews as $review):?>
-            <div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
+            <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
                 <div class="revive_item parent">
                     <div class="revive_ava"><?php if(!empty($review['user']['image'])):?> <img src="<?php echo $review['user']['image']; ?>" alt=""><?php endif;?></div>
                     <div class="revive_cont">

@@ -11,12 +11,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="content_block_container_wrap">
                     <div class="content_block_h new_content_block_h parent">
                         <h3>Администраторы</h3>
-                    <div class="content_block_h_ref"><a href="/administration/admin/new" class="add_tab_but">Добавить</a>
-                    <a href="/administration/admin/new/users" class="add_tab_but">Выбрать</a>
-                    </div></div>
+                        <div class="content_block_h_ref">
+                            <a href="/administration/admin/new" class="add_tab_but">Добавить</a>
+                            <a href="/administration/admin/new/users" class="add_tab_but">Выбрать</a>
+                        </div>
+                    </div>
+                    <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                 </div>
                 <div class="kurs_block_val">
-                    <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                     <div class="admin_list">
                         <?php if (!empty($admins)) :
                             foreach ($admins as $admin) : ?>

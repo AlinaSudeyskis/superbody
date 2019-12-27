@@ -3126,6 +3126,30 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-12-27 13:07';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE IF NOT EXISTS `ci_sessions` (
+                `id` varchar(40) NOT NULL,
+                `ip_address` varchar(45) NOT NULL,
+                `timestamp` int(10) unsigned DEFAULT 0 NOT NULL,
+                `data` blob NOT NULL,
+                KEY `ci_sessions_timestamp` (`timestamp`)
+             )");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2019-12-27 13:11';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE ci_sessions ADD PRIMARY KEY (id)");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
