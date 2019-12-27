@@ -2744,7 +2744,7 @@ class Course_model extends CI_Model
      * @return bool
      */
     public function setNewCourse($course_category, $name, $description, $meta_description, $meta_keywords, $price,
-                                 $fc_price, $course_type, $count_weeks, $count_days, $count_rest, $user_id, $date)
+                                 $fc_price, $course_type = 0, $count_weeks = 1, $count_days = 7, $count_rest = 0, $user_id, $date)
     {
         $up_data = $this->db->query('
             INSERT INTO `courses` (`crs_category`, `crs_type_id`, `crs_name`, `crs_description`, `crs_meta_description`, 

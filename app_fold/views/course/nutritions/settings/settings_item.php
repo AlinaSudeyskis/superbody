@@ -184,7 +184,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php if(is_numeric($course['count_weeks'])):
                 for($day = 1; $day <= ($course['count_weeks']*7); $day++): ?>
                     <div class="nutrition_block" id="nutrition<?php echo $day; ?>_block" data-id="<?php echo $day; ?>">
-                        <?php if(!empty($course_schedule) and !empty($course_ingestions)):
+                        <?php if(!empty($course_ingestions) and !empty($ingestions_id) and !empty($ingestions)):
                             foreach($course_ingestions as $ci):
                                 $ing_id   = array_search($ci['id'], $ingestions_id);
                                 $ing_name = $ingestions[$ing_id]['name'];?>
@@ -257,7 +257,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 <?php endfor;?>
                 <div class="nutrition_block multiple" id="nutrition_multiple_block" data-id="multiple">
-                    <?php if(!empty($course_schedule) and !empty($course_ingestions)):
+                    <?php if(!empty($course_ingestions) and !empty($ingestions_id) and !empty($ingestions)):
                         foreach($course_ingestions as $ci):
                             $ing_id   = array_search($ci['id'], $ingestions_id);
                             $ing_name = $ingestions[$ing_id]['name'];?>

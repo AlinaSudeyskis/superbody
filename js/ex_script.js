@@ -543,16 +543,24 @@ $(document).ready(function(){
         {
             $(this).removeClass('active');
             pr_d_act = $('.nutrition_day.active');
-            if(pr_bl_w.length == 1)
+            if(pr_bl_w.length === 1)
             {
-                if(pr_d_act.length == 0)
+                if(pr_d_act.length === 0)
                 {
                     pr_bl.hide();
                 }
-                else if(pr_d_act.length == 1)
+                else if(pr_d_act.length === 1)
                 {
                     pr_bl.hide();
                     $('#' + pr_d_act.attr('id') + '_block').show();
+                }
+                else if(pr_d_act.length > 1)
+                {
+                    var nut_bl_multi = $('.nutrition_block.multiple'),
+                        add_tov_val = nut_bl_multi.find('.add_tov_val');
+
+                    add_tov_val.empty();
+                    nut_bl_multi.show();
                 }
             }
         }
@@ -562,11 +570,11 @@ $(document).ready(function(){
             $(this).addClass("active");
             pr_d_act = $('.nutrition_day.active');
 
-            if(pr_bl_w.length == 1)
+            if(pr_bl_w.length === 1)
             {
                 var h_info = pr_bl_w.children('.h_subtitle');
                 pr_bl.hide();
-                if(pr_d_act.length == 1)
+                if(pr_d_act.length === 1)
                 {
                     pr_block.show();
                 }
@@ -579,9 +587,9 @@ $(document).ready(function(){
                     nut_bl_multi.show();
                 }
 
-                if (pr_bl_w.children(".nutrition_block:visible").length == 0)
+                if (pr_bl_w.children(".nutrition_block:visible").length === 0)
                 {
-                    if(h_info.length == 0)
+                    if(h_info.length === 0)
                     {
                         pr_bl_w.append('<span class="h_subtitle">Выберите приемы пищи</span>');
                     }
@@ -590,7 +598,7 @@ $(document).ready(function(){
                         h_info.show();
                     }
                 }
-                else if(h_info.length == 1)
+                else if(h_info.length === 1)
                 {
                     h_info.hide();
                 }
@@ -610,7 +618,7 @@ $(document).ready(function(){
             block_id, active_class = "",
             ingestions = $(".ingestion");
 
-        if(kurs_time_in != 0 && kurs_length_in != 0)
+        if(kurs_time_in !== 0 && kurs_length_in !== 0)
         {
             rez = kurs_time_in * kurs_length_in;
             while (tr_week <= kurs_time_in) {
@@ -620,7 +628,7 @@ $(document).ready(function(){
                 while(tr_day <= kurs_length_in){
                     block_id = 'practice' + i;
                     active_class = "";
-                    if (active_practice_block == block_id)
+                    if (active_practice_block === block_id)
                     {
                         active_class = "active";
                     }
@@ -634,7 +642,7 @@ $(document).ready(function(){
             $(".nutrition_block_table").html(html_table);
         }
 
-        if(kurs_time_in != 0 && kurs_length_in != 0 && kurs_length_out < 1){
+        if(kurs_time_in !== 0 && kurs_length_in !== 0 && kurs_length_out < 1){
             rez = kurs_time_in * kurs_length_in;
             i = 1;
             html = '';
@@ -662,8 +670,32 @@ $(document).ready(function(){
             }
             $(this).parents("form").find(".nutrition_block_wrap").html(html);
             $(this).parents("form").find(".nutrition_block_wrap").find(".journal_form_select").styler();
+
+            if($('.nutrition_block.multiple').length === 0)
+            {
+                html = html + '<div class="nutrition_block multiple" id="nutrition_multiple_block" data-id="multiple">';
+
+                ingestions.each(function(index, value){
+                    $(this).children("input:checkbox:checked").each(function(index2, value2)
+                    {
+                        html = html + '<div class="parent kurs_cur_wrap" id="crs-ingestion-multiple-'+$(this).val()+'">' +
+                            '<div class="kurs_block_h">' + $(this).next("label").html() + '</div>' +
+                            '<div class="add_tov_in_total">' +
+                            '<div class="add_tov_in meal">' +
+                            '<input type="text" name="name_meal[multiple]" data-day="multiple" data-ingestion="'+$(this).val()+'" class="admin_form_txt admin_form_txt_middle" placeholder="Введите наименование блюда">' +
+                            '<div class="add_tov_list">'+video_list+'</div>' +
+                            '</div>' +
+                            '<div class="add_tov_val"></div>' +
+                            '</div>' +
+                            '</div>';
+                    });
+                });
+
+                html = html + '</div>';
+                $(this).parents("form").find(".nutrition_block_wrap").append(html);
+            }
         }
-        else if(kurs_time_in != 0 && kurs_length_in != 0 && kurs_length_out >= 1){
+        else if(kurs_time_in !== 0 && kurs_length_in !== 0 && kurs_length_out >= 1){
             rez = kurs_time_in * kurs_length_in - kurs_length_out;
             //$(this).parents("form").find(".practice_block").show();
             if(rez>0){
@@ -707,6 +739,7 @@ $(document).ready(function(){
                 }
             }
         }
+
         $('.nutrition_block_table').children('.h_subtitle').hide();
     });
 
@@ -737,40 +770,51 @@ $(document).ready(function(){
 
             if(ing_cb.is(':checked'))
             {
-                if(ing_after == 'first')
+                if(pb.children(".kurs_cur_wrap").length === 0)
                 {
-                    if(ing_block.length == 0)
-                    {
-                        pb.prepend(html);
-                    }
-                    else
-                    {
-                        ing_block.show();
-                    }
-                }
-                else if(ing_after == 'last')
-                {
-                    if(ing_block.length == 0)
-                    {
-                        pb.append(html);
-                    }
-                    else
-                    {
-                        ing_block.show();
-                    }
+                    pb.append(html);
                 }
                 else
                 {
                     pb.children(".kurs_cur_wrap").each(function(){
-                        if($(this).attr('id') == bl_after)
+                        var this_block = $(this);
+                        if(ing_after === 'first')
                         {
-                            if(ing_block.length == 0)
+                            if(pb.find(ing_block).length === 0)
                             {
-                                $(this).after(html);
+                                pb.prepend(html);
+                                return false;
                             }
                             else
                             {
-                                ing_block.show();
+                                pb.find(ing_block).show();
+                            }
+                        }
+                        else if(ing_after === 'last')
+                        {
+                            if(pb.find(ing_block).length === 0)
+                            {
+                                pb.append(html);
+                                return false;
+                            }
+                            else
+                            {
+                                pb.find(ing_block).show();
+                            }
+                        }
+                        else
+                        {
+                            if(this_block.attr('id') === bl_after)
+                            {
+                                if(pb.find(ing_block).length === 0)
+                                {
+                                    this_block.after(html);
+                                    return false;
+                                }
+                                else
+                                {
+                                    pb.find(ing_block).show();
+                                }
                             }
                         }
                     });
@@ -1212,7 +1256,7 @@ $(document).ready(function(){
                     '<input type="hidden" name="id_meal[' + crs_day + '][' + crs_ingestion + '][]" value="' + number + '" id="id-meal-' + crs_day + '-' + crs_ingestion + '-' + number + '"/>' +
                 '</div>';
 
-            if(ml_type_block.length == 0)
+            if(ml_type_block.length === 0)
             {
                 add_tov_val.append('<div id="ml-type-' + crs_day + '-' + crs_ingestion + '-' + ml_type + '">' +
                     '<div class="kurs_block_h">' + ml_name + '</div>' +
@@ -1221,7 +1265,7 @@ $(document).ready(function(){
                 ml_type_block = add_tov_val.children('#ml-type-' + crs_day + '-' + crs_ingestion + '-' + ml_type);
                 ml_block_wrap = ml_type_block.children('.add_tov_val_item_wrap');
             }
-            if(ml_block.length == 0)
+            if(ml_block.length === 0)
             {
                 ml_block_wrap.append(ml_block_content);
             }
@@ -1270,7 +1314,7 @@ $(document).ready(function(){
                             '<input type="hidden" name="id_meal[' + crs_day + '][' + crs_ingestion + '][]" value="' + number + '" id="id-meal-' + crs_day + '-' + crs_ingestion + '-' + number + '"/>' +
                             '</div>';
 
-                    if(ml_type_block.length == 0)
+                    if(ml_type_block.length === 0)
                     {
                         add_tov_val.append('<div id="ml-type-' + crs_day + '-' + crs_ingestion + '-' + ml_type + '">' +
                             '<div class="kurs_block_h">' + ml_name + '</div>' +
@@ -1279,7 +1323,7 @@ $(document).ready(function(){
                         ml_type_block = add_tov_val.children('#ml-type-' + crs_day + '-' + crs_ingestion + '-' + ml_type);
                         ml_block_wrap = ml_type_block.children('.add_tov_val_item_wrap');
                     }
-                    if(ml_block.length == 0)
+                    if(ml_block.length === 0)
                     {
                         ml_block_wrap.append(ml_block_content);
                     }
