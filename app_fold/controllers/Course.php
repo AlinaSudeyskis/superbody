@@ -3470,6 +3470,10 @@ class Course extends CI_Controller
             // Описание
             $description = mb_substr(strip_tags($this->input->post('description', true)), 0, 1000);
 
+            // Metadata
+            $meta_description = mb_substr(strip_tags($this->input->post('ta_meta_description', true)), 0, 255);
+            $meta_keywords = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
+
             // Стоимость курса
             $price = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
             $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
@@ -3560,8 +3564,8 @@ class Course extends CI_Controller
             {
                 $course_category = 'nutrition';
 
-                $course_id = $this->Course_model->setNewCourse($course_category, $name, $description, $price, $fc_price,
-                    0, $count_weeks, 7, 0, $this->user_id, $this->date);
+                $course_id = $this->Course_model->setNewCourse($course_category, $name, $description, $meta_description,
+                    $meta_keywords, $price, $fc_price, 0, $count_weeks, 7, 0, $this->user_id, $this->date);
             }
 
             if (!empty($course_id) and is_numeric($course_id))

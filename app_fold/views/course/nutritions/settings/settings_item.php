@@ -4,40 +4,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="anketa_block_item">
     <div class="anketa_block_item_cont">
         <input type="hidden" name="course_id" value="<?php echo $course['id']; ?>" id="c-id"/>
-        <?php if (!empty($course['image'])) : ?>
-            <div class="parent kurs_cur_wrap" style="margin-bottom: 18px;">
-                <div class="tren_set_form_l">
-                    <div class="tren_set_form_img"><img src="<?php echo $course['image']; ?>" alt=""/></div>
+        <div class="parent kurs_cur_wrap" style="margin-bottom: 18px;">
+            <div class="tren_set_form_l">
+                <div class="tren_set_form_img">
+                    <?php if (!empty($course['image'])): ?>
+                        <img src="<?php echo $course['image']; ?>" alt=""/>
+                    <?php else: ?>
+                        <img src="/img/no_img.png" alt="">
+                    <?php endif; ?>
                 </div>
-                <div class="tren_set_form_r">
-                    <div class="parent kurs_cur_wrap">
-                        <div class="kurs_block_h">Изображение:</div>
-                        <div class="video_down_line parent">
-                            <div class="video_down_line_but_wrap">
-                                <label for="video_down_line_but1cs" class="video_down_line_but">
-                                    <input type="file" name="course_image" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
-                                    <span>Выберите файл</span>
-                                </label>
-                            </div>
-                            <div class="video_down_line_name" style="width:calc(100% - 120px);">Файл не выбран</div>
+            </div>
+            <div class="tren_set_form_r">
+                <div class="parent kurs_cur_wrap">
+                    <div class="kurs_block_h">Изображение:</div>
+                    <div class="video_down_line parent">
+                        <div class="video_down_line_but_wrap">
+                            <label for="video_down_line_but1cs" class="video_down_line_but">
+                                <input type="file" name="course_image" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
+                                <span>Выберите файл</span>
+                            </label>
                         </div>
+                        <div class="video_down_line_name" style="width:calc(100% - 120px);">Файл не выбран</div>
                     </div>
                 </div>
             </div>
-        <?php else: ?>
-            <div class="parent kurs_cur_wrap">
-                <div class="kurs_block_h">Изображение:</div>
-                <div class="video_down_line parent">
-                    <div class="video_down_line_but_wrap">
-                        <label for="video_down_line_but1cs" class="video_down_line_but">
-                            <input type="file" name="course_image" class="admin_form_videofile" id="video_down_line_but1cs" accept="image/jpeg,image/png" />
-                            <span>Выберите файл</span>
-                        </label>
-                    </div>
-                    <div class="video_down_line_name">Файл не выбран</div>
-                </div>
-            </div>
-        <?php endif;?>
+        </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Наименование:</div>
             <textarea name="name" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите наименование" r
@@ -47,6 +38,34 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="kurs_block_h">Описание:</div>
             <textarea name="description" class="journal_form_textarea admin_form_txt_middle" placeholder="Введите описание"
                       required="required"><?php if (!empty($course['description'])) : echo $course['description']; endif;?></textarea>
+        </div>
+        <div class="content_block new_content_block ovv content_block_internal meta">
+            <div class="content_block_h parent">
+                <h3>Метаданные</h3>
+                <div class="content_block_h_buts">
+                    <div class="content_block_h_slide meta_slide hide_chart"></div>
+                </div>
+            </div>
+            <div class="kurs_block_val">
+                <div class="anketa_block_cont">
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Keywords:</div>
+                        <textarea name="ta_meta_keywords" class="journal_form_textarea admin_form_txt_middle"
+                                  placeholder=""><?php echo $course['meta_keywords']; ?></textarea>
+                    </div>
+                    <div class="parent kurs_cur_wrap">
+                        <div class="kurs_block_h">Description:</div>
+                        <textarea name="ta_meta_description" class="journal_form_textarea admin_form_txt_middle"
+                                  placeholder=""><?php echo $course['meta_description']; ?></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Длительность курса:</div>
+            <input type="text" name="count_weeks" class="admin_form_txt nutr_time_in kurs_form_txt_short"
+                   placeholder="Введите длительность курса" value="<?php if (!empty($course['count_weeks'])) : echo $course['count_weeks']; endif;?>" />
+            <div class="kurs_cur">(нед.)</div>
         </div>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Стоимость курса:</div>
@@ -58,7 +77,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="content_block_h parent">
                 <h3>Рекуррентный платеж</h3>
                 <div class="content_block_h_buts">
-                    <div class="content_block_h_slide price_slide"></div>
+                    <div class="content_block_h_slide price_slide hide_chart"></div>
                 </div>
             </div>
             <div class="kurs_block_val">
@@ -142,12 +161,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     unset($ingestion);?>
                 </div>
             <?php endif; ?>
-        </div>
-        <div class="parent kurs_cur_wrap">
-            <div class="kurs_block_h">Длительность курса:</div>
-            <input type="text" name="count_weeks" class="admin_form_txt nutr_time_in kurs_form_txt_short"
-               placeholder="Введите длительность курса" value="<?php if (!empty($course['count_weeks'])) : echo $course['count_weeks']; endif;?>" />
-            <div class="kurs_cur">(нед.)</div>
         </div>
 
         <div class="parent block_wrap">
