@@ -32,8 +32,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </form>
         <?php endif;?>
-        <?php //print_r($order['payments'][0]); ?>
-        <?php if($payment['method_saved'] == 1): ?>
+        <?php //print_r($payment); ?>
+        <?php if($payment['method_saved'] == 1 and $payment['number'] == 0): ?>
             <div class="ordering_block_side_cont_h"></div>
             <?php if(!empty($payment['revoke']) and $payment['revoke'] == 1): ?>
                 <div class="ordering_block_side_cont_h">Автоматический повтор платежей: <span class="canceled">Отменено</span></div>

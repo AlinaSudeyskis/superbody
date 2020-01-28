@@ -10,7 +10,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php
             // Быстрое сеню профиля
             include_once('./app_fold/views/user/quick_menu.php');
-            $user_data = !empty($user_session) ? array_merge($user_data, $user_session) : null;
+            //log_message('debug', print_r($user_data, true));
+            //log_message('debug', print_r($user_session, true));
+            $user_data = (!empty($user_session) and is_array($user_session) and is_array($user_data)) ? array_merge($user_data, $user_session) : null;
             $profile_title = 'Профиль';
             //$user_notification = null; ?>
             <div class="row user_prof_wrap">

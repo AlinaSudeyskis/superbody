@@ -3160,6 +3160,55 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2019-12-28 14:12';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_courses` SET `uc_days`='', `uc_date_start`='', `uc_date_end`='' WHERE `uc_id`=725 LIMIT 1");
+            $this->db->query("DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=725");
+            $this->db->query("UPDATE `users` SET `user_activated`=1 WHERE `user_id`=784 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных январь 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseJanuary2020($date)
+    {
+        $result = false;
+
+        $date = '2020-01-28 10:13';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_data = $this->db->query('SELECT `uc_user_id`, `uc_o_id` FROM `users_courses` WHERE `uc_blocked`=1 and `uc_blocked_reason`="free_weeks_over"');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $up_order = $this->db->query('UPDATE `orders` SET `o_payment_status`="not_paid" WHERE `o_id`=? LIMIT 1', $row->uc_o_id);
+                    if($up_order === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+                unset($row);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
@@ -3210,17 +3259,24 @@ class Database_model extends CI_Model
         return $result;
     }
 
+
     /**
      * Выборка структуры таблицы
      *
      * @param $table
+     * @param int $limit
+     * @param int $offset
      * @return bool|array
      */
-    public function showDataTable($table)
+    public function showDataTable($table, $limit = 50, $offset = 0)
     {
         $result = false;
 
+        $query_limit = (is_numeric($limit)) ? ' LIMIT '.$limit : '';
+        $query_limit .= (!empty($query_limit) and is_numeric($offset)) ? ', '.$offset : '';
+
         $sel_data = $this->db->query('SELECT * FROM `'.$table.'`');
+        //log_message('debug', 'Last query: ' . print_r($this->db->last_query(), true));
         if($sel_data !== false)
         {
             $result = $sel_data->result();

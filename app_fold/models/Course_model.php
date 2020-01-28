@@ -6770,13 +6770,13 @@ class Course_model extends CI_Model
         $tmp_date   = new DateTime($date);
         $short_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
 
-        $sel_data = $this->db->query('SELECT `uc_user_id` FROM `users_courses` 
+        $sel_data = $this->db->query('SELECT `uc_user_id`, `uc_o_id` FROM `users_courses` 
             WHERE `uc_blocked`=0 and `uc_free_weeks`>0 and `uc_free_weeks_end_date`<=? and `uc_free_weeks_end_date`<>"0000-00-00"', $short_date);
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             foreach ($sel_data->result() as $row)
             {
-                $up_data = self::checkUserCoursesFreeWeeks($row->uc_user_id, $date);
+                $up_data = self::checkUserCoursesFreeWeeks($row->uc_user_id, $row->uc_o_id, $date);
                 if($up_data === false)
                 {
                     $result = false;
@@ -6797,11 +6797,12 @@ class Course_model extends CI_Model
      * Проверка и блокировка курса пользователя, если бесплатные недели промокода закончились
      *
      * @param $user_id
+     * @param $order_id
      * @param $date
      * @return bool
      * @throws Exception
      */
-    public function checkUserCoursesFreeWeeks($user_id, $date)
+    public function checkUserCoursesFreeWeeks($user_id, $order_id, $date)
     {
         $result = true;
 
@@ -6810,9 +6811,18 @@ class Course_model extends CI_Model
         $reason     = 'free_weeks_over';
 
         $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_date`=?, `uc_blocked_reason`=? 
-            WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_free_weeks`>0 and `uc_free_weeks_end_date`<=? and `uc_free_weeks_end_date`<>"0000-00-00"',
-                array($date, $reason, $user_id, $short_date));
-        if($up_data === false)
+            WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_blocked`=0 and `uc_free_weeks`>0 and `uc_free_weeks_end_date`<=? and `uc_free_weeks_end_date`<>"0000-00-00"
+            LIMIT 1',
+                array($date, $reason, $user_id, $order_id, $short_date));
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $up_order = $this->db->query('UPDATE `orders` SET `o_payment_status`="not_paid" WHERE `o_id`=? LIMIT 1', $order_id);
+            if($up_order === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+        elseif($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
             $result = false;
