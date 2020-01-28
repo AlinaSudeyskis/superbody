@@ -17,10 +17,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <div class="anketa_block_cont">
-                        <form action="" class="video_admin_form" method="post">
-                            <?php include_once('./app_fold/views/blog/posts/post_settings_item.php');?>
-                            <div class="admin_form_bats parent">
-                                <input type="submit" name="bt_save_post" class="admin_form_submit defaultActionButton" value="Сохранить"  >
+                        <form action="" method="post">
+                            <div class="admin_form_buts_wrap_container">
+                                <div class="admin_form_buts_wrap parent">
+                                    <input type="submit" name="bt_save_post" class="admin_form_submit defaultActionButton" value="Сохранить">
+                                </div>
+                            </div>
+                            <div class="video_admin_form">
+                                <?php include_once('./app_fold/views/blog/posts/post_settings_item.php');?>
                             </div>
                         </form>
                     </div>

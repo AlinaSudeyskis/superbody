@@ -66,7 +66,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <!--<li><a href="/store">Магазин</a></li>-->
                             <?php endif;?>
                             <li><a href="/contacts">Контакты</a></li>
-                            <li><a href="/support">Поддержка</a></li>
+                            <li><a href="/support">Инструкции</a></li>
+                            <li><a href="/partners.html">Партнеры</a></li>
                         </ul>
                         <a href="#" class="agreement" id="show-check-promocode">У меня есть промокод</a>
                     </div>

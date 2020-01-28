@@ -15,7 +15,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             // Информация профиля
             include_once('./app_fold/views/coach/profile/profile_info.php');
             // Блог
-            include_once('./app_fold/views/blog/posts/user_posts_item.php');
+            if (!empty($posts)) :
+                include_once('./app_fold/views/blog/posts/user_posts_item.php');
+            endif;
             // Портфолио
             include_once('./app_fold/views/coach/portfolio/portfolio_item.php');
             // Предлагаемые курсы

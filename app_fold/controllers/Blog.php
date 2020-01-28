@@ -275,8 +275,8 @@ class Blog extends CI_Controller
         {
             $post_title = mb_substr(strip_tags($this->input->post('post_title', true)), 0, 100);
             $post_desc  = mb_substr(strip_tags($this->input->post('post_short_desc', true)), 0, 255);
-            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<span><br/><b><i><p>'), 0, 1000);
-            $post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
+            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
+            //$post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
 
             $result = $this->Blog_model->updateCoachBlogPost($this->user_id, $post_id, $post_title, $post_desc, $post_text, $this->date);
 
@@ -345,8 +345,8 @@ class Blog extends CI_Controller
         {
             $post_title = mb_substr(strip_tags($this->input->post('post_title', true)), 0, 100);
             $post_desc  = mb_substr(strip_tags($this->input->post('post_short_desc', true)), 0, 255);
-            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<span><br/><b><i><p>'), 0, 1000);
-            $post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
+            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
+            //$post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
 
             $result = $this->Blog_model->setBlogPost($this->user_id, $post_title, $post_desc, $post_text, $this->date);
 

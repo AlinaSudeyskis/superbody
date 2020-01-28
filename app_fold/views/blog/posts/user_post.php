@@ -24,26 +24,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <?php if (!empty($post)): ?>
-                        <div class="comment_page_block">
-                            <div class="parent">
-                                <div class="comment_page_cont">
-                                    <?php if ($post['approval'] == 1):?>
+                        <?php if ($post['approval'] == 1):?>
+                            <div class="comment_page_block">
+                                <div class="parent">
+                                    <div class="comment_page_cont">
                                         <h3 class="info small">Изменение не доступно. Запись одобрена администратором.</h3>
                                         <div class="comment_page_cont_h"><?php echo $post['title'];?></div>
                                         <div class="comment_page_cont_txt"><?php echo $post['text'];?></div>
                                         <div class="comment_page_cont_link"></div>
-                                    <?php else:?>
-                                        <form action="" method="post">
-                                            <?php include_once('./app_fold/views/blog/posts/post_settings_item.php');?>
-
-                                            <div class="admin_form_bats parent">
-                                                <input type="submit" name="bt_save_post" class="admin_form_submit defaultActionButton" value="Сохранить"   />
-                                            </div>
-                                        </form>
-                                    <?php endif;?>
+                                    </div>
                                 </div>
                             </div>
-                            <?php if (!empty($post['comments'])) :?>
+                        <?php else:?>
+                            <form action="" method="post">
+                                <div class="admin_form_buts_wrap_container">
+                                    <div class="admin_form_buts_wrap parent">
+                                        <input type="submit" name="bt_save_post" class="admin_form_submit defaultActionButton" value="Сохранить">
+                                    </div>
+                                </div>
+                                <div class="video_admin_form">
+                                    <?php include_once('./app_fold/views/blog/posts/post_settings_item.php');?>
+                                </div>
+                            </form>
+                        <?php endif;?>
+                        <?php if (!empty($post['comments'])) :?>
+                            <div class="video_admin_form">
                                 <div class="full_photo_block_comm_wrap">
                                     <?php foreach ($post['comments'] as $comment) :?>
                                         <div class="full_photo_block_comm parent">
@@ -59,8 +64,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <?php endforeach;
                                     unset($comment);?>
                                 </div>
-                            <?php endif;?>
-                            <?php if (!empty($user_session['id'])) : ?>
+                            </div>
+                        <?php endif;?>
+                        <?php if (!empty($user_session['id'])) : ?>
+                            <div class="video_admin_form">
                                 <form action="" class="full_photo_comm_form" method="post">
                                     <!--<input type="text" name="name" class="comment_page_form_in" placeholder="Имя">
                                     <input type="text" name="mail" class="comment_page_form_in" placeholder="E-mail">-->
@@ -69,8 +76,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <input type="submit" name="bt_send_comment" value="Добавить" class="full_photo_comm_but">
                                     </div>
                                 </form>
-                            <?php endif;?>
-                        </div>
+                            </div>
+                        <?php endif;?>
                     <?php else: ?>
                         <h3 class="info">Информация не найдена</h3>
                     <?php endif; ?>
