@@ -2746,7 +2746,7 @@ class Course_model extends CI_Model
               FROM `orders_users_cart`
               LEFT JOIN `orders` ON `o_id`=`ouc_o_id`
               WHERE `ouc_p_id`=?
-              ORDER BY `o_date_add` DESC', $course_pid);
+              ORDER BY `o_date_add` DESC LIMIT 5', $course_pid);
             if ($sel_data !== false and 0 < $sel_data->num_rows())
             {
                 $i = 0;
@@ -2881,7 +2881,7 @@ class Course_model extends CI_Model
 
         $result['statistics']['count_price']     = (!empty($count_price)) ? $count_price : 0;
         $result['statistics']['count_workouts']  = (!empty($count_workouts)) ? $count_workouts : 0;
-        $result['statistics']['pass_percentage'] = (!empty($pass_percentage) and is_array($pass_percentage)) ? (array_sum($pass_percentage)/count($pass_percentage)) : 0;
+        $result['statistics']['pass_percentage'] = (!empty($pass_percentage) and is_array($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
 
         return $result;
     }
@@ -2911,6 +2911,7 @@ class Course_model extends CI_Model
             $count_users     = 0;
             $count_workouts  = 0;
             $pass_percentage = array();
+            $i = 0;
             foreach($sel_pid->result() as $row)
             {
                 $course_pid = $row->p_id;
@@ -2929,7 +2930,6 @@ class Course_model extends CI_Model
                     ORDER BY `o_date_add` DESC', $course_pid);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
-                    $i = 0;
                     foreach($sel_data->result() as $row)
                     {
                         $users[$i]  = $row->ouc_u_id;
@@ -2941,17 +2941,14 @@ class Course_model extends CI_Model
                     unset($row);
 
                     $first_dates[] = array_pop($dates);
-
-                    $users  = array_unique($users);
-                    $orders = array_unique($orders);
-
-                    $count_users += count($users);
                 }
                 elseif($sel_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
                 unset($sel_data);
+
+                $orders = array_unique($orders);
 
                 // Сумма купленных курсов
                 foreach($orders as $order_id)
@@ -2999,10 +2996,12 @@ class Course_model extends CI_Model
                 unset($sel_data);
             }
 
+            $users  = array_unique($users);
+
             $result['courses_statistics']['count_price']     = $count_price;
             $result['courses_statistics']['count_workouts']  = $count_workouts;
             $result['courses_statistics']['pass_percentage'] = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
-            $result['courses_statistics']['count_users']     = $count_users;
+            $result['courses_statistics']['count_users']     = count($users);
 
             if(!empty($first_dates))
             {

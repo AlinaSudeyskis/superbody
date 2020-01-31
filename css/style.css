@@ -8520,6 +8520,7 @@ span.mess_block_full_time {
     flex-direction: row;
     -webkit-flex-direction: row;
     -ms-flex-direction: row;
+    flex-wrap: wrap;
     justify-content: space-evenly;
     -webkit-justify-content: space-evenly;
     max-width: 1130px;
