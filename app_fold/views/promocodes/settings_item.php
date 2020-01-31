@@ -63,7 +63,7 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Кол-во использований:</div>
     <select name="s_ua_type" class="journal_form_select <?php echo $disabled; ?>" id="s-ua-type">
-        <option value="unlimited" <?php if(!empty($promocode['use_type']) and $promocode['user_type'] == 'unlimited'):?>selected="selected"<?php endif; ?>>Не ограничено</option>
+        <option value="unlimited" <?php if(!empty($promocode['use_type']) and $promocode['use_type'] == 'unlimited'):?>selected="selected"<?php endif; ?>>Не ограничено</option>
         <option value="number" <?php if(!empty($promocode['use_type']) and $promocode['use_type'] == 'number'):?>selected="selected"<?php endif; ?>>Число</option>
     </select>
 </div>
@@ -71,20 +71,34 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
     <div class="kurs_block_h">Число использований:</div>
     <input type="number" name="i_ua_number" step="1" min="0" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['ua_number'])): echo $promocode['ua_number']; endif; ?>"/>
 </div>
+<div class="parent kurs_cur_wrap"><div class="practice_block_h"></div></div>
+<div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h" style="line-height: 23px;">Кол-во использований пользователем:</div>
+    <select name="s_user_ua_type" class="journal_form_select <?php echo $disabled; ?>" id="s-user-ua-type">
+        <option value="unlimited" <?php if(!empty($promocode['user_use_type']) and $promocode['user_use_type'] == 'unlimited'):?>selected="selected"<?php endif; ?>>Не ограничено</option>
+        <option value="number" <?php if(!empty($promocode['user_use_type']) and $promocode['user_use_type'] == 'number'):?>selected="selected"<?php endif; ?>>Число</option>
+    </select>
+</div>
+<div class="parent kurs_cur_wrap" id="bl-user-ua-number" <?php if($promocode['user_use_type'] == 'number'): ?>style="display: block;"<?php endif;?>>
+    <div class="kurs_block_h" style="line-height: 23px;">Число использований пользователем:</div>
+    <input type="number" name="i_user_ua_number" step="1" min="1" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['user_ua_number'])): echo $promocode['user_ua_number']; endif; ?>"/>
+</div>
+<div class="parent kurs_cur_wrap"><div class="practice_block_h"></div></div>
 <?php if(empty($disabled)):?>
     <div class="parent kurs_cur_wrap">
         <div class="kurs_block_h">Промокод:</div>
         <input type="text" name="i_promocode" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['code'])): echo $promocode['code']; endif; ?>" maxlength="25" id="generated-code"/>
         <input type="button" value="Сгенерировать" class="full_photo_comm_reset" id="generate-code"/>
     </div>
+    <div class="parent kurs_cur_wrap"><div class="practice_block_h"></div></div>
     <?php if(!empty($used_amount)): ?>
         <div class="parent kurs_cur_wrap">
-            <div class="kurs_block_h">Кол-во использования:</div>
+            <div class="kurs_block_h">Использовано:</div>
             <div class="kurs_block_h"><?php echo $used_amount; ?> раз</div>
         </div>
     <?php elseif(!empty($promocode)): ?>
         <div class="parent kurs_cur_wrap">
-            <div class="kurs_block_h">Кол-во использования:</div>
+            <div class="kurs_block_h">Использовано:</div>
             <div class="kurs_block_h">Не использовался</div>
         </div>
     <?php endif; ?>
@@ -102,7 +116,7 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
                 </div>
                 <div class="anketa_form_radio_wrap">
                     <input type="radio" name="r_courses_group" class="anketa_form_radio cg" value="courses" id="cg-few"
-                           <?php if(empty($promocode['type']) or $promocode['type'] == 'course' or $promocode['type'] == 'courses'): ?>checked="checked"<?php endif; ?>>
+                           <?php if($promocode['type'] == 'course' or $promocode['type'] == 'courses'): ?>checked="checked"<?php endif; ?>>
                     <label for="cg-few">Некоторые курсы</label>
                 </div>
                 <div class="anketa_form_radio_wrap">

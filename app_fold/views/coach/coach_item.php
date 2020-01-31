@@ -9,9 +9,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="trainers_block parent">
         <div class="tren_item">
             <div class="tren_ava">
-                <?php if (!empty($coach['image'])):?>
-                    <img src="<?php echo $coach['image']?>" alt="">
-                <?php endif;?>
+                <a href="/profile/<?php echo $coach['id']?>">
+                    <img src="<?php if (!empty($coach['image'])): echo $coach['image']; endif;?>" alt="">
+                </a>
             </div>
             <?php $profile_link = !empty($coach['id']) ? '/profile/'.$coach['id'] : '';?>
             <a href="<?php echo $profile_link; ?>" class="tren_link">

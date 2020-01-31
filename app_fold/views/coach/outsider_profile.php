@@ -25,7 +25,9 @@ include_once('./app_fold/views/breadcrumb.php');?>
             // Информация профиля
             include_once('./app_fold/views/coach/profile/profile_info.php');
             // Блог тренера
-            include_once('./app_fold/views/blog/posts/user_posts_item.php');
+            if (!empty($posts)) :
+                include_once('./app_fold/views/blog/posts/user_posts_item.php');
+            endif;
             // Портфолио
             if (!empty($portfolio)) :
                 include_once('./app_fold/views/coach/portfolio/portfolio_item.php');

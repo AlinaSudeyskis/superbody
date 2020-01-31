@@ -85,7 +85,7 @@ class Database extends CI_Controller
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/index', $result);
+        $this->load->view('admin/db_index', $result);
         $this->load->view('footer/footer');
     }
 
@@ -109,7 +109,7 @@ class Database extends CI_Controller
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/index', $result);
+        $this->load->view('admin/db_index', $result);
         $this->load->view('footer/footer');
     }
 
@@ -133,7 +133,7 @@ class Database extends CI_Controller
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/index', $result);
+        $this->load->view('admin/db_index', $result);
         $this->load->view('footer/footer');
     }
 
@@ -153,7 +153,7 @@ class Database extends CI_Controller
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/index', $result);
+        $this->load->view('admin/db_index', $result);
         $this->load->view('footer/footer');
     }
 }

@@ -142,7 +142,7 @@ $route['administration'] = 'Administrator/index';
 $route['administration/update/database']        = 'Database/updateDatabase';
 $route['administration/show/table/(:any)']      = 'Database/showTable/$1';
 $route['administration/show/tables']            = 'Database/showTables';
-$route['administration/show/data/table/(:any)'] = 'Database/showDataTable/$1';
+$route['administration/show/data/table/(:any)(/(:num)/(:num))?'] = 'Database/showDataTable/$1/$3/$4';
 // Администраторы
 $route['administration/admins']                = 'Administrator/admins';
 $route['administration/admin/new']             = 'Administrator/newAdmin';

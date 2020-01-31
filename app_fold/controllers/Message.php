@@ -448,7 +448,7 @@ class Message extends CI_Controller
         $result = $this->Message_model->getQaArticles($count_ug);
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['title']        = 'АП - Инструкции';
         $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_articles';
         $this->page_data['page_type']    = 'articles';
@@ -502,7 +502,7 @@ class Message extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['title']        = 'АП - Инструкции';
         $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'new_section';
@@ -589,7 +589,7 @@ class Message extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['title']        = 'АП - Инструкции';
         $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'section';
@@ -613,7 +613,7 @@ class Message extends CI_Controller
         $sections = $this->Message_model->getQaSections();
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['title']        = 'АП - Инструкции';
         $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'sections';
@@ -670,7 +670,7 @@ class Message extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['title']        = 'АП - Инструкции';
         $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'new_subsection';
@@ -759,7 +759,7 @@ class Message extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['title']        = 'АП - Инструкции';
         $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_sections';
         $this->page_data['page_type']    = 'subsection';
@@ -830,7 +830,7 @@ class Message extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['title']        = 'АП - Инструкции';
         $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_articles';
         $this->page_data['page_type']    = 'new_article';
@@ -940,7 +940,7 @@ class Message extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Вопрос - Ответ';
+        $this->page_data['title']        = 'АП - Инструкции';
         $this->page_data['page_menu']    = 'e-question-answer';
         $this->page_data['page_submenu'] = 'qa_articles';
         $this->page_data['page_type']    = 'article';
@@ -1037,11 +1037,7 @@ class Message extends CI_Controller
         $users_types = array('user' => 1, 'coach' => 2, 'admin' => 3);
         $user_type = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
 
-        if(is_numeric($section_id) and empty($subsection_id))
-        {
-            $result = $this->Message_model->getPublicQaSection($section_id, $user_type);
-        }
-        elseif(is_numeric($section_id) and is_numeric($subsection_id))
+        if(is_numeric($section_id))
         {
             $section    = $this->Message_model->getPublicQaSection($section_id, $user_type);
             $subsection = $this->Message_model->getPublicQaSubsection($section_id, $subsection_id, $user_type);
@@ -1084,8 +1080,9 @@ class Message extends CI_Controller
         {
             $section    = $this->Message_model->getPublicQaSection($section_id, $user_type);
             $subsection = $this->Message_model->getPublicQaSubsection($section_id, $subsection_id, $user_type);
+            $articles   = $this->Message_model->getPublicQaSubsectionArticles($section_id, $subsection_id, $user_type);
             $article    = $this->Message_model->getPublicQaArticle($section_id, $subsection_id, $article_id, $user_type);
-            $result     = array_merge($section, $subsection, $article);
+            $result     = array_merge($section, $subsection, $articles, $article);
         }
         else
         {

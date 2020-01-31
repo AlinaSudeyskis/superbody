@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+<?php if($_SERVER['SERVER_NAME'] != 'sb.theoutlines.ru'): ?>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
     (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
@@ -31,6 +32,7 @@ document.write("<a href='//www.liveinternet.ru/click' "+
     " посетителей за 24 часа' "+
     "border='0' width='88' height='31'><\/a>")
 </script><!--/LiveInternet--></span>
+<?php endif; ?>
 
 
 

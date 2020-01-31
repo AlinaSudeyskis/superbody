@@ -19,23 +19,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="admin_list">
+                    <div class="admin_page">
                         <?php if (!empty($coaches)) :
-                            foreach ($coaches as $coach) : ?>
-                                <div class="admin_item parent">
-                                    <?php if(!empty($coach['image'])): ?>
-                                        <div class="admin_ava"><img src="<?php echo $coach['image']; ?>" alt=""></div>
-                                    <?php endif; ?>
-                                    <div class="admin_cont">
-                                        <div class="admin_name">
-                                            <?php $u_name = (!empty($coach['f_name'])) ? $coach['f_name'] : 'Пользователь №' . $coach['id']; ?>
-                                            <a href="/profile/<?php echo $coach['id']; ?>"><?php echo $u_name; ?></a>
-                                        </div>
-                                        <div class="admin_set">
-                                            <a href="/administration/coach/<?php echo $coach['id']; ?>">Редактировать</a>
-                                        </div>
-                                    </div>
-                                </div>
+                            //print_r($coaches);
+                            foreach ($coaches as $u) :
+                                $user_type = 'coach';
+                                $u['user_image'] = $u['image'];
+                                $u['user_id'] = $u['id'];
+                                $u['split_name']['name'] = $u['name'];
+                                $u['split_name']['surname'] = $u['surname'];
+                                ?>
+                                <?php include('./app_fold/views/user/users_item.php'); ?>
                             <?php endforeach;
                             unset($coach);
                         endif;?>

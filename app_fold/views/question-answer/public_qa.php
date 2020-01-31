@@ -3,31 +3,35 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 if($page_submenu == 'sections')
 {
-    $breadcrumbs = array('/about' => 'Вопрос - Ответ');
+    $breadcrumbs = array('/about' => 'Инструкции');
 }
 elseif($page_submenu == 'section')
 {
     if(!empty($section) and empty($subsection))
     {
-        $breadcrumbs = array('/support' => 'Вопрос - Ответ', '/support/'.$section['id'] => $section['name']);
+        $breadcrumbs = array('/support' => 'Инструкции', '/support/'.$section['id'] => $section['name']);
     }
     elseif(!empty($section) and !empty($subsection))
     {
-        $breadcrumbs = array('/support' => 'Вопрос - Ответ', '/support/'.$section['id'] => $section['name'], '/support/'.$section['id'].'/'.$subsection['id'] => $subsection['name']);
+        $breadcrumbs = array('/support' => 'Инструкции', '/support/'.$section['id'] => $section['name'], '/support/'.$section['id'].'/'.$subsection['id'] => $subsection['name']);
     }
     else
     {
-        $breadcrumbs = array('/support' => 'Вопрос - Ответ');
+        $breadcrumbs = array('/support' => 'Инструкции');
     }
 }
 elseif($page_submenu == 'article')
 {
-    $breadcrumbs = array('/support' => 'Вопрос - Ответ', '/support/'.$section['id'] => $section['name'], '/support/'.$section['id'].'/'.$subsection['id'] => $subsection['name'], '/support/article' => $article['name']);
+    $breadcrumbs = array('/support' => 'Инструкции', '/support/'.$section['id'] => $section['name'], '/support/'.$section['id'].'/'.$subsection['id'] => $subsection['name'], '/support/article' => $article['name']);
 }
 
 include_once('./app_fold/views/breadcrumb.php');
 ?>
-<div id="content" class="container">
+<div class="container">
+    <h2 class="block_h">Инструкции</h2>
+    <div class="qa_subtitle">Здравствуйте. Возник вопрос?</div>
+</div>
+<div id="content">
     <div class="search_form_wrap">
         <div class="open_search_form"></div>
         <form action="/support" class="search_form parent" method="post">
@@ -41,6 +45,7 @@ include_once('./app_fold/views/breadcrumb.php');
         $url_path = '/support/';
         include_once('./app_fold/views/question-answer/public_qa_section.php');
     elseif($page_submenu == 'article'):
+        $url_path = '/support/';
         include_once('./app_fold/views/question-answer/public_qa_article.php');
     endif; ?>
 </div><!-- content -->

@@ -3120,25 +3120,29 @@ class Store_model extends CI_Model
      */
     public function getUserCoursesOrder($user_id, $courses)
     {
-         if(is_array($courses['courses']))
-         {
-             foreach ($courses['courses'] as $key => $course)
-             {
-                 $order_data = self::getUserOrderData($user_id, $course['order_id']);
-                 $courses['courses'][$key]['order'] = (!empty($order_data['order'])) ? $order_data['order'] : array();
-             }
-             unset($course);
-         }
+        $courses['used_promocodes'] = array();
 
-         if(is_array($courses['blocked_courses']))
-         {
-             foreach ($courses['blocked_courses'] as $key => $course)
-             {
-                 $order_data = self::getUserOrderData($user_id, $course['order_id']);
-                 $courses['blocked_courses'][$key]['order'] = (!empty($order_data['order'])) ? $order_data['order'] : array();
-             }
-             unset($course);
-         }
+        if(is_array($courses['courses']))
+        {
+            foreach ($courses['courses'] as $key => $course)
+            {
+                $order_data = self::getUserOrderData($user_id, $course['order_id']);
+                $courses['courses'][$key]['order'] = (!empty($order_data['order'])) ? $order_data['order'] : array();
+                $courses['used_promocodes'] = (!empty($order_data['used_promocodes'])) ? array_merge($courses['used_promocodes'], $order_data['used_promocodes']) : $courses['used_promocodes'];
+            }
+            unset($course);
+        }
+
+        if(is_array($courses['blocked_courses']))
+        {
+            foreach ($courses['blocked_courses'] as $key => $course)
+            {
+                $order_data = self::getUserOrderData($user_id, $course['order_id']);
+                $courses['blocked_courses'][$key]['order'] = (!empty($order_data['order'])) ? $order_data['order'] : array();
+                $courses['used_promocodes'] = (!empty($order_data['used_promocodes'])) ? array_merge($courses['used_promocodes'], $order_data['used_promocodes']) : $courses['used_promocodes'];
+            }
+            unset($course);
+        }
 
         return $courses;
     }
@@ -3189,6 +3193,7 @@ class Store_model extends CI_Model
                 $discount_currency = 0;
                 $discount_free_weeks = 0;
                 $promocodes = '';
+                $used_promocodes = array();
                 $i = 0;
                 foreach ($sel_cart->result() as $row)
                 {
@@ -3216,6 +3221,16 @@ class Store_model extends CI_Model
 
                     $promocodes .= (!empty($row->pcu_code)) ? ' '.$row->pcu_code : '';
 
+                    if(!empty($row->ouc_promocode_id))
+                    {
+                        $used_promocodes[$i]['id']            = $row->ouc_promocode_id;
+                        $used_promocodes[$i]['code']          = $row->pcu_code;
+                        $used_promocodes[$i]['order_id']      = $order_id;
+                        $types = array('%' => 'percent', ' руб.' => 'currency', ' бесплат. нед.' => 'free_week');
+                        $used_promocodes[$i]['discount_type'] = array_search($row->pcu_discount_type, $types);
+                        $used_promocodes[$i]['discount']      = $row->pcu_discount;
+                    }
+
                     $i++;
                 }
                 unset($row);
@@ -3229,6 +3244,7 @@ class Store_model extends CI_Model
                 $result['order']['price']     = $total_order_price;
                 $result['order']['promocode'] = $promocodes;
                 $result['order']['discount']  = $total_order_discount;
+                $result['used_promocodes']    = $used_promocodes;
             }
             elseif ($sel_cart === false)
             {

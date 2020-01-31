@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-$col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col_4';
+$col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_4' : 'col_3'; // col_5
 ?>
 <div class="row cat_item_block <?php echo $col_x; ?>">
     <!--<div class="cat_item_wrap">
@@ -48,10 +48,10 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col
             <div class="cat_desk">Ввести параметры тела</div>
         </a>
     </div>
-    <div class="cat_item_wrap">
+    <!--<div class="cat_item_wrap">
         <a href="/orders" class="cat_item">
             <div class="cat_img"><img src="/img/cat5.png" alt=""></div>
             <div class="cat_desk">Финансы<br/>Покупки</div>
         </a>
-    </div>
+    </div>-->
 </div>

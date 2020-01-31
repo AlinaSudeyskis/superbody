@@ -11,9 +11,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     foreach ($course['coaches'] as $course_coach) :?>
                         <div class="kurs_page_block_slide parent">
                             <div class="kurs_page_block_slide_img">
-                                <?php if (!empty($course_coach['image'])):?>
-                                    <img src="<?php echo $course_coach['image'];?>" alt="">
-                                <?php endif;?>
+                                <a href="/profile/<?php echo $course_coach['id']?>">
+                                    <img src="<?php if (!empty($course_coach['image'])): echo $course_coach['image']; endif;?>" alt="">
+                                </a>
                             </div>
                             <div class="kurs_page_block_slide_cont">
                                 <div class="kurs_page_block_slide_stat">тренер</div>

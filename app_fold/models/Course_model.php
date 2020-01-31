@@ -411,6 +411,7 @@ class Course_model extends CI_Model
      * Сохранение данных приема пищи
      *
      * @param int $ing_id ID приема пищи
+     * @param $name
      * @param string $time_from
      * @param string $time_to
      * @param int $admin_id
@@ -1803,6 +1804,7 @@ class Course_model extends CI_Model
      * @param $date
      *
      * @return array
+     * @throws Exception
      */
     public function getTodayUserMeal($user_id, $date)
     {
@@ -2273,6 +2275,7 @@ class Course_model extends CI_Model
      * @param $course_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getAvailableCourse($course_id, $date = "")
     {
@@ -2670,51 +2673,345 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Статистика курсов тренера
+     *
+     * @param $coach_courses
+     * @return array
+     * @throws Exception
+     */
+    public function getCoachCoursesStatistics($coach_courses)
+    {
+        $result = array('coach_courses_statistics' => array());
+
+        if(!empty($coach_courses))
+        {
+            $first_date      = array();
+            $count_users     = 0;
+            $count_workouts  = 0;
+            $pass_percentage = array();
+            foreach($coach_courses as $course_id => $course)
+            {
+                $course_statistics = self::getCourseStatistics($course_id);
+                $result['coach_courses_statistics']['courses'][$course_id] = $course_statistics['statistics'];
+
+                $count_users += $course_statistics['statistics']['count_users'];
+                $count_workouts += $course_statistics['statistics']['count_workouts'];
+                $first_date[] = $course_statistics['statistics']['first_date'];
+                $pass_percentage[] = $course_statistics['statistics']['pass_percentage'];
+            }
+
+            $first_date = (is_array($first_date)) ? array_diff($first_date, array(0, null)) : array();
+
+            $result['coach_courses_statistics']['first_date']      = (is_array($first_date)) ? min($first_date) : '';
+            $result['coach_courses_statistics']['count_users']     = $count_users;
+            $result['coach_courses_statistics']['count_workouts']  = $count_workouts;
+            $result['coach_courses_statistics']['pass_percentage'] = (is_array($pass_percentage)) ? (array_sum($pass_percentage)/count($pass_percentage)) : 0;
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка статистических данных курса
      *
      * @param $course_id
      * @return array
+     * @throws Exception
      */
-    public function getStatistics($course_id)
+    public function getCourseStatistics($course_id)
     {
-        $result = array();
+        $result     = array('statistics' => array());
+        $users      = array();
+        $orders     = array();
+        $dates      = array();
 
         $sel_pid = $this->db->query('
-          SELECT `p_id`, `p_course_id`
+          SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
           FROM `products`
+          LEFT JOIN `courses` ON `crs_id`=`p_course_id`
           WHERE `p_course_id`=? LIMIT 1', $course_id);
 
         if ($sel_pid !== false and 1 == $sel_pid->num_rows())
         {
             $row = $sel_pid->row();
             $course_pid = $row->p_id;
+            $course_count_days  = $row->crs_count_days;
+            $course_count_weeks = $row->crs_count_weeks;
+            $course_count_workouts = $course_count_days * $course_count_weeks;
             unset($row);
 
+            // Кол-во участников
             $sel_data = $this->db->query('
-              SELECT `ouc_u_id`, `ouc_p_price`, `ouc_p_fitcoin_price`
+              SELECT `ouc_u_id`, `ouc_o_id`, `ouc_p_price`, `ouc_p_fitcoin_price`, `o_date_add`
               FROM `orders_users_cart`
-              WHERE `ouc_p_id`=?', $course_pid);
+              LEFT JOIN `orders` ON `o_id`=`ouc_o_id`
+              WHERE `ouc_p_id`=?
+              ORDER BY `o_date_add` DESC', $course_pid);
             if ($sel_data !== false and 0 < $sel_data->num_rows())
             {
-                $count_users = 0;
-                $count_price = 0;
                 $i = 0;
                 foreach($sel_data->result() as $row)
                 {
-                    $count_users++;
-                    $count_price += $row->ouc_p_price;
+                    $users[$i]  = $row->ouc_u_id;
+                    $orders[$i] = $row->ouc_o_id;
+                    $dates[$i]  = $row->o_date_add;
 
                     $i++;
                 }
                 unset($row);
 
-                $result['statistics']['count_users'] = $count_users;
-                $result['statistics']['count_price'] = $count_price;
+                $first_date = array_pop($dates);
+
+                $users  = array_unique($users);
+                $orders = array_unique($orders);
+
+                $users_data = array();
+                $limit = 5;
+                $i = 0;
+                foreach($users as $key => $user_id)
+                {
+                    $sel_user_data = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`, `user_type` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+                    if($sel_user_data !== false and 1 == $sel_user_data->num_rows())
+                    {
+                        $row = $sel_user_data->row();
+
+                        $users_data[$key]['user_id']        = (!empty($row->user_id)) ? $row->user_id : '';
+                        $users_data[$key]['default_name']   = ($row->user_type == 3) ? 'Страница администратора' : 'Страница пользователя';
+                        $users_data[$key]['user_name']      = (!empty($row->user_name)) ? $row->user_name : '';
+                        $users_data[$key]['user_email']     = (!empty($row->user_email)) ? $row->user_email : '';
+                        $users_data[$key]['user_blocked']   = ($row->user_blocked == 1) ? $row->user_blocked : '';
+                        $users_data[$key]['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+                        $users_data[$key]['user_type']      = (!empty($row->user_type)) ? $row->user_type : '';
+                        $users_data[$key]['user_soc_image'] = '';
+                        if(!empty($row->user_soc_image))
+                        {
+                            $Headers = @get_headers($row->user_soc_image);
+                            if(strpos($Headers[0], '200'))
+                            {
+                                $users_data[$key]['user_soc_image'] = $row->user_soc_image;
+                            }
+                        }
+                        $split_name = !empty($row->user_name) ? explode(" ", $row->user_name) : '';
+                        $users_data[$key]['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Пользователь';
+                        $users_data[$key]['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
+
+                        $i++;
+
+                        if($i > $limit)
+                        {
+                            break;
+                        }
+                    }
+                    elseif($sel_user_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
             }
             elseif($sel_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
+            unset($sel_data);
+
+            $result['statistics']['count_users']  = (is_array($users)) ? count($users) : 0;
+            $result['statistics']['bought_users'] = (!empty($users)) ? $users : array();
+            $result['statistics']['bought_users_data'] = (!empty($users_data)) ? $users_data : array();
+
+            if(!empty($first_date))
+            {
+                $tmp_date = new DateTime($first_date);
+                $first_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y') : '';
+            }
+            $result['statistics']['first_date'] = (!empty($first_date)) ? $first_date : '';
+
+            $count_price = 0;
+            foreach($orders as $order_id)
+            {
+                // Оплаченная сумма
+                $sel_data = $this->db->query('SELECT `op_amount` FROM `orders_payment` WHERE `op_o_id`=? and `op_status`="succeeded"', $order_id);
+                if ($sel_data !== false and 0 < $sel_data->num_rows())
+                {
+                    foreach($sel_data->result() as $row)
+                    {
+                        $count_price += $row->op_amount;
+                    }
+                    unset($row);
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                unset($sel_data);
+            }
+            unset($order_id);
+
+            // Курсы пользователей
+            $count_workouts  = 0;
+            $pass_percentage = array();
+            $sel_data = $this->db->query('
+                SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
+                LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+                WHERE `uc_course_id`=? and `utw_status`="done"
+                GROUP BY `utw_uc_id`', $course_id);
+            if ($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach($sel_data->result() as $row)
+                {
+                    if($row->count_done == $course_count_workouts)
+                    {
+                        $count_workouts++;
+                    }
+                    $pass_percentage[] = ($row->count_done > 0 and $course_count_workouts > 0) ? ceil($row->count_done / $course_count_workouts * 100) : 0;
+                }
+                unset($row);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            unset($sel_data);
+
+
+        }
+        elseif ($sel_pid === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        $result['statistics']['count_price']     = (!empty($count_price)) ? $count_price : 0;
+        $result['statistics']['count_workouts']  = (!empty($count_workouts)) ? $count_workouts : 0;
+        $result['statistics']['pass_percentage'] = (!empty($pass_percentage) and is_array($pass_percentage)) ? (array_sum($pass_percentage)/count($pass_percentage)) : 0;
+
+        return $result;
+    }
+
+    /**
+     * Выборка статистических данных курсов
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getCoursesStatistics()
+    {
+        $result     = array('courses_statistics' => array());
+        $users      = array();
+        $orders     = array();
+        $dates      = array();
+
+        $sel_pid = $this->db->query('
+          SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
+          FROM `products`
+          LEFT JOIN `courses` ON `crs_id`=`p_course_id`
+          WHERE `p_course_id`>0');
+
+        if ($sel_pid !== false and 0 < $sel_pid->num_rows())
+        {
+            $count_price     = 0;
+            $count_users     = 0;
+            $count_workouts  = 0;
+            $pass_percentage = array();
+            foreach($sel_pid->result() as $row)
+            {
+                $course_pid = $row->p_id;
+                $course_id  = $row->p_course_id;
+                $course_count_days  = $row->crs_count_days;
+                $course_count_weeks = $row->crs_count_weeks;
+                $course_count_workouts = $course_count_days * $course_count_weeks;
+                unset($row);
+
+                // Кол-во участников
+                $sel_data = $this->db->query('
+                    SELECT `ouc_u_id`, `ouc_o_id`, `ouc_p_price`, `ouc_p_fitcoin_price`, `o_date_add`
+                    FROM `orders_users_cart`
+                    LEFT JOIN `orders` ON `o_id`=`ouc_o_id`
+                    WHERE `ouc_p_id`=?
+                    ORDER BY `o_date_add` DESC', $course_pid);
+                if ($sel_data !== false and 0 < $sel_data->num_rows())
+                {
+                    $i = 0;
+                    foreach($sel_data->result() as $row)
+                    {
+                        $users[$i]  = $row->ouc_u_id;
+                        $orders[$i] = $row->ouc_o_id;
+                        $dates[$i]  = $row->o_date_add;
+
+                        $i++;
+                    }
+                    unset($row);
+
+                    $first_dates[] = array_pop($dates);
+
+                    $users  = array_unique($users);
+                    $orders = array_unique($orders);
+
+                    $count_users += count($users);
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                unset($sel_data);
+
+                // Сумма купленных курсов
+                foreach($orders as $order_id)
+                {
+                    // Оплаченная сумма
+                    $sel_data = $this->db->query('SELECT `op_amount` FROM `orders_payment` WHERE `op_o_id`=? and `op_status`="succeeded"', $order_id);
+                    if ($sel_data !== false and 0 < $sel_data->num_rows())
+                    {
+                        foreach($sel_data->result() as $row)
+                        {
+                            $count_price += $row->op_amount;
+                        }
+                        unset($row);
+                    }
+                    elseif($sel_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                    unset($sel_data);
+                }
+                unset($order_id);
+
+                // Курсы пользователей
+                $sel_data = $this->db->query('
+                    SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
+                    LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+                    WHERE `uc_course_id`=? and `utw_status`="done"
+                    GROUP BY `utw_uc_id`', $course_id);
+                if ($sel_data !== false and 0 < $sel_data->num_rows())
+                {
+                    foreach($sel_data->result() as $row)
+                    {
+                        if($row->count_done == $course_count_workouts)
+                        {
+                            $count_workouts++;
+                        }
+                        $pass_percentage[] = ($row->count_done > 0 and $course_count_workouts > 0) ? ceil($row->count_done / $course_count_workouts * 100) : 0;
+                    }
+                    unset($row);
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                unset($sel_data);
+            }
+
+            $result['courses_statistics']['count_price']     = $count_price;
+            $result['courses_statistics']['count_workouts']  = $count_workouts;
+            $result['courses_statistics']['pass_percentage'] = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
+            $result['courses_statistics']['count_users']     = $count_users;
+
+            if(!empty($first_dates))
+            {
+                $first_date = min($first_dates);
+                $tmp_date = new DateTime($first_date);
+                $first_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y') : '';
+
+            }
+            $result['courses_statistics']['first_date'] = (!empty($first_date)) ? $first_date : '';
 
         }
         elseif ($sel_pid === false)
@@ -2744,7 +3041,8 @@ class Course_model extends CI_Model
      * @return bool
      */
     public function setNewCourse($course_category, $name, $description, $meta_description, $meta_keywords, $price,
-                                 $fc_price, $course_type = 0, $count_weeks = 1, $count_days = 7, $count_rest = 0, $user_id, $date)
+                                 $fc_price, $course_type = 0, $count_weeks = 1, $count_days = 7, $count_rest = 0,
+                                 $user_id = 0, $date = '')
     {
         $up_data = $this->db->query('
             INSERT INTO `courses` (`crs_category`, `crs_type_id`, `crs_name`, `crs_description`, `crs_meta_description`, 
@@ -3056,7 +3354,7 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function archiveCourse($course_id, $archive = 1, $admin_id, $date)
+    public function archiveCourse($course_id, $archive = 1, $admin_id = 0, $date = '')
     {
         $up_data = $this->db->query('
             UPDATE `courses` SET `crs_archive`=?, `crs_date_update`=? WHERE `crs_id`=? LIMIT 1',
@@ -3459,7 +3757,7 @@ class Course_model extends CI_Model
         $sel_data = $this->db->query('
             SELECT `cds_id`, `cds_day`, `cds_ci_id`, `cds_ml_id` 
             FROM `courses_days_schedule`
-            WHERE `cds_crs_id`=? ORDER BY `cds_day` ASC', $course_id);
+            WHERE `cds_crs_id`=? ORDER BY `cds_day`', $course_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -3640,7 +3938,7 @@ class Course_model extends CI_Model
             SELECT `cds_id`, `cds_day`, `cds_ci_id`, `cds_ml_id`, `ml_mt_id` 
             FROM `courses_days_schedule`
             LEFT JOIN `meals` ON `ml_id`=`cds_ml_id`
-            WHERE `cds_crs_id`=? ORDER BY `cds_day` ASC', $course_id);
+            WHERE `cds_crs_id`=? ORDER BY `cds_day`', $course_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -6110,7 +6408,6 @@ class Course_model extends CI_Model
      * @param $course_id
      * @param $video_id
      * @param $video_type
-     * @param $display
      * @param $date
      * @return bool
      */
@@ -6489,7 +6786,7 @@ class Course_model extends CI_Model
                 unset($row);
                 unset($i);
 
-                $percent_workouts_done = (is_numeric($workouts_done)) ? round($workouts_done * 100 / $total_count_workouts) : 0;
+                $percent_workouts_done = (is_numeric($workouts_done)) ? ceil($workouts_done * 100 / $total_count_workouts) : 0;
 
             }
             elseif ($sel_workouts === false)
@@ -6837,6 +7134,7 @@ class Course_model extends CI_Model
      * @param $user_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getNextUserWorkout($user_id, $date)
     {
@@ -6850,7 +7148,7 @@ class Course_model extends CI_Model
             FROM `users_training_weeks`
              LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
             WHERE `uc_user_id`=? and `uc_blocked`=0 and `uc_display`=1 and `utw_date`>=? and `utw_status`=""
-            ORDER BY `utw_date` ASC LIMIT 1', array($user_id, $date));
+            ORDER BY `utw_date` LIMIT 1', array($user_id, $date));
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
@@ -7007,7 +7305,7 @@ class Course_model extends CI_Model
 
         $sel_data = $this->db->query('SELECT `utw_id`, `utw_crs_workout`, `utw_status`, `utw_date` 
             FROM `users_training_weeks` 
-            WHERE `utw_uc_id`=? ORDER BY `utw_date` ASC', $user_course_id);
+            WHERE `utw_uc_id`=? ORDER BY `utw_date`', $user_course_id);
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $sel_data = $sel_data->result();
@@ -7636,6 +7934,7 @@ class Course_model extends CI_Model
      * @param int $user_id
      * @param string $date
      * @return array
+     * @throws Exception
      */
     public function getUserCourseNotifications($user_course_id, $user_id, $date)
     {
@@ -7808,6 +8107,7 @@ class Course_model extends CI_Model
      * @param $date
      * @param $utw_id
      * @return string|bool
+     * @throws Exception
      */
     protected function setNewDateOfPrev($training_date, $array_training_days, $date, $utw_id)
     {
@@ -7870,7 +8170,6 @@ class Course_model extends CI_Model
      */
     protected function different_shade($rgb, $type = '')
     {
-        $newShade = array();
         $percentageChange  = 30;
         $percentageChange2 = 25;
 
@@ -9309,6 +9608,7 @@ class Course_model extends CI_Model
      * @param $user_id
      * @param $date
      * @return bool
+     * @throws Exception
      */
     public function attachUserCourse($user_course_id, $id_choosen_course, $user_id, $date)
     {
@@ -9465,6 +9765,7 @@ class Course_model extends CI_Model
      *
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getUsersNutritionWeekMenu($date)
     {
@@ -10092,15 +10393,16 @@ class Course_model extends CI_Model
      *
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getPromocodes($date)
     {
         $result = array('promocodes' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
-              `pc_admin_id`, `pc_date_add`, `pc_update` 
+            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, `pc_pv_date_start`, 
+               `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, 
+               `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
             WHERE `pc_coach_id`=0');
 
@@ -10130,6 +10432,7 @@ class Course_model extends CI_Model
      * @param $promocode_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getPromocode($promocode_id, $date)
     {
@@ -10137,7 +10440,7 @@ class Course_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
-              `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, 
+              `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, 
               `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
             WHERE `pc_id`=? LIMIT 1', $promocode_id);
@@ -10163,7 +10466,9 @@ class Course_model extends CI_Model
     /**
      * Выборка данных промокода для друга
      *
+     * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getPromocodeForFriend($user_id)
     {
@@ -10284,6 +10589,8 @@ class Course_model extends CI_Model
      * @param $pv_date_end
      * @param $use_type
      * @param $ua_number
+     * @param $user_use_type
+     * @param $user_ua_number
      * @param $promocode
      * @param $courses
      * @param $crs_categories
@@ -10295,18 +10602,19 @@ class Course_model extends CI_Model
      * @internal param $category
      */
     public function setNewPromocode($pc_type, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
-                                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $promocode, $courses,
-                                    $crs_categories, $coach_id, $admin_id, $date)
+                                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number,
+                                    $promocode, $courses, $crs_categories, $coach_id, $admin_id, $date)
     {
         $result = false;
 
         $ins_data = $this->db->query('
             INSERT INTO `promocodes` (`pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`,
-              `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, 
+              `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, 
               `pc_code`, `pc_coach_id`, `pc_admin_id`, `pc_date_add`, `pc_update`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 array($pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
-                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $promocode, $coach_id, $admin_id, $date, $date));
+                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode,
+                    $coach_id, $admin_id, $date, $date));
 
         if($ins_data !== false and 1 == $this->db->affected_rows())
         {
@@ -10340,6 +10648,8 @@ class Course_model extends CI_Model
      * @param $pv_date_end
      * @param $use_type
      * @param $ua_number
+     * @param $user_use_type
+     * @param $user_ua_number
      * @param $generated_code
      * @param $crs_categories
      * @param $admin_id
@@ -10348,18 +10658,20 @@ class Course_model extends CI_Model
      * @return bool
      */
     public function updatePromocode($promocode_id, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
-                                    $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $generated_code,
-                                    $crs_categories, $admin_id, $date, $coach_id = 0)
+                                    $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type,
+                                    $user_ua_number, $generated_code, $crs_categories, $admin_id, $date, $coach_id = 0)
     {
         $result = false;
 
         $up_data = $this->db->query('
             UPDATE `promocodes` SET `pc_type`=?, `pc_crs_cats`=?, `pc_name`=?, `pc_description`=?, `pc_discount`=?, `pc_discount_type`=?, 
               `pc_relative_percent`=?, `pc_period_validity_type`=?, `pc_pv_date_start`=?, `pc_pv_date_end`=?, 
-              `pc_use_amount_type`=?, `pc_ua_number`=?, `pc_code`=?, `pc_coach_id`=?, `pc_admin_id`=?, `pc_update`=?
+              `pc_use_amount_type`=?, `pc_ua_number`=?, `pc_user_use_amount_type`=?, `pc_user_ua_number`=?, `pc_code`=?, 
+              `pc_coach_id`=?, `pc_admin_id`=?, `pc_update`=?
             WHERE `pc_id`=? LIMIT 1',
                 array($pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
-                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $generated_code, $coach_id, $admin_id, $date, $promocode_id));
+                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $generated_code,
+                    $coach_id, $admin_id, $date, $promocode_id));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -10389,24 +10701,27 @@ class Course_model extends CI_Model
      * @param $pv_date_end
      * @param $use_type
      * @param $ua_number
+     * @param $user_use_type
+     * @param $user_ua_number
      * @param $generated_code
      * @param $crs_categories
      * @param $date
      * @return bool
      */
     public function updateCoachPromocode($coach_id, $promocode_id, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
-                                    $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $generated_code,
-                                    $crs_categories, $date)
+                                    $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type,
+                                     $user_ua_number, $generated_code, $crs_categories, $date)
     {
         $result = false;
 
         $up_data = $this->db->query('
             UPDATE `promocodes` SET `pc_type`=?, `pc_crs_cats`=?, `pc_name`=?, `pc_description`=?, `pc_discount`=?, `pc_discount_type`=?, 
               `pc_relative_percent`=?, `pc_period_validity_type`=?, `pc_pv_date_start`=?, `pc_pv_date_end`=?, 
-              `pc_use_amount_type`=?, `pc_ua_number`=?, `pc_code`=?, `pc_update`=?
+              `pc_use_amount_type`=?, `pc_ua_number`=?, `pc_user_use_amount_type`=?, `pc_user_ua_number`=?, `pc_code`=?, `pc_update`=?
             WHERE `pc_id`=? and `pc_coach_id`=? LIMIT 1',
                 array($pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
-                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $generated_code, $date, $promocode_id, $coach_id));
+                    $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $generated_code,
+                    $date, $promocode_id, $coach_id));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -10544,20 +10859,22 @@ class Course_model extends CI_Model
      * @param $course_id
      * @param $promocode
      * @param $date
+     * @param int|null $user_id
      * @return array
      * @throws Exception
      */
-    public function getAvailableCoursePromocode($course_id, $promocode, $date)
+    public function getAvailableCoursePromocode($course_id, $promocode, $date, $user_id = null)
     {
         $result = array('discount' => false, 'id' => null);
+        $user_id = (is_numeric($user_id)) ? $user_id : 0;
 
         if(is_numeric($course_id) and !empty($promocode) and strlen($promocode) >=1 and strlen($promocode) <= 25)
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('
-                SELECT `pc_id`, `pc_code`, `pc_type`, `pc_crs_cats`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
-                  `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, 
-                  `pc_ua_number`, `pc_blocked` 
+                SELECT `pc_id`, `pc_code`, `pc_type`, `pc_crs_cats`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`,
+                  `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_user_use_amount_type`, `pc_user_ua_number`,
+                  `pc_ua_number`, `pc_blocked`
                 FROM `promocodes`
                 WHERE `pc_code`=? LIMIT 1', $promocode);
 
@@ -10652,6 +10969,27 @@ class Course_model extends CI_Model
                     }*/
                 }
 
+                // Проверка использования
+                $result['user_used'] = false;
+                if($user_id > 0)
+                {
+                    $sel_used_data = $this->db->query('SELECT COUNT(`pcu_u_id`) as `count_used` FROM `promocodes_used` WHERE `pcu_u_id`=? and `pcu_pc_id`=?',
+                        array($user_id, $row->pc_id));
+                    if($sel_used_data !== false and 1 == $sel_used_data->num_rows())
+                    {
+                        $uu_row = $sel_used_data->row();
+
+                        if($row->pc_user_use_amount_type == 'number' and $row->pc_user_ua_number <= $uu_row->count_used)
+                        {
+                            $result['user_used'] = true;
+                        }
+                    }
+                    elseif($sel_used_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+
                 // Промокод активен
                 /*if($promocode_data['active'] === true and $row->pc_type == 'all')
                 {
@@ -10706,10 +11044,11 @@ class Course_model extends CI_Model
             }
             elseif($sel_promo_data !== false and 0 == $sel_promo_data->num_rows())
             {
+                // Поиск промокода а таблице промокодов "для друга"
                 $sel_promo_data = $this->db->query('
                     SELECT `pff_code`, `pc_id`, `pc_type`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
                       `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, 
-                      `pc_blocked` 
+                      `pc_user_use_amount_type`, `pc_user_ua_number`, `pc_blocked` 
                     FROM `promocodes_for_friend` 
                     LEFT JOIN `promocodes` ON `pc_id`=1
                     WHERE `pff_code`=? LIMIT 1', $promocode);
@@ -10780,7 +11119,7 @@ class Course_model extends CI_Model
             $sel_promo_data = $this->db->query('
                 SELECT `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
                   `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, 
-                  `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
+                  `pc_use_amount_type`, `pc_user_use_amount_type`, `pc_user_ua_number`, `pc_ua_number`, `pc_blocked` 
                 FROM `promocodes`
                 WHERE `pc_code`=? LIMIT 1', $promocode);
 
@@ -10826,7 +11165,7 @@ class Course_model extends CI_Model
                 $sel_promo_data = $this->db->query('
                     SELECT `pff_code`, `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
                        `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, 
-                       `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
+                       `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, `pc_blocked` 
                     FROM `promocodes_for_friend` 
                     LEFT JOIN `promocodes` ON `pc_id`=1
                     WHERE `pff_code`=? LIMIT 1', $promocode);
@@ -10877,7 +11216,8 @@ class Course_model extends CI_Model
         $result['period'] = ($row->pc_period_validity_type == 'unlimited') ? 'Не ограничен' : $pc_dates;
 
         // Кол-во использований
-        $result['use_amount'] = ($row->pc_use_amount_type == 'unlimited') ? 'Не ограничено' : $row->pc_ua_number;
+        $result['use_amount']      = ($row->pc_use_amount_type == 'unlimited') ? 'Не ограничено' : $row->pc_ua_number;
+        $result['user_use_amount'] = ($row->pc_user_use_amount_type == 'unlimited') ? 'Не ограничено' : $row->pc_user_ua_number;
 
         // Действует на
         $pc_types = array('Все курсы' => 'all', 'Курсы тренировок' => 'workouts', 'Курсы питания' => 'nutritions',
@@ -10897,6 +11237,7 @@ class Course_model extends CI_Model
      * @param $course_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getCoursePromocodes($course_id, $date)
     {
@@ -10906,8 +11247,8 @@ class Course_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
-              `pc_admin_id`, `pc_date_add`, `pc_update` 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
+              `pc_user_ua_number`, `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
             WHERE `pc_type`="all"');
 
@@ -10930,8 +11271,8 @@ class Course_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `pcc_pc_id`, `pcc_crs_id`, `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
-              `pc_admin_id`, `pc_date_add`, `pc_update` 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
+              `pc_user_ua_number`, `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocode_courses` 
             LEFT JOIN `promocodes` ON `pc_id`=`pcc_pc_id`
             WHERE `pcc_crs_id`=?', $course_id);
@@ -10964,6 +11305,7 @@ class Course_model extends CI_Model
      * @param $course_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getCourseExtendPromocodes($course_id, $date)
     {
@@ -10971,8 +11313,8 @@ class Course_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
-              `pc_admin_id`, `pc_date_add`, `pc_update` 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
+                   `pc_user_ua_number`, `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`', $course_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
@@ -11001,6 +11343,7 @@ class Course_model extends CI_Model
      * @param $course_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getExtendCoursePromocodes($course_id, $date)
     {
@@ -11008,7 +11351,8 @@ class Course_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `ce_extend_crs_id`, `pc_id`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_blocked` 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
+               `pc_user_ua_number`, `pc_blocked` 
             FROM `courses_extends`
               LEFT JOIN `promocodes` ON `pc_id`=`ce_pc_id`
             WHERE `ce_extend_crs_id`=?', $course_id);
@@ -11083,6 +11427,7 @@ class Course_model extends CI_Model
      * @param $coach_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getCoachPromocodes($coach_id, $date)
     {
@@ -11090,8 +11435,8 @@ class Course_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
-              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_code`, `pc_blocked`, 
-              `pc_admin_id`, `pc_date_add`, `pc_update` 
+              `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
+               `pc_user_ua_number`, `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
             WHERE `pc_coach_id`=?', $coach_id);
 
@@ -11122,6 +11467,7 @@ class Course_model extends CI_Model
      * @param $promocode_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getCoachPromocode($coach_id, $promocode_id, $date)
     {
@@ -11129,7 +11475,7 @@ class Course_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
-              `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, 
+              `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, 
               `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update`, `pcc_crs_id`, `cc_percent` 
             FROM `promocodes`
             LEFT JOIN `promocode_courses` ON `pcc_pc_id`=`pc_id`
@@ -12840,6 +13186,8 @@ class Course_model extends CI_Model
         $result['pv_date_end']        = $row->pc_pv_date_end;
         $result['use_type']           = $row->pc_use_amount_type;
         $result['ua_number']          = $row->pc_ua_number;
+        $result['user_use_type']      = $row->pc_user_use_amount_type;
+        $result['user_ua_number']     = $row->pc_user_ua_number;
         $result['code']               = $row->pc_code;
         $result['blocked']            = $row->pc_blocked;
         $result['admin_id']           = $row->pc_admin_id;
@@ -12962,6 +13310,7 @@ class Course_model extends CI_Model
      * @param $row
      *
      * @return array
+     * @throws Exception
      */
     protected function parseUserMeals($row)
     {

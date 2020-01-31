@@ -94,7 +94,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Пройдено курса:</div></div>
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">
                                     <?php if (!empty($course['workouts_passed'])) :
-                                        echo round(($course['workouts_passed']*100)/($course['count_weeks']*$course['count_days'])).'%';
+                                        echo ceil(($course['workouts_passed']*100)/($course['count_weeks']*$course['count_days'])).'%';
                                     else :
                                         echo '0%';
                                     endif; ?>

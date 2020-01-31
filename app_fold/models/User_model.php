@@ -24,7 +24,7 @@ class User_model extends CI_Model
         if(is_numeric($user_id))
         {
             $sel_user = $this->db->query('
-            SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`
+            SELECT `user_id`, `user_type`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`, `user_activated`
             FROM `users`
             WHERE `user_id`=? LIMIT 1', $user_id);
 
@@ -1647,6 +1647,49 @@ class User_model extends CI_Model
             $row = $sel_data->row();
 
             $result['user_bmr'] = $row->user_bmr;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Статистика о пользователях
+     *
+     * @return array
+     */
+    public function getUsersStatistics()
+    {
+        $result = array('users_statistics' => array());
+
+        $sel_data = $this->db->query('SELECT COUNT(`user_id`) as `count_users` FROM `users`');
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+            $result['users_statistics']['count_users'] = $row->count_users;
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        unset($sel_data);
+
+        $sel_data = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`, `user_type` 
+            FROM `users` ORDER BY `user_id` DESC LIMIT 5');
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['users_statistics']['last_users'][$i] = self::parseUserData($row);
+
+                $i++;
+            }
+            unset($row);
         }
         elseif($sel_data === false)
         {

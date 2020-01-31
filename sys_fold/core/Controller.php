@@ -1630,7 +1630,7 @@ class CI_Controller {
         // Проверка промокода
         if(!empty($i_promocode))
         {
-            $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $this->date);
+            $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $this->date, $user_id);
             if($promocode['discount'] !== false and !empty($promocode['id']))
             {
                 $promocode_id = $promocode['id'];
@@ -2034,21 +2034,23 @@ class CI_Controller {
      * @param $i_validity_date_end
      * @param $s_ua_type
      * @param $i_ua_number
+     * @param $s_user_ua_type
+     * @param $i_user_ua_number
      * @param $i_promocode
      * @param $r_crs_group
      * @param $s_crs_categories
      * @param $i_courses
-     * @param int $coach_id
      * @param int $admin_id
+     * @param int $coach_id
      * @return array
      * @throws Exception
      * @internal param $course_id
      * @internal param $s_category
      */
-    public function saveNewCoursePromocode($i_code_name, $i_code_desc, $i_code_discount, $i_discount_type,
-                                          $i_rel_percent, $s_pv_type, $i_validity_date_start, $i_validity_date_end,
-                                          $s_ua_type, $i_ua_number, $i_promocode, $r_crs_group, $s_crs_categories,
-                                          $i_courses, $admin_id, $coach_id = 0)
+    public function saveNewCoursePromocode($i_code_name, $i_code_desc, $i_code_discount, $i_discount_type, $i_rel_percent,
+                                           $s_pv_type, $i_validity_date_start, $i_validity_date_end, $s_ua_type, $i_ua_number,
+                                           $s_user_ua_type, $i_user_ua_number, $i_promocode, $r_crs_group, $s_crs_categories,
+                                           $i_courses, $admin_id, $coach_id = 0)
     {
         $result = array('error' => false, 'promocode_id' => null);
         $pc_types = array('percent', 'currency', 'free_week');
@@ -2066,6 +2068,8 @@ class CI_Controller {
 
         $use_type  = ($s_ua_type == 'unlimited') ? 'unlimited' : 'number';
         $ua_number = (is_numeric($i_ua_number) and $use_type == 'number') ? $i_ua_number : '';
+        $user_use_type  = ($s_user_ua_type == 'unlimited') ? 'unlimited' : 'number';
+        $user_ua_number = (is_numeric($i_user_ua_number) and $user_use_type == 'number') ? $i_user_ua_number : '';
 
         $promocode = strtoupper(mb_substr(strip_tags($i_promocode), 0, 25));
 
@@ -2120,9 +2124,9 @@ class CI_Controller {
 
         if(!empty($discount) and !empty($promocode))
         {
-            $res_ins = $this->Course_model->setNewPromocode($pc_type, $name, $desc, $discount, $discount_type,
-                $rel_percent, $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $promocode, $courses,
-                $crs_categories, $coach_id, $admin_id, $this->date);
+            $res_ins = $this->Course_model->setNewPromocode($pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
+                $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number,
+                $promocode, $courses, $crs_categories, $coach_id, $admin_id, $this->date);
 
             if (is_numeric($res_ins))
             {

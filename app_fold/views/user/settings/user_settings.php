@@ -18,43 +18,48 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <div class="anketa_block_cont">
-                        <?php if(!empty($user_data) and $page_2submenu == 'settings'):?>
-                            <form action="" method="post" enctype="multipart/form-data">
-                                <div class="admin_form_buts_wrap_container">
-                                    <div class="admin_form_buts_wrap parent">
-                                        <input type="submit" name="bt_on_behalf_login" class="admin_form_reset" value="Авторизация"/>
-                                        <?php if ($user_data['user_blocked'] == 0) :?>
-                                            <input type="submit" name="bt_block_user" class="video_admin_form_block" value="Блокировать"/>
-                                        <?php else :?>
-                                            <input type="submit" name="bt_unblock_user" class="video_admin_form_block" value="Разблокировать"/>
-                                        <?php endif;?>
-                                        <input type="submit" name="bt_delete_user" class="video_admin_form_block" value="Удалить"/>
-                                        <input type="submit" name="bt_reset_password" class="admin_form_reset" value="Сбос пароля"/>
-                                        <input type="submit" name="bt_save_user_settings" class="video_admin_form_send defaultActionButton" value="Сохранить"  >
+                        <?php if(!empty($user_data) and !empty($page_2submenu) and ($page_2submenu == 'settings' or $page_2submenu == 'personal_data')):?>
+                            <?php if($page_2submenu == 'settings'):?>
+                                <form action="" method="post" enctype="multipart/form-data">
+                                    <div class="admin_form_buts_wrap_container">
+                                        <div class="admin_form_buts_wrap parent">
+                                            <input type="submit" name="bt_on_behalf_login" class="admin_form_reset" value="Авторизация"/>
+                                            <?php if ($user_data['user_blocked'] == 0) :?>
+                                                <input type="submit" name="bt_block_user" class="video_admin_form_block" value="Блокировать"/>
+                                            <?php else :?>
+                                                <input type="submit" name="bt_unblock_user" class="video_admin_form_block" value="Разблокировать"/>
+                                            <?php endif;?>
+                                            <input type="submit" name="bt_delete_user" class="video_admin_form_block" value="Удалить"/>
+                                            <input type="submit" name="bt_reset_password" class="admin_form_reset" value="Сбос пароля"/>
+                                            <input type="submit" name="bt_save_user_settings" class="video_admin_form_send defaultActionButton" value="Сохранить"  >
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="video_admin_form">
-                                    <div class="anketa_block_item_h">Настройки</div>
-                                    <?php include_once('./app_fold/views/admin/user_settings_item.php'); ?>
-                                </div>
-                            </form>
-                        <?php elseif(!empty($user_data) and $page_2submenu == 'personal_data'):?>
-                            <form action="" method="post">
-                                <div class="admin_form_buts_wrap_container">
-                                    <div class="admin_form_buts_wrap parent">
-                                        <input type="submit" name="bt_save_data" class="admin_form_submit defaultActionButton" value="Сохранить"  >
+                                    <div class="video_admin_form">
+                                        <div class="anketa_block_item_h">Настройки</div>
+                                        <?php include_once('./app_fold/views/admin/user_settings_item.php'); ?>
                                     </div>
-                                </div>
-                                <div class="video_admin_form">
-                                    <div class="anketa_block_item_h">Личные данные</div>
-                                    <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?>
-                                </div>
-                            </form>
+                                </form>
+                            <?php elseif($page_2submenu == 'personal_data'):?>
+                                <form action="" method="post">
+                                    <div class="admin_form_buts_wrap_container">
+                                        <div class="admin_form_buts_wrap parent">
+                                            <input type="submit" name="bt_save_data" class="admin_form_submit defaultActionButton" value="Сохранить"  >
+                                        </div>
+                                    </div>
+                                    <div class="video_admin_form">
+                                        <div class="anketa_block_item_h">Личные данные</div>
+                                        <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?>
+                                    </div>
+                                </form>
+                            <?php endif; ?>
                         <?php else: ?>
                             <h3 class="info">Информация не найдена</h3>
-                        <?php endif;?>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div><!-- content_col -->
+            <?php if(!empty($user_data) and !empty($page_2submenu) and ($page_2submenu == 'settings' or $page_2submenu == 'personal_data')):?>
+                <?php include_once('./app_fold/views/user/outsider_profile_item.php'); ?>
+            <?php endif; ?>
         </div>
     </div><!-- content -->

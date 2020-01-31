@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
+<?php if($_SERVER['SERVER_NAME'] != 'sb.theoutlines.ru'): ?>
 <!-- BEGIN JIVOSITE CODE {literal} -->
 <script type='text/javascript'>
     (function(){ var widget_id = 'pJLIxhdVt8';var d=document;var w=window;function l(){
@@ -11,3 +12,4 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         else{w.addEventListener('load',l,false);}}})();
 </script>
 <!-- {/literal} END JIVOSITE CODE -->
+<?php endif; ?>

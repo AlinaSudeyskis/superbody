@@ -10,7 +10,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         else:
             $user_img = "/img/no_img.png";
         endif; ?>
-        <?php $path = ($page_submenu == 'a_users_archive') ? '/administration/users/archive/' : '/administration/user/'; ?>
+        <?php $user_type = (!empty($user_type)) ? $user_type : 'user';?>
+        <?php $path = ($page_submenu == 'a_users_archive') ? '/administration/'.$user_type.'/archive/' : '/administration/'.$user_type.'/'; ?>
         <a href="<?php echo $path.$u['user_id']; ?>"><img src="<?php echo $user_img; ?>" alt=""></a>
     </div>
     <div class="tren_prof_page_name">

@@ -31,7 +31,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                     <div class="tren_block tren_order">
                                                         <?php $coach = $order['coaches'][0]; ?>
                                                         <div class="tren_item">
-                                                            <div class="tren_ava"><img src="<?php echo $coach['image']?>" alt=""></div>
+
+                                                            <div class="tren_ava">
+                                                                <a href="/profile/<?php echo $coach['id']?>">
+                                                                    <img src="<?php if (!empty($coach['image'])): echo $coach['image']; endif;?>" alt="">
+                                                                </a>
+                                                            </div>
                                                             <a href="/profile/<?php echo $coach['id']?>" class="tren_link">
                                                                 <span class="tren_name"><?php echo $coach['name']?></span>
                                                                 <span class="tren_surname"><?php echo $coach['surname']?></span>

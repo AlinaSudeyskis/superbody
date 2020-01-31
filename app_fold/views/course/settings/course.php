@@ -47,9 +47,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php elseif ($page_submenu == 'landing' and !empty($landing)) :
                             include_once('./app_fold/views/course/settings/course_landing_item.php');
                         elseif ($page_submenu == 'statistics' and !empty($statistics)) :?>
-                            <div class="video_admin_form">
-                                <?php include_once('./app_fold/views/course/settings/course_statistics_item.php'); ?>
-                            </div>
+                            <?php include_once('./app_fold/views/course/settings/course_statistics_item.php'); ?>
                         <?php elseif ($page_submenu == 'reviews' and !empty($reviews)) :
                             include_once('./app_fold/views/course/settings/course_reviews_item.php');
                         elseif ($page_submenu == 'reviews' and !empty($review)) :

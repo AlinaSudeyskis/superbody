@@ -19,23 +19,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php include_once('./app_fold/views/admin/users_submenu.php'); ?>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="admin_list">
+                    <div class="admin_page">
                         <?php if (!empty($admins)) :
-                            foreach ($admins as $admin) : ?>
-                                <div class="admin_item parent">
-                                    <?php if(!empty($admin['user_image'])): ?>
-                                        <div class="admin_ava"><img src="<?php echo $admin['user_image']; ?>" alt=""></div>
-                                    <?php endif; ?>
-                                    <div class="admin_cont">
-                                        <div class="admin_name">
-                                            <?php $u_name = (!empty($admin['user_name'])) ? $admin['user_name'] : 'Пользователь №' . $admin['user_id']; ?>
-                                            <a href="/profile/<?php echo $admin['user_id']; ?>"><?php echo $u_name; ?></a>
-                                        </div>
-                                        <div class="admin_set">
-                                            <a href="/administration/admin/<?php echo $admin['user_id']; ?>">Редактировать</a>
-                                        </div>
-                                    </div>
-                                </div>
+                            //print_r($admins);
+                            foreach ($admins as $u) :
+                                $user_type = 'admin';
+                                $split_name = explode(' ', $u['user_name']);
+                                $u['split_name']['name'] = (!empty($split_name[0])) ? $split_name[0] : '';
+                                $u['split_name']['surname'] = (!empty($split_name[1])) ? $split_name[1] : '';
+                                ?>
+                                <?php include('./app_fold/views/user/users_item.php'); ?>
                             <?php endforeach;
                             unset($admin);
                         endif;?>

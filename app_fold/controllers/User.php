@@ -885,7 +885,7 @@ class User extends CI_Controller
     }
 
     /**
-     * Страница тренерп для других пользователей
+     * Страница тренера для других пользователей
      *
      * @param $coach_id
      */
@@ -2240,12 +2240,20 @@ class User extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $this->load->model('Notification_model');
+        $this->load->model('Course_model');
+        $this->load->model('Store_model');
+
         $user = $this->User_model->getAUser($user_id);
-        if (!empty($user['user_data']))
+        if (!empty($result['user_data']))
         {
             $user = $this->User_model->getUserSettingsData($user_id);
         }
-        $user_data = $user['user_data'];
+        $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, 'active'); // Выборка курсов пользователя
+        $courses_data    = $this->Store_model->getUserCoursesOrder($user_id, $user_courses);
+
+        $result = array_merge($user_courses, $user, $courses_data);
+        $user_data = $result['user_data'];
 
         if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))
         {
@@ -2297,9 +2305,9 @@ class User extends CI_Controller
             }
 
             // Сохранение данных в БД
-            $result = $this->User_model->setAUserSettingsData($user_id, $email, $name, $path_avatar, $this->date);
+            $res_up = $this->User_model->setAUserSettingsData($user_id, $email, $name, $path_avatar, $this->date);
 
-            if ($result === true) {
+            if ($res_up === true) {
                 // Сохранено
                 $this->session->set_tempdata('message', 10, 60);
             } else {
@@ -2311,9 +2319,9 @@ class User extends CI_Controller
         }
         elseif ($this->input->post('bt_block_user', true) and is_numeric($user_id))
         {
-            $result = $this->User_model->blockUser($user_id, $this->date);
+            $res_up = $this->User_model->blockUser($user_id, $this->date);
 
-            if ($result === true) {
+            if ($res_up === true) {
                 // Сохранено
                 $this->session->set_tempdata('message', 16, 60);
             } else {
@@ -2325,9 +2333,9 @@ class User extends CI_Controller
         }
         elseif ($this->input->post('bt_unblock_user', true) and is_numeric($user_id))
         {
-            $result = $this->User_model->unblockUser($user_id, $this->date);
+            $res_up = $this->User_model->unblockUser($user_id, $this->date);
 
-            if ($result === true) {
+            if ($res_up === true) {
                 // Сохранено
                 $this->session->set_tempdata('message', 18, 60);
             } else {
@@ -2509,15 +2517,39 @@ class User extends CI_Controller
             }
         }
 
+        // Уведомления пользователя
+        // Пользователь заблокирован
+        if($result['user_data']['user_blocked'] == 1)
+        {
+            $notification = $this->Notification_model->getNotification(16);
+
+            $this->page_data['user_notification']['blocked']['text'] = $notification['notification']['text'];
+        }
+        // Не указан email
+        if($result['user_data']['user_email_empty'] === true)
+        {
+            $notification = $this->Notification_model->getNotification(205);
+
+            $this->page_data['user_notification']['empty_email']['text'] = $notification['notification']['text'];
+        }
+        // Неактивирован аккаунт
+        if($result['user_data']['user_activated'] == 0)
+        {
+            $notification = $this->Notification_model->getNotification(218);
+
+            $this->page_data['user_notification']['not_activated']['text'] = $notification['notification']['text'];
+        }
+
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Редактирование данных пользователя';
         $this->page_data['page_menu']     = 'users';
         $this->page_data['page_submenu']  = 'a_users';
         $this->page_data['page_2submenu'] = $page_type == 'settings' ? 'settings' : 'personal_data';
+        $this->page_data['outsider']      = true;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('user/settings/user_settings', $user);
+        $this->load->view('user/settings/user_settings', $result);
         $this->load->view('footer/footer');
     }
 

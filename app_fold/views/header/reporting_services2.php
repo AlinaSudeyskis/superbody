@@ -2,6 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 
+<?php if($_SERVER['SERVER_NAME'] != 'sb.theoutlines.ru'): ?>
 <meta name="yandex-verification" content="fbc35dfc3ef66ae0" />
 <meta name='wmail-verification' content='c49202d54c0fb7f8e8847bfd048f81dd' />
 <meta name="msvalidate.01" content="60DCFF887D5472AFA3314F542E53F876" />
@@ -16,3 +17,4 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     gtag('config', 'UA-136119880-1');
 </script>
+<?php endif; ?>

@@ -33,13 +33,21 @@ class Administrator extends CI_Controller
      */
     public function index()
     {
+        $this->load->model('Course_model');
+        $this->load->model('User_model');
+
+        $crs_stat  = $this->Course_model->getCoursesStatistics();
+        $user_stat = $this->User_model->getUsersStatistics();
+
+        $result = array_merge($crs_stat , $user_stat);
+
         // Объединенные данные страница
         $this->page_data['title'] = 'Администраторская панель';
         $this->page_data['page_menu'] = '';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('admin/index');
+        $this->load->view('admin/index', $result);
         $this->load->view('footer/footer');
     }
 

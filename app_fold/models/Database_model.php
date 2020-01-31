@@ -3209,6 +3209,16 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-01-31 14:29';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_user_use_amount_type` ENUM('unlimited','number') NOT NULL DEFAULT 'unlimited' AFTER `pc_ua_number`, 
+                ADD `pc_user_ua_number` SMALLINT(5) UNSIGNED NOT NULL DEFAULT '1' AFTER `pc_user_use_amount_type`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

@@ -1962,7 +1962,7 @@ class Message_model extends CI_Model
             {
                 $sel_articles = $this->db->query('SELECT COUNT(`qa_id`) as `count_articles`, `qag_qaug_id` FROM `question_answer`
                     LEFT JOIN `q_a_groups` ON `qag_qa_id`=`qa_id` 
-                    WHERE `qa_qass_id`=? and `qa_blocked`=0' . $user_group, $row->qass_id);
+                    WHERE `qa_qas_id`=? and `qa_qass_id`=? and `qa_blocked`=0' . $user_group, array($row->qass_qas_id, $row->qass_id));
                 if($sel_articles !== false and 1 == $sel_articles->num_rows())
                 {
                     $row2 = $sel_articles->row();
@@ -2118,17 +2118,17 @@ class Message_model extends CI_Model
             $user_group = ' and (`qag_qaug_id`=1 or `qag_qaug_id`=4)';
         }
 
-        $sel_data = $this->db->query('SELECT `qa_id`, `qa_name`, `qag_qaug_id` 
+        $sel_data = $this->db->query('SELECT `qa_id`, `qa_qass_id`, `qa_name`, `qag_qaug_id` 
             FROM `question_answer` 
             LEFT JOIN `q_a_groups` ON `qag_qa_id`=`qa_id`
-            WHERE `qa_qas_id`=? and `qa_qass_id`=? and `qa_blocked`=0'.$user_group, array($section_id, $subsection_id));
+            WHERE `qa_qas_id`=? and `qa_blocked`=0'.$user_group, $section_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $i = 0;
             foreach($sel_data->result() as $row)
             {
-                $result['articles'][$row->qa_id]['name'] = $row->qa_name;
+                $result['articles'][$row->qa_qass_id][$row->qa_id]['name'] = $row->qa_name;
 
                 $i++;
             }

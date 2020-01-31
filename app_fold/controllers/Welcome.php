@@ -267,7 +267,7 @@ class Welcome extends CI_Controller
         $this->page_data['page_menu']   = 'contacts';
 
         $this->load->view('header/header', $this->page_data);
-        $this->load->view('header/contacts');
+        $this->load->view('header/secondary');
         $this->load->view('site/contacts', $result);
         $this->load->view('footer/footer');
     }
