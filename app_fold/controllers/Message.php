@@ -867,7 +867,7 @@ class Message extends CI_Controller
             $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
             $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
             $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
-            $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span><a><ol><ul><li>');
+            $article_text  = strip_tags($this->input->post('qa_article_text'), '<b><i><p><br/><strong><em><img><span><a><ol><ul><li>');
             $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
 
             $cb_ug      = $this->input->post('cb_users_group');

@@ -751,13 +751,58 @@ audio, canvas, progress, video{
     max-width: 860px;
     margin: 0 auto;
 }
-.cont_txt span {
+span.cont_ref  {
     display: block;
     font-size: 12px;
-    margin-top: 10px;
+    margin: -10px 0 30px;
+    color: #505961;
+    text-align: center;
 }
-.cont_txt span>a {
+ span.cont_ref>a {
     color: inherit;
+}
+.main_subh {
+    text-align: center;
+    font-size: 18px;
+    color: #505961;
+    margin-bottom: 0;
+    margin-top: 40px;
+}
+.main_subh_text {
+    text-align: center;
+    color: #505961;
+    padding-bottom: 40px;
+    font-size: 15px;
+}
+.main_text {
+    color: #505961;
+    width: 66%;
+    margin: 0 auto;
+    font-size: 15px;
+    text-align: justify;
+}
+.main_block_wrap {
+    display: flex;
+    margin: 60px 40px;
+    justify-content: center;
+}
+.main_bw_item {
+    width: 20%;
+    margin: 0 20px;
+}
+.item_icon {
+    text-align: center;
+    font-size: 40px;
+    color: #505961;
+}
+.item_title {
+    text-align: center;
+    margin: 15px 0;
+    font-weight: 600;
+}
+.item_text {
+    font-size: 13px;
+    text-align: justify;
 }
 .profile_menu{
     margin: 0;
@@ -789,6 +834,10 @@ audio, canvas, progress, video{
 }
 .profile_menu a:hover, .profile_menu a.active{
     background: #d8edf3;
+}
+.profile_menu i {
+    font-size: 24px;
+    color: #00b2e0;
 }
 .left_sidebar{
     padding-right: 0;
@@ -2999,6 +3048,7 @@ h2.block_h>span>a {
 	font-size: 12px;
 	line-height: 16px;
 	margin-bottom: 10px;
+    height: 16px;
 }
 .tren_desk{
 	font-size: 12px;
@@ -3545,6 +3595,7 @@ h2.block_h>span>a {
     font-weight: bold;
     font-style: italic;
     margin-bottom: 3px;
+    margin-top: 0;
 }
 .reg_desk{
     font-size: 24px;
@@ -3989,7 +4040,7 @@ h2.block_h>span>a {
     text-align: left;
 }
 .contact_wrap{
-    background-color: rgba(255, 255, 255, 0.6);
+    background-color: rgba(255, 255, 255, 0.8);
     color: #505961;
 }
 .contact_h{
@@ -4342,6 +4393,7 @@ h2.block_h>span>a {
 }
 .kurs_page_reg_wrap{
     margin-top: 45px;
+    overflow: hidden;
 }
 .kurs_page_block_tabs {
     display: flex;
@@ -4589,6 +4641,12 @@ h2.block_h>span>a {
 }
 
 /* вопрос - ответ */
+.qa_row{
+    margin: 0 auto;
+}
+.qa_col{
+    width: 310px;
+}
 .qa_container{
     border-top: 3px solid #cdcdcd;
     border-bottom: 1px solid #cdcdcd;
@@ -4624,6 +4682,7 @@ h2.block_h>span>a {
 .qa_item{
     padding-bottom: 30px;
     overflow: hidden;
+    margin: 0 20px;
 }
 .qa_item_h{
     font-size: 22px;
@@ -4645,7 +4704,7 @@ h2.block_h>span>a {
     /*color: #72d0f4;*/
     cursor: pointer;
 }
-.qa_item_cont.active ~ .qa_subitem_cont {
+.qa_item_cont.active + .qa_subitem_wrap .qa_subitem_cont {
     display: block;
 }
 .qa_item_h a, .qa_item_cont a, .qa_subitem_cont a {
@@ -9031,6 +9090,9 @@ span.mess_block_full_time {
     color: #99a3b1;
     margin-bottom: 10px;
     overflow: hidden;
+}
+.comment_page_cont_txt p, .comment_page_cont_txt ul, .comment_page_cont_txt ol{
+    margin: 0;
 }
 .support .comment_page_cont_txt{
     color: #222;
@@ -13847,11 +13909,12 @@ input.tren_form_block_check{
     }
 
     .qa_row{
-        width: 80%;
+        width: 80% !important;
         margin: 0 auto;
     }
     .qa_row .qa_item{
         padding-bottom: 0;
+        width: 100%;
     }
     .qa_row .qa_item_h::before{
         content: '';

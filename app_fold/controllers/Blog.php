@@ -61,16 +61,20 @@ class Blog extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $result = $this->Blog_model->getBlogPost($post_id);
+
         if($this->input->post('bt_save_post', true))
         {
             $post_title = mb_substr(strip_tags($this->input->post('post_title', true)), 0, 100);
             $post_desc  = mb_substr(strip_tags($this->input->post('post_short_desc', true)), 0, 255);
-            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<span><br/><b><i><p>'), 0, 1000);
-            $post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
+            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<b><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
+            $post_text  = preg_replace("/<p[^>]*>[\s|&nbsp;]*<\/p>/", '', $post_text);
+            $post_text  = preg_replace('/ {2,}/',' ', $post_text);
+            $post_text  = trim(preg_replace('~(?:\r?\n){2,}~','', $post_text));
 
-            $result = $this->Blog_model->updateBlogPost($post_id, $post_title, $post_desc, $post_text, $this->date);
+            $res_up = $this->Blog_model->updateBlogPost($post_id, $post_title, $post_desc, $post_text, $this->date);
 
-            if ($result === true)
+            if ($res_up === true)
             {
                 // Сохранено
                 $this->session->set_tempdata('message', 10, 60);
@@ -85,9 +89,9 @@ class Blog extends CI_Controller
         }
         elseif ($this->input->post('bt_approval_post', true))
         {
-            $result = $this->Blog_model->approvalBlogPost($post_id, $this->date);
+            $res_up = $this->Blog_model->approvalBlogPost($post_id, $this->date);
 
-            if ($result === true)
+            if ($res_up === true)
             {
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
@@ -102,9 +106,9 @@ class Blog extends CI_Controller
         }
         elseif ($this->input->post('bt_block_post', true))
         {
-            $result = $this->Blog_model->blockBlogPost($post_id, $this->date);
+            $res_up = $this->Blog_model->blockBlogPost($post_id, $this->date);
 
-            if ($result === true)
+            if ($res_up === true)
             {
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
@@ -119,9 +123,9 @@ class Blog extends CI_Controller
         }
         elseif ($this->input->post('bt_delete_post', true))
         {
-            $result = $this->Blog_model->deleteBlogPost($post_id);
+            $res_up = $this->Blog_model->deleteBlogPost($post_id);
 
-            if ($result === true)
+            if ($res_up === true)
             {
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
@@ -141,8 +145,7 @@ class Blog extends CI_Controller
         $this->page_data['title']        = 'АП - Редактирование данных сообщения блога';
         $this->page_data['page_menu']    = 'blog';
         $this->page_data['page_submenu'] = 'blog_posts';
-        
-        $result = $this->Blog_model->getBlogPost($post_id);
+
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -275,7 +278,7 @@ class Blog extends CI_Controller
         {
             $post_title = mb_substr(strip_tags($this->input->post('post_title', true)), 0, 100);
             $post_desc  = mb_substr(strip_tags($this->input->post('post_short_desc', true)), 0, 255);
-            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
+            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<b><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
             //$post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
 
             $result = $this->Blog_model->updateCoachBlogPost($this->user_id, $post_id, $post_title, $post_desc, $post_text, $this->date);
@@ -376,6 +379,37 @@ class Blog extends CI_Controller
         $this->load->view('user/profile_line');
         $this->load->view('blog/posts/new_post');
         $this->load->view('footer/footer');
+    }
+
+    /**
+     * AJAX Загрузка изображений статьи
+     */
+    public function postUploadImage()
+    {
+        reset ($_FILES);
+        $temp = current($_FILES);
+        $_FILES['post_file'] = $temp;
+        //log_message('debug', print_r($temp, true));
+        // Загрузка изображения на сервер
+        if(is_uploaded_file($_FILES['post_file']['tmp_name']))
+        {
+            $path = './post_images/';
+            $this->load->helper('file');
+
+            $path_image = parent::uploadImage('post_file', $temp['type'], $path);
+            $full_path = $path.$path_image;
+            if(file_exists($path.$path_image))
+            {
+                if ($this->security->xss_clean($full_path, TRUE) === FALSE)
+                {
+                    unlink($full_path);
+                }
+                else
+                {
+                    echo json_encode(array('location' => $path_image));
+                }
+            }
+        }
     }
 
 

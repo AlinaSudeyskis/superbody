@@ -647,7 +647,7 @@ class Administrator extends CI_Controller
         // Сохранение изменений
         if ($this->input->post('bt_save_index', true))
         {
-            $title = mb_substr(strip_tags($this->input->post('i_title', true)), 0, 40);
+            $title = mb_substr(strip_tags($this->input->post('i_title', true)), 0, 100);
             $text  = mb_substr(strip_tags($this->input->post('i_text', true)), 0, 300);
 
             $result = $this->Administrator_model->setSiteIndex($title, $text, $this->date, $this->user_id);
@@ -766,12 +766,12 @@ class Administrator extends CI_Controller
         elseif ($this->input->post('bt_save_auth', true))
         {
             $display    = !empty($this->input->post('cb_auth_display', true)) ? 1 : 0;
-            $title_1    = mb_substr(strip_tags($this->input->post('i_title_1', true)), 0, 30);
-            $title_2    = mb_substr(strip_tags($this->input->post('i_title_2', true)), 0, 30);
+            $title_1    = mb_substr(strip_tags($this->input->post('i_title_1', true)), 0, 50);
+            $title_2    = mb_substr(strip_tags($this->input->post('i_title_2', true)), 0, 50);
             $subtitle_1 = mb_substr(strip_tags($this->input->post('i_subtitle_1', true)), 0, 30);
             $subtitle_2 = mb_substr(strip_tags($this->input->post('i_subtitle_2', true)), 0, 30);
-            $text_1     = mb_substr(strip_tags($this->input->post('ta_text_1', true)), 0, 150);
-            $text_2     = mb_substr(strip_tags($this->input->post('ta_text_2', true)), 0, 150);
+            $text_1     = mb_substr(strip_tags($this->input->post('ta_text_1', true)), 0, 250);
+            $text_2     = mb_substr(strip_tags($this->input->post('ta_text_2', true)), 0, 250);
             $url_1      = mb_substr(strip_tags($this->input->post('i_url_1', true)), 0, 255);
             $url_2      = mb_substr(strip_tags($this->input->post('i_url_2', true)), 0, 255);
             $url_name_1 = mb_substr(strip_tags($this->input->post('i_url_name_1', true)), 0, 30);

@@ -270,6 +270,7 @@ $route['administration/blog/posts']          = 'Blog/blogPosts';
 $route['administration/blog/post/(:num)']    = 'Blog/blogPost/$1';
 $route['administration/blog/comments']       = 'Blog/blogComments';
 $route['administration/blog/comment/(:num)'] = 'Blog/blogComment/$1';
+$route['upload_post_images'] = 'Blog/postUploadImage';
 // Сообщения
 $route['administration/messages']        = 'Message/messages';
 $route['administration/message/(:num)']  = 'Message/message/$1';

@@ -15,7 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="anketa_block_item_h">Блок регистрации</div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Заголовок</div></div>
-            <input type="text" name="i_title_1" value="<?php if (!empty($auth_title1)) { echo $auth_title1; }?>" class="anketa_form_in anketa_form_in_long" maxlength="30"/>
+            <input type="text" name="i_title_1" value="<?php if (!empty($auth_title1)) { echo $auth_title1; }?>" class="anketa_form_in anketa_form_in_long" maxlength="50"/>
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Подзаголовок</div></div>
@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Текст</div></div>
-            <textarea name="ta_text_1" class="journal_form_textarea admin_form_txt_middle" maxlength="150"><?php if (!empty($auth_text1)) { echo $auth_text1; }?></textarea>
+            <textarea name="ta_text_1" class="journal_form_textarea admin_form_txt_middle" maxlength="250"><?php if (!empty($auth_text1)) { echo $auth_text1; }?></textarea>
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">URL</div></div>
@@ -37,7 +37,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="anketa_block_item_h">Блок авторизации</div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Заголовок</div></div>
-            <input type="text" name="i_title_2" value="<?php if (!empty($auth_title2)) { echo $auth_title2; }?>" class="anketa_form_in anketa_form_in_long" maxlength="30"/>
+            <input type="text" name="i_title_2" value="<?php if (!empty($auth_title2)) { echo $auth_title2; }?>" class="anketa_form_in anketa_form_in_long" maxlength="50"/>
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Подзаголовок</div></div>
@@ -45,7 +45,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Текст</div></div>
-            <textarea name="ta_text_2" class="journal_form_textarea admin_form_txt_middle" maxlength="150"><?php if (!empty($auth_text2)) { echo $auth_text2; }?></textarea>
+            <textarea name="ta_text_2" class="journal_form_textarea admin_form_txt_middle" maxlength="250"><?php if (!empty($auth_text2)) { echo $auth_text2; }?></textarea>
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">URL</div></div>

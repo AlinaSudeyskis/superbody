@@ -4,8 +4,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="qa_row">
     <?php if(!empty($sections)): ?>
         <?php foreach($sections as $sec_id => $section): ?>
-            <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 qa_col">
-                <div class="qa_item">
+            <!--<div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 qa_col">-->
+                <div class="qa_col qa_item">
                     <div class="qa_item_h"><a href="/support/<?php echo $sec_id; ?>"><?php echo $section['name']; ?></a></div>
                     <?php $i = 1;
                     $count_subsections = count($section['subsections']);
@@ -21,13 +21,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     endforeach;
                     unset($subsection);?>
                 </div>
-            </div><!-- qa_col -->
+            <!--</div>--><!-- qa_col -->
         <?php endforeach;
         unset($section); ?>
     <?php elseif(!empty($search_qa_articles)): ?>
         <?php foreach($search_qa_articles as $sec_id => $section): ?>
-            <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 qa_col">
-                <div class="qa_item">
+            <!--<div class="col-lg-3 col-md-4 col-sm-12 col-xs-12 qa_col">-->
+                <div class="qa_col qa_item">
                     <div class="qa_item_h"><a href="/support/<?php echo $sec_id; ?>"><?php echo $section['name']; ?></a></div>
                     <?php $i = 1;
                     $count_subsections = count($section['subsections']);
@@ -41,7 +41,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php endforeach;
                     unset($subsection);?>
                 </div>
-            </div><!-- qa_col -->
+            <!--</div>--><!-- qa_col -->
         <?php endforeach;
         unset($section); ?>
     <?php endif; ?>

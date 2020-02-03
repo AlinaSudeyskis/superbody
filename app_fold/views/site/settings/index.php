@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="video_admin_form site_info">
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Заголовок</div></div>
-            <input type="text" class="anketa_form_in anketa_form_in_long" name="i_title" value="<?php if (!empty($index_title)) { echo $index_title; }?>" maxlength="40"/>
+            <input type="text" class="anketa_form_in anketa_form_in_long" name="i_title" value="<?php if (!empty($index_title)) { echo $index_title; }?>" maxlength="100"/>
         </div>
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Текст</div></div>

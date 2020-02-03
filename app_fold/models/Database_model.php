@@ -3222,6 +3222,32 @@ class Database_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление базы данных январь 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseFabruary2020($date)
+    {
+        $result = false;
+
+        $date = '2020-02-03 16:24';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` CHANGE `si_index_title` `si_index_title` VARCHAR(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                CHANGE `si_auth_title1` `si_auth_title1` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `si_auth_title2` `si_auth_title2` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `si_auth_text1` `si_auth_text1` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `si_auth_text2` `si_auth_text2` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Поиск даты обновления в БД

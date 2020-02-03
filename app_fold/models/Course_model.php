@@ -2746,7 +2746,7 @@ class Course_model extends CI_Model
               FROM `orders_users_cart`
               LEFT JOIN `orders` ON `o_id`=`ouc_o_id`
               WHERE `ouc_p_id`=?
-              ORDER BY `o_date_add` DESC LIMIT 5', $course_pid);
+              ORDER BY `o_date_add` DESC', $course_pid);
             if ($sel_data !== false and 0 < $sel_data->num_rows())
             {
                 $i = 0;

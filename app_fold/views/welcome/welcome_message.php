@@ -5,7 +5,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="cont_txt">
         <h1 class="main_h"><?php if (!empty($site_info['index_title'])) { echo $site_info['index_title']; } ?></h1>
         <div class="cont_val"><?php if (!empty($site_info['index_text'])) { echo $site_info['index_text']; } ?></div>
-        <span><a href="/courses">Посмотреть все курсы</a></span>
     </div>
     <div class="video_row row video_block">
         <?php if (!empty($video)) :
@@ -47,10 +46,40 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             <?php endforeach;
             unset($vd);
-        endif;?>        
+        endif;?>
     </div><!-- video_row -->
+    <span class="cont_ref"><a href="/courses">Посмотреть все курсы</a></span>
+
+    <h2 class="main_subh">Тренировки дома от 299 рублей в месяц</h2>
+    <div class="main_subh_text" style="padding-bottom: 20px;">Просто включайте видео и повторяйте за тренером – подготовка не нужна</div>
+    <div class="main_text">Создайте фигуру мечты и улучшите состояние здоровья с нашими программами фитнес-тренировок – гарантируем эффективность каждого курса при соблюдении рекомендаций по технике выполнения упражнений и правильному питанию. Если возникнут вопросы, обратитесь к онлайн-консультанту или своему тренеру – всегда готовы дать бесплатные профессиональные советы для достижения вашей цели.</div>
+    <div class="main_block_wrap">
+        <div class="main_bw_item">
+            <div class="item_icon"><i class="fas fa-long-arrow-alt-up"></i><i class="fas fa-long-arrow-alt-down" style="font-size: 27px;"></i></div>
+            <div class="item_title">Тренировки для разных целей</div>
+            <div class="item_text">Выберите нужный вариант – предлагаем различные эффективные программы тренировок и питания для снижения веса и создания нужных форм фигуры</div>
+        </div>
+        <div class="main_bw_item">
+            <div class="item_icon"><i class="fas fa-user-tie"></i><i class="fas fa-dumbbell" style="font-size: 27px;"></i></div>
+            <div class="item_title">Инструктаж от профессионалов</div>
+            <div class="item_text">Ознакомьтесь с техникой выполнения упражнений, чтобы занятия по фитнес-программам принесли пользу. К каждому курсу есть подробный инструктаж и рекомендации тренера</div>
+        </div>
+        <div class="main_bw_item">
+            <div class="item_icon"><i class="fas fa-calendar-alt"></i><i class="far fa-clock" style="font-size: 27px;"></i></div>
+            <div class="item_title">Расписание занятий и отдыха</div>
+            <div class="item_text">Соблюдайте предложенное расписание и следите за своим прогрессом. Мы рассчитали идеальный баланс нагрузок и отдыха для достижения лучших результатов</div>
+        </div>
+        <div class="main_bw_item">
+            <div class="item_icon"><i class="fas fa-desktop"></i><i class="fas fa-mobile-alt" style="font-size: 27px;"></i></div>
+            <div class="item_title">Программы всегда под рукой</div>
+            <div class="item_text">Тренируйтесь там, где вам удобно – дома, на даче, на улице или в гостинице. Понадобится только интернет, программы фитнес-тренировок будут доступны в вашем личном кабинете</div>
+        </div>
+    </div>
 
     <?php include_once('./app_fold/views/site/content/auth_info_block.php'); ?>
+
+    <h2 class="main_subh">Достигайте желаемых результатов с помощью программ тренировок и питания</h2>
+    <div class="main_subh_text">Курсы разработаны профессионалами</div>
 
     <?php if($site_info['spec_display'] == 1): ?>
         <div class="new_kurs_row row">
@@ -86,4 +115,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php endif;?>
     <?php include_once('./app_fold/views/site/content/coaches_reviews_block.php'); ?>
     <?php include_once('./app_fold/views/site/content/gallery.php'); ?>
+
+    <h2 class="main_subh">Сделайте первый шаг к мечте – зарегистрируйтесь на нашем сайте</h2>
+    <div class="main_subh_text">Бесплатно рассчитаем индекс массы тела</div>
 </div><!-- content -->

@@ -1625,7 +1625,9 @@ $(document).ready(function () {
         itemSelector: '.otziv_col'
     });
     $('.qa_row').masonry({
-        itemSelector: '.qa_col'
+        itemSelector: '.qa_col',
+        //percentPosition: true,
+        fitWidth: true
     });
     $('.qa_item_h').on('click', function(){
         var item_h = $(this),
@@ -1644,7 +1646,9 @@ $(document).ready(function () {
             });
 
             $('.qa_row').masonry({
-                itemSelector: '.qa_col'
+                itemSelector: '.qa_col',
+                //percentPosition: true,
+                fitWidth: true
             });
 
             item_h.toggleClass('open');
@@ -1652,7 +1656,7 @@ $(document).ready(function () {
     });
     $('.qa_item_cont').on('click', function(e){
         var item_cont = $(this),
-            qa_cont = item_cont.next('.qa_subitem_cont');
+            qa_cont = item_cont.next('.qa_subitem_wrap').find('.qa_subitem_cont');
         if(qa_cont.length > 0)
         {
             e.preventDefault();

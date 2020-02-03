@@ -30,6 +30,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         fontsize_formats: '8px 9px 10px 11px 12px 14px 16px 18px 24px 36px 48px',
         max_chars_indicator: "pageLength",
         relative_urls : false,
-        paste_auto_cleanup_on_paste: true
+        paste_auto_cleanup_on_paste: true,
+        force_br_newlines : true,
+        force_p_newlines : false,
+        forced_root_block : 'div',
+        invalid_elements : 'br',
+        fix_list_elements : true
     });
 </script>
