@@ -790,8 +790,12 @@ class Message extends CI_Controller
             $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
             $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
             $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
-            $article_text  = strip_tags($this->input->post('qa_article_text'), '<p><br/><strong><em><img><span><a><ol><ul><li>');
             $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
+
+            $article_text = mb_substr(strip_tags($this->input->post('qa_article_text'), '<b><div><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
+            $article_text = preg_replace("/<p[^>]*>[\s|&nbsp;]*<\/p>/", '', $article_text);
+            $article_text = preg_replace('/ {2,}/',' ', $article_text);
+            $article_text = trim(preg_replace('~(?:\r?\n)+~','', $article_text));
 
             $cb_ug      = $this->input->post('cb_users_group');
             $user_group = null;
@@ -867,8 +871,12 @@ class Message extends CI_Controller
             $section_id    = (is_numeric($this->input->post('s_section', true))) ? $this->input->post('s_section', true) : null;
             $subsection    = (!empty($this->input->post('s_subsection', true))) ? $this->input->post('s_subsection', true) : null;
             $subsection_id = (is_numeric($subsection[$section_id])) ? $subsection[$section_id] : null;
-            $article_text  = strip_tags($this->input->post('qa_article_text'), '<b><i><p><br/><strong><em><img><span><a><ol><ul><li>');
             $article_name  = mb_substr(strip_tags($this->input->post('qa_name', true)), 0, 255);
+
+            $article_text = mb_substr(strip_tags($this->input->post('qa_article_text'), '<b><div><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
+            $article_text = preg_replace("/<p[^>]*>[\s|&nbsp;]*<\/p>/", '', $article_text);
+            $article_text = preg_replace('/ {2,}/',' ', $article_text);
+            $article_text = trim(preg_replace('~(?:\r?\n)+~','', $article_text));
 
             $cb_ug      = $this->input->post('cb_users_group');
             $user_group = null;

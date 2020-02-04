@@ -1,10 +1,10 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-?>
+
+$user_name = (!empty($user_data['user_name'])) ? $user_data['user_name'] : 'Страница тренера';
+$breadcrumbs = array('/coaches' => 'Тренеры', '/profile/'.$user_data['user_id'] => $user_name, '/post' => 'Блог');
+include_once('./app_fold/views/breadcrumb.php');?>
 <div id="content" class="container">
-    <?php $user_name = (!empty($user_data['user_name'])) ? $user_data['user_name'] : 'Страница тренера';
-        $breadcrumbs = array('/coaches' => 'Тренеры', '/profile/'.$user_data['user_id'] => $user_name, '/post' => 'Блог');
-        include_once('./app_fold/views/breadcrumb.php');?>
     <div class="row">
         <div class="col-lg-2 left_sidebar">
             <?php if (!empty($user_session)):

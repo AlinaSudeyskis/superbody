@@ -65,24 +65,28 @@ class Blog extends CI_Controller
 
         if($this->input->post('bt_save_post', true))
         {
-            $post_title = mb_substr(strip_tags($this->input->post('post_title', true)), 0, 100);
-            $post_desc  = mb_substr(strip_tags($this->input->post('post_short_desc', true)), 0, 255);
-            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<b><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
-            $post_text  = preg_replace("/<p[^>]*>[\s|&nbsp;]*<\/p>/", '', $post_text);
-            $post_text  = preg_replace('/ {2,}/',' ', $post_text);
-            $post_text  = trim(preg_replace('~(?:\r?\n){2,}~','', $post_text));
+            $db_post = $result['post'];
 
-            $res_up = $this->Blog_model->updateBlogPost($post_id, $post_title, $post_desc, $post_text, $this->date);
+            $post_title = $db_post['title'];
+            $post_desc = $db_post['short_desc'];
+            $post_text = $db_post['text'];
 
-            if ($res_up === true)
+            extract(self::parsePostData($this->input->post()));
+
+            if($db_post['title'] != $post_title or $db_post['short_desc'] != $post_desc or $db_post['text'] != $post_text)
             {
-                // Сохранено
-                $this->session->set_tempdata('message', 10, 60);
-            }
-            else
-            {
-                // Не сохранено
-                $this->session->set_tempdata('message', 127, 60);
+                $res_up = $this->Blog_model->updateBlogPost($post_id, $post_title, $post_desc, $post_text, $this->date);
+
+                if ($res_up === true)
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Не сохранено
+                    $this->session->set_tempdata('message', 127, 60);
+                }
             }
 
             header('Location: /administration/blog/post/' . $post_id);
@@ -274,24 +278,32 @@ class Blog extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $result = $this->Blog_model->getCoachBlogPost($this->user_id, $post_id);
+
         if($this->input->post('bt_save_post', true))
         {
-            $post_title = mb_substr(strip_tags($this->input->post('post_title', true)), 0, 100);
-            $post_desc  = mb_substr(strip_tags($this->input->post('post_short_desc', true)), 0, 255);
-            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<b><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
-            //$post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
+            $db_post = $result['post'];
 
-            $result = $this->Blog_model->updateCoachBlogPost($this->user_id, $post_id, $post_title, $post_desc, $post_text, $this->date);
+            $post_title = $db_post['title'];
+            $post_desc = $db_post['short_desc'];
+            $post_text = $db_post['text'];
 
-            if ($result === true)
+            extract(self::parsePostData($this->input->post()));
+
+            if($db_post['title'] != $post_title or $db_post['short_desc'] != $post_desc or $db_post['text'] != $post_text)
             {
-                // Сохранено
-                $this->session->set_tempdata('message', 10, 60);
-            }
-            else
-            {
-                // Не сохранено
-                $this->session->set_tempdata('message', 127, 60);
+                $result = $this->Blog_model->updateCoachBlogPost($this->user_id, $post_id, $post_title, $post_desc, $post_text, $this->date);
+
+                if ($result === true)
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Не сохранено
+                    $this->session->set_tempdata('message', 127, 60);
+                }
             }
 
             header('Location: /post/' . $post_id);
@@ -320,7 +332,6 @@ class Blog extends CI_Controller
             header('Location: /post/' . $post_id);
         }
 
-        $result = $this->Blog_model->getCoachBlogPost($this->user_id, $post_id);
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Блог тренера';
@@ -346,26 +357,35 @@ class Blog extends CI_Controller
 
         if ($this->input->post('bt_save_post', true))
         {
-            $post_title = mb_substr(strip_tags($this->input->post('post_title', true)), 0, 100);
-            $post_desc  = mb_substr(strip_tags($this->input->post('post_short_desc', true)), 0, 255);
-            $post_text  = mb_substr(strip_tags($this->input->post('post_text'), '<p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
-            //$post_text  = preg_replace('~(?:\r?\n){2,}~',"\n", $post_text);
+            $post_title = '';
+            $post_desc  = '';
+            $post_text  = '';
 
-            $result = $this->Blog_model->setBlogPost($this->user_id, $post_title, $post_desc, $post_text, $this->date);
+            extract(self::parsePostData($this->input->post()));
 
-            if ($result !== false) {
-                $post_id = $result;
+            if(!empty($post_title) and !empty($post_text))
+            {
+                $result = $this->Blog_model->setBlogPost($this->user_id, $post_title, $post_desc, $post_text, $this->date);
 
-                // Сохранено
-                $this->session->set_tempdata('message', 113, 60);
+                if ($result !== false)
+                {
+                    $post_id = $result;
 
-                header('Location: /post/' . $post_id);
+                    // Сохранено
+                    $this->session->set_tempdata('message', 113, 60);
+
+                    header('Location: /post/' . $post_id);
+                }
+                else
+                {
+                    // Не сохранено
+                    $this->session->set_tempdata('message', 114, 60);
+
+                    header('Location: /post/new');
+                }
             }
             else
             {
-                // Не сохранено
-                $this->session->set_tempdata('message', 114, 60);
-
                 header('Location: /post/new');
             }
         }
@@ -459,5 +479,23 @@ class Blog extends CI_Controller
         $this->load->view('user/profile_line');
         $this->load->view('blog/posts/post', $result);
         $this->load->view('footer/footer');
+    }
+
+    /**
+     * Обработка данных формы блога тренера
+     *
+     * @param $form
+     * @return mixed
+     */
+    protected function parsePostData($form)
+    {
+        $result['post_title'] = mb_substr(strip_tags($form['post_title']), 0, 100);
+        $result['post_desc']  = mb_substr(strip_tags($form['post_short_desc']), 0, 255);
+        $post_text = mb_substr(strip_tags($form['post_text'], '<b><div><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
+        $post_text = preg_replace("/<p[^>]*>[\s|&nbsp;]*<\/p>/", '', $post_text);
+        $post_text = preg_replace('/ {2,}/',' ', $post_text);
+        $result['post_text']  = trim(preg_replace('~(?:\r?\n)+~','', $post_text));
+
+        return $result;
     }
 }
