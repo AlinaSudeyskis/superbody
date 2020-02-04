@@ -13942,7 +13942,7 @@ input.tren_form_block_check{
     .qa_row .qa_item_h.open::after{
         content: '';
         position: absolute;
-        right: 14px;
+        right: 31px;
         top: 28px;
         border: 7px solid transparent;
         border-top: 10px solid #f3f3f3;
@@ -13951,7 +13951,7 @@ input.tren_form_block_check{
     .qa_row .qa_item_h.open::before{
         content: '';
         position: absolute;
-        right: 14px;
+        right: 31px;
         top: 31px;
         border: 7px solid transparent;
         border-top: 11px solid #33363f;
