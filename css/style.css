@@ -748,7 +748,7 @@ audio, canvas, progress, video{
     color: #505961;
     text-align: center;
     font-weight: 300;
-    max-width: 860px;
+    max-width: 1200px;
     margin: 0 auto;
 }
 span.cont_ref  {
@@ -12729,7 +12729,7 @@ input.tren_form_block_check{
         top: 34%;
 	}
     .lp_block1_but {
-        bottom: 125px;
+        bottom: 100px;
     }
     .dark_lp .lp_block1_but {
         width: 270px;
@@ -12883,6 +12883,7 @@ input.tren_form_block_check{
     }
     .lp_block1_but {
         left: 51%; /*calc(50% - 165px)*/
+        bottom: 125px;
     }
 
 
