@@ -350,11 +350,16 @@ $(document).ready(function () {
     });
 
     var purchase_form = $('.purchase_form');
-    purchase_form.on('paste', ' #i-promocode', function () {
+    purchase_form.on('paste', ' #i-promocode', function (event) {
+        event.preventDefault();
         var pc_input = $(this);
+        if (event.originalEvent.clipboardData) {
+            var text = event.originalEvent.clipboardData.getData("text/plain");
+            pc_input.val(text);
+        }
         searchPromo(pc_input);
     });
-    purchase_form.on('keyup', ' #i-promocode', function () {
+    purchase_form.on('keyup change', ' #i-promocode', function () {
         var pc_input = $(this);
         searchPromo(pc_input);
     });
