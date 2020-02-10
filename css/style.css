@@ -2316,9 +2316,7 @@ tr:first-child > td > .fc-day-grid-event{
     color: #000000;
     font-size: 14px;
     position: relative;
-    align-self: flex-end;
-    -webkit-align-self: flex-end;
-    margin: 10px 15px 0 0;
+    margin: 10px 0 0 auto;
 }
 .turn_auth::after {
     content: '';
@@ -17148,6 +17146,12 @@ input.tren_form_block_check{
         flex-basis: auto;
         padding: 0;
     }
+
+    .reg_in_link_wrap .reg_in_link {
+        width: 100%;
+        display: block;
+        margin: 5px 0;
+    }
 }
 
 @media (max-width: 379px){
@@ -17279,6 +17283,11 @@ input.tren_form_block_check{
          overflow-y: auto;
          height: 100%;
      }
+
+    #purchase_pop-up #block-message{
+        font-size: 10px;
+        text-transform: uppercase;
+    }
 }
 
 @media (max-width: 360px){
@@ -17311,6 +17320,15 @@ input.tren_form_block_check{
     }
     .light_lp .video_col{
         display: none;
+    }
+}
+
+@media (max-width: 358px){
+    .sing-in_h.tren_form_block_check_wrap input:checked + label {
+        background-position: 25px -14px;
+    }
+    .sing-in_in{
+        width: 190px;
     }
 }
 

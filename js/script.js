@@ -82,7 +82,8 @@ $(document).ready(function () {
     // Форма оплаты
     var opacity = 0.8,
         purchase = $("#purchase_pop-up"),
-        shadow2 = $("#shadow2");
+        shadow2 = $("#shadow2"),
+        purchase_form = $('.purchase_form');
 
     if (purchase.length > 0) {
         if (purchase.hasClass("ref_pop-up")) {
@@ -115,7 +116,6 @@ $(document).ready(function () {
                 po   = $(this).data('po'),
                 pc_s = $('#pc-string').val(),
                 pattern = /^([a-z0-9_\.-])+@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
-            purchase_form = $('.purchase_form');
 
             purchase.find('#block-message').html();
             purchase.find('#block-message').hide();
@@ -136,27 +136,7 @@ $(document).ready(function () {
                         purchase_form.html(data.crsd);
                         purchase_form.show();
 
-                        var auth_form = purchase_form.next('.purchase_pop-up_h.auth_form');
-                        auth_form.hide();
-
                         purchase_up(po);
-                        $('.anketa_form_select, .journal_form_select').styler();
-
-                        purchase_form.find(".promo_line").on('click', function () {
-                            promo_line_func($(this));
-                        });
-
-                        purchase_form.find("a.policy").on('click', function (event) {
-                            event.preventDefault();
-                            show_policy();
-                        });
-
-                        purchase_form.on('keyup', 'input[name=email]', function(){
-                            auth_form.find('input[name=email]').val($(this).val());
-                        });
-                        purchase_form.on('paste', 'input[name=email]', function(){
-                            auth_form.find('input[name=email]').val($(this).val());
-                        });
 
                         var bt_buy_course = purchase_form.find("input[name='bt_buy_course']");
                         bt_buy_course.on('click', function (event) {
@@ -291,18 +271,7 @@ $(document).ready(function () {
 
                         purchase_form.find('.turn_auth').on('click', function(e){
                             e.preventDefault();
-                            $('.email_error').hide();
-                            purchase_form.toggle();
-                            auth_form.toggle();
-                            purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
-                        });
-
-                        purchase.find('.return_purchase').on('click', function(e){
-                            e.preventDefault();
-                            $('.email_error').hide();
-                            purchase_form.toggle();
-                            auth_form.toggle();
-                            purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+                            func_turn_auth();
                         });
 
                         /*purchase_form.on('paste', ' #i-promocode', function () {
@@ -325,6 +294,24 @@ $(document).ready(function () {
                 }
             });
         });
+
+        purchase_form.find('.turn_auth').on('click', function(e){
+            e.preventDefault();
+            func_turn_auth();
+        });
+
+        purchase.find('.return_purchase').on('click', function(e){
+            e.preventDefault();
+            func_turn_auth();
+        });
+    }
+
+    function func_turn_auth()
+    {
+        $('.email_error').hide();
+        purchase_form.toggle();
+        auth_form.toggle();
+        purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
     }
 
     function parseLogin(lgData, this_form, auth_form, bt_buy_course)
@@ -349,7 +336,9 @@ $(document).ready(function () {
         promo_line_func($(this));
     });
 
-    var purchase_form = $('.purchase_form');
+    var auth_form = purchase_form.next('.purchase_pop-up_h.auth_form');
+    auth_form.hide();
+
     purchase_form.on('paste', ' #i-promocode', function (event) {
         event.preventDefault();
         var pc_input = $(this);
@@ -480,6 +469,26 @@ $(document).ready(function () {
             $("body").append("<div id='shadow2'></div>");
             shadow2 = $("#shadow2");
         }
+
+        auth_form.hide();
+
+        $('.anketa_form_select, .journal_form_select').styler();
+
+        purchase_form.find(".promo_line").on('click', function () {
+            promo_line_func($(this));
+        });
+
+        purchase_form.find("a.policy").on('click', function (event) {
+            event.preventDefault();
+            show_policy();
+        });
+
+        purchase_form.on('keyup', 'input[name=email]', function(){
+            auth_form.find('input[name=email]').val($(this).val());
+        });
+        purchase_form.on('paste', 'input[name=email]', function(){
+            auth_form.find('input[name=email]').val($(this).val());
+        });
 
         purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2, display: 'flex'}).hide().fadeIn(600);
         $("#shadow2, .purchase_pop-up_close").fadeTo(600, opacity).click(function () {

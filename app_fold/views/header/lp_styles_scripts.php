@@ -12,6 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <link rel="stylesheet" href="/css/grid.css">
     <link rel="stylesheet" href="/css/slick.css">
     <link rel="stylesheet" href="/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/font-awesome/all.css">
     <link rel="stylesheet" href="/css/jquery.formstyler.css">
     <link rel="stylesheet" href="/css/lightbox.css">
 
