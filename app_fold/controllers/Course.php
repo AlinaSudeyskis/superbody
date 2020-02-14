@@ -63,12 +63,14 @@ class Course extends CI_Controller
         // Сохранение нового типа курса
         if ($this->input->post('bt_save_new_type', true))
         {
-            // Имя пользователя
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+            $meta_title       = mb_substr(strip_tags($this->input->post('ta_meta_title', true)), 0, 255);
+            $meta_description = mb_substr(strip_tags($this->input->post('ta_meta_description', true)), 0, 255);
+            $meta_keywords    = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
 
             if (!empty($name))
             {
-                $result = $this->Course_model->setNewCourseType($name, $this->date);
+                $result = $this->Course_model->setNewCourseType($name, $meta_title, $meta_description, $meta_keywords, $this->date);
 
                 if (is_numeric($result))
                 {
@@ -110,17 +112,24 @@ class Course extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $result = $this->Course_model->getCourseType($type_id);
+
         // Сохранение изменений типа курса
         if ($this->input->post('bt_save_type_settings', true) and is_numeric($type_id))
         {
-            // Имя пользователя
+            $db_data = $result['type'];
+
             $name = mb_substr(strip_tags($this->input->post('name', true)), 0, 255);
+            $meta_title       = mb_substr(strip_tags($this->input->post('ta_meta_title', true)), 0, 255);
+            $meta_description = mb_substr(strip_tags($this->input->post('ta_meta_description', true)), 0, 255);
+            $meta_keywords    = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
 
-            if (!empty($name))
+            if (!empty($name) and ($db_data['name'] != $name or $db_data['meta_title'] != $meta_title or
+                $db_data['meta_description'] != $meta_description or $db_data['meta_keywords'] != $meta_keywords))
             {
-                $result = $this->Course_model->setCourseTypeSettings($type_id, $name, $this->date);
+                $res_up = $this->Course_model->setCourseTypeSettings($type_id, $name, $meta_title, $meta_description, $meta_keywords, $this->date);
 
-                if ($result === true)
+                if ($res_up === true)
                 {
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
@@ -165,8 +174,6 @@ class Course extends CI_Controller
             }
             header('Location: /administration/courses/type/' . $type_id);
         }
-
-        $result = $this->Course_model->getCourseType($type_id);
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Изменение данных категории курса';
@@ -6915,10 +6922,12 @@ class Course extends CI_Controller
             parent::ctrlInstagramLogin($i_email, $return_url, $bt_insta_login);
         }
 
+        $category_metadata = (!empty($courses_category) and is_numeric($category_id)) ? $result['courses_categories'][$category_id] : null;
+
         // Объединенные данные страница
-        $this->page_data['title']           = $this->page_data['metadata'][5]['title'];
-        $this->page_data['keywords']        = $this->page_data['metadata'][5]['keywords'];
-        $this->page_data['description']     = $this->page_data['metadata'][5]['description'];
+        $this->page_data['title']           = (!empty($category_metadata) and !empty($category_metadata['meta_title'])) ? $category_metadata['meta_title'] : $this->page_data['metadata'][5]['title'];
+        $this->page_data['keywords']        = (!empty($category_metadata) and !empty($category_metadata['meta_keywords'])) ? $category_metadata['meta_keywords'] : $this->page_data['metadata'][5]['keywords'];
+        $this->page_data['description']     = (!empty($category_metadata) and !empty($category_metadata['meta_description'])) ? $category_metadata['meta_description'] : $this->page_data['metadata'][5]['description'];
         $this->page_data['page_menu']       = 'courses';
         $this->page_data['page_filter']     = (!empty($page_category)) ? $page_category : $courses_category;
         $this->page_data['course_category'] = $courses_category;

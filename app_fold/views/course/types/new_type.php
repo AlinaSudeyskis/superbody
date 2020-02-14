@@ -26,10 +26,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </div>
                         <div class="video_admin_form">
-                            <div class="parent kurs_cur_wrap">
-                                <div class="kurs_block_h">Наименование:</div>
-                                <input type="text" name="name" class="admin_form_txt kurs_form_txt_short" value="" maxlength="255" required="required" autofocus="autofocus"/>
-                            </div>
+                            <?php include_once('./app_fold/views/course/types/setting_item.php'); ?>
                         </div>
                     </form>
                 </div>

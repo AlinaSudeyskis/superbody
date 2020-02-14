@@ -17,14 +17,17 @@ class Course_model extends CI_Model
      * Сохранение нового типа курса
      *
      * @param $name
+     * @param $meta_title
+     * @param $meta_description
+     * @param $meta_keywords
      * @param $date
      * @return bool
      */
-    public function setNewCourseType($name, $date)
+    public function setNewCourseType($name, $meta_title, $meta_description, $meta_keywords, $date)
     {
         $up_data = $this->db->query('
-            INSERT INTO `course_type` (`ct_name`, `ct_date_add`, `ct_date_update`) 
-            VALUES (?, ?, ?)', array($name, $date, $date));
+            INSERT INTO `course_type` (`ct_name`, `ct_meta_title`, `ct_meta_description`, `ct_meta_keywords`, `ct_date_add`, `ct_date_update`) 
+            VALUES (?, ?, ?, ?, ?, ?)', array($name, $meta_title, $meta_description, $meta_keywords, $date, $date));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -45,13 +48,18 @@ class Course_model extends CI_Model
      *
      * @param $type_id
      * @param $name
+     * @param $meta_title
+     * @param $meta_description
+     * @param $meta_keywords
      * @param $date
      * @return bool
      */
-    public function setCourseTypeSettings($type_id, $name, $date)
+    public function setCourseTypeSettings($type_id, $name, $meta_title, $meta_description, $meta_keywords, $date)
     {
-        $up_data = $this->db->query('UPDATE `course_type` SET `ct_name`=?, `ct_date_update`=? WHERE `ct_id`=? LIMIT 1',
-            array($name, $date, $type_id));
+        $up_data = $this->db->query('
+            UPDATE `course_type` SET `ct_name`=?, `ct_meta_title`=?, `ct_meta_description`=?, `ct_meta_keywords`=?, `ct_date_update`=? 
+            WHERE `ct_id`=? LIMIT 1',
+                array($name, $meta_title, $meta_description, $meta_keywords, $date, $type_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -78,14 +86,18 @@ class Course_model extends CI_Model
     {
         $result = array();
 
-        $sel_course_type = $this->db->query('SELECT `ct_name`, `ct_blocked` FROM `course_type` WHERE `ct_id`=? LIMIT 1', $type_id);
+        $sel_course_type = $this->db->query('SELECT `ct_name`, `ct_meta_title`, `ct_meta_description`, `ct_meta_keywords`, `ct_blocked` 
+            FROM `course_type` WHERE `ct_id`=? LIMIT 1', $type_id);
 
         if ($sel_course_type !== false and 1 == $sel_course_type->num_rows())
         {
             $row = $sel_course_type->row();
 
-            $result['type']['name']    = $row->ct_name;
-            $result['type']['blocked'] = $row->ct_blocked;
+            $result['type']['name']             = $row->ct_name;
+            $result['type']['meta_title']       = $row->ct_meta_title;
+            $result['type']['meta_description'] = $row->ct_meta_description;
+            $result['type']['meta_keywords']    = $row->ct_meta_keywords;
+            $result['type']['blocked']          = $row->ct_blocked;
         }
         elseif ($sel_course_type === false)
         {
@@ -179,7 +191,7 @@ class Course_model extends CI_Model
         // Результат
         $result = array();
 
-        $sel_types = $this->db->query('SELECT `ct_id`, `ct_name` FROM `course_type` WHERE `ct_blocked`=0 and `ct_id`=? LIMIT 1', $type_id);
+        $sel_types = $this->db->query('SELECT `ct_id`, `ct_name`, `ct_meta_title`, `ct_meta_description`, `ct_meta_keywords` FROM `course_type` WHERE `ct_blocked`=0 and `ct_id`=? LIMIT 1', $type_id);
 
         if ($sel_types !== false and 1 == $sel_types->num_rows())
         {
@@ -189,6 +201,9 @@ class Course_model extends CI_Model
             {
                 $result['course_type'][$row->ct_id]['id']   = $row->ct_id;
                 $result['course_type'][$row->ct_id]['name'] = $row->ct_name;
+                $result['course_type'][$row->ct_id]['meta_title']        = $row->ct_meta_title;
+                $result['course_type'][$row->ct_id]['meta_description'] = $row->ct_meta_description;
+                $result['course_type'][$row->ct_id]['meta_keywords']    = $row->ct_meta_keywords;
             }
             unset($row);
         }

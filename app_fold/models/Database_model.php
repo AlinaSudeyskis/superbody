@@ -3228,7 +3228,7 @@ class Database_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function updateDatabaseFabruary2020($date)
+    public function updateDatabaseFebruary2020($date)
     {
         $result = false;
 
@@ -3241,6 +3241,17 @@ class Database_model extends CI_Model
                 CHANGE `si_auth_title2` `si_auth_title2` VARCHAR(50) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
                 CHANGE `si_auth_text1` `si_auth_text1` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
                 CHANGE `si_auth_text2` `si_auth_text2` VARCHAR(250) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-02-14 15:31';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `course_type` ADD `ct_meta_title` VARCHAR(255) NOT NULL AFTER `ct_name`, 
+                ADD `ct_meta_description` VARCHAR(255) NOT NULL AFTER `ct_meta_title`, 
+                ADD `ct_meta_keywords` VARCHAR(1000) NOT NULL AFTER `ct_meta_description`");
 
             self::setDbUpdate($date);
         }
