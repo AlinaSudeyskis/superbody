@@ -1867,4 +1867,37 @@ class Authorization extends CI_Controller
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }
+
+    public function getLoginForm()
+    {
+        $result = array('result' => false, 'form' => '');
+        $urls   = array('/registry', '/login', '/restore');
+        $href   = (in_array($this->input->post('href', true), $urls)) ? $this->input->post('href', true) : null;
+
+        if(!empty($href))
+        {
+            ob_start();
+            if($href == '/login')
+            {
+                $result['title'] = 'Авторизация';
+                include('./app_fold/views/authorization/auth_form.php');
+            }
+            elseif($href == '/registry')
+            {
+                $result['title'] = 'Регистрация';
+                include('./app_fold/views/authorization/reg_form.php');
+            }
+            elseif($href == '/restore')
+            {
+                $result['title'] = 'Восстановление пароля';
+                include('./app_fold/views/authorization/restore_form.php');
+            }
+            $form = ob_get_contents();
+            ob_end_clean();
+            $result['result'] = true;
+            $result['form']   = $form;
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
 }

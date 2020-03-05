@@ -17,8 +17,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             ?>
             <input type="text" name="i_days_time[<?php echo $crs_id; ?>][<?php echo $nwd; ?>]" value="<?php echo $day_time_val; ?>"
                    class="anketa_form_in time <?php echo $prev_wo_cl; ?><?php if(empty($uc_set) or empty($fl_dt)): ?> disabled <?php endif; ?>" placeholder="чч:мм" maxlength="5" minlength="5"
-                   id="cb_<?php echo $nwd; ?>_<?php echo $crs_id; ?>_time" <?php if(empty($uc_set) or empty($fl_dt)): ?> disabled="disabled" <?php endif; ?>>
+                   id="cb_<?php echo $nwd; ?>_<?php echo $crs_id; ?>_time">
         </div>
     <?php endfor;
-    unset($nwd); ?>
+    unset($nwd); ?><?php/* if(empty($uc_set) or empty($fl_dt)): */?><!-- disabled="disabled" --><?php /*endif; */?>
 </div>

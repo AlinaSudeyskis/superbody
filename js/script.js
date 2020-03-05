@@ -135,6 +135,7 @@ $(document).ready(function () {
                     if (data.crs) {
                         purchase_form.html(data.crsd);
                         purchase_form.show();
+                        auth_form.find('.return_purchase').show();
 
                         purchase_up(po);
 
@@ -916,10 +917,10 @@ $(document).ready(function () {
             crs_id = this_but.data('crsid');
 
         if ($.isNumeric(crs_id)) {
-            var display = 1,
+            var display = 0,
                 block_message = $('#block-message');
 
-            if (this_but.hasClass('active')) display = 0;
+            if (this_but.hasClass('active')) display = 1;
 
             $.ajax({
                 url: '/displayCourse',
@@ -938,6 +939,14 @@ $(document).ready(function () {
                     if(data.result === true)
                     {
                         this_but.toggleClass('active');
+                        if(this_but.html() === 'Добавить в календарь')
+                        {
+                            this_but.html('Удалить из календаря');
+                        }
+                        else
+                        {
+                            this_but.html('Добавить в календарь');
+                        }
                         block_message.html(data.info);
                         block_message.removeClass('error');
                         block_message.addClass('info');
@@ -1779,7 +1788,7 @@ $(document).ready(function () {
                 breakpoint: 1140,
                 settings: {
                     slidesToShow: 3,
-                    slidesToScroll: 31
+                    slidesToScroll: 3
                 }
             },
             {
@@ -1799,15 +1808,10 @@ $(document).ready(function () {
             {
                 breakpoint: 639,
                 settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1
-                }
-            },
-            {
-                breakpoint: 480,
-                settings: {
-                    slidesToShow: 1,
-                    slidesToScroll: 1
+                    slidesToShow: 3,
+                    slidesToScroll: 1,
+                    vertical: true,
+                    verticalSwipe: true
                 }
             }
         ]
@@ -2014,6 +2018,14 @@ $(document).ready(function () {
         pop_up_home(pop_up_review);
     });
 
+    var pop_up_photo = $("#pop-up_user_photo");
+    $('#prof_page_img').on('click', function(){
+        if(pop_up_photo.length === 1)
+        {
+            pop_up_user_photo(pop_up_photo);
+        }
+    });
+
     var pop_up_video = $('#pop-up_video');
     $('.lp_desc').on('click', function(){
         if(pop_up_video.length === 0)
@@ -2023,6 +2035,34 @@ $(document).ready(function () {
         }
         pop_up_video.html('<div class="lp_desc_wrap"><div class="lp_desc_text">' + $(this).data('desc') + '</div></div>' + '<div class="purchase_pop-up_close"></div>');
         pop_up_home(pop_up_video);
+    });
+
+    // Login form
+    $('.login_form_up').on('click', function(e){
+        e.preventDefault();
+        var href = $(this).attr('href');
+
+        $.ajax({
+            url: '/loginForm',
+            type: 'post',
+            dataType: 'json',
+            data: {href: href},
+            complete: function (result) {
+                var data = result.responseJSON;
+
+                if(data.result === true)
+                {
+                    purchase_up();
+
+                    auth_form.find('.kurs_cur_h').html(data.title);
+                    auth_form.find('.return_purchase').hide();
+                    auth_form.find('.page_form').html(data.form);
+                    auth_form.show();
+
+                    purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
+                }
+            }
+        });
     });
 });
 var options, playerTwoPlayer;
@@ -2084,7 +2124,7 @@ function pop_up_home(popup) {
         returnScroll();
     });
 
-    $("#shadow2, .home_pop-up_close, .close_meal, .close_user_meal, .purchase_pop-up_close").fadeTo(600,0.8).on('click', function() {
+    $("#shadow2, .home_pop-up_close, .close_meal, .close_user_meal, .close_user_photo, .purchase_pop-up_close").fadeTo(600,0.6).on('click', function() {
         shadow.fadeOut(600);
         popup.fadeOut(600);
         //popup.empty();
@@ -2108,6 +2148,20 @@ function pop_up_home(popup) {
                 }
             });
         }
+    });
+}
+function pop_up_user_photo(popup) {
+    popup.fadeIn(600);
+
+    // если необходимо делегирование событий, замените на mouseenter и mouseleave соответственно
+    $(popup).hover(function() {
+        preventScroll(popup);
+    }, function() {
+        returnScroll();
+    });
+
+    $(".close_user_photo").on('click', function() {
+        popup.fadeOut(600);
     });
 }
 

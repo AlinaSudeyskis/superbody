@@ -43,7 +43,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Vimeo URL:</div>
-    <input type="text" name="remove_url" class="admin_form_txt admin_form_txt_short" placeholder="Полная URL ссылка на видео с сайта Vimeo.com" value="<?php if (!empty($video['name'])) { echo $video['remove_url']; }?>" />
+    <input type="text" name="remove_url" class="admin_form_txt admin_form_txt_short" placeholder="Полная URL ссылка на видео с сайта Vimeo.com" value="<?php if (!empty($video['remove_url'])) { echo $video['remove_url']; }?>" />
 </div>
 <div class="parent kurs_cur_wrap down_line">
     <div class="kurs_block_h">Постер видео:</div>

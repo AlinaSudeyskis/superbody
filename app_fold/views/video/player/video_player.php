@@ -21,8 +21,17 @@ elseif(!empty($v_remove_url))
     $w_video = ob_get_contents();
     ob_end_clean();
 }
+// Блок кнопки "Выполнено" (активная или не активная)
+if ($w_done == 1)
+{
+    $workout_done = "<div id='wo-done'><div class='workout_form_but done'>Выполнено</div></div>";
+}
+else {
+    $workout_done = "<div id='wo-done'><input type='button' name='bt_workout_done' id='bt-workout-done' value='Сохранить как выполненное' class='workout_form_but'/><input type='hidden' name='woid' value='".$workout_id."' id='wo-id'/></div>";
+}
+
 $workout_description = !empty($w_description) ? $w_description : '';
-$workout_video = !empty($w_video) ? '<div id="wo-video">' . $w_video . '</div>' . '<div id="wo-description">' . $workout_description . '</div>' : '';
+
 
 // Блок видео инструктажа
 if (empty($i_remove_url) and !empty($i_poster) and !empty($i_video))
@@ -44,13 +53,6 @@ elseif(!empty($i_remove_url))
     $inst_video = ob_get_contents();
     ob_end_clean();
 }
-$workout_instruction = !empty($inst_video) ? '<div id="wo-instruction">' . $inst_video . '</div>' : '';
-
-// Блок кнопки "Выполнено" (активная или не активная)
-if ($w_done == 1)
-{
-    $workout_done = "<div id='wo-done'><div class='workout_form_but done'>Выполнено</div></div>";
-}
-else {
-    $workout_done = "<div id='wo-done'><input type='button' name='bt_workout_done' id='bt-workout-done' value='Выполнено' class='workout_form_but'/><input type='hidden' name='woid' value='".$workout_id."' id='wo-id'/></div>";
-}
+$workout_instruction = (!empty($inst_video)) ? '<div id="wo-instruction">' . $inst_video . '</div>' : '';
+$workout_inst_but = (!empty($inst_video)) ? "<div class='workout_form_but instruction'>Инструктаж</div>" : '';
+$workout_video = (!empty($w_video)) ? '<div id="wo-video">' . $w_video . '</div>' . $workout_instruction . '<div id="wo-description">' . $workout_description . '</div>' . $workout_done . $workout_inst_but : '';

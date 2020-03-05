@@ -509,7 +509,7 @@ class User extends CI_Controller
 
             header('Location: /profile/'.$user_id);
         }
-        elseif ($this->input->post('bt_e_activate_send_again', true))
+        elseif($this->input->post('bt_e_activate_send_again', true))
         {
             $this->load->model('Authorization_model');
 
@@ -529,6 +529,80 @@ class User extends CI_Controller
                 }
             }
             header('Location: /profile/' . $user_id);
+        }
+        elseif($this->input->post('bt_save_avatar', true))
+        {
+            // Загрузка изображения на сервер
+            $db_path_avatar = '.' . $u_data['user_data']['user_image'];
+            $db_avatar      = $u_data['user_data']['user_image'];
+            if(is_uploaded_file($_FILES['avatar_file']['tmp_name']))
+            {
+                $path = './user_files/'.$this->user_id.'/avatar/';
+
+                if(!file_exists($path)){
+                    chdir('user_files');
+                    if(!is_dir($this->user_id))
+                    {
+                        mkdir($this->user_id);
+                    }
+                    chmod($this->user_id, 0777);
+                    chdir($this->user_id);
+                    if(!is_dir('avatar'))
+                    {
+                        mkdir('avatar');
+                    }
+                    chmod('avatar', 0777);
+                    chdir('avatar');
+                    chdir('../../../');
+                }
+                $this->load->helper('file');
+
+                $path_image = parent::uploadImage('avatar_file',$_FILES['avatar_file']['type'], $path);
+                if(file_exists($path.$path_image))
+                {
+                    if ($this->security->xss_clean($path.$path_image, TRUE) !== FALSE)
+                    {
+                        // файл прошел XSS тест
+                        $path_avatar = $path.$path_image;
+                        $avatar = '/user_files/'.$this->user_id.'/avatar/'.$path_image;
+
+                        if (!empty($user_data['user_image']) and is_file($user_data['user_image']))
+                        {
+                            unlink('.' . $user_data['user_image']);
+                        }
+                    }
+                    else
+                    {
+                        unlink($path);
+                    }
+                }
+            }
+
+            if(!empty($path_avatar) and !empty($avatar) and is_file($path_avatar) and $path_avatar != $db_path_avatar)
+            {
+                $result = $this->User_model->updateUserAvatar($this->user_id, $path_avatar, $this->date);
+
+                if ($result === false)
+                {
+                    // Изменения не были сохранены
+                    $this->session->set_tempdata('message', 222, 60);
+                }
+                else
+                {
+                    // Обновление данных сессии
+                    $user_data = array('user' => $this->session->user);
+
+                    $user_data['user']['image'] = $avatar;
+                    $user_data['user']['date']  = $this->date;
+
+                    $this->session->set_userdata($user_data);
+
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+            }
+
+            header('Location: /profile/'.$this->user_id);
         }
 
         $this->load->model('Notification_model');

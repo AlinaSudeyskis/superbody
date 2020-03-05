@@ -7344,57 +7344,25 @@ class Course extends CI_Controller
             $training_times = '';
             $array_training_times = array();
 
-            $days = $this->input->post('cb_day', true);
+            $update_workouts = array(); // Тренировки, у которых необходимо обновить дату
+            $all_workouts    = array(); // Все тренировки (и обновленные и не обновленные)
+
+            $days    = $this->input->post('cb_day', true);
             $i_times = $this->input->post('i_days_time', true);
 
-            if (!empty($days[$course_id]) and empty($db_training_days))
+            if (!empty($days[$course_id]))
             {
-                /*$prev_key = 0;
-                $total = count($days[$course_id]);*/
                 $i = 1;
                 foreach ($days[$course_id] as $key => $day)
                 {
                     // Если кол-во выбранных дней не превышает кол-во дней курса
                     if ($i <= $course_days)
                     {
-                        // Разница между днями. Если не меньше установленной курсом, добавляем как день тренировки
-                        /*if ($i == 1)
-                        {
-                            $training_days .= $day;
-                        }
-                        else
-                        {
-                            $training_days .= (($key - $prev_key) >= $course_rest) ? $day : '';
-                        }
-
-                        $prev_key = $key;*/
-
                         $training_days .= $day;
 
                         $i_time = $i_times[$course_id][$day];
                         $time_date = DateTime::createFromFormat('H:i', $i_time);
-                        $array_training_times[$day] = ($time_date !== false) ? $i_time : '';
-
-                        $i++;
-                    }
-                    /*elseif($i == $total)
-                    {
-                        $training_days .= ((6 - $key) >= $course_rest) ? $day : '';
-                    }*/
-                }
-                unset($day);
-            }
-            elseif($i_times[$course_id] != $db_training_time)
-            {
-                $i = 1;
-                foreach ($days[$course_id] as $key => $day)
-                {
-                    // Если кол-во выбранных дней не превышает кол-во дней курса
-                    if ($i <= $course_days)
-                    {
-                        $i_time = $i_times[$course_id][$day];
-                        $time_date = DateTime::createFromFormat('H:i', $i_time);
-                        $array_training_times[$day] = ($time_date !== false) ? $i_time : '';
+                        $array_training_times[$day] = ($time_date !== false) ? $i_time : '12:00';
 
                         $i++;
                     }
@@ -7403,10 +7371,8 @@ class Course extends CI_Controller
             }
             // Массив новых дней тренировок
             $array_training_days  = (!empty($training_days)) ? str_split($training_days) : null;
-            $training_times       = (!empty($array_training_times)) ? implode(';', $array_training_times) : '';
-
             // Время тренировок
-            //$training_time = $db_training_time;
+            $training_times = (!empty($array_training_times)) ? implode(';', $array_training_times) : '';
 
             // Вычисление старта и окончания курса
             if (empty($db_training_days) and !empty($array_training_days))
@@ -7465,154 +7431,110 @@ class Course extends CI_Controller
                 }
             }
 
-            // Сохранение изменений выбранного тренера
-            if ($coach_id != $db_course['coach_id'])
+            // Сохранение изменений дней тренировок
+            if (!empty($array_training_days) and !empty($db_training_days) and $training_days != $db_training_days)
             {
-                $result = $this->Course_model->setUserCourseCoach($course_id, $this->user_id, $coach_id, $this->date);
-            }
-
-            /*// Сохранение изменений дней тренировок
-            if (!empty($array_training_days) and $training_days != $db_training_days and empty($db_training_days)) {
-                $update_workouts     = array(); // Тренировки, у которых необходимо обновить дату
-                $all_workouts        = array(); // Все тренировки (и обновленные и не обновленные)
-                $update_all_workouts = false; // Во всех ли тренировках обновлять дату (по умолчанию: нет)
-                $set_start_date      = true; // Флаг начала отсчета дат после заморозки
-
-                // Если ни одна из тренировок не явл. пропущенной или выполненной, то смещаем начальную и конечную даты курса
-                if ($workouts_missed == 0 and $workouts_passed == 0) {
-                    // Дата начала курса
-                    $tem_date = new DateTime($this->date);
-                    $start_date = $tem_date->format('Y-m-d');
-                    $end_date = null;
-                    // Текущий номер дня недели
-                    $current_num_day = date("N");
-                    // Вычисление даты начала курса
-                    // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
-                    // то вычисляем дату следующего дня недели тренировки.
-                    if (!in_array($current_num_day, $array_training_days)) {
-                        // Поиск большего номера дня недели
-                        foreach ($array_training_days as $key => $training_day) {
-                            if ($training_day > $current_num_day and $set_start_date === true) {
-                                $diff_days = $training_day - $current_num_day;
-
-                                $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
-                                $date->add(new DateInterval('P' . $diff_days . 'D'));
-                                $start_date = $date !== false ? $date->format('Y-m-d') : null;
-
-                                $set_start_date = false;
-                            }
-                        }
-                        unset($training_day);
-
-                        // Если дата начала курса не изменилась, то берем первый выбранный номер дня недели тренировки
-                        if ($start_date == $this->date) {
-                            $diff_days = 7 - $current_num_day + $array_training_days[0];
-
-                            $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
-                            $date->add(new DateInterval('P' . $diff_days . 'D'));
-                            $start_date = $date !== false ? $date->format('Y-m-d') : null;
-                        }
-                    }
-
-                    // Изначальная дата окончания курса
-                    if (!empty($start_date)) {
-                        $count_days = ($course_weeks*7) - 1;
-                        $date = DateTime::createFromFormat('Y-m-d', $start_date);
-                        $date->add(new DateInterval('P' . $count_days . 'D'));
-                        $end_date = $date !== false ? $date->format('Y-m-d') : null;
-                    }
-
-                    // Если дата изменилась, то изменяем даты тренировок
-                    if ($start_date !== null and $end_date !== null) {
-                        $course_start = $start_date;
-                        $course_end = $end_date;
-
-                        $update_all_workouts = true;
-                    }
-                }
-
-                // Вычисление новых дат тренировок
-                $training_date = $course_start;
 
                 $tem_date = new DateTime($this->date);
                 $today    = $tem_date->format('Y-m-d');
                 unset($tem_date);
 
-                foreach ($db_workouts as $num_workout => $workout) {
-                    // Если флаг отмечен false, то не все тренировки обновлять, а только те, которые еще не выполнены
-                    // Иначе пропустить текущую тренировку и перейти к следующей
-                    if ($update_all_workouts === false and $workout['done'] == 1) {
+                // Вычисление новых дат тренировок
+                $training_date = $today;
+
+                $i = 1;
+                foreach ($db_workouts as $num_workout => $workout)
+                {
+                    // Изменяем дату будущих тренировок, иначе пропустить текущую тренировку и перейти к следующей
+                    if ($workout['date'] < $today)
+                    {
                         $all_workouts[$num_workout]['date'] = $workout['date'];
                         $all_workouts[$num_workout]['done'] = $workout['done'];
                         continue;
                     }
 
-                    // Первой тренировки присваиваем начальную дату курса
-                    // Для остальных проводим вычисление
-                    if ($num_workout > 1) {
-                        // Номер дня недели предыдущей тренировки
-                        $prev_num_day = date('N', strtotime($training_date));
-                        $key_num_day  = array_search($prev_num_day, $array_training_days);
+                    // Номер дня недели предыдущей тренировки
+                    $prev_num_day = date('N', strtotime($training_date));
+                    $key_num_day  = array_search($prev_num_day, $array_training_days);
 
-                        if ($key_num_day !== false) {
+                    if ($key_num_day !== false)
+                    {
+                        // Вычисление разницы между номерами дней недели
+                        // Если предыдущий день недели тренировки последний день недели, то
+                        if ($key_num_day == $course_days-1)
+                        {
+                            // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
+                            $diff_days = 7 - $array_training_days[$key_num_day] + $array_training_days[0];
+                        }
+                        else
+                        {
+                            // Разница между текущим номером недели тренировки и предыдущем.
+                            $diff_days = $array_training_days[$key_num_day+1] - $array_training_days[$key_num_day];
+                        }
+
+                        // Временная дата предыдущей тренивроки
+                        $tem_date = new DateTime($training_date);
+
+                        // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
+                        $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                        $training_date = $tem_date->format('Y-m-d');
+
+                        unset($tem_date);
+                    }
+                    // Если не найден предыдущий день недели в новом списке, то проверяем дату текущей тренировки.
+                    else
+                    {
+                        // Номер недели текущего дня
+                        $today_num_day = date('N', strtotime($today));
+                        $new_num_day_workout = $array_training_days[0];
+                        // Поиск ближайшего дня недели тренировки
+                        foreach($array_training_days as $at_day)
+                        {
+                            if($at_day > $today_num_day)
+                            {
+                                $new_num_day_workout = $at_day;
+                                break;
+                            }
+                        }
+                        unset($at_day);
+
+                        // Если текущий день недели = новому дню недели, то новая дата = "сегодня"
+                        if ($new_num_day_workout == $today_num_day)
+                        {
+                            $training_date = $today;
+                        }
+                        else
+                        {
                             // Вычисление разницы между номерами дней недели
-                            // Если предыдущий день недели тренировки последний день недели, то
-                            if ($key_num_day == $course_days-1) {
-                                // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                $diff_days = 7 - $array_training_days[$key_num_day] + $array_training_days[0];
-                            } else {
-                                // Разница между текущим номером недели тренировки и предыдущем.
-                                $diff_days = $array_training_days[$key_num_day+1] - $array_training_days[$key_num_day];
+                            if ($today_num_day >= $new_num_day_workout)
+                            {
+                                $diff_days = 7 - $today_num_day + $new_num_day_workout;
+                            }
+                            else
+                            {
+                                $diff_days = $new_num_day_workout - $today_num_day;
                             }
 
-                            // Временная дата предыдущей тренивроки
-                            $tem_date = new DateTime($training_date);
+                            // Временная дата "сегодня"
+                            $tem_date = new DateTime($today);
 
-                            // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
+                            // Дата текущей тренировки, с учетом разницы между днями ( + $diff_days дней )
                             $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
 
                             $training_date = $tem_date->format('Y-m-d');
 
                             unset($tem_date);
                         }
-                        // Если не найден предыдущий день недели в новом списке, то проверяем дату текущей тренировки.
-                        // Если дата тек. тренировки >= "сегодня" и тренировка не выполнена, то пересчитываем на новую дату.
-                        else {
-                            if ($workout['date'] >= $today and $workout['done'] == 0) {
-                                // Номер недели текущего дня
-                                $today_num_day = date('N', strtotime($today));
-                                // Новый номер недели тренировки
-                                $new_num_day_workout = $array_training_days[0];
-
-                                // Если текущий день недели = новому деню недели, то новая дата = "сегодня"
-                                if ($new_num_day_workout == $today_num_day) {
-                                    $training_date = $today;
-                                }
-                                else {
-                                    // Вычисление разницы между номерами дней недели
-                                    if ($today_num_day >= $new_num_day_workout) {
-                                        $diff_days = 7 - $today_num_day + $new_num_day_workout;
-                                    } else {
-                                        $diff_days = $new_num_day_workout - $today_num_day;
-                                    }
-
-                                    // Временная дата "сегодня"
-                                    $tem_date = new DateTime($today);
-
-                                    // Дата текущей тренировки, с учетом разницы между днями ( + $diff_days дней )
-                                    $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
-
-                                    $training_date = $tem_date->format('Y-m-d');
-
-                                    unset($tem_date);
-                                }
-                            }
-                        }
                     }
 
                     $all_workouts[$num_workout]['date']    = $training_date;
                     $all_workouts[$num_workout]['done']    = $workout['done'];
+
                     $update_workouts[$num_workout]['date'] = $training_date;
+
+                    $day_num_week  = date('N', strtotime($training_date));
+                    $update_workouts[$num_workout]['time'] = $array_training_times[$day_num_week];
                 }
                 unset($workout);
 
@@ -7620,14 +7542,15 @@ class Course extends CI_Controller
                 if ($training_date > $course_end) {
                     $course_end = $training_date;
                 }
-            }*/
+            }
+            // log_message('debug', print_r($update_workouts, true));
 
             /* Заморозка курса */
             $input_date      = $this->input->post('date_pause_to', true); // Введенная дата
             $tm_date_to      = DateTime::createFromFormat('Y-m-d', $input_date);
             $date_pause_to   = ($input_date != '' and $tm_date_to !== false) ? $tm_date_to->format('Y-m-d') : '';
             $curr_pause_days = 0; // Кол-во дней заморозки
-            $update_workouts = null;
+            $pause_update_workouts = null;
             // Заморозка курса (изменение дат тренировок, даты окончания курса)
             if (!empty($date_pause_to) and !empty($db_training_days))
             {
@@ -7766,7 +7689,7 @@ class Course extends CI_Controller
                                 }
                             }
 
-                            $update_workouts[$num_workout]['date'] = $training_date;
+                            $pause_update_workouts[$num_workout]['date'] = $training_date;
                         }
                     }
                     unset($workout);
@@ -7782,6 +7705,7 @@ class Course extends CI_Controller
 
             /* СОХРАНЕНИЕ ИЗМЕНЕНИЙ */
             // Сохранение изменения дней/времени тренировок
+            // Сохранение выбранных дней, даты начала и окончания курса
             if (!empty($array_training_days) and empty($db_training_days) and !empty($new_course_start) and !empty($new_course_end))
             {
                 // Сохранение дней тренировок пользователя
@@ -7790,10 +7714,21 @@ class Course extends CI_Controller
                 // Добавление тренировок пользователя в БД
                 $count_workouts = $course_weeks * $course_days;
                 $this->Course_model->setUserTrainingWeeks($uc_id, $new_course_start, $training_days, $array_training_times, $count_workouts, $course_days, $this->date);
+                log_message('debug', 1);
             }
+            // Изменение дней и времени тренировок
+            elseif(!empty($array_training_days) and !empty($db_training_days) and !empty($update_workouts))
+            {
+                // Сохранение дней тренировок пользователя
+                $result_td = $this->Course_model->updateUserTrainingDays($uc_id, $training_days, $training_times, $course_end, $this->date);
+
+                // Изменение будущих тренировок пользователя
+                $this->Course_model->updateDatesUserWorkouts($uc_id, $update_workouts, $this->date);
+                log_message('debug', 2);
+            }
+            // Изменение времени тренировок пользователя
             elseif(!empty($training_times) and (empty($db_training_time) or $array_training_times != $db_training_time))
             {
-                // Сохранение времени тренировок пользователя
                 $result_td = $this->Course_model->setUserTrainingTime($uc_id, $training_times, $this->date);
 
                 if(!empty($db_training_days))
@@ -7802,14 +7737,24 @@ class Course extends CI_Controller
                     $count_workouts = $course_weeks * $course_days;
                     $this->Course_model->setUserTrainingWeeksTime($uc_id, $array_training_times, $count_workouts, $this->date);
                 }
+                log_message('debug', 3);
             }
 
             // Сохранение заморозки курса
-            if (!empty($date_pause_to) and $curr_pause_days >= 7)
+            if (!empty($date_pause_to) and $curr_pause_days >= 7 and !empty($pause_update_workouts))
             {
-                $result_sp = $this->Course_model->setUserCoursePause($uc_id, $date_pause_to, $course_end, $update_workouts, $this->date);
+                $result_sp = $this->Course_model->setUserCoursePause($uc_id, $date_pause_to, $course_end, $pause_update_workouts, $this->date);
+                log_message('debug', 4);
             }
 
+            // Сохранение изменений выбранного тренера
+            if ($coach_id != $db_course['coach_id'])
+            {
+                $this->Course_model->setUserCourseCoach($course_id, $this->user_id, $coach_id, $this->date);
+                log_message('debug', 5);
+            }
+
+            /* ОТВЕТ */
             if ($result_td === true and $result_sp === true)
             {
                 // Изменения сохранены
@@ -7830,7 +7775,7 @@ class Course extends CI_Controller
                 {
                     $error_code = 81;
                 }
-                // Изменения не сохранены
+
                 $this->session->set_tempdata('message', $error_code, 60);
             }
 
@@ -7930,6 +7875,9 @@ class Course extends CI_Controller
                     }
 
                     $update_workouts[$num_workout]['date'] = $training_date;
+
+                    $day_num_week  = date('N', strtotime($training_date));
+                    $update_workouts[$num_workout]['time'] = $db_training_time[$day_num_week];
                 }
             }
             unset($workout);
@@ -8598,8 +8546,8 @@ class Course extends CI_Controller
         $section_id    = 1;
         $subsection_id = (is_numeric($subsection_id)) ? $subsection_id : null;
         $article_id    = (is_numeric($article_id)) ? $article_id : null;
-        $users_types = array('user' => 1, 'coach' => 2, 'admin' => 3);
-        $user_type   = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
+        $users_types   = array('user' => 1, 'coach' => 2, 'admin' => 3);
+        $user_type     = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
         $this->load->model('Message_model');
 
         //$user_bmr        = $this->User_model->getUserBMR($this->user_id);
@@ -8607,23 +8555,28 @@ class Course extends CI_Controller
 
         if(is_numeric($section_id) and is_numeric($subsection_id))
         {
-            $section       = $this->Message_model->getPublicQaSection(1, $user_type);
-            $subsection    = $this->Message_model->getPublicQaSubsection(1, $subsection_id, $user_type);
-            $articles      = $this->Message_model->getPublicQaSubsectionArticles(1, $subsection_id, $user_type);
-            $article       = (is_numeric($article_id)) ? $this->Message_model->getPublicQaArticle(1, $subsection_id, $article_id, $user_type) : array();
-            $def_nutrition = array_merge($section, $subsection, $articles, $article);
+            $section    = $this->Message_model->getPublicQaSection(1, $user_type);
+            $subsection = $this->Message_model->getPublicQaSubsection(1, $subsection_id, $user_type);
+            $articles   = $this->Message_model->getPublicQaSubsectionArticles(1, $subsection_id, $user_type);
+            $article    = (is_numeric($article_id)) ? $this->Message_model->getPublicQaArticle(1, $subsection_id, $article_id, $user_type) : array();
+            $result = array_merge($section, $subsection, $articles, $article);
+            $page_submenu = 'article';
         }
         else
         {
-            $def_nutrition = $this->Message_model->getPublicQaSection(1, $user_type);
+            $section = $this->Message_model->getPublicQaSection(1, $user_type);
+            $subsection    = $this->Message_model->getPublicQaSubsection($section_id, $subsection_id, $user_type);
+            $articles      = $this->Message_model->getPublicQaSubsectionArticles($section_id, $subsection_id, $user_type);
+            $result        = array_merge($section, $subsection, $articles);
+            $page_submenu  = 'section';
         }
 
-        $result = array_merge($def_nutrition); //$user_bmr, $meals_last_week,
+        //$result = array_merge($def_nutrition); //$user_bmr, $meals_last_week,
 
         // Объединенные данные страница
         $this->page_data['title']             = 'Питание';
         $this->page_data['page_menu']         = 'u_meals';
-        $this->page_data['page_submenu']      = '';
+        $this->page_data['page_submenu']      = $page_submenu;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -8823,32 +8776,66 @@ class Course extends CI_Controller
      */
     public function viewedVideo()
     {
-        // Если пользователь не авторизован, переход на страницу авторизации
-        if (empty($this->user_id)) {
-            header('Location: /login');
-        }
+        if (!empty($this->user_id)) {
 
-        $workout_id = is_numeric($this->input->post('woid')) ? $this->input->post('woid') : null;
+            $workout_id = is_numeric($this->input->post('woid')) ? $this->input->post('woid') : null;
 
-        $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
-        $today = $date !== false ? $date->format('Y-m-d') : null;
-        
-        if (!empty($workout_id) and !empty($this->user_id))
-        {
-            $result = $this->Course_model->setWorkoutDone($this->user_id, $workout_id, $today);
-            
-            if ($result === true)
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
+            $today = $date !== false ? $date->format('Y-m-d') : null;
+
+            if (!empty($workout_id) and !empty($this->user_id))
             {
-                echo "true";
+                $result = $this->Course_model->setWorkoutDone($this->user_id, $workout_id, $today);
+
+                if ($result === true)
+                {
+                    echo "true";
+                }
+                else
+                {
+                    echo "false";
+                }
             }
             else
             {
                 echo "false";
             }
         }
-        else
-        {
-            echo "false";
+    }
+
+    /**
+     * AJAX Сохранение прогресса просмотра видео
+     *
+     * @return void
+     */
+    public function viewingVideo()
+    {
+        if (!empty($this->user_id)) {
+
+            $workout_id      = is_numeric($this->input->post('woid')) ? $this->input->post('woid') : null;
+            $current_time    = is_numeric($this->input->post('ved_time')) ? $this->input->post('ved_time') : null;
+            $current_percent = is_numeric($this->input->post('ved_percent')) ? ($this->input->post('ved_percent')*100) : null;
+
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
+            $today = $date !== false ? $date->format('Y-m-d') : null;
+
+            if (!empty($workout_id) and !empty($current_time) and !empty($current_percent))
+            {
+                $result = $this->Course_model->setWorkoutTimeProgress($this->user_id, $workout_id, $current_time, $current_percent, $today);
+
+                if ($result === true)
+                {
+                    echo "true";
+                }
+                else
+                {
+                    echo "false";
+                }
+            }
+            else
+            {
+                echo "false";
+            }
         }
     }
 
@@ -8871,7 +8858,7 @@ class Course extends CI_Controller
             {
                 // Данные видео
                 $video_data = $this->Course_model->getVideo($video_id);
-                //$instruction_data = $this->Course_model->getVideo($result['workout']['instruction']);
+                $instruction_data = $this->Course_model->getVideo($result['workout']['instruction']);
 
                 if ($video_data !== false)
                 {
@@ -8887,9 +8874,9 @@ class Course extends CI_Controller
                     $v_remove_url = $video_data['video']['remove_url'];
                     $v_poster = $video_data["video"]["poster"];
                     $v_video = $video_data["video"]["video"];
-                    $i_remove_url = null;
-                    $i_poster = null;
-                    $i_video = null;
+                    $i_remove_url = $instruction_data['video']['remove_url'];
+                    $i_poster = $instruction_data["video"]["poster"];
+                    $i_video = $instruction_data["video"]["video"];
                     $w_done = $result['workout']['done'];
                     $w_description = $result['workout']['description'];
 

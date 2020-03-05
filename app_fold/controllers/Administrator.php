@@ -743,6 +743,32 @@ class Administrator extends CI_Controller
         }
         elseif ($this->input->post('bt_save_contacts', true))
         {
+            // Загрузка логотипа на сервер
+            $background = '.' . $result['contacts_bg'];
+            if(is_uploaded_file($_FILES['contact_file']['tmp_name'])){
+                $path = './logo/';
+                $this->load->helper('file');
+
+                $path_image = parent::uploadImage('contact_file', $_FILES['contact_file']['type'], $path);
+                if(is_file($path.$path_image))
+                {
+                    if ($this->security->xss_clean($path.$path_image, TRUE) !== FALSE)
+                    {
+                        // файл прошел XSS тест
+                        $background = $path.$path_image;
+
+                        if (is_file($result['contacts_bg']))
+                        {
+                            unlink('.' . $result['contacts_bg']);
+                        }
+                    }
+                    else
+                    {
+                        unlink($path.$path_image);
+                    }
+                }
+            }
+
             $email    = mb_substr(strip_tags($this->input->post('email', true)), 0, 255);
             $phone    = mb_substr(strip_tags($this->input->post('phone', true)), 0, 255);
             $telegram = mb_substr(strip_tags($this->input->post('mes_telegram', true)), 0, 255);
@@ -751,7 +777,7 @@ class Administrator extends CI_Controller
             $contacts_text1 = mb_substr(strip_tags($this->input->post('contacts_text1', true)), 0, 300);
             $contacts_text2 = mb_substr(strip_tags($this->input->post('contacts_text2', true)), 0, 300);
 
-            $result = $this->Administrator_model->setSiteContacts($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $this->date, $this->user_id);
+            $result = $this->Administrator_model->setSiteContacts($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $background, $this->date, $this->user_id);
 
             if ($result === true) {
                 // Изменения сохранены

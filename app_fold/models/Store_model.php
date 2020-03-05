@@ -2763,13 +2763,17 @@ class Store_model extends CI_Model
     /**
      * Выборка списка заказов пользователей
      *
-     * @param string $payment_status
-     * @param int $order_status
+     * @param string|null $payment_status
+     * @param int|null $search_text
      * @return array
      */
-    public function getOrders($payment_status = 'waiting_for_capture')
+    public function getOrders($payment_status = null, $search_text = null)
     {
         $result = array();
+
+        $where = (!empty($payment_status)) ? "`o_payment_status`='".$payment_status."'" : '';
+        $where .= (!empty($where) and !empty($search_text)) ? ' and ' : '';
+        $where .= (!empty($search_text)) ? "`o_id`=".$search_text : '';
 
         $sel_orders = $this->db->query("
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
@@ -2780,8 +2784,8 @@ class Store_model extends CI_Model
             LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
             LEFT JOIN `orders_payment` ON `op_o_id`=`o_id`
             LEFT JOIN `users` ON `o_u_id`=`user_id`
-            WHERE `o_payment_status`=?
-            GROUP BY `o_id` ORDER BY `o_id`", $payment_status);
+            WHERE ".$where."
+            GROUP BY `o_id` ORDER BY `o_id` DESC LIMIT 10");
 
         if ($sel_orders !== false and 0 < $sel_orders->num_rows())
         {

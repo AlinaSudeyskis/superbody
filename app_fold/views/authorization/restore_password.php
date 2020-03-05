@@ -3,14 +3,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div id="content" class="container">
     <div class="sing-in page_form">
-        <div class="sing-in_h">введите e-mail:</div>
-        <form action="" class="sing-in_form" method="post">
-            <input type="text" class="sing-in_in valid_email" placeholder="e-mail" name="email" value="" maxlength="255" required/>
-            <input type="submit" value="Восстановить" class="sing-in_but" name="bt_restore"/>
-        </form>
-        <div class="reg_in_link_wrap">
-            <a href="/login" class="reg_in_link">авторизация</a>
-            <a href="/registry" class="reg_in_link">регистрация</a>
-        </div>
+        <?php include_once('./app_fold/views/authorization/restore_form.php'); ?>
     </div>
 </div><!-- content -->

@@ -946,30 +946,51 @@ class Coach_model extends CI_Model
     {
         $result = array('gallery' => array());
 
-        $sel_images = $this->db->query('
-            SELECT `cp_image_path`, `cp_image_title`, `cp_image_description`, `cp_id`
-            FROM `coach_portfolio`
-            WHERE `cp_image_approval`=1
-            ORDER BY `cp_date_add` DESC
-            LIMIT 32');
-        if ($sel_images !== false and 0 < $sel_images->num_rows())
+        $sel_data = $this->db->query('SELECT `cp_id` FROM `coach_portfolio` WHERE `cp_image_approval`=1');
+        if($sel_data !== false and 0 < $sel_data->num_rows())
         {
+            $img_ids = array();
             $i = 0;
-            foreach ($sel_images->result() as $row)
+            foreach ($sel_data->result() as $row)
             {
-                if (is_file($row->cp_image_path))
-                {
-                    $result['gallery'][$i]['path']        = mb_substr($row->cp_image_path, 1);
-                    $result['gallery'][$i]['title']       = $row->cp_image_title;
-                    $result['gallery'][$i]['description'] = $row->cp_image_description;
-                    $result['gallery'][$i]['post_id']     = $row->cp_id;
-
-                    $i++;
-                }
+                $img_ids[] = $row->cp_id;
+                $i++;
             }
             unset($row);
+            unset($i);
+
+            shuffle($img_ids);
+            $img_ids = array_slice($img_ids, 0, 16);
+
+            $sel_images = $this->db->query('
+                SELECT `cp_image_path`, `cp_image_title`, `cp_image_description`, `cp_id`
+                FROM `coach_portfolio`
+                WHERE `cp_id` IN ?', array($img_ids));
+            if ($sel_images !== false and 0 < $sel_images->num_rows())
+            {
+                $i = 0;
+                foreach ($sel_images->result() as $row)
+                {
+                    if (is_file($row->cp_image_path))
+                    {
+                        $result['gallery'][$i]['path']        = mb_substr($row->cp_image_path, 1);
+                        $result['gallery'][$i]['title']       = $row->cp_image_title;
+                        $result['gallery'][$i]['description'] = $row->cp_image_description;
+                        $result['gallery'][$i]['post_id']     = $row->cp_id;
+
+                        $i++;
+                    }
+                }
+                unset($row);
+
+                $result['gallery'] = array_slice($result['gallery'], 0, 8);
+            }
+            elseif($sel_images === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
-        elseif($sel_images === false)
+        elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }

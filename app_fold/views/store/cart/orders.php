@@ -17,6 +17,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
+                    <div class="shop_line">
+                        <form action="/administration/orders" class="shop_sort_form parent" method="post">
+                            <div class="shop_sort parent">
+                                <div class="shop_sort_h">Поиск:</div>
+                                <div class="shop_sort_in_wrap parent">
+                                    <input type="radio" name="search_by" value="1" id="search_order" class="shop_sort_in"<?php if(!empty($page_search_by) and $page_search_by == 1):?> checked="checked"<?php endif;?>>
+                                    <label for="search_order">по заказам</label>
+                                    <input type="radio" name="search_by" value="2" id="search_user" class="shop_sort_in"<?php if(!empty($page_search_by) and $page_search_by == 2):?> checked="checked"<?php endif;?>>
+                                    <label for="search_user">по пользователям</label>
+                                </div>
+                            </div>
+                            <div class="search_form">
+                                <input type="text" name="search" class="search_in" placeholder="Введите ID зазказа или пользователя" value="<?php if(!empty($page_search)): echo $page_search; endif; ?>">
+                                <input type="submit" name="bt_orders_search" class="search_but defaultActionButton" value="Отправить">
+                            </div>
+                        </form>
+                    </div>
                     <div class="admin_journal">
                         <div class="admin_list">
                             <?php if (!empty($orders)) :
@@ -42,7 +59,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                 <?php endforeach;
                                 unset($order);
-                            endif;?>
+                            elseif(empty($orders) and !empty($page_submenu) and $page_submenu == 'search'): ?>
+                                <h3 class="info">По Вашему запросу ничего не найдено</h3>
+                            <?php endif;?>
                         </div>
                     </div>
                     <?php include_once('./app_fold/views/pagination.php'); ?>

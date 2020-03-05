@@ -2701,6 +2701,7 @@ class Course_model extends CI_Model
         if(!empty($coach_courses))
         {
             $first_date      = array();
+            $count_earnings     = 0;
             $count_users     = 0;
             $count_workouts  = 0;
             $pass_percentage = array();
@@ -2709,16 +2710,21 @@ class Course_model extends CI_Model
                 $course_statistics = self::getCourseStatistics($course_id);
                 $result['coach_courses_statistics']['courses'][$course_id] = $course_statistics['statistics'];
 
+                $coach_earnings = round((($course_statistics['statistics']['count_price']*$course['coach_percent'])/100), 2);
+                $result['coach_courses_statistics']['courses'][$course_id]['count_earnings'] = $coach_earnings;
+
                 $count_users += $course_statistics['statistics']['count_users'];
                 $count_workouts += $course_statistics['statistics']['count_workouts'];
                 $first_date[] = $course_statistics['statistics']['first_date'];
                 $pass_percentage[] = $course_statistics['statistics']['pass_percentage'];
+                $count_earnings += $coach_earnings;
             }
 
             $first_date = (is_array($first_date)) ? array_diff($first_date, array(0, null)) : array();
 
             $result['coach_courses_statistics']['first_date']      = (is_array($first_date)) ? min($first_date) : '';
             $result['coach_courses_statistics']['count_users']     = $count_users;
+            $result['coach_courses_statistics']['count_earnings']  = $count_earnings;
             $result['coach_courses_statistics']['count_workouts']  = $count_workouts;
             $result['coach_courses_statistics']['pass_percentage'] = (is_array($pass_percentage)) ? (array_sum($pass_percentage)/count($pass_percentage)) : 0;
         }
@@ -8901,9 +8907,8 @@ class Course_model extends CI_Model
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
-        $up_data = $this->db->query('
-            INSERT INTO `users_training_days` (`utd_uc_id`, `utd_days`, `utd_date_update`) 
-            VALUES (?, ?, ?)', array($user_course_id, $training_days, $date));
+        $up_data = $this->db->query('INSERT INTO `users_training_days` (`utd_uc_id`, `utd_days`, `utd_date_update`) VALUES (?, ?, ?)',
+            array($user_course_id, $training_days, $date));
         if ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -8911,8 +8916,7 @@ class Course_model extends CI_Model
 
         $up_data = $this->db->query('
             UPDATE `users_courses` SET `uc_date_start`=?, `uc_date_end`=?, `uc_days`=?, `uc_time`=?, `uc_free_weeks_end_date`=?, `uc_date_update`=?
-            WHERE `uc_id`=? LIMIT 1',
-                array($course_start, $course_end, $training_days, $training_times, $free_weeks_end_date, $date, $user_course_id));
+            WHERE `uc_id`=? LIMIT 1', array($course_start, $course_end, $training_days, $training_times, $free_weeks_end_date, $date, $user_course_id));
         if ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -8950,6 +8954,43 @@ class Course_model extends CI_Model
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
+
+        return $result;
+    }
+
+    /**
+     * Изменение дней и времени тренировок курса
+     *
+     * @param $user_course_id
+     * @param $training_days
+     * @param $training_times
+     * @param $course_end
+     * @param $date
+     * @return bool
+     */
+    public function updateUserTrainingDays($user_course_id, $training_days, $training_times, $course_end, $date)
+    {
+        $result = true;
+
+        // Добавление нового списка дней тренировок
+        $up_data = $this->db->query('INSERT INTO `users_training_days` (`utd_uc_id`, `utd_days`, `utd_date_update`) VALUES (?, ?, ?)',
+            array($user_course_id, $training_days, $date));
+        if ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $result = false;
+        }
+
+        // Измнение текущего списка дней и времени тренировок курса
+        $up_data = $this->db->query('UPDATE `users_courses` SET `uc_days`=?, `uc_time`=?, `uc_date_end`=?, `uc_date_update`=? WHERE `uc_id`=? LIMIT 1',
+            array($training_days, $training_times, $course_end, $date, $user_course_id));
+        if ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $result = false;
+        }
+
+        // Изменение дат и времени будущих тренировок
 
         return $result;
     }
@@ -8996,9 +9037,9 @@ class Course_model extends CI_Model
             foreach ($update_workouts as $num_workout => $workout)
             {
                 $up_data = $this->db->query('
-                    UPDATE `users_training_weeks` SET `utw_date`=?, `utw_date_update`=?
+                    UPDATE `users_training_weeks` SET `utw_date`=?, `utw_time`=?, `utw_date_update`=?
                     WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1',
-                        array($workout['date'], $date, $user_course_id, $num_workout));
+                        array($workout['date'], $workout['time'], $date, $user_course_id, $num_workout));
 
                 if ($up_data !== false and 1 != $this->db->affected_rows())
                 {
@@ -9107,6 +9148,7 @@ class Course_model extends CI_Model
      * @param int $count_days Кол-во тренировок курса в неделю
      * @param string $date Текущая дата
      * @return bool
+     * @throws Exception
      */
     public function setUserTrainingWeeks($uc_id, $start_date, $training_days, $arr_training_times, $count_workouts, $count_days, $date)
     {
@@ -9123,7 +9165,7 @@ class Course_model extends CI_Model
             {
                 // Время тренировки
                 $cur_num_week  = date('N', strtotime($training_date));
-                $training_time = (!empty($arr_training_times[$cur_num_week])) ? $arr_training_times[$cur_num_week] : '';
+                $training_time = (!empty($arr_training_times[$cur_num_week])) ? $arr_training_times[$cur_num_week] : '12:00';
 
                 $values .= '(' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
             }
@@ -9156,7 +9198,7 @@ class Course_model extends CI_Model
 
                     // Время тренировки
                     $cur_num_week  = date('N', strtotime($training_date));
-                    $training_time = (!empty($arr_training_times[$cur_num_week])) ? $arr_training_times[$cur_num_week] : '';
+                    $training_time = (!empty($arr_training_times[$cur_num_week])) ? $arr_training_times[$cur_num_week] : '12:00';
 
                     $values .= ', (' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
                 }
@@ -9188,20 +9230,23 @@ class Course_model extends CI_Model
      * @param $count_workouts
      * @param $date
      * @return bool
+     * @throws Exception
      */
     public function setUserTrainingWeeksTime($user_course_id, $arr_training_times, $count_workouts, $date)
     {
-        $result = true;
+        $result   = true;
+        $tem_date = new DateTime($date);
+        $today    = $tem_date->format('Y-m-d');
 
-        $sel_data = $this->db->query('SELECT `utw_id`, `utw_date` FROM `users_training_weeks` WHERE `utw_uc_id`=? LIMIT ?',
-            array($user_course_id, $count_workouts));
+        $sel_data = $this->db->query('SELECT `utw_id`, `utw_date` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`>=? LIMIT ?',
+            array($user_course_id, $today, $count_workouts));
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             foreach($sel_data->result() as $row)
             {
                 // Номер дня недели тренировки
                 $day_num_week  = date('N', strtotime($row->utw_date));
-                $training_time = (!empty($arr_training_times[$day_num_week])) ? $arr_training_times[$day_num_week] : '';
+                $training_time = (!empty($arr_training_times[$day_num_week])) ? $arr_training_times[$day_num_week] : '12:00';
 
                 if(!empty($training_time))
                 {

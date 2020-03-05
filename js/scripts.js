@@ -457,7 +457,7 @@ $(document).ready(function() {
                         if(this_el_t.length === 1)
                         {
                             this_el_t.removeClass('disabled');
-                            this_el_t.prop('disabled', false);
+                            /*this_el_t.prop('disabled', false);*/
                             this_el_t.focus();
                         }
                     }
@@ -471,7 +471,7 @@ $(document).ready(function() {
                         if(this_el_t.length === 1)
                         {
                             this_el_t.addClass('disabled');
-                            this_el_t.prop('disabled', true);
+                            /*this_el_t.prop('disabled', true);*/
                         }
                     }
 
@@ -588,11 +588,11 @@ $(document).ready(function() {
                             need_days = count_days;
                             if(need_days === 1)
                             {
-                                error_info = '*Для сохранения переноса тренировок выберите 1 день.';
+                                error_info = '* Для сохранения переноса тренировок выберите 1 день.';
                             }
                             else
                             {
-                                error_info = '*Для сохранения переноса тренировок выберите 1 или ' + need_days + ' ' + declensionDays(need_days) + '.';
+                                error_info = '* Для сохранения переноса тренировок выберите 1 или ' + need_days + ' ' + declensionDays(need_days) + '.';
                             }
                             fl_days_warn = true;
                         }
@@ -631,7 +631,7 @@ $(document).ready(function() {
                         else
                         {
                             need_days  = count_days - ch_cb.length;
-                            error_info = '*Выберите еще ' + need_days + ' ' + declensionDays(need_days) + '.';
+                            error_info = '* Выберите еще ' + need_days + ' ' + declensionDays(need_days) + '.';
                             fl_days_warn = true;
                         }
 
@@ -654,7 +654,7 @@ $(document).ready(function() {
                         {
                             if(h3_info.length === 0)
                             {
-                                this_wd.parent().after('<h3 class="info">'+error_info+'</h3>');
+                                this_wd.parent().after('<h3 class="info info_week_days">'+error_info+'</h3>');
                                 h3_info = this_wd.parent().next('h3.info');
                             }
                             else

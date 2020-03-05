@@ -42,11 +42,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <div class="sgd_data">625</div>
                                         <div class="sgd_caption">часов</div>
                                     </div>-->
-                                    <!--<div class="sgd_item">
-                                        <div class="sgd_icon"><i class="fas fa-coins"></i><i class="fas fa-money-bill"></i></div>
-                                        <div class="sgd_data"><?php /*echo $coach_courses_statistics['count_price']; */?></div>
+                                    <div class="sgd_item">
+                                        <div class="sgd_icon"><i class="fas fa-coins"></i><!--<i class="fas fa-money-bill"></i>--></div>
+                                        <div class="sgd_data"><?php echo $coach_courses_statistics['count_earnings']; ?></div>
                                         <div class="sgd_caption">рублей</div>
-                                    </div>-->
+                                    </div>
                                 </div>
                             </div>
                             <div class="stat_content sc_courses">
@@ -82,6 +82,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                                 <div class="sgd_icon"><i class="fas fa-percent"></i></div>
                                                                 <div class="sgd_data"><?php echo $courses_stat[$course['id']]['pass_percentage']; ?></div>
                                                                 <div class="sgd_caption">прохождения</div>
+                                                            </div>
+                                                            <div class="sgd_item">
+                                                                <div class="sgd_icon"><i class="fas fa-coins"></i><!--<i class="fas fa-money-bill"></i>--></div>
+                                                                <div class="sgd_data"><?php echo $courses_stat[$course['id']]['count_earnings']; ?></div>
+                                                                <div class="sgd_caption">рублей</div>
                                                             </div>
                                                         </div>
                                                     </div>

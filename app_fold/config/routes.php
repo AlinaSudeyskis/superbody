@@ -104,6 +104,7 @@ $route['cart']                   = 'Store/cart';
 $route['ordering']               = 'Store/ordering';
 $route['ordering/(:num)']        = 'Store/ordering/$1';
 $route['viewed/video']           = 'Course/viewedVideo';
+$route['viewing/video']          = 'Course/viewingVideo';
 $route['show/video']             = 'Course/showVideo';
 $route['show/instruction']       = 'Course/showInstructionVideo';
 $route['showMeal']               = 'Course/showMeal';
@@ -402,6 +403,7 @@ $route['updateCartProduct']      = 'Store/updateCartProduct';
 $route['sortProducts']           = 'Store/getSortProducts';
 $route['getSearchProducts']      = 'Store/getSearchProducts';
 $route['getSearchNotifications'] = 'Notification/getSearchNotifications';
+$route['loginForm']              = 'Authorization/getLoginForm';
 
 // Cron
 $route['payment/verification']        = 'Payment/verificationSubsequentPayments';

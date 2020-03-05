@@ -417,6 +417,34 @@ class User_model extends CI_Model
     }
 
     /**
+     * Изменение фотографии профиля
+     *
+     * @param $user_id
+     * @param $path_avatar
+     * @param $date
+     * @return bool
+     */
+    public function updateUserAvatar($user_id, $path_avatar, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('
+            UPDATE `users` SET `user_image`=?, `user_date_update`=? WHERE `user_id`=? LIMIT 1',
+                array($path_avatar, $date, $user_id));
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Сохранение изменений регистрационных данных пользователя
      *
      * @param int $user_id ID пользователя

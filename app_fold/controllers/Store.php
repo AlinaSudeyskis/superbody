@@ -799,12 +799,37 @@ class Store extends CI_Controller
             'pending' => 'pending', 'payment_refunded' => 'refunded', 'revoke_permission' => 'revoke');
         $payment_type  = (array_search($payment_type, $payment_types)) ? array_search($payment_type, $payment_types) : 'waiting_for_capture';
 
-        $result = $this->Store_model->getOrders($payment_type);
+        $result['orders'] = array();
+
+        if($this->input->post('bt_orders_search', true))
+        {
+            $search_by   = (is_numeric($this->input->post('search_by', true))) ? $this->input->post('search_by', true) : null;
+            $search_text = (is_numeric($this->input->post('search', true))) ? $this->input->post('search', true) : null;
+
+            if(!empty($search_by) and !empty($search_text))
+            {
+                $payment_type = '';
+                if($search_by == 1)
+                {
+                    $result = $this->Store_model->getOrders($payment_type, $search_text);
+                }
+                elseif($search_by == 2)
+                {
+                    $result = $this->Store_model->getUserOrders($search_text);
+                }
+            }
+        }
+        else
+        {
+            $result = $this->Store_model->getOrders($payment_type);
+        }
 
         // Объединенные данные страница
-        $this->page_data['title']         = 'АП - Заказы';
-        $this->page_data['page_menu']     = 'a_orders';
-        $this->page_data['page_submenu']  = $payment_type;
+        $this->page_data['title']          = 'АП - Заказы';
+        $this->page_data['page_menu']      = 'a_orders';
+        $this->page_data['page_submenu']   = (!empty($search_text)) ? 'search' : $payment_type;
+        $this->page_data['page_search']    = (!empty($search_text)) ? $search_text : '';
+        $this->page_data['page_search_by'] = (!empty($search_by)) ? $search_by : '';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');

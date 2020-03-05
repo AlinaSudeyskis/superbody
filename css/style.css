@@ -111,7 +111,7 @@ audio, canvas, progress, video{
 .main_bg_wrap{
     position: relative;
     overflow: hidden;
-    background: #00bff0;
+    background: #000000;
     height: 350px;
 }
 .sing-in{
@@ -239,6 +239,7 @@ audio, canvas, progress, video{
     /*float: left;*/
     /*background: url(/img/tel.png) 0 13px no-repeat;*/
     margin-top: 9px;
+    white-space: nowrap;
 }
 .header_tel a, .contact_tel a{
     text-decoration: none;
@@ -255,6 +256,7 @@ audio, canvas, progress, video{
     line-height: 40px;
     margin: 0 auto;
     font-size: 15px;
+    text-align: center;
 }
 .header_soc{
     /*float: right;*/
@@ -262,6 +264,7 @@ audio, canvas, progress, video{
     margin: 0;
     text-align: right;
     cursor: default;
+    white-space: nowrap;
 }
 .header_soc li{
     list-style: none;
@@ -668,6 +671,15 @@ audio, canvas, progress, video{
     font-size: 14px;
     white-space: nowrap;
     overflow: hidden;
+    float: left;
+}
+.profile_line_id{
+    float: right;
+    line-height: 40px;
+    font-size: 14px;
+    padding-left: 10px;
+    color: #ffffff;
+    font-style: italic;
 }
 .profile_line_ava{
     float: right;
@@ -1055,6 +1067,12 @@ h3.info{
     white-space: normal;
     float: none;
 }
+h3.info.info_week_days{
+    font-size: 13px;
+    line-height: 20px;
+    padding: 0 0 15px 180px;
+    text-align: left;
+}
 .notification_block h3.info{
     float: none;
 
@@ -1394,7 +1412,10 @@ div.info{
 .oi_d_buy span, .oi_d_link span, .oi_d_link a.calendar_course {
     background-color: #9c9c9c;
 }
-.oi_i_details_wrap>* {
+.oi_d_link a.calendar_course{
+    width: 210px;
+}
+.oi_i_details_wrap>*, .oi_d_link {
     margin: 5px 0;
     width: 100%;
     text-align: center;
@@ -2269,7 +2290,7 @@ tr:first-child > td > .fc-day-grid-event{
     color: #505961;
     padding: 16px 0;
 }
-.purchase_pop-up_close{
+.purchase_pop-up_close, .close_user_photo{
     width: 40px;
     height: 40px;
     background: url(/img/close_but.png) 50% 50% no-repeat, #00bff0;
@@ -2384,6 +2405,31 @@ tr:first-child > td > .fc-day-grid-event{
     /*height: auto;*/
     /*min-height: 330px;*/
     max-height: 90%;
+}
+#pop-up_user_photo{
+    width: 100%;
+    padding: 15px;
+    z-index: 113;
+    left: 0;
+    top: 45px;
+    background: #9c9c9c;
+    position: absolute;
+    display: none;
+    height: 100px;
+}
+#pop-up_user_photo .video_down_line_name{
+    width: calc(100% - 120px);
+    width: -moz-calc(100% - 120px);
+    width: -webkit-calc(100% - 120px);
+    text-align: end;
+    color: #e2e2e2;
+}
+#pop-up_user_photo .video_down_line{
+    width: 100%;
+}
+#pop-up_user_photo .video_admin_form_block{
+    margin: 10px auto 0;
+    float: unset;
 }
 #pop-up_postpone{
     width: 90%;
@@ -3583,7 +3629,8 @@ h2.block_h>span>a {
 }
 .trainers_row:nth-of-type(2n+1)>div:nth-of-type(2n) .trainers_block .tren_ava img,
 .trainers_row:nth-of-type(2n)>div:nth-of-type(2n+1) .trainers_block .tren_ava img{
-    border-color: #fff;
+    border-color: #ffffff;
+    background-color: #ffffff;
 }
 .reg_wrap{
     background: #00bff0;
@@ -4729,6 +4776,10 @@ h2.block_h>span>a {
     height: 30px;
     margin: 0 auto;
 }
+.shop_sort_form .search_form{
+    margin: 0 10px 0 auto;
+    padding: 5px 0 0;
+}
 .search_in{
     display: block;
     width: calc(100% - 40px);
@@ -4785,8 +4836,9 @@ h2.block_h>span>a {
     padding: 0 20px;
 }
 .user_prog .calendar_prof_item, .user_prog .calendar_info_desk_cont {
-    width: 100%;
+    width: 25%;
     padding: 5px 20px;
+    flex: 0 0 260px;
 }
 .user_prog .calendar_info_desk_cont{
     display: flex;
@@ -4808,6 +4860,87 @@ h2.block_h>span>a {
     margin-bottom: 18px;
     overflow: hidden;
 }
+.calendar_prog_title {
+    text-align: center;
+    text-transform: uppercase;
+    font-size: 14px;
+    height: 50px;
+    display: flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: -o-flex;
+    display: -webkit-flex;
+}
+.calendar_prog_title:before {
+    display: inline-block;
+    height: 100%;
+    vertical-align: middle;
+    content: "";
+}
+.calendar_prog_title span, .calendar_prog_title a{
+    display: inline-block;
+    vertical-align: middle;
+    text-decoration: none;
+    color: #616161;
+    margin: auto;
+}
+.calendar_prog_title a:hover{
+    color: #72d0f4;
+}
+.progress-pie-chart {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #e5e5e5;
+    position: relative;
+}
+.ppc-progress {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    left: calc(50% - 50px);
+    top: calc(50% - 50px);
+    width: 100px;
+    height: 100px;
+    clip: rect(0, 100px, 100px, 50px);
+}
+.ppc-progress .ppc-progress-fill {
+     content: "";
+     position: absolute;
+     border-radius: 50%;
+     left: calc(50% - 50px);
+     top: calc(50% - 50px);
+     width: 100px;
+     height: 100px;
+     clip: rect(0, 50px, 100px, 0);
+     transform: rotate(60deg);
+ }
+.ppc-percents {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    left: calc(50% - 43px);
+    top: calc(50% - 43px);
+    width: 86px;
+    height: 86px;
+    background: #fff;
+    text-align: center;
+    display: table;
+}
+.ppc-percents span {
+    display: block;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #989898;
+}
+.pcc-percents-wrapper {
+    display: table-cell;
+    vertical-align: middle;
+}
+.progress-pie-chart {
+    margin: 10px auto;
+}
+
 .calendar_prof_img{
     display: block;
     width: 26px;
@@ -5879,9 +6012,9 @@ span#cookie_stop {
 .workout_form_but{
     display: block;
     margin: 6px auto 0;
-    width: 140px;
+    width: 220px;
     height: 36px;
-    background: url(/img/but_arr.png) 180px 50% no-repeat, #e25050;
+    background: #e25050;
     text-transform: uppercase;
     font-size: 12px;
     border: none;
@@ -5890,6 +6023,10 @@ span#cookie_stop {
     position: relative;
 }
 .workout_form_but.done{ cursor: default; background: #e6e6e6; text-align: center; padding: 6px; color: #9a9a9a;}
+.workout_form_but.instruction{ background: #00bff0; text-align: center; padding: 6px; color: #ffffff; float: right;}
+#wo-done{
+    float: left;
+}
 
 /* Пагинация */
 .pag_but{
@@ -6278,6 +6415,7 @@ span.mess_block_full_time {
 }
 #wo-instruction{
     /*display: none;*/
+    clear: both;
 }
 .wo_instruction{
     text-align: center;
@@ -8594,6 +8732,7 @@ span.mess_block_full_time {
 	width: 145px;
 	text-align: center;
     margin: 0 auto;
+    position: relative;
 }
 .admin_list .tren_prof_page_img_wrap{
 	float: left;
@@ -8616,11 +8755,13 @@ span.mess_block_full_time {
 	padding: 30px 0;
     display: flex;
     display:-webkit-flex;
-    flex-direction: column;
-    -webkit-flex-direction: column;
+    flex-direction: row;
+    -webkit-flex-direction: row;
     height: calc(100% - 51px);
     height: -moz-calc(100% - 51px);
     height: -webkit-calc(100% - 51px);
+    flex-wrap: wrap;
+    justify-content: center;
 }
 .tren_prof_page_img img{
 	display: block;
@@ -8638,6 +8779,10 @@ span.mess_block_full_time {
 }
 .user_prof_wrap .tren_prof_page_img, .admin_list .tren_prof_page_img{
     margin: 0 auto;
+}
+#prof_page_img{
+    cursor: pointer;
+    position: relative;
 }
 .tren_prof_page_name{
 	font-size: 14px;
@@ -9691,7 +9836,7 @@ span.tip>.bt_link, .bt_link {
 }
 .anketa_form_radio.disabled + label{
     background-color: #f3f3f3;
-    cursor: default;
+    /*cursor: default;*/
 }
 .anketa_form_radio.prev_workout + label {
     background-color: #dcf8ff;
@@ -14177,6 +14322,10 @@ input.tren_form_block_check{
         padding-bottom: 15px;
         margin-bottom: 15px;
     }
+
+    .main_bg_wrap{
+        height: 200px;
+    }
 }
 
 @media (max-width: 799px) and (min-width: 640px){
@@ -16028,6 +16177,19 @@ input.tren_form_block_check{
     .gal_page_item{
         width: 50%;
     }
+
+    .video_col{
+        width: 100%;
+        padding: 0 15px 15px;
+    }
+    .video_col:last-child{
+        padding-bottom: 0;
+    }
+    /*.slick-initialized .slick-slide {
+        float: none;
+        display: inline-block;
+        vertical-align: middle;
+    }*/
 }
 
 @media (max-width: 600px){
@@ -16385,10 +16547,10 @@ input.tren_form_block_check{
         margin: 0 6px;
     }
     .content_block {
-        margin-left: -15px;
+        /*margin-left: -15px;
         width: calc(100% + 30px);
         width: -moz-calc(100% + 30px);
-        width: -webkit-calc(100% + 30px);
+        width: -webkit-calc(100% + 30px);*/
     }
     .new_content_block_h h3 {
         /*padding-right: 163px;*/
@@ -16512,7 +16674,7 @@ input.tren_form_block_check{
 	}
 
 	.tren_gal_col {
-	    width: 215px;
+	    width: 100%; /* 215px */
 	    min-height: 215px;
 	    float: none;
 	    margin: 0 auto;
@@ -16899,10 +17061,10 @@ input.tren_form_block_check{
         top: 22px;
     }*/
     .calendar_prof_block, .calendar_info_block, .new_content_block{
-        width: calc(100% + 30px);
+        /*width: calc(100% + 30px);
         width: -moz-calc(100% + 30px);
         width: -webkit-calc(100% + 30px);
-        margin-left: -15px;
+        margin-left: -15px;*/
     }
     .calendar_info_desk_item{
         float: none;
@@ -17091,6 +17253,15 @@ input.tren_form_block_check{
     }
     .revive_cont{
         margin-left: 0;
+    }
+
+    .header_notification{
+        padding: 5px 0;
+        font-size: 9px;
+        line-height: 15px;
+    }
+    .header_soc{
+        margin: 0 0 0 auto;
     }
 }
 

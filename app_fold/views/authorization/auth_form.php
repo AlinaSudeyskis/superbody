@@ -16,7 +16,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <input type="hidden" name="hi_return" value="/profile/" />
     <input type="submit" value="войти" class="sing-in_but defaultActionButton" name="bt_login"/>
     <div class="reg_in_link_wrap">
-        <a href="/registry" class="reg_in_link">регистрация</a>
-        <a href="/restore" class="reg_in_link">восстановление пароля</a>
+        <a href="/registry" class="reg_in_link login_form_up">регистрация</a>
+        <a href="/restore" class="reg_in_link login_form_up">восстановление пароля</a>
     </div>
 </form>

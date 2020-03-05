@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div class="anketa_form_radio_all parent week_days <?php if(!empty($days_disabled)): echo $days_disabled; endif;?>">
+<div class="anketa_form_radio_all parent week_days <?php /*if(!empty($days_disabled)): echo $days_disabled; endif;*/ ?>">
     <input type="hidden" name="count_weeks" id="count_weeks" value="<?php if (!empty($course['count_weeks'])) { echo $course['count_weeks']; }?>" />
     <input type="hidden" name="count_days" id="count_days" value="<?php if (!empty($course['count_days'])) { echo $course['count_days']; }?>" />
     <input type="hidden" name="count_rest" id="count_rest" value="<?php if (!empty($course['count_rest'])) { echo $course['count_rest']; }?>" />
@@ -21,13 +21,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $prev_wo_cl = ($prev_wo === true) ? 'prev_workout' : '';
             $prev_wo_cl .= (!empty($week_wo) and $week_wo[$nwd]['status'] == 'done') ? ' done' : '';
             $prev_wo_cl .= (!empty($week_wo) and $week_wo[$nwd]['status'] == 'missed') ? ' missed' : '';
-            $prev_wo_cl .= ((!empty($current_num_day) and $nwd < $current_num_day) or $one_next_wo === true) ? ' wo_dis disabled' : '';
+            $prev_wo_cl .= ((!empty($current_num_day) and $nwd < $current_num_day) or $one_next_wo === true) ? ' wo_dis' : '';
+            $prev_wo_cl .= ((!empty($current_num_day) and $nwd < $current_num_day) or $one_next_wo === true or (!empty($course['days']) and empty($grey_current_days))) ? ' wo_dis disabled' : '';
             ?>
             <input type="checkbox" name="cb_day[<?php echo $crs_id; ?>][]" value="<?php echo $nwd; ?>" id="cb_<?php echo $nwd; ?>_<?php echo $crs_id; ?>" class="anketa_form_radio <?php echo $prev_wo_cl; ?>"
-                   <?php if (!empty($course['days']) and in_array($nwd, $course['days']) and empty($grey_current_days)) :?>checked="checked"
-                   <?php elseif((!empty($course['days']) and empty($grey_current_days)) or $nwd < $current_num_day or $one_next_wo === true) :?>disabled<?php endif;?>
+                   <?php if (!empty($course['days']) and in_array($nwd, $course['days']) and empty($grey_current_days)) :?>checked="checked"<?php endif; ?>
             /><label for="cb_<?php echo $nwd; ?>_<?php echo $crs_id; ?>"><?php echo $week_days[$nwd]; ?></label>
         </div>
     <?php endfor;
     unset($nwd); ?>
+    <?php /*elseif((!empty($course['days']) and empty($grey_current_days)) or $nwd < $current_num_day or $one_next_wo === true) :*/?><!--disabled-->
 </div>

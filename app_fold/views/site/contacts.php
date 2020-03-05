@@ -4,7 +4,7 @@ $breadcrumbs = array('/contacts' => 'Контакты');
 include_once('./app_fold/views/breadcrumb.php');
 ?>
 <div class="container" id="content">
-    <div class="row" style="background: url(/img/contacts.jpg) top no-repeat; background-size: cover; margin-bottom: 20px;">
+    <div class="row" style="background: url(<?php echo $site_info['contacts_bg']; ?>) top no-repeat; background-size: cover; margin-bottom: 20px;">
         <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12 contact_wrap">
             <div class="contact_h"><?php if (!empty($site_info['contacts_text1'])): echo $site_info['contacts_text1']; endif;?></div>
             <div class="contact_desk">

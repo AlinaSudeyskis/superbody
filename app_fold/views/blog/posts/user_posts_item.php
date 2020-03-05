@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="content_block new_content_block">
-    <div class="content_block_h new_content_block_h parent">
+    <div class="content_block_h parent">
         <h3>Блог</h3>
         <?php $path = '/blog/';
         if (empty($outsider) and $user_data['user_blocked'] == 0):

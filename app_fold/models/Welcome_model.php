@@ -90,7 +90,7 @@ class Welcome_model extends CI_Model
               `si_soc_google_plus`, `si_soc_tumblr`, `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, 
               `si_phone`, `si_mes_telegram`, `si_mes_whatsapp`, `si_mes_viber`, `si_email`, `si_rights`, `si_agreement`, 
               `si_policy`, `si_personal_data`, `si_personal_data_text`, `si_offer_data`, `si_footer`, `si_about`, `si_contacts_text1`, 
-              `si_contacts_text2`, `si_auth_display`, `si_auth_title1`, `si_auth_title2`, `si_auth_subtitle1`, `si_auth_subtitle2`, 
+              `si_contacts_text2`, `si_contacts_bg`, `si_auth_display`, `si_auth_title1`, `si_auth_title2`, `si_auth_subtitle1`, `si_auth_subtitle2`, 
               `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, `si_auth_url_name1`, `si_auth_url_name2`, 
               `si_spec_display`, `si_spec_name`, `si_spec_title`, `si_spec_text`, `si_spec_url`, `si_spec_url_text`, `si_cookies_title`, `si_cookies_text`
             FROM `site_info` LIMIT 1');
@@ -127,6 +127,7 @@ class Welcome_model extends CI_Model
             $result['about']              = nl2br(parent::showBBcodes($row->si_about));
             $result['contacts_text1']     = $row->si_contacts_text1;
             $result['contacts_text2']     = $row->si_contacts_text2;
+            $result['contacts_bg']        = (is_file($row->si_contacts_bg)) ? mb_substr($row->si_contacts_bg, 1) : null;
             $result['banners']            = array();
             $result['auth_display']       = $row->si_auth_display;
             $result['auth_title1']        = $row->si_auth_title1;

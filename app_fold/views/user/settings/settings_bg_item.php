@@ -65,7 +65,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <option value="">Год</option>
                 <?php $this_year = date('Y');
                 $age_limit = $this_year - 10;
-                for ($i = 1960; $i <= $age_limit; $i++) : ?>
+                for ($i = 1940; $i <= $age_limit; $i++) : ?>
                     <option value="<?php echo $i; ?>"
                         <?php if (!empty($user_data['user_b_year']) and $user_data['user_b_year'] == $i) :?> selected="selected" <?php endif;?>><?php echo $i; ?></option>
                 <?php endfor;?>

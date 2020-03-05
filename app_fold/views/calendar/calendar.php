@@ -30,48 +30,49 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php if (!empty($events)) :
                 $last_element = count($events);
                 foreach ($events as $key => $event) :?>
-                {
-                    start      : '<?php echo $event['start'];?>',
-                    end        : '<?php echo $event['end'];?>',
-                    constraint : '<?php echo $event['constraint'];?>',
-                    ev_bl      : <?php if($event['blocked'] == 'true') : echo 'true'; else: echo 'false'; endif; ?>,
-                <?php if (!empty($event['title'])) :?>
-                    title  : '<?php echo $event['title'];?>',
-                <?php endif;
-                if (!empty($event['id'])) :?>
-                    startParam  : '<?php echo $event['id'];?>',
-                <?php endif;
-                if (!empty($event['ml_id'])) :?>
-                    ml_id  : '<?php echo $event['ml_id'];?>',
-                <?php endif;
-                if (!empty($event['day'])) :?>
-                    day  : '<?php echo $event['day'];?>',
-                <?php endif;
-                if (!empty($event['ingestion'])) :?>
-                    ingestion  : '<?php echo $event['ingestion'];?>',
-                <?php endif;
-                if (!empty($event['workout_id'])) :?>
-                    endParam  : '<?php echo $event['workout_id'];?>',
-                <?php endif;
-                if (!empty($event['pause']) and $event['pause'] === true): ?>
-                    overlap   : false,
-                    rendering : 'background',
-                    color     : 'rgba(255, 159, 137, 0.5)'
-                <?php else: ?>
-                    color: '<?php echo $event['color']; ?>'
-                <?php endif; ?>
-                }<?php if ($last_element != $key) :?>,<?php endif; ?>
-                <?php if($event['missed'] == 'not_missed' and $event['done'] == 'not_done' and !empty($event['instruction_id'])): //?>
-                {
-                    start      : '<?php echo $event['start'];?>',
-                    end        : '<?php echo $event['end'];?>',
-                    constraint : 'instruction',
-                    title      : 'Инструктаж',
-                    startParam : '<?php echo $event['instruction_id']; ?>',
-                    endParam   : '<?php echo $event['workout_id']; ?>',
-                    color      : 'rgba(187, 187, 187, .7)'
-                }<?php if ($last_element != $key) :?>,<?php endif; ?>
-                <?php endif; ?>
+                    {
+                        start      : '<?php echo $event['start'];?>',
+                        end        : '<?php echo $event['end'];?>',
+                        constraint : '<?php echo $event['constraint'];?>',
+                        ev_bl      : <?php if($event['blocked'] == 'true') : echo 'true'; else: echo 'false'; endif; ?>,
+                        <?php if (!empty($event['title'])) :?>
+                            title  : '<?php echo $event['title'];?>',
+                        <?php endif;
+                        if (!empty($event['id'])) :?>
+                            startParam  : '<?php echo $event['id'];?>',
+                        <?php endif;
+                        if (!empty($event['ml_id'])) :?>
+                            ml_id  : '<?php echo $event['ml_id'];?>',
+                        <?php endif;
+                        if (!empty($event['day'])) :?>
+                            day  : '<?php echo $event['day'];?>',
+                        <?php endif;
+                        if (!empty($event['ingestion'])) :?>
+                            ingestion  : '<?php echo $event['ingestion'];?>',
+                        <?php endif;
+                        if (!empty($event['workout_id'])) :?>
+                            endParam  : '<?php echo $event['workout_id'];?>',
+                        <?php endif;
+                        if (!empty($event['pause']) and $event['pause'] === true): ?>
+                            overlap   : false,
+                            rendering : 'background',
+                            color     : 'rgba(255, 159, 137, 0.5)'
+                        <?php else: ?>
+                            color: '<?php echo $event['color']; ?>'
+                        <?php endif; ?>
+                    }<?php if ($last_element != $key) :?>,<?php endif; ?>
+
+                    <?php /*if($event['missed'] == 'not_missed' and $event['done'] == 'not_done' and !empty($event['instruction_id'])): //*/?>/*
+                        {
+                            start      : '<?php /*echo $event['start'];*/?>',
+                            end        : '<?php /*echo $event['end'];*/?>',
+                            constraint : 'instruction',
+                            title      : 'Инструктаж',
+                            startParam : '<?php /*echo $event['instruction_id']; */?>',
+                            endParam   : '<?php /*echo $event['workout_id']; */?>',
+                            color      : 'rgba(187, 187, 187, .7)'
+                        }<?php /*if ($last_element != $key) :*/?>,<?php /*endif; */?>
+                    */<?php /*endif; */?>
                 <?php endforeach;
                 endif;?>
             ],
@@ -95,14 +96,69 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             if (!data.error)
                             {
                                 var pop_up_video = $("#pop-up_video"),
-                                    pop_up_desc = pop_up_video.find('#wo-description').html(),
+                                    pop_up_desc = pop_up_video.find('#wo-description'),
                                     viewed = false;
                                 if(pop_up_video.is(':empty')
                                     || (pop_up_video.find('#vimeo-player-0').length === 0 && pop_up_video.find('#myvid').length === 0)
-                                    || (pop_up_video.find('#vimeo-player-0').length === 1 && (pop_up_video.find('#vimeo-player-0').data('vimeo-url') !== data.source || pop_up_desc !== data.description))
-                                    || (pop_up_video.find('#myvid').length === 1 && (pop_up_video.find('#myvid').data('video-url') !== data.source || pop_up_desc !== data.description)))
+                                    || (pop_up_video.find('#vimeo-player-0').length === 1 && (pop_up_video.find('#vimeo-player-0').data('vimeo-url') !== data.source || pop_up_desc.html() !== data.description))
+                                    || (pop_up_video.find('#myvid').length === 1 && (pop_up_video.find('#myvid').data('video-url') !== data.source || pop_up_desc.html() !== data.description)))
                                 {
                                     pop_up_video.html(data.video);
+                                    pop_up_video.find('#wo-instruction').hide();
+
+                                    pop_up_video.find('.instruction').on('click', function(){
+                                        if($(this).html() === 'Тренировка')
+                                        {
+                                            $(this).html('Инструктаж');
+                                        }
+                                        else
+                                        {
+                                            $(this).html('Тренировка');
+
+
+                                            if ($('#vimeo-player-1').length === 1)
+                                            {
+                                                if (data.i_player === 1) {
+                                                    $("#ivid").each(function () {
+                                                        new InitPxVideo({
+                                                            "videoId": this,
+                                                            "captionsOnDefault": false,
+                                                            "seekInterval": 20,
+                                                            "videoTitle": "Promo",
+                                                            "debug": true,
+                                                            "woid": $("#wo-id").val()
+                                                        });
+                                                    });
+                                                }
+                                                instPlayer = new Vimeo.Player('vimeo-player-1', options);
+                                            }
+                                        }
+                                        pop_up_video.find('#wo-video').toggle();
+                                        pop_up_video.find('#wo-instruction').toggle();
+                                    });
+
+                                    pop_up_video.find('#wo-done').on('click', function(){
+                                        var wo_but = $(this).find('#bt-workout-done'),
+                                            wo_id = $(this).find('#wo-id').val();
+
+                                        $.ajax({
+                                            url: '/viewed/video',
+                                            type: 'post',
+                                            data: {
+                                                woid: wo_id
+                                            },
+                                            complete: function(result){
+                                                if (result.responseText === 'true')
+                                                {
+                                                    calEvent.backgroundColor = 'rgb(153, 230, 0)';
+                                                    $('#calendar').fullCalendar('updateEvent', calEvent);
+                                                    viewed = true;
+                                                    wo_but.addClass('done');
+                                                    wo_but.val('Выполнено');
+                                                }
+                                            }
+                                        });
+                                    });
                                 }
                                 pop_up_home(pop_up_video);
                                 if(getInternetExplorerVersion()===-1) {
@@ -120,25 +176,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     }
                                 }
 
-
                                 playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
-
-                                /*if ($('#vimeo-player-1').length == 1)
-                                 {
-                                 if (data.i_player == 1) {
-                                 $("#ivid").each(function () {
-                                 new InitPxVideo({
-                                 "videoId": this,
-                                 "captionsOnDefault": false,
-                                 "seekInterval": 20,
-                                 "videoTitle": "Promo",
-                                 "debug": true,
-                                 "woid": $("#wo-id").val()
-                                 });
-                                 });
-                                 }
-                                 playerTwoPlayer = new Vimeo.Player('vimeo-player-1', options);
-                                 }*/
 
                                 playerTwoPlayer.on('play', function(data) {});
 
@@ -152,6 +190,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                                 playerTwoPlayer.on('timeupdate', function(data){
                                     playerTwoPlayer.getVideoTitle().then(function(title) {
+                                        if((data.seconds % 10) === 0)
+                                        {
+                                            $.ajax({
+                                                url: '/viewing/video',
+                                                type: 'post',
+                                                data: {
+                                                    woid: calEvent.endParam,
+                                                    ved_time: data.seconds,
+                                                    ved_percent: data.percent
+                                                },
+                                                complete: function(result){
+                                                    if (result.responseText === 'true')
+                                                    {
+
+                                                    }
+                                                }
+                                            });
+                                        }
                                         if (data.percent > 0.75 && viewed === false) {
                                             $.ajax({
                                                 url: '/viewed/video',
@@ -160,7 +216,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                     woid: calEvent.endParam
                                                 },
                                                 complete: function(result){
-                                                    if (result.responseText == 'true')
+                                                    if (result.responseText === 'true')
                                                     {
                                                         calEvent.backgroundColor = 'rgb(153, 230, 0)';
                                                         $('#calendar').fullCalendar('updateEvent', calEvent);
@@ -175,7 +231,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         }
                     });
                 }
-                else if(calEvent.constraint == "nutrition")
+                else if(calEvent.constraint === "nutrition")
                 {
                     var start = calEvent.start._i;
                     $.ajax({
@@ -328,7 +384,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         }
                     });
                 }
-                else if(calEvent.constraint == "instruction")
+                else if(calEvent.constraint === "instruction")
                 {
                     $.ajax({
                         url: '/show/instruction',

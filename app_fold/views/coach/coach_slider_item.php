@@ -4,7 +4,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="tren_item">
     <div class="tren_ava">
         <a href="/profile/<?php echo $coach['id']?>">
-            <img src="<?php if (!empty($coach['image'])): echo $coach['image']; endif;?>" alt="">
+            <?php if(!empty($coach['image'])): ?>
+                <img src="<?php echo $coach['image']; ?>" alt="">
+            <?php else: ?>
+                <img src="/img/no_img.png" alt="">
+            <?php endif; ?>
         </a>
     </div>
     <a href="/profile/<?php echo $coach['id']?>" class="tren_link">

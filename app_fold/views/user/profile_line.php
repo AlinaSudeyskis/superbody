@@ -10,7 +10,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             <?php endif;?>
             <div class="profile_line_name">Здравствуйте<?php if (!empty($user_session['name'])) { echo ', ' . $user_session['name']; }?>!</div>
-            <a href="/logout" class="profile_line_in"></a>
+            <div class="profile_line_id">id<?php echo $user_session['id']; ?></div>
+            <!--<a href="/logout" class="profile_line_in"></a>-->
         </div>
         <div class="profile_mess parent">
             <!--<div class="profile_mess_item disabled">

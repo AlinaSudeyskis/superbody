@@ -265,7 +265,7 @@ class Administrator_model extends CI_Model
               `si_soc_google_plus`, `si_soc_tumblr`, `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, 
               `si_phone`, `si_mes_telegram`, `si_mes_whatsapp`, `si_mes_viber`, `si_email`, `si_rights`, `si_agreement`, 
               `si_policy`, `si_personal_data`, `si_personal_data_text`, `si_offer_data`, `si_footer`, `si_about`, 
-              `si_contacts_text1`, `si_contacts_text2`, `si_user_id`, `si_date` 
+              `si_contacts_text1`, `si_contacts_text2`, `si_contacts_bg`, `si_user_id`, `si_date` 
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows()) {
@@ -299,6 +299,7 @@ class Administrator_model extends CI_Model
             $result['about']              = $row->si_about;
             $result['contacts_text1']     = $row->si_contacts_text1;
             $result['contacts_text2']     = $row->si_contacts_text2;
+            $result['contacts_bg']        = (is_file($row->si_contacts_bg)) ? mb_substr($row->si_contacts_bg, 1) : null;
         }
         elseif ($sel_info === false) {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -441,7 +442,7 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_info = $this->db->query('
-            SELECT `si_id`, `si_phone`, `si_mes_telegram`, `si_mes_whatsapp`, `si_mes_viber`, `si_email`, `si_contacts_text1`, `si_contacts_text2`, `si_user_id`, `si_date` 
+            SELECT `si_id`, `si_phone`, `si_mes_telegram`, `si_mes_whatsapp`, `si_mes_viber`, `si_email`, `si_contacts_text1`, `si_contacts_text2`, `si_contacts_bg`, `si_user_id`, `si_date` 
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -456,6 +457,7 @@ class Administrator_model extends CI_Model
             $result['email']          = $row->si_email;
             $result['contacts_text1'] = $row->si_contacts_text1;
             $result['contacts_text2'] = $row->si_contacts_text2;
+            $result['contacts_bg']    = (is_file($row->si_contacts_bg)) ? mb_substr($row->si_contacts_bg, 1) : null;
         }
         elseif ($sel_info === false)
         {
@@ -750,17 +752,18 @@ class Administrator_model extends CI_Model
      * @param $viber
      * @param $contacts_text1
      * @param $contacts_text2
+     * @param $background
      * @param $date
      * @param $user_id
      * @return bool
      */
-    public function setSiteContacts($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $date, $user_id)
+    public function setSiteContacts($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $background, $date, $user_id)
     {
         $up_info = $this->db->query('
             UPDATE `site_info` 
-            SET `si_email`=?, `si_phone`=?, `si_mes_telegram`=?, `si_mes_whatsapp`=?, `si_mes_viber`=?, `si_contacts_text1`=?, `si_contacts_text2`=?, `si_user_id`=?, `si_date`=? 
+            SET `si_email`=?, `si_phone`=?, `si_mes_telegram`=?, `si_mes_whatsapp`=?, `si_mes_viber`=?, `si_contacts_text1`=?, `si_contacts_text2`=?, `si_contacts_bg`=?, `si_user_id`=?, `si_date`=? 
             WHERE `si_id`=? LIMIT 1',
-            array($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $user_id, $date, 1));
+            array($email, $phone, $telegram, $whatsapp, $viber, $contacts_text1, $contacts_text2, $background, $user_id, $date, 1));
 
         if ($up_info !== false and 1 == $this->db->affected_rows()) {
             return true;

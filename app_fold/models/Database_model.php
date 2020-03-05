@@ -3256,6 +3256,46 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-02-28 14:44';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_contacts_bg` VARCHAR(255) NOT NULL AFTER `si_contacts_text2`");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных январь 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseMarch2020($date)
+    {
+        $result = false;
+
+        $date = '2020-03-02 10:19';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (222, 'error', 'Ошибка! Фотография профиля не сохранена.', 'Ошибка! Фотография профиля не сохранена.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-03-03 13:14';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_training_weeks` ADD `utw_progress_time` DECIMAL(4,3) NOT NULL AFTER `utw_status`, ADD `utw_progress_percent` DECIMAL(3,1) NOT NULL AFTER `utw_progress_time`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

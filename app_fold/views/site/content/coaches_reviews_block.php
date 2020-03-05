@@ -37,13 +37,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <h2 class="block_h">ОТЗЫВЫ</h2>
             <div class="revive_block" data-info="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.">
                 <?php foreach($reviews as $review):?>
-                    <div class="revive_item parent">
-                        <div class="revive_ava"><?php if(!empty($review['user']['image'])):?> <img src="<?php echo $review['user']['image']; ?>" alt=""><?php endif;?></div>
-                        <div class="revive_cont">
-                            <div class="revive_desk"><?php echo $review['text']; ?></div>
-                            <div class="revive_data"><?php echo $review['date_add']; ?></div>
-                        </div>
-                    </div>
+                    <?php include('./app_fold/views/site/content/review_item.php'); ?>
                 <?php endforeach;
                 unset($review);?>
             </div>
