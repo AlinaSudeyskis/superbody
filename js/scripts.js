@@ -254,18 +254,33 @@ $(document).ready(function() {
                     var link = $(this).find(".add_tov_cont").attr("href"),
                         name = $(this).find(".add_tov_h").text(),
                         number = $(this).attr("id"),
+                        parent = $(this).parents(".add_tov_in"),
                         parent_block = $(this).parents(".add_tov_in_total").find(".add_tov_val"),
                         crsid = $(this).data('crsid');
 
                     if(parent_block.find('#'+number+'course').length === 0)
                     {
-                        parent_block.append('<div id="'+number+'course" class="add_tov_val_item pc_course parent">' +
-                            '<div class="add_kurs_val_video_wrap parent">' +
-                            '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
-                            '<input type="hidden" name="pc_courses[]" value="'+crsid+'" >' +
-                            '<div class="del_tov"></div>' +
-                            '</div>' +
-                            '</div>');
+                        if(parent.hasClass("one_course"))
+                        {
+                            parent_block.html('<div id="'+number+'course" class="add_tov_val_item pc_course parent">' +
+                                '<div class="add_kurs_val_video_wrap parent">' +
+                                '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                                '<input type="hidden" name="pc_courses[]" value="'+crsid+'" >' +
+                                '<div class="del_tov"></div>' +
+                                '</div>' +
+                                '</div>');
+
+                        }
+                        else
+                        {
+                            parent_block.append('<div id="'+number+'course" class="add_tov_val_item pc_course parent">' +
+                                '<div class="add_kurs_val_video_wrap parent">' +
+                                '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                                '<input type="hidden" name="pc_courses[]" value="'+crsid+'" >' +
+                                '<div class="del_tov"></div>' +
+                                '</div>' +
+                                '</div>');
+                        }
                     }
                     $(this).parents(".add_tov_list").hide();
                     $(this).parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');

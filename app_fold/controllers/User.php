@@ -2314,17 +2314,20 @@ class User extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $page_types = array('settings', 'personal', 'add_course');
+
         $this->load->model('Notification_model');
         $this->load->model('Course_model');
         $this->load->model('Store_model');
 
-        $user = $this->User_model->getAUser($user_id);
+        $user = $this->User_model->getUserSettingsData($user_id);
+        $user_courses = array();
+        $courses_data = array();
         if (!empty($result['user_data']))
         {
-            $user = $this->User_model->getUserSettingsData($user_id);
+            $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, 'active'); // Выборка курсов пользователя
+            $courses_data    = $this->Store_model->getUserCoursesOrder($user_id, $user_courses);
         }
-        $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, 'active'); // Выборка курсов пользователя
-        $courses_data    = $this->Store_model->getUserCoursesOrder($user_id, $user_courses);
 
         $result = array_merge($user_courses, $user, $courses_data);
         $user_data = $result['user_data'];
@@ -2419,7 +2422,7 @@ class User extends CI_Controller
 
             header('Location: /administration/user/'.$user_id);
         }
-        elseif ($this->input->post('bt_delete_avatar', true))
+        elseif ($this->input->post('bt_delete_avatar', true) and is_numeric($user_id))
         {
             $res_del = $this->User_model->deleteUserAvatar($user_id);
 
@@ -2432,7 +2435,7 @@ class User extends CI_Controller
             }
             header('Location: /administration/user/'.$user_id);
         }
-        elseif ($this->input->post('bt_save_data', true))
+        elseif ($this->input->post('bt_save_data', true) and is_numeric($user_id))
         {
             $res_gb = false;
             $res_cd = false;
@@ -2473,7 +2476,7 @@ class User extends CI_Controller
 
             header('Location: /administration/user/'.$user_id);
         }
-        elseif ($this->input->post('bt_reset_password', true))
+        elseif ($this->input->post('bt_reset_password', true) and is_numeric($user_id))
         {
             $email      = null;
             $email_hash = null;
@@ -2532,7 +2535,7 @@ class User extends CI_Controller
 
             header('Location: /administration/user/'.$user_id);
         }
-        elseif ($this->input->post('bt_delete_user', true))
+        elseif ($this->input->post('bt_delete_user', true) and is_numeric($user_id))
         {
             $tmp_date = new DateTime($this->date);
             $in_a_month = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P30D')) : false;
@@ -2558,7 +2561,7 @@ class User extends CI_Controller
                 header('Location: /administration/user/'.$user_id);
             }
         }
-        elseif ($this->input->post('bt_on_behalf_login', true))
+        elseif ($this->input->post('bt_on_behalf_login', true) and is_numeric($user_id))
         {
             $this->load->model('Authorization_model');
             // Поиск тренера в БД
@@ -2590,6 +2593,94 @@ class User extends CI_Controller
                 header('Location: /administration/user/'.$user_id);
             }
         }
+        elseif ($this->input->post('bt_e_activate_send_again', true) and is_numeric($user_id))
+        {
+            $this->load->model('Authorization_model');
+
+            $res_check = $this->Authorization_model->checkActivateEmail($user_id, $this->date);
+
+            if(is_array($res_check))
+            {
+                if($res_check['availability_send_email'] === true)
+                {
+                    self::sendEActivateEmail($res_check['user_email'], $res_check['activate_code']);
+
+                    $this->Authorization_model->setResendingActivateEmailDate($user_id, $this->date);
+
+                    // Данные о смене были сохранены
+                    $this->session->set_tempdata('message', 202, 60);
+                }
+            }
+            header('Location: /administration/user/'.$user_id);
+
+        }
+        elseif ($this->input->post('bt_e_change_email_send_again', true) and is_numeric($user_id))
+        {
+            $this->load->model('Authorization_model');
+
+            $res_check = $this->Authorization_model->checkChangingEmail($user_id, $this->date);
+
+            if(is_array($res_check))
+            {
+                if($res_check['availability_send_email'] === true)
+                {
+                    self::sendEChangeEmail($res_check['user_email'], $res_check['activate_code'], $res_check['idempotent']);
+
+                    $this->Authorization_model->setResendingChangeEmailDate($user_id, $this->date);
+
+                    // Данные о смене были сохранены
+                    $this->session->set_tempdata('message', 198, 60);
+                }
+            }
+            header('Location: /administration/user/'.$user_id);
+        }
+        elseif ($this->input->post('bt_activate_account', true) and is_numeric($user_id))
+        {
+            $this->load->model('Authorization_model');
+            $res_up = $this->Authorization_model->activateAccount($user_id, $this->date);
+
+            if ($res_up === true) {
+                // Сохранено
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Не сохранено
+                $this->session->set_tempdata('message', 3, 60);
+            }
+
+            header('Location: /administration/user/'.$user_id);
+        }
+        elseif ($this->input->post('bt_buy_course', true) and $this->input->post('cb_offer', true))
+        {
+            $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+            $return_url = '/administration/user/'.$user_id.'/add_course';
+
+            if(!empty($course_id))
+            {
+                // Данные курса
+                $course = $this->Course_model->getAvailableCourse($course_id, $this->date);
+                $course_coaches = $this->Course_model->getCourseCoachesId($course_id);
+                $db_data = $course['course'];
+                // Выбранный тренер
+                $id_coach = $this->input->post('user_coach', true);
+                // Вариант оплаты (полный, разделить на месяцы)
+                $s_payment_options = $this->input->post('s_payment_options', true);
+                // Способ оплаты
+                $s_payment_method = $this->input->post('s_payment_method', true);
+                // Данные для способа оплаты
+                $i_phone = $this->input->post('i_phone', true);
+                $i_login = $this->input->post('i_login', true);
+                $i_email = $this->input->post('email', true);
+                $i_name  = $this->input->post('name', true);
+                // Введенный промокод
+                $i_promocode = $this->input->post('promocode', true);
+
+                $user_email = $user_data['user_email'];
+
+                parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
+                    $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url, $order_id, $user_id, $user_email);
+            }
+        }
 
         // Уведомления пользователя
         // Пользователь заблокирован
@@ -2618,7 +2709,7 @@ class User extends CI_Controller
         $this->page_data['title']         = 'АП - Редактирование данных пользователя';
         $this->page_data['page_menu']     = 'users';
         $this->page_data['page_submenu']  = 'a_users';
-        $this->page_data['page_2submenu'] = $page_type == 'settings' ? 'settings' : 'personal_data';
+        $this->page_data['page_2submenu'] = (in_array($page_type, $page_types)) ? $page_type : '';
         $this->page_data['outsider']      = true;
 
         $this->load->view('header/header_admin', $this->page_data);

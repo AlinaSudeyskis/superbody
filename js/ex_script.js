@@ -1407,18 +1407,45 @@ $(document).ready(function(){
             var link = $(this).find(".add_tov_cont").attr("href"),
                 name = $(this).find(".add_tov_h").text(),
                 number = $(this).attr("id"),
+                parent = $(this).parents(".add_tov_in"),
                 parent_block = $(this).parents(".add_tov_in_total").find(".add_tov_val"),
-                crsid = $(this).data('crsid');
+                crsdata = $(this),
+                crsid = crsdata.data('crsid');
 
             if(parent_block.find('#'+number+'course').length === 0)
             {
-                parent_block.append('<div id="'+number+'course" class="add_tov_val_item pc_course parent">' +
-                    '<div class="add_kurs_val_video_wrap parent">' +
+                if(parent.hasClass("one_course"))
+                {
+                    var crspr = crsdata.data('crspr'),
+                        crsrf = crsdata.data('crsrf'),
+                        crsrs = crsdata.data('crsrs'),
+                        crsrm = crsdata.data('crsrm');
+                    parent_block.html('<div id="'+number+'course" class="add_tov_val_item pc_course parent">' +
+                        '<div class="add_kurs_val_video_wrap parent">' +
                         '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
                         '<input type="hidden" name="pc_courses[]" value="'+crsid+'" >' +
                         '<div class="del_tov"></div>' +
-                    '</div>' +
-                    '</div>');
+                        '</div>' +
+                        '</div>');
+                    $('#crs-id').val(crsid);
+                    $('#price-block').find('.pf_price_wrap').html('<div class="kurs_block_h" id="course-price">'+crspr+'</div><div class="kurs_cur"> руб.</div>');
+                    $('#recurrent-block').find('#recb-rf').html(crsrf);
+                    $('#recurrent-block').find('#recb-rs').html(crsrs);
+                    $('#payment-options option[value="partial_payment"]').text('Разделить оплату на '+crsrm+' мес.');
+                    $('#payment-options').change();
+                    $('.journal_form_select').styler('destroy');
+                    $('.journal_form_select').styler();
+                }
+                else
+                {
+                    parent_block.append('<div id="'+number+'course" class="add_tov_val_item pc_course parent">' +
+                        '<div class="add_kurs_val_video_wrap parent">' +
+                        '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                        '<input type="hidden" name="pc_courses[]" value="'+crsid+'" >' +
+                        '<div class="del_tov"></div>' +
+                        '</div>' +
+                        '</div>');
+                }
             }
             $(this).parents(".add_tov_list").hide();
             $(this).parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');

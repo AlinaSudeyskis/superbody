@@ -196,6 +196,32 @@ class Authorization_model extends CI_Model
     }
 
     /**
+     * Активация пользователя
+     *
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function activateAccount($user_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `users` SET `user_activated`=1, `user_activate_date`="", `user_date_update`=? 
+          WHERE `user_id`=? LIMIT 1', array($date, $user_id));
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Проверка активации аккаунта
      *
      * @param $email

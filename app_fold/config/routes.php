@@ -161,6 +161,7 @@ $route['administration/coaches/portfolio/(:num)'] = 'Coach/coachesPortfolioPost/
 // Пользователи
 $route['administration/users(/(auth|bought))?'] = 'User/users/$2';
 $route['administration/user/(:num)/personal']   = 'User/userASettings/$1/personal';
+$route['administration/user/(:num)/add_course'] = 'User/userASettings/$1/add_course';
 $route['administration/user/(:num)']            = 'User/userASettings/$1';
 // Подписчики
 $route['administration/users/sublist'] = 'Administrator/sublist';

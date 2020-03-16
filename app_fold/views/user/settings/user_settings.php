@@ -18,7 +18,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <div class="anketa_block_cont">
-                        <?php if(!empty($user_data) and !empty($page_2submenu) and ($page_2submenu == 'settings' or $page_2submenu == 'personal_data')):?>
+                        <?php if(!empty($user_data) and !empty($page_2submenu) and ($page_2submenu == 'settings' or $page_2submenu == 'personal' or $page_2submenu == 'add_course')):?>
                             <?php if($page_2submenu == 'settings'):?>
                                 <form action="" method="post" enctype="multipart/form-data">
                                     <div class="admin_form_buts_wrap_container">
@@ -39,7 +39,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php include_once('./app_fold/views/admin/user_settings_item.php'); ?>
                                     </div>
                                 </form>
-                            <?php elseif($page_2submenu == 'personal_data'):?>
+                            <?php elseif($page_2submenu == 'personal'):?>
                                 <form action="" method="post">
                                     <div class="admin_form_buts_wrap_container">
                                         <div class="admin_form_buts_wrap parent">
@@ -48,7 +48,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                     <div class="video_admin_form">
                                         <div class="anketa_block_item_h">Личные данные</div>
+                                        <?php $executive = true; ?>
                                         <?php include_once('./app_fold/views/user/settings/settings_bg_item.php'); ?>
+                                    </div>
+                                </form>
+                            <?php elseif($page_2submenu == 'add_course'):?>
+                                <form action="" method="post">
+                                    <div class="video_admin_form">
+                                        <div class="anketa_block_item_h">Покупка курса</div>
+                                        <?php $executive = true; ?>
+                                        <div class="purchase_pop-up_h purchase_form">
+                                            <?php include_once('./app_fold/views/course/purchase_form.php');?>
+                                        </div>
                                     </div>
                                 </form>
                             <?php endif; ?>
@@ -58,7 +69,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
             </div><!-- content_col -->
-            <?php if(!empty($user_data) and !empty($page_2submenu) and ($page_2submenu == 'settings' or $page_2submenu == 'personal_data')):?>
+            <?php if(!empty($user_data) and !empty($page_2submenu) and ($page_2submenu == 'settings' or $page_2submenu == 'personal')):?>
                 <?php include_once('./app_fold/views/user/outsider_profile_item.php'); ?>
             <?php endif; ?>
         </div>

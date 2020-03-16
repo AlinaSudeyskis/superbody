@@ -27,13 +27,11 @@ if (!empty($user_session)) :
                 <span><img src="/img/menu_ico6.png" alt=""></span><span>Мои курсы</span>
             </a>
         </li>
-        <?php if($user_session['type'] == 3): ?>
-            <li>
-                <a href="/profile/meals" <?php if ($page_menu == 'u_meals') { echo 'class="active"'; } ?> <?php echo $user_blocked; ?>>
-                    <span><i class="fas fa-apple-alt"></i></span><span>Питание</span>
-                </a>
-            </li>
-        <?php endif; ?>
+        <li>
+            <a href="/profile/meals" <?php if ($page_menu == 'u_meals') { echo 'class="active"'; } ?> <?php echo $user_blocked; ?>>
+                <span><i class="fas fa-apple-alt"></i></span><span>Питание</span>
+            </a>
+        </li>
         <li>
             <a href="/profile/<?php echo $user_session['id'];?>" class="scroll_to" data-id="calendar" <?php echo $user_blocked; ?> >
                 <span><i class="far fa-calendar-alt"></i></span><span>Календарь</span>

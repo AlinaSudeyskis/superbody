@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="anketa_form_line parent">
     <div class="anketa_form_h"><div class="anketa_form_h_cell">Пол:</div></div>
-    <?php $gender_disabled = (!empty($user_data['user_gender_eng'])) ? 'disabled' : ''; ?>
+    <?php $gender_disabled = (!empty($user_data['user_gender_eng']) and empty($executive)) ? 'disabled' : ''; ?>
     <div class="anketa_form_radio_all parent <?php echo $gender_disabled; ?>">
         <div class="anketa_form_radio_wrap">
             <input type="radio" name="gender" class="anketa_form_radio" value="male" id="gender_male"

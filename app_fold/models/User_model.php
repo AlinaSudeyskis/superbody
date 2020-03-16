@@ -1787,8 +1787,8 @@ class User_model extends CI_Model
         $result['user_country_code']       = (!empty($row->user_country_code)) ? $row->user_country_code : '';
         $result['user_phone']              = (!empty($row->user_phone)) ? $row->user_phone : '';
         $result['user_password_hash']      = (!empty($row->user_password)) ? $row->user_password : '';
-        $result['user_blocked']            = ($row->user_blocked == 1) ? $row->user_blocked : '';
-        $result['user_activated']          = ($row->user_activated == 1) ? $row->user_activated : '';
+        $result['user_blocked']            = ($row->user_blocked == 1) ? $row->user_blocked : 0;
+        $result['user_activated']          = ($row->user_activated == 1) ? $row->user_activated : 0;
         $result['user_activate_code']      = (!empty($row->user_activate_code)) ? $row->user_activate_code : '';
         $result['user_type']               = (!empty($row->user_type)) ? $row->user_type : '';
         $result['user_image']              = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';

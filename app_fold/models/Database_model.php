@@ -3296,6 +3296,16 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-03-05 15:18';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` CHANGE `uc_display` `uc_display` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1'");
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_use_category` ENUM('primary','secondary') NOT NULL DEFAULT 'primary' AFTER `pc_id`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

@@ -340,7 +340,7 @@ $(document).ready(function () {
     var auth_form = purchase_form.next('.purchase_pop-up_h.auth_form');
     auth_form.hide();
 
-    purchase_form.on('paste', ' #i-promocode', function (event) {
+    purchase_form.on('paste', '#i-promocode', function (event) {
         event.preventDefault();
         var pc_input = $(this);
         if (event.originalEvent.clipboardData) {
@@ -349,7 +349,7 @@ $(document).ready(function () {
         }
         searchPromo(pc_input);
     });
-    purchase_form.on('keyup change', ' #i-promocode', function () {
+    purchase_form.on('keyup change', '#i-promocode', function () {
         var pc_input = $(this);
         searchPromo(pc_input);
     });
@@ -545,12 +545,14 @@ $(document).ready(function () {
         var this_form = pc_input.parents('.purchase_form'),
             input_search = pc_input.val(),
             crs_id = this_form.find('#crs-id').val(),
+            ord_id = this_form.find('#ord-id').val(),
             price_block = this_form.find('#course-price'),
             new_price_block = this_form.find('#course-new-price'),
             promo_block = this_form.find('.promo_block'),
             course_price = parseFloat(price_block.html()),
             promo_block_info = promo_block.next('.promo_block_info'), promo_info = '',
             bt_buy = this_form.find('input[name=bt_buy_course]');
+            bt_buy_def_val = this_form.find('input[name=bt_buy_course]').data('def-val');
 
         if ( !isEvent || prev_num !== input_search) {
             prev_num = input_search;
@@ -559,14 +561,18 @@ $(document).ready(function () {
                     url: '/searchPromo',
                     type: 'post',
                     dataType: 'json',
-                    data: {input_search: input_search, crs_id: crs_id},
+                    data: {
+                        input_search: input_search,
+                        crs_id: crs_id,
+                        ord_id: ord_id
+                    },
                     complete: function (result) {
                         clearInterval(search_dots);
                         var data = result.responseJSON;
 
-                        bt_buy.val('Купить');
+                        bt_buy.val(bt_buy_def_val);
 
-                        if(data && data.discount && data.user_used === false)
+                        if(data && data.discount && data.user_used === false && (!data.use_secondary || typeof data.use_secondary === 'undefined' || (data.use_secondary && data.use_secondary === true)))
                         {
                             var new_price,
                                 discount_type = 'руб.',
@@ -652,7 +658,7 @@ $(document).ready(function () {
                 price_block.removeClass('strikeout');
                 new_price_block.hide();
                 promo_block_info.hide();
-                bt_buy.val('Купить');
+                bt_buy.val(bt_buy_def_val);
             }
 
             isEvent = true;

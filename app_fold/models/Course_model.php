@@ -1916,6 +1916,7 @@ class Course_model extends CI_Model
     /**
      * Выборка доступных (не заблокированных) для пользователей курсов
      *
+     * @param int $limit
      * @param $courses_category
      * @param $courses_type
      * @param null $first_id
@@ -1924,11 +1925,10 @@ class Course_model extends CI_Model
      * @param null $coach_courses
      * @return array
      */
-    public function getAvailableCourses($courses_category = null, $courses_type = null, $first_id = null, $last_id = null,
+    public function getAvailableCourses($limit = 9, $courses_category = null, $courses_type = null, $first_id = null, $last_id = null,
                                         $promocode_data = null, $coach_courses = null)
     {
         $result['courses'] = array();
-        $limit = 9;
         //echo $promocode_data['pc_type'].'<br/>';
 
         $categories = self::getAvailableCourseTypes();
@@ -1946,7 +1946,7 @@ class Course_model extends CI_Model
                     $result['courses_categories'] = $category['course_type'];
 
                     $sel_courses = $this->db->query('
-                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `clp_id`, `clp_activated` 
+                        SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `crs_recurrent_subsequent`, `clp_id`, `clp_activated` 
                         FROM `courses` 
                         LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
                         WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_type_id`=? and `crs_category`="workout"
@@ -2232,7 +2232,7 @@ class Course_model extends CI_Model
             }
             unset($row);
 
-            $courses = self::getAvailableCourses($courses_category, $courses_type, null, null, null, $coach_courses);
+            $courses = self::getAvailableCourses(9, $courses_category, $courses_type, null, null, null, $coach_courses);
             $result['courses'] = $courses['courses'];
             $result['courses_categories'] = $courses['courses_categories'];
         }
@@ -8567,10 +8567,10 @@ class Course_model extends CI_Model
                 {
                     // Добавление нового курса
                     $up_data = $this->db->query('
-                    INSERT INTO `users_courses` 
-                      (`uc_o_id`, `uc_user_id`, `uc_course_id`, `uc_coach_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked_date`, `uc_free_weeks`, `uc_free_weeks_end_date`, `uc_date_update`) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        array($order_id, $user_id, $course_id, $user_coach, $training_days, $start_date, $end_date, $date, $free_weeks, $free_weeks_end_date, $date));
+                        INSERT INTO `users_courses` 
+                          (`uc_o_id`, `uc_user_id`, `uc_course_id`, `uc_coach_id`, `uc_days`, `uc_date_start`, `uc_date_end`, `uc_blocked_date`, `uc_free_weeks`, `uc_free_weeks_end_date`, `uc_date_update`) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            array($order_id, $user_id, $course_id, $user_coach, $training_days, $start_date, $end_date, $date, $free_weeks, $free_weeks_end_date, $date));
 
                     /* Если курс успешно добавлен, то:
                      * - добавляем дни недели тренировок в другую таблицу (для вывода реальных дат тренировок при изменении дней недели тренировок пользователем)
@@ -8587,8 +8587,8 @@ class Course_model extends CI_Model
                             if (!empty($training_days))
                             {
                                 $up_data = $this->db->query('
-                                INSERT INTO `users_training_days` (`utd_uc_id`, `utd_days`, `utd_date_update`) 
-                                VALUES (?, ?, ?)', array($uc_id, $training_days, $date));
+                                    INSERT INTO `users_training_days` (`utd_uc_id`, `utd_days`, `utd_date_update`) 
+                                    VALUES (?, ?, ?)', array($uc_id, $training_days, $date));
                                 if ($up_data === false)
                                 {
                                     parent::logDbMessages(__METHOD__.':'.__LINE__);
@@ -8597,10 +8597,10 @@ class Course_model extends CI_Model
 
                             // Проверка на существование прикрепленных курсов
                             $sel_attached = $this->db->query('
-                            SELECT `ca_attached_crs_id`, `crs_count_weeks`, `crs_count_days` 
-                            FROM `courses_attached`
-                            LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
-                            WHERE `ca_crs_id`=? and `ca_blocked`=0', $course_id);
+                                SELECT `ca_attached_crs_id`, `crs_count_weeks`, `crs_count_days` 
+                                FROM `courses_attached`
+                                LEFT JOIN `courses` ON `crs_id`=`ca_attached_crs_id`
+                                WHERE `ca_crs_id`=? and `ca_blocked`=0', $course_id);
                             if($sel_attached !== false and 0 < $sel_attached->num_rows())
                             {
                                 // Если курс один, прикрепляем.
@@ -10459,7 +10459,7 @@ class Course_model extends CI_Model
         $result = array('promocodes' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, `pc_pv_date_start`, 
+            SELECT `pc_id`, `pc_use_category`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, `pc_pv_date_start`, 
                `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, 
                `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
@@ -10498,7 +10498,7 @@ class Course_model extends CI_Model
         $result = array('promocode' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
+            SELECT `pc_id`, `pc_use_category`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
               `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, 
               `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
@@ -10534,7 +10534,7 @@ class Course_model extends CI_Model
         $result = array('pc_for_friend' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent` 
+            SELECT `pc_use_category`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent` 
             FROM `promocodes`
             WHERE `pc_id`=1 LIMIT 1');
 
@@ -10637,6 +10637,7 @@ class Course_model extends CI_Model
     /**
      * Добавление нового промокода курса
      *
+     * @param $pc_use_category
      * @param $pc_type
      * @param $name
      * @param $desc
@@ -10660,18 +10661,18 @@ class Course_model extends CI_Model
      * @internal param $course_id
      * @internal param $category
      */
-    public function setNewPromocode($pc_type, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+    public function setNewPromocode($pc_use_category, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
                                     $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number,
                                     $promocode, $courses, $crs_categories, $coach_id, $admin_id, $date)
     {
         $result = false;
 
         $ins_data = $this->db->query('
-            INSERT INTO `promocodes` (`pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`,
+            INSERT INTO `promocodes` (`pc_use_category`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`,
               `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, 
               `pc_code`, `pc_coach_id`, `pc_admin_id`, `pc_date_add`, `pc_update`)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($pc_use_category, $pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
                     $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode,
                     $coach_id, $admin_id, $date, $date));
 
@@ -10696,6 +10697,7 @@ class Course_model extends CI_Model
      * Обновление данных промокода курса
      *
      * @param $promocode_id
+     * @param $pc_use_category
      * @param $pc_type
      * @param $name
      * @param $desc
@@ -10716,19 +10718,19 @@ class Course_model extends CI_Model
      * @param int $coach_id
      * @return bool
      */
-    public function updatePromocode($promocode_id, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
+    public function updatePromocode($promocode_id, $pc_use_category, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
                                     $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type,
                                     $user_ua_number, $generated_code, $crs_categories, $admin_id, $date, $coach_id = 0)
     {
         $result = false;
 
         $up_data = $this->db->query('
-            UPDATE `promocodes` SET `pc_type`=?, `pc_crs_cats`=?, `pc_name`=?, `pc_description`=?, `pc_discount`=?, `pc_discount_type`=?, 
+            UPDATE `promocodes` SET `pc_use_category`=?, `pc_type`=?, `pc_crs_cats`=?, `pc_name`=?, `pc_description`=?, `pc_discount`=?, `pc_discount_type`=?, 
               `pc_relative_percent`=?, `pc_period_validity_type`=?, `pc_pv_date_start`=?, `pc_pv_date_end`=?, 
               `pc_use_amount_type`=?, `pc_ua_number`=?, `pc_user_use_amount_type`=?, `pc_user_ua_number`=?, `pc_code`=?, 
               `pc_coach_id`=?, `pc_admin_id`=?, `pc_update`=?
             WHERE `pc_id`=? LIMIT 1',
-                array($pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                array($pc_use_category, $pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
                     $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $generated_code,
                     $coach_id, $admin_id, $date, $promocode_id));
 
@@ -10749,6 +10751,7 @@ class Course_model extends CI_Model
      *
      * @param int $coach_id
      * @param $promocode_id
+     * @param $pc_use_category
      * @param $pc_type
      * @param $name
      * @param $desc
@@ -10767,18 +10770,18 @@ class Course_model extends CI_Model
      * @param $date
      * @return bool
      */
-    public function updateCoachPromocode($coach_id, $promocode_id, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
+    public function updateCoachPromocode($coach_id, $promocode_id, $pc_use_category, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
                                     $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type,
                                      $user_ua_number, $generated_code, $crs_categories, $date)
     {
         $result = false;
 
         $up_data = $this->db->query('
-            UPDATE `promocodes` SET `pc_type`=?, `pc_crs_cats`=?, `pc_name`=?, `pc_description`=?, `pc_discount`=?, `pc_discount_type`=?, 
+            UPDATE `promocodes` SET `pc_use_category`=?, `pc_type`=?, `pc_crs_cats`=?, `pc_name`=?, `pc_description`=?, `pc_discount`=?, `pc_discount_type`=?, 
               `pc_relative_percent`=?, `pc_period_validity_type`=?, `pc_pv_date_start`=?, `pc_pv_date_end`=?, 
               `pc_use_amount_type`=?, `pc_ua_number`=?, `pc_user_use_amount_type`=?, `pc_user_ua_number`=?, `pc_code`=?, `pc_update`=?
             WHERE `pc_id`=? and `pc_coach_id`=? LIMIT 1',
-                array($pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                array($pc_use_category, $pc_type, $crs_categories, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
                     $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $generated_code,
                     $date, $promocode_id, $coach_id));
 
@@ -10919,19 +10922,21 @@ class Course_model extends CI_Model
      * @param $promocode
      * @param $date
      * @param int|null $user_id
+     * @param int|null $order_id
      * @return array
      * @throws Exception
      */
-    public function getAvailableCoursePromocode($course_id, $promocode, $date, $user_id = null)
+    public function getAvailableCoursePromocode($course_id, $promocode, $date, $user_id = null, $order_id = null)
     {
-        $result = array('discount' => false, 'id' => null);
-        $user_id = (is_numeric($user_id)) ? $user_id : 0;
+        $result   = array('discount' => false, 'id' => null);
+        $user_id  = (is_numeric($user_id)) ? $user_id : 0;
+        $order_id = (is_numeric($order_id)) ? $order_id : 0;
 
         if(is_numeric($course_id) and !empty($promocode) and strlen($promocode) >=1 and strlen($promocode) <= 25)
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('
-                SELECT `pc_id`, `pc_code`, `pc_type`, `pc_crs_cats`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`,
+                SELECT `pc_id`, `pc_code`, `pc_use_category`, `pc_type`, `pc_crs_cats`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`,
                   `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_user_use_amount_type`, `pc_user_ua_number`,
                   `pc_ua_number`, `pc_blocked`
                 FROM `promocodes`
@@ -11047,6 +11052,26 @@ class Course_model extends CI_Model
                     {
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
+
+                    // Вторичный промокод
+                    $result['use_secondary'] = null;
+                    if($promocode_data['use_category'] == 'secondary' and $result['user_used'] == false and $order_id > 0)
+                    {
+                        // Проверка соответствия id курса, id заказа, id пользователя
+                        $sel_uc = $this->db->query('SELECT `uc_id` FROM `users_courses` WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1', array($user_id, $order_id, $course_id));
+                        if($sel_uc !== false and 1 == $sel_uc->num_rows())
+                        {
+                            $result['use_secondary'] = true;
+                        }
+                        elseif($sel_uc === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                        else
+                        {
+                            $result['use_secondary'] = false;
+                        }
+                    }
                 }
 
                 // Промокод активен
@@ -11105,7 +11130,7 @@ class Course_model extends CI_Model
             {
                 // Поиск промокода а таблице промокодов "для друга"
                 $sel_promo_data = $this->db->query('
-                    SELECT `pff_code`, `pc_id`, `pc_type`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
+                    SELECT `pff_code`, `pc_id`, `pc_use_category`, `pc_type`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
                       `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, 
                       `pc_user_use_amount_type`, `pc_user_ua_number`, `pc_blocked` 
                     FROM `promocodes_for_friend` 
@@ -11176,7 +11201,7 @@ class Course_model extends CI_Model
         {
             // Поиск промокода
             $sel_promo_data = $this->db->query('
-                SELECT `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
+                SELECT `pc_id`, `pc_use_category`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
                   `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, 
                   `pc_use_amount_type`, `pc_user_use_amount_type`, `pc_user_ua_number`, `pc_ua_number`, `pc_blocked` 
                 FROM `promocodes`
@@ -11222,7 +11247,7 @@ class Course_model extends CI_Model
             {
                 // Поиск промокода для друга
                 $sel_promo_data = $this->db->query('
-                    SELECT `pff_code`, `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
+                    SELECT `pff_code`, `pc_id`, `pc_use_category`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, 
                        `pc_relative_percent`, `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, 
                        `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, `pc_blocked` 
                     FROM `promocodes_for_friend` 
@@ -11305,7 +11330,7 @@ class Course_model extends CI_Model
         $promocodes_all = array();
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
+            SELECT `pc_id`, `pc_use_category`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
               `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
               `pc_user_ua_number`, `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
@@ -11329,7 +11354,7 @@ class Course_model extends CI_Model
         }
 
         $sel_data = $this->db->query('
-            SELECT `pcc_pc_id`, `pcc_crs_id`, `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
+            SELECT `pcc_pc_id`, `pcc_crs_id`, `pc_id`, `pc_use_category`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
               `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
               `pc_user_ua_number`, `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocode_courses` 
@@ -11371,7 +11396,7 @@ class Course_model extends CI_Model
         $result = array('promocodes' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
+            SELECT `pc_id`, `pc_use_category`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
               `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
                    `pc_user_ua_number`, `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`', $course_id);
@@ -11409,7 +11434,7 @@ class Course_model extends CI_Model
         $result = array('promocodes' => array());
 
         $sel_data = $this->db->query('
-            SELECT `ce_extend_crs_id`, `pc_id`, `pc_discount`, `pc_period_validity_type`, 
+            SELECT `ce_extend_crs_id`, `pc_id`, `pc_use_category`, `pc_discount`, `pc_period_validity_type`, 
               `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
                `pc_user_ua_number`, `pc_blocked` 
             FROM `courses_extends`
@@ -11447,7 +11472,7 @@ class Course_model extends CI_Model
         $result = array('promocodes' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_coach_id`, `user_name`, `user_image`, `user_email` 
+            SELECT `pc_id`, `pc_use_category`, `pc_coach_id`, `user_name`, `user_image`, `user_email` 
             FROM `promocodes`
             LEFT JOIN `users` ON `user_id`=`pc_coach_id`
             WHERE `pc_coach_id`>0
@@ -11493,7 +11518,7 @@ class Course_model extends CI_Model
         $result = array('promocodes' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
+            SELECT `pc_id`, `pc_use_category`, `pc_name`, `pc_description`, `pc_discount`, `pc_period_validity_type`, 
               `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, 
                `pc_user_ua_number`, `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update` 
             FROM `promocodes`
@@ -11533,7 +11558,7 @@ class Course_model extends CI_Model
         $result = array('promocode' => array());
 
         $sel_data = $this->db->query('
-            SELECT `pc_id`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
+            SELECT `pc_id`, `pc_use_category`, `pc_type`, `pc_crs_cats`, `pc_name`, `pc_description`, `pc_discount`, `pc_discount_type`, `pc_relative_percent`, 
               `pc_period_validity_type`, `pc_pv_date_start`, `pc_pv_date_end`, `pc_use_amount_type`, `pc_ua_number`, `pc_user_use_amount_type`, `pc_user_ua_number`, 
               `pc_code`, `pc_blocked`, `pc_admin_id`, `pc_date_add`, `pc_update`, `pcc_crs_id`, `cc_percent` 
             FROM `promocodes`
@@ -12358,13 +12383,13 @@ class Course_model extends CI_Model
         {
             if (is_numeric($search_text))
             {
-                $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category` FROM `courses` WHERE `crs_id`=? and `crs_archive`=0', $search_text);
+                $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category`, `crs_price`, `crs_recurrent_subsequent`, `crs_recurrent_first`, `crs_recurrent_months` FROM `courses` WHERE `crs_id`=? and `crs_archive`=0', $search_text);
             }
             else
             {
                 $search_text = $search_text.'*';
 
-                $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category` FROM `courses` 
+                $sel_data = $this->db->query('SELECT `crs_id`, `crs_name`, `crs_category`, `crs_price`, `crs_recurrent_subsequent`, `crs_recurrent_first`, `crs_recurrent_months` FROM `courses` 
                 WHERE MATCH (`crs_name`) AGAINST (? IN BOOLEAN MODE) and `crs_archive`=0', $search_text);
             }
         }
@@ -12373,7 +12398,8 @@ class Course_model extends CI_Model
         {
             foreach ($sel_data->result() as $row)
             {
-                $result .= '<div class="add_tren_item pc_course parent" id="pc-course-' . $row->crs_id . '" data-crsid="' . $row->crs_id . '">
+                $result .= '<div class="add_tren_item pc_course parent" id="pc-course-' . $row->crs_id . '" data-crsid="' . $row->crs_id . '" 
+                    data-crspr="' . $row->crs_price . '" data-crsrf="' . $row->crs_recurrent_first . '" data-crsrs="' . $row->crs_recurrent_subsequent . '" data-crsrm="' . $row->crs_recurrent_months . '">
                     <a href="#" class="add_tov_cont add_tren_name">
                         <div class="add_tov_h">' . $row->crs_name . '</div>
                     </a>
@@ -12429,14 +12455,14 @@ class Course_model extends CI_Model
         $result['db_fc_price']      = (!empty($row->crs_fitcoin_price) and $row->crs_fitcoin_price != '0.00') ? $row->crs_fitcoin_price : null;
 
         $result['recur_months']        = (!empty($row->crs_recurrent_months) and $row->crs_recurrent_months != 0) ? $row->crs_recurrent_months : null;
-        $recur_price = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? $row->crs_recurrent_price : null;
+        $recur_price = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price > 0) ? $row->crs_recurrent_price : null;
         $result['recur_price']         = (!empty($recur_price) and round($recur_price) == $recur_price) ? round($recur_price) : $recur_price;
-        $recur_first = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? $row->crs_recurrent_first : null;
+        $recur_first = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first > 0) ? $row->crs_recurrent_first : null;
         $result['recur_first']         = (!empty($recur_first) and round($recur_first) == $recur_first) ? round($recur_first) : $recur_first;
-        $recur_subsequent = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? $row->crs_recurrent_subsequent : null;
+        $recur_subsequent = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent > 0) ? $row->crs_recurrent_subsequent : null;
         $result['recur_subsequent']    = (!empty($recur_subsequent) and round($recur_subsequent) == $recur_subsequent) ? round($recur_subsequent) : $recur_subsequent;
-        $result['db_recur_price']      = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price != '0.00') ? $row->crs_recurrent_price : null;
-        $result['db_recur_first']      = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first != '0.00') ? $row->crs_recurrent_first : null;
+        $result['db_recur_price']      = (!empty($row->crs_recurrent_price) and $row->crs_recurrent_price > 0) ? $row->crs_recurrent_price : null;
+        $result['db_recur_first']      = (!empty($row->crs_recurrent_first) and $row->crs_recurrent_first > 0) ? $row->crs_recurrent_first : null;
         $result['db_recur_subsequent'] = (!empty($row->crs_recurrent_subsequent) and $row->crs_recurrent_subsequent != '0.00') ? $row->crs_recurrent_subsequent : null;
 
         $result['new_price']        = null;
@@ -13230,6 +13256,7 @@ class Course_model extends CI_Model
     protected function parsePromocodeData($row, $date = null)
     {
         $result['id']                 = $row->pc_id;
+        $result['use_category']       = (!empty($row->pc_use_category) and $row->pc_use_category == 'secondary') ? 'secondary' : 'primary';
         $result['type']               = (!empty($row->pc_type)) ? $row->pc_type : null;
         $result['courses_categories'] = (!empty($row->pc_crs_cats)) ? explode(';', $row->pc_crs_cats) : null;
         $result['crs_cats']           = (!empty($row->pc_crs_cats)) ? $row->pc_crs_cats : null;
@@ -13261,8 +13288,12 @@ class Course_model extends CI_Model
             $tmp_date = new DateTime($date);
             $today = $tmp_date->format('Y-m-d');
 
-            if($row->pc_blocked == 0 and ($row->pc_period_validity_type == 'unlimited'
-                or (!empty($row->pc_pv_date_end) and $row->pc_pv_date_end != '0000-00-00' and $row->pc_pv_date_end >= $today)))
+            $pc_used = self::getPromocodeUsedAmount($row->pc_id);
+            $row->pc_general_count_used = $pc_used['used_amount'];
+
+            if($row->pc_blocked == 0
+                and ($row->pc_period_validity_type == 'unlimited' or ($row->pc_period_validity_type == 'date_range' and !empty($row->pc_pv_date_end) and $row->pc_pv_date_end != '0000-00-00' and $row->pc_pv_date_end >= $today))
+                and ($row->pc_use_amount_type == 'unlimited' or ($row->pc_use_amount_type == 'number' and ($row->pc_general_count_used = 0 or $row->pc_ua_number > $row->pc_general_count_used))))
             {
                 $result['active']        = true;
                 $result['active_string'] = 'Активен';

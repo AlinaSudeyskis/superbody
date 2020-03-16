@@ -6203,6 +6203,7 @@ class Course extends CI_Controller
         {
             $pc_types = array('percent', 'currency', 'free_week');
 
+            $use_category   = $this->input->post('s_use_category', true);
             $name           = $this->input->post('i_code_name', true);
             $desc           = $this->input->post('i_code_desc', true);
             $discount       = $this->input->post('i_code_discount', true);
@@ -6221,7 +6222,7 @@ class Course extends CI_Controller
             $crs_group      = $this->input->post('r_courses_group', true);
             $crs_categories = $this->input->post('s_courses_categories', true);
 
-            $res_ins = parent::saveNewCoursePromocode($name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+            $res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
                 $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode, $crs_group,
                 $crs_categories, $courses, $this->user_id);
 
@@ -6265,7 +6266,9 @@ class Course extends CI_Controller
         {
             $db_data  = $promocode['promocode'];
             $pc_types = array('percent', 'currency', 'free_week');
+            $pc_use_cats = array('primary', 'secondary');
 
+            $use_category  = (in_array($this->input->post('s_use_category', true), $pc_use_cats)) ? $this->input->post('s_use_category', true) : 'primary';
             $name          = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
             $desc          = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
             $discount      = (is_numeric($this->input->post('i_code_discount', true))) ? $this->input->post('i_code_discount', true) : null;
@@ -6347,7 +6350,7 @@ class Course extends CI_Controller
                 $pc_type = 'course';
             }
 
-            if((!empty($discount) and $discount != $db_data['discount'])
+            if((!empty($discount) and $discount != $db_data['discount']) or $use_category != $db_data['use_category']
                 or (!empty($generated_code) and $generated_code != $db_data['code']) or $name != $db_data['name']
                 or $desc != $db_data['description'] or $validity_type != $db_data['validity_type']
                 or $pv_date_start != $db_data['pv_date_start'] or $pv_date_end != $db_data['pv_date_end']
@@ -6356,7 +6359,7 @@ class Course extends CI_Controller
                 or $discount_type != $db_data['discount_type'] or $rel_percent != $db_data['relative_percent']
                 or $pc_type != $db_data['type'] or $crs_categories != $db_data['crs_cats'])
             {
-                $res_up = $this->Course_model->updatePromocode($promocode_id, $pc_type, $name, $desc, $discount, $discount_type,
+                $res_up = $this->Course_model->updatePromocode($promocode_id, $use_category, $pc_type, $name, $desc, $discount, $discount_type,
                     $rel_percent, $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type,
                     $user_ua_number, $generated_code, $crs_categories, $this->user_id, $this->date);
 
@@ -6486,6 +6489,7 @@ class Course extends CI_Controller
             }
             elseif($s_promocode == 'new')
             {
+                $use_category   = $this->input->post('s_use_category', true);
                 $name           = $this->input->post('i_code_name', true);
                 $desc           = $this->input->post('i_code_desc', true);
                 $discount       = $this->input->post('i_code_discount', true);
@@ -6503,7 +6507,7 @@ class Course extends CI_Controller
                 $crs_group      = $this->input->post('r_courses_group', true);
                 $crs_categories = $this->input->post('s_courses_categories', true);
 
-                $res_ins = parent::saveNewCoursePromocode($name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                $res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
                     $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode, $crs_group,
                     $crs_categories, $courses, $this->user_id);
 
@@ -6582,7 +6586,7 @@ class Course extends CI_Controller
             }
             elseif($s_promocode == 'new')
             {
-
+                $use_category   = $this->input->post('s_use_category', true);
                 $name           = $this->input->post('i_code_name', true);
                 $desc           = $this->input->post('i_code_desc', true);
                 $discount       = $this->input->post('i_code_discount', true);
@@ -6600,9 +6604,9 @@ class Course extends CI_Controller
                 $crs_group      = $this->input->post('r_courses_group', true);
                 $crs_categories = $this->input->post('s_courses_categories', true);
 
-                $res_ins = parent::saveNewCoursePromocode($name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
-                    $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode, $crs_group,
-                    $crs_categories, $courses, $this->user_id);
+                $res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent,
+                    $validity_type, $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode,
+                    $crs_group, $crs_categories, $courses, $this->user_id);
 
                 if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
                 {
@@ -6855,7 +6859,7 @@ class Course extends CI_Controller
         }
         else
         {
-            $courses = $this->Course_model->getAvailableCourses($courses_category, $category_id, null, null, $pc_data);
+            $courses = $this->Course_model->getAvailableCourses(9, $courses_category, $category_id, null, null, $pc_data);
         }
         $gallery = $this->Coach_model->getGallery();
         $reviews = $this->Course_model->getAvailableReviews();
@@ -7070,7 +7074,7 @@ class Course extends CI_Controller
         $result['sql']        = '';
         $result['sql_result'] = '';
 
-        $result_courses = $this->Course_model->getAvailableCourses($courses_category, $courses_type, $first_id, $last_id);
+        $result_courses = $this->Course_model->getAvailableCourses(9, $courses_category, $courses_type, $first_id, $last_id);
 
         if (!empty($result_courses['courses']))
         {
@@ -7184,7 +7188,7 @@ class Course extends CI_Controller
                 // Выбранный тренер
                 $id_coach = $this->input->post('user_coach', true);
                 // Вариант оплаты (полный, разделить на месяцы)
-                $s_payment_options = $this->input->post('s_payment_options', true);
+                $s_payment_options = (!empty($this->input->post('s_payment_options', true))) ? $this->input->post('s_payment_options', true) : '';
                 // Способ оплаты
                 $s_payment_method = $this->input->post('s_payment_method', true);
                 // Данные для способа оплаты
@@ -9166,12 +9170,13 @@ class Course extends CI_Controller
         $result['discount'] = false;
 
         $promocode = mb_substr(strip_tags($this->input->post('input_search', true)), 0, 25);
-        $course_id = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
+        $course_id = (is_numeric($this->input->post('crs_id', true))) ? $this->input->post('crs_id', true) : null;
+        $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
         $user_id   = (!empty($this->user_id) and is_numeric($this->user_id)) ? $this->user_id : null;
 
         if(!empty($course_id) and !empty($promocode) and strlen($promocode) >=1)
         {
-            $result = $this->Course_model->getAvailableCoursePromocode($course_id, $promocode, $this->date, $user_id);
+            $result = $this->Course_model->getAvailableCoursePromocode($course_id, $promocode, $this->date, $user_id, $order_id);
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);

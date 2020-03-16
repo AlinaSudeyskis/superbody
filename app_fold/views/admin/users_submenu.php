@@ -53,7 +53,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </li>
         <li>
             <a href="/administration/<?php echo $user_type; ?>/<?php echo $user_data['user_id']; ?>/personal">
-                <span <?php if($page_2submenu == 'personal_data'): ?>class="anketa_active"<?php endif;?>>Личные данные</span>
+                <span <?php if($page_2submenu == 'personal'): ?>class="anketa_active"<?php endif;?>>Личные данные</span>
+            </a>
+        </li>
+        <li>
+            <a href="/administration/<?php echo $user_type; ?>/<?php echo $user_data['user_id']; ?>/add_course">
+                <span <?php if($page_2submenu == 'add_course'): ?>class="anketa_active"<?php endif;?>>Добавить курс</span>
             </a>
         </li>
     </ul>

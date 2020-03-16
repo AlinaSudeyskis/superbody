@@ -4425,7 +4425,7 @@ class Store_model extends CI_Model
         $result['payments'] = array();
 
         $payment_statuses = array('Ожидает подтверждения оплаты магазином' => 'waiting_for_capture', 'Оплачен' => 'succeeded',
-            'Отменен' => 'canceled', 'Ожидает оплаты' => 'pending', 'Платеж возвращен' => 'payment_refunded', 'Пропущена оплата' => 'not_paid',
+            'Платеж отменен' => 'canceled', 'Ожидает оплаты' => 'pending', 'Платеж возвращен' => 'payment_refunded', 'Пропущена оплата' => 'not_paid',
             'Бесплатно' => 'free', 'Отозвано разрешение' => 'revoke_permission');
         $result['payment_status'] = (!empty($row->o_payment_status) and array_search($row->o_payment_status, $payment_statuses)) ? array_search($row->o_payment_status, $payment_statuses) : '';
         $result['payment_status_eng'] = (!empty($row->o_payment_status)) ? $row->o_payment_status : '';

@@ -2,9 +2,25 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <form action="" method="post" class="anketa_form video_admin_form">
-    <input type="hidden" name="crs_id" id="crs-id" value="<?php if (!empty($course['id'])) { echo $course['id']; }?>" />
-    <input type="hidden" name="ord_id" id="ord-id" value="<?php if (!empty($course['order_id'])) { echo $course['order_id']; }?>" />
-    <input type="hidden" name="user_id" value="<?php if (!empty($user_session)) { echo $user_session['id']; }?>" id="user-id">
+    <?php if(!empty($executive) and $executive === true): ?>
+        <input type="hidden" name="crs_id" id="crs-id" value="" />
+        <input type="hidden" name="ord_id" id="ord-id" value="" />
+        <input type="hidden" name="user_id" value="<?php if (!empty($user_data['user_id'])) { echo $user_data['user_id']; }?>" id="user-id">
+        <div class="parent kurs_cur_wrap" id="cg-few-search">
+            <div class="kurs_block_h">Поиск курса:</div>
+            <div class="add_tov_in_total anketa_form_in_long" style="float: left;">
+                <div class="add_tov_in pc_course one_course">
+                    <input type="text" name="name_course" class="admin_form_txt" placeholder="Введите наименование или ID курса" autocomplete="off">
+                    <div class="add_tov_list"></div>
+                </div>
+                <div class="add_tov_val"></div>
+            </div>
+        </div>
+    <?php else: ?>
+        <input type="hidden" name="crs_id" id="crs-id" value="<?php if (!empty($course['id'])) { echo $course['id']; }?>" />
+        <input type="hidden" name="ord_id" id="ord-id" value="<?php if (!empty($course['order_id'])) { echo $course['order_id']; }?>" />
+        <input type="hidden" name="user_id" value="<?php if (!empty($user_session)) { echo $user_session['id']; }?>" id="user-id">
+    <?php endif; ?>
     <?php if(empty($user_session) or empty($user_session['email'])): ?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Email:</div>
@@ -17,7 +33,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="text" name="name" required="required" value="" class="admin_form_txt admin_form_txt_short" autocomplete="off"/>
         </div>
     <?php endif; ?>
-    <?php if ($course['price'] != 0 and $course['recurrent'] === true):?>
+    <?php if (($course['price'] != 0 and $course['recurrent'] === true) or (!empty($executive) and $executive === true)):?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h"><label for="payment-options">Вариант оплаты:</label></div>
             <select name="s_payment_options" class="journal_form_select" required="required" id="payment-options">
@@ -29,20 +45,20 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="parent kurs_cur_wrap">
                 <div class="kurs_block_h">Первый платеж:</div>
                 <div class="pf_price_wrap">
-                    <div class="kurs_block_h"><?php echo $course['recur_first']; ?></div>
+                    <div class="kurs_block_h" id="recb-rf"><?php echo $course['recur_first']; ?></div>
                     <div class="kurs_cur"> руб.</div>
                 </div>
             </div>
             <div class="parent kurs_cur_wrap">
                 <div class="kurs_block_h" style="line-height: 17px;">Последующие платежи:</div>
                 <div class="pf_price_wrap">
-                    <div class="kurs_block_h"><?php echo $course['recur_subsequent']; ?></div>
+                    <div class="kurs_block_h" id="recb-rs"><?php echo $course['recur_subsequent']; ?></div>
                     <div class="kurs_cur"> руб.</div>
                 </div>
             </div>
         </div>
     <?php endif; ?>
-    <div class="parent kurs_cur_wrap">
+    <div class="parent kurs_cur_wrap" id="price-block">
         <div class="kurs_block_h">Стоимость курса:</div>
         <div class="pf_price_wrap">
             <?php if ($course['new_price'] == 0 and $course['price'] == 0 and empty($course['balance_amount'])):?>
@@ -60,7 +76,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php endif;?>
         </div>
     </div>
-    <?php if($course['new_price'] != 0 or $course['price'] != 0):?>
+    <?php if($course['new_price'] != 0 or $course['price'] != 0 or (!empty($executive) and $executive === true)):?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h"><label for="payment-methods">Способ оплаты:</label></div>
             <select name="s_payment_method" class="journal_form_select" required="required" id="payment-methods">
@@ -85,7 +101,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="text" name="i_login" value="" class="admin_form_txt admin_form_txt_short" />
         </div>
     <?php endif;?>
-    <?php if($course['promocode_availability'] === true and empty($course['balance_amount'])): ?>
+    <?php if($course['promocode_availability'] === true or (!empty($executive) and $executive === true)): // and empty($course['balance_amount']) ?>
         <div class="parent kurs_cur_wrap promo_block">
             <div class="kurs_block_h"></div>
             <div class="promo_line">У меня есть промокод</div>
@@ -113,11 +129,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     <?php endif; ?>
     <div class="anketa_form_buts_wrap parent">
-        <?php if (!empty($courses_id) and in_array($course['id'], $courses_id)): ?>
+        <?php if (!empty($courses_id) and in_array($course['id'], $courses_id) and empty($course['balance_amount'])): ?>
             <input type="submit" name="bought" value="Куплен" class="anketa_form_but disabled"/>
         <?php else: ?>
-            <?php $but_text = ($course['new_price'] != 0 or $course['price'] != 0) ? 'Купить' : 'Добавить в "Мои курсы"'; ?>
-            <input type="submit" name="bt_buy_course" value='<?php echo $but_text; ?>' class="anketa_form_but red"/>
+            <?php
+            $but_text = ((!empty($executive) and $executive === true) or $course['new_price'] != 0 or $course['price'] != 0) ? 'Купить' : 'Добавить в "Мои курсы"';
+            $but_text = (!empty($course['balance_amount'])) ? 'Оплатить' : $but_text;
+            ?>
+            <input type="submit" name="bt_buy_course" value='<?php echo $but_text; ?>' data-def-val='<?php echo $but_text; ?>' class="anketa_form_but red"/>
         <?php endif; ?>
     </div>
 
