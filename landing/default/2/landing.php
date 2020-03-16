@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="/css/style.css">
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
     <script src="/js/slick.min.js"></script>
-    <script src="/js/lp_script.js"></script>
+    <?php include_once('./app_fold/views/header/lp_styles_scripts.php'); ?>
 </head>
 <body class="dark_lp lp_page">
 

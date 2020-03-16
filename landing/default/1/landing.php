@@ -13,7 +13,7 @@
         <link rel="stylesheet" href="/css/style.css">
         <script src="/js/jquery.min.js"></script>
         <script src="/js/slick.min.js"></script>
-        <script src="/js/lp_script.js"></script>
+        <?php include_once('./app_fold/views/header/lp_styles_scripts.php'); ?>
     </head>
     <body class="light_lp lp_page">
 
