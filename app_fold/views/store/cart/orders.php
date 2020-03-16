@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="shop_sort parent">
                                 <div class="shop_sort_h">Поиск:</div>
                                 <div class="shop_sort_in_wrap parent">
-                                    <input type="radio" name="search_by" value="1" id="search_order" class="shop_sort_in"<?php if(!empty($page_search_by) and $page_search_by == 1):?> checked="checked"<?php endif;?>>
+                                    <input type="radio" name="search_by" value="1" id="search_order" class="shop_sort_in"<?php if(empty($page_search_by) or $page_search_by == 1):?> checked="checked"<?php endif;?>>
                                     <label for="search_order">по заказам</label>
                                     <input type="radio" name="search_by" value="2" id="search_user" class="shop_sort_in"<?php if(!empty($page_search_by) and $page_search_by == 2):?> checked="checked"<?php endif;?>>
                                     <label for="search_user">по пользователям</label>
