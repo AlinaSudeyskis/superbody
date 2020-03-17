@@ -211,7 +211,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 playerTwoPlayer.on('timeupdate', function(data){
                                     playerTwoPlayer.getVideoTitle().then(function(title) {
                                         var seconds = Math.floor(data.seconds),
-                                            prev_seconds = Math.floor(data.seconds);
+                                            prev_seconds = null;
                                         if((seconds % 10) === 0 && seconds !== prev_seconds)
                                         {
                                             $.ajax({
