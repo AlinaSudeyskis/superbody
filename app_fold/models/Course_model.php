@@ -3044,7 +3044,7 @@ class Course_model extends CI_Model
             $result['courses_statistics']['count_workouts']  = $count_workouts;
             $result['courses_statistics']['pass_percentage'] = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
             $result['courses_statistics']['count_users']     = count($users);
-            $result['courses_statistics']['progress_time']   = $progress_time;
+            $result['courses_statistics']['progress_time']   = floor($progress_time);
 
             if(!empty($first_dates))
             {
