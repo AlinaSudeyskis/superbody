@@ -2995,7 +2995,7 @@ class Course_model extends CI_Model
 
                 // Курсы пользователей
                 $sel_data = $this->db->query('
-                    SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done`, SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks` 
+                    SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
                     LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
                     WHERE `uc_course_id`=? and `utw_status`="done"
                     GROUP BY `utw_uc_id`', $course_id);
@@ -3008,6 +3008,25 @@ class Course_model extends CI_Model
                             $count_workouts++;
                         }
                         $pass_percentage[] = ($row->count_done > 0 and $course_count_workouts > 0) ? ceil($row->count_done / $course_count_workouts * 100) : 0;
+                    }
+                    unset($row);
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                unset($sel_data);
+
+                // Просмотренное время тренировок
+                $sel_data = $this->db->query('
+                    SELECT `uc_course_id`, `utw_uc_id`, SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks` 
+                    LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+                    WHERE `uc_course_id`=?
+                    GROUP BY `utw_uc_id`', $course_id);
+                if ($sel_data !== false and 0 < $sel_data->num_rows())
+                {
+                    foreach($sel_data->result() as $row)
+                    {
                         $progress_time += $row->sum_progress_time;
                     }
                     unset($row);
