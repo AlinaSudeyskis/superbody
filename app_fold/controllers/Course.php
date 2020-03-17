@@ -8818,7 +8818,7 @@ class Course extends CI_Controller
 
             $workout_id      = (is_numeric($this->input->post('woid'))) ? $this->input->post('woid') : null;
             $current_time    = (is_numeric($this->input->post('ved_time'))) ? $this->input->post('ved_time') : null;
-            $current_percent = (is_numeric($this->input->post('ved_percent'))) ? ($this->input->post('ved_percent')*100.0) : null;
+            $current_percent = (is_numeric($this->input->post('ved_percent'))) ? (string)($this->input->post('ved_percent')*100) : null;
 
             $date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
             $today = $date !== false ? $date->format('Y-m-d') : null;
