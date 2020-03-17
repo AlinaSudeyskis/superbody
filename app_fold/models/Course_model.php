@@ -12356,6 +12356,56 @@ class Course_model extends CI_Model
         return $result;
     }
 
+    public function setWorkoutTimeProgress($user_id, $workout_id, $current_time, $current_percent, $today)
+    {
+        $result = false;
+
+        if(is_numeric($user_id) and is_numeric($workout_id))
+        {
+            $sel_workout = $this->db->query('SELECT `utw_uc_id`, `utw_date` FROM `users_training_weeks` WHERE `utw_id`=? LIMIT 1', $workout_id);
+
+            if ($sel_workout !== false and 1 == $sel_workout->num_rows())
+            {
+                $row = $sel_workout->row();
+
+                $uc_id        = $row->utw_uc_id;
+                $workout_date = $row->utw_date;
+
+                if ($workout_date == $today)
+                {
+                    $sel_course = $this->db->query('
+                        SELECT `uc_course_id` FROM `users_courses` WHERE `uc_id`=? and `uc_user_id`=? LIMIT 1', array($uc_id, $user_id));
+
+                    if ($sel_course !== false and 1 == $sel_course->num_rows())
+                    {
+                        $up_data = $this->db->query('
+                            UPDATE `users_training_weeks` SET `utw_progress_time`=?, `utw_progress_percent`=?, `utw_date_update`=? 
+                            WHERE `utw_id`=? LIMIT 1', array($current_time, $current_percent, $today, $workout_id));
+
+                        if ($up_data !== false and 1 == $this->db->affected_rows())
+                        {
+                            $result = true;
+                        }
+                        elseif ($up_data === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+                    elseif ($sel_course === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+            }
+            elseif ($sel_workout === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
     /**
      * Изменение данных о тренировках курса.
      * Если тренировка была пропущена, то создается её дубликат, а курс смещается (изменяются даты будущих тренировок)
