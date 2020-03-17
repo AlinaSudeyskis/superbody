@@ -2932,6 +2932,7 @@ class Course_model extends CI_Model
             $count_users     = 0;
             $count_workouts  = 0;
             $pass_percentage = array();
+            $progress_time   = 0;
             $i = 0;
             foreach($sel_pid->result() as $row)
             {
@@ -2994,7 +2995,7 @@ class Course_model extends CI_Model
 
                 // Курсы пользователей
                 $sel_data = $this->db->query('
-                    SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
+                    SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done`, SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks` 
                     LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
                     WHERE `uc_course_id`=? and `utw_status`="done"
                     GROUP BY `utw_uc_id`', $course_id);
@@ -3007,6 +3008,7 @@ class Course_model extends CI_Model
                             $count_workouts++;
                         }
                         $pass_percentage[] = ($row->count_done > 0 and $course_count_workouts > 0) ? ceil($row->count_done / $course_count_workouts * 100) : 0;
+                        $progress_time += $row->sum_progress_time;
                     }
                     unset($row);
                 }
@@ -3023,6 +3025,7 @@ class Course_model extends CI_Model
             $result['courses_statistics']['count_workouts']  = $count_workouts;
             $result['courses_statistics']['pass_percentage'] = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
             $result['courses_statistics']['count_users']     = count($users);
+            $result['courses_statistics']['progress_time']   = $progress_time;
 
             if(!empty($first_dates))
             {
@@ -4100,8 +4103,8 @@ class Course_model extends CI_Model
                 $i = 0;
                 foreach ($sel_coaches->result() as $row) {
                     $result['coaches'][$i]['id']      = $row->cc_coach_id;
-                    $result['coaches'][$i]['name']    = !empty($row->user_name) ? $row->user_name : 'Тренер #'.$row->cc_coach_id;
-                    $result['coaches'][$i]['image']   = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                    $result['coaches'][$i]['name']    = (!empty($row->user_name)) ? $row->user_name : 'Тренер #'.$row->cc_coach_id;
+                    $result['coaches'][$i]['image']   = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
                     $result['coaches'][$i]['special'] = $row->cd_specialization;
 
                     $i++;
