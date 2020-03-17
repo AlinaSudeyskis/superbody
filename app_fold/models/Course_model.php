@@ -3017,9 +3017,9 @@ class Course_model extends CI_Model
                 }
                 unset($sel_data);
 
-                // Просмотренное время тренировок
+                // Просмотренное время видео пользователями
                 $sel_data = $this->db->query('
-                    SELECT `uc_course_id`, `utw_uc_id`, SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks` 
+                    SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks` 
                     LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
                     WHERE `uc_course_id`=?
                     GROUP BY `utw_uc_id`', $course_id);

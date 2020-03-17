@@ -190,7 +190,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
                                 playerTwoPlayer.on('timeupdate', function(data){
                                     playerTwoPlayer.getVideoTitle().then(function(title) {
-                                        if((data.seconds % 10) === 0)
+                                        var seconds = Math.floor(data.seconds);
+                                        if((seconds % 10) === 0)
                                         {
                                             $.ajax({
                                                 url: '/viewing/video',
