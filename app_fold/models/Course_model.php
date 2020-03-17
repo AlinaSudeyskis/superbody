@@ -3027,7 +3027,7 @@ class Course_model extends CI_Model
                 {
                     foreach($sel_data->result() as $row)
                     {
-                        $progress_time += $row->sum_progress_time;
+                        $progress_time += (($row->sum_progress_time / 60) / 60);
                     }
                     unset($row);
                 }
