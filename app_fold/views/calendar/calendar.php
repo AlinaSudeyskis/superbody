@@ -186,12 +186,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     playerTwoPlayer.getCurrentTime().then(function(seconds) {});
                                 });
 
-                                playerTwoPlayer.on('ended', function(data) {});
-
-                                playerTwoPlayer.on('timeupdate', function(data){
+                                playerTwoPlayer.on('ended', function(data) {
                                     playerTwoPlayer.getVideoTitle().then(function(title) {
-                                        var seconds = Math.floor(data.seconds);
-                                        if((seconds % 10) === 0)
+                                        if(data.percent === 100)
                                         {
                                             $.ajax({
                                                 url: '/viewing/video',
@@ -204,7 +201,31 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 complete: function(result){
                                                     if (result.responseText === 'true')
                                                     {
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    });
+                                });
 
+                                playerTwoPlayer.on('timeupdate', function(data){
+                                    playerTwoPlayer.getVideoTitle().then(function(title) {
+                                        var seconds = Math.floor(data.seconds),
+                                            prev_seconds = Math.floor(data.seconds);
+                                        if((seconds % 10) === 0 && seconds !== prev_seconds)
+                                        {
+                                            $.ajax({
+                                                url: '/viewing/video',
+                                                type: 'post',
+                                                data: {
+                                                    woid: calEvent.endParam,
+                                                    ved_time: data.seconds,
+                                                    ved_percent: data.percent
+                                                },
+                                                complete: function(result){
+                                                    if (result.responseText === 'true')
+                                                    {
+                                                        prev_seconds = seconds;
                                                     }
                                                 }
                                             });
