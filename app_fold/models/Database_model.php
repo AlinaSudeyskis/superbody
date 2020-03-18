@@ -3306,6 +3306,19 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-03-18 09:27';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `products` ADD INDEX `ix_p_course_id` (`p_course_id`)");
+            $this->db->query("ALTER TABLE `orders_users_cart` ADD INDEX `ix_ouc_p_id` (`ouc_p_id`)");
+            $this->db->query("ALTER TABLE `orders_payment` ADD INDEX `ix_order_id_status` (`op_o_id`, `op_status`)");
+            $this->db->query("ALTER TABLE `users_courses` ADD INDEX `ix_uc_course_id` (`uc_course_id`)");
+            $this->db->query("ALTER TABLE `users_training_weeks` ADD UNIQUE `ix_utw_status` (`utw_status`)");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

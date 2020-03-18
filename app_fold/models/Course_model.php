@@ -2915,10 +2915,10 @@ class Course_model extends CI_Model
      */
     public function getCoursesStatistics()
     {
-        $result     = array('courses_statistics' => array());
-        $users      = array();
-        $orders     = array();
-        $dates      = array();
+        $result = array('courses_statistics' => array());
+        $users  = array();
+        $orders = array();
+        $date   = '';
 
         $sel_pid = $this->db->query('
           SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
@@ -2928,11 +2928,11 @@ class Course_model extends CI_Model
 
         if ($sel_pid !== false and 0 < $sel_pid->num_rows())
         {
-            $count_price     = 0;
-            $count_users     = 0;
-            $count_workouts  = 0;
-            $pass_percentage = array();
-            $progress_time   = 0;
+            $count_price        = 0;
+            $count_users        = 0;
+            $count_done_courses = 0;
+            $pass_percentage    = array();
+            $progress_time      = 0;
             $i = 0;
             foreach($sel_pid->result() as $row)
             {
@@ -2948,21 +2948,25 @@ class Course_model extends CI_Model
                     SELECT `ouc_u_id`, `ouc_o_id`, `ouc_p_price`, `ouc_p_fitcoin_price`, `o_date_add`
                     FROM `orders_users_cart`
                     LEFT JOIN `orders` ON `o_id`=`ouc_o_id`
-                    WHERE `ouc_p_id`=?
-                    ORDER BY `o_date_add` DESC', $course_pid);
+                    WHERE `ouc_p_id`=?', $course_pid);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
-                    foreach($sel_data->result() as $row)
+                    foreach($sel_data->result() as $row2)
                     {
-                        $users[$i]  = $row->ouc_u_id;
-                        $orders[$i] = $row->ouc_o_id;
-                        $dates[$i]  = $row->o_date_add;
+                        $users[$i]  = $row2->ouc_u_id;
+                        $orders[$i] = $row2->ouc_o_id;
+
+                        //$dates[$i]  = $row->o_date_add;
+                        if(empty($date) or $row2->o_date_add < $date)
+                        {
+                            $date = $row2->o_date_add;
+                        }
 
                         $i++;
                     }
-                    unset($row);
+                    unset($row2);
 
-                    $first_dates[] = array_pop($dates);
+                    $first_dates[] = $date;
                 }
                 elseif($sel_data === false)
                 {
@@ -2976,14 +2980,12 @@ class Course_model extends CI_Model
                 foreach($orders as $order_id)
                 {
                     // Оплаченная сумма
-                    $sel_data = $this->db->query('SELECT `op_amount` FROM `orders_payment` WHERE `op_o_id`=? and `op_status`="succeeded"', $order_id);
-                    if ($sel_data !== false and 0 < $sel_data->num_rows())
+                    $sel_data = $this->db->query('SELECT SUM(`op_amount`) as `sum_op_amount` FROM `orders_payment` WHERE `op_o_id`=? and `op_status`="succeeded"', $order_id);
+                    if ($sel_data !== false and 1 == $sel_data->num_rows())
                     {
-                        foreach($sel_data->result() as $row)
-                        {
-                            $count_price += $row->op_amount;
-                        }
-                        unset($row);
+                        $row3 = $sel_data->row();
+                        $count_price += $row3->sum_op_amount;
+                        unset($row3);
                     }
                     elseif($sel_data === false)
                     {
@@ -2993,7 +2995,7 @@ class Course_model extends CI_Model
                 }
                 unset($order_id);
 
-                // Курсы пользователей
+                // Пройденные курсы пользователей
                 $sel_data = $this->db->query('
                     SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
                     LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
@@ -3001,15 +3003,15 @@ class Course_model extends CI_Model
                     GROUP BY `utw_uc_id`', $course_id);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
-                    foreach($sel_data->result() as $row)
+                    foreach($sel_data->result() as $row4)
                     {
-                        if($row->count_done == $course_count_workouts)
+                        if($row4->count_done == $course_count_workouts)
                         {
-                            $count_workouts++;
+                            $count_done_courses++;
                         }
-                        $pass_percentage[] = ($row->count_done > 0 and $course_count_workouts > 0) ? ceil($row->count_done / $course_count_workouts * 100) : 0;
+                        $pass_percentage[] = ($row4->count_done > 0 and $course_count_workouts > 0) ? (ceil($row4->count_done / $course_count_workouts * 100)) : 0;
                     }
-                    unset($row);
+                    unset($row4);
                 }
                 elseif($sel_data === false)
                 {
@@ -3017,7 +3019,7 @@ class Course_model extends CI_Model
                 }
                 unset($sel_data);
 
-                // Просмотренное время видео пользователями
+                // Время видео, посмотренное пользователями
                 $sel_data = $this->db->query('
                     SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks` 
                     LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
@@ -3025,11 +3027,11 @@ class Course_model extends CI_Model
                     GROUP BY `utw_uc_id`', $course_id);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
-                    foreach($sel_data->result() as $row)
+                    foreach($sel_data->result() as $row5)
                     {
-                        $progress_time += (($row->sum_progress_time / 60) / 60);
+                        $progress_time += (($row5->sum_progress_time / 60) / 60);
                     }
-                    unset($row);
+                    unset($row5);
                 }
                 elseif($sel_data === false)
                 {
@@ -3040,11 +3042,11 @@ class Course_model extends CI_Model
 
             $users  = array_unique($users);
 
-            $result['courses_statistics']['count_price']     = $count_price;
-            $result['courses_statistics']['count_workouts']  = $count_workouts;
-            $result['courses_statistics']['pass_percentage'] = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
-            $result['courses_statistics']['count_users']     = count($users);
-            $result['courses_statistics']['progress_time']   = floor($progress_time);
+            $result['courses_statistics']['count_price']        = $count_price;
+            $result['courses_statistics']['count_done_courses'] = $count_done_courses;
+            $result['courses_statistics']['pass_percentage']    = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
+            $result['courses_statistics']['count_users']        = count($users);
+            $result['courses_statistics']['progress_time']      = floor($progress_time);
 
             if(!empty($first_dates))
             {
