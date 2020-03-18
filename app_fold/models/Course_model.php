@@ -2920,12 +2920,6 @@ class Course_model extends CI_Model
         $orders = array();
         $date   = '';
 
-        $sel_pid = $this->db->query('EXPLAIN 
-          SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
-          FROM `products`
-          LEFT JOIN `courses` ON `crs_id`=`p_course_id`
-          WHERE `p_course_id`>0');
-        log_message('debug', print_r($sel_pid->result(), true));
         $sel_pid = $this->db->query('
           SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
           FROM `products`
