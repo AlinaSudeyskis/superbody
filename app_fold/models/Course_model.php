@@ -2953,8 +2953,15 @@ class Course_model extends CI_Model
                 {
                     foreach($sel_data->result() as $row2)
                     {
-                        $users[$i]  = $row2->ouc_u_id;
-                        $orders[$i] = $row2->ouc_o_id;
+                        if(!in_array($row2->ouc_u_id, $users))
+                        {
+                            $users[$i] = $row2->ouc_u_id;
+                        }
+
+                        if(!in_array($row2->ouc_o_id, $orders))
+                        {
+                            $orders[$i] = $row2->ouc_o_id;
+                        }
 
                         //$dates[$i]  = $row->o_date_add;
                         if(empty($date) or $row2->o_date_add < $date)
@@ -3029,7 +3036,7 @@ class Course_model extends CI_Model
                 {
                     foreach($sel_data->result() as $row5)
                     {
-                        $progress_time += (($row5->sum_progress_time / 60) / 60);
+                        $progress_time += ($row5->sum_progress_time / 3600); // Из секунд в часы
                     }
                     unset($row5);
                 }
@@ -3040,7 +3047,7 @@ class Course_model extends CI_Model
                 unset($sel_data);
             }
 
-            $users  = array_unique($users);
+            $users = array_unique($users);
 
             $result['courses_statistics']['count_price']        = $count_price;
             $result['courses_statistics']['count_done_courses'] = $count_done_courses;
