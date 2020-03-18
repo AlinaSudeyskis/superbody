@@ -2920,6 +2920,9 @@ class Course_model extends CI_Model
         $orders = array();
         $date   = '';
 
+        $time_start = time();
+        log_message('debug', __METHOD__ . ' Start time: ' . $time_start);
+
         $sel_pid = $this->db->query('
           SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
           FROM `products`
@@ -2928,6 +2931,8 @@ class Course_model extends CI_Model
 
         if ($sel_pid !== false and 0 < $sel_pid->num_rows())
         {
+            $time1 = time();
+            log_message('debug', __METHOD__ . ' 1: ' . $time1 . ' ' . ($time1-$time_start));
             $count_price        = 0;
             $count_users        = 0;
             $count_done_courses = 0;
@@ -2951,6 +2956,8 @@ class Course_model extends CI_Model
                     WHERE `ouc_p_id`=?', $course_pid);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
+                    $time2 = time();
+                    log_message('debug', __METHOD__ . ' 2: ' . $time2 . ' ' . ($time2-$time1));
                     foreach($sel_data->result() as $row2)
                     {
                         $users[$i]  = $row2->ouc_u_id;
@@ -2967,6 +2974,8 @@ class Course_model extends CI_Model
                     unset($row2);
 
                     $first_dates[] = $date;
+                    $time3 = time();
+                    log_message('debug', __METHOD__ . ' 3: ' . $time3 . ' ' . ($time3-$time2));
                 }
                 elseif($sel_data === false)
                 {
@@ -2983,6 +2992,8 @@ class Course_model extends CI_Model
                     $sel_data = $this->db->query('SELECT SUM(`op_amount`) as `sum_op_amount` FROM `orders_payment` WHERE `op_o_id`=? and `op_status`="succeeded"', $order_id);
                     if ($sel_data !== false and 1 == $sel_data->num_rows())
                     {
+                        $time4 = time();
+                        log_message('debug', __METHOD__ . ' 4: ' . $time4 . ' ' . ($time4-$time3));
                         $row3 = $sel_data->row();
                         $count_price += $row3->sum_op_amount;
                         unset($row3);
@@ -2992,6 +3003,8 @@ class Course_model extends CI_Model
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                     unset($sel_data);
+                    $time5 = time();
+                    log_message('debug', __METHOD__ . ' 5: ' . $time5 . ' ' . ($time5-$time4));
                 }
                 unset($order_id);
 
@@ -3003,6 +3016,8 @@ class Course_model extends CI_Model
                     GROUP BY `utw_uc_id`', $course_id);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
+                    $time6 = time();
+                    log_message('debug', __METHOD__ . ' 6: ' . $time6 . ' ' . ($time6-$time5));
                     foreach($sel_data->result() as $row4)
                     {
                         if($row4->count_done == $course_count_workouts)
@@ -3012,6 +3027,8 @@ class Course_model extends CI_Model
                         $pass_percentage[] = ($row4->count_done > 0 and $course_count_workouts > 0) ? (ceil($row4->count_done / $course_count_workouts * 100)) : 0;
                     }
                     unset($row4);
+                    $time7 = time();
+                    log_message('debug', __METHOD__ . ' 7: ' . $time7 . ' ' . ($time7-$time6));
                 }
                 elseif($sel_data === false)
                 {
@@ -3027,11 +3044,15 @@ class Course_model extends CI_Model
                     GROUP BY `utw_uc_id`', $course_id);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
+                    $time8 = time();
+                    log_message('debug', __METHOD__ . ' 8: ' . $time8 . ' ' . ($time8-$time7));
                     foreach($sel_data->result() as $row5)
                     {
                         $progress_time += (($row5->sum_progress_time / 60) / 60);
                     }
                     unset($row5);
+                    $time9 = time();
+                    log_message('debug', __METHOD__ . ' 9: ' . $time9 . ' ' . ($time9-$time8));
                 }
                 elseif($sel_data === false)
                 {
@@ -3062,6 +3083,9 @@ class Course_model extends CI_Model
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
+
+        $time_end = time();
+        log_message('debug', __METHOD__ . ' End time: ' . $time_end . ' ' . ($time_end-$time_start));
 
         return $result;
     }
