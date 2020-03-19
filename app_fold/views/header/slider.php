@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 $remove_url = $si_banner['video_url'];
                 $key = 0; ?>
                 <?php //include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
-                <div data-vimeo-url="<?php echo $remove_url; ?>?autoplay=1" id="banner-vimeo-player-<?php echo $key; ?>" class="vimeo_players" data-vimeo-width="1900" data-vimeo-loop="true" data-vimeo-autoplay="true" data-vimeo-background="true" data-vimeo-allow="autoplay; encrypted-media"></div>
+                <div data-vimeo-url="<?php echo $remove_url; ?>?autoplay=1" id="banner-vimeo-player-<?php echo $key; ?>" class="vimeo_players" data-vimeo-width="1900" data-vimeo-loop="true" data-vimeo-autoplay="true" data-vimeo-background="false" data-vimeo-allow="autoplay; encrypted-media"></div>
                 <?php $key++; ?>
             <?php else: ?>
                 <img src="<?php echo $si_banner['image'];?>" alt="">
