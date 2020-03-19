@@ -139,6 +139,9 @@ audio, canvas, progress, video{
     top: 0;
     z-index: 100;
 }
+.vimeo_players{
+    overflow: hidden;
+}
 
 .sing-in_h{
     font-size: 12px;
