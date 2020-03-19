@@ -655,19 +655,24 @@ audio, canvas, progress, video{
     margin-top:1px;
 }
 .profile_info{
-    max-width: 40%;
+    width: calc(100% - 150px); /*40%*/
+    width: -moz-calc(100% - 150px);
+    width: -webkit-calc(100% - 150px);
     float: left;
     position: relative;
     padding-right: 30px;
 }
 .profile_mess{
-    width: 60%;
+    width: 150px; /*60%*/
     float: right;
     padding: 10px 0;
 }
 .profile_line_name{
-    height: 40px;
-    line-height: 40px;
+    width: calc(100% - 55px);
+    width: -moz-calc(100% - 55px);
+    width: -webkit-calc(100% - 55px);
+    height: 20px;
+    line-height: 20px;
     /*margin-right: 60px;*/
     color: #fff;
     font-style: italic;
@@ -677,18 +682,19 @@ audio, canvas, progress, video{
     float: left;
 }
 .profile_line_id{
-    float: right;
-    line-height: 40px;
-    font-size: 14px;
+    /*float: right;*/
+    line-height: 20px;
+    font-size: 12px;
     padding-left: 10px;
-    color: #ffffff;
+    color: #c6e1ec;
     font-style: italic;
+    text-align: left;
 }
 .profile_line_ava{
-    float: right;
+    float: left;
     width: 40px;
     height: 40px;
-    margin-left: 15px;
+    margin-right: 15px;
     border-radius: 50%;
     box-shadow: -1px 1px 1px #fff;
     overflow: hidden;
@@ -711,7 +717,7 @@ audio, canvas, progress, video{
 }
 .profile_mess_item{
     float: right;
-    max-width: 33%;
+    /*max-width: 33%;*/
     padding-left: 20px;
 }
 .profile_mess_item a{
@@ -3074,12 +3080,16 @@ h2.block_h>span>a {
 	height: 80px;
 	margin: 0 auto 10px;
 }
-.tren_ava img{
+.tren_ava a{
 	display: block;
 	width: 100%;
 	height: 100%;
 	border: 1px solid #06c1f0;
 	border-radius: 50%;
+    overflow: hidden;
+}
+.tren_ava img{
+	width: 100%;
 }
 .tren_link{
     display: block;
@@ -6017,7 +6027,7 @@ span#cookie_stop {
     margin: 6px auto 0;
     width: 220px;
     height: 36px;
-    background: #e25050;
+    background: #99e600;
     text-transform: uppercase;
     font-size: 12px;
     border: none;
@@ -6026,9 +6036,9 @@ span#cookie_stop {
     position: relative;
 }
 .workout_form_but.done{ cursor: default; background: #e6e6e6; text-align: center; padding: 6px; color: #9a9a9a;}
-.workout_form_but.instruction{ background: #00bff0; text-align: center; padding: 6px; color: #ffffff; float: right;}
+.workout_form_but.instruction{ background: #00bff0; text-align: center; padding: 6px; color: #ffffff; float: left;}
 #wo-done{
-    float: left;
+    float: right;
 }
 
 /* Пагинация */
@@ -14328,6 +14338,7 @@ input.tren_form_block_check{
 
     .main_bg_wrap{
         height: 200px;
+        display: none;
     }
 }
 
@@ -15114,8 +15125,9 @@ input.tren_form_block_check{
     .profile_info{
         float: none;
         display: inline-block;
-        max-width: 100%;
+        width: auto;
         overflow: hidden;
+        padding: 0;
     }
     .profile_mess{
         width: 100%;

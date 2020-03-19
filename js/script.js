@@ -695,6 +695,11 @@ $(document).ready(function () {
     $(window).resize(function() {
         purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
     });
+    $(window).load(function(){
+        if ($(window).width() <= '800'){
+            $('.up_but_main').addClass('hide_chart');
+        }
+    });
 
     /*function setVideoList(){
       if($(".form_video_list").length > 0 && $(".practice_block .add_tov_list").length > 0){
