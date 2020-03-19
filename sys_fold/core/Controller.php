@@ -1472,6 +1472,7 @@ class CI_Controller {
      * @param $return_url
      * @param string $order_id
      * @param string $user_id
+     * @param string $user_email
      * @throws Exception
      */
     public function buyCourse($course_id, $course_data, $course_coaches, $id_coach, $s_payment_options, $s_payment_method,
@@ -1769,7 +1770,7 @@ class CI_Controller {
 
                             $res_order['order_id'] = $order_id;
 
-                            if($order['payment_status_eng'] == 'revoke_permission' and $order['balance_amount'] > 0)
+                            if($order['balance_amount'] > 0)
                             {
                                 $payment_total_amount = $order['balance_amount'];
                             }

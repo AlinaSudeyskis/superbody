@@ -2945,7 +2945,7 @@ class Course_model extends CI_Model
 
                 // Кол-во участников
                 $sel_data = $this->db->query('
-                    SELECT `ouc_u_id`, `ouc_o_id`, `ouc_p_price`, `ouc_p_fitcoin_price`, `o_date_add`
+                    SELECT `ouc_u_id`, `ouc_o_id`, `ouc_p_id`, `ouc_p_price`, `ouc_p_fitcoin_price`, `o_date_add`
                     FROM `orders_users_cart`
                     LEFT JOIN `orders` ON `o_id`=`ouc_o_id`
                     WHERE `ouc_p_id`=?', $course_pid);
@@ -3004,10 +3004,10 @@ class Course_model extends CI_Model
 
                 // Пройденные курсы пользователей
                 $sel_data = $this->db->query('
-                    SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
+                    SELECT `uc_course_id`, `utw_id`, `utw_uc_id`, `utw_status`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
                     LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
                     WHERE `uc_course_id`=? and `utw_status`="done"
-                    GROUP BY `utw_uc_id`', $course_id);
+                    GROUP BY `uc_id`', $course_id);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
                     foreach($sel_data->result() as $row4)
@@ -3031,7 +3031,7 @@ class Course_model extends CI_Model
                     SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks` 
                     LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
                     WHERE `uc_course_id`=?
-                    GROUP BY `utw_uc_id`', $course_id);
+                    GROUP BY `uc_id`', $course_id);
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
                     foreach($sel_data->result() as $row5)
