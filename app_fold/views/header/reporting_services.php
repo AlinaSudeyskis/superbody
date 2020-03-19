@@ -18,9 +18,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <noscript><div><img src="https://mc.yandex.ru/watch/52635364" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
 
-
-<script src="//static-login.sendpulse.com/apps/fc3/build/loader.js" sp-form-id="23a222fb3923d54bb39a6c7de5790b59d655651dc07e91e90adad86c6f323576"></script>
-
 <span style="display: none;"><!--LiveInternet counter--><script type="text/javascript">
 document.write("<a href='//www.liveinternet.ru/click' "+
     "target=_blank><img src='//counter.yadro.ru/hit?t52.6;r"+
