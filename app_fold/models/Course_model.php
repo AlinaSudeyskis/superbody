@@ -2741,11 +2741,12 @@ class Course_model extends CI_Model
      */
     public function getCourseStatistics($course_id)
     {
-        $result       = array('statistics' => array());
-        $users        = 0;
-        $bought_users = array();
-        $orders       = array();
-        $count_price  = 0;
+        $result        = array('statistics' => array());
+        $users         = 0;
+        $bought_users  = array();
+        $orders        = array();
+        $count_price   = 0;
+        $progress_time = 0;
 
         $sel_pid = $this->db->query('
           SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
@@ -2886,6 +2887,24 @@ class Course_model extends CI_Model
             }
             unset($sel_data);
 
+            // Время видео, посмотренное пользователями
+            $sel_data = $this->db->query('
+                SELECT SUM(`utw_progress_time`) as `sum_progress_time`, `uc_course_id` 
+                FROM `users_training_weeks` 
+                LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+                WHERE `uc_course_id`=?', $course_id);
+            if ($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row5 = $sel_data->row();
+                $progress_time += ($row5->sum_progress_time / 3600); // Из секунд в часы
+                unset($row5);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            unset($sel_data);
+
             // Прохождение курса
             $course_completion = 0;
             $sel_data = $this->db->query('
@@ -2919,6 +2938,7 @@ class Course_model extends CI_Model
             $result['statistics']['course_completion'] = (!empty($course_completion)) ? $course_completion : 0;
             $result['statistics']['pass_percentage']   = (!empty($pass_percentage) and is_array($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
             $result['statistics']['bought_users']      = (!empty($users_data)) ? $users_data : array();
+            $result['statistics']['progress_time']     = $progress_time;
 
             if(!empty($first_date))
             {

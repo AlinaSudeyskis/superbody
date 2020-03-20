@@ -10,6 +10,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php endif; ?>
             <div class="stat_general_data">
                 <div class="sgd_item">
+                    <div class="sgd_icon"><i class="fas fa-users"></i></div>
+                    <div class="sgd_data"><?php echo $statistics['count_users']; ?></div>
+                    <div class="sgd_caption">участников</div>
+                </div>
+                <div class="sgd_item">
                     <div class="sgd_icon"><i class="fas fa-check"></i></div>
                     <div class="sgd_data"><?php echo $statistics['course_completion']; ?></div>
                     <div class="sgd_caption">пройденно</div>
@@ -20,15 +25,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="sgd_caption">прохождения</div>
                 </div>
                 <div class="sgd_item">
-                    <div class="sgd_icon"><i class="fas fa-users"></i></div>
-                    <div class="sgd_data"><?php echo $statistics['count_users']; ?></div>
-                    <div class="sgd_caption">участников</div>
-                </div>
-                <!--<div class="sgd_item">
                     <div class="sgd_icon"><i class="far fa-clock"></i></div>
-                    <div class="sgd_data">625</div>
+                    <div class="sgd_data"><?php echo $statistics['progress_time']; ?></div>
                     <div class="sgd_caption">часов</div>
-                </div>-->
+                </div>
                 <div class="sgd_item">
                     <div class="sgd_icon"><i class="fas fa-coins"></i><!--<i class="fas fa-money-bill"></i>--></div>
                     <div class="sgd_data"><?php echo $statistics['count_price']; ?></div>

@@ -84,6 +84,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                                 <div class="sgd_caption">прохождения</div>
                                                             </div>
                                                             <div class="sgd_item">
+                                                                <div class="sgd_icon"><i class="far fa-clock"></i></div>
+                                                                <div class="sgd_data"><?php echo $courses_stat[$course['id']]['progress_time']; ?></div>
+                                                                <div class="sgd_caption">часов</div>
+                                                            </div>
+                                                            <div class="sgd_item">
                                                                 <div class="sgd_icon"><i class="fas fa-coins"></i><!--<i class="fas fa-money-bill"></i>--></div>
                                                                 <div class="sgd_data"><?php echo $courses_stat[$course['id']]['count_earnings']; ?></div>
                                                                 <div class="sgd_caption">рублей</div>
