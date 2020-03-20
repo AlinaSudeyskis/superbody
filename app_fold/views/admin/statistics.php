@@ -30,7 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="sgd_item">
                     <div class="sgd_icon"><i class="far fa-clock"></i></div>
                     <div class="sgd_data"><?php echo $courses_statistics['progress_time']; ?></div>
-                    <div class="sgd_caption">часов</div>
+                    <div class="sgd_caption"><?php echo $courses_statistics['progress_time_val']; ?></div>
                 </div>
                 <div class="sgd_item">
                     <div class="sgd_icon"><i class="fas fa-coins"></i><!--<i class="fas fa-money-bill"></i>--></div>

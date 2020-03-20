@@ -2705,6 +2705,7 @@ class Course_model extends CI_Model
             $count_users        = 0;
             $courses_completion = 0;
             $pass_percentage    = array();
+            $progress_time      = 0;
             foreach($coach_courses as $course_id => $course)
             {
                 $course_statistics = self::getCourseStatistics($course_id);
@@ -2718,15 +2719,19 @@ class Course_model extends CI_Model
                 $first_date[] = $course_statistics['statistics']['first_date'];
                 $pass_percentage[] = $course_statistics['statistics']['pass_percentage'];
                 $count_earnings += $coach_earnings;
+                $progress_time += ($course_statistics['statistics']['progress_time_val'] == 'часов')
+                    ? $course_statistics['statistics']['progress_time']
+                    : ($course_statistics['statistics']['progress_time']/60);
             }
 
             $first_date = (is_array($first_date)) ? array_diff($first_date, array(0, null)) : array();
 
-            $result['coach_courses_statistics']['first_date']      = (is_array($first_date)) ? min($first_date) : '';
-            $result['coach_courses_statistics']['count_users']     = $count_users;
-            $result['coach_courses_statistics']['count_earnings']  = $count_earnings;
-            $result['coach_courses_statistics']['courses_completion']  = $courses_completion;
-            $result['coach_courses_statistics']['pass_percentage'] = (is_array($pass_percentage)) ? (array_sum($pass_percentage)/count($pass_percentage)) : 0;
+            $result['coach_courses_statistics']['first_date']         = (is_array($first_date)) ? min($first_date) : '';
+            $result['coach_courses_statistics']['count_users']        = $count_users;
+            $result['coach_courses_statistics']['count_earnings']     = $count_earnings;
+            $result['coach_courses_statistics']['courses_completion'] = $courses_completion;
+            $result['coach_courses_statistics']['pass_percentage']    = (is_array($pass_percentage)) ? (array_sum($pass_percentage)/count($pass_percentage)) : 0;
+            $result['coach_courses_statistics']['progress_time']      = $progress_time;
         }
 
         return $result;
@@ -2938,7 +2943,9 @@ class Course_model extends CI_Model
             $result['statistics']['course_completion'] = (!empty($course_completion)) ? $course_completion : 0;
             $result['statistics']['pass_percentage']   = (!empty($pass_percentage) and is_array($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
             $result['statistics']['bought_users']      = (!empty($users_data)) ? $users_data : array();
-            $result['statistics']['progress_time']     = $progress_time;
+            $round_progress_time = round($progress_time, 1);
+            $result['statistics']['progress_time']     = ($round_progress_time > 0) ? $round_progress_time : floor($progress_time*60);
+            $result['statistics']['progress_time_val'] = ($round_progress_time > 0) ? 'часов' : 'минут';
 
             if(!empty($first_date))
             {
@@ -3075,7 +3082,9 @@ class Course_model extends CI_Model
         $result['courses_statistics']['courses_completion'] = $courses_completion;
         $result['courses_statistics']['pass_percentage']    = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
         $result['courses_statistics']['count_users']        = $users;
-        $result['courses_statistics']['progress_time']      = floor($progress_time);
+        $round_progress_time = round($progress_time, 1);
+        $result['courses_statistics']['progress_time']      = ($round_progress_time > 0) ? $round_progress_time : floor($progress_time/60);
+        $result['courses_statistics']['progress_time_val']  = ($round_progress_time > 0) ? 'часов' : 'минут';
 
         if(!empty($first_date))
         {
