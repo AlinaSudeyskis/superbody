@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     </div>
                                     <div class="sgd_item">
                                         <div class="sgd_icon"><i class="fas fa-check"></i></div>
-                                        <div class="sgd_data"><?php echo $coach_courses_statistics['count_workouts']; ?></div>
+                                        <div class="sgd_data"><?php echo $coach_courses_statistics['courses_completion']; ?></div>
                                         <div class="sgd_caption">пройденно</div>
                                     </div>
                                     <div class="sgd_item">
@@ -75,7 +75,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                             </div>
                                                             <div class="sgd_item">
                                                                 <div class="sgd_icon"><i class="fas fa-check"></i></div>
-                                                                <div class="sgd_data"><?php echo $courses_stat[$course['id']]['count_workouts']; ?></div>
+                                                                <div class="sgd_data"><?php echo $courses_stat[$course['id']]['course_completion']; ?></div>
                                                                 <div class="sgd_caption">пройденно</div>
                                                             </div>
                                                             <div class="sgd_item">
@@ -94,27 +94,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                         <div class="stat_content sc_users">
                                                             <div class="stat_h">Последние купившие</div>
                                                             <div class="admin_page">
-                                                                <?php foreach($courses_stat[$course['id']]['bought_users'] as $key2 => $user_id): ?>
+                                                                <?php foreach($courses_stat[$course['id']]['bought_users'] as $bought_user_data): ?>
                                                                     <div class="tren_prof_page_img_wrap">
                                                                         <div class="tren_prof_page_img">
-                                                                            <?php $image = (!empty($courses_stat[$course['id']]['bought_users_data'][$key2]['user_image']))
-                                                                                ? $courses_stat[$course['id']]['bought_users_data'][$key2]['user_image']
-                                                                                : $courses_stat[$course['id']]['bought_users_data'][$key2]['user_soc_image'];
+                                                                            <?php $image = (!empty($bought_user_data['user_image']))
+                                                                                ? $bought_user_data['user_image']
+                                                                                : $bought_user_data['user_soc_image'];
                                                                             $image = (empty($image)) ? '/img/no_img.png' : $image;
-                                                                            if($courses_stat[$course['id']]['bought_users_data'][$key2]['user_type'] == 1){
+                                                                            if($bought_user_data['user_type'] == 1){
                                                                                 $user_type = 'user';
                                                                             }
-                                                                            elseif($courses_stat[$course['id']]['bought_users_data'][$key2]['user_type'] == 2){
+                                                                            elseif($bought_user_data['user_type'] == 2){
                                                                                 $user_type = 'coach';
                                                                             }
-                                                                            elseif($courses_stat[$course['id']]['bought_users_data'][$key2]['user_type'] == 3){
+                                                                            elseif($bought_user_data['user_type'] == 3){
                                                                                 $user_type = 'admin';
                                                                             }
                                                                             ?>
-                                                                            <a href="/administration/<?php echo $user_type; ?>/<?php echo $courses_stat[$course['id']]['bought_users_data'][$key2]['user_id']; ?>"><img src="<?php echo $image; ?>" alt=""></a>
+                                                                            <a href="/administration/<?php echo $user_type; ?>/<?php echo $bought_user_data['user_id']; ?>"><img src="<?php echo $image; ?>" alt=""></a>
                                                                         </div>
-                                                                        <div class="tren_prof_page_name"><?php echo $courses_stat[$course['id']]['bought_users_data'][$key2]['split_name']['name']; ?></div>
-                                                                        <div class="tren_prof_page_surname"><?php echo $courses_stat[$course['id']]['bought_users_data'][$key2]['split_name']['surname']; ?></div>
+                                                                        <div class="tren_prof_page_name"><?php echo $bought_user_data['split_name']['name']; ?></div>
+                                                                        <div class="tren_prof_page_surname"><?php echo $bought_user_data['split_name']['surname']; ?></div>
                                                                         <div class="tren_prof_page_soc"></div>
                                                                     </div>
                                                                 <?php endforeach; ?>

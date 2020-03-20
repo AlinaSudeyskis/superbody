@@ -11,7 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="stat_general_data">
                 <div class="sgd_item">
                     <div class="sgd_icon"><i class="fas fa-check"></i></div>
-                    <div class="sgd_data"><?php echo $statistics['count_workouts']; ?></div>
+                    <div class="sgd_data"><?php echo $statistics['course_completion']; ?></div>
                     <div class="sgd_caption">пройденно</div>
                 </div>
                 <div class="sgd_item">
@@ -40,27 +40,27 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="stat_h">Последние купившие</div>
             <div class="admin_page">
                 <?php if(!empty($statistics['bought_users'])): ?>
-                    <?php foreach($statistics['bought_users'] as $key => $user_id): ?>
+                    <?php foreach($statistics['bought_users'] as $bought_user_data): ?>
                         <div class="tren_prof_page_img_wrap">
                             <div class="tren_prof_page_img">
-                                <?php $image = (!empty($statistics['bought_users_data'][$key]['user_image']))
-                                    ? $statistics['bought_users_data'][$key]['user_image']
-                                    : $statistics['bought_users_data'][$key]['user_soc_image'];
+                                <?php $image = (!empty($bought_user_data['user_image']))
+                                    ? $bought_user_data['user_image']
+                                    : $bought_user_data['user_soc_image'];
                                 $image = (empty($image)) ? '/img/no_img.png' : $image;
-                                if($statistics['bought_users_data'][$key]['user_type'] == 1){
+                                if($bought_user_data['user_type'] == 1){
                                     $user_type = 'user';
                                 }
-                                elseif($statistics['bought_users_data'][$key]['user_type'] == 2){
+                                elseif($bought_user_data['user_type'] == 2){
                                     $user_type = 'coach';
                                 }
-                                elseif($statistics['bought_users_data'][$key]['user_type'] == 3){
+                                elseif($bought_user_data['user_type'] == 3){
                                     $user_type = 'admin';
                                 }
                                 ?>
-                                <a href="/administration/<?php echo $user_type; ?>/<?php echo $statistics['bought_users_data'][$key]['user_id']; ?>"><img src="<?php echo $image; ?>" alt=""></a>
+                                <a href="/administration/<?php echo $user_type; ?>/<?php echo $bought_user_data['user_id']; ?>"><img src="<?php echo $image; ?>" alt=""></a>
                             </div>
-                            <div class="tren_prof_page_name"><?php echo $statistics['bought_users_data'][$key]['split_name']['name']; ?></div>
-                            <div class="tren_prof_page_surname"><?php echo $statistics['bought_users_data'][$key]['split_name']['surname']; ?></div>
+                            <div class="tren_prof_page_name"><?php echo $bought_user_data['split_name']['name']; ?></div>
+                            <div class="tren_prof_page_surname"><?php echo $bought_user_data['split_name']['surname']; ?></div>
                             <div class="tren_prof_page_soc"></div>
                         </div>
                     <?php endforeach; ?>

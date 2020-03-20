@@ -19,7 +19,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="sgd_item">
                     <div class="sgd_icon"><i class="fas fa-check"></i></div>
-                    <div class="sgd_data"><?php echo $courses_statistics['count_done_courses']; ?></div>
+                    <div class="sgd_data"><?php echo $courses_statistics['courses_completion']; ?></div>
                     <div class="sgd_caption">пройденно</div>
                 </div>
                 <div class="sgd_item">

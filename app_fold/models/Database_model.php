@@ -3327,6 +3327,17 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-03-20 11:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (223, 'info', 'Магазин подтвердил платеж.', 'Магазин подтвердил платеж.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("ALTER TABLE `orders_payment_refund` ADD INDEX `ix_opr_payment_id_status` (`opr_payment_id`, `opr_refund_status`)");
+            $this->db->query("ALTER TABLE `users_training_weeks` ADD INDEX `ix_utw_uc_id_status` (`utw_uc_id`, `utw_status`)");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

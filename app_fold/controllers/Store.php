@@ -871,7 +871,7 @@ class Store extends CI_Controller
                     $res_capture = $this->Store_model->capturePayment($res_pay['payment']->_id, $res_pay['payment']->_amount->_value, $res_pay['payment']->_amount->_currency);
                     if($res_capture['response'] !== false)
                     {
-                        //log_message('debug', 'Response capturePayment' . print_r($res_capture['response'], true));
+                        $this->session->set_tempdata('message', 223, 60);
                     }
                     elseif(!empty($res_capture['error']))
                     {

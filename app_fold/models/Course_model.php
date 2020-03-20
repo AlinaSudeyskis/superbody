@@ -2700,11 +2700,11 @@ class Course_model extends CI_Model
 
         if(!empty($coach_courses))
         {
-            $first_date      = array();
+            $first_date         = array();
             $count_earnings     = 0;
-            $count_users     = 0;
-            $count_workouts  = 0;
-            $pass_percentage = array();
+            $count_users        = 0;
+            $courses_completion = 0;
+            $pass_percentage    = array();
             foreach($coach_courses as $course_id => $course)
             {
                 $course_statistics = self::getCourseStatistics($course_id);
@@ -2714,7 +2714,7 @@ class Course_model extends CI_Model
                 $result['coach_courses_statistics']['courses'][$course_id]['count_earnings'] = $coach_earnings;
 
                 $count_users += $course_statistics['statistics']['count_users'];
-                $count_workouts += $course_statistics['statistics']['count_workouts'];
+                $courses_completion += $course_statistics['statistics']['course_completion'];
                 $first_date[] = $course_statistics['statistics']['first_date'];
                 $pass_percentage[] = $course_statistics['statistics']['pass_percentage'];
                 $count_earnings += $coach_earnings;
@@ -2725,7 +2725,7 @@ class Course_model extends CI_Model
             $result['coach_courses_statistics']['first_date']      = (is_array($first_date)) ? min($first_date) : '';
             $result['coach_courses_statistics']['count_users']     = $count_users;
             $result['coach_courses_statistics']['count_earnings']  = $count_earnings;
-            $result['coach_courses_statistics']['count_workouts']  = $count_workouts;
+            $result['coach_courses_statistics']['courses_completion']  = $courses_completion;
             $result['coach_courses_statistics']['pass_percentage'] = (is_array($pass_percentage)) ? (array_sum($pass_percentage)/count($pass_percentage)) : 0;
         }
 
@@ -2741,10 +2741,11 @@ class Course_model extends CI_Model
      */
     public function getCourseStatistics($course_id)
     {
-        $result     = array('statistics' => array());
-        $users      = array();
-        $orders     = array();
-        $dates      = array();
+        $result       = array('statistics' => array());
+        $users        = 0;
+        $bought_users = array();
+        $orders       = array();
+        $count_price  = 0;
 
         $sel_pid = $this->db->query('
           SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
@@ -2756,106 +2757,71 @@ class Course_model extends CI_Model
         {
             $row = $sel_pid->row();
             $course_pid = $row->p_id;
-            $course_count_days  = $row->crs_count_days;
-            $course_count_weeks = $row->crs_count_weeks;
-            $course_count_workouts = $course_count_days * $course_count_weeks;
             unset($row);
 
-            // Кол-во участников
-            $sel_data = $this->db->query('
-              SELECT `ouc_u_id`, `ouc_o_id`, `ouc_p_price`, `ouc_p_fitcoin_price`, `o_date_add`
-              FROM `orders_users_cart`
-              LEFT JOIN `orders` ON `o_id`=`ouc_o_id`
-              WHERE `ouc_p_id`=?
-              ORDER BY `o_date_add` DESC', $course_pid);
+            // Заказы курса
+            $sel_data = $this->db->query('SELECT DISTINCT `ouc_o_id` FROM `orders_users_cart` WHERE `ouc_p_id`=?', $course_pid);
             if ($sel_data !== false and 0 < $sel_data->num_rows())
             {
-                $i = 0;
-                foreach($sel_data->result() as $row)
+                foreach ($sel_data->result() as $row2)
                 {
-                    $users[$i]  = $row->ouc_u_id;
-                    $orders[$i] = $row->ouc_o_id;
-                    $dates[$i]  = $row->o_date_add;
-
-                    $i++;
+                    $orders[] = $row2->ouc_o_id;
                 }
-                unset($row);
-
-                $first_date = array_pop($dates);
-
-                $users  = array_unique($users);
-                $orders = array_unique($orders);
-
-                $users_data = array();
-                $limit = 5;
-                $i = 0;
-                foreach($users as $key => $user_id)
-                {
-                    $sel_user_data = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`, `user_type` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
-                    if($sel_user_data !== false and 1 == $sel_user_data->num_rows())
-                    {
-                        $row = $sel_user_data->row();
-
-                        $users_data[$key]['user_id']        = (!empty($row->user_id)) ? $row->user_id : '';
-                        $users_data[$key]['default_name']   = ($row->user_type == 3) ? 'Страница администратора' : 'Страница пользователя';
-                        $users_data[$key]['user_name']      = (!empty($row->user_name)) ? $row->user_name : '';
-                        $users_data[$key]['user_email']     = (!empty($row->user_email)) ? $row->user_email : '';
-                        $users_data[$key]['user_blocked']   = ($row->user_blocked == 1) ? $row->user_blocked : '';
-                        $users_data[$key]['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
-                        $users_data[$key]['user_type']      = (!empty($row->user_type)) ? $row->user_type : '';
-                        $users_data[$key]['user_soc_image'] = '';
-                        if(!empty($row->user_soc_image))
-                        {
-                            $Headers = @get_headers($row->user_soc_image);
-                            if(strpos($Headers[0], '200'))
-                            {
-                                $users_data[$key]['user_soc_image'] = $row->user_soc_image;
-                            }
-                        }
-                        $split_name = !empty($row->user_name) ? explode(" ", $row->user_name) : '';
-                        $users_data[$key]['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Пользователь';
-                        $users_data[$key]['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
-
-                        $i++;
-
-                        if($i > $limit)
-                        {
-                            break;
-                        }
-                    }
-                    elseif($sel_user_data === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
-                }
+                unset($row2);
             }
             elseif($sel_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
             unset($sel_data);
+            $orders = (!empty($orders)) ? implode(",", array_unique($orders)) : $orders;
 
-            $result['statistics']['count_users']  = (is_array($users)) ? count($users) : 0;
-            $result['statistics']['bought_users'] = (!empty($users)) ? $users : array();
-            $result['statistics']['bought_users_data'] = (!empty($users_data)) ? $users_data : array();
-
-            if(!empty($first_date))
+            // Оплаченная сумма за курс. Дата начала отсчета статистики
+            if(!empty($orders))
             {
-                $tmp_date = new DateTime($first_date);
-                $first_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y') : '';
-            }
-            $result['statistics']['first_date'] = (!empty($first_date)) ? $first_date : '';
+                $sel_data = $this->db->query('SELECT `op_payment_id`, `op_amount`, `op_date_add` FROM `orders_payment` WHERE `op_o_id` IN ('.$orders.') and `op_status`="succeeded"');
+                if ($sel_data !== false and 0 < $sel_data->num_rows())
+                {
+                    foreach ($sel_data->result() as $row3)
+                    {
+                        $count_price += $row3->op_amount;
 
-            $count_price = 0;
-            foreach($orders as $order_id)
-            {
-                // Оплаченная сумма
-                $sel_data = $this->db->query('SELECT `op_amount` FROM `orders_payment` WHERE `op_o_id`=? and `op_status`="succeeded"', $order_id);
+                        $sel_ref_data = $this->db->query('SELECT SUM(`opr_refund_amount`) as `sum_refund_amount` FROM `orders_payment_refund` WHERE `opr_payment_id`=? and `opr_refund_status`="succeeded"', $row3->op_payment_id);
+                        if($sel_ref_data !== false and 1 == $sel_ref_data->num_rows())
+                        {
+                            $row_ref = $sel_ref_data->row();
+                            if($row_ref->sum_refund_amount > 0)
+                            {
+                                $count_price -= $row_ref->sum_refund_amount;
+                            }
+                            unset($row_ref);
+                        }
+                        elseif($sel_ref_data === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+
+                        if(empty($first_date) or $row3->op_date_add < $first_date)
+                        {
+                            $first_date = $row3->op_date_add;
+                        }
+                    }
+                    unset($row3);
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                unset($sel_data);
+
+
+                // Последние купившие
+                $sel_data = $this->db->query('SELECT DISTINCT `o_u_id` FROM `orders` WHERE `o_id` IN ('.$orders.') ORDER BY `o_date_add` DESC LIMIT 5');
                 if ($sel_data !== false and 0 < $sel_data->num_rows())
                 {
                     foreach($sel_data->result() as $row)
                     {
-                        $count_price += $row->op_amount;
+                        $bought_users[] = $row->o_u_id;
                     }
                     unset($row);
                 }
@@ -2864,28 +2830,55 @@ class Course_model extends CI_Model
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
                 unset($sel_data);
-            }
-            unset($order_id);
+                $bought_users = (!empty($bought_users)) ? implode(",", array_unique($bought_users)) : $bought_users;
 
-            // Курсы пользователей
-            $count_workouts  = 0;
-            $pass_percentage = array();
-            $sel_data = $this->db->query('
-                SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
-                LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
-                WHERE `uc_course_id`=? and `utw_status`="done"
-                GROUP BY `utw_uc_id`', $course_id);
-            if ($sel_data !== false and 0 < $sel_data->num_rows())
-            {
-                foreach($sel_data->result() as $row)
+                // Данные пользователей
+                if(!empty($bought_users))
                 {
-                    if($row->count_done == $course_count_workouts)
+                    $sel_user_data = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`, `user_type` FROM `users` WHERE `user_id` IN ('.$bought_users.')');
+                    if($sel_user_data !== false and 0 < $sel_user_data->num_rows())
                     {
-                        $count_workouts++;
+                        $i = 0;
+                        foreach($sel_user_data->result() as $row)
+                        {
+                            $users_data[$i]['user_id']        = (!empty($row->user_id)) ? $row->user_id : '';
+                            $users_data[$i]['default_name']   = ($row->user_type == 3) ? 'Страница администратора' : 'Страница пользователя';
+                            $users_data[$i]['user_name']      = (!empty($row->user_name)) ? $row->user_name : '';
+                            $users_data[$i]['user_email']     = (!empty($row->user_email)) ? $row->user_email : '';
+                            $users_data[$i]['user_blocked']   = ($row->user_blocked == 1) ? $row->user_blocked : '';
+                            $users_data[$i]['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+                            $users_data[$i]['user_type']      = (!empty($row->user_type)) ? $row->user_type : '';
+                            $users_data[$i]['user_soc_image'] = '';
+                            if(!empty($row->user_soc_image))
+                            {
+                                $Headers = @get_headers($row->user_soc_image);
+                                if(strpos($Headers[0], '200'))
+                                {
+                                    $users_data[$i]['user_soc_image'] = $row->user_soc_image;
+                                }
+                            }
+                            $split_name = !empty($row->user_name) ? explode(" ", $row->user_name) : '';
+                            $users_data[$i]['split_name']['name']    = (!empty($split_name[0])) ? $split_name[0] : '№'.$row->user_id;
+                            $users_data[$i]['split_name']['surname'] = (empty($split_name[1]) and empty($split_name[0])) ? 'Пользователь' : $split_name[1];
+
+                            $i++;
+                        }
+                        unset($row);
                     }
-                    $pass_percentage[] = ($row->count_done > 0 and $course_count_workouts > 0) ? ceil($row->count_done / $course_count_workouts * 100) : 0;
+                    elseif($sel_user_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
                 }
-                unset($row);
+            }
+
+            // Кол-во участников
+            $sel_data = $this->db->query('SELECT COUNT(DISTINCT `uc_user_id`) as `sum_users` FROM `users_courses` WHERE `uc_course_id`=?', $course_id);
+            if ($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row6 = $sel_data->row();
+                $users = $row6->sum_users;
+                unset($row6);
             }
             elseif($sel_data === false)
             {
@@ -2893,16 +2886,52 @@ class Course_model extends CI_Model
             }
             unset($sel_data);
 
+            // Прохождение курса
+            $course_completion = 0;
+            $sel_data = $this->db->query('
+            SELECT `uc_course_id`, `utw_id`, `utw_uc_id`, `utw_status`, COUNT(`utw_status`) as `count_done`, `crs_count_weeks`, `crs_count_days` 
+            FROM `users_training_weeks` 
+            LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+            LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
+            WHERE `uc_course_id`=? and `utw_status`="done"
+            GROUP BY `utw_uc_id`', $course_id);
+            if ($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach($sel_data->result() as $row4)
+                {
+                    $course_count_workouts = $row4->crs_count_weeks * $row4->crs_count_days;
+                    if($row4->count_done == $course_count_workouts)
+                    {
+                        $course_completion++;
+                    }
+                    $pass_percentage[] = ($row4->count_done > 0 and $course_count_workouts > 0) ? (ceil($row4->count_done / $course_count_workouts * 100)) : 0;
+                }
+                unset($row4);
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+            unset($sel_data);
+
+            $result['statistics']['count_users']       = $users;
+            $result['statistics']['count_price']       = (!empty($count_price)) ? $count_price : 0;
+            $result['statistics']['course_completion'] = (!empty($course_completion)) ? $course_completion : 0;
+            $result['statistics']['pass_percentage']   = (!empty($pass_percentage) and is_array($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
+            $result['statistics']['bought_users']      = (!empty($users_data)) ? $users_data : array();
+
+            if(!empty($first_date))
+            {
+                $tmp_date = new DateTime($first_date);
+                $first_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y') : '';
+            }
+            $result['statistics']['first_date'] = (!empty($first_date)) ? $first_date : '';
 
         }
         elseif ($sel_pid === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
-
-        $result['statistics']['count_price']     = (!empty($count_price)) ? $count_price : 0;
-        $result['statistics']['count_workouts']  = (!empty($count_workouts)) ? $count_workouts : 0;
-        $result['statistics']['pass_percentage'] = (!empty($pass_percentage) and is_array($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
 
         return $result;
     }
@@ -2916,159 +2945,124 @@ class Course_model extends CI_Model
     public function getCoursesStatistics()
     {
         $result = array('courses_statistics' => array());
-        $users  = array();
-        $orders = array();
-        $date   = '';
+        $users  = 0;
+        $count_price = 0;
+        $courses_completion = 0;
+        $pass_percentage = array();
+        $progress_time = 0;
 
-        $sel_pid = $this->db->query('
-          SELECT `p_id`, `p_course_id`, `crs_count_days`, `crs_count_weeks`
-          FROM `products`
-          LEFT JOIN `courses` ON `crs_id`=`p_course_id`
-          WHERE `p_course_id`>0');
-
-        if ($sel_pid !== false and 0 < $sel_pid->num_rows())
+        // Пройденные курсы пользователей
+        $sel_data = $this->db->query('
+            SELECT `uc_course_id`, `utw_id`, `utw_uc_id`, `utw_status`, COUNT(`utw_status`) as `count_done`, `crs_count_weeks`, `crs_count_days` 
+            FROM `users_training_weeks` 
+            LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
+            LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
+            WHERE `utw_status`="done"
+            GROUP BY `utw_uc_id`');
+        if ($sel_data !== false and 0 < $sel_data->num_rows())
         {
-            $count_price        = 0;
-            $count_users        = 0;
-            $count_done_courses = 0;
-            $pass_percentage    = array();
-            $progress_time      = 0;
-            $i = 0;
-            foreach($sel_pid->result() as $row)
+            foreach($sel_data->result() as $row4)
             {
-                $course_pid = $row->p_id;
-                $course_id  = $row->p_course_id;
-                $course_count_days  = $row->crs_count_days;
-                $course_count_weeks = $row->crs_count_weeks;
-                $course_count_workouts = $course_count_days * $course_count_weeks;
-                unset($row);
-
-                // Кол-во участников
-                $sel_data = $this->db->query('
-                    SELECT `ouc_u_id`, `ouc_o_id`, `ouc_p_id`, `ouc_p_price`, `ouc_p_fitcoin_price`, `o_date_add`
-                    FROM `orders_users_cart`
-                    LEFT JOIN `orders` ON `o_id`=`ouc_o_id`
-                    WHERE `ouc_p_id`=?', $course_pid);
-                if ($sel_data !== false and 0 < $sel_data->num_rows())
+                $course_count_workouts = $row4->crs_count_weeks * $row4->crs_count_days;
+                if($row4->count_done == $course_count_workouts)
                 {
-                    foreach($sel_data->result() as $row2)
-                    {
-                        if(!in_array($row2->ouc_u_id, $users))
-                        {
-                            $users[$i] = $row2->ouc_u_id;
-                        }
-
-                        if(!in_array($row2->ouc_o_id, $orders))
-                        {
-                            $orders[$i] = $row2->ouc_o_id;
-                        }
-
-                        //$dates[$i]  = $row->o_date_add;
-                        if(empty($date) or $row2->o_date_add < $date)
-                        {
-                            $date = $row2->o_date_add;
-                        }
-
-                        $i++;
-                    }
-                    unset($row2);
-
-                    $first_dates[] = $date;
+                    $courses_completion++;
                 }
-                elseif($sel_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-                unset($sel_data);
-
-                $orders = array_unique($orders);
-
-                // Сумма купленных курсов
-                foreach($orders as $order_id)
-                {
-                    // Оплаченная сумма
-                    $sel_data = $this->db->query('SELECT SUM(`op_amount`) as `sum_op_amount` FROM `orders_payment` WHERE `op_o_id`=? and `op_status`="succeeded"', $order_id);
-                    if ($sel_data !== false and 1 == $sel_data->num_rows())
-                    {
-                        $row3 = $sel_data->row();
-                        $count_price += $row3->sum_op_amount;
-                        unset($row3);
-                    }
-                    elseif($sel_data === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
-                    unset($sel_data);
-                }
-                unset($order_id);
-
-                // Пройденные курсы пользователей
-                $sel_data = $this->db->query('
-                    SELECT `uc_course_id`, `utw_id`, `utw_uc_id`, `utw_status`, COUNT(`utw_status`) as `count_done` FROM `users_training_weeks` 
-                    LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
-                    WHERE `uc_course_id`=? and `utw_status`="done"
-                    GROUP BY `uc_id`', $course_id);
-                if ($sel_data !== false and 0 < $sel_data->num_rows())
-                {
-                    foreach($sel_data->result() as $row4)
-                    {
-                        if($row4->count_done == $course_count_workouts)
-                        {
-                            $count_done_courses++;
-                        }
-                        $pass_percentage[] = ($row4->count_done > 0 and $course_count_workouts > 0) ? (ceil($row4->count_done / $course_count_workouts * 100)) : 0;
-                    }
-                    unset($row4);
-                }
-                elseif($sel_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-                unset($sel_data);
-
-                // Время видео, посмотренное пользователями
-                $sel_data = $this->db->query('
-                    SELECT `utw_id`, `utw_uc_id`, `uc_course_id`, SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks` 
-                    LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
-                    WHERE `uc_course_id`=?
-                    GROUP BY `uc_id`', $course_id);
-                if ($sel_data !== false and 0 < $sel_data->num_rows())
-                {
-                    foreach($sel_data->result() as $row5)
-                    {
-                        $progress_time += ($row5->sum_progress_time / 3600); // Из секунд в часы
-                    }
-                    unset($row5);
-                }
-                elseif($sel_data === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-                unset($sel_data);
+                $pass_percentage[] = ($row4->count_done > 0 and $course_count_workouts > 0) ? (ceil($row4->count_done / $course_count_workouts * 100)) : 0;
             }
-
-            $users = array_unique($users);
-
-            $result['courses_statistics']['count_price']        = $count_price;
-            $result['courses_statistics']['count_done_courses'] = $count_done_courses;
-            $result['courses_statistics']['pass_percentage']    = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
-            $result['courses_statistics']['count_users']        = count($users);
-            $result['courses_statistics']['progress_time']      = floor($progress_time);
-
-            if(!empty($first_dates))
-            {
-                $first_date = min($first_dates);
-                $tmp_date = new DateTime($first_date);
-                $first_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y') : '';
-
-            }
-            $result['courses_statistics']['first_date'] = (!empty($first_date)) ? $first_date : '';
-
+            unset($row4);
         }
-        elseif ($sel_pid === false)
+        elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
+        unset($sel_data);
+
+        // Время видео, посмотренное пользователями
+        $sel_data = $this->db->query('SELECT SUM(`utw_progress_time`) as `sum_progress_time` FROM `users_training_weeks`');
+        if ($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row5 = $sel_data->row();
+            $progress_time += ($row5->sum_progress_time / 3600); // Из секунд в часы
+            unset($row5);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        unset($sel_data);
+
+        // Кол-во участников
+        $sel_data = $this->db->query('SELECT COUNT(DISTINCT `uc_user_id`) as `sum_users` FROM `users_courses`');
+        if ($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row6 = $sel_data->row();
+            $users = $row6->sum_users;
+            unset($row6);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        unset($sel_data);
+
+        // Сумма купленных курсов. Оплаченная сумма
+        $sel_data = $this->db->query('SELECT `op_payment_id`, `op_amount` FROM `orders_payment` WHERE `op_status`="succeeded"');
+        if ($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach ($sel_data->result() as $row3)
+            {
+                $count_price += $row3->op_amount;
+
+                $sel_ref_data = $this->db->query('SELECT SUM(`opr_refund_amount`) as `sum_refund_amount` FROM `orders_payment_refund` WHERE `opr_payment_id`=? and `opr_refund_status`="succeeded"', $row3->op_payment_id);
+                if($sel_ref_data !== false and 1 == $sel_ref_data->num_rows())
+                {
+                    $row_ref = $sel_ref_data->row();
+                    if($row_ref->sum_refund_amount > 0)
+                    {
+                        $count_price -= $row_ref->sum_refund_amount;
+                    }
+                    unset($row_ref);
+                }
+                elseif($sel_ref_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            unset($row3);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        unset($sel_data);
+
+        // Дата начала отсчета статистики
+        $sel_data = $this->db->query('SELECT `o_date_add` FROM `orders` LIMIT 1');
+        if ($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row7 = $sel_data->row();
+            $first_date = $row7->o_date_add;
+            unset($row7);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        unset($sel_data);
+
+        $result['courses_statistics']['count_price']        = $count_price;
+        $result['courses_statistics']['courses_completion'] = $courses_completion;
+        $result['courses_statistics']['pass_percentage']    = (!empty($pass_percentage)) ? ceil(array_sum($pass_percentage)/count($pass_percentage)) : 0;
+        $result['courses_statistics']['count_users']        = $users;
+        $result['courses_statistics']['progress_time']      = floor($progress_time);
+
+        if(!empty($first_date))
+        {
+            $tmp_date = new DateTime($first_date);
+            $first_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y') : '';
+        }
+        $result['courses_statistics']['first_date'] = (!empty($first_date)) ? $first_date : '';
 
         return $result;
     }
