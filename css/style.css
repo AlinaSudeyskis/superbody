@@ -685,7 +685,7 @@ audio, canvas, progress, video{
     width: calc(100% - 55px);
     width: -moz-calc(100% - 55px);
     width: -webkit-calc(100% - 55px);
-    height: 20px;
+    height: 40px;
     line-height: 20px;
     /*margin-right: 60px;*/
     color: #fff;
@@ -699,7 +699,7 @@ audio, canvas, progress, video{
     /*float: right;*/
     line-height: 20px;
     font-size: 12px;
-    padding-left: 10px;
+    /*padding-left: 10px;*/
     color: #c6e1ec;
     font-style: italic;
     text-align: left;
