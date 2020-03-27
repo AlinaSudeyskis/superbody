@@ -23,10 +23,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php foreach ($posts as $post) :?>
                         <div class="subscription_block_item">
                             <div class="subscription_block_h"><a href="<?php echo $path . $post['id'];?>"><?php echo $post['title'];?></a></div>
-                            <div class="subscription_block_txt">Краткое описание: <?php echo $post['short_desc'];?>...</div>
-                            <div class="subscription_block_link">
-                                <!--<a href="">http://if.com.au/2013/09/02/article/</a>-->
-                            </div>
+                            <div class="subscription_block_txt"><?php echo $post['short_desc'];?></div>
+                            <div class="subscription_block_link"><span><?php echo $post['date'];?></span></div>
                         </div>
                     <?php endforeach;
                     unset($post); ?>

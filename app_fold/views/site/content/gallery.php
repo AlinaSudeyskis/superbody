@@ -7,8 +7,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <h2 class="block_h">ГАЛЕРЕЯ</h2>
         <div class="gal_block" data-info="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.">
             <?php $count_images = count($gallery);
-            foreach($gallery as $key => $image):
-                if ($key != 0 and ($key-1) != 0 and ($key % 2) == 0):?>
+            foreach($gallery as $key => $image): ?>
+                <?php if ($key != 0 and ($key-1) != 0 and ($key % 2) == 0):?>
                     </div>
                 <?php endif;
                 if ($key == 0 or ($key % 2) == 0):?>

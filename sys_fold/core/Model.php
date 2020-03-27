@@ -48,7 +48,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class CI_Model {
 
-	/**
+    public $genitive_months = array( 1 => 'Января' , 'Февраля' , 'Марта' , 'Апреля' , 'Мая' , 'Июня' , 'Июля' , 'Августа' , 'Сентября' , 'Октября' , 'Ноября' , 'Декабря' );
+
+
+    /**
 	 * Class constructor
 	 *
 	 * @return	void

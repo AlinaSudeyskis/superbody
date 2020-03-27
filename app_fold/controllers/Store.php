@@ -796,7 +796,7 @@ class Store extends CI_Controller
         }
 
         $payment_types = array('waiting_for_capture' => 'capture', 'succeeded' => 'succeeded', 'canceled' => 'canceled',
-            'pending' => 'pending', 'payment_refunded' => 'refunded', 'revoke_permission' => 'revoke');
+            'pending' => 'pending', 'payment_refunded' => 'refunded', 'revoke_permission' => 'revoke', 'not_paid' => 'unpaid', 'free' => 'free');
         $payment_type  = (array_search($payment_type, $payment_types)) ? array_search($payment_type, $payment_types) : 'waiting_for_capture';
 
         $result['orders'] = array();
@@ -804,7 +804,8 @@ class Store extends CI_Controller
         if($this->input->post('bt_orders_search', true))
         {
             $search_by   = (is_numeric($this->input->post('search_by', true))) ? $this->input->post('search_by', true) : null;
-            $search_text = (is_numeric($this->input->post('search', true))) ? $this->input->post('search', true) : null;
+            $search_text = (is_numeric($this->input->post('search', true)) or filter_var($this->input->post('search', true), FILTER_VALIDATE_EMAIL))
+                ? $this->input->post('search', true) : null;
 
             if(!empty($search_by) and !empty($search_text))
             {

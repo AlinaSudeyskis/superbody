@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                             <div class="video_admin_form">
-                                <?php include_once('./app_fold/views/blog/posts/post_settings_item.php');?>
+                                <?php include_once('./app_fold/views/blog/post_settings_item.php');?>
                             </div>
                         </form>
                     </div>

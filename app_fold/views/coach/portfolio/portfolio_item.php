@@ -20,31 +20,49 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="kurs_block_val tren_gal_block_val">
         <?php if (!empty($portfolio)):?>
-            <div class="tren_gal_row parent">
-                <?php foreach ($portfolio as $image) :?>
-                    <div class="tren_gal_col">
+            <!--<div class="tren_gal_row parent">-->
+            <div class="gal_block">
+                <?php $count_images = count($portfolio);
+                foreach ($portfolio as $key => $image) :?>
+                    <!--<div class="tren_gal_col">
                         <div class="tren_gal_item">
                             <div class="tren_gal_cont">
                                 <div class="tren_gal_img">
-                                    <a href="<?php echo $path.$image['image_id'];?>"><img src="<?php echo $image['image_path'];?>" alt=""></a>
+                                    <a href="<?php /*echo $path.$image['image_id'];*/?>"><img src="<?php /*echo $image['image_path'];*/?>" alt=""></a>
                                 </div>
-                                <div class="tren_gal_line">
-                                    <!--<a href=""><i class="fa fa-heart-o" aria-hidden="true"></i></a>
-                                    <a href=""><i class="fa fa-comment-o" aria-hidden="true"></i></a>-->
-                                </div>
+                                <div class="tren_gal_line">-->
+                                    <!--<a href=""><i class="fa fa-heart-o" aria-hidden="true"></i></a>-->
+                                    <!--<a href=""><i class="fa fa-comment-o" aria-hidden="true"></i></a>-->
+                                <!--</div>
                                 <div class="tren_gal_info">
-                                    <div class="tren_gal_info_top">
+                                    <div class="tren_gal_info_top">-->
                                         <!--<div class="tren_gal_info_top_item"><i class="fa fa-heart" aria-hidden="true"></i><span>100</span></div>
                                         <div class="tren_gal_info_top_item"><i class="fa fa-comment" aria-hidden="true"></i><span>100</span></div>-->
-                                    </div>
+                                    <!--</div>
                                     <div class="tren_gal_info_txt">
-                                        <span class="tren_gal_info_txt_val"><?php echo $image['image_desc'];?>...</span>
-                                        <a href="/portfolio/<?php echo $image['image_id'];?>" class="tren_gal_info_txt_more">больше</a>
+                                        <span class="tren_gal_info_txt_val"><?php /*echo $image['image_desc'];*/?>...</span>
+                                        <a href="/portfolio/<?php /*echo $image['image_id'];*/?>" class="tren_gal_info_txt_more">больше</a>
                                     </div>
                                 </div>
                             </div>
                         </div>
+                    </div>-->
+                    <?php if ($key != 0 and ($key-1) != 0 and ($key % 2) == 0):?>
+                        </div>
+                    <?php endif;
+                    if ($key == 0 or ($key % 2) == 0):?>
+                        <div class="gal_slide">
+                    <?php endif;?>
+
+                    <div class="gal_item">
+                        <a href="<?php echo $path.$image['image_id'];?>">
+                            <img src="<?php echo $image['image_path']; ?>" alt="">
+                        </a><!-- data-lightbox="gal"  -->
                     </div>
+
+                    <?php if ($key == ($count_images-1)):?>
+                        </div>
+                    <?php endif;?>
                 <?php endforeach;
                 unset($image);?>
             </div>

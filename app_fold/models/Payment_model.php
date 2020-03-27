@@ -266,44 +266,49 @@ class Payment_model extends CI_Model
         // Выборка текущих платежей для оплаты
         // Выборка не выполненных платежей
         $sel_data = $this->db->query('
-            SELECT `op_id`, `op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_amount`, `op_currency`, `op_payment_method_id`, `op_payment_options`, `op_status`, `o_user_email` 
+            SELECT `op_id`, `op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_amount`, `op_currency`, 
+                   `op_payment_method_id`, `op_payment_options`, `op_status`, `o_user_email`, `o_u_id`, `user_id`, `user_blocked`, `user_deleted` 
             FROM `orders_payment`
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            LEFT JOIN `users` ON `user_id`=`o_u_id`
             WHERE `op_payment_method_id`<>"" and `op_following_date`<>"0000-00-00" and `op_number`>0 and 
-                  (`op_following_date`=? or (`op_following_date`<? and `op_status`="canceled"))',
-                array($today, $today));
+                  (`op_following_date`=? or (`op_following_date`<? and `op_following_date`>? and `op_status`="canceled"))',
+                array($today, $today, $week_ago));
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             foreach($sel_data->result() as $row)
             {
-                $sel_first = $this->db->query('
-                    SELECT `op_revoke_permission` 
-                    FROM `orders_payment`
-                    WHERE `op_payment_id`=? LIMIT 1', $row->op_payment_method_id);
-                if($sel_first !== false and 1 == $sel_first->num_rows())
+                if(is_numeric($row->user_id) and $row->user_blocked == 0 and $row->user_deleted == 0)
                 {
-                    $f_row = $sel_first->row();
-
-                    if($f_row->op_revoke_permission == 0)
+                    $sel_first = $this->db->query('
+                        SELECT `op_revoke_permission` 
+                        FROM `orders_payment`
+                        WHERE `op_payment_id`=? LIMIT 1', $row->op_payment_method_id);
+                    if($sel_first !== false and 1 == $sel_first->num_rows())
                     {
-                        $result['payments'][$i]['id']             = $row->op_id;
-                        $result['payments'][$i]['order_id']       = $row->op_o_id;
-                        $result['payments'][$i]['customer_email'] = $row->op_customer_email;
-                        $result['payments'][$i]['customer_name']  = $row->op_customer_name;
-                        $result['payments'][$i]['type']           = $row->op_payment_type;
-                        $result['payments'][$i]['amount']         = $row->op_amount;
-                        $result['payments'][$i]['currency']       = $row->op_currency;
-                        $result['payments'][$i]['method_id']      = $row->op_payment_method_id;
-                        $result['payments'][$i]['options']        = $row->op_payment_options;
-                        $result['payments'][$i]['status']         = $row->op_status;
-                        $result['payments'][$i]['user_email']     = $row->o_user_email;
+                        $f_row = $sel_first->row();
 
-                        $i++;
+                        if($f_row->op_revoke_permission == 0)
+                        {
+                            $result['payments'][$i]['id']             = $row->op_id;
+                            $result['payments'][$i]['order_id']       = $row->op_o_id;
+                            $result['payments'][$i]['customer_email'] = $row->op_customer_email;
+                            $result['payments'][$i]['customer_name']  = $row->op_customer_name;
+                            $result['payments'][$i]['type']           = $row->op_payment_type;
+                            $result['payments'][$i]['amount']         = $row->op_amount;
+                            $result['payments'][$i]['currency']       = $row->op_currency;
+                            $result['payments'][$i]['method_id']      = $row->op_payment_method_id;
+                            $result['payments'][$i]['options']        = $row->op_payment_options;
+                            $result['payments'][$i]['status']         = $row->op_status;
+                            $result['payments'][$i]['user_email']     = $row->o_user_email;
+
+                            $i++;
+                        }
                     }
-                }
-                elseif ($sel_first === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    elseif ($sel_first === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
                 }
             }
             unset($row);

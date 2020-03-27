@@ -1,32 +1,36 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
+
+$user_name = (!empty($user_data['user_name'])) ? $user_data['user_name'] : 'Страница тренера';
+$breadcrumbs = array('/blog' => 'Блог');
+include_once('./app_fold/views/breadcrumb.php');
 ?>
 <div id="content" class="container">
     <div class="row">
         <div class="col-lg-2 left_sidebar">
-            <?php include_once('./app_fold/views/admin/admin_menu.php');?>
+            <?php if (!empty($user_session)):
+                if ($user_session['type'] == 2):
+                    include_once('./app_fold/views/coach/coach_menu.php');
+                else:
+                    include_once('./app_fold/views/user/user_menu.php');
+                endif;
+            endif;?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block">
                 <div class="content_block_container_wrap">
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
-                            <h3>Блог тренера</h3>
+                            <h3>Блог</h3>
                         </div>
-                        <?php include_once('./app_fold/views/blog/posts/menu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
                     <?php if (!empty($posts)): ?>
-                        <div class="admin_list">
-                            <?php foreach ($posts as $post): ?>
-                                <div class="subscription_block_item">
-                                    <div class="subscription_block_h"><a href="/administration/blog/post/<?php echo $post['id'];?>"><?php echo $post['title'];?></a></div>
-                                    <div class="subscription_block_txt">Краткое описание: <?php echo $post['short_desc'];?>...</div>
-                                    <div class="subscription_block_link">
-                                        <a href="/profile/<?php echo $post['user_id']?>"><?php echo $post['user_name']?></a>
-                                    </div>
-                                </div>
+                        <div class="admin_list posts_page">
+                            <?php foreach ($posts as $post):
+                                $post_path = '/blog/'; ?>
+                                <?php include('./app_fold/views/blog/posts_item.php'); ?>
                             <?php endforeach;
                             unset($article);
                             include_once('./app_fold/views/pagination.php'); ?>

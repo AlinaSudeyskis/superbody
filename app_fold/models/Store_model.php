@@ -3005,6 +3005,21 @@ class Store_model extends CI_Model
     {
         $result = array();
 
+        if(!is_numeric($user_id))
+        {
+            $sel_user = $this->db->query('SELECT `user_id` FROM `users` WHERE `user_email`=? LIMIT 1', $user_id);
+            if($sel_user !== false and 1 == $sel_user->num_rows())
+            {
+                $row = $sel_user->row();
+                $user_id = $row->user_id;
+                unset($row);
+            }
+            elseif ($sel_user === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
         $sel_orders = $this->db->query('
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
                 `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`, `ouc_p_price`, `ouc_p_recurrent_months`, 
@@ -3036,7 +3051,7 @@ class Store_model extends CI_Model
                     // Курс пользователя
                     $sel_crs = $this->db->query('SELECT `uc_id` FROM `users_courses` 
                         WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? and `uc_attached_uc_id`=0 LIMIT 1',
-                            array($user_id, $row->o_id, $row->crs_id));
+                        array($user_id, $row->o_id, $row->crs_id));
                     if($sel_crs !== false and 1 == $sel_crs->num_rows())
                     {
                         $row2 = $sel_crs->row();
@@ -3373,14 +3388,14 @@ class Store_model extends CI_Model
      * Проверка аккаунта пользователя, указанного номера платежа, на активацию
      *
      * @param $payment_id
-     * @return bool
+     * @return array
      */
     public function checkPaymentAccount($payment_id)
     {
-        $result = false;
+        $result = array('account_active' => false, 'account_activated' => false);
 
         $sel_data = $this->db->query('
-            SELECT `op_payment_id`, `o_u_id`, `user_activated` 
+            SELECT `op_payment_id`, `o_u_id`, `user_id`, `user_blocked`, `user_activated`, `user_deleted` 
             FROM `orders_payment`
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
             LEFT JOIN `users` ON `user_id`=`o_u_id`
@@ -3388,9 +3403,13 @@ class Store_model extends CI_Model
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
+            if(is_numeric($row->user_id) and $row->user_blocked == 0 and $row->user_deleted == 0)
+            {
+                $result['account_active'] = true;
+            }
             if($row->user_activated == 1)
             {
-                $result = true;
+                $result['account_activated'] = true;
             }
         }
         elseif($sel_data === false)

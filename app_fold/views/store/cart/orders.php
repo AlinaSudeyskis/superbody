@@ -29,7 +29,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                             <div class="search_form">
-                                <input type="text" name="search" class="search_in" placeholder="Введите ID зазказа или пользователя" value="<?php if(!empty($page_search)): echo $page_search; endif; ?>">
+                                <input type="text" name="search" class="search_in" placeholder="Введите ID зазказа или ID, Email пользователя" value="<?php if(!empty($page_search)): echo $page_search; endif; ?>">
                                 <input type="submit" name="bt_orders_search" class="search_but defaultActionButton" value="Отправить">
                             </div>
                         </form>

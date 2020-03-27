@@ -570,6 +570,8 @@ class Coach extends CI_Controller
 
             if ($search_coach !== false and is_array($search_coach))
             {
+                $login_from = $this->session->user['id'];
+
                 // Завершение текущей сессии
                 if ($this->session->user['auth_via'] == 'native')
                 {
@@ -583,8 +585,8 @@ class Coach extends CI_Controller
                 // Создание новой сессии
                 $user_image = (!empty($search_coach['user_image'])) ? $search_coach['user_image'] : $search_coach['user_soc_image'];
 
-                parent::updateSession($search_coach['user_id'], $search_coach['user_email'], $search_coach['user_type'], $search_coach['user_blocked'],
-                    $search_coach['user_name'], $search_coach['user_phone'], $user_image, '', 'native', 0, $this->date);
+                parent::updateSession($search_coach['user_id'], $search_coach['user_email'], $search_coach['user_type'], $search_coach['user_blocked'], $search_coach['user_activated'],
+                    $search_coach['user_name'], $search_coach['user_phone'], $user_image, '', 'native', 0, $this->date, $login_from);
 
                 // После успешной авторизации переход на страницу тренера
                 header('Location: /profile/'.$search_coach['user_id']);

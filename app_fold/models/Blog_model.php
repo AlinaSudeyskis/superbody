@@ -56,9 +56,9 @@ class Blog_model extends CI_Model
         $result = array();
 
         $sel_blog = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`
+            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_date_add` 
             FROM `coach_blog` 
-            WHERE `cb_u_id`=?', $user_id);
+            WHERE `cb_u_id`=? ORDER BY `cb_post_date_add` DESC', $user_id);
 
         if ($sel_blog !== false and 0 < $sel_blog->num_rows())
         {
@@ -90,7 +90,7 @@ class Blog_model extends CI_Model
         $result = array('post' => array());
 
         $sel_post = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, `cb_post_approval` 
+            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval` 
             FROM `coach_blog` 
             WHERE `cb_id`=? and `cb_u_id`=? LIMIT 1', array($post_id, $user_id));
 
@@ -138,17 +138,18 @@ class Blog_model extends CI_Model
      * @param $post_id
      * @param $post_title
      * @param $post_desc
+     * @param $post_keywords
      * @param $post_text
      * @param $date
      * @return bool
      */
-    public function updateCoachBlogPost($user_id, $post_id, $post_title, $post_desc, $post_text, $date)
+    public function updateCoachBlogPost($user_id, $post_id, $post_title, $post_desc, $post_keywords, $post_text, $date)
     {
         $up_data = $this->db->query('
             UPDATE `coach_blog` 
-            SET `cb_post_title`=?, `cb_post_short_description`=?, `cb_post_text`=?, `cb_post_date_update`=? 
+            SET `cb_post_title`=?, `cb_post_short_description`=?, `cb_post_keywords`=?, `cb_post_text`=?, `cb_post_date_update`=? 
             WHERE `cb_id`=? and `cb_u_id`=? and `cb_post_approval`=0 LIMIT 1',
-                array($post_title, $post_desc, $post_text, $date, $post_id, $user_id));
+                array($post_title, $post_desc, $post_keywords, $post_text, $date, $post_id, $user_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -167,6 +168,101 @@ class Blog_model extends CI_Model
 
 
     /**
+     * Получение одобренных записей блога.
+     *
+     * @param null $first_id
+     * @param null $last_id
+     * @return array
+     */
+    public function getPublicBlogPosts($first_id = null, $last_id = null)
+    {
+        $result    = array('posts' => array(), 'first_id' => '', 'last_id' => '');
+        $next_page = false;
+        $prev_page = false;
+        $limit     = 3; // (count_posts + 1)
+
+        $query = 'SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_date_add`, `user_name`, `user_email` ';
+        $query .= 'FROM `coach_blog` ';
+        $query .= 'LEFT JOIN `users` ON `cb_u_id`=`user_id` ';
+        $query .= 'WHERE `cb_post_approval`=1 ';
+        if(!empty($last_id))
+        {
+            $query .= "and `cb_post_date_add`<".$last_id.' ';
+        }
+        elseif(!empty($first_id))
+        {
+            $query .= "and `cb_post_date_add`>=".$first_id.' ';
+        }
+        $query .= 'ORDER BY `cb_post_date_add` DESC ';
+        //$query .= 'LIMIT '.$limit;
+        $sel_blog = $this->db->query($query);
+
+        if ($sel_blog !== false and 0 < $sel_blog->num_rows())
+        {
+            $count_rows = $sel_blog->num_rows();
+            $elements   = $sel_blog->result();
+
+            // Если нажата "Предыдущая страница"
+            /*if (!empty($first_id))
+            {
+                if ($count_rows == $limit)
+                {
+                    // Извлекаем первый элемент массива
+                    array_shift($elements);
+                    krsort($elements);
+                    $count_rows--;
+                    $prev_page = true;
+                }
+                $next_page = true;
+            }*/
+            // Если нажата "Следующая страница"
+            /*elseif (!empty($last_id))
+            {
+                if ($count_rows == $limit)
+                {
+                    // Извлекаем последний элемент массива
+                    array_pop($elements);
+                    $count_rows--;
+                    $next_page = true;
+                }
+
+                $prev_page = true;
+            }*/
+            // Первая страница
+           /* elseif ($count_rows == $limit and empty($first_id) and empty($last_id))
+            {
+                // Извлекаем последний элемент массива
+                array_pop($elements);
+                $count_rows--;
+                $next_page = true;
+            }*/
+
+            $i = 0;
+            foreach ($elements as $key => $row)
+            {
+                $result['posts'][$i] = self::parseBlogPostData($row);
+                $result['posts'][$i]['user']['id']    = $row->cb_u_id;
+                $result['posts'][$i]['user']['name']  = !empty($row->user_name) ? $row->user_name : 'Тренер №'.$row->cb_u_id;
+
+                // Данные пагинации
+                // Данные последнего элемента страницы
+                //$result['last_id'] = ($next_page === true and (empty($result['last_id']) or $result['last_id'] > $row->cb_post_date_add)) ?  $row->cb_post_date_add : $result['last_id'];
+                // Данные первого элемента страницы
+                //$result['first_id'] = ($prev_page === true and (empty($result['first_id']) or $result['first_id'] < $row->cb_post_date_add)) ? $row->cb_post_date_add : $result['first_id'];
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif ($sel_blog === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Получение одобренных записей блога тренера.
      *
      * Одобренные сообщения администрацией
@@ -174,23 +270,24 @@ class Blog_model extends CI_Model
      * @param $user_id
      * @return array
      */
-    public function getPublicBlogPosts($user_id)
+    public function getPublicCoachBlogPosts($user_id)
     {
         $result = array();
 
         $sel_blog = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, `user_name`, `user_email` 
+            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_date_add`, `user_name`, `user_email` 
             FROM `coach_blog` 
-            LEFT JOIN `users`
-            ON `cb_u_id`=`user_id`
-            WHERE `cb_u_id`=? and `cb_post_approval`=1', $user_id);
+            LEFT JOIN `users` ON `cb_u_id`=`user_id`
+            WHERE `cb_u_id`=? and `cb_post_approval`=1 ORDER BY `cb_post_date_add` DESC', $user_id);
 
-        if ($sel_blog !== false and 0 < $sel_blog->num_rows()) {
+        if ($sel_blog !== false and 0 < $sel_blog->num_rows())
+        {
             $i = 0;
-            foreach ($sel_blog->result() as $row) {
+            foreach ($sel_blog->result() as $row)
+            {
                 $result['posts'][$i] = self::parseBlogPostData($row);
-                $result['post']['user']['id']    = $row->cb_u_id;
-                $result['post']['user']['name']  = !empty($row->user_name) ? $row->user_name : 'Пользователь №'.$row->cb_u_id;
+                $result['post']['user']['id']   = $row->cb_u_id;
+                $result['post']['user']['name'] = !empty($row->user_name) ? $row->user_name : 'Тренер №'.$row->cb_u_id;
 
                 $i++;
             }
@@ -214,7 +311,7 @@ class Blog_model extends CI_Model
         $result = array('post' => array());
 
         $sel_post = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_text`, `user_name`, `user_email` 
+            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `user_name`, `user_email` 
             FROM `coach_blog` 
             LEFT JOIN `users`
             ON `cb_u_id`=`user_id`
@@ -309,11 +406,11 @@ class Blog_model extends CI_Model
         $result = array();
         
         $sel_blog_mess = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, `cb_post_approval`, 
+            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval`, 
               `cb_post_date_add`, `user_name`, `user_email` 
             FROM `coach_blog` 
-            LEFT JOIN `users`
-            ON `cb_u_id`=`user_id`');
+            LEFT JOIN `users` ON `cb_u_id`=`user_id`
+            ORDER BY `cb_post_date_add` DESC');
 
         if ($sel_blog_mess !== false and 0 < $sel_blog_mess->num_rows())
         {
@@ -321,8 +418,8 @@ class Blog_model extends CI_Model
             foreach ($sel_blog_mess->result() as $row)
             {
                 $result['posts'][$i] = self::parseBlogPostData($row);
-                $result['posts'][$i]['user_id']   = $row->cb_u_id;
-                $result['posts'][$i]['user_name'] = !empty($row->user_name) ? $row->user_name : $row->user_email;
+                $result['posts'][$i]['user']['id']   = $row->cb_u_id;
+                $result['posts'][$i]['user']['name'] = !empty($row->user_name) ? $row->user_name : $row->user_email;
                 
                 $i++;
             }
@@ -347,7 +444,7 @@ class Blog_model extends CI_Model
         $result = array();
 
         $sel_message = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, `cb_post_approval`, 
+            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval`, 
               `cb_post_date_add`, `user_name`, `user_email` 
             FROM `coach_blog` 
             LEFT JOIN `users`
@@ -413,17 +510,18 @@ class Blog_model extends CI_Model
      * @param $post_id
      * @param $post_title
      * @param $post_desc
+     * @param $post_keywords
      * @param $post_text
      * @param $date
      * @return bool
      */
-    public function updateBlogPost($post_id, $post_title, $post_desc, $post_text, $date)
+    public function updateBlogPost($post_id, $post_title, $post_desc, $post_keywords, $post_text, $date)
     {
         $up_data = $this->db->query('
             UPDATE `coach_blog` 
-            SET `cb_post_title`=?, `cb_post_short_description`=?, `cb_post_text`=?, `cb_post_date_update`=? 
+            SET `cb_post_title`=?, `cb_post_short_description`=?, `cb_post_keywords`=?, `cb_post_text`=?, `cb_post_date_update`=? 
             WHERE `cb_id`=? LIMIT 1',
-            array($post_title, $post_desc, $post_text, $date, $post_id));
+            array($post_title, $post_desc, $post_keywords, $post_text, $date, $post_id));
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
             return true;
@@ -681,6 +779,7 @@ class Blog_model extends CI_Model
         $result['id']         = $row->cb_id;
         $result['title']      = (!empty($row->cb_post_title)) ? $row->cb_post_title : null;
         $result['short_desc'] = (!empty($row->cb_post_short_description)) ? $row->cb_post_short_description : null;
+        $result['keywords']   = (!empty($row->cb_post_keywords)) ? $row->cb_post_keywords : null;
         $result['text']       = (!empty($row->cb_post_text))
             ? nl2br(parent::showBBcodes($row->cb_post_text))
             : null;
@@ -692,7 +791,7 @@ class Blog_model extends CI_Model
             setlocale(LC_ALL, 'ru_RU.UTF-8');
             $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->cb_post_date_add);
             $message_date = ($row->cb_post_date_add != '0000-00-00 00:00:00' and $date !== false)
-                ? strftime('%d %B %G, %H:%M', strtotime($row->cb_post_date_add))
+                ? strftime('%e %B %G', strtotime($row->cb_post_date_add))
                 : '';
 
             $result['date'] = $message_date;

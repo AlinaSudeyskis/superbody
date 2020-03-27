@@ -131,7 +131,8 @@ $route['posts']       = 'Blog/getCoachPosts';
 $route['post/new']    = 'Blog/newCoachPost';
 $route['post/(:num)'] = 'Blog/getCoachPost/$1';
 // Записи блога
-$route['blog/(:num)'] = 'Blog/getPost/$1';
+$route['blog']        = 'Blog/getPublicPosts';
+$route['blog/(:num)'] = 'Blog/getPublicPost/$1';
 // Сообщения
 $route['messages']        = 'Message/userConversation';
 $route['messages/(:num)'] = 'Message/userConversation/$1';
@@ -338,7 +339,7 @@ $route['administration/category/(:num)/(:num)'] = 'Store/subcategory/$1/$2';
 $route['administration/store']                = 'Store/products';
 $route['administration/store/product/new']    = 'Store/newProduct';
 $route['administration/store/product/(:num)'] = 'Store/product/$1';
-$route['administration/orders(/(capture|succeeded|canceled|pending|refunded|revoke))?'] = 'Store/orders/$2';
+$route['administration/orders(/(capture|succeeded|canceled|pending|refunded|revoke|free|unpaid))?'] = 'Store/orders/$2';
 $route['administration/order/(:num)']         = 'Store/order/$1';
 //$route['orders']                              = 'Store/userOrders';
 //$route['order/(:num)']                        = 'Store/userOrder/$1';

@@ -986,7 +986,7 @@ class User extends CI_Controller
         }
 
         $portfolio  = $this->Coach_model->getPublicCoachPortfolioData($coach_id);
-        $posts      = $this->Blog_model->getPublicBlogPosts($coach_id);
+        $posts      = $this->Blog_model->getPublicCoachBlogPosts($coach_id);
         $user       = $this->Coach_model->getCoach($coach_id, $this->date);
         $coach_crss = $this->Course_model->getCoachCourses($coach_id);
         $result     = array_merge($portfolio, $posts, $user, $coach_crss);
@@ -2564,11 +2564,13 @@ class User extends CI_Controller
         elseif ($this->input->post('bt_on_behalf_login', true) and is_numeric($user_id))
         {
             $this->load->model('Authorization_model');
-            // Поиск тренера в БД
-            $search_coach = $this->Authorization_model->authorizationOnBehalfUser($user_id);
+            // Поиск пользователя в БД
+            $search_user = $this->Authorization_model->authorizationOnBehalfUser($user_id);
 
-            if ($search_coach !== false and is_array($search_coach))
+            if ($search_user !== false and is_array($search_user))
             {
+                $login_from = $this->session->user['id'];
+
                 // Завершение текущей сессии
                 if ($this->session->user['auth_via'] == 'native')
                 {
@@ -2580,13 +2582,13 @@ class User extends CI_Controller
                 }
 
                 // Создание новой сессии
-                $user_image = (!empty($search_coach['user_image'])) ? $search_coach['user_image'] : $search_coach['user_soc_image'];
+                $user_image = (!empty($search_user['user_image'])) ? $search_user['user_image'] : $search_user['user_soc_image'];
 
-                parent::updateSession($search_coach['user_id'], $search_coach['user_email'], $search_coach['user_type'], $search_coach['user_blocked'],
-                    $search_coach['user_name'], $search_coach['user_phone'], $user_image, '', 'native', 0, $this->date);
+                parent::updateSession($search_user['user_id'], $search_user['user_email'], $search_user['user_type'], $search_user['user_blocked'], $search_user['user_activated'],
+                    $search_user['user_name'], $search_user['user_phone'], $user_image, '', 'native', 0, $this->date, $login_from);
 
                 // После успешной авторизации переход на страницу тренера
-                header('Location: /profile/'.$search_coach['user_id']);
+                header('Location: /profile/'.$search_user['user_id']);
             }
             else
             {

@@ -60,6 +60,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span><i class="fas fa-receipt"></i></span><span>Заказы<?php if(!empty($e_new_orders)): ?> [<?php echo $e_new_orders; ?>]<?php endif; ?></span>
         </a>
     </li>
+    <!--<li>
+        <a href="/administration/payments" <?php /*if ($page_menu == 'a_payments') { echo 'class="active"'; } */?>>
+            <span><i class="far fa-credit-card"></i></span><span>Платежи<?php /*if(!empty($e_new_orders)): */?> [<?php /*echo $e_new_orders; */?>]<?php /*endif; */?></span>
+        </a>
+    </li>-->
     <?php
     /*<li>
         <a href="/administration/journal/articles" <?php if ($page_menu == 'a_journal') { echo 'class="active"'; } ?>>
@@ -68,7 +73,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </li>*/
     ?>
     <li>
-        <a href="/administration/blog/posts" <?php if ($page_menu == 'blog') { echo 'class="active"'; } ?>>
+        <a href="/administration/blog/posts" <?php if ($page_menu == 'a_blog') { echo 'class="active"'; } ?>>
             <span><i class="far fa-newspaper"></i></span><span>Блог тренера</span>
         </a>
     </li>

@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Блог тренера</h3>
                         </div>
-                        <?php include_once('./app_fold/views/blog/posts/menu.php'); ?>
+                        <?php include_once('./app_fold/views/blog/menu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">

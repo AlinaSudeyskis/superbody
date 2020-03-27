@@ -10,6 +10,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <input type="text" name="post_short_desc" value="<?php if(!empty($post['short_desc'])): echo $post['short_desc']; endif;?>" class="admin_form_txt admin_form_txt_middle" maxlength="255" />
 </div>
 <div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h">Ключевые слова:</div>
+    <input type="text" name="post_keywords" value="<?php if(!empty($post['keywords'])): echo $post['keywords']; endif;?>" class="admin_form_txt admin_form_txt_middle" maxlength="255" />
+</div>
+<div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Полный текст:</div>
 </div>
 <div class="journal_form_textarea_wrap journal_form_textarea_small">

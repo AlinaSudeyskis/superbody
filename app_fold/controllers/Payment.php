@@ -149,9 +149,9 @@ class Payment extends CI_Controller
                 {
                     $this->load->model('Store_model');
                     // Проверка аккаунта пользователя на активацию
-                    $check_account = $this->Store_model->checkPaymentAccount($payment->id);
+                    /*$check_account = $this->Store_model->checkPaymentAccount($payment->id);
                     if($check_account === true)
-                    {
+                    {*/
                         // Подтверждение платежа
                         $res_capture = self::capturePayment($payment->id, $payment->amount->value, $payment->amount->currency);
                         if(!empty($res_capture['response']))
@@ -165,11 +165,11 @@ class Payment extends CI_Controller
                         {
                             log_message('error', __METHOD__.':'.__LINE__.' '.$payment->id.' '.$res_capture['error']);
                         }
-                    }
+                    /*}
                     else
                     {
                         log_message('debug', __METHOD__.':'.__LINE__.' Account did not activate. Check account = false '.$payment->id);
-                    }
+                    }*/
                 }
                 else
                 {
@@ -260,7 +260,7 @@ class Payment extends CI_Controller
                 // Изменение статуса курсов
                 $payment_statuses = array('waiting_for_capture' => 'waiting_for_capture', 'payment_succeeded' => 'succeeded', 'payment_canceled' => 'canceled', 'not_paid' => 'pending');
                 $courses_status   = (!empty($payment_status) and array_search($payment_status, $payment_statuses)) ? array_search($payment_status, $payment_statuses) : '';
-                $courses_status   = ($check_account === false and $payment_status == 'succeeded') ? 'not_activated_account' : $courses_status;
+                //$courses_status   = ($check_account === false and $payment_status == 'succeeded') ? 'not_activated_account' : $courses_status;
                 $courses_status   = ($payment_event == 'refund' and $payment_status == 'succeeded') ? 'payment_refunded' : $courses_status;
                 $block_date       = ($courses_status == 'payment_succeeded') ? '' : $this->date;
                 $block            = ($courses_status == 'payment_succeeded') ? 0 : 1;

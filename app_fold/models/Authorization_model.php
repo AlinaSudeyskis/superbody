@@ -531,7 +531,7 @@ class Authorization_model extends CI_Model
 
                 // Выборка данных пользователя
                 $sel_user = $this->db->query('
-                    SELECT `user_email`, `user_type`, `user_blocked`, `user_name`, `user_phone`, `user_image`, `user_soc_image` 
+                    SELECT `user_email`, `user_type`, `user_blocked`, `user_activated`, `user_name`, `user_phone`, `user_image`, `user_soc_image` 
                     FROM `users`
                     WHERE `user_id`=? LIMIT 1', $user_id);
 
@@ -543,6 +543,7 @@ class Authorization_model extends CI_Model
                     $result['user']['email']        = (!empty($row->user_email)) ? $row->user_email : $user_soc_email;
                     $result['user']['type']         = $row->user_type;
                     $result['user']['blocked']      = $row->user_blocked;
+                    $result['user']['activated']    = $row->user_activated;
                     $result['user']['name']         = (!empty($row->user_name)) ? $row->user_name : $user_soc_name;
                     $result['user']['phone']        = $row->user_phone;
                     $result['user']['image']        = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
@@ -588,7 +589,7 @@ class Authorization_model extends CI_Model
     {
         $sel_user = $this->db->query('
             SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
-              `user_image`, `user_soc_image` 
+              `user_image`, `user_soc_image`, `user_activated` 
             FROM `users` 
             WHERE `user_email`=? and `user_deleted`=0 LIMIT 1', $email);
 
@@ -608,6 +609,7 @@ class Authorization_model extends CI_Model
                 $result['user_email']     = $row->user_email;
                 $result['user_type']      = $row->user_type;
                 $result['user_blocked']   = $row->user_blocked;
+                $result['user_activated'] = $row->user_activated;
                 $result['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
                 $result['user_soc_image'] = '';
 
@@ -650,7 +652,7 @@ class Authorization_model extends CI_Model
 
         $sel_user = $this->db->query('
             SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
-              `user_image`, `user_soc_image` 
+              `user_image`, `user_soc_image`, `user_activated` 
             FROM `users` 
             WHERE `user_id`=? LIMIT 1', $user_id);
 
@@ -664,6 +666,7 @@ class Authorization_model extends CI_Model
             $result['user_email']     = $row->user_email;
             $result['user_type']      = $row->user_type;
             $result['user_blocked']   = $row->user_blocked;
+            $result['user_activated'] = $row->user_activated;
             $result['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
             $result['user_soc_image'] = '';
 

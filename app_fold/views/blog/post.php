@@ -2,7 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 $user_name = (!empty($user_data['user_name'])) ? $user_data['user_name'] : 'Страница тренера';
-$breadcrumbs = array('/coaches' => 'Тренеры', '/profile/'.$user_data['user_id'] => $user_name, '/post' => 'Блог');
+$post_title = (!empty($post['title'])) ? $post['title'] : 'Пост тренера';
+$breadcrumbs = array('/blog' => 'Блог', '/blog/post' => $post_title);
 include_once('./app_fold/views/breadcrumb.php');?>
 <div id="content" class="container">
     <div class="row">

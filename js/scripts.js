@@ -1740,6 +1740,21 @@ $(document).ready(function() {
 
                 searchCourses(category_id, subcategory_id, null, last_id);
             });
+            var posts_block = $('.posts_page');
+            posts_block.on('click', '.shop_block_nav #prev_page', function (event) {
+                event.preventDefault();
+
+                var first_id       = $('#i_first_id').val();
+
+                searchPosts(first_id, null);
+            });
+            posts_block.on('click', '.shop_block_nav #next_page', function (event) {
+                event.preventDefault();
+
+                var last_id        = $('#i_last_id').val();
+
+                searchPosts(null, last_id);
+            });
 
             // Поиск товара по ID
             $('#product-id').on('keyup', function () {

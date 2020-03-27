@@ -360,6 +360,11 @@ class CI_Controller {
         "JP" => "+81"
     );
 
+    /**
+     * @var array Коды стран
+     */
+    public $genitive_months = array( 1 => 'Января' , 'Февраля' , 'Марта' , 'Апреля' , 'Мая' , 'Июня' , 'Июля' , 'Августа' , 'Сентября' , 'Октября' , 'Ноября' , 'Декабря' );
+
 	/**
 	 * Class constructor
 	 */
@@ -462,7 +467,7 @@ class CI_Controller {
             $user_session_data['user']['blocked']    = $user_data['user_data']['user_blocked'];
             $user_session_data['user']['subscribed'] = $user_data['user_data']['user_subscribed'];
             $user_session_data['user']['activated']  = $user_data['user_data']['user_activated'];
-            //$user_session_data['user']['date_auth']  = $this->date;
+            $user_session_data['user']['date_auth']  = $this->date;
 
             $this->session->set_userdata($user_session_data);
             // Проверка существования изображения пользователя
@@ -680,6 +685,7 @@ class CI_Controller {
      * @param $user_email
      * @param $user_type
      * @param $user_blocked
+     * @param $user_activated
      * @param $user_name
      * @param $user_phone
      * @param $user_image
@@ -687,38 +693,32 @@ class CI_Controller {
      * @param $user_soc_via
      * @param $user_soc_id
      * @param $date
+     * @param null $login_from
      */
-    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $user_phone, $user_image,
-                                  $access_token, $user_soc_via, $user_soc_id, $date)
+    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name, $user_phone, $user_image,
+                                  $access_token, $user_soc_via, $user_soc_id, $date, $login_from = null)
     {
         $split_name = mb_split(' ', $user_name);
         $s_name     = !empty($split_name[0]) ? $split_name[0] : '';
         $s_surname  = !empty($split_name[1]) ? $split_name[1] : '';
 
-        if (!empty($this->session->user))
+        // Обновление данных сессии, если она пренадлежит ему
+        if (!empty($this->session->user) and $this->session->user['id'] == $user_id)
         {
-            // Обновление данных сессии, если она пренадлежит ему
-            if ($this->session->user['id'] == $user_id)
-            {
-                $user_data['user'] = $this->session->user;
+            $user_data['user'] = $this->session->user;
 
-                $user_data['user']['blocked']      = $user_blocked;
-                $user_data['user']['access_token'] = $access_token;
-                $user_data['user']['date_auth']    = $date;
+            $user_data['user']['blocked']      = $user_blocked;
+            $user_data['user']['activated']    = $user_activated;
+            $user_data['user']['access_token'] = $access_token;
+            $user_data['user']['date_auth']    = $date;
 
-                $this->session->set_userdata($user_data);
-            }
-            // Удаляем сессию и создаем новую
-            else
-            {
-                // Создание сессии
-                self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
-            }
+            $this->session->set_userdata($user_data);
         }
         else
         {
             // Создание сессии
-            self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date);
+            self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name, $s_name,
+                $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date, $login_from);
         }
     }
 
@@ -729,6 +729,7 @@ class CI_Controller {
      * @param $user_email
      * @param $user_type
      * @param $user_blocked
+     * @param $user_activated
      * @param $user_name
      * @param $s_name
      * @param $s_surname
@@ -738,8 +739,11 @@ class CI_Controller {
      * @param $user_soc_via
      * @param $user_soc_id
      * @param $date
+     * @param null $login_from
      */
-    protected function createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_name, $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date)
+    protected function createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name,
+                                         $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via,
+                                         $user_soc_id, $date, $login_from = null)
     {
         $cart_count = (!empty($this->session->cart['count']) and is_numeric($this->session->cart['count']) and $this->session->cart['count'] > 0) ? $this->session->cart['count'] : 0;
         $cart_products = (!empty($this->session->cart['products']) and is_array($this->session->cart['products'])) ? $this->session->cart['products'] : array();
@@ -760,6 +764,7 @@ class CI_Controller {
                 "phone" => $user_phone,
                 "type" => $user_type,
                 "blocked" => $user_blocked,
+                "activated" => $user_activated,
                 "image" => $user_image,
                 "access_token" => $access_token,
                 "auth_via" => $user_soc_via,
@@ -773,6 +778,11 @@ class CI_Controller {
                 "products" => array()
             )
         );
+
+        if(!empty($login_from) and is_numeric($login_from))
+        {
+            $user_data['user']['login_from'] = $login_from;
+        }
 
         $this->session->set_userdata($user_data);
     }

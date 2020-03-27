@@ -3338,6 +3338,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-03-26 19:26';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `coach_blog` ADD `cb_post_keywords` VARCHAR(1000) NOT NULL AFTER `cb_post_short_description`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

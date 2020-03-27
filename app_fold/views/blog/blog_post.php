@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Блог тренера</h3>
                         </div>
-                        <?php include_once('./app_fold/views/blog/posts/menu.php'); ?>
+                        <?php include_once('./app_fold/views/blog/menu.php'); ?>
                     </div>
                 </div>
                 <div class="kurs_block_val">
@@ -33,7 +33,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <div class="comment_page_block">
                                 <div class="comment_page_cont">
                                     <div class="video_admin_form">
-                                        <?php include_once('./app_fold/views/blog/posts/post_settings_item.php');?>
+                                        <?php include_once('./app_fold/views/blog/post_settings_item.php');?>
 
                                         <div class="comment_page_cont_link"><a href="/profile/<?php echo $post['user_id'];?>"><?php echo $post['user_name'];?></a></div>
                                     </div>

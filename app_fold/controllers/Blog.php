@@ -35,14 +35,14 @@ class Blog extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Записи блога';
-        $this->page_data['page_menu']    = 'blog';
+        $this->page_data['page_menu']    = 'a_blog';
         $this->page_data['page_submenu'] = 'blog_posts';
 
         $result = $this->Blog_model->getBlogsPosts();
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('blog/posts/blog_posts', $result);
+        $this->load->view('blog/blog_posts', $result);
         $this->load->view('footer/footer');
     }
 
@@ -67,15 +67,16 @@ class Blog extends CI_Controller
         {
             $db_post = $result['post'];
 
-            $post_title = $db_post['title'];
-            $post_desc = $db_post['short_desc'];
-            $post_text = $db_post['text'];
+            $post_title    = $db_post['title'];
+            $post_desc     = $db_post['short_desc'];
+            $post_text     = $db_post['text'];
+            $post_keywords = $db_post['keywords'];
 
             extract(self::parsePostData($this->input->post()));
 
-            if($db_post['title'] != $post_title or $db_post['short_desc'] != $post_desc or $db_post['text'] != $post_text)
+            if($db_post['title'] != $post_title or $db_post['short_desc'] != $post_desc or $db_post['text'] != $post_text or $db_post['keywords'] != $post_keywords)
             {
-                $res_up = $this->Blog_model->updateBlogPost($post_id, $post_title, $post_desc, $post_text, $this->date);
+                $res_up = $this->Blog_model->updateBlogPost($post_id, $post_title, $post_desc, $post_keywords, $post_text, $this->date);
 
                 if ($res_up === true)
                 {
@@ -87,6 +88,11 @@ class Blog extends CI_Controller
                     // Не сохранено
                     $this->session->set_tempdata('message', 127, 60);
                 }
+            }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 127, 60);
             }
 
             header('Location: /administration/blog/post/' . $post_id);
@@ -147,13 +153,13 @@ class Blog extends CI_Controller
         
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Редактирование данных сообщения блога';
-        $this->page_data['page_menu']    = 'blog';
+        $this->page_data['page_menu']    = 'a_blog';
         $this->page_data['page_submenu'] = 'blog_posts';
 
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('blog/posts/blog_post', $result);
+        $this->load->view('blog/blog_post', $result);
         $this->load->view('footer/footer');
     }
 
@@ -173,14 +179,14 @@ class Blog extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Комментарии блога';
-        $this->page_data['page_menu']    = 'blog';
+        $this->page_data['page_menu']    = 'a_blog';
         $this->page_data['page_submenu'] = 'blog_comments';
         
         $result = $this->Blog_model->getBlogsComments();
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('blog/posts/comments', $result);
+        $this->load->view('blog/comments', $result);
         $this->load->view('footer/footer');
     }
 
@@ -226,14 +232,14 @@ class Blog extends CI_Controller
         
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Редактирование данных комментария блога';
-        $this->page_data['page_menu']    = 'blog';
+        $this->page_data['page_menu']    = 'a_blog';
         $this->page_data['page_submenu'] = 'blog_comments';
         
         $result = $this->Blog_model->getBlogComment($comment_id);
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('blog/posts/comment', $result);
+        $this->load->view('blog/comment', $result);
         $this->load->view('footer/footer');
     }
 
@@ -262,7 +268,7 @@ class Blog extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('blog/posts/user_posts', $result);
+        $this->load->view('blog/user_posts', $result);
         $this->load->view('footer/footer');
     }
 
@@ -284,15 +290,16 @@ class Blog extends CI_Controller
         {
             $db_post = $result['post'];
 
-            $post_title = $db_post['title'];
-            $post_desc = $db_post['short_desc'];
-            $post_text = $db_post['text'];
+            $post_title    = $db_post['title'];
+            $post_desc     = $db_post['short_desc'];
+            $post_text     = $db_post['text'];
+            $post_keywords = $db_post['keywords'];
 
             extract(self::parsePostData($this->input->post()));
 
-            if($db_post['title'] != $post_title or $db_post['short_desc'] != $post_desc or $db_post['text'] != $post_text)
+            if($db_post['title'] != $post_title or $db_post['short_desc'] != $post_desc or $db_post['text'] != $post_text or $db_post['keywords'] != $post_keywords)
             {
-                $result = $this->Blog_model->updateCoachBlogPost($this->user_id, $post_id, $post_title, $post_desc, $post_text, $this->date);
+                $result = $this->Blog_model->updateCoachBlogPost($this->user_id, $post_id, $post_title, $post_desc, $post_keywords, $post_text, $this->date);
 
                 if ($result === true)
                 {
@@ -304,6 +311,11 @@ class Blog extends CI_Controller
                     // Не сохранено
                     $this->session->set_tempdata('message', 127, 60);
                 }
+            }
+            else
+            {
+                // Не сохранено
+                $this->session->set_tempdata('message', 127, 60);
             }
 
             header('Location: /post/' . $post_id);
@@ -332,7 +344,6 @@ class Blog extends CI_Controller
             header('Location: /post/' . $post_id);
         }
 
-
         // Объединенные данные страница
         $this->page_data['title'] = 'Блог тренера';
         $this->page_data['page_menu'] = 'blog';
@@ -340,7 +351,7 @@ class Blog extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('blog/posts/user_post', $result);
+        $this->load->view('blog/user_post', $result);
         $this->load->view('footer/footer');
     }
 
@@ -397,7 +408,7 @@ class Blog extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('blog/posts/new_post');
+        $this->load->view('blog/new_post');
         $this->load->view('footer/footer');
     }
 
@@ -432,13 +443,29 @@ class Blog extends CI_Controller
         }
     }
 
+    public function getPublicPosts()
+    {
+        $this->load->model('Coach_model');
+
+        $result = $this->Blog_model->getPublicBlogPosts();
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'Блог';
+        $this->page_data['page_menu'] = 'blog';
+
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/profile');
+        $this->load->view('user/profile_line');
+        $this->load->view('blog/posts', $result);
+        $this->load->view('footer/footer');
+    }
 
     /**
      * Общедоступная запись блога
      *
      * @param $post_id
      */
-    public function getPost($post_id)
+    public function getPublicPost($post_id)
     {
         if ($this->input->post('bt_send_comment', true) and !empty($this->input->post('post_comment', true)))
         {
@@ -471,13 +498,15 @@ class Blog extends CI_Controller
         $result = array_merge($post, $user);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Блог тренера';
-        $this->page_data['page_menu'] = 'blog';
+        $this->page_data['title']       = (!empty($post['post']['title'])) ? $post['post']['title'] : 'Блог тренера';
+        $this->page_data['description'] = (!empty($post['post']['short_desc'])) ? $post['post']['short_desc'] : '';
+        $this->page_data['keywords']    = (!empty($post['post']['keywords'])) ? $post['post']['keywords'] : '';
+        $this->page_data['page_menu']   = 'blog';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('blog/posts/post', $result);
+        $this->load->view('blog/post', $result);
         $this->load->view('footer/footer');
     }
 
@@ -489,8 +518,9 @@ class Blog extends CI_Controller
      */
     protected function parsePostData($form)
     {
-        $result['post_title'] = mb_substr(strip_tags($form['post_title']), 0, 100);
-        $result['post_desc']  = mb_substr(strip_tags($form['post_short_desc']), 0, 255);
+        $result['post_title']    = mb_substr(strip_tags($form['post_title']), 0, 100);
+        $result['post_desc']     = mb_substr(strip_tags($form['post_short_desc']), 0, 255);
+        $result['post_keywords'] = mb_substr(strip_tags($form['post_keywords']), 0, 1000);
         $post_text = mb_substr(strip_tags($form['post_text'], '<b><div><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
         $post_text = preg_replace("/<p[^>]*>[\s|&nbsp;]*<\/p>/", '', $post_text);
         $post_text = preg_replace('/ {2,}/',' ', $post_text);
