@@ -3356,6 +3356,16 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-03-28 15:15';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_date`='', `uc_blocked_reason`='payment_succeeded' WHERE `uc_id`=1212 LIMIT 1");
+            $this->db->query("UPDATE `orders` SET `o_payment_status`='succeeded' WHERE `o_id`=1212 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
