@@ -186,6 +186,36 @@ class Payment extends CI_Controller
     }
 
     /**
+     * Обновление данных платежа
+     *
+     * @param $payment
+     * @param $payment_event
+     */
+    public function updatePaymentData($payment, $payment_event)
+    {
+        $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
+        $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
+
+        $payment_data = array(
+            'event' => $payment_event,
+            'pid' => $payment->id,
+            'ps' => $payment->status,
+            'rpid' => $payment->payment_id,
+            'pp' => $payment_paid,
+            'pcr' => $payment->created_at,
+            'pe' => $payment->expires_at,
+            'pc' => $payment->captured_at,
+            'pmid' => $payment->payment_method->id,
+            'pms' => $payment_saved
+        );
+
+        $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
+
+        $handle = fopen($url, "r");
+        fclose($handle);
+    }
+
+    /**
      * Обновление данных о платеже в БД
      * @throws Exception
      */
@@ -293,36 +323,6 @@ class Payment extends CI_Controller
                 log_message('error', __METHOD__.':'.__LINE__. ' Empty payment');
             }
         }
-    }
-
-    /**
-     * Обновление данных платежа
-     *
-     * @param $payment
-     * @param $payment_event
-     */
-    public function updatePaymentData($payment, $payment_event)
-    {
-        $payment_saved = ($payment->payment_method->saved === true) ? 'true' : 'false';
-        $payment_paid  = ($payment->paid === true) ? 'true' : 'false';
-
-        $payment_data = array(
-            'event' => $payment_event,
-            'pid' => $payment->id,
-            'ps' => $payment->status,
-            'rpid' => $payment->payment_id,
-            'pp' => $payment_paid,
-            'pcr' => $payment->created_at,
-            'pe' => $payment->expires_at,
-            'pc' => $payment->captured_at,
-            'pmid' => $payment->payment_method->id,
-            'pms' => $payment_saved
-        );
-
-        $url = 'https://superbody.pro/payment/update?' . http_build_query($payment_data);
-
-        $handle = fopen($url, "r");
-        fclose($handle);
     }
 
     /**

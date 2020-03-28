@@ -3615,7 +3615,8 @@ class Store_model extends CI_Model
                 LEFT JOIN `products` ON `p_id`=`ouc_p_id`
                 LEFT JOIN `courses` ON `p_course_id`=`crs_id`
                 LEFT JOIN `promocodes_used` ON `pcu_id`=`ouc_promocode_id`
-                WHERE `ouc_o_id`=? and `ouc_u_id`=? and `p_course_id`>0 and `ouc_attached_p_id`=0', array($order_id, $user_id));
+                WHERE `ouc_o_id`=? and `ouc_u_id`=? and `p_course_id`>0 and `ouc_attached_p_id`=0
+                GROUP BY `ouc_o_id`', array($order_id, $user_id));
 
             if($sel_courses !== false and 0 < $sel_courses->num_rows())
             {

@@ -220,16 +220,30 @@ class Payment_model extends CI_Model
                             $tmp_date->add(new DateInterval('P1M'));
                             $following_date = $tmp_date->format('Y-m-d');
 
-                            $ins_data = $this->db->query('
-                                INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, 
-                                                              `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_status`, `op_amount`, `op_currency`, 
-                                                              `op_payment_method_id`, `op_following_date`, `op_date_add`)
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                    array($order_id, $i, $customer_email, $customer_name, $payment_method, $login, $phone, '',
-                                        $course['rec_subsequent'], 'RUB', $payment_method_id, $following_date, $date));
-                            if($ins_data === false)
+                            $sel_data = $this->db->query('SELECT `op_o_id` FROM `orders_payment` 
+                                WHERE `op_o_id`=? and `op_number`=? and `op_customer_email`=? and `op_customer_name`=? and
+                                      `op_payment_type`=? and `op_pt_login`=? and `op_pt_phone`=? and `op_status`=? and 
+                                      `op_amount`=? and `op_currency`=? and `op_payment_method_id`=? and `op_following_date`=? 
+                                LIMIT 1',
+                                    array($order_id, $i, $customer_email, $customer_name, $payment_method, $login,
+                                        $phone, '', $course['rec_subsequent'], 'RUB', $payment_method_id, $following_date));
+                            if($sel_data !== false and 0 == $sel_data->num_rows())
                             {
-                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                $ins_data = $this->db->query('
+                                    INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, 
+                                                                  `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_status`, `op_amount`, `op_currency`, 
+                                                                  `op_payment_method_id`, `op_following_date`, `op_date_add`)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                        array($order_id, $i, $customer_email, $customer_name, $payment_method, $login, $phone, '',
+                                            $course['rec_subsequent'], 'RUB', $payment_method_id, $following_date, $date));
+                                if($ins_data === false)
+                                {
+                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                }
+                            }
+                            else
+                            {
+                                log_message('debug', __METHOD__.':'.__LINE__.' Subsequent payment already existed. Order_id: ' . $order_id . ' #' . $i . ' Payment_method_id: ' . $payment_method_id);
                             }
                         }
                     }
@@ -281,14 +295,14 @@ class Payment_model extends CI_Model
                 if(is_numeric($row->user_id) and $row->user_blocked == 0 and $row->user_deleted == 0)
                 {
                     $sel_first = $this->db->query('
-                        SELECT `op_revoke_permission` 
+                        SELECT `op_revoke_permission`, `op_status` 
                         FROM `orders_payment`
                         WHERE `op_payment_id`=? LIMIT 1', $row->op_payment_method_id);
                     if($sel_first !== false and 1 == $sel_first->num_rows())
                     {
                         $f_row = $sel_first->row();
 
-                        if($f_row->op_revoke_permission == 0)
+                        if($f_row->op_revoke_permission == 0 and $f_row->op_status == 'succeeded')
                         {
                             $result['payments'][$i]['id']             = $row->op_id;
                             $result['payments'][$i]['order_id']       = $row->op_o_id;
