@@ -3347,6 +3347,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-03-28 11:39';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE FROM `trivial_sb`.`orders_payment` WHERE `op_id` IN (50, 51, 81, 85, 267, 293)");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
