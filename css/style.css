@@ -12638,6 +12638,8 @@ input.tren_form_block_check{
     display: -webkit-flex;
     display: flex;
     margin: 0 auto 0 0;
+    flex-basis: calc(100% - 300px);
+    -webkit-flex-basis: calc(100% - 300px);
 }
 .admin_feedback_info{
     /*float: left;*/
