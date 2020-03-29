@@ -327,7 +327,8 @@ class Authorization extends CI_Controller
         }
         
         // Объединенные данные страница
-        $this->page_data['title'] = 'Авторизация';
+        $this->page_data['title']     = 'Авторизация';
+        $this->page_data['page_menu'] = 'login';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');

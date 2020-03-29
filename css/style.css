@@ -307,6 +307,9 @@ audio, canvas, progress, video{
 .header_menu{
     margin-left: 282px;
 }
+.menu a.menu_login{
+    display: none;
+}
 .mob_menu_but, .mob_side_menu_but{
     height: 15px;
     width: 30px;
@@ -14362,6 +14365,9 @@ input.tren_form_block_check{
     .main_bg_wrap{
         height: 200px;
         display: none;
+    }
+    .menu a.menu_login{
+        display: block;
     }
 }
 

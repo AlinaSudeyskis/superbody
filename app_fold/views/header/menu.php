@@ -9,6 +9,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <nav class="header_menu">
     <ul class="menu">
+        <?php if (empty($user_session)) :?>
+            <li><a href="/login" class="menu_login <?php if ($page_menu == 'login') { echo 'active'; } ?>">ВХОД</a></li>
+        <?php endif;?>
         <li><a href="/" <?php if ($page_menu == 'index') { echo 'class="active"'; } ?>>ГЛАВНАЯ</a></li>
         <?php /*<li><a href="/journal/articles" <?php if ($page_menu == 'articles') { echo 'class="active"'; } ?>>ЖУРНАЛ</a></li>*/?>
         <li><a href="/coaches" <?php if ($page_menu == 'coaches') { echo 'class="active"'; } ?>>ТРЕНЕРЫ</a></li>
