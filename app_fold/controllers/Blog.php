@@ -521,10 +521,11 @@ class Blog extends CI_Controller
         $result['post_title']    = mb_substr(strip_tags($form['post_title']), 0, 100);
         $result['post_desc']     = mb_substr(strip_tags($form['post_short_desc']), 0, 255);
         $result['post_keywords'] = mb_substr(strip_tags($form['post_keywords']), 0, 1000);
-        $post_text = mb_substr(strip_tags($form['post_text'], '<b><div><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 65000);
+        $post_text = mb_substr(strip_tags($form['post_text'], '<b><div><i><p><br/><strong><em><img><span><a><ol><ul><li>'), 0, 1000000);
         $post_text = preg_replace("/<p[^>]*>[\s|&nbsp;]*<\/p>/", '', $post_text);
         $post_text = preg_replace('/ {2,}/',' ', $post_text);
-        $result['post_text']  = trim(preg_replace('~(?:\r?\n)+~','', $post_text));
+        $post_text = trim(preg_replace('~(?:\r?\n)+~','', $post_text));
+        $result['post_text']  = parent::closetags($post_text);
 
         return $result;
     }

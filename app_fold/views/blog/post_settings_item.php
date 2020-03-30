@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="kurs_block_h">Полный текст:</div>
 </div>
 <div class="journal_form_textarea_wrap journal_form_textarea_small">
-    <textarea name="post_text" class="full_photo_comm_in ta_dark formatted_textarea" maxlength="65000" style="height: 250px;"><?php if(!empty($post['text'])): echo $post['text']; endif;?></textarea>
+    <textarea name="post_text" class="full_photo_comm_in ta_dark formatted_textarea" maxlength="1000000" style="height: 250px;"><?php if(!empty($post['text'])): echo $post['text']; endif;?></textarea>
 </div>
 <script>
     tinymce.init({
