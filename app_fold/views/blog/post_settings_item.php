@@ -3,21 +3,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Заголовок:</div>
-    <input type="text" name="post_title" value="<?php if(!empty($post['title'])): echo $post['title']; endif;?>" class="admin_form_txt admin_form_txt_middle" maxlength="100" />
+    <input type="text" name="post_title" value="<?php if(!empty($post['title'])): echo $post['title']; endif;?>" class="admin_form_txt admin_form_txt_middle" maxlength="100" required="required" />
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Краткое описание:</div>
-    <input type="text" name="post_short_desc" value="<?php if(!empty($post['short_desc'])): echo $post['short_desc']; endif;?>" class="admin_form_txt admin_form_txt_middle" maxlength="255" />
+    <input type="text" name="post_short_desc" value="<?php if(!empty($post['short_desc'])): echo $post['short_desc']; endif;?>" class="admin_form_txt admin_form_txt_middle" maxlength="255" required="required" />
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Ключевые слова:</div>
-    <input type="text" name="post_keywords" value="<?php if(!empty($post['keywords'])): echo $post['keywords']; endif;?>" class="admin_form_txt admin_form_txt_middle" maxlength="255" />
+    <input type="text" name="post_keywords" value="<?php if(!empty($post['keywords'])): echo $post['keywords']; endif;?>" class="admin_form_txt admin_form_txt_middle" maxlength="255" required="required" />
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Полный текст:</div>
 </div>
 <div class="journal_form_textarea_wrap journal_form_textarea_small">
-    <textarea name="post_text" class="full_photo_comm_in ta_dark formatted_textarea" maxlength="1000000" style="height: 250px;"><?php if(!empty($post['text'])): echo $post['text']; endif;?></textarea>
+    <textarea name="post_text" class="full_photo_comm_in ta_dark formatted_textarea" maxlength="1000000" required="required" style="height: 250px;"><?php if(!empty($post['text'])): echo $post['text']; endif;?></textarea>
 </div>
 <script>
     tinymce.init({

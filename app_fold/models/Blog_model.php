@@ -777,7 +777,7 @@ class Blog_model extends CI_Model
         $result = array();
 
         $result['id']         = $row->cb_id;
-        $result['title']      = (!empty($row->cb_post_title)) ? $row->cb_post_title : null;
+        $result['title']      = (!empty($row->cb_post_title)) ? $row->cb_post_title : 'Статья №'.$row->cb_id;
         $result['short_desc'] = (!empty($row->cb_post_short_description)) ? $row->cb_post_short_description : null;
         $result['keywords']   = (!empty($row->cb_post_keywords)) ? $row->cb_post_keywords : null;
         $result['text']       = (!empty($row->cb_post_text))
