@@ -2779,13 +2779,13 @@ class Store_model extends CI_Model
             SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
                 `o_delivery`, `o_payment`, `o_payment_status`, `o_status`, `o_date_add`,
                 `oud_country`, `oud_city`, `oud_street`, `oud_building`, `oud_house`, `oud_postcode`,
-                `user_name`, `op_number`, `op_status`
+                `user_name`, `user_type`, `op_number`, `op_status`
             FROM `orders`
             LEFT JOIN `orders_users_data` ON `oud_id`=`o_oud_id`
             LEFT JOIN `orders_payment` ON `op_o_id`=`o_id`
             LEFT JOIN `users` ON `o_u_id`=`user_id`
             WHERE ".$where."
-            GROUP BY `o_id` ORDER BY `o_id` DESC LIMIT 10");
+            GROUP BY `o_id` ORDER BY `o_id` DESC LIMIT 20");
 
         if ($sel_orders !== false and 0 < $sel_orders->num_rows())
         {
@@ -4424,11 +4424,13 @@ class Store_model extends CI_Model
      */
     protected function parseOrderData($row)
     {
+        $users_types = array('users' => 1, 'coaches' => 2, 'admins' => 3);
         $result['id']                = $row->o_id;
         $result['user_id']           = (!empty($row->o_u_id)) ? $row->o_u_id : '';
         $result['o_user_name']       = (!empty($row->o_user_name)) ? $row->o_user_name : '';
         $result['o_user_surname']    = (!empty($row->o_user_surname)) ? $row->o_user_surname : '';
         $result['user_name']         = (!empty($row->user_name)) ? $row->user_name : '';
+        $result['user_type']         = (!empty($row->user_type) and array_search($row->user_type, $users_types)) ? array_search($row->user_type, $users_types) : '';
         $result['user_email']        = (!empty($row->o_user_email)) ? $row->o_user_email : '';
         $result['user_country_code'] = (!empty($row->o_user_country_code)) ? $row->o_user_country_code : '';
         $result['user_phone']        = (!empty($row->o_user_phone)) ? $row->o_user_phone : '';

@@ -7,7 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
+            <div class="content_block new_content_block">
                 <div class="content_block_container_wrap">
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
@@ -23,9 +23,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 $post_path = '/administration/blog/post/'; ?>
                                 <?php include('./app_fold/views/blog/posts_item.php'); ?>
                             <?php endforeach;
-                            unset($article);
-                            include_once('./app_fold/views/pagination.php'); ?>
+                            unset($article); ?>
                         </div>
+                        <?php include_once('./app_fold/views/pagination.php'); ?>
                     <?php else: ?>
                         <h3 class="info">Информация не найдена</h3>
                     <?php endif;?>

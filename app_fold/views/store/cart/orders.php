@@ -7,7 +7,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/admin/admin_menu.php');?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
-            <div class="content_block">
+            <div class="content_block new_content_block">
                 <div class="content_block_container_wrap">
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
@@ -34,35 +34,33 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         </form>
                     </div>
-                    <div class="admin_journal">
-                        <div class="admin_list">
-                            <?php if (!empty($orders)) :
-                                foreach ($orders as $order) :
-                                    $waiting_status = ($order['waiting_status'] === true) ? 'bg_gray' : '';
-                                ?>
-                                    <div class="admin_item <?php echo $waiting_status; ?>">
-                                        <div class="journal_block_item_h"><a href="/administration/order/<?php echo $order['id']; ?>">Заказ №<?php echo $order['id']; ?></a></div>
-                                        <div class="journal_block_item_data">Дата заказа: <?php echo $order['date']; ?></div>
-                                        <div class="journal_block_item_data">Сумма заказа: <?php echo $order['order_amount']; ?> руб.</div>
-                                        <?php if(!empty($order['address'])): ?>
-                                            <div class="journal_block_item_data">Адрес доставки: <?php echo $order['address']; ?></div>
+                    <div class="admin_orders_list admin_list">
+                        <?php if (!empty($orders)) :
+                            foreach ($orders as $order) :
+                                $waiting_status = ($order['waiting_status'] === true) ? 'bg_gray' : '';
+                            ?>
+                                <div class="admin_order_item <?php echo $waiting_status; ?>">
+                                    <div class="journal_block_item_h"><a href="/administration/order/<?php echo $order['id']; ?>">Заказ №<?php echo $order['id']; ?></a></div>
+                                    <div class="journal_block_item_data">Дата заказа: <?php echo $order['date']; ?></div>
+                                    <div class="journal_block_item_data">Сумма заказа: <?php echo $order['order_amount']; ?> руб.</div>
+                                    <?php if(!empty($order['address'])): ?>
+                                        <div class="journal_block_item_data">Адрес доставки: <?php echo $order['address']; ?></div>
+                                    <?php endif; ?>
+                                    <?php $order_user_name = (!empty($order['user_name'])) ? $order['user_name'] : $order['user_email']; ?>
+                                    <div class="journal_block_item_edit">
+                                        <?php if(!empty($order['user_id'])): ?>
+                                            <a href="/administration/<?php echo $order['user_type']; ?>/<?php echo $order['user_id']; ?>"><?php echo $order_user_name; ?></a>
+                                        <?php else: ?>
+                                            <?php echo $order_user_name; ?>
                                         <?php endif; ?>
-                                        <?php $order_user_name = (!empty($order['user_name'])) ? $order['user_name'] : $order['user_email']; ?>
-                                        <div class="journal_block_item_edit">
-                                            <?php if(!empty($order['user_id'])): ?>
-                                                <a href="/profile/<?php echo $order['user_id']; ?>"><?php echo $order_user_name; ?></a>
-                                            <?php else: ?>
-                                                <?php echo $order_user_name; ?>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="journal_block_item_edit"><a href="/administration/order/<?php echo $order['id']; ?>">Подробнее</a></div>
                                     </div>
-                                <?php endforeach;
-                                unset($order);
-                            elseif(empty($orders) and !empty($page_submenu) and $page_submenu == 'search'): ?>
-                                <h3 class="info">По Вашему запросу ничего не найдено</h3>
-                            <?php endif;?>
-                        </div>
+                                    <div class="journal_block_item_edit"><a href="/administration/order/<?php echo $order['id']; ?>">Подробнее</a></div>
+                                </div>
+                            <?php endforeach;
+                            unset($order);
+                        elseif(empty($orders) and !empty($page_submenu) and $page_submenu == 'search'): ?>
+                            <h3 class="info">По Вашему запросу ничего не найдено</h3>
+                        <?php endif;?>
                     </div>
                     <?php include_once('./app_fold/views/pagination.php'); ?>
                 </div>

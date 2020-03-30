@@ -9,7 +9,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="anketa_form_line parent">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Email:</div></div>
         <?php $activate = (empty($user_data['user_activated'])) ? 'disabled' : ''; ?>
-        <input type="text" name="email" class="anketa_form_in anketa_form_in_long valid_email <?php echo $activate; ?>" placeholder="Email" value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255" required="required" autocomplete="off"/>
+        <input type="text" name="email" class="anketa_form_in anketa_form_in_long valid_email <?php echo $activate; ?>" placeholder="Email"
+               value="<?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; }?>" maxlength="255" required="required"
+                <?php if (!empty($user_data['user_email'])):?> readonly<?php endif; ?> onfocus="if (this.hasAttribute('readonly')) {
+                    this.removeAttribute('readonly');
+                    // fix for mobile safari to show virtual keyboard
+                    this.blur();    this.focus();  }"/>
         <?php if(!empty($activate)): ?>
             <span class="tip">
                 * Активируйте email. Письмо с активацией отправлено Вам на почту.
@@ -37,12 +42,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="anketa_form_info_cont">
                 <div class="">
                     <span class="anketa_form_info_txt">
-                        <input type="password" name="old_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Старый пароль" id="old-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
+                        <input type="password" name="old_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Старый пароль" id="old-pass" value="" maxlength="255" minlength="8" autocomplete="new-password" style="display: none;"/>
+                        <input type="password" name="old_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Старый пароль" id="old-pass" value="" maxlength="255" minlength="8" autocomplete="new-password"/>
                     </span>
                 </div>
                 <div class="new_pass">
                     <span class="anketa_form_info_txt">
-                        <input type="password" name="new_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Новый пароль" id="new-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
+                        <input type="password" name="new_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Новый пароль" id="new-pass" value="" maxlength="255" minlength="8" autocomplete="new-password"/>
                     </span>
                     <span class="anketa_form_info_txt">
                         <span id="pass-info" class="field_info"></span>
@@ -50,7 +56,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="confirm_pass">
                     <span class="anketa_form_info_txt">
-                        <input type="password" name="confirm_new_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Подтвердите новый пароль" id="confirm-pass" value="" maxlength="255" minlength="8" autocomplete="off"/>
+                        <input type="password" name="confirm_new_password" class="anketa_form_in anketa_form_in_long pass" placeholder="Подтвердите новый пароль" id="confirm-pass" value="" maxlength="255" minlength="8" autocomplete="new-password"/>
                     </span>
                     <span class="anketa_form_info_txt">
                         <span id="pass-info" class="field_info"></span>

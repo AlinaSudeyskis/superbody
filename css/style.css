@@ -1916,10 +1916,19 @@ tr:first-child > td > .fc-day-grid-event{
     color: #c5c1c1;
 }
 .stat_general_data {
-    display: flex;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
     flex-direction: row;
+    -webkit-flex-direction: row;
     justify-content: center;
+    -webkit-justify-content: center;
     margin-top: 15px;
+    flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
 }
 .sgd_item {
     flex-basis: 150px;
@@ -2028,6 +2037,22 @@ tr:first-child > td > .fc-day-grid-event{
 }
 .used_pc_desc a:hover {
     color: #00bff0;
+}
+.admin_orders_list{
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    flex-wrap: wrap;
+}
+.admin_order_item{
+    flex-basis: 190px;
+    -webkit-flex-basis: 190px;
+    height: 200px;
+    padding: 40px 0;
+    flex-grow: 1;
+    -webkit-flex-grow: 1;
 }
 
 /* footer */
@@ -11235,7 +11260,7 @@ textarea.anketa_form_in{
     width: 100%;
     max-width: 1130px;
     margin: 0 auto;
-    padding: 30px 30px 0;
+    padding: 30px;
 
     overflow: hidden;
     word-wrap: break-word;
@@ -15378,13 +15403,14 @@ input.tren_form_block_check{
         width: 235px;
         z-index: 113;
         padding-top: 52px;
+        margin: 0;
     }
     .left_sidebar.qa_menu{
         width: unset;
         float: unset;
         overflow: unset;
     }
-    .mob_side_menu_but_wrap, .mob_side_menu_but{
+    .article .mob_side_menu_but_wrap, .article .mob_side_menu_but{
         display: block;
     }
     .user_menu .mob_side_menu_but_wrap{
@@ -16582,6 +16608,15 @@ input.tren_form_block_check{
         font-size: 12px;
         line-height: 14px;
     }
+    .admin_order_item .journal_block_item_h{
+        font-size: 16px;
+        line-height: 20px;
+    }
+    .admin_order_item .journal_block_item_data,
+    .admin_order_item .journal_block_item_edit{
+        font-size: 14px;
+        line-height: 16px;
+    }
     .journal_block_nav li{
         width: 33.3333%;
         text-align: center;
@@ -17313,6 +17348,12 @@ input.tren_form_block_check{
         left: 0;
     }
 
+}
+
+@media (max-width: 439px){
+    .admin_order_item{
+        text-align: center;
+    }
 }
 
 @media (max-width: 425px){
