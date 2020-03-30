@@ -2323,7 +2323,7 @@ class User extends CI_Controller
         $user = $this->User_model->getUserSettingsData($user_id);
         $user_courses = array();
         $courses_data = array();
-        if (!empty($result['user_data']))
+        if (!empty($user['user_data']))
         {
             $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, 'active'); // Выборка курсов пользователя
             $courses_data    = $this->Store_model->getUserCoursesOrder($user_id, $user_courses);
