@@ -95,7 +95,7 @@ class Authorization extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Регистрация';
-        $this->page_data['page_menu'] = '';
+        $this->page_data['page_menu'] = 'registry';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');
