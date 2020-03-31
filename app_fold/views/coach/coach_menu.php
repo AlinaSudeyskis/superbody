@@ -42,7 +42,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </a>
         </li>
         <li <?php echo $user_blocked; ?> >
-            <a href="/posts" <?php if ($page_menu == 'blog') { echo 'class="active"'; } ?>>
+            <a href="/posts" <?php if ($page_menu == 'c_blog') { echo 'class="active"'; } ?>>
                 <span><img src="/img/menu_ico14.png" alt=""></span><span>Блог</span>
             </a>
         </li>

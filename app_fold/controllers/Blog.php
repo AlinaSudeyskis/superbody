@@ -258,8 +258,8 @@ class Blog extends CI_Controller
         $this->load->model('Coach_model');
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Блог';
-        $this->page_data['page_menu'] = 'blog';
+        $this->page_data['title']     = 'Блог';
+        $this->page_data['page_menu'] = 'c_blog';
 
         $c_data = $this->Coach_model->getCoach($this->user_id, $this->date);
         $posts  = $this->Blog_model->getCoachBlogPosts($this->user_id);
@@ -345,8 +345,8 @@ class Blog extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Блог тренера';
-        $this->page_data['page_menu'] = 'blog';
+        $this->page_data['title']     = 'Блог тренера';
+        $this->page_data['page_menu'] = 'c_blog';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -371,12 +371,13 @@ class Blog extends CI_Controller
             $post_title = '';
             $post_desc  = '';
             $post_text  = '';
+            $post_keywords = '';
 
             extract(self::parsePostData($this->input->post()));
 
             if(!empty($post_title) and !empty($post_text))
             {
-                $result = $this->Blog_model->setBlogPost($this->user_id, $post_title, $post_desc, $post_text, $this->date);
+                $result = $this->Blog_model->setBlogPost($this->user_id, $post_title, $post_desc, $post_keywords, $post_text, $this->date);
 
                 if ($result !== false)
                 {
@@ -402,8 +403,8 @@ class Blog extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'Добавление записи блога';
-        $this->page_data['page_menu'] = 'blog';
+        $this->page_data['title']     = 'Добавление записи блога';
+        $this->page_data['page_menu'] = 'c_blog';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');

@@ -17,16 +17,17 @@ class Blog_model extends CI_Model
      * @param int $user_id
      * @param string $title
      * @param string $short_desc
+     * @param $keywords
      * @param string $text
      * @param string $date
      * @return bool|int
      */
-    public function setBlogPost($user_id, $title, $short_desc, $text, $date)
+    public function setBlogPost($user_id, $title, $short_desc, $keywords, $text, $date)
     {
         $ins_data = $this->db->query('
-            INSERT INTO `coach_blog` (`cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_text`, 
+            INSERT INTO `coach_blog` (`cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, 
               `cb_post_date_add`, `cb_post_date_update`)
-            VALUES (?, ?, ?, ?, ?, ?)', array($user_id, $title, $short_desc, $text, $date, $date));
+            VALUES (?, ?, ?, ?, ?, ?, ?)', array($user_id, $title, $short_desc, $keywords, $text, $date, $date));
 
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
