@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="busket_block_col_img"><img src="<?php echo $product_item['image']; ?>" alt=""></div>
             <?php endif;?>
             <div class="busket_block_col_param">
-                <div class="ordering_block_col_name"><a href="/store/product/<?php echo $product_item['id'];?>"><?php echo $product_item['name'];?></a></div>
+                <div class="ordering_block_col_name"><a href="/course/<?php echo $product_item['course_id'];?>"><?php echo $product_item['name'];?></a></div>
             </div>
         </div>
     </div>
