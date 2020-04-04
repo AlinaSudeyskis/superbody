@@ -119,15 +119,17 @@ class Database extends CI_Controller
      * Просмотр данных Таблицы
      *
      * @param $table
+     * @param null $limit
+     * @param null $offset
      */
-    public function showDataTable($table)
+    public function showDataTable($table, $limit = null, $offset = null)
     {
         if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
 
-        $result['table_info'] = $this->Database_model->showDataTable($table);
+        $result['table_info'] = $this->Database_model->showDataTable($table, $limit, $offset);
 
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - База данных';

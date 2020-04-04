@@ -3458,12 +3458,12 @@ class Database_model extends CI_Model
      * @param int $offset
      * @return bool|array
      */
-    public function showDataTable($table, $limit = 50, $offset = 0)
+    public function showDataTable($table, $limit = null, $offset = null)
     {
         $result = false;
 
-        $query_limit = (is_numeric($limit)) ? ' LIMIT '.$limit : '';
-        $query_limit .= (!empty($query_limit) and is_numeric($offset)) ? ', '.$offset : '';
+        $query_limit = (!empty($limit) and is_numeric($limit)) ? ' LIMIT '.$limit : '';
+        $query_limit .= (!empty($query_limit) and !empty($offset) and is_numeric($offset)) ? ', '.$offset : '';
 
         $sel_data = $this->db->query('SELECT * FROM `'.$table.'`'.$query_limit);
         //log_message('debug', 'Last query: ' . print_r($this->db->last_query(), true));
