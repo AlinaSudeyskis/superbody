@@ -3375,6 +3375,30 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-03-31 16:47';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_group_id` INT(10) NOT NULL AFTER `pc_id`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-03-31 16:57';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes` ADD `pc_attached_users` TINYINT(1) UNSIGNED NOT NULL AFTER `pc_coach_id`");
+            $this->db->query("CREATE TABLE `promocodes_attached_users` ( 
+                `pau_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `pau_pc_id` INT(10) UNSIGNED NOT NULL , 
+                `pau_u_id` INT(10) UNSIGNED NOT NULL , 
+                `pau_update` DATETIME NOT NULL , 
+                PRIMARY KEY (`pau_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
@@ -3441,7 +3465,7 @@ class Database_model extends CI_Model
         $query_limit = (is_numeric($limit)) ? ' LIMIT '.$limit : '';
         $query_limit .= (!empty($query_limit) and is_numeric($offset)) ? ', '.$offset : '';
 
-        $sel_data = $this->db->query('SELECT * FROM `'.$table.'`');
+        $sel_data = $this->db->query('SELECT * FROM `'.$table.'`'.$query_limit);
         //log_message('debug', 'Last query: ' . print_r($this->db->last_query(), true));
         if($sel_data !== false)
         {
