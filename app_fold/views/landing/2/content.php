@@ -380,7 +380,7 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
             </div>
             <?php if (!empty($landing['block8']['button'])):?>
                 <div class="lp_block_buts_wrap">
-                    <a href="#" class="lp_block_but lp_block7_but"><?php echo $landing['block8']['button']; ?></a>
+                    <a href="#" class="lp_block_but lp_block6_but"><?php echo $landing['block8']['button']; ?></a>
                     <?php if(!empty($course['recur_first']) or !empty($course['price'])): ?>
                         <div class="video_col_but">
                             <div class="video_col_but_left">
