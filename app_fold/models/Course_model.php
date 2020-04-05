@@ -9215,6 +9215,46 @@ class Course_model extends CI_Model
 
         for ($workout = 1; $workout <= $count_workouts; $workout++)
         {
+            // Номер дня недели предыдущей тренировки
+            $prev_num_week = date('N', strtotime($training_date));
+            $key_num_week  = array_search($prev_num_week, $training_days);
+            if ($key_num_week === false)
+            {
+                $key_num_week = $training_days[0];
+                // Поиск ближайшего дня недели тренировки
+                foreach($training_days as $at_day)
+                {
+                    if($at_day > $prev_num_week)
+                    {
+                        $current_num_week = $at_day;
+                        $key_search       = array_search($current_num_week, $training_days);
+                        $key_num_week     = ($key_search !== false) ? $key_search : $key_num_week;
+                        break;
+                    }
+                }
+                unset($at_day);
+
+                // Вычисление разницы между номерами дней недели
+                if ($prev_num_week >= $key_num_week)
+                {
+                    $diff_days = 7 - $prev_num_week + $key_num_week;
+                }
+                else
+                {
+                    $diff_days = $key_num_week - $prev_num_week;
+                }
+
+                // Временная дата "сегодня"
+                $tem_date = new DateTime($training_date);
+
+                // Дата текущей тренировки, с учетом разницы между днями ( + $diff_days дней )
+                $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                $training_date = $tem_date->format('Y-m-d');
+
+                unset($tem_date);
+            }
+
             if ($workout == 1)
             {
                 // Время тренировки
@@ -9225,38 +9265,34 @@ class Course_model extends CI_Model
             }
             else
             {
-                // Номер дня недели предыдущей тренировки
-                $prev_num_week = date('N', strtotime($training_date));
-                $key_num_week  = array_search($prev_num_week, $training_days);
-                if ($key_num_week !== false)
+                // Вычисление разницы между номерами дней недели
+                // Если предыдущий день недели тренировки последний день недели, то
+                if ($key_num_week == ($count_days - 1))
                 {
-                    // Вычисление разницы между номерами дней недели
-                    // Если предыдущий день недели тренировки последний день недели, то
-                    if ($key_num_week == ($count_days - 1))
-                    {
-                        // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                        $diff_days = 7 - $training_days[$key_num_week] + $training_days[0];
-                    }
-                    else
-                    {
-                        // Разница между текущим номером недели тренировки и предыдущем.
-                        $diff_days = $training_days[$key_num_week+1] - $training_days[$key_num_week];
-                    }
-
-                    // Временная дата предыдущей тренивроки
-                    $tem_date = new DateTime($training_date);
-                    // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
-                    $tem_date->add(new DateInterval('P' . abs($diff_days) . 'D'));
-                    $training_date = ($tem_date !== false) ? $tem_date->format('Y-m-d') : '';
-                    unset($tem_date);
-
-                    // Время тренировки
-                    $cur_num_week  = date('N', strtotime($training_date));
-                    $training_time = (!empty($arr_training_times[$cur_num_week])) ? $arr_training_times[$cur_num_week] : '12:00';
-
-                    $values .= ', (' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
+                    // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
+                    $diff_days = 7 - $training_days[$key_num_week] + $training_days[0];
                 }
+                else
+                {
+                    // Разница между текущим номером недели тренировки и предыдущем.
+                    $diff_days = $training_days[$key_num_week+1] - $training_days[$key_num_week];
+                }
+
+                // Временная дата предыдущей тренивроки
+                $tem_date = new DateTime($training_date);
+                // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
+                $tem_date->add(new DateInterval('P' . abs($diff_days) . 'D'));
+                $training_date = ($tem_date !== false) ? $tem_date->format('Y-m-d') : '';
+                unset($tem_date);
+
+                // Время тренировки
+                $cur_num_week  = date('N', strtotime($training_date));
+                $training_time = (!empty($arr_training_times[$cur_num_week])) ? $arr_training_times[$cur_num_week] : '12:00';
+
+                $values .= ', (' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
             }
+
+            //log_message('debug', 'Training date: ' . $training_date);
         }
         unset($workout);
 

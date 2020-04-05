@@ -7405,6 +7405,7 @@ class Course extends CI_Controller
                         }
                     }
                     unset($training_day);
+                    $new_course_start = $today;
 
                     // Если дата начала курса не вычислилась на предыдущем этапе, выбираем первый день недели тренировки
                     // пользователя и вычисляем её дату
@@ -7438,30 +7439,37 @@ class Course extends CI_Controller
             // Сохранение изменений дней тренировок
             if (!empty($array_training_days) and !empty($db_training_days) and $training_days != $db_training_days)
             {
-
                 $tem_date = new DateTime($this->date);
                 $today    = $tem_date->format('Y-m-d');
                 unset($tem_date);
 
                 // Вычисление новых дат тренировок
                 $training_date = $today;
+                // Номер недели текущего дня
+                $today_num_day = date('N', strtotime($today));
 
                 $i = 1;
                 foreach ($db_workouts as $num_workout => $workout)
                 {
-                    // Изменяем дату будущих тренировок, иначе пропустить текущую тренировку и перейти к следующей
-                    if ($workout['date'] < $today)
-                    {
-                        $all_workouts[$num_workout]['date'] = $workout['date'];
-                        $all_workouts[$num_workout]['done'] = $workout['done'];
-                        continue;
-                    }
+                    $all_workouts[$num_workout]['date'] = $workout['date'];
+                    $all_workouts[$num_workout]['done'] = $workout['done'];
 
                     // Номер дня недели предыдущей тренировки
                     $prev_num_day = date('N', strtotime($training_date));
                     $key_num_day  = array_search($prev_num_day, $array_training_days);
 
-                    if ($key_num_day !== false)
+                    // Изменяем дату будущих тренировок, иначе пропустить текущую тренировку и перейти к следующей
+                    // Пропускам сегоднешнюю тренировку, если номер дня недели не изменен
+                    if ($workout['date'] < $today or ($workout['date'] == $today and in_array($today_num_day, $array_training_days)))
+                    {
+                        continue;
+                    }
+
+                    if($i == 1 and $training_date == $today and in_array($today_num_day, $array_training_days))
+                    {
+                        $i++;
+                    }
+                    elseif ($key_num_day !== false)
                     {
                         // Вычисление разницы между номерами дней недели
                         // Если предыдущий день недели тренировки последний день недели, то
@@ -7489,8 +7497,6 @@ class Course extends CI_Controller
                     // Если не найден предыдущий день недели в новом списке, то проверяем дату текущей тренировки.
                     else
                     {
-                        // Номер недели текущего дня
-                        $today_num_day = date('N', strtotime($today));
                         $new_num_day_workout = $array_training_days[0];
                         // Поиск ближайшего дня недели тренировки
                         foreach($array_training_days as $at_day)
@@ -7532,8 +7538,8 @@ class Course extends CI_Controller
                         }
                     }
 
-                    $all_workouts[$num_workout]['date']    = $training_date;
-                    $all_workouts[$num_workout]['done']    = $workout['done'];
+                    $all_workouts[$num_workout]['date'] = $training_date;
+                    $all_workouts[$num_workout]['done'] = $workout['done'];
 
                     $update_workouts[$num_workout]['date'] = $training_date;
 
@@ -7547,7 +7553,8 @@ class Course extends CI_Controller
                     $course_end = $training_date;
                 }
             }
-            // log_message('debug', print_r($update_workouts, true));
+            //log_message('debug', print_r($all_workouts, true));
+            //log_message('debug', print_r($update_workouts, true));
 
             /* Заморозка курса */
             $input_date      = $this->input->post('date_pause_to', true); // Введенная дата
@@ -7718,7 +7725,6 @@ class Course extends CI_Controller
                 // Добавление тренировок пользователя в БД
                 $count_workouts = $course_weeks * $course_days;
                 $this->Course_model->setUserTrainingWeeks($uc_id, $new_course_start, $training_days, $array_training_times, $count_workouts, $course_days, $this->date);
-                log_message('debug', 1);
             }
             // Изменение дней и времени тренировок
             elseif(!empty($array_training_days) and !empty($db_training_days) and !empty($update_workouts))
@@ -7728,7 +7734,6 @@ class Course extends CI_Controller
 
                 // Изменение будущих тренировок пользователя
                 $this->Course_model->updateDatesUserWorkouts($uc_id, $update_workouts, $this->date);
-                log_message('debug', 2);
             }
             // Изменение времени тренировок пользователя
             elseif(!empty($training_times) and (empty($db_training_time) or $array_training_times != $db_training_time))
@@ -7741,21 +7746,18 @@ class Course extends CI_Controller
                     $count_workouts = $course_weeks * $course_days;
                     $this->Course_model->setUserTrainingWeeksTime($uc_id, $array_training_times, $count_workouts, $this->date);
                 }
-                log_message('debug', 3);
             }
 
             // Сохранение заморозки курса
             if (!empty($date_pause_to) and $curr_pause_days >= 7 and !empty($pause_update_workouts))
             {
                 $result_sp = $this->Course_model->setUserCoursePause($uc_id, $date_pause_to, $course_end, $pause_update_workouts, $this->date);
-                log_message('debug', 4);
             }
 
             // Сохранение изменений выбранного тренера
             if ($coach_id != $db_course['coach_id'])
             {
                 $this->Course_model->setUserCourseCoach($course_id, $this->user_id, $coach_id, $this->date);
-                log_message('debug', 5);
             }
 
             /* ОТВЕТ */
