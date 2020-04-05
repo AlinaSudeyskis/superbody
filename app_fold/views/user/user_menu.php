@@ -48,16 +48,16 @@ if (!empty($user_session)) :
             </a>
         </li>-->
         <li>
-            <a href="/cart" <?php if ($page_menu == 'cart') { echo 'class="active"'; } ?>>
-                <span><i class="fas fa-shopping-basket"></i></span><span>Корзина</span>
-            </a>
-        </li>
-        <li>
             <a href="/settings" <?php if ($page_menu == 'settings') { echo 'class="active"'; } ?>>
                 <span><i class="fas fa-sliders-h"></i></span><span>Настройки</span>
             </a>
         </li>
         <?php if($user_session['type'] == 3): ?>
+            <!--<li>
+                <a href="/cart" <?php /*if ($page_menu == 'cart') { echo 'class="active"'; } */?>>
+                    <span><i class="fas fa-shopping-basket"></i></span><span>Корзина</span>
+                </a>
+            </li>-->
             <li>
                 <a href="/profile/e_meals" <?php if ($page_menu == 'e_meals') { echo 'class="active"'; } ?>>
                     <span><i class="fas fa-apple-alt"></i></span><span>Питание (админ.)</span>
