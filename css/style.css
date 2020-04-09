@@ -14459,8 +14459,11 @@ input.tren_form_block_check{
         margin-bottom: 15px;
     }
 
-    .main_bg_wrap{
+    .main_bg_wrap.mob_hide{
         height: 200px;
+        display: none;
+    }
+    .header_bg_main{
         display: none;
     }
     .menu a.menu_login{

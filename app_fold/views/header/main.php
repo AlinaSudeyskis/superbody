@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <?php endif;?>
 
 <div id="header">
-    <div class="main_bg_wrap">
+    <div class="main_bg_wrap <?php if(!empty($user_session)): ?>mob_hide<?php endif; ?>">
         <?php if (empty($user_session)) :
             $af_id = 0; ?>
             <div class="sing-in">

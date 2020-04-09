@@ -61,6 +61,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <li><a href="/about">О нас</a></li>
                             <li><a href="/coaches">Наши тренеры</a></li>
                             <li><a href="/courses">Курсы</a></li>
+                            <li><a href="/blog">Блог</a></li>
                             <?php if (!empty($user_session)):?>
                                 <li><a href="/profile/<?php echo $user_session['id']; ?>">Профиль</a></li>
                                 <!--<li><a href="/store">Магазин</a></li>-->
