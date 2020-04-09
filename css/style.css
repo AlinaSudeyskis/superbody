@@ -15256,7 +15256,7 @@ input.tren_form_block_check{
         padding: 0;
     }
     .profile_line_name{
-        width: 100%;
+        width: auto;
     }
     .profile_mess{
         width: 100%;
