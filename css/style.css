@@ -2050,7 +2050,7 @@ tr:first-child > td > .fc-day-grid-event{
     flex-basis: 190px;
     -webkit-flex-basis: 190px;
     height: 200px;
-    padding: 40px 0;
+    padding: 40px 10px;
     flex-grow: 1;
     -webkit-flex-grow: 1;
 }
@@ -2376,6 +2376,9 @@ tr:first-child > td > .fc-day-grid-event{
     cursor: pointer;
     opacity: 1 !important;
     z-index: 1;
+}
+.practice_block .purchase_pop-up_close{
+    display: none;
 }
 .purchase_form{
     padding:0;
@@ -6851,6 +6854,7 @@ span.mess_block_full_time {
 .h_subtitle{
     font-size: 10px;
     margin-top: -10px;
+    color: #737373;
 }
 .kurs_block_h .h_subtitle{
     margin-top: -16px;
@@ -7668,6 +7672,21 @@ span.mess_block_full_time {
 	border: 1px solid #e6e6e6;
 	padding: 0 15px 15px;
 	margin-top: 20px;
+}
+.obsi_payments{
+    display: flex;
+    flex-wrap: wrap;
+}
+.obsi_wrap {
+    flex-basis: 480px;
+    padding: 0 15px 0 0;
+    flex-grow: 1;
+}
+.obsi_wrap.obsi_internal{
+    border: 1px solid #e6e6e6;
+    padding: 0 15px 15px;
+    margin-top: 20px;
+    background-color: #fdfdfd;
 }
 .ordering_block_tov_item{
 	padding-top: 15px;
@@ -9295,6 +9314,11 @@ span.mess_block_full_time {
 	cursor: pointer;
     text-decoration: none;
     line-height: 35px;
+}
+.generate_code{
+    background-color: #b9b9b9;
+    color: #ffffff;
+    width: 130px;
 }
 .unsubscribe{
     float: right;
@@ -11843,12 +11867,11 @@ textarea.anketa_form_in{
     background: #ccf2fc;
 }
 .video_admin_form .journal_form_select{
-    /*width: 100%;*/
-    width: calc(100% - 270px);
-    width: -moz-calc(100% - 270px);
-    width: -webkit-calc(100% - 270px);
+    width: calc(100% - 180px); /*270*/
+    width: -moz-calc(100% - 180px);
+    width: -webkit-calc(100% - 180px);
     max-width: 330px;
-    margin-bottom: 18px;
+    /*margin-bottom: 18px;*/
     display: block !important;
     text-align: left;
 }
@@ -11931,9 +11954,10 @@ textarea.anketa_form_in{
     text-decoration: none;
 }
 .journal_block_item_data{
-    font-size: 14px;
-    line-height: 16px;
+    font-size: 13px;
+    line-height: 15px;
     margin-bottom: 10px;
+    color: #7f8c8c;
 }
 .journal_block_item_edit{
     font-size: 14px;
@@ -11941,7 +11965,8 @@ textarea.anketa_form_in{
     margin-top: 5px;
 }
 .journal_block_item_edit a{
-    color: #7f8c8c;
+    color: #4c4c4c;
+    word-break: break-word;
 }
 .journal_form_textarea_wrap{
     margin-bottom: 18px;
@@ -12022,6 +12047,11 @@ textarea.anketa_form_in{
     width: -moz-calc(100% - 270px);
     width: -webkit-calc(100% - 270px);
 }
+.refund_form .admin_form_txt_short{
+    width: calc(100% - 90px);
+    width: -moz-calc(100% - 90px);
+    width: -webkit-calc(100% - 90px);
+}
 .admin_form_txt_short.full{
     max-width: 330px;
     width: 100%;
@@ -12049,7 +12079,7 @@ textarea.anketa_form_in{
     position: relative;
     max-height: 55px;
 }
-#bl-ua-number, #bl-pv, #bl-user-ua-number{
+#bl-ua-number, #bl-pv, #bl-user-ua-number, #i-several-pc{
     display: none;
 }
 .admin_form_txt_dop_wrap input,
@@ -12057,7 +12087,7 @@ textarea.anketa_form_in{
     float: left;
     margin-right: 30px;
 }
-.kurs_cur_wrap .pc_course input{
+.kurs_cur_wrap .pc_course input, .kurs_cur_wrap .pc_users input{
     float: none;
 }
 .land_block_opacity{
@@ -12077,7 +12107,7 @@ textarea.anketa_form_in{
     color: #a0a0a0;
     border: none;
 }
-.kurs_cur_wrap input#generated-code{
+.kurs_cur_wrap input.generated_code{
     text-transform: uppercase;
 }
 .generated_code {
@@ -12088,6 +12118,19 @@ textarea.anketa_form_in{
     text-align: center;
     text-transform: uppercase;
  }
+#i-generated-codes{
+    margin-left: 180px;
+    max-width: 330px;
+}
+#i-generated-codes input{
+    margin-bottom: 10px;
+}
+#i-generated-codes input:first-child{
+    margin-top: 10px;
+}
+.width_160{
+    width: 160px;
+}
 .admin_form_txt_dop{
     float: left;
     font-size: 13px;
@@ -12260,8 +12303,9 @@ textarea.anketa_form_in{
 }
 .add_tov_val_item{
     padding-top: 20px;
-    margin-bottom: 18px;
+    /*margin-bottom: 18px;*/
     position: relative;
+    width: 330px;
 }
 .add_tov_val_item:last-child{
     margin-bottom: 30px;
@@ -12278,7 +12322,8 @@ textarea.anketa_form_in{
     margin-bottom: 18px;
 }
 .del_tov{
-    position: relative;
+    position: absolute;
+    right: 10px;
     margin-top: 11px;
     margin-left: 30px;
     width: 13px;
@@ -12358,7 +12403,7 @@ textarea.anketa_form_in{
     line-height: 15px;
     font-weight: bold;
     color: #33363f;
-    margin-bottom: 18px;
+    margin: 18px 0;
 }
 .kurs_block_h{
     font-size: 13px;
@@ -12367,6 +12412,9 @@ textarea.anketa_form_in{
     margin: 0 20px 18px 0;
     float: left;
     width: 160px;
+}
+.text_right{
+    text-align: right;
 }
 .lend_form_option .kurs_block_h {
     margin-bottom: 0;
@@ -15207,6 +15255,9 @@ input.tren_form_block_check{
         overflow: hidden;
         padding: 0;
     }
+    .profile_line_name{
+        width: 100%;
+    }
     .profile_mess{
         width: 100%;
         max-width: 450px;
@@ -15330,6 +15381,26 @@ input.tren_form_block_check{
         text-decoration: none;
         overflow: hidden;
     }*/
+
+    .practice_block_wrap {
+        position: fixed;
+        width: 50%;
+        top: 20%;
+        left: 30%;
+    }
+    .practice_block{
+        margin-top: 0;
+        padding: 20px;
+        background-color: #ffffff;
+        border: 1px solid #c3c3c3;
+        position: relative;
+    }
+    .practice_block .purchase_pop-up_close{
+        display: block;
+    }
+    .practice_block .tov_form_textarea{
+        margin-bottom: 0;
+    }
 }
 
 @media (max-width: 710px){
@@ -15350,7 +15421,6 @@ input.tren_form_block_check{
         clear: both;
         width: 100%;
     }
-
     .nutrition_block_table .nutrition_weeks:first-child .nutrition_days{
         border-top: 1px solid #cccccc;
     }
@@ -15415,6 +15485,25 @@ input.tren_form_block_check{
     }
     .user_menu .mob_side_menu_but_wrap{
         display: none;
+    }
+
+    .kurs_block_h{
+        margin-bottom: 0;
+        float: unset;
+        width: 100%;
+    }
+    .kurs_cur_wrap .practice_block_h{
+        margin: 18px 0 0;
+    }
+    .video_admin_form .journal_form_select{
+        width: 100%;
+    }
+    #bl-pv .kurs_block_h.text_right{
+        text-align: left;
+    }
+
+    #i-generated-codes {
+        margin-left: 0;
     }
 }
 
@@ -16326,11 +16415,6 @@ input.tren_form_block_check{
         width: -moz-calc(100% - 90px);
         width: -webkit-calc(100% - 90px);
     }
-    .journal_form_select{
-        width: calc(100% - 90px) !important;
-        width: -moz-calc(100% - 90px) !important;
-        width: -webkit-calc(100% - 90px) !important;
-    }
     .purchase_form .kurs_cur_wrap .journal_form_select,
     .purchase_form .kurs_cur_wrap .admin_form_txt_short{
         width: calc(100% - 130px) !important;
@@ -16338,7 +16422,6 @@ input.tren_form_block_check{
         width: -webkit-calc(100% - 130px) !important;
     }
     .landing_admin_form .journal_form_select{
-        width: 100% !important;
         max-width: none;
     }
     .land_block_opacity{
@@ -17372,10 +17455,42 @@ input.tren_form_block_check{
     .header_soc{
         margin: 0 0 0 auto;
     }
+
+    .pc_generate_code{
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    }
+    .pc_generate_code .generate_code{
+        flex-shrink: 0;
+        -webkit-flex-shrink: 0;
+        margin: 0;
+    }
 }
 
 @media (max-width: 400px){
     .admin_form_buts_wrap{padding: 10px 0;}
+
+    #pc-discount .kurs_block_two_all {
+        display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+        display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+        display: -ms-flexbox;      /* TWEENER - IE 10 */
+        display: -webkit-flex;     /* NEW - Chrome */
+        display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+        flex-direction: column-reverse;
+        -webkit-flex-direction: column-reverse;
+        -ms-flex-direction: column-reverse;
+    }
+    #pc-discount .anketa_form_two_wrap {
+         width: 100%;
+         padding: 0;
+    }
+    #pc-discount .anketa_form_two_wrap .anketa_form_in{
+        width: 100%;
+        margin-top: 5px;
+    }
 }
 
 @media (max-width: 386px){
