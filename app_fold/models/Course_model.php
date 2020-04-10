@@ -9209,7 +9209,7 @@ class Course_model extends CI_Model
         $result = true;
         // Определяем дату каждой тренировки
         $values        = '';
-        $training_date = $start_date;
+        $training_date = '2020-04-09'; // $start_date
         $training_days = str_split($training_days); // Дни недели тренировок в массив
         $count_days    = count($training_days);
 
@@ -9220,28 +9220,26 @@ class Course_model extends CI_Model
             $key_num_week  = array_search($prev_num_week, $training_days);
             if ($key_num_week === false)
             {
-                $key_num_week = $training_days[0];
+                $new_num_day_workout = $training_days[0];
                 // Поиск ближайшего дня недели тренировки
                 foreach($training_days as $at_day)
                 {
                     if($at_day > $prev_num_week)
                     {
-                        $current_num_week = $at_day;
-                        $key_search       = array_search($current_num_week, $training_days);
-                        $key_num_week     = ($key_search !== false) ? $key_search : $key_num_week;
+                        $new_num_day_workout = $at_day;
                         break;
                     }
                 }
                 unset($at_day);
 
                 // Вычисление разницы между номерами дней недели
-                if ($prev_num_week >= $key_num_week)
+                if ($prev_num_week >= $new_num_day_workout)
                 {
-                    $diff_days = 7 - $prev_num_week + $key_num_week;
+                    $diff_days = 7 - $prev_num_week + $new_num_day_workout;
                 }
                 else
                 {
-                    $diff_days = $key_num_week - $prev_num_week;
+                    $diff_days = $new_num_day_workout - $prev_num_week;
                 }
 
                 // Временная дата "сегодня"
@@ -9292,7 +9290,7 @@ class Course_model extends CI_Model
                 $values .= ', (' . $uc_id . ', ' . $workout . ', ' . $workout . ', "' . $training_date . '", "' . $training_time . '", "' . $date . '")';
             }
 
-            //log_message('debug', 'Training date: ' . $training_date);
+            //log_message('debug', 'E Training date: ' . $training_date);
         }
         unset($workout);
 
