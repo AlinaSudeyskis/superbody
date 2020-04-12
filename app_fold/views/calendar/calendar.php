@@ -208,10 +208,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     });
                                 });
 
+                                var prev_seconds = null;
                                 playerTwoPlayer.on('timeupdate', function(data){
                                     playerTwoPlayer.getVideoTitle().then(function(title) {
-                                        var seconds = Math.floor(data.seconds),
-                                            prev_seconds = null;
+                                        var seconds = Math.floor(data.seconds);
                                         if((seconds % 10) === 0 && seconds !== prev_seconds)
                                         {
                                             $.ajax({
@@ -383,7 +383,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     opacity = 0.8,
                                     ml_img = $(this).attr('src');
 
-                                if (shadow.length == 0)
+                                if (shadow.length === 0)
                                 {
                                     $("body").append("<div id='shadow'></div>");
                                     shadow = $("#shadow");
@@ -422,15 +422,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 var pop_up_video = $("#pop-up_video"),
                                     pop_up_desc = pop_up_video.find('#wo-description').html();
                                 if(pop_up_video.is(':empty')
-                                    || (pop_up_video.find('#vimeo-player-1').length == 0 && pop_up_video.find('#ivid').length == 0)
-                                    || (pop_up_video.find('#vimeo-player-1').length == 1 && (pop_up_video.find('#vimeo-player-1').data('vimeo-url') !== data.source || pop_up_desc !== data.description))
-                                    || (pop_up_video.find('#ivid').length == 1 && (pop_up_video.find('#ivid').data('video-url') !== data.source || pop_up_desc !== data.description)))
+                                    || (pop_up_video.find('#vimeo-player-1').length === 0 && pop_up_video.find('#ivid').length === 0)
+                                    || (pop_up_video.find('#vimeo-player-1').length === 1 && (pop_up_video.find('#vimeo-player-1').data('vimeo-url') !== data.source || pop_up_desc !== data.description))
+                                    || (pop_up_video.find('#ivid').length === 1 && (pop_up_video.find('#ivid').data('video-url') !== data.source || pop_up_desc !== data.description)))
                                 {
                                     pop_up_video.html(data.video);
                                 }
                                 pop_up_home(pop_up_video);
-                                if(getInternetExplorerVersion()==-1) {
-                                    if (data.player == 1) {
+                                if(getInternetExplorerVersion() === -1) {
+                                    if (data.player === 1) {
                                         $("#myvid").each(function () {
                                             new InitPxVideo({
                                                 "videoId": this,
