@@ -3464,6 +3464,7 @@ class Database_model extends CI_Model
 
         $query_limit = (!empty($limit) and is_numeric($limit)) ? ' LIMIT '.$limit : '';
         $query_limit .= (!empty($query_limit) and !empty($offset) and is_numeric($offset)) ? ', '.$offset : '';
+        $query_limit = ($table == 'users_training_weeks') ? ' WHERE `utw_uc_id`='.$limit : $query_limit;
 
         $sel_data = $this->db->query('SELECT * FROM `'.$table.'`'.$query_limit);
         //log_message('debug', 'Last query: ' . print_r($this->db->last_query(), true));
