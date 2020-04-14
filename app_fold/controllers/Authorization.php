@@ -13,6 +13,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Authorization extends CI_Controller
 {
     /**
+     * @var array URL доступные для переадресации
+     */
+    public $gender_arr = array('female' => 1, 'male' => 2);
+
+    /**
      * Authorization constructor.
      */
     public function __construct()
@@ -26,6 +31,7 @@ class Authorization extends CI_Controller
      * Регистрация пользователя. Отправка письма для подтвержения регистрации.
      *
      * @return void
+     * @throws Exception
      */
     public function registration()
     {
@@ -134,6 +140,37 @@ class Authorization extends CI_Controller
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 
+    public function appRegistration()
+    {
+        $result = array('error' => null);
+
+        $email            = (!empty($this->input->get('email', true))) ? $this->input->get('email', true) : null;
+        $password         = $this->input->get('password', true);
+        $password_confirm = $this->input->get('password_confirm', true);
+
+        $reg_result = self::parseRegistration($email, $password, $password_confirm);
+
+        if (is_numeric($reg_result))
+        {
+            $result['user_id'] = $reg_result;
+            $result['user_email'] = $email;
+        }
+        elseif ($reg_result == 'e1')
+        {
+            $result['error'] = 'Ошибка! Пользователь с таким E-mail уже зарегистрирован.';
+        }
+        elseif ($reg_result == 'e2')
+        {
+            $result['error'] = 'Ошибка! Не удалось зарегестрировать E-mail.';
+        }
+        elseif ($reg_result == 'e8')
+        {
+            $result['error'] = 'Ошибка! Проверьте, пожалуйста, корректность и заполните все поля регистрации.';
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
     /**
      * Обработка данных для регистрации
      *
@@ -199,6 +236,7 @@ class Authorization extends CI_Controller
      * Авторизация пользователя
      *
      * @return void
+     * @throws Exception
      */
     public function login()
     {
@@ -368,6 +406,44 @@ class Authorization extends CI_Controller
                 parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'], $auth_result['user_activated'],
                     $auth_result['user_name'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
 
+                $result['user_id']    = $auth_result['user_id'];
+                $result['user_email'] = $email;
+            }
+            elseif($auth_result == 'error_password')
+            {
+                $result['error'] = 'Ошибка! Неверный Email и/или пароль.';
+            }
+            elseif($auth_result == 'error_user')
+            {
+                $result['registration'] = true;
+                $result['user_email'] = $email;
+            }
+        }
+        else
+        {
+            $result['error'] = 'Ошибка! Некорректные данные для авторизации.';
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    public function appLogin()
+    {
+        $result = array('error' => null);
+
+        $email    = $this->input->get('email', true);
+        $password = $this->input->get('password', true);
+
+        // Валидация E-mail
+        $email = (!empty($email) and filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : null;
+
+        // Авторизация пользователя
+        if (!empty($email) and !empty($password))
+        {
+            $auth_result = $this->Authorization_model->userAuthorization($email, $password, $this->date);
+
+            if (is_array($auth_result))
+            {
                 $result['user_id']    = $auth_result['user_id'];
                 $result['user_email'] = $email;
             }
@@ -1193,6 +1269,7 @@ class Authorization extends CI_Controller
      *
      * @param $email
      * @param $return
+     * @throws Exception
      */
     public function vkLogin($email = '', $return = '')
     {
@@ -1261,7 +1338,7 @@ class Authorization extends CI_Controller
                 $issued_at         = 0;
 
                 $user_soc_id    = $resp_data->user_id;
-                $user_soc_email = !empty($email) ? $email : $resp_data->email;
+                $user_soc_email = (!empty($email)) ? $email : $resp_data->email;
 
                 // Получение подробной информации о пользователе
                 $myCurl = curl_init();
@@ -1280,11 +1357,17 @@ class Authorization extends CI_Controller
 
                 if (!empty($resp_info->response))
                 {
+                    if(!empty($resp_info->response[0]->bdate))
+                    {
+                        $tmp_date = new DateTime($resp_info->response[0]->bdate);
+                        $bdate = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                    }
                     $user_soc_id     = $resp_info->response[0]->id;
                     $user_soc_name   = $resp_info->response[0]->last_name . ' ' . $resp_info->response[0]->first_name;
-                    $user_soc_image  = is_file($resp_info->response[0]->photo_200) ? $resp_info->response[0]->photo_200 : '';
-                    $user_soc_bd     = !empty($resp_info->response[0]->bdate) ? $resp_info->response[0]->bdate : '';
-                    $user_soc_gender = !empty($resp_info->response[0]->sex) ? $resp_info->response[0]->sex : '';
+                    $user_soc_image  = (is_file($resp_info->response[0]->photo_200)) ? $resp_info->response[0]->photo_200 : '';
+                    $user_soc_bd     = (!empty($bdate)) ? $bdate : '';
+                    $user_soc_gender = (!empty($resp_info->response[0]->sex) and in_array($resp_info->response[0]->sex, $this->gender_arr))
+                        ? array_search($resp_info->response[0]->sex, $this->gender_arr) : '';
                     $user_soc_url    = '';
 
                     if (empty($this->session->user))
@@ -1364,9 +1447,9 @@ class Authorization extends CI_Controller
     public function facebookLogin($email = '', $return = '')
     {
         // Instagram
-        $url_authorize   = 'https://www.facebook.com/v3.3/dialog/oauth';
-        $url_token       = 'https://graph.facebook.com/v3.3/oauth/access_token';
-        $url_debug_token = 'https://graph.facebook.com/v3.3/debug_token?';
+        $url_authorize   = 'https://www.facebook.com/v6.0/dialog/oauth';
+        $url_token       = 'https://graph.facebook.com/v6.0/oauth/access_token';
+        $url_debug_token = 'https://graph.facebook.com/v6.0/debug_token?';
         $client_id       = '817159398426245';
         $client_secret   = 'e9a5d05ef3fee31e53cedba7ff910d59';
         $redirect_uri    = 'https://superbody.pro/facebook_login';
@@ -1546,7 +1629,7 @@ class Authorization extends CI_Controller
             curl_close($myCurl4);
             $resp_debug_token = json_decode($response);
 
-            //log_message('debug', 'Facebook response ' . print_r($resp_debug_token, true));
+            log_message('debug', 'Facebook response ' . print_r($resp_debug_token, true));
             if (!empty($resp_debug_token->data) and $resp_debug_token->data->is_valid === true)
             {
                 $result['user_soc_id']   = $resp_debug_token->data->user_id;
@@ -1576,7 +1659,7 @@ class Authorization extends CI_Controller
                 curl_close($myCurl2);
                 $resp_info = json_decode($response);
 
-                //log_message('debug', 'Facebook response 2 ' . print_r($resp_info, true));
+                log_message('debug', 'Facebook response 2 ' . print_r($resp_info, true));
                 if (!empty($resp_info->id))
                 {
                     // Данные пользователя в соц. сети
