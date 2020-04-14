@@ -9209,7 +9209,7 @@ class Course_model extends CI_Model
         $result = true;
         // Определяем дату каждой тренировки
         $values        = '';
-        $training_date = '2020-04-09'; // $start_date
+        $training_date = $start_date;
         $training_days = str_split($training_days); // Дни недели тренировок в массив
         $count_days    = count($training_days);
 
