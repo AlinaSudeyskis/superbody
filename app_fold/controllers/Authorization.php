@@ -444,8 +444,11 @@ class Authorization extends CI_Controller
 
             if (is_array($auth_result))
             {
-                $result['user_id']    = $auth_result['user_id'];
-                $result['user_email'] = $email;
+                $result['user_id']        = $auth_result['user_id'];
+                $result['user_email']     = $email;
+                $result['user_name']      = $auth_result['user_name'];
+                $result['user_image']     = $auth_result['user_image'];
+                $result['user_soc_image'] = $auth_result['user_soc_image'];
             }
             elseif($auth_result == 'error_password')
             {
