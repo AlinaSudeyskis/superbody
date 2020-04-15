@@ -1185,7 +1185,7 @@ class User_model extends CI_Model
             SELECT `user_weight`, `user_circumference_chest`, `user_circumference_waist`, `user_circumference_buttocks`, `user_date_add`
             FROM `anthropometric` 
             WHERE `user_id`=?
-            ORDER BY `user_date_add` ASC', $user_id);
+            ORDER BY `user_date_add`', $user_id);
 
         if ($sel_anth_data !== false and 0 < $sel_anth_data->num_rows())
         {
@@ -1285,12 +1285,13 @@ class User_model extends CI_Model
      * Изменение данных анкеты. Физические параметры
      *
      * @param int $user_id
-     * @param string $gender Пол (male|female) 
-     * @param string $birthday Дата рождения 
+     * @param string $gender Пол (male|female)
+     * @param string $birthday Дата рождения
      * @param int $height Рост
      * @param int $weight Вес
      * @param string $date
      * @return bool
+     * @throws Exception
      */
     public function setPhysicalParam($user_id, $gender, $birthday, $height, $weight, $date)
     {
@@ -1731,21 +1732,25 @@ class User_model extends CI_Model
      * AJAX. Поиск пользователей.
      *
      * @param $search_text
+     * @param $search_id
      * @return string
      */
-    public function searchUsers($search_text)
+    public function searchUsers($search_text, $search_id)
     {
         $result = '';
+
+        $and_where = (!empty($search_text)) ? ' and MATCH (`user_email`, `user_name`) AGAINST ('.$search_text.' IN BOOLEAN MODE)' : '';
+        $and_where = (!empty($search_id) and is_numeric($search_id)) ? ' and `user_id`='.$search_id : $and_where;
 
         $sel_users = $this->db->query('
             SELECT `user_id`, `user_name`, `user_email`, `user_image`, `user_soc_image` 
             FROM `users` 
-            WHERE `user_type`=1 and MATCH (`user_email`, `user_name`) AGAINST (? IN BOOLEAN MODE)',
-            $search_text);
+            WHERE `user_type`=1 '.$and_where);
 
         if ($sel_users !== false and 0 < $sel_users->num_rows())
         {
-            foreach ($sel_users->result() as $row) {
+            foreach ($sel_users->result() as $row)
+            {
                 $user_name = !empty($row->user_name) ? $row->user_name : $row->user_email ;
 
                 $db_image   = (!empty($row->user_image)) ? mb_substr($row->user_image, 1) : '';
@@ -1765,6 +1770,10 @@ class User_model extends CI_Model
         elseif ($sel_users === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+        else
+        {
+            $result = 'Поиск не дал результатов';
         }
 
         return $result;

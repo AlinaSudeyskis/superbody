@@ -2184,10 +2184,13 @@ class User extends CI_Controller
 
     /**
      * AJAX
+     * @param null $user_id
      */
-    public function getAnthropometricData()
+    public function getAnthropometricData($user_id = null)
     {
-        $result = $this->User_model->getAnthropometricData($this->user_id, $this->date);
+        $user_id = (!empty($user_id) and is_numeric($user_id)) ? $user_id : $this->user_id;
+
+        $result = $this->User_model->getAnthropometricData($user_id, $this->date);
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }
@@ -2867,12 +2870,13 @@ class User extends CI_Controller
         }
 
         $result      = '';
-        $search_text = !empty(mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255))
-            ? mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255).'*'
+        $search_text = (!is_numeric($this->input->post('search_text', true)) and !empty(mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255)))
+            ? (mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255).'*')
             : null;
+        $search_id = (is_numeric($this->input->post('search_text', true))) ? $this->input->post('search_text', true) : null;
 
-        if (!empty($search_text)) {
-            $result = $this->User_model->searchUsers($search_text);
+        if (!empty($search_text) or !empty($search_id)) {
+            $result = $this->User_model->searchUsers($search_text, $search_id);
         }
 
         echo $result;
