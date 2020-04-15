@@ -8533,6 +8533,21 @@ class Course extends CI_Controller
         }
     }
 
+    /**
+     * Вывод информации календаря приложению
+     *
+     * @param $user_id
+     */
+    public function appUserCoursesEvents($user_id)
+    {
+        $this->load->model('User_model');
+
+        $u_training_time = $this->User_model->getUserTrainingTime($user_id); // Тренировочное время пользователя
+        $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, 'active', $u_training_time); // Выборка курсов пользователя
+
+        echo json_encode($user_courses['events'], JSON_NUMERIC_CHECK);
+    }
+
     /* БЛОК ФУНКЦИЙ ПРИЕМОВ ПИЩИ ПОЛЬЗОВАТЕЛЕЙ */
 
     /**
