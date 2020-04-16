@@ -72,7 +72,7 @@ class Course_model extends CI_Model
                     for($i = 1; $i <= $diff_count_wo; $i++)
                     {
                         $new_wo = $last_workout + $i;
-                        $new_crs_wo = $last_crs_wor + $i;
+                        $new_crs_wo = (($last_crs_wor + $i) <= $count_course_workouts) ? ($last_crs_wor + $i) : $count_course_workouts;
 
                         // Номер дня недели предыдущей тренировки
                         $prev_num_day = date('N', strtotime($training_date));
@@ -141,12 +141,11 @@ class Course_model extends CI_Model
 
                         log_message('debug', 'UC id: '. $row->uc_id .' new_wo: '. $new_wo .' new_crs_wo: '. $new_crs_wo .'  date: '. $training_date);
 
-                        //$sel_wo2 = $this->db->query('SELECT `utw_workout` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1', array($row->uc_id, $new_wo));
-                        $sel_wo2 = false;
+                        $sel_wo2 = $this->db->query('SELECT `utw_workout` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1', array($row->uc_id, $new_wo));
                         if($sel_wo2 !== false and 0 == $sel_wo2->num_rows())
                         {
-                            /*$this->db->query('INSERT INTO `users_training_weeks` (`utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_date`, `utw_date_update`)
-                            VALUES (?, ?, ?, ?, ?)', array($row->uc_id, $new_wo, $new_crs_wo, $training_date, $date));*/
+                            $this->db->query('INSERT INTO `users_training_weeks` (`utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_date`, `utw_date_update`)
+                            VALUES (?, ?, ?, ?, ?)', array($row->uc_id, $new_wo, $new_crs_wo, $training_date, $date));
                         }
                     }
 
