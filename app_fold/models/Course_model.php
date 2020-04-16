@@ -32,7 +32,7 @@ class Course_model extends CI_Model
                 $sel_done = $this->db->query('SELECT COUNT(`utw_id`) as `count_done` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_status`="done"', $row->uc_id);
                 if($sel_done !== false and 0 < $sel_done->num_rows())
                 {
-                    $row2 = $sel_wo->row();
+                    $row2 = $sel_done->row();
                     $count_done = $row2->count_done;
                 }
 
@@ -43,13 +43,13 @@ class Course_model extends CI_Model
                 //$this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<?', array($row->uc_id, $row->uc_date_start));
                 if($count_done > 0)
                 {
-                    /*$this->db->query('UPDATE `users_training_weeks` SET `utw_workout`=(`utw_workout`-?) WHERE `utw_uc_id`=?',
-                        array($row->count_utw, $row->uc_id));*/
+                    /*$this->db->query('UPDATE `users_training_weeks` SET `utw_workout`=(`utw_workout`-?) WHERE `utw_uc_id`=? and `utw_workout`>?',
+                        array($row->count_utw, $row->uc_id, $row->count_utw));*/
                 }
                 else
                 {
-                    /*$this->db->query('UPDATE `users_training_weeks` SET `utw_workout`=(`utw_workout`-?), `utw_crs_workout`=(`utw_workout`-?) WHERE `utw_uc_id`=?',
-                        array($row->count_utw, $row->count_utw, $row->uc_id));*/
+                    /*$this->db->query('UPDATE `users_training_weeks` SET `utw_workout`=(`utw_workout`-?), `utw_crs_workout`=(`utw_workout`-?) WHERE `utw_uc_id`=? and `utw_workout`>?',
+                        array($row->count_utw, $row->count_utw, $row->uc_id, $row->count_utw));*/
                 }
 
                 $sel_last = $this->db->query('SELECT `utw_workout`, `utw_crs_workout`, `utw_date` FROM `users_training_weeks` WHERE `utw_uc_id`=? ORDER BY `utw_workout` DESC LIMIT 1', $row->uc_id);
