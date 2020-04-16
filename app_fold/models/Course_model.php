@@ -11,6 +11,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Course_model extends CI_Model
 {
+    public function getBrokenUsersCourses()
+    {
+        $sel_users = $this->db->query('SELECT COUNT(`uc_id`) as `count_uc` FROM `users_courses` WHERE `uc_date_start` BETWEEN "2020-04-10" AND "2020-04-14"');
+        if($sel_users !== false and 0 < $sel_users->num_rows())
+        {
+            $row = $sel_users->row();
+            log_message('debug', 'Count users courses: '. $row->count_uc);
+
+            $sel_wo = $this->db->query('SELECT `uc_id`, `uc_days`, `uc_time`, COUNT(`utw_id`) as `count_utw`, `utw_date`, `utw_uc_id`, `crs_count_weeks` 
+                FROM `users_courses` 
+                LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
+                LEFT JOIN `users_training_weeks` ON `utw_uc_id`=`uc_id`
+                WHERE `uc_date_start` BETWEEN "2020-04-10" AND "2020-04-14" and `utw_date`<`uc_date_start`
+                GROUP BY `utw_uc_id`');
+            if($sel_wo !== false and 0 < $sel_wo->num_rows())
+            {
+                foreach($sel_wo->result() as $row)
+                {
+                    log_message('debug', 'UC id: '. $row->uc_id .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time .' Count utw '. $row->count_utw .' crs_count_weeks'. $row->crs_count_weeks);
+                }
+            }
+        }
+    }
+
     /* НАЧАЛО БЛОКА ОБРАБОТКИ ДАННЫХ КАТЕГОРИИ КУРСА */
 
     /**

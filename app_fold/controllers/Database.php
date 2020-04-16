@@ -160,4 +160,10 @@ class Database extends CI_Controller
         $this->load->view('admin/db_index', $result);
         $this->load->view('footer/footer');
     }
+
+    public function brokenUsersCourses()
+    {
+        $this->load->model('Course_model');
+        $this->Course_model->getBrokenUsersCourses();
+    }
 }
