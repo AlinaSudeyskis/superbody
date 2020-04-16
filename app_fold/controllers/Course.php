@@ -7429,10 +7429,11 @@ class Course extends CI_Controller
                 // Изначальная дата окончания курса
                 if (!empty($new_course_start))
                 {
-                    $count_days = ($course_weeks*7) - 1;
+                    $count_days = abs(($course_weeks*7) - 1);
                     $tmp_date = new DateTime($new_course_start);
                     $tmp_date->add(new DateInterval('P' . $count_days . 'D'));
                     $new_course_end = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+                    log_message('debug', 'new_course_start '. $new_course_start .' course_weeks '. $course_weeks .' count_days '. $count_days .' new_course_end '. $new_course_end);
                 }
             }
 
