@@ -7448,6 +7448,7 @@ class Course extends CI_Controller
                 $training_date = $today;
                 // Номер недели текущего дня
                 $today_num_day = date('N', strtotime($today));
+                $count_training_days = count($array_training_days);
 
                 $i = 1;
                 foreach ($db_workouts as $num_workout => $workout)
@@ -7474,7 +7475,7 @@ class Course extends CI_Controller
                     {
                         // Вычисление разницы между номерами дней недели
                         // Если предыдущий день недели тренировки последний день недели, то
-                        if ($key_num_day == $course_days-1)
+                        if ($key_num_day == ($count_training_days-1))
                         {
                             // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
                             $diff_days = 7 - $array_training_days[$key_num_day] + $array_training_days[0];

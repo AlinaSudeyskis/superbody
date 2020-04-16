@@ -11,9 +11,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Course_model extends CI_Model
 {
-    public function getBrokenUsersCourses()
+    /**
+     * @param $date
+     * @throws Exception
+     */
+    public function getBrokenUsersCourses($date)
     {
-        $sel_wo = $this->db->query('SELECT `uc_id`, `uc_days`, `uc_time`, COUNT(`utw_id`) as `count_utw`, `utw_date`, `utw_uc_id`, `crs_count_weeks`, `crs_count_days` 
+        $sel_wo = $this->db->query('
+            SELECT `uc_id`, `uc_days`, `uc_time`, COUNT(`utw_id`) as `count_utw`, `utw_date`, `utw_uc_id`, `crs_count_weeks`, `crs_count_days`, `uc_date_start` 
             FROM `users_courses` 
             LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
             LEFT JOIN `users_training_weeks` ON `utw_uc_id`=`uc_id`
@@ -23,10 +28,130 @@ class Course_model extends CI_Model
         {
             foreach($sel_wo->result() as $row)
             {
-                log_message('debug', 'UC id: '. $row->uc_id .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
-                    .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_weeks);
+                $count_done = 0;
+                $sel_done = $this->db->query('SELECT COUNT(`utw_id`) as `count_done` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_status`="done"', $row->uc_id);
+                if($sel_done !== false and 0 < $sel_done->num_rows())
+                {
+                    $row2 = $sel_wo->row();
+                    $count_done = $row2->count_done;
+                }
 
+                $count_course_workouts = $row->crs_count_weeks * $row->crs_count_days;
+                $array_training_days   = (!empty($row->uc_days)) ? str_split($row->uc_days) : null;
+                $count_training_days   = count($array_training_days);
 
+                //$this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<?', array($row->uc_id, $row->uc_date_start));
+                if($count_done > 0)
+                {
+                    /*$this->db->query('UPDATE `users_training_weeks` SET `utw_workout`=(`utw_workout`-?) WHERE `utw_uc_id`=?',
+                        array($row->count_utw, $row->uc_id));*/
+                }
+                else
+                {
+                    /*$this->db->query('UPDATE `users_training_weeks` SET `utw_workout`=(`utw_workout`-?), `utw_crs_workout`=(`utw_workout`-?) WHERE `utw_uc_id`=?',
+                        array($row->count_utw, $row->count_utw, $row->uc_id));*/
+                }
+
+                $sel_last = $this->db->query('SELECT `utw_workout`, `utw_crs_workout`, `utw_date` FROM `users_training_weeks` WHERE `utw_uc_id`=? ORDER BY `utw_workout` DESC LIMIT 1', $row->uc_id);
+                if($sel_last !== false and 0 < $sel_last->num_rows())
+                {
+                    $row3 = $sel_last->row();
+                    $last_workout = $row3->utw_workout;
+                    $last_date = $row3->utw_date;
+                    $last_crs_wor = $row3->utw_crs_workouts;
+
+                    $training_date = $last_date;
+                    $diff_count_wo = $count_course_workouts - $last_workout;
+                    $today_num_day = date('N', strtotime($training_date));
+
+                    log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
+                        .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
+                        .' count_done '. $count_done);
+                    log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date);
+
+                    for($i = 1; $i <= $diff_count_wo; $i++)
+                    {
+                        $new_wo = $last_workout + $i;
+                        $new_crs_wo = $last_crs_wor + $i;
+
+                        // Номер дня недели предыдущей тренировки
+                        $prev_num_day = date('N', strtotime($training_date));
+                        $key_num_day  = array_search($prev_num_day, $array_training_days);
+
+                        if ($key_num_day !== false)
+                        {
+                            // Вычисление разницы между номерами дней недели
+                            // Если предыдущий день недели тренировки последний день недели, то
+                            if ($key_num_day == ($count_training_days-1))
+                            {
+                                // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
+                                $diff_days = 7 - $array_training_days[$key_num_day] + $array_training_days[0];
+                            }
+                            else
+                            {
+                                // Разница между текущим номером недели тренировки и предыдущем.
+                                $diff_days = $array_training_days[$key_num_day+1] - $array_training_days[$key_num_day];
+                            }
+
+                            // Временная дата предыдущей тренивроки
+                            $tem_date = new DateTime($training_date);
+
+                            // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
+                            $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                            $training_date = $tem_date->format('Y-m-d');
+
+                            unset($tem_date);
+                        }
+                        // Если не найден предыдущий день недели в новом списке, то проверяем дату текущей тренировки.
+                        else
+                        {
+                            $new_num_day_workout = $array_training_days[0];
+                            // Поиск ближайшего дня недели тренировки
+                            foreach($array_training_days as $at_day)
+                            {
+                                if($at_day > $today_num_day)
+                                {
+                                    $new_num_day_workout = $at_day;
+                                    break;
+                                }
+                            }
+                            unset($at_day);
+
+                            // Вычисление разницы между номерами дней недели
+                            if ($today_num_day >= $new_num_day_workout)
+                            {
+                                $diff_days = 7 - $today_num_day + $new_num_day_workout;
+                            }
+                            else
+                            {
+                                $diff_days = $new_num_day_workout - $today_num_day;
+                            }
+
+                            // Временная дата "сегодня"
+                            $tem_date = new DateTime($training_date);
+
+                            // Дата текущей тренировки, с учетом разницы между днями ( + $diff_days дней )
+                            $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                            $training_date = $tem_date->format('Y-m-d');
+
+                            unset($tem_date);
+                        }
+
+                        log_message('debug', 'UC id: '. $row->uc_id .' new_wo: '. $new_wo .' new_crs_wo: '. $new_crs_wo .'  date: '. $training_date);
+
+                        //$sel_wo2 = $this->db->query('SELECT `utw_workout` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1', array($row->uc_id, $new_wo));
+                        $sel_wo2 = false;
+                        if($sel_wo2 !== false and 0 == $sel_wo2->num_rows())
+                        {
+                            /*$this->db->query('INSERT INTO `users_training_weeks` (`utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_date`, `utw_date_update`)
+                            VALUES (?, ?, ?, ?, ?)', array($row->uc_id, $new_wo, $new_crs_wo, $training_date, $date));*/
+                        }
+                    }
+
+                    log_message('debug', ' ');
+                }
             }
         }
     }
