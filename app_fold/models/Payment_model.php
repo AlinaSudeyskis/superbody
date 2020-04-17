@@ -196,15 +196,15 @@ class Payment_model extends CI_Model
      * @param $login
      * @param $phone
      * @param $payment_method_id
-     * @param $recurrent_data
+     * @param $courses_data
      * @param $date
      * @throws Exception
      */
-    public function setSubsequentPayments($order_id, $customer_email, $customer_name, $payment_method, $login, $phone, $payment_method_id, $recurrent_data, $date)
+    public function setSubsequentPayments($order_id, $customer_email, $customer_name, $payment_method, $login, $phone, $payment_method_id, $courses_data, $date)
     {
-        if (!empty($recurrent_data))
+        if (!empty($courses_data))
         {
-            foreach ($recurrent_data as $course)
+            foreach ($courses_data as $course)
             {
                 if ($course['recurrent'] === true)
                 {

@@ -25,6 +25,31 @@ class Store_model extends CI_Model
     const SHOP_SECRET = 'test_8DwS0C9xbKd91QI-h0QjNj5k2uDIJ03HncRmySb5s7k';*/
 
     /**
+     * @param $date
+     */
+    public function getBrokenUsersOrders($date)
+    {
+        $sel_orders = $this->db->query(
+            'SELECT `o_id`, COUNT(`op_id`) as `count_payments`, `ouc_p_id`, `p_course_id`, `crs_recurrent_months` 
+            FROM `orders`
+            LEFT JOIN `orders_payment` ON `op_o_id`=`o_id` 
+            LEFT JOIN `orders_users_cart` ON `ouc_o_id`=`o_id`
+            LEFT JOIN `products` ON `p_id`=`ouc_p_id`
+            LEFT JOIN `courses` ON `crs_id`=`p_course_id`
+            WHERE `o_payment_status`="succeeded" and `o_payment_options`="partial_payment"
+            GROUP BY `o_id`'
+        );
+        if($sel_orders !== false and 0 < $sel_orders->num_rows())
+        {
+            foreach ($sel_orders->result() as $row)
+            {
+                log_message('debug', 'Order ID: '. $row->o_id .' Count payments: '. $row->count_payments .' Course ID: '. $row->p_course_id .' Rec months '. $row->crs_recurrent_months);
+            }
+            unset($row);
+        }
+    }
+
+    /**
      * Выборка всех категорий
      *
      * @return array
