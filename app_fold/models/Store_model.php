@@ -52,7 +52,7 @@ class Store_model extends CI_Model
                     $row2 = $sel_last->row();
                     $following_date = $row2->op_following_date;
 
-                    log_message('debug', 'Order ID: '. $row->o_id .' Count payments: '. $row->count_payments .' Course ID: '. $row->p_course_id .' Rec months '. $row->crs_recurrent_months);
+                    /*log_message('debug', 'Order ID: '. $row->o_id .' Count payments: '. $row->count_payments .' Course ID: '. $row->p_course_id .' Rec months '. $row->crs_recurrent_months);*/
 
                     if($row->count_payments < $row->crs_recurrent_months)
                     {
@@ -65,9 +65,9 @@ class Store_model extends CI_Model
                             $sel_data = $this->db->query('SELECT `op_o_id` FROM `orders_payment` WHERE `op_o_id`=? and `op_number`=? LIMIT 1', array($row->o_id, $i));
                             if($sel_data !== false and 0 == $sel_data->num_rows())
                             {
-                                log_message('debug', 'Order ID: '. $row->o_id .' i: '. $i .' email: '. $row2->op_customer_email .' name: '. $row2->op_customer_name .' type: '. $row2->op_payment_type
-                                    .' login: '. $row2->op_pt_login .' phone: '. $row2->op_pt_phone .' amount: '. $row2->op_amount .' pm id: '. $row2->op_payment_method_id .' following date: '. $following_date);
-                                /*$ins_data = $this->db->query('
+                                /*log_message('debug', 'Order ID: '. $row->o_id .' i: '. $i .' email: '. $row2->op_customer_email .' name: '. $row2->op_customer_name .' type: '. $row2->op_payment_type
+                                    .' login: '. $row2->op_pt_login .' phone: '. $row2->op_pt_phone .' amount: '. $row2->op_amount .' pm id: '. $row2->op_payment_method_id .' following date: '. $following_date);*/
+                                $ins_data = $this->db->query('
                                     INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, 
                                                                   `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_status`, `op_amount`, `op_currency`, 
                                                                   `op_payment_method_id`, `op_following_date`, `op_date_add`)
@@ -77,11 +77,11 @@ class Store_model extends CI_Model
                                 if($ins_data === false)
                                 {
                                     parent::logDbMessages(__METHOD__.':'.__LINE__);
-                                }*/
+                                }
                             }
                         }
                     }
-                    log_message('debug', ' ');
+                    //log_message('debug', ' ');
                 }
             }
             unset($row);
