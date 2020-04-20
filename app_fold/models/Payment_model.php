@@ -286,7 +286,7 @@ class Payment_model extends CI_Model
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
             LEFT JOIN `users` ON `user_id`=`o_u_id`
             WHERE `op_payment_method_id`<>"" and `op_following_date`<>"0000-00-00" and `op_number`>0 and 
-                  (`op_following_date`=? or (`op_following_date`<? and `op_following_date`>? and `op_status`="canceled"))',
+                  ( (`op_following_date`=? and `op_status`="") or (`op_following_date`<? and ( (`op_following_date`>? and `op_status`="canceled") or `op_status`="") ) )',
                 array($today, $today, $week_ago));
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
