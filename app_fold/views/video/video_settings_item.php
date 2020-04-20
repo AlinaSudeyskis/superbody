@@ -42,8 +42,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <input type="text" name="file_name" class="admin_form_txt admin_form_txt_short" placeholder="Наименование" value="<?php if (!empty($video['name'])) { echo $video['name']; }?>" />
 </div>
 <div class="parent kurs_cur_wrap">
-    <div class="kurs_block_h">Vimeo URL:</div>
-    <input type="text" name="remove_url" class="admin_form_txt admin_form_txt_short" placeholder="Полная URL ссылка на видео с сайта Vimeo.com" value="<?php if (!empty($video['remove_url'])) { echo $video['remove_url']; }?>" />
+    <div class="kurs_block_h">Удаленный сайт:</div>
+    <select name="s_remote_type" class="journal_form_select">
+        <option value="vimeo" <?php if (!empty($video['remote_type']) and $video['remote_type'] == 'vimeo') { echo 'selected="selected"'; } ?>>Vimeo</option>
+        <option value="youtube" <?php if (!empty($video['remote_type']) and $video['remote_type'] == 'youtube') { echo 'selected="selected"'; } ?>>YouTube</option>
+    </select>
+</div>
+<div class="parent kurs_cur_wrap">
+    <div class="kurs_block_h">URL:</div>
+    <input type="text" name="remote_url" class="admin_form_txt admin_form_txt_short" placeholder="Полная URL ссылка на видео" value="<?php if (!empty($video['remote_url'])) { echo $video['remote_url']; }?>" />
 </div>
 <div class="parent kurs_cur_wrap down_line">
     <div class="kurs_block_h">Постер видео:</div>
@@ -104,13 +111,24 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         frameborder="0"></iframe>
             <?php /*endif;*/?>
         </div>-->
-<?php if (!empty($video['remove_url'])) :?>
-    <div class="admin_form_file_line parent">
-        <div class="admin_form_file_line_h">Видео с Vimeo.com:</div>
-    </div>
-    <div class="admin_form_file_line">
-        <?php $remove_url = $video['remove_url'];
-        $key = 0;
-        include('./app_fold/views/video/player/vimeo_player_item.php');?>
-    </div>
+<?php if (!empty($video['remote_url'])) :?>
+    <?php if($video['remote_type'] == 'vimeo'): ?>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Видео с Vimeo.com:</div>
+            </div>
+        <div class="admin_form_file_line">
+            <?php $remote_url = $video['remote_url'];
+            $key = 0;
+            include('./app_fold/views/video/player/vimeo_player_item.php');?>
+        </div>
+    <?php elseif($video['remote_type'] == 'youtube') : ?>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Видео с YouTube.com:</div>
+        </div>
+        <div class="admin_form_file_line">
+            <?php $remote_url = $video['remote_url'];
+            $key = 0;
+            include('./app_fold/views/video/player/youtube_player_item.php');?>
+        </div>
+    <?php endif;?>
 <?php endif;?>

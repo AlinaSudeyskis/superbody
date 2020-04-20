@@ -312,216 +312,214 @@ class Course extends CI_Controller
     /* БЛОК ФУНКЦИЙ ВЫВОДА И ВАЛИДАЦИИ ДАННЫХ ВИДЕО */
 
     /**
-     * Вывод данных видео
+     * Список видео
      *
-     * @param string $video_type
+     * @param $course_id
+     * @param string $page_type
      */
-    public function video($video_type = 'promo')
+    public function courseVideo($course_id, $page_type = 'promo')
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        if ($video_type == 'promo')
+        if($page_type == 'promo')
         {
-            self::videoPromo();
+            self::coursePromoVideo($course_id);
         }
-        elseif ($video_type == 'courses')
+        elseif($page_type == 'workouts')
         {
-            self::videoCourses();
+            self::courseWorkoutVideo($course_id);
         }
-        elseif ($video_type == 'instructions')
+        elseif($page_type == 'instructions')
         {
-            self::videoInstructions();
+            self::courseInstructionsVideo($course_id);
         }
-        elseif ($video_type == 'uncategorized')
+        elseif($page_type == 'uncategorized')
         {
-            self::videoUncategorized();
+            self::courseUncategorizedVideo($course_id);
         }
     }
 
     /**
-     * Вывод списка промо видео
+     * Вывод списка видео категории "Промо"
      *
-     * @return void
+     * @param $course_id
      */
-    protected function videoPromo()
+    protected function coursePromoVideo($course_id)
     {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
-        {
-            parent::pageNotFound($this->page_url);
-        }
+        $promo  = $this->Course_model->getCoursePromoVideo($course_id);
+        $course = $this->Course_model->getShortCourse($course_id);
 
-        $result = $this->Course_model->getPromoVideo();
-        
+        $result = array_merge($promo, $course);
+
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Видео';
-        $this->page_data['page_menu'] = 'video';
-        $this->page_data['page_submenu'] = 'promo';
+        $this->page_data['title']        = 'АП - Промо-видео курса';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = 'promo';
+        $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('video/video', $result);
+        $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
 
     /**
-     * Вывод списка курсы видео
+     * Вывод списка видео категории "Тренировка"
      *
-     * @return void
+     * @param $course_id
      */
-    protected function videoCourses()
+    protected function courseWorkoutVideo($course_id)
     {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
-        {
-            parent::pageNotFound($this->page_url);
-        }
+        $workouts = $this->Course_model->getCourseWorkoutVideo($course_id);
+        $course   = $this->Course_model->getShortCourse($course_id);
 
-        $result = $this->Course_model->getVideoCourses();
+        $result = array_merge($workouts, $course);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Видео';
-        $this->page_data['page_menu'] = 'video';
-        $this->page_data['page_submenu'] = 'courses';
+        $this->page_data['title']        = 'АП - Видео тренировок курса';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = 'workouts';
+        $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('video/video_courses', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод списка видео без категории
-     *
-     * @return void
-     */
-    protected function videoUncategorized()
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
-        {
-            parent::pageNotFound($this->page_url);
-        }
-
-        $result = $this->Course_model->getUncategorizedVideo();
-
-        // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Видео';
-        $this->page_data['page_menu'] = 'video';
-        $this->page_data['page_submenu'] = 'uncategorized';
-
-        $this->load->view('header/header_admin', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('video/video', $result);
+        $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
 
     /**
      * Вывод списка видео категории "Инструктажи"
      *
-     * @return void
+     * @param $course_id
      */
-    protected function videoInstructions()
+    protected function courseInstructionsVideo($course_id)
     {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
-        {
-            parent::pageNotFound($this->page_url);
-        }
+        $instruction = $this->Course_model->getCourseInstructionsVideo($course_id);
+        $course      = $this->Course_model->getShortCourse($course_id);
 
-        $result = $this->Course_model->getInstructionsVideo();
+        $result = array_merge($instruction, $course);
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Видео';
-        $this->page_data['page_menu'] = 'video';
-        $this->page_data['page_submenu'] = 'instructions';
+        $this->page_data['title']        = 'АП - Видео инструктажей курса';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = 'instructions';
+        $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('video/video', $result);
+        $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
 
     /**
-     * Вывод списка видео курса
+     * Вывод списка видео без категории "Инструктажи
+     *
+     * @param $course_id
+     */
+    protected function courseUncategorizedVideo($course_id)
+    {
+        $instruction = $this->Course_model->getCourseUncategorizedVideo($course_id);
+        $course      = $this->Course_model->getShortCourse($course_id);
+
+        $result = array_merge($instruction, $course);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Видео курса без категории';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = 'uncategorized';
+        $this->page_data['course_id']    = $course_id;
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('course/settings/course', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Вывод формы и валидация данных нового видео курса
      *
      * @param $course_id
      * @return void
      */
-    public function courseVideo($course_id)
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1)
-        {
-            parent::pageNotFound($this->page_url);
-        }
-
-        $result = $this->Course_model->getCourseVideo($course_id);
-
-        // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Видео';
-        $this->page_data['page_menu'] = 'video';
-        $this->page_data['page_submenu'] = 'courses';
-
-        $this->load->view('header/header_admin', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('video/video', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод формы и валидация данных нового видео
-     *
-     * @return void
-     */
-    public function newVideo()
+    public function newCourseVideo($course_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        $courses = $this->Course_model->getCourses('workout', 0);
+        $course_id = (is_numeric($course_id)) ? $course_id : '';
+        $course    = $this->Course_model->getShortCourse($course_id);
+        $courses  = $this->Course_model->getCourses('workout');
+        $schedule = $this->Course_model->getCourseSchedules($course_id);
+        $result   = array_merge($courses, $course, $schedule);
 
         if ($this->input->post('bt_save_video', true))
         {
-            $type        = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
-            $course_id   = is_numeric($this->input->post('s_courses', true)) ? $this->input->post('s_courses', true) : 0;
-            $name        = !empty($this->input->post('file_name', true)) 
-                ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255) : '';
-            $remove_url  = !empty($this->input->post('remove_url', true)) 
-                ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255) : '';
-            $poster_path = is_file('./video/' . $this->input->post('poster_path', true))
-                ? './video/' . $this->input->post('poster_path', true) : '';
-            $video_path  = is_file('./video/' . $this->input->post('video_path', true))
-                ? './video/' . $this->input->post('video_path', true) : '';
+            $remote_types = array('vimeo', 'youtube');
+            // Введенные данные
+            $type          = (is_numeric($this->input->post('s_type', true))) ? $this->input->post('s_type', true) : 0;
+            $new_course_id = (is_numeric($this->input->post('s_courses', true))) ? $this->input->post('s_courses', true) : null;
+            $poster_path   = (!empty($this->input->post('poster_path', true)) and is_file('./video/' . $this->input->post('poster_path', true)))
+                ? './video/' . $this->input->post('poster_path', true)
+                : '';
+            $video_path  = (!empty($this->input->post('video_path', true)) and is_file('./video/' . $this->input->post('video_path', true)))
+                ? './video/' . $this->input->post('video_path', true)
+                : '';
+            $name = !(empty($this->input->post('file_name', true)))
+                ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255)
+                : '';
+            $remote_type = (in_array($this->input->post('s_remote_type', true), $remote_types)) ? $this->input->post('s_remote_type', true) : '';
+            $remote_url  = (!empty($this->input->post('remote_url', true)))
+                ? mb_substr(strip_tags($this->input->post('remote_url', true)), 0, 255)
+                : '';
+            $remove_id  = mb_substr($remote_url, -11);
 
-            // Id тренировки курса
-            $workout_num = (is_numeric($this->input->post('hi_ctw', true))) ? $this->input->post('hi_ctw', true) : null;
-            
-            if (!empty($video_path) or !empty($remove_url))
+            if(!empty($new_course_id) and (!empty($video_path) or !empty($remote_url)))
             {
-                $result = $this->Course_model->setNewVideo($type, $course_id, $name, $video_path, $poster_path, $remove_url, $this->user_id, $this->date);
+                $result = $this->Course_model->setNewVideo($type, $new_course_id, $name, $video_path, $poster_path, $remote_type, $remote_url, $this->user_id, $this->date);
 
-                //echo 'T '.$type.' N '.$name.' RU '.$remove_url.' PP '.$poster_path.' VP '.$video_path.'<br/>';
-
-                if (is_numeric($result) and $result !== false)
-                {
+                if (is_numeric($result) and $result !== false) {
                     $video_id = $result;
 
-                    // Прикрепление видео к тренировке
-                    if(!empty($workout_num) and !empty($course_id))
-                    {
-                        $this->Course_model->attachVideoToWorkout($course_id, $workout_num, $video_id, $this->date);
+                    // Выборка информации о тренировках нового выбранного курса
+                    $schedule = (!empty($new_course_id) and $new_course_id != $course_id) ? $this->Course_model->getCourseSchedules($new_course_id) : $schedule;
+
+                    // Id тренировок курса
+                    $workouts_num = (!empty($this->input->post('cb_practice_days', true))) ? $this->input->post('cb_practice_days', true) : null;
+                    $selected_trainings = array('update' => array(), 'delete' => array());
+                    $i = 0;
+                    $search_w = array_flip(array_keys($schedule['workouts_id'], $video_id));
+                    // Обновление id видео дней тренировок
+                    if (!empty($workouts_num)) {
+                        foreach ($workouts_num as $w_id => $w_vd_id) {
+                            if (is_numeric($w_id) and !array_key_exists($w_id, $search_w)) {
+                                $selected_trainings['update'][$i] = $w_id;
+                                $i++;
+                            }
+                        }
+                        unset($w_vd_id);
+
+                        // Удаление id видео из дней тренировок курса
+                        $selected_trainings['delete'] = array_diff_key($search_w, $workouts_num);
+                    }
+
+                    // Обновление видео тренировке
+                    if ((!empty($selected_trainings['update']) or !empty($selected_trainings['delete'])) and !empty($new_course_id)) {
+                        $this->Course_model->attachVideoToWorkouts($new_course_id, $selected_trainings, $video_id, $this->date);
                     }
 
                     // Изменения сохранены
                     $this->session->set_tempdata('message', 10, 60);
 
-                    header('Location: /administration/video/' . $video_id);
+                    header('Location: /administration/course/' . $new_course_id . '/video/' . $video_id);
                 }
                 else
                 {
@@ -535,7 +533,7 @@ class Course extends CI_Controller
                     if (is_file($video_path)) {
                         unlink($video_path);
                     }
-                    header('Location: /administration/video/upload');
+                    header('Location: /administration/course/' . $course_id . '/video/new');
                 }
             }
             else
@@ -552,149 +550,248 @@ class Course extends CI_Controller
                 {
                     unlink($video_path);
                 }
-                header('Location: /administration/video/upload');
+                header('Location: /administration/course/' . $course_id . '/video/new');
             }
         }
-        
+
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Добавление видео';
-        $this->page_data['page_menu'] = 'video';
+        $this->page_data['title']        = 'АП - Добавление видео курса';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = '';
+        $this->page_data['video_page']   = 'video_new';
+        $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('video/new_video', $courses);
+        $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
 
     /**
-     * Вывод формы и валидация данных видео
+     * Вывод формы и валидация данных видео курса
      *
+     * @param $course_id
      * @param $video_id
      * @return void
      */
-    public function videoSettings($video_id)
+    public function courseVideoSettings($course_id, $video_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
             parent::pageNotFound($this->page_url);
         }
 
-        $video_id = (is_numeric($video_id)) ? $video_id : '';
+        $course_id = (is_numeric($course_id)) ? $course_id : '';
+        $video_id  = (is_numeric($video_id)) ? $video_id : '';
 
-        $video   = $this->Course_model->getVideo($video_id);
-        $courses = $this->Course_model->getCourses('workout', 0);
-        $result  = array_merge($video, $courses);
+        $video    = $this->Course_model->getCourseVideoData($course_id, $video_id);
+        $courses  = $this->Course_model->getCourses('workout');
+        $course   = $this->Course_model->getShortCourse($course_id);
+        $schedule = $this->Course_model->getCourseSchedules($course_id);
+        $result   = array_merge($video, $courses, $course, $schedule);
 
-        if ($this->input->post('bt_save_video', true) and !empty($video_id))
+        if ($this->input->post('bt_save_video', true) and !empty($course_id) and !empty($video_id))
         {
+            $remote_types = array('vimeo', 'youtube');
             // Введенные данные
-            $type        = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
-            $course_id   = is_numeric($this->input->post('s_courses', true)) ? $this->input->post('s_courses', true) : 0;
-            $poster_path = (!empty($this->input->post('poster_path', true)) and is_file('./video/' . $this->input->post('poster_path', true)))
+            $type          = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
+            $new_course_id = is_numeric($this->input->post('s_courses', true)) ? $this->input->post('s_courses', true) : null;
+            $poster_path   = (!empty($this->input->post('poster_path', true)) and is_file('./video/' . $this->input->post('poster_path', true)))
                 ? './video/' . $this->input->post('poster_path', true)
                 : null;
             $video_path  = (!empty($this->input->post('video_path', true)) and is_file('./video/' . $this->input->post('video_path', true)))
                 ? './video/' . $this->input->post('video_path', true)
                 : null;
-
             $name = !empty($this->input->post('file_name', true))
                 ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255)
                 : '';
-
-            $remove_url = !empty($this->input->post('remove_url', true))
-                ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255)
+            $remote_type = (in_array($this->input->post('s_remote_type', true), $remote_types)) ? $this->input->post('s_remote_type', true) : '';
+            $remote_url  = !empty($this->input->post('remote_url', true))
+                ? mb_substr(strip_tags($this->input->post('remote_url', true)), 0, 255)
                 : '';
-            $remove_id  = mb_substr($remove_url, -11);
+            $remove_id  = mb_substr($remote_url, -11);
 
             // Сравненение с БД
-            $poster = (!empty($poster_path) and $poster_path != $result['video']['poster'])
+            $poster_path = (!empty($poster_path) and $poster_path != $result['video']['poster'])
                 ? $poster_path
                 : '.' . $result['video']['poster'];
-            $video  = (!empty($video_path) and $video_path != $result['video']['video'])
+            $video_path  = (!empty($video_path) and $video_path != $result['video']['video'])
                 ? $video_path
                 : '.' . $result['video']['video'];
+            //$video_id = $result;
+            // Выборка информации о тренировках нового выбранного курса
+            $schedule  = (!empty($new_course_id) and $new_course_id != $course_id) ? $this->Course_model->getCourseSchedules($new_course_id) : $schedule;
 
-            // Id тренировки курса
-            $workout_num = (is_numeric($this->input->post('hi_ctw', true))) ? $this->input->post('hi_ctw', true) : null;
-
-            // Прикрепление видео к тренировке
-            if(!empty($workout_num) and !empty($course_id))
+            // Id тренировок курса
+            $workouts_num = (!empty($this->input->post('cb_practice_days', true))) ? $this->input->post('cb_practice_days', true) : null;
+            $selected_trainings = array('update' => array(), 'delete' => array());
+            $i = 0;
+            $search_w = array_flip(array_keys($schedule['workouts_id'], $video_id));
+            // Обновление id видео дней тренировок
+            if(!empty($workouts_num))
             {
-                $this->Course_model->attachVideoToWorkout($course_id, $workout_num, $video_id, $this->date);
+                foreach($workouts_num as $w_id => $w_vd_id)
+                {
+                    if(is_numeric($w_id) and !array_key_exists($w_id, $search_w))
+                    {
+                        $selected_trainings['update'][$i] = $w_id;
+                        $i++;
+                    }
+                }
+                unset($w_vd_id);
+
+                // Удаление id видео из дней тренировок курса
+                $selected_trainings['delete'] = array_diff_key($search_w, $workouts_num);
             }
 
-            $update = $this->Course_model->setVideoSettings($video_id, $type, $course_id, $video, $name, $poster, $remove_url, $this->user_id,
-                $this->date);
-
-            if ($update === true) {
-                if ($video != $result['video']['video'] and is_file($result['video']['video']) and is_file($video)) {
-                    unlink($result['video']['video']);
-                }
-
-                if ($poster != $result['video']['poster'] and is_file($result['video']['poster']) and is_file($poster)) {
-                    unlink($result['video']['poster']);
-                }
-
-                // Изменения сохранены
-                $this->session->set_tempdata('message', 10, 60);
-            } else {
-                // Изменения не сохранены
-                $this->session->set_tempdata('message', 41, 60);
+            // Обновление видео тренировке
+            if((!empty($selected_trainings['update']) or !empty($selected_trainings['delete'])) and !empty($course_id))
+            {
+                $this->Course_model->attachVideoToWorkouts($course_id, $selected_trainings, $video_id, $this->date);
             }
 
-            header('Location: /administration/video/' . $video_id);
+            if(!empty($video_id) and !empty($course_id) and ((!empty($poster_path) and $poster_path != $result['video']['poster'])
+                    or (!empty($video_path) and $video_path != $result['video']['video']) or $name != $result['video']['name']
+                    or $remote_type != $result['video']['remote_type'] or $remote_url != $result['video']['remote_url']
+                    or $type != $result['video']['type'] or $new_course_id != $course_id))
+            {
+                $course_id = (!empty($new_course_id) and $new_course_id != $course_id) ? $new_course_id : $course_id;
+
+                $update = $this->Course_model->setVideoSettings($video_id, $type, $course_id, $video_path, $name, $poster_path, $remote_type, $remote_url, $this->user_id, $this->date);
+
+                if ($update === true)
+                {
+                    if ($video_path != $result['video']['video'] and is_file($result['video']['video']) and is_file($video_path))
+                    {
+                        unlink($result['video']['video']);
+                    }
+
+                    if ($poster_path != $result['video']['poster'] and is_file($result['video']['poster']) and is_file($poster_path))
+                    {
+                        unlink($result['video']['poster']);
+                    }
+
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 41, 60);
+                }
+            }
+
+            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_block_video', true) and !empty($video_id)) {
+        elseif ($this->input->post('bt_block_video', true) and !empty($video_id))
+        {
             $blocked = $this->Course_model->blockVideo($video_id, $this->date);
 
-            if ($blocked === true) {
+            if ($blocked === true)
+            {
                 // Сохранено
                 $this->session->set_tempdata('message', 42, 60);
-            } else {
+            }
+            else
+            {
                 // Не сохранено
                 $this->session->set_tempdata('message', 43, 60);
             }
-            header('Location: /administration/video/' . $video_id);
+            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_unblock_video', true) and !empty($video_id)) {
+        elseif ($this->input->post('bt_unblock_video', true) and !empty($video_id))
+        {
             $unblocked = $this->Course_model->unblockVideo($video_id, $this->date);
 
-            if ($unblocked === true) {
+            if ($unblocked === true)
+            {
                 // Сохранено
                 $this->session->set_tempdata('message', 44, 60);
-            } else {
+            }
+            else
+            {
                 // Не сохранено
                 $this->session->set_tempdata('message', 45, 60);
             }
-            header('Location: /administration/video/' . $video_id);
+            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
         }
-        elseif ($this->input->post('bt_delete_video', true) and !empty($video_id)) {
+        elseif ($this->input->post('bt_delete_video', true) and !empty($video_id))
+        {
             $deleted = $this->Course_model->deleteVideo($video_id);
 
-            if ($deleted === true) {
+            if ($deleted === true)
+            {
                 // Удалено
                 $this->session->set_tempdata('message', 104, 60);
 
-                header('Location: /administration/video');
-            } else {
+                header('Location: /administration/course/' . $course_id . '/video/');
+            }
+            else
+            {
                 // Не удалено
                 $this->session->set_tempdata('message', 105, 60);
 
-                header('Location: /administration/video/' . $video_id);
+                header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
             }
         }
 
+        $video_types = array('promo' => 1, 'workouts' => 2, 'instructions' => 3);
+        $type_key    = (!empty($video['video']['type'])) ? array_search($video['video']['type'], $video_types) : '';
+
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Редактирование данных видео';
-        $this->page_data['page_menu'] = 'video';
+        $this->page_data['title']        = 'АП - Редактирование данных видео курса';
+        $this->page_data['page_menu']    = 'a_courses_w';
+        $this->page_data['page_submenu'] = 'video';
+        $this->page_data['video_menu']   = (!empty($video['video']['type']) and in_array($video['video']['type'], $video_types)) ? $type_key : '';
+        $this->page_data['video_page']   = 'video_settings';
+        $this->page_data['course_id']    = $course_id;
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('video/video_settings', $result);
+        $this->load->view('course/settings/course', $result);
         $this->load->view('footer/footer');
     }
 
+    /**
+     * AJAX. Активация видео
+     */
+    public function activateCourseVideo()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $video_id   = is_numeric($this->input->post('vd_id', true)) ? $this->input->post('vd_id', true) : null;
+        $video_type = strip_tags($this->input->post('vd_t', true));
+        $course_id  = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
+        $display    = is_numeric($this->input->post('display', true)) ? $this->input->post('display', true) : null;
+
+        if (!empty($video_id) and !empty($course_id) and !empty($video_type) and !empty($display))
+        {
+            // Изменение активного видео
+            $res_up = $this->Course_model->activateCourseVideos($course_id, $video_id, $video_type, $this->date);
+
+            if($res_up === false)
+            {
+                $display_result['error'] = 'Select error';
+            }
+            else
+            {
+                $display_result = true;
+            }
+        }
+        else
+        {
+            $display_result['error'] = 'vd_id, vd_t, crs_id and|or display are empty';
+        }
+
+        echo json_encode($display_result, JSON_NUMERIC_CHECK);
+    }
+
     /* КОНЕЦ БЛОКА ФУНКЦИЙ ДЛЯ РАБОТЫ С ВИДЕО */
+
 
     /* БЛОК ФУНКЦИЙ КУРСОВ ТРЕНИРОВОК */
 
@@ -1131,6 +1228,7 @@ class Course extends CI_Controller
      * @param string $page_type (settings, landing, statistics, reviews, review)
      * @param int|null $page_id
      * @return void
+     * @throws Exception
      */
     public function course($course_id, $page_type = 'settings', $page_id = null)
     {
@@ -1159,26 +1257,6 @@ class Course extends CI_Controller
         elseif ($page_type == 'review' and is_numeric($page_id))
         {
             self::courseReview($course_id, $page_id);
-        }
-        elseif($page_type == 'video_promo')
-        {
-            self::coursePromoVideo($course_id);
-        }
-        elseif($page_type == 'video_workouts')
-        {
-            self::courseWorkoutVideo($course_id);
-        }
-        elseif($page_type == 'video_instructions')
-        {
-            self::courseInstructionsVideo($course_id);
-        }
-        elseif($page_type == 'video_uncategorized')
-        {
-            self::courseUncategorizedVideo($course_id);
-        }
-        elseif($page_type == 'video_new')
-        {
-            self::newCourseVideo($course_id);
         }
         elseif($page_type == 'extends')
         {
@@ -2962,452 +3040,6 @@ class Course extends CI_Controller
             $this->load->view('course/nutritions/settings/course', $result);
         }
         $this->load->view('footer/footer');
-    }
-
-
-    /* БЛОК ФУНКЦИЙ ВИДЕО КУРСА */
-
-    /**
-     * Вывод списка видео категории "Промо"
-     *
-     * @param $course_id
-     */
-    protected function coursePromoVideo($course_id)
-    {
-        $promo  = $this->Course_model->getCoursePromoVideo($course_id);
-        $course = $this->Course_model->getShortCourse($course_id);
-
-        $result = array_merge($promo, $course);
-
-        // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Промо-видео курса';
-        $this->page_data['page_menu']    = 'a_courses_w';
-        $this->page_data['page_submenu'] = 'video';
-        $this->page_data['video_menu']   = 'promo';
-        $this->page_data['course_id']    = $course_id;
-
-        $this->load->view('header/header_admin', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод списка видео категории "Тренировка"
-     *
-     * @param $course_id
-     */
-    protected function courseWorkoutVideo($course_id)
-    {
-        $workouts = $this->Course_model->getCourseWorkoutVideo($course_id);
-        $course   = $this->Course_model->getShortCourse($course_id);
-
-        $result = array_merge($workouts, $course);
-
-        // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Видео тренировок курса';
-        $this->page_data['page_menu']    = 'a_courses_w';
-        $this->page_data['page_submenu'] = 'video';
-        $this->page_data['video_menu']   = 'workouts';
-        $this->page_data['course_id']    = $course_id;
-
-        $this->load->view('header/header_admin', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод списка видео категории "Инструктажи"
-     *
-     * @param $course_id
-     */
-    protected function courseInstructionsVideo($course_id)
-    {
-        $instruction = $this->Course_model->getCourseInstructionsVideo($course_id);
-        $course      = $this->Course_model->getShortCourse($course_id);
-
-        $result = array_merge($instruction, $course);
-
-        // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Видео инструктажей курса';
-        $this->page_data['page_menu']    = 'a_courses_w';
-        $this->page_data['page_submenu'] = 'video';
-        $this->page_data['video_menu']   = 'instructions';
-        $this->page_data['course_id']    = $course_id;
-
-        $this->load->view('header/header_admin', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод списка видео без категории "Инструктажи
-     *
-     * @param $course_id
-     */
-    protected function courseUncategorizedVideo($course_id)
-    {
-        $instruction = $this->Course_model->getCourseUncategorizedVideo($course_id);
-        $course      = $this->Course_model->getShortCourse($course_id);
-
-        $result = array_merge($instruction, $course);
-
-        // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Видео курса без категории';
-        $this->page_data['page_menu']    = 'a_courses_w';
-        $this->page_data['page_submenu'] = 'video';
-        $this->page_data['video_menu']   = 'uncategorized';
-        $this->page_data['course_id']    = $course_id;
-
-        $this->load->view('header/header_admin', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод формы и валидация данных нового видео курса
-     *
-     * @param $course_id
-     * @return void
-     */
-    public function newCourseVideo($course_id)
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
-            parent::pageNotFound($this->page_url);
-        }
-
-        $course_id = (is_numeric($course_id)) ? $course_id : '';
-        $course    = $this->Course_model->getShortCourse($course_id);
-        $courses  = $this->Course_model->getCourses('workout');
-        $schedule = $this->Course_model->getCourseSchedules($course_id);
-        $result   = array_merge($courses, $course, $schedule);
-
-        if ($this->input->post('bt_save_video', true))
-        {
-            // Введенные данные
-            $type          = (is_numeric($this->input->post('s_type', true))) ? $this->input->post('s_type', true) : 0;
-            $new_course_id = (is_numeric($this->input->post('s_courses', true))) ? $this->input->post('s_courses', true) : null;
-            $poster_path   = (!empty($this->input->post('poster_path', true)) and is_file('./video/' . $this->input->post('poster_path', true)))
-                ? './video/' . $this->input->post('poster_path', true)
-                : '';
-            $video_path  = (!empty($this->input->post('video_path', true)) and is_file('./video/' . $this->input->post('video_path', true)))
-                ? './video/' . $this->input->post('video_path', true)
-                : '';
-            $name = !(empty($this->input->post('file_name', true)))
-                ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255)
-                : '';
-            $remove_url = (!empty($this->input->post('remove_url', true)))
-                ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255)
-                : '';
-            $remove_id  = mb_substr($remove_url, -11);
-
-            if(!empty($new_course_id) and (!empty($video_path) or !empty($remove_url)))
-            {
-                $result = $this->Course_model->setNewVideo($type, $new_course_id, $name, $video_path, $poster_path, $remove_url, $this->user_id, $this->date);
-
-                if (is_numeric($result) and $result !== false) {
-                    $video_id = $result;
-
-                    // Выборка информации о тренировках нового выбранного курса
-                    $schedule = (!empty($new_course_id) and $new_course_id != $course_id) ? $this->Course_model->getCourseSchedules($new_course_id) : $schedule;
-
-                    // Id тренировок курса
-                    $workouts_num = (!empty($this->input->post('cb_practice_days', true))) ? $this->input->post('cb_practice_days', true) : null;
-                    $selected_trainings = array('update' => array(), 'delete' => array());
-                    $i = 0;
-                    $search_w = array_flip(array_keys($schedule['workouts_id'], $video_id));
-                    // Обновление id видео дней тренировок
-                    if (!empty($workouts_num)) {
-                        foreach ($workouts_num as $w_id => $w_vd_id) {
-                            if (is_numeric($w_id) and !array_key_exists($w_id, $search_w)) {
-                                $selected_trainings['update'][$i] = $w_id;
-                                $i++;
-                            }
-                        }
-                        unset($w_vd_id);
-
-                        // Удаление id видео из дней тренировок курса
-                        $selected_trainings['delete'] = array_diff_key($search_w, $workouts_num);
-                    }
-
-                    // Обновление видео тренировке
-                    if ((!empty($selected_trainings['update']) or !empty($selected_trainings['delete'])) and !empty($new_course_id)) {
-                        $this->Course_model->attachVideoToWorkouts($new_course_id, $selected_trainings, $video_id, $this->date);
-                    }
-
-                    // Изменения сохранены
-                    $this->session->set_tempdata('message', 10, 60);
-
-                    header('Location: /administration/course/' . $new_course_id . '/video/' . $video_id);
-                }
-                else
-                {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 39, 60);
-
-                    // Удаление загруженных файлов
-                    if (is_file($poster_path)) {
-                        unlink($poster_path);
-                    }
-                    if (is_file($video_path)) {
-                        unlink($video_path);
-                    }
-                    header('Location: /administration/course/' . $course_id . '/video/new');
-                }
-            }
-            else
-            {
-                // Изменения не сохранены
-                $this->session->set_tempdata('message', 40, 60);
-
-                // Удаление загруженных файлов
-                if (is_file($poster_path))
-                {
-                    unlink($poster_path);
-                }
-                if (is_file($video_path))
-                {
-                    unlink($video_path);
-                }
-                header('Location: /administration/course/' . $course_id . '/video/new');
-            }
-        }
-
-        // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Добавление видео курса';
-        $this->page_data['page_menu']    = 'a_courses_w';
-        $this->page_data['page_submenu'] = 'video';
-        $this->page_data['video_menu']   = '';
-        $this->page_data['video_page']   = 'video_new';
-        $this->page_data['course_id']    = $course_id;
-
-        $this->load->view('header/header_admin', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * Вывод формы и валидация данных видео курса
-     *
-     * @param $course_id
-     * @param $video_id
-     * @return void
-     */
-    public function courseVideoSettings($course_id, $video_id)
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
-            parent::pageNotFound($this->page_url);
-        }
-
-        $course_id = (is_numeric($course_id)) ? $course_id : '';
-        $video_id  = (is_numeric($video_id)) ? $video_id : '';
-
-        $video    = $this->Course_model->getCourseVideoData($course_id, $video_id);
-        $courses  = $this->Course_model->getCourses('workout');
-        $course   = $this->Course_model->getShortCourse($course_id);
-        $schedule = $this->Course_model->getCourseSchedules($course_id);
-        $result   = array_merge($video, $courses, $course, $schedule);
-
-        if ($this->input->post('bt_save_video', true) and !empty($course_id) and !empty($video_id))
-        {
-            // Введенные данные
-            $type          = is_numeric($this->input->post('s_type', true)) ? $this->input->post('s_type', true) : 0;
-            $new_course_id = is_numeric($this->input->post('s_courses', true)) ? $this->input->post('s_courses', true) : null;
-            $poster_path   = (!empty($this->input->post('poster_path', true)) and is_file('./video/' . $this->input->post('poster_path', true)))
-                ? './video/' . $this->input->post('poster_path', true)
-                : null;
-            $video_path  = (!empty($this->input->post('video_path', true)) and is_file('./video/' . $this->input->post('video_path', true)))
-                ? './video/' . $this->input->post('video_path', true)
-                : null;
-            $name = !empty($this->input->post('file_name', true))
-                ? mb_substr(strip_tags($this->input->post('file_name', true)), 0, 255)
-                : '';
-            $remove_url = !empty($this->input->post('remove_url', true))
-                ? mb_substr(strip_tags($this->input->post('remove_url', true)), 0, 255)
-                : '';
-            $remove_id  = mb_substr($remove_url, -11);
-
-            // Сравненение с БД
-            $poster_path = (!empty($poster_path) and $poster_path != $result['video']['poster'])
-                ? $poster_path
-                : '.' . $result['video']['poster'];
-            $video_path  = (!empty($video_path) and $video_path != $result['video']['video'])
-                ? $video_path
-                : '.' . $result['video']['video'];
-            //$video_id = $result;
-            // Выборка информации о тренировках нового выбранного курса
-            $schedule  = (!empty($new_course_id) and $new_course_id != $course_id) ? $this->Course_model->getCourseSchedules($new_course_id) : $schedule;
-
-            // Id тренировок курса
-            $workouts_num = (!empty($this->input->post('cb_practice_days', true))) ? $this->input->post('cb_practice_days', true) : null;
-            $selected_trainings = array('update' => array(), 'delete' => array());
-            $i = 0;
-            $search_w = array_flip(array_keys($schedule['workouts_id'], $video_id));
-            // Обновление id видео дней тренировок
-            if(!empty($workouts_num))
-            {
-                foreach($workouts_num as $w_id => $w_vd_id)
-                {
-                    if(is_numeric($w_id) and !array_key_exists($w_id, $search_w))
-                    {
-                        $selected_trainings['update'][$i] = $w_id;
-                        $i++;
-                    }
-                }
-                unset($w_vd_id);
-
-                // Удаление id видео из дней тренировок курса
-                $selected_trainings['delete'] = array_diff_key($search_w, $workouts_num);
-            }
-
-            // Обновление видео тренировке
-            if((!empty($selected_trainings['update']) or !empty($selected_trainings['delete'])) and !empty($course_id))
-            {
-                $this->Course_model->attachVideoToWorkouts($course_id, $selected_trainings, $video_id, $this->date);
-            }
-
-            if(!empty($video_id) and !empty($course_id) and ((!empty($poster_path) and $poster_path != $result['video']['poster'])
-                    or (!empty($video_path) and $video_path != $result['video']['video']) or $name != $result['video']['name']
-                    or $remove_url != $result['video']['remove_url'] or $type != $result['video']['type'] or $new_course_id != $course_id))
-            {
-                $course_id = (!empty($new_course_id) and $new_course_id != $course_id) ? $new_course_id : $course_id;
-
-                $update = $this->Course_model->setVideoSettings($video_id, $type, $course_id, $video_path, $name, $poster_path, $remove_url, $this->user_id, $this->date);
-
-                if ($update === true)
-                {
-                    if ($video_path != $result['video']['video'] and is_file($result['video']['video']) and is_file($video_path))
-                    {
-                        unlink($result['video']['video']);
-                    }
-
-                    if ($poster_path != $result['video']['poster'] and is_file($result['video']['poster']) and is_file($poster_path))
-                    {
-                        unlink($result['video']['poster']);
-                    }
-
-                    // Изменения сохранены
-                    $this->session->set_tempdata('message', 10, 60);
-                }
-                else
-                {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 41, 60);
-                }
-            }
-
-            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
-        }
-        elseif ($this->input->post('bt_block_video', true) and !empty($video_id))
-        {
-            $blocked = $this->Course_model->blockVideo($video_id, $this->date);
-
-            if ($blocked === true)
-            {
-                // Сохранено
-                $this->session->set_tempdata('message', 42, 60);
-            }
-            else
-            {
-                // Не сохранено
-                $this->session->set_tempdata('message', 43, 60);
-            }
-            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
-        }
-        elseif ($this->input->post('bt_unblock_video', true) and !empty($video_id))
-        {
-            $unblocked = $this->Course_model->unblockVideo($video_id, $this->date);
-
-            if ($unblocked === true)
-            {
-                // Сохранено
-                $this->session->set_tempdata('message', 44, 60);
-            }
-            else
-            {
-                // Не сохранено
-                $this->session->set_tempdata('message', 45, 60);
-            }
-            header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
-        }
-        elseif ($this->input->post('bt_delete_video', true) and !empty($video_id))
-        {
-            $deleted = $this->Course_model->deleteVideo($video_id);
-
-            if ($deleted === true)
-            {
-                // Удалено
-                $this->session->set_tempdata('message', 104, 60);
-
-                header('Location: /administration/course/' . $course_id . '/video/');
-            }
-            else
-            {
-                // Не удалено
-                $this->session->set_tempdata('message', 105, 60);
-
-                header('Location: /administration/course/' . $course_id . '/video/' . $video_id);
-            }
-        }
-
-        $video_types = array('promo' => 1, 'workouts' => 2, 'instructions' => 3);
-        $type_key    = (!empty($video['video']['type'])) ? array_search($video['video']['type'], $video_types) : '';
-
-        // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Редактирование данных видео курса';
-        $this->page_data['page_menu']    = 'a_courses_w';
-        $this->page_data['page_submenu'] = 'video';
-        $this->page_data['video_menu']   = (!empty($video['video']['type']) and in_array($video['video']['type'], $video_types)) ? $type_key : '';
-        $this->page_data['video_page']   = 'video_settings';
-        $this->page_data['course_id']    = $course_id;
-
-        $this->load->view('header/header_admin', $this->page_data);
-        $this->load->view('header/admin');
-        $this->load->view('course/settings/course', $result);
-        $this->load->view('footer/footer');
-    }
-
-    /**
-     * AJAX. Активация видео
-     */
-    public function activateCourseVideo()
-    {
-        // Если пользователь не авторизован, вывод страницы 404
-        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
-            parent::pageNotFound($this->page_url);
-        }
-
-        $video_id   = is_numeric($this->input->post('vd_id', true)) ? $this->input->post('vd_id', true) : null;
-        $video_type = strip_tags($this->input->post('vd_t', true));
-        $course_id  = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
-        $display    = is_numeric($this->input->post('display', true)) ? $this->input->post('display', true) : null;
-
-        if (!empty($video_id) and !empty($course_id) and !empty($video_type) and !empty($display))
-        {
-            // Изменение активного видео
-            $res_up = $this->Course_model->activateCourseVideos($course_id, $video_id, $video_type, $this->date);
-
-            if($res_up === false)
-            {
-                $display_result['error'] = 'Select error';
-            }
-            else
-            {
-                $display_result = true;
-            }
-        }
-        else
-        {
-            $display_result['error'] = 'vd_id, vd_t, crs_id and|or display are empty';
-        }
-
-        echo json_encode($display_result, JSON_NUMERIC_CHECK);
     }
 
 
@@ -8894,10 +8526,12 @@ class Course extends CI_Controller
                     $i_player = '';
                     $v_source = null;
 
-                    $v_remove_url = $video_data['video']['remove_url'];
+                    $v_remote_type = $video_data['video']['remote_type'];
+                    $v_remote_url = $video_data['video']['remote_url'];
                     $v_poster = $video_data["video"]["poster"];
                     $v_video = $video_data["video"]["video"];
-                    $i_remove_url = $instruction_data['video']['remove_url'];
+                    $i_remote_type = $instruction_data['video']['remote_type'];
+                    $i_remote_url = $instruction_data['video']['remote_url'];
                     $i_poster = $instruction_data["video"]["poster"];
                     $i_video = $instruction_data["video"]["video"];
                     $w_done = $result['workout']['done'];
@@ -8967,7 +8601,7 @@ class Course extends CI_Controller
                     $i_player = null;
                     $i_source = null;
 
-                    $i_remove_url = $video_data['video']['remove_url'];
+                    $i_remote_url = $video_data['video']['remote_url'];
                     $i_poster = $video_data["video"]["poster"];
                     $i_video = $video_data["video"]["video"];
                     $w_done = null;

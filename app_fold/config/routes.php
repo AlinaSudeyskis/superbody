@@ -175,15 +175,6 @@ $route['administration/users/sublist'] = 'Administrator/sublist';
 $route['administration/users/archive(/(:num))?'] = 'User/archive/$2';
 $route['users/delete'] = 'User/deleteUsers';
 $route['getSearchUsers'] = 'User/getSearchUsers';
-// Видео
-/*$route['administration/video']                = 'Course/video/promo';
-$route['administration/video/promo']          = 'Course/video/promo';
-$route['administration/video/courses']        = 'Course/video/courses';
-$route['administration/video/uncategorized']  = 'Course/video/uncategorized';
-$route['administration/video/instructions']   = 'Course/video/instructions';
-$route['administration/video/course/(:num)']  = 'Course/courseVideo/$1';
-$route['administration/video/upload']         = 'Course/newVideo';
-$route['administration/video/(:num)']         = 'Course/videoSettings/$1';*/
 
 $route['upload/video']  = 'Course/uploadVideo';
 $route['upload/poster'] = 'Course/uploadPoster';
@@ -211,13 +202,12 @@ $route['administration/course/(:num)/statistics'] = 'Course/course/$1/statistics
 $route['administration/course/(:num)/reviews']       = 'Course/course/$1/reviews';
 $route['administration/course/(:num)/review/(:num)'] = 'Course/course/$1/review/$2';
 // Настройки видео курса
-$route['administration/course/(:num)/video']              = 'Course/course/$1/video_promo';
-$route['administration/course/(:num)/video/promo']        = 'Course/course/$1/video_promo';
-$route['administration/course/(:num)/video/workouts']     = 'Course/course/$1/video_workouts';
-$route['administration/course/(:num)/video/instructions'] = 'Course/course/$1/video_instructions';
-$route['administration/course/(:num)/video/uncategorized'] = 'Course/course/$1/video_uncategorized';
-$route['administration/course/(:num)/video/new']          = 'Course/newCourseVideo/$1';
-$route['administration/course/(:num)/video/(:num)']       = 'Course/courseVideoSettings/$1/$2';
+$route['administration/course/(:num)/video(/promo)?']      = 'Course/courseVideo/$1/promo';
+$route['administration/course/(:num)/video/workouts']      = 'Course/courseVideo/$1/workouts';
+$route['administration/course/(:num)/video/instructions']  = 'Course/courseVideo/$1/instructions';
+$route['administration/course/(:num)/video/uncategorized'] = 'Course/courseVideo/$1/uncategorized';
+$route['administration/course/(:num)/video/new']           = 'Course/newCourseVideo/$1';
+$route['administration/course/(:num)/video/(:num)']        = 'Course/courseVideoSettings/$1/$2';
 // Курсы продления
 $route['administration/course/(:num)/extends']       = 'Course/course/$1/extends';
 $route['administration/course/(:num)/extend/new']    = 'Course/course/$1/extend_new';

@@ -2465,54 +2465,10 @@ class Course_model extends CI_Model
             if($row->crs_category == 'workout')
             {
                 // Расписание курса (недели, дни, видео)
-                $sel_schedule = $this->db->query('
-                    SELECT `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, 
-                      `video_name`, `video_path`, `video_poster`, `video_remove_url`
-                    FROM `courses_training_weeks`
-                    LEFT JOIN `video` ON `video_id`=`ctw_video_id`
-                    WHERE `ctw_course_id`=?
-                    ORDER BY `ctw_num_workout`', $course_id);
-
-                if ($sel_schedule !== false and 0 < $sel_schedule->num_rows())
-                {
-                    foreach ($sel_schedule->result() as $row)
-                    {
-                        $num_workout = $row->ctw_num_workout;
-
-                        $result['course']['workouts'][$num_workout]['repeat_workout'] = $row->ctw_repeat_workout;
-                        $result['course']['workouts'][$num_workout]['description']    = $row->ctw_description;
-
-                        if ($row->ctw_repeat_workout > 0)
-                        {
-                            $video_id       = $result['course']['workouts'][$row->ctw_repeat_workout]['video_id'];
-                            $video_name     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_name'];
-                            $video_poster   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_poster'];
-                            $video_path     = $result['course']['workouts'][$row->ctw_repeat_workout]['video_path'];
-                            $video_remove   = $result['course']['workouts'][$row->ctw_repeat_workout]['video_remove'];
-                        }
-                        else
-                        {
-                            $video_id       = $row->ctw_video_id;
-                            $video_name     = $row->video_name;
-                            $video_poster   = mb_substr($row->video_poster, 1);
-                            $video_path     = mb_substr($row->video_path, 1);
-                            $video_remove   = $row->video_remove_url;
-                        }
-
-                        $result['course']['workouts'][$num_workout]['video_id']       = $video_id;
-                        $result['course']['workouts'][$num_workout]['video_name']     = $video_name;
-                        $result['course']['workouts'][$num_workout]['video_poster']   = $video_poster;
-                        $result['course']['workouts'][$num_workout]['video_path']     = $video_path;
-                        $result['course']['workouts'][$num_workout]['video_remove']   = $video_remove;
-
-                    }
-                    unset($row);
-                }
-                elseif ($sel_schedule === false)
-                {
-                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
-                $sel_schedule->free_result();
+                $schedule = self::getCourseSchedules($course_id);
+                $result['course']['workouts']      = $schedule['workouts'];
+                $result['course']['workouts_id']   = $schedule['workouts_id'];
+                $result['course']['course_length'] = $schedule['course_length'];
 
                 // Тренеры курса
                 $sel_coaches = $this->db->query('
@@ -2543,7 +2499,6 @@ class Course_model extends CI_Model
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
                 $sel_coaches->free_result();
-
             }
 
             // Вычисление новой цены на курс
@@ -2663,7 +2618,7 @@ class Course_model extends CI_Model
             {
                 // Инструктаж
                 $sel_instr = $this->db->query('
-                    SELECT `video_id`, `video_name`, `video_path`, `video_poster`, `video_remove_url`
+                    SELECT `video_id`, `video_name`, `video_path`, `video_poster`, `video_remote_type`, `video_remote_url`
                     FROM `video`
                     WHERE `video_crs_id`=? and `video_type`=3 and `video_active`=1 LIMIT 1', $course_id);
                 if ($sel_instr !== false and 1 == $sel_instr->num_rows())
@@ -2674,7 +2629,8 @@ class Course_model extends CI_Model
                     $result['course']['instruction']['video_name']   = $row->video_name;
                     $result['course']['instruction']['video_poster'] = is_file($row->video_poster) ? mb_substr($row->video_poster, 1) : '';
                     $result['course']['instruction']['video_path']   = is_file($row->video_path) ? mb_substr($row->video_path, 1) : '';
-                    $result['course']['instruction']['video_remove'] = $row->video_remove_url;
+                    $result['course']['instruction']['remote_type']  = $row->video_remote_type;
+                    $result['course']['instruction']['video_remote'] = $row->video_remote_url;
                 }
                 elseif ($sel_instr === false)
                 {
@@ -3676,7 +3632,7 @@ class Course_model extends CI_Model
 
         $sel_schedule = $this->db->query('
             SELECT `ctw_num_workout`, `ctw_description`, `ctw_video_id`, `ctw_repeat_workout`, 
-              `video_id`, `video_name`, `video_path`, `video_poster`, `video_remove_url`
+              `video_id`, `video_name`, `video_path`, `video_poster`, `video_remote_type`, `video_remote_url`
             FROM `courses_training_weeks`
             LEFT JOIN `video` ON `video_id`=`ctw_video_id`
             WHERE `ctw_course_id`=? and `ctw_num_workout`>0
@@ -3699,7 +3655,8 @@ class Course_model extends CI_Model
                     $video_name     = $result['workouts'][$row->ctw_repeat_workout]['video_name'];
                     $video_poster   = $result['workouts'][$row->ctw_repeat_workout]['video_poster'];
                     $video_path     = $result['workouts'][$row->ctw_repeat_workout]['video_path'];
-                    $video_remove   = $result['workouts'][$row->ctw_repeat_workout]['video_remove'];
+                    $remote_type    = $result['workouts'][$row->ctw_repeat_workout]['remote_type'];
+                    $video_remote   = $result['workouts'][$row->ctw_repeat_workout]['video_remote'];
                 }
                 else
                 {
@@ -3707,14 +3664,16 @@ class Course_model extends CI_Model
                     $video_name     = $row->video_name;
                     $video_poster   = is_file($row->video_poster) ? mb_substr($row->video_poster, 1) : '';
                     $video_path     = is_file($row->video_path) ? mb_substr($row->video_path, 1) : '';
-                    $video_remove   = $row->video_remove_url;
+                    $remote_type    = $row->video_remote_type;
+                    $video_remote   = $row->video_remote_url;
                 }
 
                 $result['workouts'][$num_workout]['video_id']       = (!empty($video_id)) ? $video_id : '';
                 $result['workouts'][$num_workout]['video_name']     = $video_name;
                 $result['workouts'][$num_workout]['video_poster']   = $video_poster;
                 $result['workouts'][$num_workout]['video_path']     = $video_path;
-                $result['workouts'][$num_workout]['video_remove']   = $video_remove;
+                $result['workouts'][$num_workout]['remote_type']    = $remote_type;
+                $result['workouts'][$num_workout]['video_remote']   = $video_remote;
 
                 $result['workouts_id'][$num_workout] = $result['workouts'][$num_workout]['video_id'];
             }
@@ -5689,32 +5648,32 @@ class Course_model extends CI_Model
      * @param string $name Наименование видео
      * @param string $path_file Путь к файлу видео
      * @param string $poster Постер к видео
-     * @param string $remove_url URL видео на другом сервере
+     * @param $remote_type
+     * @param string $remote_url URL видео на другом сервере
      * @param int $user_id ID пользователя, добавивший видео
      * @param datetime $date
      * @return bool|int
      */
-    public function setNewVideo($type, $course_id, $name, $path_file, $poster, $remove_url, $user_id, $date)
+    public function setNewVideo($type, $course_id, $name, $path_file, $poster, $remote_type, $remote_url, $user_id, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
-            INSERT INTO `video` (`video_type`, `video_crs_id`, `video_name`, `video_path`, `video_poster`, `video_remove_url`, 
+            INSERT INTO `video` (`video_type`, `video_crs_id`, `video_name`, `video_path`, `video_poster`, `video_remote_type`, `video_remote_url`, 
               `video_user_add`, `video_date_add`, `video_date_update`) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                array($type, $course_id, $name, $path_file, $poster, $remove_url, $user_id, $date, $date));
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                array($type, $course_id, $name, $path_file, $poster, $remote_type, $remote_url, $user_id, $date, $date));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return $this->db->insert_id();
+            $result = $this->db->insert_id();
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -6010,7 +5969,7 @@ class Course_model extends CI_Model
         $result = array();
 
         $sel_video = $this->db->query('
-            SELECT `video_id`, `video_type`, `video_crs_id`, `video_name`, `video_remove_url`, `video_poster`, `video_path`, `video_blocked` 
+            SELECT `video_id`, `video_type`, `video_crs_id`, `video_name`, `video_remote_type`, `video_remote_url`, `video_poster`, `video_path`, `video_blocked` 
             FROM `video`
             WHERE `video_crs_id`=? and `video_id`=? LIMIT 1', array($course_id, $video_id));
 
@@ -6106,7 +6065,7 @@ class Course_model extends CI_Model
         $result = array();
 
         $sel_video = $this->db->query('
-            SELECT `video_id`, `video_name`, `video_path`, `video_poster`, `video_remove_url`, `video_crs_id`, `video_date_add`, 
+            SELECT `video_id`, `video_name`, `video_path`, `video_poster`, `video_remote_type`, `video_remote_url`, `video_crs_id`, `video_date_add`, 
               `crs_name`, `crs_blocked`, `crs_type_id`, `ct_blocked`
             FROM `video`
             LEFT JOIN `courses` ON `crs_id`=`video_crs_id`
@@ -6146,7 +6105,7 @@ class Course_model extends CI_Model
         if(!empty($video_id) and is_numeric($video_id))
         {
             $sel_video = $this->db->query('
-            SELECT `video_id`, `video_type`, `video_crs_id`, `video_name`, `video_remove_url`, `video_poster`, `video_path`, `video_blocked` 
+            SELECT `video_id`, `video_type`, `video_crs_id`, `video_name`, `video_remote_type`, `video_remote_url`, `video_poster`, `video_path`, `video_blocked` 
             FROM `video`
             WHERE `video_id`=? LIMIT 1', $video_id);
 
@@ -6490,31 +6449,31 @@ class Course_model extends CI_Model
      * @param string $video_path Путь к файлу видео
      * @param string $name Наименование видео
      * @param string $poster_path Постер к видео
-     * @param string $remove_url URL видео на другом сервере
+     * @param $remote_type
+     * @param string $remote_url URL видео на другом сервере
      * @param int $user_id ID пользователя, добавивший видео
      * @param datetime $date
      * @return bool
      */
-    public function setVideoSettings($video_id, $type, $course_id, $video_path, $name, $poster_path, $remove_url, $user_id, $date)
+    public function setVideoSettings($video_id, $type, $course_id, $video_path, $name, $poster_path, $remote_type, $remote_url, $user_id, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
             UPDATE `video` 
-            SET `video_type`=?, `video_crs_id`=?, `video_name`=?, `video_path`=?, `video_poster`=?, `video_remove_url`=?, `video_date_update`=? 
-            WHERE `video_id`=? LIMIT 1', array($type, $course_id, $name, $video_path, $poster_path, $remove_url, $date, $video_id));
+            SET `video_type`=?, `video_crs_id`=?, `video_name`=?, `video_path`=?, `video_poster`=?, `video_remote_type`=?, `video_remote_url`=?, `video_date_update`=? 
+            WHERE `video_id`=? LIMIT 1', array($type, $course_id, $name, $video_path, $poster_path, $remote_type, $remote_url, $date, $video_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -12566,6 +12525,14 @@ class Course_model extends CI_Model
         return $result;
     }
 
+    /**
+     * @param $user_id
+     * @param $workout_id
+     * @param $current_time
+     * @param $current_percent
+     * @param $today
+     * @return bool
+     */
     public function setWorkoutTimeProgress($user_id, $workout_id, $current_time, $current_percent, $today)
     {
         $result = false;
@@ -13446,15 +13413,16 @@ class Course_model extends CI_Model
         $result = array();
 
         $result['id']          = $row->video_id;
-        $result['type']        = !empty($row->video_type) ? $row->video_type : null;
-        $result['active']      = !empty($row->video_active) ? $row->video_active : 0;
-        $result['name']        = !empty($row->video_name) ? $row->video_name : null;
-        $result['remove_url']  = !empty($row->video_remove_url) ? $row->video_remove_url : null;
+        $result['type']        = (!empty($row->video_type)) ? $row->video_type : null;
+        $result['active']      = (!empty($row->video_active)) ? $row->video_active : 0;
+        $result['name']        = (!empty($row->video_name)) ? $row->video_name : null;
+        $result['remote_type'] = (!empty($row->video_remote_type)) ? $row->video_remote_type : null;
+        $result['remote_url']  = (!empty($row->video_remote_url)) ? $row->video_remote_url : null;
         $result['poster']      = (!empty($row->video_poster) and is_file($row->video_poster)) ? mb_substr($row->video_poster, 1) : null;
         $result['video']       = (!empty($row->video_path) and is_file($row->video_path)) ? mb_substr($row->video_path, 1) : null;
-        $result['blocked']     = !empty($row->video_blocked) ? $row->video_blocked : null;
-        $result['course_id']   = !empty($row->video_crs_id) ? $row->video_crs_id : null;
-        $result['course_name'] = !empty($row->crs_name) ? $row->crs_name : null;
+        $result['blocked']     = (!empty($row->video_blocked)) ? $row->video_blocked : null;
+        $result['course_id']   = (!empty($row->video_crs_id)) ? $row->video_crs_id : null;
+        $result['course_name'] = (!empty($row->crs_name)) ? $row->crs_name : null;
 
         return $result;
     }
