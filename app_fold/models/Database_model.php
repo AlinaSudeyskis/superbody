@@ -3223,7 +3223,7 @@ class Database_model extends CI_Model
     }
 
     /**
-     * Обновление базы данных январь 2020
+     * Обновление базы данных февраля 2020
      *
      * @param $date
      * @return bool
@@ -3269,7 +3269,7 @@ class Database_model extends CI_Model
     }
 
     /**
-     * Обновление базы данных январь 2020
+     * Обновление базы данных марта 2020
      *
      * @param $date
      * @return bool
@@ -3395,6 +3395,29 @@ class Database_model extends CI_Model
                 `pau_u_id` INT(10) UNSIGNED NOT NULL , 
                 `pau_update` DATETIME NOT NULL , 
                 PRIMARY KEY (`pau_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных апреля 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseApril2020($date)
+    {
+        $result = false;
+
+        $date = '2020-04-20 11:39';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `video` ADD `video_remote_type` ENUM('vimeo','youtube','') NOT NULL DEFAULT 'vimeo' AFTER `video_poster`");
+            $this->db->query("ALTER TABLE `video` CHANGE `video_remote_type` `video_remote_type` ENUM('vimeo','youtube','') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
 
             self::setDbUpdate($date);
         }
