@@ -46,7 +46,7 @@ class Course_model extends CI_Model
                         $end = new DateTime($row4->ucp_pause_end);
                         $start = new DateTime($row4->ucp_pause_start);
                         $interval = $end->diff($start);
-                        $count_pause += $interval;
+                        $count_pause += (int) $interval->format('a');
                     }
                 }
 
