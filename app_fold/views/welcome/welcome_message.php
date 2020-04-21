@@ -15,7 +15,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php echo $vd['course_name']; ?>
                         </a>
                     </div>
-                    <?php if (empty($vd['remove_url'])) : ?>
+                    <?php if (empty($vd['remote_url'])) : ?>
                         <div class="video_kurs def_video">
                             <div class="px-video-img-captions-container">
                                 <div class="px-video-captions hide"></div>
@@ -26,13 +26,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                             <div class="px-video-controls"></div>
                         </div>
-                    <?php else:
-                        /*<iframe id="player" type="text/html"
-                            src="http://www.youtube.com/embed/<?php echo $vd['remove'];?>?enablejsapi=1&origin=http://sb.theoutlines.ru"
-                            frameborder="0"></iframe>*/ ?>
+                    <?php else: ?>
                         <div class="video_kurs">
-                            <?php $remove_url = $vd['remove_url'];
-                            include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
+                            <?php if($vd['remote_type'] == 'vimeo'):?>
+                                <?php $remote_url = $vd['remote_url'];
+                                include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
+                            <?php elseif($vd['remote_type'] == 'youtube'):?>
+                                <?php $remote_url = $vd['remote_url'];
+                                include('./app_fold/views/video/player/youtube_player_item.php'); ?>
+                            <?php endif; ?>
                         </div>
                     <?php endif;?>
                     <div class="video_col_but">

@@ -32,7 +32,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="lp_header container">
                 <?php if(!empty($landing['main_video_url'])): ?>
                     <div class="video_col">
-                        <?php $remove_url = $landing['main_video_url'];
+                        <?php $remote_url = $landing['main_video_url'];
                         $key = 0;
                         include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
                         <script>

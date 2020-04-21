@@ -39,7 +39,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell"></div></div>
             <div class="tren_set_form_img banner">
-                <?php $remove_url = $banner['video_url'];
+                <?php $remote_url = $banner['video_url'];
                 $key = 0;
                 include('./app_fold/views/video/player/vimeo_player_item.php');?>
             </div>

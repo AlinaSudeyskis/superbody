@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
+$v_remote_type = (empty($v_remote_type)) ? 'vimeo' : $v_remote_type;
 // Блок видео тренировки
 if (empty($v_remote_url) and !empty($v_poster) and !empty($v_video))
 {
@@ -8,7 +8,7 @@ if (empty($v_remote_url) and !empty($v_poster) and !empty($v_video))
     $v_player = 1;
     $v_source = $v_video;
 }
-elseif(!empty($v_remote_url) and !empty($v_remote_type) and $v_remote_type == 'vimeo')
+elseif(!empty($v_remote_url) and $v_remote_type == 'vimeo')
 {
     //$video = "<iframe id='player' type='text/html' src='http://www.youtube.com/embed/".$video_data['video']['remote_url']."?autoplay=1&enablejsapi=1&origin=http://sb.theoutlines.ru' frameborder='0'></iframe>";
     $v_player = 2;
@@ -21,7 +21,7 @@ elseif(!empty($v_remote_url) and !empty($v_remote_type) and $v_remote_type == 'v
     $w_video = ob_get_contents();
     ob_end_clean();
 }
-elseif(!empty($v_remote_url) and !empty($v_remote_type) and $v_remote_type == 'youtube')
+elseif(!empty($v_remote_url) and $v_remote_type == 'youtube')
 {
     //$video = "<iframe id='player' type='text/html' src='http://www.youtube.com/embed/".$video_data['video']['remote_url']."?autoplay=1&enablejsapi=1&origin=http://sb.theoutlines.ru' frameborder='0'></iframe>";
     $v_player = 2;
