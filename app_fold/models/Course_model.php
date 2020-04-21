@@ -29,24 +29,26 @@ class Course_model extends CI_Model
         {
             foreach($sel_wo->result() as $row)
             {
+                $this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<?', array($row->uc_id, $row->uc_date_start));
+
                 $count_done = 0;
-                $sel_done = $this->db->query('SELECT COUNT(`utw_id`) as `count_done` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_status`="done"', $row->uc_id);
+                /*$sel_done = $this->db->query('SELECT COUNT(`utw_id`) as `count_done` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_status`="done"', $row->uc_id);
                 if($sel_done !== false and 0 < $sel_done->num_rows())
                 {
                     $row2 = $sel_done->row();
                     $count_done = $row2->count_done;
-                }
+                }*/
 
                 $count_zero = 0;
-                $sel_done = $this->db->query('SELECT COUNT(`utw_id`) as `count_zero` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_crs_workout`=0', $row->uc_id);
+                /*$sel_done = $this->db->query('SELECT COUNT(`utw_id`) as `count_zero` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_crs_workout`=0', $row->uc_id);
                 if($sel_done !== false and 0 < $sel_done->num_rows())
                 {
                     $row5 = $sel_done->row();
                     $count_zero = $row5->count_zero;
-                }
+                }*/
 
                 $count_pause = 0;
-                $sel_pause = $this->db->query('SELECT `ucp_pause_start`, `ucp_pause_end` FROM `users_courses_pauses` WHERE `ucp_uc_id`=?', $row->uc_id);
+                /*$sel_pause = $this->db->query('SELECT `ucp_pause_start`, `ucp_pause_end` FROM `users_courses_pauses` WHERE `ucp_uc_id`=?', $row->uc_id);
                 if($sel_pause !== false and 0 < $sel_pause->num_rows())
                 {
                     foreach($sel_pause->result() as $row4)
@@ -59,13 +61,12 @@ class Course_model extends CI_Model
                         $last_pause = (empty($last_pause) or $row4->ucp_pause_end > $last_pause) ? $row4->ucp_pause_end : $last_pause;
                         $first_pause = (empty($first_pause) or $row4->ucp_pause_start < $first_pause) ? $row4->ucp_pause_start : $first_pause;
                     }
-                }
+                }*/
 
                 $count_course_workouts = $row->crs_count_weeks * $row->crs_count_days;
                 $array_training_days   = (!empty($row->uc_days)) ? str_split($row->uc_days) : null;
                 $count_training_days   = count($array_training_days);
 
-                //$this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<?', array($row->uc_id, $row->uc_date_start));
                 if($count_done > 0)
                 {
                     /*$this->db->query('UPDATE `users_training_weeks` SET `utw_workout`=(`utw_workout`-?) WHERE `utw_uc_id`=? and `utw_workout`>?',
@@ -187,7 +188,7 @@ class Course_model extends CI_Model
                     if($count_zero > 0)
                     {
                         log_message('debug', 'UC id: '. $row->uc_id);
-                        $this->db->query('UPDATE `users_training_weeks` SET `utw_crs_workout`=(`utw_crs_workout`+1) WHERE `utw_uc_id`=? and `utw_status`=""', $row->uc_id);
+                        //$this->db->query('UPDATE `users_training_weeks` SET `utw_crs_workout`=(`utw_crs_workout`+1) WHERE `utw_uc_id`=? and `utw_status`=""', $row->uc_id);
                     }
 
                     /*log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
@@ -195,6 +196,22 @@ class Course_model extends CI_Model
                         .' count_done '. $count_done .' last_pause '. $last_pause);*/
                     //log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
 
+                }
+            }
+        }
+
+        $tmp_date = new DateTime($date);
+        $today = $tmp_date->format('Y-m-d');
+        $sel_crs = $this->db->query('SELECT `utw_uc_id` FROM `users_training_weeks` WHERE `utw_status`<>"done" and `utw_date`<? GROUP BY `utw_uc_id`', $today);
+        if($sel_crs !== false and 0 < $sel_crs->num_rows())
+        {
+            foreach($sel_crs->result() as $row)
+            {
+                $sel_crs2 = $this->db->query('SELECT `utw_workout` FROM `users_training_weeks` WHERE `utw_date`>=? and `utw_crs_workout`>1 ORDER BY `utw_date` LIMIT 1', $today);
+                if($sel_crs2 !== false and 1 == $sel_crs2->num_rows())
+                {
+                    $row2 = $sel_crs2->row();
+                    log_message('debug', 'UC id: '. $row->utw_uc_id .' workout: '. $row2->utw_workout);
                 }
             }
         }
