@@ -207,11 +207,13 @@ class Course_model extends CI_Model
         if($sel_crs2 !== false and 1 == $sel_crs2->num_rows())
         {
             $row2 = $sel_crs2->row();
+            log_message('debug', 'UC id: '. $row2->utw_uc_id .' workout: '. $row2->utw_workout);
 
-            $sel_crs = $this->db->query('SELECT `utw_uc_id` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`="done" LIMIT 1', array($row2->utw_uc_id, $today));
-            if($sel_crs !== false and 0 == $sel_crs->num_rows())
+            $sel_crs = $this->db->query('SELECT COUNT(`utw_uc_id`) as `count_done` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`="done"', array($row2->utw_uc_id, $today));
+            if($sel_crs !== false and 1 == $sel_crs->num_rows())
             {
-                log_message('debug', 'UC id: '. $row2->utw_uc_id .' workout: '. $row2->utw_workout .' done: 0');
+                $row = $sel_crs->row();
+                log_message('debug', 'Done: '. $row->count_done);
             }
         }
     }
