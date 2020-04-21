@@ -202,17 +202,17 @@ class Course_model extends CI_Model
 
         $tmp_date = new DateTime($date);
         $today = $tmp_date->format('Y-m-d');
-        $sel_crs = $this->db->query('SELECT `utw_uc_id` FROM `users_training_weeks` WHERE `utw_status`<>"done" and `utw_date`<? GROUP BY `utw_uc_id`', $today);
-        if($sel_crs !== false and 0 < $sel_crs->num_rows())
+
+        $sel_crs2 = $this->db->query('SELECT `utw_uc_id`, `utw_workout`, `utw_crs_workout` FROM `users_training_weeks` WHERE `utw_date`>=? and `utw_crs_workout`>1 ORDER BY `utw_date` LIMIT 1', $today);
+        if($sel_crs2 !== false and 1 == $sel_crs2->num_rows())
         {
-            foreach($sel_crs->result() as $row)
+            $row2 = $sel_crs2->row();
+
+            $sel_crs = $this->db->query('SELECT `utw_uc_id`, COUNT(`utw_workout`) as `count_done` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`="done" GROUP BY `utw_uc_id`', array($row2->utw_uc_id, $today));
+            if($sel_crs !== false and 0 < $sel_crs->num_rows())
             {
-                $sel_crs2 = $this->db->query('SELECT `utw_workout`, `utw_crs_workout` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`>=? and `utw_crs_workout`>1 ORDER BY `utw_date` LIMIT 1', array($row->utw_uc_id, $today));
-                if($sel_crs2 !== false and 1 == $sel_crs2->num_rows())
-                {
-                    $row2 = $sel_crs2->row();
-                    log_message('debug', 'UC id: '. $row->utw_uc_id .' workout: '. $row2->utw_workout .' crs workout: '. $row2->utw_crs_workout);
-                }
+                $row = $sel_crs->row();
+                log_message('debug', 'UC id: '. $row2->utw_uc_id .' workout: '. $row2->utw_workout .' crs workout: '. $row->count_done);
             }
         }
     }
