@@ -78,15 +78,19 @@ class Course_model extends CI_Model
                     $diff_count_wo = $count_course_workouts - $last_workout;
                     $today_num_day = date('N', strtotime($training_date));
 
-
-                    log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
-                        .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
-                        .' count_done '. $count_done .' count_pause '. $count_pause);
-                    log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
+                    if($count_pause > 0)
+                    {
+                        log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
+                            .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
+                            .' count_done '. $count_done .' count_pause '. $count_pause);
+                        log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
+                    }
 
                     if($row->uc_date_end < $row3->utw_date)
                     {
                         log_message('debug', 'UC id: '. $row->uc_id .' UC end: '. $row->uc_date_end .' last_date: '. $last_date);
+                        // Окончание курса
+                        $this->db->query('UPDATE `users_courses` SET `uc_date_end`=? WHERE `uc_id`=? LIMIT 1', array($last_date, $row->uc_id));
                     }
 
                     if($diff_count_wo > 0)
