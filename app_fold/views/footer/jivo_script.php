@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<?php if($_SERVER['SERVER_NAME'] != 'sb.theoutlines.ru'): ?>
+<?php if($_SERVER['SERVER_NAME'] != 'sb.theoutlines.ru' and mb_substr($_SERVER['REQUEST_URI'], 0, 15) != '/administration'): ?>
 <!-- BEGIN JIVOSITE CODE {literal} -->
 <script type='text/javascript'>
     (function(){ var widget_id = 'pJLIxhdVt8';var d=document;var w=window;function l(){

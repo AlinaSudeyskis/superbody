@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<?php if($_SERVER['SERVER_NAME'] != 'sb.theoutlines.ru'): ?>
+<?php if($_SERVER['SERVER_NAME'] != 'sb.theoutlines.ru' and mb_substr($_SERVER['REQUEST_URI'], 0, 15) != '/administration'): ?>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript" >
     (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
