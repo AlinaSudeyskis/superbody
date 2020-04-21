@@ -46,7 +46,7 @@ class Course_model extends CI_Model
                         $end = new DateTime($row4->ucp_pause_end);
                         $start = new DateTime($row4->ucp_pause_start);
                         $interval = $end->diff($start);
-                        $count_pause += (int) $interval->format('a');
+                        $count_pause += (int) $interval->format('%a');
                     }
                 }
 
@@ -81,7 +81,7 @@ class Course_model extends CI_Model
                     log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
                         .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
                         .' count_done '. $count_done .' count_pause '. $count_pause);
-                    log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date);
+                    log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
 
                     for($i = 1; $i <= $diff_count_wo; $i++)
                     {
