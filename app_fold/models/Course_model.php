@@ -47,6 +47,8 @@ class Course_model extends CI_Model
                         $start = new DateTime($row4->ucp_pause_start);
                         $interval = $end->diff($start);
                         $count_pause += (int) $interval->format('%a');
+
+                        $last_pause = (empty($last_pause) or $row4->ucp_pause_end > $last_pause) ? $row4->ucp_pause_end : $last_pause;
                     }
                 }
 
@@ -80,15 +82,17 @@ class Course_model extends CI_Model
 
                     if($count_pause > 0)
                     {
+
                         log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
                             .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
-                            .' count_done '. $count_done .' count_pause '. $count_pause);
+                            .' count_done '. $count_done .' last_pause '. $last_pause);
                         log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
+                        log_message('debug', ' ');
                     }
 
                     if($row->uc_date_end < $row3->utw_date)
                     {
-                        log_message('debug', 'UC id: '. $row->uc_id .' UC end: '. $row->uc_date_end .' last_date: '. $last_date);
+                        //log_message('debug', 'UC id: '. $row->uc_id .' UC end: '. $row->uc_date_end .' last_date: '. $last_date);
                         // Окончание курса
                         $this->db->query('UPDATE `users_courses` SET `uc_date_end`=? WHERE `uc_id`=? LIMIT 1', array($last_date, $row->uc_id));
                     }
@@ -175,8 +179,6 @@ class Course_model extends CI_Model
                             }
                         }
                     }
-
-                    log_message('debug', ' ');
                 }
             }
         }
@@ -10111,7 +10113,7 @@ class Course_model extends CI_Model
             {
                 // Добавление пропущенный тренировок в БД
                 $up_missed = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="missed", `utw_date_update`=? 
-                    WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`=""', array($date, $row->uc_id, $today));
+                    WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`="" and `utw_progress_percent`=0', array($date, $row->uc_id, $today));
                 if($up_missed !== false and 0 < $this->db->affected_rows())
                 {
                     // Изменение нумерации тренировок
@@ -12583,7 +12585,7 @@ class Course_model extends CI_Model
                     if ($sel_course !== false and 1 == $sel_course->num_rows())
                     {
                         $up_data = $this->db->query('
-                            UPDATE `users_training_weeks` SET `utw_progress_time`=?, `utw_progress_percent`=?, `utw_date_update`=? 
+                            UPDATE `users_training_weeks` SET `utw_progress_time`=?, `utw_progress_percent`=?, `utw_status`="in_progress", `utw_date_update`=? 
                             WHERE `utw_id`=? LIMIT 1', array($current_time, $current_percent, $today, $workout_id));
 
                         if ($up_data !== false and 1 == $this->db->affected_rows())

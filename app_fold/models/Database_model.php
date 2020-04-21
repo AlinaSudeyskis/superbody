@@ -3431,6 +3431,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-04-21 14:06';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_training_weeks` CHANGE `utw_status` `utw_status` ENUM('','missed','done','in_progress') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 
