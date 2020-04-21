@@ -49,6 +49,7 @@ class Course_model extends CI_Model
                         $count_pause += (int) $interval->format('%a');
 
                         $last_pause = (empty($last_pause) or $row4->ucp_pause_end > $last_pause) ? $row4->ucp_pause_end : $last_pause;
+                        $first_pause = (empty($first_pause) or $row4->ucp_pause_start < $first_pause) ? $row4->ucp_pause_start : $first_pause;
                     }
                 }
 
@@ -82,6 +83,7 @@ class Course_model extends CI_Model
 
                     if($count_pause > 0)
                     {
+                        $this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_status`="missed" and `utw_date` BETWEEN ? and ?', array($row->uc_id, $first_pause, $last_pause));
 
                         log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
                             .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
