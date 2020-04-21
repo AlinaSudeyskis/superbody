@@ -10112,7 +10112,7 @@ class Course_model extends CI_Model
                 {
                     // Изменение нумерации тренировок
                     $up_workouts = $this->db->query('UPDATE `users_training_weeks` SET `utw_crs_workout`=(`utw_crs_workout`-1), `utw_date_update`=? 
-                        WHERE `utw_uc_id`=? and `utw_date`>=?', array($date, $row->uc_id, $today));
+                        WHERE `utw_uc_id`=? and `utw_date`>=? and `utw_crs_workout`>1', array($date, $row->uc_id, $today));
                     if($up_workouts === false)
                     {
                         $result = false;
