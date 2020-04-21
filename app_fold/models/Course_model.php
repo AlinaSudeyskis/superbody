@@ -19,7 +19,7 @@ class Course_model extends CI_Model
     {
         // Все курсы начинались с 10го. 10.04.2020 - 14.04.2020
         $sel_wo = $this->db->query('
-            SELECT `uc_id`, `uc_days`, `uc_time`, COUNT(`utw_id`) as `count_utw`, `utw_date`, `utw_uc_id`, `crs_count_weeks`, `crs_count_days`, `uc_date_start` 
+            SELECT `uc_id`, `uc_days`, `uc_time`, `uc_date_end`, COUNT(`utw_id`) as `count_utw`, `utw_date`, `utw_uc_id`, `crs_count_weeks`, `crs_count_days`, `uc_date_start` 
             FROM `users_courses` 
             LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
             LEFT JOIN `users_training_weeks` ON `utw_uc_id`=`uc_id`
@@ -78,88 +78,97 @@ class Course_model extends CI_Model
                     $diff_count_wo = $count_course_workouts - $last_workout;
                     $today_num_day = date('N', strtotime($training_date));
 
+
                     log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
                         .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
                         .' count_done '. $count_done .' count_pause '. $count_pause);
                     log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
 
-                    for($i = 1; $i <= $diff_count_wo; $i++)
+                    if($row->uc_date_end < $row3->utw_date)
                     {
-                        $new_wo = $last_workout + $i;
-                        $new_crs_wo = (($last_crs_wor + $i) <= $count_course_workouts) ? ($last_crs_wor + $i) : $count_course_workouts;
+                        log_message('debug', 'UC id: '. $row->uc_id .' UC end: '. $row->uc_date_end .' last_date: '. $last_date);
+                    }
 
-                        // Номер дня недели предыдущей тренировки
-                        $prev_num_day = date('N', strtotime($training_date));
-                        $key_num_day  = array_search($prev_num_day, $array_training_days);
-
-                        if ($key_num_day !== false)
+                    if($diff_count_wo > 0)
+                    {
+                        for($i = 1; $i <= $diff_count_wo; $i++)
                         {
-                            // Вычисление разницы между номерами дней недели
-                            // Если предыдущий день недели тренировки последний день недели, то
-                            if ($key_num_day == ($count_training_days-1))
+                            $new_wo = $last_workout + $i;
+                            $new_crs_wo = (($last_crs_wor + $i) <= $count_course_workouts) ? ($last_crs_wor + $i) : $count_course_workouts;
+
+                            // Номер дня недели предыдущей тренировки
+                            $prev_num_day = date('N', strtotime($training_date));
+                            $key_num_day  = array_search($prev_num_day, $array_training_days);
+
+                            if ($key_num_day !== false)
                             {
-                                // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                $diff_days = 7 - $array_training_days[$key_num_day] + $array_training_days[0];
-                            }
-                            else
-                            {
-                                // Разница между текущим номером недели тренировки и предыдущем.
-                                $diff_days = $array_training_days[$key_num_day+1] - $array_training_days[$key_num_day];
-                            }
-
-                            // Временная дата предыдущей тренивроки
-                            $tem_date = new DateTime($training_date);
-
-                            // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
-                            $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
-
-                            $training_date = $tem_date->format('Y-m-d');
-
-                            unset($tem_date);
-                        }
-                        // Если не найден предыдущий день недели в новом списке, то проверяем дату текущей тренировки.
-                        else
-                        {
-                            $new_num_day_workout = $array_training_days[0];
-                            // Поиск ближайшего дня недели тренировки
-                            foreach($array_training_days as $at_day)
-                            {
-                                if($at_day > $today_num_day)
+                                // Вычисление разницы между номерами дней недели
+                                // Если предыдущий день недели тренировки последний день недели, то
+                                if ($key_num_day == ($count_training_days-1))
                                 {
-                                    $new_num_day_workout = $at_day;
-                                    break;
+                                    // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
+                                    $diff_days = 7 - $array_training_days[$key_num_day] + $array_training_days[0];
                                 }
-                            }
-                            unset($at_day);
+                                else
+                                {
+                                    // Разница между текущим номером недели тренировки и предыдущем.
+                                    $diff_days = $array_training_days[$key_num_day+1] - $array_training_days[$key_num_day];
+                                }
 
-                            // Вычисление разницы между номерами дней недели
-                            if ($today_num_day >= $new_num_day_workout)
-                            {
-                                $diff_days = 7 - $today_num_day + $new_num_day_workout;
+                                // Временная дата предыдущей тренивроки
+                                $tem_date = new DateTime($training_date);
+
+                                // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
+                                $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                                $training_date = $tem_date->format('Y-m-d');
+
+                                unset($tem_date);
                             }
+                            // Если не найден предыдущий день недели в новом списке, то проверяем дату текущей тренировки.
                             else
                             {
-                                $diff_days = $new_num_day_workout - $today_num_day;
+                                $new_num_day_workout = $array_training_days[0];
+                                // Поиск ближайшего дня недели тренировки
+                                foreach($array_training_days as $at_day)
+                                {
+                                    if($at_day > $today_num_day)
+                                    {
+                                        $new_num_day_workout = $at_day;
+                                        break;
+                                    }
+                                }
+                                unset($at_day);
+
+                                // Вычисление разницы между номерами дней недели
+                                if ($today_num_day >= $new_num_day_workout)
+                                {
+                                    $diff_days = 7 - $today_num_day + $new_num_day_workout;
+                                }
+                                else
+                                {
+                                    $diff_days = $new_num_day_workout - $today_num_day;
+                                }
+
+                                // Временная дата "сегодня"
+                                $tem_date = new DateTime($training_date);
+
+                                // Дата текущей тренировки, с учетом разницы между днями ( + $diff_days дней )
+                                $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
+
+                                $training_date = $tem_date->format('Y-m-d');
+
+                                unset($tem_date);
                             }
 
-                            // Временная дата "сегодня"
-                            $tem_date = new DateTime($training_date);
+                            log_message('debug', 'UC id: '. $row->uc_id .' new_wo: '. $new_wo .' new_crs_wo: '. $new_crs_wo .'  date: '. $training_date);
 
-                            // Дата текущей тренировки, с учетом разницы между днями ( + $diff_days дней )
-                            $tem_date->add(new DateInterval('P' . $diff_days . 'D'));
-
-                            $training_date = $tem_date->format('Y-m-d');
-
-                            unset($tem_date);
-                        }
-
-                        log_message('debug', 'UC id: '. $row->uc_id .' new_wo: '. $new_wo .' new_crs_wo: '. $new_crs_wo .'  date: '. $training_date);
-
-                        $sel_wo2 = $this->db->query('SELECT `utw_workout` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1', array($row->uc_id, $new_wo));
-                        if($sel_wo2 !== false and 0 == $sel_wo2->num_rows())
-                        {
-                            $this->db->query('INSERT INTO `users_training_weeks` (`utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_date`, `utw_date_update`)
-                            VALUES (?, ?, ?, ?, ?)', array($row->uc_id, $new_wo, $new_crs_wo, $training_date, $date));
+                            $sel_wo2 = $this->db->query('SELECT `utw_workout` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1', array($row->uc_id, $new_wo));
+                            if($sel_wo2 !== false and 0 == $sel_wo2->num_rows())
+                            {
+                                $this->db->query('INSERT INTO `users_training_weeks` (`utw_uc_id`, `utw_workout`, `utw_crs_workout`, `utw_date`, `utw_date_update`)
+                                    VALUES (?, ?, ?, ?, ?)', array($row->uc_id, $new_wo, $new_crs_wo, $training_date, $date));
+                            }
                         }
                     }
 
