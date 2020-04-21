@@ -37,6 +37,14 @@ class Course_model extends CI_Model
                     $count_done = $row2->count_done;
                 }
 
+                $count_zero = 0;
+                $sel_done = $this->db->query('SELECT COUNT(`utw_id`) as `count_zero` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_crs_workout`=0', $row->uc_id);
+                if($sel_done !== false and 0 < $sel_done->num_rows())
+                {
+                    $row5 = $sel_done->row();
+                    $count_zero = $row5->count_zero;
+                }
+
                 $count_pause = 0;
                 $sel_pause = $this->db->query('SELECT `ucp_pause_start`, `ucp_pause_end` FROM `users_courses_pauses` WHERE `ucp_uc_id`=?', $row->uc_id);
                 if($sel_pause !== false and 0 < $sel_pause->num_rows())
@@ -83,13 +91,7 @@ class Course_model extends CI_Model
 
                     if($count_pause > 0)
                     {
-                        $this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_status`="missed" and `utw_date` BETWEEN ? and ?', array($row->uc_id, $first_pause, $last_pause));
-
-                        log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
-                            .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
-                            .' count_done '. $count_done .' last_pause '. $last_pause);
-                        log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
-                        log_message('debug', ' ');
+                        //$this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_status`="missed" and `utw_date` BETWEEN ? and ?', array($row->uc_id, $first_pause, $last_pause));
                     }
 
                     if($row->uc_date_end < $row3->utw_date)
@@ -181,6 +183,14 @@ class Course_model extends CI_Model
                             }
                         }
                     }
+
+                    /*log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
+                        .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
+                        .' count_done '. $count_done .' last_pause '. $last_pause);*/
+                    //log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
+
+                    log_message('debug', 'UC id: '. $row->uc_id .' count_zero: '. $count_zero);
+                    log_message('debug', ' ');
                 }
             }
         }
