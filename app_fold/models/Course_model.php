@@ -29,7 +29,7 @@ class Course_model extends CI_Model
         {
             foreach($sel_wo->result() as $row)
             {
-                $this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<?', array($row->uc_id, $row->uc_date_start));
+                //$this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<?', array($row->uc_id, $row->uc_date_start));
 
                 $count_done = 0;
                 /*$sel_done = $this->db->query('SELECT COUNT(`utw_id`) as `count_done` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_status`="done"', $row->uc_id);
@@ -99,7 +99,7 @@ class Course_model extends CI_Model
                     {
                         //log_message('debug', 'UC id: '. $row->uc_id .' UC end: '. $row->uc_date_end .' last_date: '. $last_date);
                         // Окончание курса
-                        $this->db->query('UPDATE `users_courses` SET `uc_date_end`=? WHERE `uc_id`=? LIMIT 1', array($last_date, $row->uc_id));
+                        //$this->db->query('UPDATE `users_courses` SET `uc_date_end`=? WHERE `uc_id`=? LIMIT 1', array($last_date, $row->uc_id));
                     }
 
                     if($diff_count_wo > 0)
@@ -207,11 +207,11 @@ class Course_model extends CI_Model
         {
             foreach($sel_crs->result() as $row)
             {
-                $sel_crs2 = $this->db->query('SELECT `utw_workout` FROM `users_training_weeks` WHERE `utw_date`>=? and `utw_crs_workout`>1 ORDER BY `utw_date` LIMIT 1', $today);
+                $sel_crs2 = $this->db->query('SELECT `utw_workout`, `utw_crs_workout` FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`>=? and `utw_crs_workout`>1 ORDER BY `utw_date` LIMIT 1', array($row->utw_uc_id, $today));
                 if($sel_crs2 !== false and 1 == $sel_crs2->num_rows())
                 {
                     $row2 = $sel_crs2->row();
-                    log_message('debug', 'UC id: '. $row->utw_uc_id .' workout: '. $row2->utw_workout);
+                    log_message('debug', 'UC id: '. $row->utw_uc_id .' workout: '. $row2->utw_workout .' crs workout: '. $row2->utw_crs_workout);
                 }
             }
         }
