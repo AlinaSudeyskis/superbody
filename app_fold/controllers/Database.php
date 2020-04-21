@@ -155,7 +155,7 @@ class Database extends CI_Controller
     public function brokenUsersCourses()
     {
         $this->load->model('Course_model');
-        //$this->Course_model->getBrokenUsersCourses($this->date);
+        $this->Course_model->getBrokenUsersCourses($this->date);
     }
 
     public function brokenUsersOrders()
