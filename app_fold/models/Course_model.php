@@ -184,13 +184,17 @@ class Course_model extends CI_Model
                         }
                     }
 
+                    if($count_zero > 0)
+                    {
+                        log_message('debug', 'UC id: '. $row->uc_id);
+                        $this->db->query('UPDATE `users_training_weeks` SET `utw_crs_workout`=(`utw_crs_workout`+1) WHERE `utw_uc_id`=? and `utw_status`=""', $row->uc_id);
+                    }
+
                     /*log_message('debug', 'UC id: '. $row->uc_id .' uc_date_start: '. $row->uc_date_start .' uc_days: '. $row->uc_days .' uc_time: '. $row->uc_time
                         .' Count utw '. $row->count_utw .' crs_count_weeks '. $row->crs_count_weeks .' crs_count_days '. $row->crs_count_days
                         .' count_done '. $count_done .' last_pause '. $last_pause);*/
                     //log_message('debug', 'UC id: '. $row->uc_id .' last_wo: '. $last_workout .'  last_crs_wor: '. $last_crs_wor .' last_date: '. $last_date .' diff_count_wo: '. $diff_count_wo);
 
-                    log_message('debug', 'UC id: '. $row->uc_id .' count_zero: '. $count_zero);
-                    log_message('debug', ' ');
                 }
             }
         }
