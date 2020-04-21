@@ -17,6 +17,7 @@ class Course_model extends CI_Model
      */
     public function getBrokenUsersCourses($date)
     {
+        // Все курсы начинались с 10го. 10.04.2020 - 14.04.2020
         $sel_wo = $this->db->query('
             SELECT `uc_id`, `uc_days`, `uc_time`, COUNT(`utw_id`) as `count_utw`, `utw_date`, `utw_uc_id`, `crs_count_weeks`, `crs_count_days`, `uc_date_start` 
             FROM `users_courses` 
@@ -40,7 +41,7 @@ class Course_model extends CI_Model
                 $array_training_days   = (!empty($row->uc_days)) ? str_split($row->uc_days) : null;
                 $count_training_days   = count($array_training_days);
 
-                $this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<?', array($row->uc_id, $row->uc_date_start));
+                //$this->db->query('DELETE FROM `users_training_weeks` WHERE `utw_uc_id`=? and `utw_date`<?', array($row->uc_id, $row->uc_date_start));
                 if($count_done > 0)
                 {
                     /*$this->db->query('UPDATE `users_training_weeks` SET `utw_workout`=(`utw_workout`-?) WHERE `utw_uc_id`=? and `utw_workout`>?',
