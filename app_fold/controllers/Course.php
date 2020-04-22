@@ -6958,6 +6958,7 @@ class Course extends CI_Controller
         $course_rest      = $db_course['count_rest'];
         $course_start     = $db_course['db_date_start'];
         $course_end       = $db_course['db_date_end'];
+        $free_weeks_end   = $db_course['db_free_weeks_end'];
         $workouts_missed  = $db_course['workouts_missed'];
         $workouts_passed  = $db_course['workouts_passed'];
         $db_workouts      = $db_course['workouts'];
@@ -7195,18 +7196,20 @@ class Course extends CI_Controller
             $tm_date_to      = DateTime::createFromFormat('Y-m-d', $input_date);
             $date_pause_to   = ($input_date != '' and $tm_date_to !== false) ? $tm_date_to->format('Y-m-d') : '';
             $curr_pause_days = 0; // Кол-во дней заморозки
+            $new_free_weeks_end = $free_weeks_end;
             $pause_update_workouts = null;
             // Заморозка курса (изменение дат тренировок, даты окончания курса)
             if (!empty($date_pause_to) and !empty($db_training_days))
             {
-                $temp_date_today = DateTime::createFromFormat("Y-m-d H:i:s", $this->date);
-                $today           = $temp_date_today->format('Y-m-d');
+                $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
+                $today    = $tmp_date->format('Y-m-d');
 
                 // Кол-во дней текущей заморозки
-                $interval        = $temp_date_today->diff($tm_date_to);
+                $interval        = $tm_date_to->diff($tmp_date);
                 $curr_pause_days = (int)$interval->format('%a');
                 unset($tm_date_to);
-                unset($temp_date_today);
+                unset($tmp_date);
+
 
                 if ($curr_pause_days >= 7)
                 {
@@ -7217,7 +7220,8 @@ class Course extends CI_Controller
                     if ($pause_days > 30)
                     {
                         $diff_days = $pause_days - 30;
-                        $tm_date_to = DateTime::createFromFormat('Y-m-d', $date_pause_to);
+                        $curr_pause_days = $curr_pause_days - $diff_days;
+                        $tm_date_to = new DateTime($date_pause_to);
                         $new_date_pause_to = $tm_date_to->sub(new DateInterval('P' . $diff_days . 'D'));
                         $date_pause_to = $new_date_pause_to->format('Y-m-d');
                         unset($tm_date_to);
@@ -7225,21 +7229,15 @@ class Course extends CI_Controller
                     }
 
                     // Следующее число после окончания заморозки
-                    $temp_date     = DateTime::createFromFormat('Y-m-d', $date_pause_to);
-                    $temp_date     = $temp_date->add(new DateInterval("P1D"));
-                    $first_date    = $temp_date->format('Y-m-d'); // Первый день после разморозки курса
-                    $training_date = $temp_date->format('Y-m-d');
-                    unset($temp_date);
+                    $training_date = $date_pause_to;
 
                     $set_start_date = true; // Флаг начала отсчета дат после заморозки
                     $next_workout   = false; // Флаг продолжения вычисления новых дат тренировок
 
                     // Изменени дат тренировок
-                    if (empty($all_workouts))
-                    {
-                        $all_workouts = $db_workouts;
-                    }
-                    $db_training_days = str_split($db_training_days);
+                    $all_workouts        = (empty($all_workouts)) ? $db_workouts : $all_workouts;
+                    $array_training_days = (empty($array_training_days)) ? str_split($db_training_days) : $array_training_days;
+
                     foreach ($all_workouts as $num_workout => $workout)
                     {
                         // Если дата тренировки попала в диапозон дат заморозки, то смещаем дату тренировки
@@ -7254,16 +7252,16 @@ class Course extends CI_Controller
                             {
                                 // Если текущий номер дня недели не присутствует в массиве выбранных тренировочных дней неделе,
                                 // то вычисляем дату следующего дня недели тренировки.
-                                if (!in_array($current_num_day, $db_training_days))
+                                if (!in_array($current_num_day, $array_training_days))
                                 {
                                     // Поиск большего номера дня недели
-                                    foreach ($db_training_days as $key => $training_day)
+                                    foreach ($array_training_days as $key => $training_day)
                                     {
                                         if ($training_day > $current_num_day)
                                         {
                                             $diff_days = $training_day - $current_num_day;
 
-                                            $date = DateTime::createFromFormat('Y-m-d', $training_date);
+                                            $date = new DateTime($training_date);
                                             $date->add(new DateInterval('P' . $diff_days . 'D'));
                                             $new_training_date = ($date !== false) ? $date->format('Y-m-d') : $training_date;
                                             break;
@@ -7276,7 +7274,7 @@ class Course extends CI_Controller
                                     if (empty($new_training_date))
                                     {
                                         // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                        $diff_days = 7 - $current_num_day + $db_training_days[0];
+                                        $diff_days = 7 - $current_num_day + $array_training_days[0];
                                         // Временная дата предыдущей тренивроки
                                         $tem_date = new DateTime($training_date);
                                         // Дата текущей тренировки, с учетом разницы между тренировками ( + $diff_days дней )
@@ -7302,10 +7300,10 @@ class Course extends CI_Controller
                             {
                                 // Номер дня недели предыдущей тренировки
                                 $prev_num_day = date('N', strtotime($training_date));
-                                $key_num_day  = array_search($prev_num_day, $db_training_days);
+                                $key_num_day  = array_search($prev_num_day, $array_training_days);
 
                                 // Последний выбранный день недели тренировки пользователем
-                                $a_t_d = $db_training_days;
+                                $a_t_d = $array_training_days;
                                 end($a_t_d);
                                 $last_t_day = key($a_t_d);
 
@@ -7316,12 +7314,12 @@ class Course extends CI_Controller
                                     if ($key_num_day == $last_t_day)
                                     {
                                         // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                        $diff_days = 7 - $db_training_days[$key_num_day] + $db_training_days[0];
+                                        $diff_days = 7 - $array_training_days[$key_num_day] + $array_training_days[0];
                                     }
                                     else
                                     {
                                         // Разница между текущим номером недели тренировки и предыдущем.
-                                        $diff_days = $db_training_days[$key_num_day+1] - $db_training_days[$key_num_day];
+                                        $diff_days = $array_training_days[$key_num_day+1] - $array_training_days[$key_num_day];
                                     }
 
                                     // Временная дата предыдущей тренивроки
@@ -7343,6 +7341,14 @@ class Course extends CI_Controller
                     if ($training_date > $course_end)
                     {
                         $course_end = $training_date;
+                    }
+
+                    // Перенос даты окончания бесплатных недель
+                    if(!empty($free_weeks_end))
+                    {
+                        $tmp_date = new DateTime($free_weeks_end);
+                        $tmp_date->add(new DateInterval('P'.$curr_pause_days.'D'));
+                        $new_free_weeks_end = $tmp_date->format('Y-m-d');
                     }
                 }
             }
@@ -7385,7 +7391,14 @@ class Course extends CI_Controller
             // Сохранение заморозки курса
             if (!empty($date_pause_to) and $curr_pause_days >= 7 and !empty($pause_update_workouts))
             {
-                $result_sp = $this->Course_model->setUserCoursePause($uc_id, $date_pause_to, $course_end, $pause_update_workouts, $this->date);
+                //log_message('debug', 'Pause update workouts: '. print_r($pause_update_workouts, true));
+                $result_sp = $this->Course_model->setUserCoursePause($uc_id, $date_pause_to, $course_end, $new_free_weeks_end, $pause_update_workouts, $this->date);
+
+                if($result_sp === true)
+                {
+                    $this->load->model('Payment_model');
+                    $this->Payment_model->updateDatesUserSubsequentPayments($uc_id, $curr_pause_days, $this->date);
+                }
             }
 
             // Сохранение изменений выбранного тренера
@@ -7425,13 +7438,18 @@ class Course extends CI_Controller
         }
         elseif ($this->input->post('bt_unblock_course', true))
         {
-            $temp_date_today = DateTime::createFromFormat("Y-m-d H:i:s", $this->date);
+            $temp_date_today = new DateTime($this->date);
             $today           = $temp_date_today->format('Y-m-d');
             // Количество дней прошедшей заморозки
-            $pause_start = new DateTime($db_course['pause_start']);
-            $pause_end   = new DateTime($this->date);
-            $diff_days   = $pause_start->diff($pause_end);
-            $pause_days  = (int)$db_course['pause_days'] + (int)$diff_days->format('%a');
+            $pause_start  = new DateTime(mb_substr($db_course['pause_start'], 0, 10));
+            $db_pause_end = new DateTime(mb_substr($db_course['pause_end'], 0, 10));
+            $pause_end    = new DateTime(mb_substr($this->date, 0, 10));
+
+            $end_diff_days = $db_pause_end->diff($pause_end);
+            $end_diff_days = $end_diff_days->format('%R%a');
+
+            $diff_days     = $pause_start->diff($pause_end);
+            $pause_days    = (int)$db_course['pause_days'] + (int)$diff_days->format('%a');
 
             $training_date  = $today;
             $set_start_date = true; // Флаг начала отсчета дат после заморозки
@@ -7525,11 +7543,29 @@ class Course extends CI_Controller
             // Если дата последней тренировки больше конечной даты курса, то обновляем конечную дату.
             $course_end = $training_date;
 
-            // Разморозка курса
-            $result = $this->Course_model->unsetUserCoursePause($uc_id, $pause_days, $course_end, $this->date);
+            // Перенос даты окончания бесплатных недель
+            $new_free_weeks_end = $free_weeks_end;
+            if(!empty($free_weeks_end))
+            {
+                $tmp_date = new DateTime($free_weeks_end);
+                if($end_diff_days > 0)
+                {
+                    $tmp_date->add(new DateInterval('P'.$end_diff_days.'D'));
+                }
+                elseif($end_diff_days < 0)
+                {
+                    $tmp_date->sub(new DateInterval('P'.abs($end_diff_days).'D'));
+                }
+                $new_free_weeks_end = $tmp_date->format('Y-m-d');
+            }
 
-            if ($result === true and !empty($update_workouts)) {
-                $this->Course_model->updateDatesUserWorkouts($uc_id, $update_workouts, $this->date);
+            // Разморозка курса
+            $result = $this->Course_model->unsetUserCoursePause($uc_id, $pause_days, $course_end, $new_free_weeks_end, $update_workouts, $this->date);
+
+            if ($result === true)
+            {
+                $this->load->model('Payment_model');
+                $this->Payment_model->updateDatesUserSubsequentPayments($uc_id, $end_diff_days, $this->date);
             }
 
             header('Location: /profile/course/'.$course_id);

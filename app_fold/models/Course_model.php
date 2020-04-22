@@ -7096,7 +7096,7 @@ class Course_model extends CI_Model
                     $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['end']);
                     $pause_end = $temp_date->format('Y-m-d');
 
-                    if (empty($events) or $pause_start != $events[$ei - 1]['start'])
+                    if (empty($events) or $pause_end != $events[$ei - 1]['end'])
                     {
                         $events[$ei]['constraint'] = 'pause';
                         $events[$ei]['start']      = $pause_start;
@@ -8447,7 +8447,7 @@ class Course_model extends CI_Model
 
         $sel_course = $this->db->query('
             SELECT `uc_id`, `uc_o_id`, `uc_course_id`, `uc_coach_id`, `uc_date_start`, `uc_date_end`, `uc_days`, `uc_time`, `uc_blocked`, 
-              `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `crs_name`, `crs_description`, `crs_image`,
+              `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `uc_free_weeks_end_date`, `crs_name`, `crs_description`, `crs_image`,
               `crs_count_weeks`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, `crs_count_rest`, `crs_category` 
             FROM `users_courses`
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
@@ -8466,39 +8466,41 @@ class Course_model extends CI_Model
             $t_date     = DateTime::createFromFormat('Y-m-d', $row->uc_date_end);
             $date_end   = ($row->uc_date_end != '0000-00-00' and $t_date !== false) ? $t_date->format('d.m.Y') : '';
 
-            $result['course']['id']               = $row->uc_id;
-            $result['course']['order_id']         = $row->uc_o_id;
-            $result['course']['course_id']        = $row->uc_course_id;
-            $result['course']['coach_id']         = $row->uc_coach_id;
-            $result['course']['training_days']    = $row->uc_days;
-            $result['course']['days']             = (!empty($row->uc_days)) ? str_split($row->uc_days) : array();
-            $result['course']['training_time']    = array();
-            $result['course']['db_date_start']    = $row->uc_date_start;
-            $result['course']['db_date_end']      = $row->uc_date_end;
-            $result['course']['date_start']       = $date_start;
-            $result['course']['date_end']         = $date_end;
-            $result['course']['blocked']          = $row->uc_blocked;
-            $result['course']['blocked_buy']      = false;
-            $result['course']['paused']           = $row->uc_paused;
-            $result['course']['pause_days']       = $row->uc_pause_days;
-            $result['course']['pause_start']      = '';
-            $result['course']['pause_end']        = '';
-            $result['course']['category']         = $row->crs_category;
-            $result['course']['name']             = $row->crs_name;
-            $result['course']['description']      = $row->crs_description;
-            $result['course']['image']            = (is_file($row->crs_image)) ? mb_substr($row->crs_image, 1) : '';
-            $result['course']['count_weeks']      = $row->crs_count_weeks;
-            $result['course']['count_days']       = $row->crs_count_days;
-            $result['course']['count_rest']       = $row->crs_count_rest;
-            $result['course']['price']            = ($row->crs_price != '0.00') ? $row->crs_price : '';
-            $result['course']['fc_price']         = ($row->crs_fitcoin_price != '0.00') ? $row->crs_fitcoin_price : '';
-            $result['course']['workouts']         = array();
-            $result['course']['date_last_missed'] = '';
-            $result['course']['workouts_missed']  = 0;
-            $result['course']['workouts_passed']  = 0;
-            $result['course']['pauses']           = array();
-            $result['course']['finished']         = ($row->uc_date_end != '0000-00-00' and $row->uc_date_end < $today) ? true : false;
-            $result['course']['attached_courses'] = array();
+            $result['course']['id']                = $row->uc_id;
+            $result['course']['order_id']          = $row->uc_o_id;
+            $result['course']['course_id']         = $row->uc_course_id;
+            $result['course']['coach_id']          = $row->uc_coach_id;
+            $result['course']['training_days']     = $row->uc_days;
+            $result['course']['days']              = (!empty($row->uc_days)) ? str_split($row->uc_days) : array();
+            $result['course']['training_time']     = array();
+            $result['course']['db_date_start']     = $row->uc_date_start;
+            $result['course']['db_date_end']       = $row->uc_date_end;
+            $result['course']['date_start']        = $date_start;
+            $result['course']['date_end']          = $date_end;
+            $result['course']['blocked']           = $row->uc_blocked;
+            $result['course']['blocked_buy']       = false;
+            $result['course']['paused']            = $row->uc_paused;
+            $result['course']['pause_days']        = $row->uc_pause_days;
+            $result['course']['pause_start']       = '';
+            $result['course']['pause_end']         = '';
+            $result['course']['free_weeks_end']    = '';
+            $result['course']['db_free_weeks_end'] = ($row->uc_free_weeks_end_date !== '0000-00-00') ? $row->uc_free_weeks_end_date : '';
+            $result['course']['category']          = $row->crs_category;
+            $result['course']['name']              = $row->crs_name;
+            $result['course']['description']       = $row->crs_description;
+            $result['course']['image']             = (is_file($row->crs_image)) ? mb_substr($row->crs_image, 1) : '';
+            $result['course']['count_weeks']       = $row->crs_count_weeks;
+            $result['course']['count_days']        = $row->crs_count_days;
+            $result['course']['count_rest']        = $row->crs_count_rest;
+            $result['course']['price']             = ($row->crs_price != '0.00') ? $row->crs_price : '';
+            $result['course']['fc_price']          = ($row->crs_fitcoin_price != '0.00') ? $row->crs_fitcoin_price : '';
+            $result['course']['workouts']          = array();
+            $result['course']['date_last_missed']  = '';
+            $result['course']['workouts_missed']   = 0;
+            $result['course']['workouts_passed']   = 0;
+            $result['course']['pauses']            = array();
+            $result['course']['finished']          = ($row->uc_date_end != '0000-00-00' and $row->uc_date_end < $today) ? true : false;
+            $result['course']['attached_courses']  = array();
 
             // Время тренировок
             if(!empty($row->uc_time))
@@ -8538,6 +8540,9 @@ class Course_model extends CI_Model
                     $result = array();
                 }*/
             }
+
+            $tmp_date = new DateTime($row->uc_free_weeks_end_date);
+            $result['course']['free_weeks_end'] = ($tmp_date !== false and $row->uc_free_weeks_end_date !== '0000-00-00') ? $tmp_date->format('d.m.Y') : '';
 
             $sel_course->free_result();
             unset($row);
@@ -8623,9 +8628,15 @@ class Course_model extends CI_Model
                     $i = 0;
                     foreach ($sel_pauses->result() as $row)
                     {
-                        if ($i == 0) {
-                            $result['course']['pause_start'] = $row->ucp_pause_start;
-                            $result['course']['pause_end']   = $row->ucp_pause_end;
+                        if ($i == 0)
+                        {
+                            $tmp_start = new DateTime($row->ucp_pause_start);
+                            $p_start = $tmp_start->format('d.m.Y');
+                            $tmp_end = new DateTime($row->ucp_pause_end);
+                            $p_end = $tmp_end->format('d.m.Y');
+
+                            $result['course']['pause_start'] = $p_start;
+                            $result['course']['pause_end']   = $p_end;
                         }
 
                         $result['course']['pauses'][$i]['start'] = $row->ucp_pause_start;
@@ -9283,11 +9294,12 @@ class Course_model extends CI_Model
      * @param int $user_course_id ID курса и пользователя (Уникальное ID купленного курса в таблице users_courses)
      * @param $date_pause_to
      * @param string $course_end Дата окончания курса
+     * @param $new_free_weeks_end
      * @param $update_workouts
      * @param $date
      * @return bool
      */
-    public function setUserCoursePause($user_course_id, $date_pause_to, $course_end, $update_workouts, $date)
+    public function setUserCoursePause($user_course_id, $date_pause_to, $course_end, $new_free_weeks_end, $update_workouts, $date)
     {
         $result = false;
 
@@ -9297,18 +9309,21 @@ class Course_model extends CI_Model
 
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
-            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_paused`=1, `uc_date_update`=?, `uc_date_end`=?
-                WHERE `uc_id`=?  LIMIT 1', array($date, $course_end, $user_course_id));
-            if($up_data !== false and 1 == $this->db->affected_rows() and is_array($update_workouts))
+            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_paused`=1, `uc_free_weeks_end_date`=?, `uc_date_update`=?, `uc_date_end`=?
+                WHERE `uc_id`=?  LIMIT 1', array($new_free_weeks_end, $date, $course_end, $user_course_id));
+            if($up_data !== false and 1 == $this->db->affected_rows())
             {
-                self::updateDatesUserWorkouts($user_course_id, $update_workouts, $date);
+                if(is_array($update_workouts))
+                {
+                    self::updateDatesUserWorkouts($user_course_id, $update_workouts, $date);
+                }
+
+                $result = true;
             }
             elseif($up_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
-
-            $result = true;
         }
         elseif ($ins_data === false)
         {
@@ -9324,37 +9339,45 @@ class Course_model extends CI_Model
      * @param int $user_course_id ID курса и пользователя (Уникальное ID купленного курса в таблице users_courses)
      * @param int $pause_days Общее количество дней заморозки
      * @param string $course_end Дата окончания курса
+     * @param $new_free_weeks_end
+     * @param $update_workouts
      * @param $date
      * @return bool
      */
-    public function unsetUserCoursePause($user_course_id, $pause_days, $course_end,  $date)
+    public function unsetUserCoursePause($user_course_id, $pause_days, $course_end, $new_free_weeks_end, $update_workouts, $date)
     {
-        $up_data = $this->db->query('UPDATE `users_courses_pauses` SET `ucp_pause_end`=? WHERE `ucp_uc_id`=? LIMIT 1',
-            array($date, $user_course_id));
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `users_courses_pauses` SET `ucp_pause_end`=? WHERE `ucp_uc_id`=? and `ucp_pause_start`<? and `ucp_pause_end`>? LIMIT 1',
+            array($date, $user_course_id, $date, $date));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
             $up_data = $this->db->query('
                 UPDATE `users_courses` 
-                SET `uc_paused`=0, `uc_pause_days`=?, `uc_date_update`=?, `uc_date_end`=?
+                SET `uc_paused`=0, `uc_free_weeks_end_date`=?, `uc_pause_days`=?, `uc_date_update`=?, `uc_date_end`=?
                 WHERE `uc_id`=?  LIMIT 1',
-                    array($pause_days, $date, $course_end, $user_course_id));
-            if ($up_data === false)
+                    array($new_free_weeks_end, $pause_days, $date, $course_end, $user_course_id));
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                if(is_array($update_workouts))
+                {
+                    self::updateDatesUserWorkouts($user_course_id, $update_workouts, $date);
+                }
+
+                $result = true;
+            }
+            elseif($up_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
-
-            return true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**

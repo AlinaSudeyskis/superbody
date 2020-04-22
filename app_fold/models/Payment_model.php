@@ -373,6 +373,66 @@ class Payment_model extends CI_Model
     }
 
     /**
+     * Обновление дат будущих платежей пользователя
+     *
+     * @param $user_course_id
+     * @param $diff_days
+     * @param $date
+     * @return bool
+     * @throws Exception
+     */
+    public function updateDatesUserSubsequentPayments($user_course_id, $diff_days, $date)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `uc_o_id` FROM `users_courses` WHERE `uc_id`=? LIMIT 1', $user_course_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+            $order_id = $row->uc_o_id;
+
+            $tmp_date = new DateTime($date);
+            $today = $tmp_date->format('Y-m-d');
+
+            $sel_payments = $this->db->query('
+                SELECT `op_id`, `op_following_date`, `o_payment_options` 
+                FROM `orders_payment`
+                LEFT JOIN `orders` ON `o_id`=`op_o_id`
+                WHERE `op_o_id`=? and `o_payment_options`="partial_payment" and `op_following_date`>=?', array($order_id, $today));
+            if($sel_payments !== false and 0 < $sel_payments->num_rows())
+            {
+                foreach ($sel_payments->result() as $row2)
+                {
+                    $tmp_date = new DateTime($row2->op_following_date);
+
+                    if($diff_days > 0)
+                    {
+                        $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
+                    }
+                    elseif($diff_days < 0)
+                    {
+                        $diff_days = abs($diff_days);
+                        $tmp_date->sub(new DateInterval('P' . $diff_days . 'D'));
+                    }
+
+                    $new_following_date = $tmp_date->format('Y-m-d');
+
+                    if($row2->op_following_date != $new_following_date)
+                    {
+                        $this->db->query('UPDATE `orders_payment` SET `op_following_date`=? WHERE `op_id`=? LIMIT 1', array($new_following_date, $row2->op_id));
+                    }
+                }
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Удаление последующих платежей, если последний платеж не прошел более недели назад
      *
      * @param $week_ago

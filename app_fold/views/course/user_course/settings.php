@@ -37,6 +37,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo $course['date_end']; ?></div></div>
                             </div>
                         <?php endif;
+                        if($course['paused'] == 1): ?>
+                            <div class="anketa_form_line parent">
+                                <div class="anketa_form_h"><div class="anketa_form_h_cell">Курс заморожен:</div></div>
+                                <div class="anketa_form_h"><div class="anketa_form_h_cell">до <b><?php echo $course['pause_end'];?></b></div></div>
+                                <?php if ($course['blocked'] == 0 and $course['finished'] === false):?>
+                                    <div class="anketa_form_desk"><input type="submit" name="bt_unblock_course" class="admin_form_reset" value="Разморозить" style="margin-left:0;"/></div>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif;
                         $days_disabled = (!empty($course['days']) or $course['blocked'] == 1) ? 'disabled' : '';
                         if($course['category'] == 'workout'):?>
                             <div class="anketa_form_line parent">
@@ -130,10 +139,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php endif; ?>
                         <div class="anketa_form_line parent">
                             <div class="video_admin_form_buts parent">
-                                <?php if ($course['paused'] == 1 and $course['blocked'] == 0 and $course['finished'] === false):?>
-                                    <input type="submit" name="bt_unblock_course" class="admin_form_reset" value="Разморозить"/>
-                                <?php endif;
-                                if ($course['blocked'] == 0 and $course['finished'] === false):?>
+                                <?php if ($course['blocked'] == 0 and $course['finished'] === false):?>
                                     <input type="submit" name="bt_save_course" value="Сохранить" class="video_admin_form_send defaultActionButton" />
                                 <?php endif;?>
                             </div>
