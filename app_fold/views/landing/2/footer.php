@@ -39,5 +39,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <script src="/js/lightbox.js"></script>
 
+<?php include_once('./app_fold/views/footer/jivo_script.php'); ?>
 </body>
 </html>
