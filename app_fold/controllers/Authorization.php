@@ -444,10 +444,10 @@ class Authorization extends CI_Controller
 
             if (is_array($auth_result))
             {
-                $user_image = (!empty($result['user_image'])) ? $result['user_image'] : $result['user_soc_image'];
+                $user_image = (!empty($auth_result['user_image'])) ? $auth_result['user_image'] : $auth_result['user_soc_image'];
 
-                parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'], $result['user_activated'],
-                    $result['user_name'], $result['user_phone'], $user_image, '', 'native', 0, $this->date);
+                parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'], $auth_result['user_activated'],
+                    $auth_result['user_name'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
 
                 $result['user_id']        = $auth_result['user_id'];
                 $result['user_email']     = $email;
