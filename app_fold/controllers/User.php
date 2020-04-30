@@ -187,6 +187,54 @@ class User extends CI_Controller
 
             /*$current_num_day = date("N", strtotime($this->date));
 
+            $wo_data = $this->Course_model->getUserCoursesWeekWorkouts($this->user_id, $today);
+            $wo_data = $wo_data['tw_wo'];
+
+            $update_workouts = array();
+
+            $postpone_courses     = $this->input->post('i_changed_events', true);
+            $new_postpone_courses = array();
+            //$postpone_courses = json_decode($postpone_courses, true);
+            //asort($postpone_workouts);
+            //$last_date = end($postpone_workouts);
+            //$crs_wo_id = '';
+
+            if(!empty($wo_data))
+            {
+                foreach($wo_data as $uc_id => $week_workouts)
+                {
+                    foreach($week_workouts as $wo_id => $wo)
+                    {
+                        $wo_date = mb_substr($wo['start'], 0, 10);
+                        $new_wo_date = (array_key_exists($wo_id, $postpone_courses[$uc_id])) ? $postpone_courses[$uc_id][$wo_id] : null;
+                        $wo_date = (!empty($new_wo_date) and $new_wo_date != $wo_date and $new_wo_date >= $today) ? $new_wo_date : $wo_date;
+
+                        $new_postpone_courses[$uc_id][$wo_date][$wo_id] = $wo_data[$wo_id]['crs_wo_id'];
+                    }
+                    unset($wo);
+
+                    ksort($new_postpone_courses[$uc_id]);
+                    $crs_wo_id = '';
+
+                    foreach ($new_postpone_courses[$uc_id] as $wo_date => $wo_by_date)
+                    {
+                        foreach($wo_by_date as $wo_id => $wo)
+                        {
+                            //$crs_wo_id = (empty($crs_wo_id) or $crs_wo_id) ? : ;
+                        }
+                        unset($wo);
+                    }
+                    unset($wo_by_date);
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 196, 60);
+            }
+
+            /*$current_num_day = date("N", strtotime($this->date));
+
             $postpone_courses = $this->input->post('cb_day', true);
             $pc_times = $this->input->post('i_days_time', true);
             if(!empty($postpone_courses))
