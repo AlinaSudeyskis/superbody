@@ -8744,6 +8744,7 @@ class Course extends CI_Controller
 
     /**
      * AJAX Отображение формы переноса тренировок текущей недели
+     * @throws Exception
      */
     public function showPostpone()
     {
@@ -8763,10 +8764,11 @@ class Course extends CI_Controller
      * Данные и форма переноса тренировок этой недели
      *
      * @return array
+     * @throws Exception
      */
     protected function getPostponeWorkout()
     {
-        $result = array('postpone'=>'', 'uc_days'=>'');
+        $result = array('postpone'=>'', 'uc_days'=>'', 'events'=>'');
 
         $tmp_date = new DateTime($this->date);
         $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
@@ -8783,7 +8785,7 @@ class Course extends CI_Controller
             $week_dates        = array();
             $week_dates_today  = ($tmp_date !== false) ? $tmp_date->format('d.m') : false;
 
-            $tmp_date        = new DateTime($today);
+            /*$tmp_date        = new DateTime($today);
             $interval        = 7 - $current_num_day;
             $this_sunday     = ($tmp_date !== false) ? $tmp_date->add(new DateInterval('P'.$interval.'D'))->format('Y-m-d') : false;
             $this_monday     = ($this_sunday !== false) ? $tmp_date->sub(new DateInterval('P6D'))->format('Y-m-d') : false;
@@ -8798,7 +8800,44 @@ class Course extends CI_Controller
                     $week_dates[$i] = ($tmp_date !== false) ? $tmp_date->format('d.m') : '';
                 }
 
+            }*/
+
+            $events = '';
+            if (!empty($courses_week_wo))
+            {
+                $ic = 1;
+                $count_courses = count($courses_week_wo);
+                foreach ($courses_week_wo as $course_events)
+                {
+                    $iw = 1;
+                    $count_wos = count($course_events);
+                    foreach($course_events as $event)
+                    {
+                        $events .= '{';
+                        $color = (!empty($event['pause']) and $event['pause'] === true) ? 'rgba(255, 159, 137, 0.5)' : $event['color'];
+
+                        $events .= "start: '". $event['start'] ."',";
+                        $events .= "end: '". $event['end'] ."',";
+                        $events .= "ev_bl: '". $event['blocked'] ."',";
+                        $events .= "title: '[". $event['wo_id'] ."] ". $event['title'] ."',";
+                        $events .= "endParam: '". $event['workout_id'] ."',";
+                        $events .= "color: '". $color ."',";
+                        $events .= "ev_st: '". $event['status'] ."',";
+                        $events .= "ev_date: '". mb_substr($event['start'], 0, 10) ."',";
+                        $events .= "ev_bc: '". $color ."',";
+                        $events .= "ev_uc: '". $event['uc_id'] ."'";
+
+                        $events .= '}';
+
+                        $events .= ($count_wos != $iw) ? ',' : '';
+                        $iw++;
+                    }
+
+                    $events .= ($count_courses != $ic) ? ',' : '';
+                    $ic++;
+                }
             }
+
             ob_start();
                 include_once('./app_fold/views/course/user_course/courses_week_postpone.php');
                 $postpone = ob_get_contents();

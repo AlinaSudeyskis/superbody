@@ -31,7 +31,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <link rel="stylesheet" href="/css/google_fonts.css">
     <link rel="stylesheet" href="/css/grid.css">
-    <link rel="stylesheet" href="/css/fullcalendar.css">
+    <link rel='stylesheet' href='/fullcalendar/core/main.css' />
+    <link rel='stylesheet' href='/fullcalendar/daygrid/main.css' />
+    <link rel='stylesheet' href='/fullcalendar/timegrid/main.css' />
+    <link rel='stylesheet' href='/fullcalendar/list/main.css' />
     <link rel="stylesheet" href="/css/px-video.css">
     <link rel="stylesheet" href="/css/slick.css">
     <link rel="stylesheet" href="/css/lightbox.css">
@@ -48,8 +51,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/amcharts/amcharts.js"></script>
     <script src="/js/amcharts/serial.js"></script>
     <script src="/js/amcharts/amstock.js"></script>
-    <script src="/js/fullcalendar.min.js"></script>
-    <script src="/js/locale-all.js"></script>
+    <script src='/fullcalendar/core/main.js'></script>
+    <script src='/fullcalendar/daygrid/main.js'></script>
+    <script src='/fullcalendar/timegrid/main.js'></script>
+    <script src='/fullcalendar/list/main.js'></script>
+    <script src='/fullcalendar/interaction/main.js'></script>
     <script src="/js/strings.js"></script>
     <script src="/js/px-video.js"></script>
     <script src="/js/slick.min.js"></script>

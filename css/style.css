@@ -1677,7 +1677,8 @@ div.info{
 	line-height: 22px;
 	font-weight: normal;
 }
-.fc-left .fc-button-group .fc-button{
+.fc-left .fc-button-group .fc-prev-button,
+.fc-left .fc-button-group .fc-next-button{
 	padding: 0;
 	width: 14px;
 	height: 14px;
@@ -1686,20 +1687,30 @@ div.info{
 	border: none;
 	margin-left: 10px;
 }
+.fc-left .fc-button-group .fc-next-button{
+    background: url(/img/slide_r.png) 0 0 no-repeat;
+}
 .fc-left .fc-button-group .fc-button span{
 	display: none;
 }
-.fc-left .fc-button-group .fc-next-button{
-	background: url(/img/slide_r.png) 0 0 no-repeat;
-}
-.fc-left>button{
-	background: #fff;
+.fc-left .fc-today-button{
+    background: #2acaf2;
+    border-color: #2acaf2;
+    color: #fff;
 	font-size: 13px;
-	border: 1px solid #c4c4c4;
 	margin-left: 10px;
+    opacity: 1;
+    line-height: 1.2em;
+}
+.fc-left .fc-today-button:not(:disabled){
+    color: #333333;
+    cursor: pointer;
+    background: #fff;
+    font-size: 13px;
+    border: 1px solid #c4c4c4;
 }
 .fc-left .fc-button-group{
-	padding-top: 7px;
+	/*padding-top: 7px;*/
 	padding-left: 5px;
 }
 .fc-right .fc-button-group button{
@@ -1708,21 +1719,26 @@ div.info{
 	border: 1px solid #c4c4c4;
 	margin-left: 10px;
 	border-radius: 4px;
+    color: #333333;
 }
 .fc-right .fc-button-group{
 	padding-right: 15px;
 }
-.fc-right .fc-button-group .fc-button:hover, .fc-left>button:hover{
+.fc-right .fc-button-group .fc-button:hover,
+.fc-left .fc-today-button:not(:disabled):hover{
 	background: #f3f3f3;
 }
-.calendar .fc-toolbar .fc-state-active,
-.calendar .fc-toolbar .fc-state-disabled,
-.calendar .fc-toolbar .fc-state-active:hover,
-.calendar .fc-toolbar .fc-state-disabled:hover{
+.fc-button-primary:not(:disabled):active:focus, .fc-button-primary:not(:disabled).fc-button-active:focus {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.fc-right .fc-button-primary:not(:disabled):active,
+.fc-right .fc-button-primary:not(:disabled).fc-button-active{
 	background: #2acaf2;
 	border-color: #2acaf2;
 	color: #fff;
 	opacity: 1;
+    line-height: 1.2em;
 }
 .fc-widget-header th{
 	border: none;
@@ -1737,7 +1753,7 @@ div.info{
 .fc-view-container{
 	margin: 0 2px 2px;
 }
-.fc-toolbar{
+.fc-toolbar.fc-header-toolbar{
 	margin-bottom: 0;
 	padding-bottom: 7px;
 	border-bottom: 3px solid #cdcdcd;
@@ -1748,7 +1764,7 @@ table .fc-day-header{
 	font-size: 14px;
 	font-weight: normal;
 }
-.fc-basic-view .fc-week-number, .fc-basic-view .fc-day-number{
+.fc-dayGrid-view .fc-week-number, .fc-dayGrid-view .fc-day-number{
 	padding-top: 3px;
 	padding-right: 7px;
 	color: #000;
@@ -1759,6 +1775,7 @@ table .fc-day-header{
 }
 .fc-event{
 	border: none;
+    border-bottom: 1px solid;
 	border-radius: 0;
 }
 .fc-event, .fc-event-dot{
@@ -9885,6 +9902,10 @@ span.tip>.bt_link, .bt_link {
 .postpone_title{
     margin-bottom: 10px;
 }
+.postpone .video_admin_form_buts {
+    margin: 0 auto;
+    width: 300px;
+}
 .block_table .anketa_form_radio + label, .nutrition_block_table .anketa_form_radio + label{
     border-radius: unset;
     display: block;
@@ -10238,6 +10259,7 @@ textarea.anketa_form_in{
     color: #72d0f4;
     text-align: center;
     background: #fff;
+    border: 1px solid;
     border-radius: 2px;
     font-weight: 300;
     z-index: 10;
@@ -11511,7 +11533,7 @@ textarea.anketa_form_in{
     margin-left: 20px;
     text-decoration: none;
 }
-#bt-save-postpone, .notification_block .video_admin_form_send{
+.notification_block .video_admin_form_send{ /*#bt-save-postpone, */
     margin: 0 auto;
     float: none;
     clear: both;
@@ -12421,6 +12443,9 @@ textarea.anketa_form_in{
 }
 .text_right{
     text-align: right;
+}
+.text_upper{
+    text-transform: uppercase;
 }
 .lend_form_option .kurs_block_h {
     margin-bottom: 0;

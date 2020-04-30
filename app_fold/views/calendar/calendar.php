@@ -12,83 +12,85 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <script>
     /* календарь */
 
-    $(document).ready(function()
-    {
-        $('#calendar').fullCalendar({
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'list' ],
+            defaultView: ($(window).width() < 765) ? 'listWeek':'dayGridMonth',
+            navLinks: true,
+            firstDay: 1,
             locale: 'ru',
-            timeFormat: 'H:mm',
+            eventTimeFormat: { // like '14:30:00'
+                hour: '2-digit',
+                minute: '2-digit',
+                meridiem: false
+            },
             height: 620,
             header: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'month,basicWeek,basicDay'
+                right: 'dayGridMonth,dayGridWeek,timeGridDay'
             },
-            navLinks: true, // can click day/week names to navigate views
+            views: {
+                dayGridWeek: {
+                    columnHeaderFormat: { weekday: 'short', day: 'numeric', month: 'numeric' }
+                }
+            },
+            buttonText: { today: 'Сегодня', month: 'Месяц', week: 'Неделя', day: 'День', list: 'Список' },
             editable: true,
+            disableDragging: false,
             eventLimit: 3, // allow "more" link when too many events
             events: [
                 <?php if (!empty($events)) :
                 $last_element = count($events);
-                foreach ($events as $key => $event) :?>
-                    {
-                        start      : '<?php echo $event['start'];?>',
-                        end        : '<?php echo $event['end'];?>',
-                        constraint : '<?php echo $event['constraint'];?>',
-                        ev_bl      : <?php if($event['blocked'] == 'true') : echo 'true'; else: echo 'false'; endif; ?>,
-                        <?php if (!empty($event['title'])) :?>
-                            title  : '<?php echo $event['title'];?>',
-                        <?php endif;
-                        if (!empty($event['id'])) :?>
-                            startParam  : '<?php echo $event['id'];?>',
-                        <?php endif;
-                        if (!empty($event['ml_id'])) :?>
-                            ml_id  : '<?php echo $event['ml_id'];?>',
-                        <?php endif;
-                        if (!empty($event['day'])) :?>
-                            day  : '<?php echo $event['day'];?>',
-                        <?php endif;
-                        if (!empty($event['ingestion'])) :?>
-                            ingestion  : '<?php echo $event['ingestion'];?>',
-                        <?php endif;
-                        if (!empty($event['workout_id'])) :?>
-                            endParam  : '<?php echo $event['workout_id'];?>',
-                        <?php endif;
-                        if (!empty($event['pause']) and $event['pause'] === true): ?>
-                            overlap   : false,
-                            rendering : 'background',
-                            color     : 'rgba(255, 159, 137, 0.5)'
-                        <?php else: ?>
-                            color: '<?php echo $event['color']; ?>'
-                        <?php endif; ?>
-                    }<?php if ($last_element != $key) :?>,<?php endif; ?>
-
-                    <?php /*if($event['missed'] == 'not_missed' and $event['done'] == 'not_done' and !empty($event['instruction_id'])): //*/?>/*
-                        {
-                            start      : '<?php /*echo $event['start'];*/?>',
-                            end        : '<?php /*echo $event['end'];*/?>',
-                            constraint : 'instruction',
-                            title      : 'Инструктаж',
-                            startParam : '<?php /*echo $event['instruction_id']; */?>',
-                            endParam   : '<?php /*echo $event['workout_id']; */?>',
-                            color      : 'rgba(187, 187, 187, .7)'
-                        }<?php /*if ($last_element != $key) :*/?>,<?php /*endif; */?>
-                    */<?php /*endif; */?>
+                foreach ($events as $key => $event) :
+                    $color = (!empty($event['pause']) and $event['pause'] === true) ? 'rgba(255, 159, 137, 0.5)' : $event['color']; ?>
+                {
+                    start : '<?php echo $event['start'];?>',
+                    end   : '<?php echo $event['end'];?>',
+                    ev_gr : '<?php echo $event['constraint'];?>',
+                    ev_bl : <?php if($event['blocked'] == 'true') : echo 'true'; else: echo 'false'; endif; ?>,
+                    <?php if (!empty($event['title'])) :?>
+                    title : '[<?php echo $event['wo_id'];?>] <?php echo $event['title'];?>',
+                    <?php endif;
+                    if (!empty($event['id'])) :?>
+                    startParam : '<?php echo $event['id'];?>',
+                    <?php endif;
+                    if (!empty($event['ml_id'])) :?>
+                    ml_id : '<?php echo $event['ml_id'];?>',
+                    <?php endif;
+                    if (!empty($event['day'])) :?>
+                    day : '<?php echo $event['day'];?>',
+                    <?php endif;
+                    if (!empty($event['ingestion'])) :?>
+                    ingestion : '<?php echo $event['ingestion'];?>',
+                    <?php endif;
+                    if (!empty($event['workout_id'])) :?>
+                    endParam : '<?php echo $event['workout_id'];?>',
+                    <?php endif;
+                    if (!empty($event['pause']) and $event['pause'] === true): ?>
+                    overlap : false,
+                    rendering : 'background',
+                    <?php endif; ?>
+                    color: '<?php echo $color; ?>'
+                }<?php if ($last_element != $key) :?>,<?php endif; ?>
                 <?php endforeach;
                 endif;?>
             ],
-            eventAfterRender:function(calEvent, element, view ) {
-                element.find('.fc-content').attr("id", "event-" + calEvent.endParam);
+            eventPositioned:function(calEvent) {
+                $(calEvent.el).find('.fc-content').attr("id", "event-" + calEvent.event.extendedProps.endParam);
             },
             eventClick: function(calEvent, jsEvent, view) {
-                if (calEvent.constraint === "workout" && calEvent.startParam !== "")
+                if (calEvent.event.extendedProps.ev_gr === "workout" && calEvent.event.extendedProps.startParam !== "" && calEvent.event.extendedProps.ev_bl === false)
                 {
                     $.ajax({
                         url: '/show/video',
                         type: 'post',
                         dataType: 'json',
                         data: {
-                            start_param: calEvent.startParam,
-                            end_param: calEvent.endParam
+                            start_param: calEvent.event.extendedProps.startParam,
+                            end_param: calEvent.event.extendedProps.endParam
                         },
                         complete: function (result)
                         {
@@ -150,8 +152,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             complete: function(result){
                                                 if (result.responseText === 'true')
                                                 {
-                                                    calEvent.backgroundColor = 'rgb(153, 230, 0)';
-                                                    $('#calendar').fullCalendar('updateEvent', calEvent);
+                                                    calEvent.event.setProp( 'backgroundColor', 'rgb(153, 230, 0)' );
+                                                    //$('#calendar').fullCalendar('updateEvent', calEvent);
                                                     viewed = true;
                                                     wo_but.addClass('done');
                                                     wo_but.val('Выполнено');
@@ -194,7 +196,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 url: '/viewing/video',
                                                 type: 'post',
                                                 data: {
-                                                    woid: calEvent.endParam,
+                                                    woid: calEvent.event.extendedProps.endParam,
                                                     ved_time: data.seconds,
                                                     ved_percent: data.percent
                                                 },
@@ -218,7 +220,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 url: '/viewing/video',
                                                 type: 'post',
                                                 data: {
-                                                    woid: calEvent.endParam,
+                                                    woid: calEvent.event.extendedProps.endParam,
                                                     ved_time: data.seconds,
                                                     ved_percent: data.percent
                                                 },
@@ -235,13 +237,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                                 url: '/viewed/video',
                                                 type: 'post',
                                                 data: {
-                                                    woid: calEvent.endParam
+                                                    woid: calEvent.event.extendedProps.endParam
                                                 },
                                                 complete: function(result){
                                                     if (result.responseText === 'true')
                                                     {
-                                                        calEvent.backgroundColor = 'rgb(153, 230, 0)';
-                                                        $('#calendar').fullCalendar('updateEvent', calEvent);
+                                                        calEvent.event.setProp( 'backgroundColor', 'rgb(153, 230, 0)' );
+                                                        //$('#calendar').fullCalendar('updateEvent', calEvent);
                                                         viewed = true;
                                                     }
                                                 }
@@ -253,7 +255,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         }
                     });
                 }
-                else if(calEvent.constraint === "nutrition")
+                else if(calEvent.event.extendedProps.ev_gr === "nutrition")
                 {
                     var start = calEvent.start._i;
                     $.ajax({
@@ -262,10 +264,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         dataType: 'json',
                         data: {
                             start: start,
-                            start_param: calEvent.startParam,
-                            ml_id: calEvent.ml_id,
-                            day: calEvent.day,
-                            ingestion: calEvent.ingestion
+                            start_param: calEvent.event.extendedProps.startParam,
+                            ml_id: calEvent.event.extendedProps.ml_id,
+                            day: calEvent.event.extendedProps.day,
+                            ingestion: calEvent.event.extendedProps.ingestion
                         },
                         complete: function (result) {
                             var up_meal = $("#pop-up_meal"),
@@ -295,7 +297,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     complete: function (result) {
                                         var data = result.responseJSON;
                                         if (data && !data.error) {
-                                            calEvent.ml_id = mlid;
+                                            calEvent.event.extendedProps.ml_id = mlid;
                                             up_meal.html(data.meal);
                                             meal_slider(up_meal);
                                             pop_up_home(up_meal);
@@ -366,7 +368,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     complete: function (result) {
                                         var data = result.responseJSON;
                                         if (data && !data.error) {
-                                            calEvent.ml_id = mlid;
+                                            calEvent.event.extendedProps.ml_id = mlid;
                                             up_meal.html(data.meal);
                                             pop_up_home(up_meal);
                                             meal_slider(up_meal);
@@ -406,15 +408,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         }
                     });
                 }
-                else if(calEvent.constraint === "instruction")
+                else if(calEvent.event.extendedProps.ev_gr === "instruction")
                 {
                     $.ajax({
                         url: '/show/instruction',
                         type: 'post',
                         dataType: 'json',
                         data: {
-                            start_param: calEvent.startParam,
-                            end_param: calEvent.endParam
+                            start_param: calEvent.event.extendedProps.startParam,
+                            end_param: calEvent.event.extendedProps.endParam
                         },
                         complete: function (result) {
                             var data = jQuery.parseJSON(result.responseText);
@@ -450,26 +452,35 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     });
                 }
             },
-            eventMouseover: function(calEvent, jsEvent) {
-                if(calEvent.ev_bl === true)
+            eventMouseEnter: function(calEvent, jsEvent) {
+                if(calEvent.event.extendedProps.ev_bl === true)
                 {
                     var tooltip = '<div class="calendar_info">Курс заблокирован</div>';
-                    var $tooltip = $(tooltip).appendTo('body');
+                    tooltip = $(tooltip).appendTo('body');
 
-                    $(this).mouseover(function(e) {
+                    tooltip.fadeIn('500');
+                    tooltip.fadeTo('10', 1.9);
+
+                    $(calEvent.el).mouseover(function(e) {
                         $(this).css('z-index', 10000);
-                        $tooltip.fadeIn('500');
-                        $tooltip.fadeTo('10', 1.9);
                     }).mousemove(function(e) {
-                        $tooltip.css('top', e.pageY);
-                        $tooltip.css('left', e.pageX + 20);
+                        tooltip.css('top', e.pageY);
+                        tooltip.css('left', e.pageX + 20);
                     });
                 }
             },
-            eventMouseout: function(calEvent, jsEvent) {
+            eventMouseLeave: function(calEvent, jsEvent) {
                 $(this).css('z-index', 8);
                 $('.calendar_info').remove();
+            },
+            eventDragStart: function(){
+                $('.calendar_info').remove();
+            },
+            eventDrop: function(event, dayDelta, minuteDelta, allDay, revertFunc){
+                event.revert();
             }
         });
+
+        calendar.render();
     });
 </script>

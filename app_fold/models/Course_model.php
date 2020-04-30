@@ -6711,7 +6711,7 @@ class Course_model extends CI_Model
         // Проверка курсов на закончившиеся бесплатные недели
         //self::checkUserCoursesFreeWeeks($user_id, $date);
 
-        $color = array(42, 202, 242);
+        $color = array(125, 175, 224);
         // Флаг следующего тренировочного дня
         $next_training = false;
         $next_training_date = null;
@@ -6956,6 +6956,7 @@ class Course_model extends CI_Model
      * @param $ingestions
      * @param $date
      * @return mixed
+     * @throws Exception
      */
     public function parseUserCourseWorkoutsData($course, $key, $color, $ei, $next_training, $next_training_date, $user_training_time, $ingestions, $date)
     {
@@ -7012,12 +7013,14 @@ class Course_model extends CI_Model
                 $total_count_workouts = $course['count_weeks'] * $course['count_days'];
                 foreach ($sel_workouts->result() as $row)
                 {
-                    $workouts[$i]['id']      = $row->utw_id;
-                    $workouts[$i]['workout'] = $row->utw_crs_workout;
-                    $workouts[$i]['done']    = ($row->utw_status == 'done') ? 1 : 0;
-                    $workouts[$i]['missed']  = ($row->utw_status == 'missed') ? 1 : 0;
-                    $workouts[$i]['date']    = $row->utw_date;
-                    $workouts[$i]['time']    = ($row->utw_time != "00:00:00") ? $row->utw_time : null;
+                    $workouts[$i]['id']          = $row->utw_id;
+                    $workouts[$i]['wo_id']       = $row->utw_workout;
+                    $workouts[$i]['workout']     = $row->utw_crs_workout;
+                    $workouts[$i]['done']        = ($row->utw_status == 'done') ? 1 : 0;
+                    $workouts[$i]['missed']      = ($row->utw_status == 'missed') ? 1 : 0;
+                    $workouts[$i]['in_progress'] = ($row->utw_status == 'in_progress') ? 1 : 0;
+                    $workouts[$i]['date']        = $row->utw_date;
+                    $workouts[$i]['time']        = ($row->utw_time != "00:00:00") ? $row->utw_time : null;
 
                     $workouts_done = ($row->utw_status == 'done') ? $workouts_done + 1 : $workouts_done;
 
@@ -7119,26 +7122,28 @@ class Course_model extends CI_Model
                 // Данные курса тренировок
                 $course_data  = self::getCourse($course['course_id']);
 
-                $type_shade = ($key % 2 == 0) ? 'lighter' : '';
-                $rgb = self::different_shade($color, $type_shade);
+                $rgb = self::different_shade($color);
                 $color = $rgb;
 
                 foreach ($workouts as $workout)
                 {
                     // Выполнено ли занятие
                     $w_done   = $workout['done'];
+                    $w_prog   = $workout['in_progress'];
+                    $w_missed = $workout['missed'];
                     $w_date   = $workout['date'];
                     $w_time   = $workout['time'];
-                    $w_missed = $workout['missed'];
                     $w_num    = $workout['workout'];
 
                     $events[$ei]['constraint']     = 'workout';
                     $events[$ei]['blocked']        = ($course['blocked'] == 1) ? 'true' : 'false';
                     $events[$ei]['workout_id']     = $workout['id'];
+                    $events[$ei]['wo_id']          = $workout['wo_id'];
                     $events[$ei]['instruction_id'] = $course_data['course']['instruction']['video_id'];
                     $events[$ei]['color']          = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
                     $events[$ei]['done']           = 'not_done';
                     $events[$ei]['missed']         = 'not_missed';
+                    $events[$ei]['in_progress']    = 'not_in_progress';
                     $events[$ei]['start']          = '';
                     $events[$ei]['end']            = '';
 
@@ -7178,6 +7183,11 @@ class Course_model extends CI_Model
                     if(!empty($w_time))
                     {
                         $events[$ei]['start'] = $w_date . 'T' . $w_time;
+
+                        $tmp_time = new DateTime($w_time);
+                        $tmp_time->add(new DateInterval('PT1H'));
+                        $w_time = $tmp_time->format('H:i:s');
+                        $events[$ei]['end'] = $w_date . 'T' . $w_time;
                     }
                     else
                     {
@@ -7192,12 +7202,17 @@ class Course_model extends CI_Model
                     if ($w_done == 1)
                     {
                         $events[$ei]['done']  = 'done';
-                        $events[$ei]['color'] = '#99e600'; // 147, 147, 147, 0.5 #91da00 rgba(159, 220, 39, 0.7)
+                        $events[$ei]['color'] = '#99e600';
                     }
                     elseif ($w_missed == 1)
                     {
                         $events[$ei]['missed'] = 'missed';
-                        $events[$ei]['color'] = '#ff8c8c'; // #ff8c8c rgba(255, 159, 137, 0.5)
+                        $events[$ei]['color'] = '#ff8c8c';
+                    }
+                    elseif ($w_prog == 1)
+                    {
+                        $events[$ei]['in_progress'] = 'in_progress';
+                        $events[$ei]['color'] = '#bfbfbf';
                     }
 
                     $ei++;
@@ -7271,11 +7286,9 @@ class Course_model extends CI_Model
             }
         }
 
-
-        $type_shade = ($key % 2 == 0 and $course['id'] % 2 == 1) ? 'lighter' : '';
-        $rgb = self::different_shade($color, $type_shade);
-        $color = $rgb;
-        $color_workouts_done = $rgb;
+        /*$rgb = self::different_shade($color);
+        $color = $rgb;*/
+        /*$color_workouts_done = $rgb;*/
 
         $result['pauses']       = (!empty($pauses)) ? $pauses : array();
         $result['workouts']     = (!empty($workouts)) ? $workouts : array();
@@ -7399,7 +7412,7 @@ class Course_model extends CI_Model
                 setlocale(LC_ALL, 'ru_RU.UTF-8');
                 $tmp_w_date = DateTime::createFromFormat('Y-m-d', $row->utw_date);
                 $week_day = ($tmp_w_date !== false) ? parent::RussianWeekday($tmp_w_date->format('D')) : '';
-                $week_day = (!empty($week_day)) ? $week_day . '., ' : '';
+                $week_day = (!empty($week_day)) ? $week_day . ', ' : '';
                 $next_w_date = ($tmp_w_date !== false)
                     ? $week_day . $tmp_w_date->format('j') . ' ' . parent::declensionRussianMonths($tmp_w_date->format('n'))
                     : '';
@@ -7439,46 +7452,64 @@ class Course_model extends CI_Model
         {
             $sel_data = $this->db->query('
                 SELECT `utw_id`, `utw_workout`, `utw_crs_workout`, `utw_status`, `utw_date`, `utw_time`, `uc_user_id`, `uc_course_id`, 
-                  `uc_display`, `uc_id`, `uc_date_end`, `crs_name`, `crs_count_weeks`, `crs_count_days`, `crs_count_rest` 
+                  `uc_display`, `uc_id`, `uc_date_end`, `uc_blocked`, `crs_name`, `crs_count_weeks`, `crs_count_days`, `crs_count_rest` 
                 FROM `users_training_weeks`
                 LEFT JOIN `users_courses` ON `uc_id`=`utw_uc_id`
                 LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
-                WHERE `uc_user_id`=? and `uc_display`=1 and `uc_blocked`=0 and `uc_date_end`>=? and (`utw_date`>=? and `utw_date`<=?)
+                WHERE `uc_user_id`=? and `uc_display`=1 and `uc_date_end`>=? and (`utw_date`>=? and `utw_date`<=?)
                 LIMIT 7',
                     array($user_id, $today, $start_date, $end_date));
             if($sel_data !== false and 0 < $sel_data->num_rows())
             {
-                $i = 0;
+                $color = array(125, 175, 224);
+                $courses_color = array();
                 foreach($sel_data->result() as $row)
                 {
-                    $num_day = date("N", strtotime($row->utw_date));
-
-                    if($row->utw_status != 'done')
+                    if(empty($courses_color) or empty($courses_color[$row->uc_id]))
                     {
-                        $result['tw_wo'][$row->uc_id]['available_days'][$i] = $num_day;
+                        $rgb = self::different_shade($color);
+                        $color = $rgb;
+                        $courses_color[$row->uc_id] = 'rgba(' . $rgb[0] . ', ' . $rgb[1] . ', ' . $rgb[2] . ', 1)';
                     }
 
-                    $result['tw_wo'][$row->uc_id]['crs_name']    = $row->crs_name;
-                    $result['tw_wo'][$row->uc_id]['count_weeks'] = $row->crs_count_weeks;
-                    $result['tw_wo'][$row->uc_id]['count_days']  = $row->crs_count_days;
-                    $result['tw_wo'][$row->uc_id]['count_rest']  = $row->crs_count_rest;
-                    $result['tw_wo'][$row->uc_id]['days'][$i]    = $num_day;
-                    $result['tw_wo'][$row->uc_id]['missed']      = 0;
-                    $result['tw_wo'][$row->uc_id]['wos'][$num_day]['num_day']   = $num_day;
-                    $result['tw_wo'][$row->uc_id]['wos'][$num_day]['id']        = $row->utw_id;
-                    $result['tw_wo'][$row->uc_id]['wos'][$num_day]['wo_id']     = $row->utw_workout;
-                    $result['tw_wo'][$row->uc_id]['wos'][$num_day]['crs_wo_id'] = $row->utw_crs_workout;
-                    $result['tw_wo'][$row->uc_id]['wos'][$num_day]['status']    = $row->utw_status;
-                    $result['tw_wo'][$row->uc_id]['wos'][$num_day]['date']      = $row->utw_date;
-                    $result['tw_wo'][$row->uc_id]['wos'][$num_day]['time']      = mb_substr($row->utw_time, 0, 5);
-                    $result['tw_wo'][$row->uc_id]['wos'][$num_day]['update']    = false;
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['workout_id']  = $row->utw_id;
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['title']       = $row->crs_name;
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['uc_id']       = $row->uc_id;
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['wo_id']       = $row->utw_workout;
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['crs_wo_id']   = $row->utw_crs_workout;
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['status']      = $row->utw_status;
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['update']      = false;
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['blocked']     = ($row->uc_blocked == 1) ? 'true' : 'false';
+                    $events['tw_wo'][$row->uc_id][$row->utw_id]['done']        = 'not_done';
+                    $events['tw_wo'][$row->uc_id][$row->utw_id]['missed']      = 'not_missed';
+                    $events['tw_wo'][$row->uc_id][$row->utw_id]['in_progress'] = 'not_in_progress';
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['color']       = $courses_color[$row->uc_id];
 
-                    if($row->utw_status == 'missed')
+                    $w_time = mb_substr($row->utw_time, 0, 5);
+
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['start'] = $row->utw_date .'T'. $w_time;
+
+                    $tmp_time = new DateTime($w_time);
+                    $tmp_time->add(new DateInterval('PT1H'));
+                    $w_time = $tmp_time->format('H:i');
+
+                    $result['tw_wo'][$row->uc_id][$row->utw_id]['end'] = $row->utw_date .'T'. $w_time;
+
+                    if ($row->utw_status == 'done')
                     {
-                        $result['tw_wo'][$row->uc_id]['missed']++;
+                        $result['tw_wo'][$row->uc_id][$row->utw_id]['done']  = 'done';
+                        $result['tw_wo'][$row->uc_id][$row->utw_id]['color'] = '#99e600'; // 147, 147, 147, 0.5 #91da00 rgba(159, 220, 39, 0.7)
                     }
-
-                    $i++;
+                    elseif ($row->utw_status == 'missed')
+                    {
+                        $result['tw_wo'][$row->uc_id][$row->utw_id]['missed'] = 'missed';
+                        $result['tw_wo'][$row->uc_id][$row->utw_id]['color'] = '#ff8c8c'; // #ff8c8c rgba(255, 159, 137, 0.5)
+                    }
+                    elseif ($row->utw_status == 'in_progress')
+                    {
+                        $result['tw_wo'][$row->uc_id][$row->utw_id]['in_progress'] = 'in_progress';
+                        $result['tw_wo'][$row->uc_id][$row->utw_id]['color'] = '#bfbfbf';
+                    }
                 }
                 unset($row);
             }
@@ -7574,7 +7605,6 @@ class Course_model extends CI_Model
         }
 
         return $result;
-
     }
 
     /**
@@ -8410,10 +8440,47 @@ class Course_model extends CI_Model
      */
     protected function different_shade($rgb, $type = '')
     {
+        $r = $rgb[0];
+        $g = $rgb[1];
+        $b = $rgb[2];
+
+        $max_rgb = 224;
+        $min_rgb = 125;
+
+         $step = 25;
+
+        if($r == $max_rgb and $g == $min_rgb and $b < $max_rgb and $b > 149)
+        {
+            $b = (($b + $step) < $max_rgb) ? ($b + $step) : $max_rgb;
+        }
+        elseif($r == $min_rgb and $g == $max_rgb and $b > $min_rgb)
+        {
+            $b = (($b - $step) > $min_rgb) ? ($b - $step) : $min_rgb;
+        }
+        elseif($g == $max_rgb and $b == $min_rgb and $r < $max_rgb)
+        {
+            $r = (($r + $step) < $max_rgb) ? ($r + $step) : $max_rgb;
+        }
+        elseif($g == $min_rgb and $b == $max_rgb and $r > $min_rgb)
+        {
+            $r = (($r - $step) > $min_rgb) ? ($r - $step) : $min_rgb;
+        }
+        elseif($r == $min_rgb and $b == $max_rgb and $g < $max_rgb)
+        {
+            $g = (($g + $step) < $max_rgb) ? ($g + $step) : $max_rgb;
+        }
+        elseif($r == $max_rgb and ($b == $min_rgb or $b < 151) and $g >= 199)
+        {
+            $b = ($b < 151) ? $min_rgb : $b;
+            $g = (($g - $step) >= 199) ? ($g - $step) : $min_rgb;
+        }
+
+        $newShade = array($r, $g, $b);
+
         $percentageChange  = 30;
         $percentageChange2 = 25;
 
-        if($type == 'lighter')
+        /*if($type == 'lighter')
         {
             $newShade = array(
                 (255-(255-$rgb[0]) + $percentageChange2),
@@ -8426,7 +8493,7 @@ class Course_model extends CI_Model
                 ($rgb[1] - $percentageChange),
                 ($rgb[2] - $percentageChange)
             );
-        }
+        }*/
 
         return $newShade;
     }

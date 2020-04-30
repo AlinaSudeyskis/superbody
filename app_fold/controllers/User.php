@@ -136,10 +136,56 @@ class User extends CI_Controller
         }
         elseif($this->input->post('bt_save_postpone', true))
         {
-            $update_days     = array();
-            $current_num_day = date("N", strtotime($this->date));
-            $tmp_date        = new DateTime($this->date);
-            $today           = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
+            $tmp_date = new DateTime($this->date);
+            $today    = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
+
+            $wo_data = $this->Course_model->getUserCoursesWeekWorkouts($this->user_id, $today);
+            $wo_data = $wo_data['tw_wo'];
+
+            $update_workouts = array();
+
+            $postpone_courses     = $this->input->post('i_changed_events', true);
+            $new_postpone_courses = array();
+            //$postpone_courses = json_decode($postpone_courses, true);
+            //asort($postpone_workouts);
+            //$last_date = end($postpone_workouts);
+            //$crs_wo_id = '';
+
+            if(!empty($wo_data))
+            {
+                foreach($wo_data as $uc_id => $week_workouts)
+                {
+                    foreach($week_workouts as $wo_id => $wo)
+                    {
+                        $wo_date = mb_substr($wo['start'], 0, 10);
+                        $new_wo_date = (array_key_exists($wo_id, $postpone_courses[$uc_id])) ? $postpone_courses[$uc_id][$wo_id] : null;
+                        $wo_date = (!empty($new_wo_date) and $new_wo_date != $wo_date and $new_wo_date >= $today) ? $new_wo_date : $wo_date;
+
+                        $new_postpone_courses[$uc_id][$wo_date][$wo_id] = $wo_data[$wo_id]['crs_wo_id'];
+                    }
+                    unset($wo);
+
+                    ksort($new_postpone_courses[$uc_id]);
+                    $crs_wo_id = '';
+
+                    foreach ($new_postpone_courses[$uc_id] as $wo_date => $wo_by_date)
+                    {
+                        foreach($wo_by_date as $wo_id => $wo)
+                        {
+                            //$crs_wo_id = (empty($crs_wo_id) or $crs_wo_id) ? : ;
+                        }
+                        unset($wo);
+                    }
+                    unset($wo_by_date);
+                }
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 196, 60);
+            }
+
+            /*$current_num_day = date("N", strtotime($this->date));
 
             $postpone_courses = $this->input->post('cb_day', true);
             $pc_times = $this->input->post('i_days_time', true);
@@ -165,9 +211,9 @@ class User extends CI_Controller
                         // Данные тренировок курса недели
                         $update_days = $crs_wo_data['wos'];
 
-                        /* Смещение дней тренировок
-                         * Если кол-во выбранных дней = 1, то проверка номера дня недели на больше, меньше.
-                         * Иначе перенос всех тренировок недели */
+                        // Смещение дней тренировок
+                        // Если кол-во выбранных дней = 1, то проверка номера дня недели на больше, меньше.
+                        // Иначе перенос всех тренировок недели
                         if($count_choose_days == 1)
                         {
                             $choose_day  = $choose_days[0];
@@ -304,10 +350,6 @@ class User extends CI_Controller
 
                         $wo_data['tw_wo'][$pc_uc_id]['wos'] = $update_days;
                     }
-
-                    /*print_r($wo_data['tw_wo'][$pc_uc_id]['wos']); echo '<br/>';
-                    print_r($update_days); echo '<br/><br/>';
-                    print_r($wo_data['tw_wo'][$pc_uc_id]['wos']); echo '<br/>';*/
                 }
                 unset($pc);
                 unset($pc_uc_id);
@@ -331,7 +373,7 @@ class User extends CI_Controller
             {
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 196, 60);
-            }
+            }*/
 
             header('Location: /profile/'.$this->user_id);
         }
