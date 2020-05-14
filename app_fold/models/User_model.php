@@ -784,9 +784,11 @@ class User_model extends CI_Model
      * Удаление польвазователя.
      *
      * @param $user_id
+     * @param $today
      * @return bool
+     * @throws Exception
      */
-    public function deleteUser($user_id)
+    public function deleteUser($user_id, $today)
     {
         $result = false;
 
@@ -799,7 +801,7 @@ class User_model extends CI_Model
 
                 $user_email = $row->user_email;
 
-                self::deleteUserData($user_id, $user_email);
+                self::deleteUserData($user_id, $user_email, $today);
 
                 $result = true;
             }
@@ -832,7 +834,7 @@ class User_model extends CI_Model
                 $user_email = $row->user_email;
                 $user_id    = $row->user_id;
 
-                self::deleteUserData($user_id, $user_email);
+                self::deleteUserData($user_id, $user_email, $today);
             }
             unset($row);
         }
@@ -849,8 +851,9 @@ class User_model extends CI_Model
      *
      * @param $user_id
      * @param $user_email
+     * @param $today
      */
-    protected function deleteUserData($user_id, $user_email)
+    protected function deleteUserData($user_id, $user_email, $today)
     {
         // Удаление антропометрических данных
         $del_data = $this->db->query('DELETE FROM `anthropometric` WHERE `user_id`=?', $user_id);
@@ -919,24 +922,34 @@ class User_model extends CI_Model
         }
 
         // Удаление данных курсов пользователя
-        $del_data = $this->db->query('DELETE FROM `users_courses` WHERE `uc_user_id`=?', $user_id);
+        /*$del_data = $this->db->query('DELETE FROM `users_courses` WHERE `uc_user_id`=?', $user_id);
         if($del_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
+        }*/
 
         // Удаление данных питания
-        $del_data = $this->db->query('DELETE FROM `users_day_meals` WHERE `udm_u_id`=?', $user_id);
+        /*$del_data = $this->db->query('DELETE FROM `users_day_meals` WHERE `udm_u_id`=?', $user_id);
         if($del_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-        }
+        }*/
 
         // Удаление данных соц. сетей
-        $del_data = $this->db->query('DELETE FROM `users_social` WHERE `us_u_id`=?', $user_id);
+        /*$del_data = $this->db->query('DELETE FROM `users_social` WHERE `us_u_id`=?', $user_id);
         if($del_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }*/
+
+        // Удаление данных будущих платежей
+        if(!empty($today))
+        {
+            $del_data = $this->db->query('DELETE `orders_payment` FROM `orders_payment` LEFT JOIN `orders` ON `o_id`=`op_o_id` WHERE `orders`.`o_u_id`=? and `orders_payment`.`op_following_date`>?', array($user_id, $today));
+            if($del_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
     }
 
@@ -1181,101 +1194,104 @@ class User_model extends CI_Model
         // Массив возвращаемых значений
         $result = array('anthropometric' => array(), 'min' => null, 'max' => null, 'anthrop_notif' => false);
 
-        $sel_anth_data = $this->db->query('
+        if(!empty($user_id))
+        {
+            $sel_anth_data = $this->db->query('
             SELECT `user_weight`, `user_circumference_chest`, `user_circumference_waist`, `user_circumference_buttocks`, `user_date_add`
             FROM `anthropometric` 
             WHERE `user_id`=?
             ORDER BY `user_date_add`', $user_id);
 
-        if ($sel_anth_data !== false and 0 < $sel_anth_data->num_rows())
-        {
-            $i   = 0;
-            $min = 0;
-            $max = 0;
-            $max_days = 0;
-            foreach ($sel_anth_data->result() as $row)
+            if ($sel_anth_data !== false and 0 < $sel_anth_data->num_rows())
             {
-                //$today = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
-                //$date = DateTime::createFromFormat('Y-m-d H:i:s', $row->user_date_add);
-
-               // $interval = $today->diff($date);
-                // Месяц в js начинается с нуля
-                //$month = (($date->format('n') - 1) >= 0) ? ($date->format('n') - 1) : 11;
-                //$datetime = $date->format('Y') . ', ' . $month . ', ' . $date->format('d');
-                //$datetime = $date->format('Y-m-d H:i:s');
-                //$datetime = $interval->format('%a');
-                $date         = $row->user_date_add;
-                $weight       = $row->user_weight;
-                $chest        = $row->user_circumference_chest;
-                $waist        = $row->user_circumference_waist;
-                $buttocks     = $row->user_circumference_buttocks;
-
-                /*$waist_sides  = $row->user_circumference_waist_sides;
-                $right_hip    = $row->user_circumference_right_hip;
-                $left_hip     = $row->user_circumference_left_hip;
-                $right_biceps = $row->user_circumference_right_biceps;
-                $left_biceps  = $row->user_circumference_left_biceps;*/
-
-                $elements = array($weight, $chest, $waist, $buttocks);
-
-                $result['anthropometric'][$i]['weight']   = $weight;
-                $result['anthropometric'][$i]['chest']    = $chest;
-                $result['anthropometric'][$i]['waist']    = $waist;
-                $result['anthropometric'][$i]['buttocks'] = $buttocks;
-                $result['anthropometric'][$i]['date']     = $date;
-
-                if ($min == 0 or ($date < $min)) {
-                    $min = $date;
-                }
-
-                if ($max == 0 or ($date > $max)) {
-                    $max = $date;
-                }
-
-
-                /*$result['data'][$i]['waist_sides']  = $waist_sides;
-                $result['data'][$i]['right_hip']    = $right_hip;
-                $result['data'][$i]['left_hip']     = $left_hip;
-                $result['data'][$i]['right_biceps'] = $right_biceps;
-                $result['data'][$i]['left_biceps']  = $left_biceps;*/
-
-                /*$max_element = !empty($elements) ? max($elements) : null;
-                $min_element = !empty($elements) ? min($elements) : null;
-
-                if (!empty($max_element) and (0 == $max or $max < $max_element)) {
-                    $max = $max_element;
-                }
-
-                if (!empty($min_element) and (0 == $min or $min > $min_element)) {
-                    $min = $min_element;
-                }*/
-                
-                $i++;
-            }
-            unset($row);
-
-            $min_date = DateTime::createFromFormat('Y-m-d', $min);
-            $min_date = ($min_date !== false) ? $min_date->sub(new DateInterval('P5D')) : '';
-            $max_date = DateTime::createFromFormat('Y-m-d', $max);
-            $max_date = ($max_date !== false) ? $max_date->add(new DateInterval('P5D')) : '';
-
-            $result['min'] = (!empty($min_date)) ? $min_date->format('Y-m-d') : '';
-            $result['max'] = (!empty($max_date)) ? $max_date->format('Y-m-d') : '';
-
-            if(!empty($today))
-            {
-                // Уведомление пользователю если последний ввод данных был более 2х недель назад
-                $tmp_date = new DateTime($today);
-                $tmp_date->sub(new DateInterval('P14D'));
-                if($result['max'] < $tmp_date->format('Y-m-d'))
+                $i   = 0;
+                $min = 0;
+                $max = 0;
+                $max_days = 0;
+                foreach ($sel_anth_data->result() as $row)
                 {
-                    $result['anthrop_notif'] = true;
+                    //$today = DateTime::createFromFormat('Y-m-d H:i:s', date('Y-m-d H:i:s'));
+                    //$date = DateTime::createFromFormat('Y-m-d H:i:s', $row->user_date_add);
+
+                    // $interval = $today->diff($date);
+                    // Месяц в js начинается с нуля
+                    //$month = (($date->format('n') - 1) >= 0) ? ($date->format('n') - 1) : 11;
+                    //$datetime = $date->format('Y') . ', ' . $month . ', ' . $date->format('d');
+                    //$datetime = $date->format('Y-m-d H:i:s');
+                    //$datetime = $interval->format('%a');
+                    $date         = $row->user_date_add;
+                    $weight       = $row->user_weight;
+                    $chest        = $row->user_circumference_chest;
+                    $waist        = $row->user_circumference_waist;
+                    $buttocks     = $row->user_circumference_buttocks;
+
+                    /*$waist_sides  = $row->user_circumference_waist_sides;
+                    $right_hip    = $row->user_circumference_right_hip;
+                    $left_hip     = $row->user_circumference_left_hip;
+                    $right_biceps = $row->user_circumference_right_biceps;
+                    $left_biceps  = $row->user_circumference_left_biceps;*/
+
+                    $elements = array($weight, $chest, $waist, $buttocks);
+
+                    $result['anthropometric'][$i]['weight']   = $weight;
+                    $result['anthropometric'][$i]['chest']    = $chest;
+                    $result['anthropometric'][$i]['waist']    = $waist;
+                    $result['anthropometric'][$i]['buttocks'] = $buttocks;
+                    $result['anthropometric'][$i]['date']     = $date;
+
+                    if ($min == 0 or ($date < $min)) {
+                        $min = $date;
+                    }
+
+                    if ($max == 0 or ($date > $max)) {
+                        $max = $date;
+                    }
+
+
+                    /*$result['data'][$i]['waist_sides']  = $waist_sides;
+                    $result['data'][$i]['right_hip']    = $right_hip;
+                    $result['data'][$i]['left_hip']     = $left_hip;
+                    $result['data'][$i]['right_biceps'] = $right_biceps;
+                    $result['data'][$i]['left_biceps']  = $left_biceps;*/
+
+                    /*$max_element = !empty($elements) ? max($elements) : null;
+                    $min_element = !empty($elements) ? min($elements) : null;
+
+                    if (!empty($max_element) and (0 == $max or $max < $max_element)) {
+                        $max = $max_element;
+                    }
+
+                    if (!empty($min_element) and (0 == $min or $min > $min_element)) {
+                        $min = $min_element;
+                    }*/
+
+                    $i++;
+                }
+                unset($row);
+
+                $min_date = DateTime::createFromFormat('Y-m-d', $min);
+                $min_date = ($min_date !== false) ? $min_date->sub(new DateInterval('P5D')) : '';
+                $max_date = DateTime::createFromFormat('Y-m-d', $max);
+                $max_date = ($max_date !== false) ? $max_date->add(new DateInterval('P5D')) : '';
+
+                $result['min'] = (!empty($min_date)) ? $min_date->format('Y-m-d') : '';
+                $result['max'] = (!empty($max_date)) ? $max_date->format('Y-m-d') : '';
+
+                if(!empty($today))
+                {
+                    // Уведомление пользователю если последний ввод данных был более 2х недель назад
+                    $tmp_date = new DateTime($today);
+                    $tmp_date->sub(new DateInterval('P14D'));
+                    if($result['max'] < $tmp_date->format('Y-m-d'))
+                    {
+                        $result['anthrop_notif'] = true;
+                    }
                 }
             }
-        }
-        elseif ($sel_anth_data === false)
-        {
-            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            elseif ($sel_anth_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
 
         return $result;

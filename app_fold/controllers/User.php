@@ -2775,6 +2775,7 @@ class User extends CI_Controller
      * Просмотр данных, удаленных пользователей
      *
      * @param $user_id
+     * @throws Exception
      */
     protected function userArchive($user_id)
     {
@@ -2818,7 +2819,10 @@ class User extends CI_Controller
         }
         elseif($this->input->post('bt_delete_user', true))
         {
-            $del_user = $this->User_model->deleteUser($user_id);
+            $tmp_date = new DateTime($this->date);
+            $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
+
+            $del_user = $this->User_model->deleteUser($user_id, $today);
 
             if ($del_user === true)
             {

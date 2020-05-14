@@ -172,7 +172,8 @@ $route['administration/user/(:num)']            = 'User/userASettings/$1';
 // Подписчики
 $route['administration/users/sublist'] = 'Administrator/sublist';
 // Архив
-$route['administration/users/archive(/(:num))?'] = 'User/archive/$2';
+$route['administration/users/archive']       = 'User/archive';
+$route['administration/user/archive/(:num)'] = 'User/archive/$1';
 $route['users/delete'] = 'User/deleteUsers';
 $route['getSearchUsers'] = 'User/getSearchUsers';
 
