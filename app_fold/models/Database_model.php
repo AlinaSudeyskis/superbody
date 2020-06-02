@@ -3443,6 +3443,45 @@ class Database_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление базы данных апреля 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseMay2020($date)
+    {
+        $result = false;
+
+        $date = '2020-05-13 10:43';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `promocodes_used` ADD `pcu_used` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `pcu_u_id`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-05-13 11:59';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_data = $this->db->query("SELECT `o_id`, `ouc_promocode_id` FROM `orders` LEFT JOIN `orders_users_cart` ON `ouc_o_id`=`o_id` WHERE `o_payment_status`<>'pending'");
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $this->db->query('UPDATE `promocodes_used` SET `pcu_used`=1 WHERE `pcu_id`=? LIMIT 1', $row->ouc_promocode_id);
+                }
+                unset($row);
+            }
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Поиск даты обновления в БД
