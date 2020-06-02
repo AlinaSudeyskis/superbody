@@ -1986,6 +1986,7 @@ class CI_Controller {
 
                     $result = array(
                         'full_course_price'       => $full_course_price,
+                        'promocode'               => $promocode,
                         'promocode_id'            => $promocode_id,
                         'promocode_discount'      => $promocode_discount,
                         'promocode_discount_type' => $promocode_discount_type,

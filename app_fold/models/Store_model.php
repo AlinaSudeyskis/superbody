@@ -3071,7 +3071,7 @@ class Store_model extends CI_Model
 
                     $full_price = (!empty($row->ouc_p_price) and $row->ouc_p_price > 0) ? $row->ouc_p_price : 0;
                     $rec_price  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first > 0) ? $row->ouc_p_recurrent_first : 0;
-                    $cart_product_price = (!empty($full_price) and empty($rec_price)) ? $full_price : $rec_price;
+                    $cart_product_price = $full_price;
                     $result['order']['products'][$i]['cart_products_price'] = $cart_product_price;
 
                     $total_order_price += $cart_product_price*$row->ouc_p_quantity;

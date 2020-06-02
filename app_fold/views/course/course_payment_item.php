@@ -22,13 +22,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <input type="hidden" name="ord_id" id="ord-id" value="<?php if (!empty($course['order_id'])) { echo $course['order_id']; }?>" />
         <input type="hidden" name="user_id" value="<?php if (!empty($user_session)) { echo $user_session['id']; }?>" id="user-id">
     <?php endif; ?>
-    <?php if(empty($user_session) or empty($user_session['email'])): ?>
+    <?php if((!empty($user_data) and empty($user_data['user_email'])) or (empty($user_session) or empty($user_session['email']))): ?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Email:</div>
             <input type="text" name="email" required="required" value="" class="admin_form_txt admin_form_txt_short valid_email" autocomplete="off"/>
         </div>
     <?php endif; ?>
-    <?php if(empty($user_session) or empty($user_session['name'])): ?>
+    <?php if((!empty($user_data) and empty($user_data['user_name'])) or (empty($user_session) or empty($user_session['name']))): ?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">ФИО:</div>
             <input type="text" name="name" required="required" value="" class="admin_form_txt admin_form_txt_short" autocomplete="off"/>
