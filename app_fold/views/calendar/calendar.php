@@ -30,7 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             header: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,dayGridWeek,timeGridDay'
+                right: ($(window).width() < 765) ? '':'dayGridMonth,dayGridWeek,timeGridDay'
             },
             views: {
                 dayGridWeek: {
