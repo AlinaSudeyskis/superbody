@@ -54,6 +54,50 @@ class Payment_model extends CI_Model
     }
 
     /**
+     * Обновление данных платежа заказа
+     *
+     * @param $order_id
+     * @param $missed_payment_id
+     * @param $payment_id
+     * @param $payment_status
+     * @param $total_amount
+     * @param $currency
+     * @param $created_at
+     * @param $payment_option
+     * @param $payment_type
+     * @param $customer_email
+     * @param $customer_name
+     * @param string $method_phone
+     * @param string $method_login
+     * @param string $date
+     * @return bool
+     */
+    public function updateOrderPayment($order_id, $missed_payment_id, $payment_id, $payment_status, $total_amount, $currency, $created_at,
+                                       $payment_option, $payment_type, $customer_email, $customer_name, $method_phone = '',
+                                       $method_login = '', $date = '')
+    {
+        $result = false;
+
+        $up_data = $this->db->query('
+            UPDATE `orders_payment` SET `op_customer_email`=?, `op_customer_name`=?, `op_payment_type`=?, 
+                `op_pt_phone`=?, `op_pt_login`=?, `op_payment_id`=?, `op_status`=?, `op_amount`=?, `op_currency`=?, 
+                `op_payment_options`=?, `op_created_at`=?, `op_date_add`=?
+            WHERE `op_o_id`=? and `op_id`=? LIMIT 1', array($customer_email, $customer_name, $payment_type, $method_phone, $method_login, $payment_id,
+            $payment_status, $total_amount, $currency, $payment_option, $created_at, $date, $order_id, $missed_payment_id));
+
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Изменение данных оплаты заказа
      *
      * @param int $order_id
@@ -232,10 +276,10 @@ class Payment_model extends CI_Model
                                 $ins_data = $this->db->query('
                                     INSERT INTO `orders_payment` (`op_o_id`, `op_number`, `op_customer_email`, `op_customer_name`, 
                                                                   `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_status`, `op_amount`, `op_currency`, 
-                                                                  `op_payment_method_id`, `op_following_date`, `op_date_add`)
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                                                  `op_payment_options`, `op_payment_method_id`, `op_following_date`, `op_date_add`)
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                                         array($order_id, $i, $customer_email, $customer_name, $payment_method, $login, $phone, '',
-                                            $course['rec_subsequent'], 'RUB', $payment_method_id, $following_date, $date));
+                                            $course['rec_subsequent'], 'RUB', 'partial_payment', $payment_method_id, $following_date, $date));
                                 if($ins_data === false)
                                 {
                                     parent::logDbMessages(__METHOD__.':'.__LINE__);

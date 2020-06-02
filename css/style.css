@@ -6098,6 +6098,9 @@ span#cookie_stop {
     background-color: #e25050;
     z-index: 0;
 }
+#purchase_pop-up #block-message:hover {
+    height: auto;
+}
 #page-info{font-size: 12px; height: 12px; margin-bottom: 10px; line-height: normal;}
 
 .select_input{width:500px; display: inline-block;}
@@ -6865,7 +6868,7 @@ span.mess_block_full_time {
 .line_parent .anketa_form_line:last-child{
     margin-bottom: 20px;
 }
-#recurrent-block, #method-phone, #method-login{
+#recurrent-block, #missed-payment-block, #method-phone, #method-login{
     display: none;
 }
 .h_subtitle{
@@ -11320,6 +11323,9 @@ textarea.anketa_form_in{
 .admin_item:last-child{
     border: none;
 }
+.admin_item:hover {
+    background-color: #f3f3f3;
+}
 .bg_gray{
     background-color: #f7f7f7;
 }
@@ -11736,6 +11742,7 @@ textarea.anketa_form_in{
     -webkit-flex-shrink: 0;
     /*flex-grow: 1;
     -webkit-flex-grow: 1;*/
+    margin-bottom: 10px;
 }
 .purchase_form form .kurs_cur_wrap * {
 
@@ -11743,13 +11750,15 @@ textarea.anketa_form_in{
 .purchase_form .kurs_cur_wrap .journal_form_select,
 .purchase_form .kurs_cur_wrap .admin_form_txt_short {
     margin-right: 0;
-    width: calc(100% - 130px);
-    width: -moz-calc(100% - 130px);
-    width: -webkit-calc(100% - 130px);
+    width: calc(100% - 170px);
+    width: -moz-calc(100% - 171px);
+    width: -webkit-calc(100% - 171px);
 }
-.purchase_form .kurs_cur_wrap>.kurs_block_h {
+.purchase_form .kurs_cur_wrap .kurs_block_h {
     justify-self: flex-start;
-    width: 110px;
+    width: 151px;
+    line-height: 15px;
+    margin: 10px 20px 10px 0;
 }
 .purchase_form .anketa_form_buts_wrap {
     padding: 0 0 10px;
@@ -11761,6 +11770,11 @@ textarea.anketa_form_in{
     display:-webkit-flex;
     justify-content: center;
     -webkit-justify-content: center;
+}
+.purchase_form .kurs_cur_wrap .pf_price_wrap .kurs_block_h {
+    text-align: left;
+    width: auto;
+    margin-right: 10px;
 }
 .video_down_line_h,
 .admin_form_file_line_h{
@@ -11896,6 +11910,7 @@ textarea.anketa_form_in{
     /*margin-bottom: 18px;*/
     display: block !important;
     text-align: left;
+    height: 35px;
 }
 .landing_admin_form .journal_form_select{
     width: calc(100% - 180px);
@@ -12377,10 +12392,21 @@ textarea.anketa_form_in{
 }
 .kurs_cur{
     float: left;
-    font-size: 13px;
-    line-height: 35px;
+    font-size: 14px;
+    font-weight: 100;
+    line-height: 15px;
     color: #33363f;
-    width: 60px;
+    margin: 10px 10px 0 0;
+}
+#recb-rf, #recb-rs, #course-price, #course-new-price{
+    font-size: 18px;
+    font-weight: 100;
+}
+.pc_not_available {
+    font-size: 11px;
+    font-weight: 100;
+    margin-left: 10px;
+    color: #ff7070;
 }
 .add_tren_name{
     padding: 0;

@@ -35,6 +35,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             views: {
                 dayGridWeek: {
                     columnHeaderFormat: { weekday: 'short', day: 'numeric', month: 'numeric' }
+                },
+                timeGridDay:{
+                    allDaySlot: false,
+                    slotLabelFormat: { hour: 'numeric', minute: '2-digit' }
                 }
             },
             buttonText: { today: 'Сегодня', month: 'Месяц', week: 'Неделя', day: 'День', list: 'Список' },

@@ -36,8 +36,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="admin_item promocodes">
                                         <a class="admin_feedback_link parent" href="/administration/promocode/<?php echo $code['id']; ?>">
                                             <span class="admin_feedback_cont parent">
-                                                <span class="admin_feedback_info parent"><?php echo $code['code']; ?></span>
-                                                <span class="admin_feedback_txt"><?php echo $code['name']; ?></span>
+                                                <?php $code_name = (!empty($code['group_name'])) ? $code['group_name'] : $code['code']; ?>
+                                                <span class="admin_feedback_info parent"><?php echo $code_name; ?></span>
+                                                <span class="admin_feedback_txt"><?php echo $code['discount'] .' '. $code['dt_unit']; ?></span>
+                                                <span class="admin_feedback_txt" style="text-decoration: none;"><?php echo $code['name']; ?></span>
                                             </span>
                                             <span class="admin_feedback_time_wrap parent">
                                                 <span class="admin_feedback_time"><?php echo $code['active_string']; ?></span>

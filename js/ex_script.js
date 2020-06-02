@@ -521,7 +521,9 @@ $(document).ready(function(){
             if(pr_bl_w.length === 1)
             {
                 pr_bl.hide();
-                pr_bl.css("margin-top", $(this).position().top+'px');
+                if ($(window).width() >= '750'){
+                    pr_bl.css("margin-top", $(this).position().top+'px');
+                }
                 //pr_block.show();
                 pr_block.fadeIn(200);
             }
@@ -1017,7 +1019,7 @@ $(document).ready(function(){
 
     /* выпадающий список тренеров */
     $(document).on('input', '.add_tov_in.coaches input:text', function () {
-        if($(this).val() != '' && $(this).val().length < 255){
+        if($(this).val() !== '' && $(this).val().length < 255){
             var input_search = $(this).val(),
                 tov_in = $(this);
             $.ajax({
@@ -1056,6 +1058,28 @@ $(document).ready(function(){
             $(this).parents(".add_tov_in").find(".add_tov_list").hide();
         }
     });
+    /* выпадающий список пользователей */
+    $(document).on('input', '.add_tov_in.pc_users input:text', function () {
+        if($(this).val() !== '' && $(this).val().length < 255){
+            var input_search = $(this).val(),
+                tov_in = $(this);
+            $.ajax({
+                url: '/searchUsers',
+                type: 'post',
+                dataType: 'json',
+                data: {search_text: input_search},
+                complete: function (result) {
+                    if(result !== "")
+                    {
+                        tov_in.parents(".add_tov_in").find(".add_tov_list").html(result.responseText);
+                        tov_in.parents(".add_tov_in").find(".add_tov_list").show();
+                    }
+                }
+            });
+        } else{
+            $(this).parents(".add_tov_in").find(".add_tov_list").hide();
+        }
+    });
 
     $(document).on("click", ".add_tov_item", function() {
         if(!$(this).hasClass("disable")){
@@ -1066,13 +1090,13 @@ $(document).ready(function(){
             if($(this).parents("form").hasClass("edit_kurs_form") || $(this).parents("form").hasClass("add_kurs_form")){
                 $(this).parents(".add_tov_in_total").find(".add_tov_val")
                     .append('<div id="'+number+'tov" class="add_tov_val_item parent">' +
-                        '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                        '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span><div class="del_tov"></div></a>' +
                         '<div class="add_tov_val_sale">' +
                         '<div class="admin_form_h">Процент, %</div>' +
                         '<input type="hidden" name="coaches['+number+']" value="'+number+'" />' +
                         '<input type="text" name="coaches_percent['+number+']" class="admin_form_txt coaches_percent" placeholder="0" value=""/>' +
                         '</div>' +
-                        '<div class="del_tov"></div></div>');
+                        '</div>');
             } else if($(this).parents("form").hasClass("landing_admin_form")){
                 $(this).parents(".add_tov_in_total").find(".add_tov_val")
                     .append('<div id="'+number+'tov" class="add_tov_val_item parent">' +
@@ -1114,7 +1138,7 @@ $(document).ready(function(){
         {
             site_percent = 'Заработок отсутствует!';
         }
-        if(site_info.length == 0)
+        if(site_info.length === 0)
         {
             coaches_percent.parents('.add_tov_in_total').after('<div class="parent kurs_cur_wrap">' +
             '<div class="kurs_block_h">Процент сайта:</div>' +
@@ -1123,51 +1147,6 @@ $(document).ready(function(){
             site_info = $('#site-percent');
         }
         site_info.html(site_percent);
-    });
-
-    $(document).on('click', '.del_tov', function () {
-        var id = $(this).parents(".add_tov_val_item").attr("id"),
-            video_id = $(this).parents(".add_tov_in_total").children("#id-video"+parseFloat(id)),
-            inst_id = $(this).parents(".add_tov_in_total").children("#id-video-instruction"),
-            ml_type_block = $(this).parents(".add_tov_val_item").parent(),
-            meal_block = $("#" + id),
-            course_block = $("#" + id + ".pc_course");
-
-        if (video_id.length == 1 || inst_id.length == 1)
-        {
-            $(this).parents(".add_tov_in_total").find("#"+id).removeClass("disable");
-            $(this).parents(".add_tov_val_item").remove();
-            video_id.val('');
-            inst_id.val('');
-        }
-        else if(course_block.length === 1)
-        {
-            course_block.remove();
-        }
-        // Удалить блок блюда
-        else if(meal_block.length == 1)
-        {
-            meal_block.remove();
-
-            // Удалить блок категории блюда
-            if(ml_type_block.find('.add_tov_val_item').length == 0)
-            {
-                ml_type_block.remove();
-            }
-        }
-        // Пересчет ВКБЖУ
-        else if($(this).parents('.ingredients_data').length == 1)
-        {
-            calcWCPFC();
-            if($(".add_tov_in_total").children('.add_tov_val').length == 0)
-            {
-                $('#meal-calories-100').prop('readonly', false);
-                $('#meal-proteins-100').prop('readonly', false);
-                $('#meal-fats-100').prop('readonly', false);
-                $('#meal-carbohydrates-100').prop('readonly', false);
-                $('#meal-weight').prop('readonly', false);
-            }
-        }
     });
 
     $(document).on('click', '.add_tren_item.video', function () {
@@ -1450,6 +1429,51 @@ $(document).ready(function(){
             $(this).parents(".add_tov_list").hide();
             $(this).parents(".add_tov_list").parents('.add_tov_in').find('input:text').val('');
             $(this).addClass("disable");
+        }
+        return false;
+    });
+
+    $(document).on('input', '.add_tov_in.users input:text', function () {
+        if($(this).val() !== '' && $(this).val().length < 255){
+            var input_search = $(this).val(),
+                tov_in = $(this);
+            $.ajax({
+                url: '/searchUsers',
+                type: 'post',
+                data: {search_text: input_search},
+                complete: function (result) {
+                    if (result !== "") {
+                        tov_in.parents(".add_tov_in").find(".add_tov_list").show();
+                        tov_in.parents(".add_tov_in").find(".add_tov_list").html(result.responseText);
+                    }
+                    else {
+                        tov_in.parents(".add_tov_in").find(".add_tov_list").hide();
+                    }
+                }
+            });
+        } else{
+            $(this).parents(".add_tov_in").find(".add_tov_list").hide();
+        }
+    });
+
+    $(document).on("click", ".add_tren_item.user", function() {
+        if(!$(this).hasClass("disable")){
+            var link = $(this).find(".add_tov_cont").attr("href"),
+                name = $(this).find(".add_tov_h").text(),
+                number = $(this).attr("id"),
+                parent_block = $(this).parents(".add_tov_in_total").find(".add_tov_val");
+
+            if(parent_block.find('#'+number+'tov').length === 0)
+            {
+                parent_block.append('<div id="'+number+'tov" class="add_tov_val_item pc_users parent">' +
+                        '<input type="hidden" name="users[]" value="' + number + '"/>' +
+                        '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
+                        '<div class="del_tov"></div>');
+
+                $(this).parents(".add_tov_list").hide();
+                $(this).parents(".add_tov_list").parents('.add_tov_in.pc_users').find('input:text').val('');
+                $(this).addClass("disable");
+            }
         }
         return false;
     });

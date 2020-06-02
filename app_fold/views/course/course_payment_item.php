@@ -18,6 +18,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     <?php else: ?>
         <input type="hidden" name="crs_id" id="crs-id" value="<?php if (!empty($course['id'])) { echo $course['id']; }?>" />
+        <input type="hidden" name="crs_cw" id="crs-cw" value="<?php if (!empty($course['count_weeks'])) { echo $course['count_weeks']; }?>" />
         <input type="hidden" name="ord_id" id="ord-id" value="<?php if (!empty($course['order_id'])) { echo $course['order_id']; }?>" />
         <input type="hidden" name="user_id" value="<?php if (!empty($user_session)) { echo $user_session['id']; }?>" id="user-id">
     <?php endif; ?>
@@ -37,45 +38,92 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h"><label for="payment-options">Вариант оплаты:</label></div>
             <select name="s_payment_options" class="journal_form_select" required="required" id="payment-options">
-                <option value="full_payment">Полная оплата стоимости</option>
-                <option value="partial_payment">Разделить оплату на <?php echo $course['recur_months']; ?> мес.</option>
+                <?php if(empty($course['order_id']) or empty($order) or (!empty($order) and $order['succeeded_payment'] === false and $order['free_weeks'] === false and $order['payment_status_eng'] != 'not_paid')): ?>
+                    <option value="full_payment">Полная оплата стоимости</option>
+                    <option value="partial_payment">Разделить оплату на <?php echo $course['recur_months']; ?> мес.</option>
+                <?php elseif(!empty($course['order_id']) and !empty($order) and $order['payment_option'] == 'full_payment'): ?>
+                    <option value="full_payment">Полная оплата стоимости</option>
+                    <option value="partial_payment">Разделить оплату на <?php echo $order['product']['rec_months']; ?> мес.</option>
+                <?php elseif(!empty($course['order_id']) and !empty($order) and $order['payment_option'] == 'partial_payment' and !empty($order['missed_payment'])): ?>
+                    <option value="balance_payment">Оплата остаточной стоимости</option>
+                    <option value="missed_payment">Оплата пропущенного платежа</option>
+                <?php endif;?>
             </select>
         </div>
+        <?php $rec_first = (!empty($order['product']['rec_first'])) ? $order['product']['rec_first'] : $course['recur_first'];
+        $rec_subseq = (!empty($order['product']['rec_subseq'])) ? $order['product']['rec_subseq'] : $course['recur_subsequent']; ?>
         <div class="line_parent" id="recurrent-block">
             <div class="parent kurs_cur_wrap">
                 <div class="kurs_block_h">Первый платеж:</div>
                 <div class="pf_price_wrap">
-                    <div class="kurs_block_h" id="recb-rf"><?php echo $course['recur_first']; ?></div>
+                    <div class="kurs_block_h" id="recb-rf"><?php echo $rec_first; ?></div>
                     <div class="kurs_cur"> руб.</div>
                 </div>
             </div>
             <div class="parent kurs_cur_wrap">
                 <div class="kurs_block_h" style="line-height: 17px;">Последующие платежи:</div>
                 <div class="pf_price_wrap">
-                    <div class="kurs_block_h" id="recb-rs"><?php echo $course['recur_subsequent']; ?></div>
+                    <div class="kurs_block_h" id="recb-rs"><?php echo $rec_subseq; ?></div>
                     <div class="kurs_cur"> руб.</div>
                 </div>
             </div>
         </div>
+        <?php if(!empty($order) and !empty($order['missed_payment'])): ?>
+            <div class="line_parent" id="missed-payment-block">
+                <div class="parent kurs_cur_wrap">
+                    <div class="kurs_block_h">Пропущенный платеж:</div>
+                    <div class="pf_price_wrap">
+                        <div class="kurs_block_h" id="recb-rf"><?php echo $order['missed_payment']['amount']; ?></div>
+                        <div class="kurs_cur"> руб.</div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
     <div class="parent kurs_cur_wrap" id="price-block">
         <div class="kurs_block_h">Стоимость курса:</div>
         <div class="pf_price_wrap">
-            <?php if ($course['new_price'] == 0 and $course['price'] == 0 and empty($course['balance_amount'])):?>
+            <?php if ($course['new_price'] == 0 and $course['price'] == 0 and empty($order['balance_amount'])):?>
                 <div class="kurs_block_h">Бесплатно</div>
             <?php else:
-                if (empty($course['new_price']) and empty($course['balance_amount'])): ?>
-                    <div class="kurs_block_h" id="course-price"><?php echo $course['price']; ?></div>
-                <?php elseif (!empty($course['new_price']) and empty($course['balance_amount'])): ?>
-                    <div class="kurs_block_h strikeout" id="course-price"><?php echo $course['price'];?></div>
-                    <div class="kurs_cur" id="course-new-price"><?php echo $course['new_price'];?></div>
-                <?php elseif (!empty($course['balance_amount'])): ?>
-                    <div class="kurs_block_h" id="course-price"><?php echo $course['balance_amount']; ?></div>
+                // Стоимость курса
+                $course_price = (empty($order) or (!empty($order) and empty($order['balance_amount']))) ? $course['price'] : $order['balance_amount'];
+                $new_course_price = '';
+                if(!empty($course['new_price']) and empty($order['balance_amount']))
+                {
+                    $new_course_price = $course['new_price'];
+                }
+                elseif(!empty($order) and empty($order['balance_amount']) and !empty($order['promocode']) and !empty($order['discount']) and !empty($order_price))
+                {
+                    $new_course_price = $order_price;
+                }
+                $strikeout = (!empty($new_course_price)) ? 'strikeout' : '';?>
+
+                <div class="kurs_block_h <?php echo $strikeout; ?>" id="course-price"><?php echo $course_price; ?></div>
+                <?php if(!empty($new_course_price)):?>
+                    <div class="kurs_block_h" id="course-new-price"><?php echo $new_course_price;?></div>
                 <?php endif;?>
                 <div class="kurs_cur"> руб.</div>
             <?php endif;?>
         </div>
     </div>
+    <?php if(!empty($order) and !empty($order['price']) and !empty($order['promocode']) and !empty($order['discount'])): ?>
+        <div class="line_parent" id="order-discount-block" data-o-discount="<?php echo $order['discount_type']; ?>">
+            <div class="parent kurs_cur_wrap">
+                <div class="kurs_block_h">Промокод заказа:</div>
+                <div class="pf_price_wrap">
+                    <div class="kurs_block_h"><?php echo $order['promocode']; ?><?php if(!empty($promocode) and $promocode['use'] === false and $order['free_weeks'] === false and $order['payment_status_eng'] != 'not_paid'): ?><span class="pc_not_available">*Больше не доступен</span><?php endif; ?></div>
+                    <input type="hidden" name="promocode" value="<?php echo $order['promocode']; ?>">
+                </div>
+            </div>
+            <div class="parent kurs_cur_wrap">
+                <div class="kurs_block_h">Скидка:</div>
+                <div class="pf_price_wrap">
+                    <div class="kurs_block_h"><?php echo $order['discount']; ?></div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
     <?php if($course['new_price'] != 0 or $course['price'] != 0 or (!empty($executive) and $executive === true)):?>
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h"><label for="payment-methods">Способ оплаты:</label></div>
@@ -101,7 +149,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="text" name="i_login" value="" class="admin_form_txt admin_form_txt_short" />
         </div>
     <?php endif;?>
-    <?php if($course['promocode_availability'] === true or (!empty($executive) and $executive === true)): // and empty($course['balance_amount']) ?>
+    <?php if($course['promocode_availability'] === true or (!empty($executive) and $executive === true)): // and empty($order['balance_amount']) ?>
         <div class="parent kurs_cur_wrap promo_block">
             <div class="kurs_block_h"></div>
             <div class="promo_line">У меня есть промокод</div>
@@ -129,12 +177,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     <?php endif; ?>
     <div class="anketa_form_buts_wrap parent">
-        <?php if (!empty($courses_id) and in_array($course['id'], $courses_id) and empty($course['balance_amount'])): ?>
+        <?php if (!empty($courses_id) and in_array($course['id'], $courses_id) and empty($order['balance_amount'])): ?>
             <input type="submit" name="bought" value="Куплен" class="anketa_form_but disabled"/>
         <?php else: ?>
             <?php
             $but_text = ((!empty($executive) and $executive === true) or $course['new_price'] != 0 or $course['price'] != 0) ? 'Купить' : 'Добавить в "Мои курсы"';
-            $but_text = (!empty($course['balance_amount'])) ? 'Оплатить' : $but_text;
+            $but_text = (!empty($order['balance_amount'])) ? 'Оплатить' : $but_text;
             ?>
             <input type="submit" name="bt_buy_course" value='<?php echo $but_text; ?>' data-def-val='<?php echo $but_text; ?>' class="anketa_form_but red"/>
         <?php endif; ?>

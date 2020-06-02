@@ -16,7 +16,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             $profile_title = 'Профиль';
             //$user_notification = null; ?>
             <div class="row user_prof_wrap">
-                <?php $cp_cl = (empty($user_notification))
+                <?php $cp_cl = (empty($user_notification) and empty($course_notification))
                     ? 'col-lg-6 col-md-6 col-sm-6 col-xs-12 user_prog'
                     : 'col-lg-9 col-md-9 col-sm-8 col-xs-12 user_prog';?>
                 <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 user_prof">
@@ -28,13 +28,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="<?php echo $cp_cl; ?>">
                     <?php include_once('./app_fold/views/course/user_course/courses_progress.php'); ?>
                 </div>
-                <?php if(empty($user_notification)): ?>
+                <?php if(empty($user_notification) and empty($course_notification)): ?>
                     <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 user_prof">
                         <?php include_once('./app_fold/views/promocodes/promocode_for_friend.php'); ?>
                     </div>
                 <?php endif; ?>
             </div>
-             <?php if(!empty($user_notification)): ?>
+             <?php if(!empty($user_notification) or !empty($course_notification)): ?>
                 <div class="row user_prof_wrap">
                     <div class="col-lg-9 col-md-9 col-sm-8 col-xs-12 user_prog">
                         <?php include_once('./app_fold/views/notification/user_profile_notifications.php'); ?>

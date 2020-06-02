@@ -144,7 +144,7 @@ class User extends CI_Controller
 
             $update_workouts = array();
 
-            $postpone_courses     = $this->input->post('i_changed_events', true);
+            $postpone_courses     = json_decode($this->input->post('i_changed_events', true), true);
             $new_postpone_courses = array();
             //$postpone_courses = json_decode($postpone_courses, true);
             //asort($postpone_workouts);
@@ -155,34 +155,66 @@ class User extends CI_Controller
             {
                 foreach($wo_data as $uc_id => $week_workouts)
                 {
-                    foreach($week_workouts as $wo_id => $wo)
+                    if(array_key_exists($uc_id, $postpone_courses))
                     {
-                        $wo_date = mb_substr($wo['start'], 0, 10);
-                        $new_wo_date = (array_key_exists($wo_id, $postpone_courses[$uc_id])) ? $postpone_courses[$uc_id][$wo_id] : null;
-                        $wo_date = (!empty($new_wo_date) and $new_wo_date != $wo_date and $new_wo_date >= $today) ? $new_wo_date : $wo_date;
-
-                        $new_postpone_courses[$uc_id][$wo_date][$wo_id] = $wo_data[$wo_id]['crs_wo_id'];
-                    }
-                    unset($wo);
-
-                    ksort($new_postpone_courses[$uc_id]);
-                    $crs_wo_id = '';
-
-                    foreach ($new_postpone_courses[$uc_id] as $wo_date => $wo_by_date)
-                    {
-                        foreach($wo_by_date as $wo_id => $wo)
+                        foreach($week_workouts as $wo_id => $wo)
                         {
-                            //$crs_wo_id = (empty($crs_wo_id) or $crs_wo_id) ? : ;
+                            $wo_date = mb_substr($wo['start'], 0, 10);
+                            $new_wo_date = (is_array($postpone_courses[$uc_id]) and array_key_exists($wo_id, $postpone_courses[$uc_id])) ? $postpone_courses[$uc_id][$wo_id] : null;
+                            $wo_date = (!empty($new_wo_date) and $new_wo_date != $wo_date and $new_wo_date >= $today) ? $new_wo_date : $wo_date;
+
+                            $new_postpone_courses[$uc_id][$wo_date][$wo_id] = $wo_data[$uc_id][$wo_id]['crs_wo_id'];
                         }
                         unset($wo);
+                        unset($wo_date);
+
+                        ksort($new_postpone_courses[$uc_id]);
+
+                        // Изменение (смещение) номера тренировки курса, в соотв. с последовательностью тренировок
+                        $crs_wo_id = 0;
+                        $fl_missed = false;
+                        foreach ($new_postpone_courses[$uc_id] as $wo_date => $wos_by_date)
+                        {
+                            foreach($wos_by_date as $wo_id => $wo)
+                            {
+                                if($fl_missed === true or (!empty($crs_wo_id) and $crs_wo_id >= $wo))
+                                {
+                                    $crs_wo_id++;
+                                    $fl_missed = true;
+                                }
+                                else
+                                {
+                                    $crs_wo_id = $wo;
+                                }
+
+                                $new_postpone_courses[$uc_id][$wo_date][$wo_id] = $crs_wo_id;
+                            }
+                            unset($wo);
+                        }
+                        unset($wos_by_date);
                     }
-                    unset($wo_by_date);
                 }
             }
             else
             {
                 // Изменения не сохранены
                 $this->session->set_tempdata('message', 196, 60);
+            }
+
+            if(!empty($new_postpone_courses))
+            {
+                $result = $this->Course_model->postponeUserCourseWeekWorkouts($this->user_id, $new_postpone_courses, $this->date);
+
+                if($result === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 196, 60);
+                }
             }
 
             /*$current_num_day = date("N", strtotime($this->date));

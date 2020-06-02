@@ -19,7 +19,6 @@ class Course extends CI_Controller
         parent::__construct();
     }
 
-
     /* БЛОК ФУНКЦИЙ КАТЕГОРИИ КУРСА */
 
     /**
@@ -5830,6 +5829,8 @@ class Course extends CI_Controller
     public function newPromocode()
     {
         $crs_types = $this->Course_model->getCourseTypes();
+        $promocodes = $this->Course_model->getListPromocodes();
+        $result = array_merge($crs_types, $promocodes);
 
         if($this->input->post('bt_save_new_promocode', true))
         {
@@ -5849,13 +5850,14 @@ class Course extends CI_Controller
             $ua_number      = $this->input->post('i_ua_number', true);
             $user_use_type  = $this->input->post('s_user_ua_type', true);
             $user_ua_number = $this->input->post('i_user_ua_number', true);
-            $promocode      = $this->input->post('i_promocode', true);
+            $i_promocodes   = $this->input->post('i_promocodes', true);
+            $users          = $this->input->post('users', true);
             $courses        = $this->input->post('pc_courses', true);
             $crs_group      = $this->input->post('r_courses_group', true);
             $crs_categories = $this->input->post('s_courses_categories', true);
 
             $res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
-                $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode, $crs_group,
+                $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $i_promocodes, $users, $crs_group,
                 $crs_categories, $courses, $this->user_id);
 
             if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
@@ -5873,12 +5875,12 @@ class Course extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title']         = 'АП - Добавление промокода';
-        $this->page_data['page_menu']     = 'promocodes';
+        $this->page_data['title']     = 'АП - Добавление промокода';
+        $this->page_data['page_menu'] = 'promocodes';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('promocodes/new_promocode', $crs_types);
+        $this->load->view('promocodes/new_promocode', $result);
         $this->load->view('footer/footer');
     }
 
@@ -5891,8 +5893,15 @@ class Course extends CI_Controller
     public function promocode($promocode_id)
     {
         $promocode   = $this->Course_model->getPromocode($promocode_id, $this->date);
+
+        if($promocode['promocode']['group_id'] > 0 and $promocode['promocode']['group_id'] != $promocode_id)
+        {
+            header('Location: /administration/promocode/'.$promocode['promocode']['group_id']);
+        }
+
         $used_amount = $this->Course_model->getPromocodeUsedAmount($promocode_id);
         $crs_types   = $this->Course_model->getCourseTypes();
+        $promocodes  = $this->Course_model->getListPromocodes();
 
         if($this->input->post('bt_save_promocode', true))
         {
@@ -5900,6 +5909,7 @@ class Course extends CI_Controller
             $pc_types = array('percent', 'currency', 'free_week');
             $pc_use_cats = array('primary', 'secondary');
 
+            $group_id      = $db_data['group_id'];
             $use_category  = (in_array($this->input->post('s_use_category', true), $pc_use_cats)) ? $this->input->post('s_use_category', true) : 'primary';
             $name          = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
             $desc          = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
@@ -5921,7 +5931,31 @@ class Course extends CI_Controller
             $user_ua_number = (is_numeric($this->input->post('i_user_ua_number', true)) and $user_use_type == 'number')
                 ? $this->input->post('i_user_ua_number', true) : '';
 
-            $generated_code = strtoupper(mb_substr(strip_tags($this->input->post('i_promocode', true)), 0, 25));
+            $promocodes   = array();
+            $i_promocodes = $this->input->post('i_promocodes', true);
+            $count_promocodes = count($i_promocodes);
+            if($count_promocodes > 1)
+            {
+                $i = 1;
+                foreach($i_promocodes as $key => $i_pc)
+                {
+                    $i_pc = strtoupper(mb_substr(strip_tags($i_pc), 0, 25));
+                    if(!empty($i_pc) and empty($db_data['group_promocodes'][$key]))
+                    {
+                        $promocodes['insert'][$i] = $i_pc;
+                        $i++;
+                    }
+                    else
+                    {
+                        $promocodes['update'][$key] = $i_pc;
+                    }
+                }
+                unset($i_pc);
+            }
+            else
+            {
+                $promocodes['update'][$promocode_id] = strtoupper(mb_substr(strip_tags($i_promocodes[$promocode_id]), 0, 25));
+            }
 
             $discount = ($discount_type == 'percent' and $discount > 100) ? 100 : $discount;
 
@@ -5947,6 +5981,32 @@ class Course extends CI_Controller
                 $crs_categories = implode(';', $s_crs_categories);
             }
 
+            // Выбранные пользователи
+            $users    = array('insert' => array(), 'delete' => array());
+            $up_users = array();
+            $i_users  = $this->input->post('users', true);
+            if(!empty($i_users))
+            {
+                $i = 0;
+                foreach ($i_users as $i_u)
+                {
+                    if(is_numeric($i_u))
+                    {
+                        $up_users[$i] = $i_u;
+
+                        $i++;
+                    }
+                }
+                unset($i_u);
+            }
+            if($up_users != $db_data['users_ids'])
+            {
+                $users['insert'] = array_diff($up_users, $db_data['attached_users_ids']);
+                $users['delete'] = array_diff($db_data['attached_users_ids'], $up_users);
+            }
+            $selected_users = array_merge($users['insert'], array_intersect($up_users, $db_data['attached_users_ids']));
+            $fl_attached_users = (count($selected_users) > 0) ? 1 : 0;
+
             // Выбранные курсы, на которые распространяется промокод
             $courses    = array('insert' => array(), 'delete' => array());
             $up_courses = array();
@@ -5971,7 +6031,7 @@ class Course extends CI_Controller
                 $courses['delete'] = array_diff($db_data['courses_ids'], $up_courses);
             }
 
-            $selected_courses = (!empty($up_courses) and !empty($courses['insert'])) ? array_merge($courses['insert'], array_intersect($up_courses, $db_data['courses_ids'])) : array();
+            $selected_courses = array_merge($courses['insert'], array_intersect($up_courses, $db_data['courses_ids']));
             $count_courses = count($selected_courses);
             if($count_courses > 0)
             {
@@ -5982,52 +6042,46 @@ class Course extends CI_Controller
                 $pc_type = 'course';
             }
 
+            //log_message('debug', 'Promocodes: ' . print_r($promocodes, true));
+
+            $res_up = true;
+
             if((!empty($discount) and $discount != $db_data['discount']) or $use_category != $db_data['use_category']
-                or (!empty($generated_code) and $generated_code != $db_data['code']) or $name != $db_data['name']
+                or (!empty($promocodes) and ($db_data['group_promocodes'] != $promocodes['update'] or !empty($promocodes['insert']))) or $name != $db_data['name']
                 or $desc != $db_data['description'] or $validity_type != $db_data['validity_type']
                 or $pv_date_start != $db_data['pv_date_start'] or $pv_date_end != $db_data['pv_date_end']
                 or $use_type != $db_data['use_type'] or $ua_number != $db_data['ua_number']
                 or $user_use_type != $db_data['user_use_type'] or $user_ua_number != $db_data['user_ua_number']
                 or $discount_type != $db_data['discount_type'] or $rel_percent != $db_data['relative_percent']
-                or $pc_type != $db_data['type'] or $crs_categories != $db_data['crs_cats'])
+                or $pc_type != $db_data['type'] or $crs_categories != $db_data['crs_cats'] or $fl_attached_users != $db_data['attached_users'])
             {
-                $res_up = $this->Course_model->updatePromocode($promocode_id, $use_category, $pc_type, $name, $desc, $discount, $discount_type,
-                    $rel_percent, $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type,
-                    $user_ua_number, $generated_code, $crs_categories, $this->user_id, $this->date);
-
-                if ($res_up === true)
-                {
-                    // Изменения сохранены
-                    $this->session->set_tempdata('message', 10, 60);
-                }
-                else
-                {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 145, 60);
-                }
+                $res_up = $this->Course_model->updatePromocode($promocode_id, $group_id, $use_category, $pc_type, $name,
+                    $desc, $discount, $discount_type, $rel_percent, $validity_type, $pv_date_start, $pv_date_end, $use_type,
+                    $ua_number, $user_use_type, $user_ua_number, $promocodes, $users, $courses, $crs_categories, $fl_attached_users, $this->user_id, $this->date);
             }
             // Сохранение курсов, к которым прикреплен промокод
             if($selected_courses != $db_data['courses_ids'])
             {
+                //log_message('debug', 'Courses: ' . print_r($courses, true));
                 $res_up = $this->Course_model->updatePromocodeCourses($promocode_id, $courses, $this->user_id, $this->date);
+            }
 
-                if ($res_up === true)
-                {
-                    // Изменения сохранены
-                    $this->session->set_tempdata('message', 10, 60);
-                }
-                else
-                {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 145, 60);
-                }
+            if ($res_up === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 145, 60);
             }
 
             header('Location: /administration/promocode/' . $promocode_id);
         }
         elseif($this->input->post('bt_block_promocode', true))
         {
-            $up_data = $this->Course_model->blockPromocode($promocode_id, 1, $this->user_id, $this->date);
+            $up_data = $this->Course_model->blockPromocode($promocode_id, $promocode['promocode']['group_id'], 1, $this->user_id, $this->date);
 
             if ($up_data === true)
             {
@@ -6043,7 +6097,7 @@ class Course extends CI_Controller
         }
         elseif($this->input->post('bt_unblock_promocode', true))
         {
-            $up_data = $this->Course_model->blockPromocode($promocode_id, 0, $this->user_id, $this->date);
+            $up_data = $this->Course_model->blockPromocode($promocode_id, $promocode['promocode']['group_id'], 0, $this->user_id, $this->date);
 
             if ($up_data === true)
             {
@@ -6058,11 +6112,11 @@ class Course extends CI_Controller
             header('Location: /administration/promocode/' . $promocode_id);
         }
 
-        $result = array_merge($promocode, $used_amount, $crs_types);
+        $result = array_merge($promocode, $used_amount, $crs_types, $promocodes);
 
         // Объединенные данные страница
-        $this->page_data['title']        = 'АП - Редактирование промокода';
-        $this->page_data['page_menu']    = 'promocodes';
+        $this->page_data['title']     = 'АП - Редактирование промокода';
+        $this->page_data['page_menu'] = 'promocodes';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -6831,6 +6885,8 @@ class Course extends CI_Controller
                 // Введенный промокод
                 $i_promocode = $this->input->post('promocode', true);
 
+                //log_message('debug', 'MPID' . $this->input->post('missed_payment_id', true));
+
                 parent::buyCourse($course_id, $db_data, $course_coaches, $id_coach, $s_payment_options,
                     $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url, $order_id);
             }
@@ -6964,7 +7020,7 @@ class Course extends CI_Controller
         $db_workouts      = $db_course['workouts'];
         $db_training_days = $db_course['training_days'];
         $db_training_time = $db_course['training_time'];
-        $db_pause_days    = $db_course['pause_days'];// Кол-во дней прошлой заморозки
+        $db_pause_days    = $db_course['pause_days']; // Кол-во дней прошлой заморозки
         $pause_days       = $db_pause_days;
 
         if ($this->input->post('bt_save_course', true))
@@ -7063,7 +7119,7 @@ class Course extends CI_Controller
                 if (!empty($new_course_start))
                 {
                     $count_days = abs(($course_weeks*7) - 1);
-                    $tmp_date = new DateTime($new_course_start);
+                    $tmp_date   = new DateTime($new_course_start);
                     $tmp_date->add(new DateInterval('P' . $count_days . 'D'));
                     $new_course_end = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
                     log_message('debug', 'new_course_start '. $new_course_start .' course_weeks '. $course_weeks .' count_days '. $count_days .' new_course_end '. $new_course_end);
@@ -8921,7 +8977,8 @@ class Course extends CI_Controller
 
         if(!empty($promocode) and strlen($promocode) >=1)
         {
-            $sel_pc = $this->Course_model->getAvailablePromocode($promocode, $this->date);
+            $user_id = (!empty($this->user_id)) ? $this->user_id : null;
+            $sel_pc = $this->Course_model->getAvailablePromocode($promocode, $this->date, $user_id);
 
             if($sel_pc['status'] == 'Активен')
             {
@@ -9244,6 +9301,7 @@ class Course extends CI_Controller
 
     /**
      * AJAX. Сохранение данных о добавляемом приеме пищи
+     * @throws Exception
      */
     public function saveUserMeal()
     {
@@ -9258,6 +9316,7 @@ class Course extends CI_Controller
         $s_datetime   = ($this->input->post('s_datetime', true) === 'select') ? 'select' : 'now';
         $i_datetime   = $this->input->post('i_datetime', true);
         $ingr_weights = $this->input->post('ingr_weights', true);
+        $weights = null;
 
         if(!empty($ingr_weights))
         {
@@ -9299,6 +9358,7 @@ class Course extends CI_Controller
 
     /**
      * Отправка эл. писем с меню курса питания пользователям
+     * @throws Exception
      */
     public function sendNutritionWeekMenuEmails()
     {
@@ -9369,26 +9429,67 @@ class Course extends CI_Controller
         {
             $this->load->model('Store_model');
 
-            $course_data  = $this->Course_model->getAvailableCourse($course_id, $this->date);
-            $order_data   = $this->Store_model->getUserOrder($this->user_id, $order_id);
-            $user_courses = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
-
-            if(!empty($course_data) and !empty($order_data['order']))
+            // Проверка корректности заказа
+            $res_check_uc = $this->Course_model->checkUserOrder($this->user_id, $order_id, $course_id);
+            if($res_check_uc['order'] === true and is_numeric($res_check_uc['uc_id']))
             {
-                $user_session = $this->page_data['user_session'];
-                $site_info    = $this->page_data['site_info'];
-                $course       = $course_data['course'];
-                $courses_id   = $user_courses['courses_id'];
-                $course['order_id'] = $order_id;
-                $course['balance_amount'] = $order_data['order']['balance_amount'];
+                $course_data  = $this->Course_model->getAvailableCourse($course_id, $this->date);
+                $order_data   = $this->Store_model->getUserCourseOrder($this->user_id, $order_id, $course_id);
+                $user_courses = !empty($this->user_id) ? $this->Course_model->getUserCoursesId($this->user_id, $this->date) : array();
 
-                ob_start();
-                include('./app_fold/views/course/purchase_form.php');
-                $purchase_form = ob_get_contents();
-                ob_end_clean();
-                $result['crsd'] = $purchase_form;
+                if(!empty($course_data) and !empty($order_data['order']))
+                {
+                    $user_session = $this->page_data['user_session'];
+                    $site_info    = $this->page_data['site_info'];
+                    $course       = $course_data['course'];
+                    $courses_id   = $user_courses['courses_id'];
+                    $order        = $order_data['order'];
+                    $order['succeeded_payment'] = $res_check_uc['succeeded_payment'];
+                    $order['free_weeks'] = $res_check_uc['free_weeks'];
+                    $course['order_id'] = $order_id;
 
-                $result['crs'] = true;
+                    if(!empty($order['promocode']) and !empty($order['discount']))
+                    {
+                        $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $order['promocode'], $this->date, $this->user_id, $order_id);
+
+                        if(empty($order['balance_amount']) and $promocode['use'] === true)
+                        {
+                            // Вычислеие цены со скидкой
+                            // Скидка - процент
+                            if($order['discount_type'] == 'percent')
+                            {
+                                $order_price = $course['db_price'] - ($course['db_price']*$order['discount']/100);
+                            }
+                            // Скидка - сумма без процентного ограничения
+                            elseif($order['discount_type'] == 'currency')
+                            {
+                                $new_price = $course['db_price'] - $order['discount'];
+                                $order_price = ($new_price < 1) ? 1 : $new_price;
+                            }
+                            // Скидка - бесплатные недели
+                            elseif($order['discount_type'] == 'free_week' and $order['discount'] > 0 and $course['count_weeks'] >= $order['discount'])
+                            {
+                                $free_weeks       = $order['discount'];
+                                $week_price       = $course['db_price'] / $course['count_weeks'];
+                                $free_weeks_price = $week_price * $free_weeks;
+                                $new_price        = $course['db_price'] - $free_weeks_price;
+                                $order_price      = ($new_price < 1) ? 1 : $new_price;
+                            }
+                        }
+                        elseif($promocode['use'] === true)
+                        {
+                            $order_price = $order['price'];
+                        }
+                    }
+
+                    ob_start();
+                    include('./app_fold/views/course/purchase_form.php');
+                    $purchase_form = ob_get_contents();
+                    ob_end_clean();
+                    $result['crsd'] = $purchase_form;
+
+                    $result['crs'] = true;
+                }
             }
         }
 

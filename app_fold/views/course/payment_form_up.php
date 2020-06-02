@@ -19,7 +19,7 @@ $display = (!empty($purchase_up) and $purchase_up === true) ? 'class="ref_pop-up
             <div class="parent kurs_cur_wrap" style="justify-content: center;  -webkit-justify-content: center;">
                 <div class="kurs_cur_h">Авторизация</div>
             </div>
-            <div class="parent kurs_cur_wrap separator"></div>
+            <div class="separator"></div>
             <div class="sing-in page_form">
                 <?php include('./app_fold/views/authorization/auth_form.php');?>
             </div>

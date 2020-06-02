@@ -198,6 +198,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div id="<?php echo $coach['id']; ?>tov" class="add_tov_val_item parent">
                             <a href="/profile/<?php echo $coach['id']; ?>" class="add_tov_val_cont parent">
                                 <span class="add_tov_val_h"><?php echo $coach['name']; ?></span>
+                                <div class="del_tov"></div>
                             </a>
                             <div class="add_tov_val_sale">
                                 <div class="admin_form_h">Процент, %</div>
@@ -205,7 +206,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <input type="text" name="coaches_percent[<?php echo $coach['id']; ?>]" class="admin_form_txt coaches_percent"
                                        placeholder="0" value="<?php echo $coach['percent']; ?>"/>
                             </div>
-                            <div class="del_tov"></div>
                         </div>
                     <?php endforeach;
                     unset($coach);
@@ -233,6 +233,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 for ($num_workout = 1; $num_workout <= $count_workouts; $num_workout++) :
                     $workout2 = 1; ?>
                     <div class="practice_block" id="practice<?php echo $num_workout; ?>_block">
+                        <div class="purchase_pop-up_close" style="opacity: 0.6;"></div>
                         <div class="practice_block_h">Тренировка №<?php echo $num_workout; ?></div>
                         <div class="add_tov_in_total">
                             <div class="add_tov_in video">

@@ -100,16 +100,70 @@ $(document).ready(function() {
             });
 
             // Генерация промокода
-            $("#generate-code").on('click', function(){
-                var result       = '',
+            $(".generate_code").on('click', function(){
+                var result = '', a = 0, i =0,
                     words        = '0123456789QWERTYUIOPASDFGHJKLZXCVBNM',
                     max_position = words.length - 1,
-                    position     = 0;
-                for( var i = 0; i < 6; ++i ) {
-                    position = Math.floor ( Math.random() * max_position );
-                    result = result + words.substring(position, position + 1);
+                    position     = 0,
+                    group_type   = $('#s-pc-group-type'),
+                    bl_g_pc      = $('#i-generated-codes'),
+                    count_pc     = 1,
+                    one_pc       = $('#i-one-pc'),
+                    sev_pc       = $('#i-several-pc');
+
+                if(group_type.val() === 'several')
+                {
+                    var gen_count_codes = $('#generate-count-codes');
+                    if(gen_count_codes.val() > 1)
+                    {
+                        count_pc = gen_count_codes.val();
+                        /*bl_g_pc.html('');*/
+                    }
+                    else
+                    {
+                        $('#s-pc-group-type option[value="one"]').prop('selected', true).change();
+                        one_pc.show();
+                        sev_pc.hide();
+                        bl_g_pc.hide();
+                    }
                 }
-                $("#generated-code").val(result);
+
+                for( a = 0; a < count_pc; ++a )
+                {
+                    result = '';
+
+                    for( i = 0; i < 6; ++i )
+                    {
+                        position = Math.floor ( Math.random() * max_position );
+
+                        if(i === 5)
+                        {
+                            var check_res = result + words.substring(position, position + 1);
+                            if($.inArray(check_res, pcs) >= 0)
+                            {
+                                i = 0;
+                                result = '';
+                            }
+                            else
+                            {
+                                result = result + words.substring(position, position + 1);
+                            }
+                        }
+                        else
+                        {
+                            result = result + words.substring(position, position + 1);
+                        }
+                    }
+
+                    if(count_pc === 1)
+                    {
+                        $("#generated-code").val(result);
+                    }
+                    else
+                    {
+                        bl_g_pc.append('<input type="text" name="i_promocodes[]" class="anketa_form_in anketa_form_in_long" value="'+result+'" maxlength="25"/>');
+                    }
+                }
             });
             $("#generate-friend-code").on('click', function(){
                 var result       = '',
@@ -131,53 +185,68 @@ $(document).ready(function() {
                 });
             });
 
+            // Скрыть/отобразить блоки периода действия и число использований промокода
+            $('#s-pv-type').on('change', function () {
+                var bl_pv = $('#bl-pv'),
+                    pv_type = $(this).val();
+                if (pv_type === 'date_range') {
+                    bl_pv.show();
+                } else {
+                    bl_pv.hide();
+                }
+            });
+            $('#s-ua-type').on('change', function () {
+                var ua_number = $('#bl-ua-number'),
+                    ua_type = $(this).val();
+                if (ua_type === 'number') {
+                    ua_number.show();
+                } else {
+                    ua_number.hide();
+                }
+            });
+            $('#s-user-ua-type').on('change', function () {
+                var ua_number = $('#bl-user-ua-number'),
+                    ua_type = $(this).val();
+                if (ua_type === 'number') {
+                    ua_number.show();
+                } else {
+                    ua_number.hide();
+                }
+            });
+            $('.cg').on('click', function () {
+                var this_id = $(this).attr('id'),
+                    cats = $('#cg-cats'),
+                    crs_search = $('#cg-few-search');
+                if (this_id === 'cg-categories') {
+                    cats.show();
+                    cats.find('.journal_form_select').trigger('refresh');
+                } else {
+                    cats.hide();
+                }
+                if(this_id === 'cg-few'){
+                    crs_search.show();
+                } else {
+                    crs_search.hide();
+                }
+            });
+            $('#s-pc-group-type').on('change', function () {
+                var one_pc = $('#i-one-pc'),
+                    sev_pc = $('#i-several-pc'),
+                    group_type = $(this).val();
+                if (group_type === 'one') {
+                    one_pc.show();
+                    sev_pc.hide();
+                } else {
+                    one_pc.hide();
+                    sev_pc.show();
+                }
+            });
+
             // Блок информации
             var block_message = $('#block-message');
             if (block_message.length > 0 && block_message.hasClass('show')) {
                 showBlockMessage(block_message);
             }
-
-            $(document).on('input', '.add_tov_in.users input:text', function () {
-                if($(this).val() !== '' && $(this).val().length > 3 && $(this).val().length < 255){
-                    var input_search = $(this).val(),
-                        tov_in = $(this);
-                    $.ajax({
-                        url: '/searchUsers',
-                        type: 'post',
-                        data: {search_text: input_search},
-                        complete: function (result) {
-                            if (result !== "") {
-                                tov_in.parents(".add_tov_in").find(".add_tov_list").show();
-                                tov_in.parents(".add_tov_in").find(".add_tov_list").html(result.responseText);
-                            }
-                            else {
-                                tov_in.parents(".add_tov_in").find(".add_tov_list").hide();
-                            }
-                        }
-                    });
-                } else{
-                    $(this).parents(".add_tov_in").find(".add_tov_list").hide();
-                }
-            });
-            $(document).on("click", ".user.add_tren_item", function() {
-            if(!$(this).hasClass("disable")){
-                var link = $(this).find(".add_tov_cont").attr("href"),
-                    name = $(this).find(".add_tov_h").text(),
-                    number = $(this).attr("id");
-
-                $(this).parents(".add_tov_in_total").find(".add_tov_val")
-                        .append('<div id="'+number+'tov" class="add_tov_val_item parent">' +
-                            '<input type="hidden" name="users[]" value="' + number + '"/>' +
-                            '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span></a>' +
-                            '<div class="add_tov_val_sale user">' +
-                            '<div class="del_tov"></div></div>');
-
-                $(this).parents(".add_tov_list").hide();
-                $(this).parents(".add_tov_list").parents('.add_tov_in.admins').find('input:text').val('');
-                $(this).addClass("disable");
-            }
-            return false;
-        });
 
 
             $('select[name=s_discount_type]').on('change', function(){
@@ -294,6 +363,7 @@ $(document).ready(function() {
                     inst_id = $(this).parents(".add_tov_in_total").children("#id-video-instruction"),
                     ml_type_block = $(this).parents(".add_tov_val_item").parent(),
                     meal_block = $("#" + id),
+                    user_block = $("#" + id + ".pc_users"),
                     course_block = $("#" + id + ".pc_course");
 
                 if (video_id.length === 1 || inst_id.length === 1)
@@ -306,6 +376,10 @@ $(document).ready(function() {
                 else if(course_block.length === 1)
                 {
                     course_block.remove();
+                }
+                else if(user_block.length === 1)
+                {
+                    user_block.remove();
                 }
                 // Удалить блок блюда
                 else if(meal_block.length === 1)
@@ -1942,15 +2016,6 @@ $(document).ready(function() {
                 event.preventDefault();
                 var c_p_f = $('#check-promocode-form');
                 pop_up_home(c_p_f);
-
-                /*c_p_f.on('paste', ' #i-promocode', function(){
-                    var pc_input = $(this);
-                    checkPromo(pc_input);
-                });
-                c_p_f.on('keyup', ' #i-promocode', function(){
-                    var pc_input = $(this);
-                    checkPromo(pc_input);
-                });*/
                 c_p_f.on('click', ' #check-promocode', function(){
                     var pc_input = $('#i-promocode');
                     checkPromo(pc_input);

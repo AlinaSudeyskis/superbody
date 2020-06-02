@@ -1171,6 +1171,9 @@ class Coach extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /**
+     * Промокоды тренера
+     */
     public function coachPromocodes()
     {
         // Если пользователь не авторизован, переход на страницу авторизации
@@ -1193,6 +1196,11 @@ class Coach extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /**
+     * Добавление промокода тренера
+     *
+     * @throws Exception
+     */
     public function coachNewPromocode()
     {
         // Если пользователь не авторизован, переход на страницу авторизации
@@ -1207,6 +1215,7 @@ class Coach extends CI_Controller
 
         if($this->input->post('bt_save_new_promocode', true))
         {
+            $use_category   = $this->input->post('s_use_category', true);
             $name           = $this->input->post('i_code_name', true);
             $desc           = $this->input->post('i_code_desc', true);
             $discount       = $this->input->post('i_code_discount', true);
@@ -1217,7 +1226,10 @@ class Coach extends CI_Controller
             $date_end       = $this->input->post('i_validity_date_end', true);
             $use_type       = $this->input->post('s_ua_type', true);
             $ua_number      = $this->input->post('i_ua_number', true);
-            $promocode      = $this->input->post('i_promocode', true);
+            $user_use_type  = $this->input->post('s_user_ua_type', true);
+            $user_ua_number = $this->input->post('i_user_ua_number', true);
+            $i_promocodes   = $this->input->post('i_promocodes', true);
+            $users          = array();
             $courses        = '';
             $crs_group      = 'all';
             $crs_categories = '';
@@ -1230,8 +1242,9 @@ class Coach extends CI_Controller
 
             $discount = ($discount > $max_coach_percent) ? $max_coach_percent : $discount;
 
-            $res_ins = parent::saveNewCoursePromocode($name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
-                $date_start, $date_end, $use_type, $ua_number, $promocode, $crs_group, $crs_categories, $courses, 0, $this->user_id);
+            $res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent,
+                $validity_type, $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $i_promocodes,
+                $users, $crs_group, $crs_categories, $courses, 0, $this->user_id);
 
             if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
             {
@@ -1259,7 +1272,10 @@ class Coach extends CI_Controller
     }
 
     /**
+     * Промокод тренера
+     *
      * @param $promocode_id
+     * @throws Exception
      */
     public function coachPromocode($promocode_id)
     {
@@ -1277,7 +1293,10 @@ class Coach extends CI_Controller
         if($this->input->post('bt_save_promocode', true))
         {
             $db_data = $coach_promocode['promocode'];
+            $pc_use_cats = array('primary', 'secondary');
 
+            $group_id      = $db_data['group_id'];
+            $use_category  = (in_array($this->input->post('s_use_category', true), $pc_use_cats)) ? $this->input->post('s_use_category', true) : 'primary';
             $name          = mb_substr(strip_tags($this->input->post('i_code_name', true)), 0, 255);
             $desc          = mb_substr(strip_tags($this->input->post('i_code_desc', true)), 0, 255);
             $discount      = (is_numeric($this->input->post('i_code_discount', true))) ? $this->input->post('i_code_discount', true) : null;
@@ -1293,13 +1312,18 @@ class Coach extends CI_Controller
             $use_type  = ($this->input->post('s_ua_type', true) == 'unlimited') ? 'unlimited' : 'number';
             $ua_number = (is_numeric($this->input->post('i_ua_number', true)) and $use_type == 'number')
                 ? $this->input->post('i_ua_number', true) : '';
+            $user_use_type  = ($this->input->post('s_user_ua_type', true) == 'unlimited') ? 'unlimited' : 'number';
+            $user_ua_number = (is_numeric($this->input->post('i_user_ua_number', true)) and $user_use_type == 'number')
+                ? $this->input->post('i_user_ua_number', true) : '';
 
-            $generated_code = strtoupper(mb_substr(strip_tags($this->input->post('i_promocode', true)), 0, 25));
+            $i_promocodes = $this->input->post('i_promocode', true);
+            $generated_code = strtoupper(mb_substr(strip_tags($i_promocodes[$promocode_id]), 0, 25));
 
             $coach_course_id = (is_numeric($this->input->post('promo_coach_course', true))) ? $this->input->post('promo_coach_course', true) : null;
             $max_coach_percent = (!empty($coach_courses['coach_courses']) and !empty($coach_courses['coach_courses'][$coach_course_id]))
                 ? $coach_courses['coach_courses'][$coach_course_id]['coach_percent'] : null;
 
+            $courses = array('insert' => array(), 'update' => array());
             if(!empty($db_data['coach_course_id']) and $coach_course_id != $db_data['coach_course_id'])
             {
                 $courses['update'][0] = $coach_course_id;
@@ -1317,15 +1341,14 @@ class Coach extends CI_Controller
             // Категории курсов, на которые распространяется промокод
             $crs_categories = '';
 
-            if((!empty($discount) and $discount != $db_data['discount'])
-                or (!empty($generated_code) and $generated_code != $db_data['code']) or $name != $db_data['name']
-                or $desc != $db_data['description'] or $validity_type != $db_data['validity_type']
+            if((!empty($discount) and $discount != $db_data['discount']) or (!empty($generated_code) and $generated_code != $db_data['code'])
+                or $name != $db_data['name'] or $desc != $db_data['description'] or $validity_type != $db_data['validity_type']
                 or $pv_date_start != $db_data['pv_date_start'] or $pv_date_end != $db_data['pv_date_end']
                 or $use_type != $db_data['use_type'] or $ua_number != $db_data['ua_number'])
             {
-                $res_up = $this->Course_model->updateCoachPromocode($this->user_id, $promocode_id, $pc_type, $name, $desc, $discount, $discount_type,
-                    $rel_percent, $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $generated_code,
-                    $crs_categories, $this->date);
+                $res_up = $this->Course_model->updateCoachPromocode($this->user_id, $promocode_id, $use_category, $pc_type,
+                    $name, $desc, $discount, $discount_type, $rel_percent, $validity_type, $pv_date_start, $pv_date_end,
+                    $use_type, $ua_number, $user_use_type, $user_ua_number, $generated_code, $crs_categories, $this->date);
 
                 if ($res_up === true)
                 {
@@ -1358,7 +1381,7 @@ class Coach extends CI_Controller
         }
         elseif($this->input->post('bt_block_promocode', true))
         {
-            $up_data = $this->Course_model->blockPromocode($promocode_id, 1, 0, $this->user_id, $this->date);
+            $up_data = $this->Course_model->blockPromocode($promocode_id, $coach_promocode['promocode']['group_id'], 1, 0, $this->date, $this->user_id);
 
             if ($up_data === true)
             {
@@ -1374,7 +1397,7 @@ class Coach extends CI_Controller
         }
         elseif($this->input->post('bt_unblock_promocode', true))
         {
-            $up_data = $this->Course_model->blockPromocode($promocode_id, 0, 0, $this->user_id, $this->date);
+            $up_data = $this->Course_model->blockPromocode($promocode_id, $coach_promocode['promocode']['group_id'], 0, 0, $this->date, $this->user_id);
 
             if ($up_data === true)
             {

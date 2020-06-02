@@ -68,6 +68,10 @@ class Authorization extends CI_Controller
                     $this->session->set_tempdata('message', 2, 60);
                     header('Location: /registry');
                 }
+                elseif ($result == 'e3')
+                {
+                    $result['error'] = 'Ошибка! Аккаунт с указанным E-mail удален. Обратитесь в службу поддержки для восстановления аккаунта.';
+                }
                 elseif ($result == 'e8')
                 {
                     // Не все поля для регистрации были заполнены
@@ -131,6 +135,10 @@ class Authorization extends CI_Controller
         elseif ($reg_result == 'e2')
         {
             $result['error'] = 'Ошибка! Не удалось зарегестрировать E-mail.';
+        }
+        elseif ($reg_result == 'e3')
+        {
+            $result['error'] = 'Ошибка! Аккаунт с указанным E-mail удален. Обратитесь в службу поддержки для восстановления аккаунта.';
         }
         elseif ($reg_result == 'e8')
         {
@@ -412,6 +420,10 @@ class Authorization extends CI_Controller
             elseif($auth_result == 'error_password')
             {
                 $result['error'] = 'Ошибка! Неверный Email и/или пароль.';
+            }
+            elseif($auth_result == 'error_account_deleted')
+            {
+                $result['error'] = 'Ошибка! Аккаунт с указанным E-mail удален. Обратитесь в службу поддержки для восстановления аккаунта.';
             }
             elseif($auth_result == 'error_user')
             {

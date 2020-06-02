@@ -59,6 +59,8 @@ class Payment extends CI_Controller
         $payment_type   = (in_array($this->input->get('type', true), $methods) and $payment_option == 'full_payment')
             ? $this->input->get('type', true)
             : 'bank_card';
+        $missed_payment_id = (is_numeric($this->input->get('mpid', true))) ? $this->input->get('mpid', true) : null;
+        $order_payment = ($this->input->get('order', true) == 1) ? 1 : 0;
 
         // Данные для способа оплаты
         $phone        = is_numeric($this->input->get('phone', true)) ? $this->input->post('phone', true) : '';
@@ -72,8 +74,8 @@ class Payment extends CI_Controller
 
         $return_url = $this->input->get('return_url', true);
 
-        /*log_message('debug', __METHOD__ . ' ' . __LINE__ . '. Response Payment data: '. $order_id . ' ' . $total_amount . ' '
-            . $payment_type . ' ' . $payment_option . ' ' . $method_phone . ' ' . $method_login);*/
+        //log_message('debug', __METHOD__ . ' ' . __LINE__ . '. Response Payment data: '. $order_id .' '. $total_amount .' '. $payment_type .' '. $payment_option);
+        //log_message('debug', __METHOD__ . ' ' . __LINE__ . '. Response Payment data: '. print_r($this->input->get(), true));
 
         //log_message('debug', 'Order items: ' . print_r($order_items, true));
 
@@ -92,8 +94,16 @@ class Payment extends CI_Controller
                     $created_at = $response->_createdAt->_date . $response->_createdAt->_timezone;
 
                     // Сохранение данных оплаты в БД
-                    $this->Payment_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount, self::CURRENCY,
-                        $created_at, $payment_option, $payment_type, $customer_email, $customer_name, $method_phone, $method_login, $this->date);
+                    if(empty($missed_payment_id))
+                    {
+                        $this->Payment_model->setNewOrderPayment($order_id, $response->_id, $response->_status, $total_amount, self::CURRENCY,
+                            $created_at, $payment_option, $payment_type, $customer_email, $customer_name, $method_phone, $method_login, $this->date);
+                    }
+                    else
+                    {
+                        $this->Payment_model->updateOrderPayment($order_id, $missed_payment_id, $response->_id, $response->_status, $total_amount, self::CURRENCY,
+                            $created_at, $payment_option, $payment_type, $customer_email, $customer_name, $method_phone, $method_login, $this->date);
+                    }
 
                     // Перенаправление пользователя на страницу оплаты
                     header('Location: ' . $response->_confirmation->confirmation_url);
@@ -358,7 +368,7 @@ class Payment extends CI_Controller
         $client = new Client();
         $client->setAuth(self::SHOPID, self::SHOP_SECRET);
 
-        $order_price = ($order_items['price'] > 0) ? $order_items['price'] : $order_items['rec_first_price'];
+        $order_price = ($payment_option == 'partial_payment') ? $order_items['rec_first_price'] : $order_items['price'];
 
         try {
             $result['response'] = $client->createPayment(

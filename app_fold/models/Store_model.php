@@ -2696,129 +2696,205 @@ class Store_model extends CI_Model
             // Сохранение товаров заказа
             if (!empty($order_id) and !empty($products['products']))
             {
-                foreach ($products['products'] as $product)
-                {
-                    $full_price      = (string) $product['price'];
-                    $fc_price        = (string) $product['fc_price'];
-                    $rec_first_price = (string) $product['rec_first_price'];
-                    $rec_months      = (string) $product['rec_months'];
-                    $rec_subsequent  = (string) $product['rec_subsequent'];
-
-                    $pcu_id = '';
-
-                    // Добавление промокода как использованный
-                    if(!empty($product['promo_id']) and !empty($product['promo_code']))
-                    {
-                        $ins_data = $this->db->query('
-                            INSERT INTO `promocodes_used` (`pcu_pc_id`, `pcu_code`, `pcu_discount`, `pcu_discount_type`, `pcu_o_id`, `pcu_p_id`, `pcu_u_id`, `pcu_date`)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                                array($product['promo_id'], $product['promo_code'], $product['promo_discount'], $product['promo_discount_type'], $order_id, $product['id'], $user_id, $date));
-                        if($ins_data !== false and 1 == $this->db->affected_rows())
-                        {
-                            $pcu_id = $this->db->insert_id();
-                        }
-                        elseif ($ins_data === false)
-                        {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
-                        }
-                    }
-
-                    // Сохранение товара в таблице Заказов
-                    $in_data = $this->db->query('
-                        INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, 
-                            `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, 
-                            `ouc_p_fitcoin_price`, `ouc_promocode_id`) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                            array($order_id, $user_id, $product['id'], $product['cart_quantity'], $full_price, $rec_months,
-                                $rec_first_price, $rec_subsequent, $fc_price, $pcu_id));
-                    if ($in_data !== false and 1 == $this->db->affected_rows())
-                    {
-                        $price = (!empty($full_price) and empty($rec_first_price)) ? $full_price : $rec_first_price;
-                        $result['total_amount'] += ($product['cart_quantity'] * $price);
-                        $residual = $product['quantity'] - $product['cart_quantity'];
-                        $quantity = ($residual > 0) ? $residual : 0;
-
-                        // Изменение общего кол-ва товара в ИМ
-                        $up_data = $this->db->query('UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1', array($quantity, $product['id']));
-                        if ($up_data === false)
-                        {
-                            parent::logDbMessages(__METHOD__.':'.__LINE__);
-                        }
-
-                        // Удаление товаров из корзины пользователя
-                        if (!empty($product['c_id']))
-                        {
-                            $up_data = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $product['c_id']);
-                            if ($up_data === false)
-                            {
-                                parent::logDbMessages(__METHOD__.':'.__LINE__);
-                            }
-                        }
-
-                        // Добавление прикрепленных товаров
-                        if (!empty($product['attached']))
-                        {
-                            $product_id = $this->db->insert_id();
-
-                            foreach ($product['attached'] as $attached)
-                            {
-                                $at_full_price = !empty($attached['discount_price']) ? (string) $attached['discount_price'] : (string) $attached['price'];
-                                $at_fc_price = !empty($attached['discount_fc_price']) ? (string) $attached['discount_fc_price'] : (string) $attached['fc_price'];
-                                $at_rec_first_price = (string) $attached['rec_first_price'];
-                                $at_rec_months      = (string) $attached['rec_months'];
-                                $at_rec_subsequent  = (string) $attached['rec_subsequent'];
-
-                                $in_data2 = $this->db->query('
-                                    INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, 
-                                        `ouc_p_quantity`, `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, 
-                                        `ouc_p_recurrent_subsequent`, `ouc_p_fitcoin_price`) 
-                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                                        array($order_id, $user_id, $attached['id'], $product_id, $attached['cart_quantity'], $at_full_price, $at_rec_months,
-                                            $at_rec_first_price, $at_rec_subsequent, $at_fc_price));
-
-                                if ($in_data2 !== false and 1 == $this->db->affected_rows())
-                                {
-                                    $at_price = (!empty($at_full_price) and empty($at_rec_first_price)) ? $at_full_price : $at_rec_first_price;
-                                    $result['total_amount'] += ($attached['cart_quantity'] * $at_price);
-                                    $residual = $attached['quantity'] - $attached['cart_quantity'];
-                                    $quantity = ($residual > 0) ? $residual : 0;
-
-                                    // Изменение общего кол-ва товара в ИМ
-                                    $up_data2 = $this->db->query('
-                                        UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
-                                            array($quantity, $attached['id']));
-                                    if ($up_data2 === false)
-                                    {
-                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                                    }
-
-                                    // Удаление товаров из корзины пользователя
-                                    $up_data2 = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $attached['c_id']);
-                                    if ($up_data2 === false)
-                                    {
-                                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                                    }
-                                }
-                                elseif ($in_data2 === false)
-                                {
-                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
-                                }
-
-                            }
-                            unset($attached);
-                        }
-                    }
-                    elseif ($in_data === false)
-                    {
-                        parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
-                }
-                unset($product);
+                $res_prod = self::setOrderProducts($order_id, $user_id, $products, $date);
+                $result['total_amount'] = $res_prod['total_amount'];
             }
         }
         elseif ($in_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление заказа
+     *
+     * @param $order_id
+     * @param int $user_id
+     * @param string|int $prev_address
+     * @param string $name
+     * @param string $surname
+     * @param string $email
+     * @param string $code
+     * @param string $phone
+     * @param int $delivery
+     * @param array $products
+     * @param string $payment_status
+     * @param string $payment_option
+     * @param int $total_amount
+     * @param string $date
+     * @return bool
+     */
+    public function updateUserOrder($order_id, $user_id, $prev_address = '', $name = '', $surname = '', $email = '', $code = '', $phone = '',
+                             $delivery = 0, $products = array(), $payment_status = 'not_paid', $payment_option = 'full_payment', $total_amount = 0, $date = '')
+    {
+        $result     = false;
+        $address_id = !empty($prev_address) ? $prev_address : 0;
+
+        // Создание заказа
+        $up_data = $this->db->query('
+            UPDATE `orders` 
+            SET `o_user_name`=?, `o_user_surname`=?, `o_user_email`=?, `o_user_country_code`=?, `o_user_phone`=?, `o_oud_id`=?, `o_delivery`=?, 
+                `o_payment_status`=?, `o_payment_options`=?, `o_total_amount`=?, `o_date_add`=?
+            WHERE `o_id`=? LIMIT 1',
+                array($name, $surname, $email, $code, $phone, $address_id, $delivery, $payment_status, $payment_option, $total_amount, $date, $order_id));
+        if ($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            // Сохранение товаров заказа
+            if (!empty($order_id) and !empty($products['products']))
+            {
+                $this->db->query('DELETE FROM `orders_users_cart` WHERE `ouc_o_id`=?', $order_id);
+                $this->db->query('DELETE FROM `promocodes_used` WHERE `pcu_o_id`=?', $order_id);
+
+                $result = self::setOrderProducts($order_id, $user_id, $products, $date);
+            }
+        }
+        elseif ($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение товаров заказа
+     *
+     * @param $order_id
+     * @param $user_id
+     * @param $products
+     * @param $date
+     * @return array
+     */
+    public function setOrderProducts($order_id, $user_id, $products, $date)
+    {
+        $result = array('total_amount' => 0);
+
+        // Сохранение товаров заказа
+        if (!empty($order_id) and !empty($products['products']))
+        {
+            foreach ($products['products'] as $product)
+            {
+                $full_price      = (string) $product['price'];
+                $fc_price        = (string) $product['fc_price'];
+                $rec_first_price = (string) $product['rec_first_price'];
+                $rec_months      = (string) $product['rec_months'];
+                $rec_subsequent  = (string) $product['rec_subsequent'];
+
+                $pcu_id = '';
+
+                // Добавление промокода как использованный
+                if(!empty($product['promo_id']) and !empty($product['promo_code']))
+                {
+                    $promocode_used = ($product['promo_discount_type'] == 'free_week' or ($product['promo_discount'] == 100 and $product['promo_discount_type'] == 'percent')) ? 1 : 0;
+
+                    $ins_data = $this->db->query('
+                        INSERT INTO `promocodes_used` (`pcu_pc_id`, `pcu_code`, `pcu_discount`, `pcu_discount_type`, `pcu_o_id`, `pcu_p_id`, `pcu_u_id`, `pcu_used`, `pcu_date`)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                            array($product['promo_id'], $product['promo_code'], $product['promo_discount'], $product['promo_discount_type'], $order_id, $product['id'], $user_id, $promocode_used, $date));
+                    if($ins_data !== false and 1 == $this->db->affected_rows())
+                    {
+                        $pcu_id = $this->db->insert_id();
+                    }
+                    elseif ($ins_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+                }
+
+                // Сохранение товара в таблице Заказов
+                $in_data = $this->db->query('
+                    INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, 
+                        `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, 
+                        `ouc_p_fitcoin_price`, `ouc_promocode_id`) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        array($order_id, $user_id, $product['id'], $product['cart_quantity'], $full_price, $rec_months,
+                            $rec_first_price, $rec_subsequent, $fc_price, $pcu_id));
+                if ($in_data !== false and 1 == $this->db->affected_rows())
+                {
+                    $price = (!empty($full_price) and empty($rec_first_price)) ? $full_price : $rec_first_price;
+                    $result['total_amount'] += ($product['cart_quantity'] * $price);
+                    $residual = $product['quantity'] - $product['cart_quantity'];
+                    $quantity = ($residual > 0) ? $residual : 0;
+
+                    // Изменение общего кол-ва товара в ИМ
+                    $up_data = $this->db->query('UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1', array($quantity, $product['id']));
+                    if ($up_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                    }
+
+                    // Удаление товаров из корзины пользователя
+                    if (!empty($product['c_id']))
+                    {
+                        $up_data = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $product['c_id']);
+                        if ($up_data === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
+                    }
+
+                    // Добавление прикрепленных товаров
+                    if (!empty($product['attached']))
+                    {
+                        $product_id = $this->db->insert_id();
+
+                        foreach ($product['attached'] as $attached)
+                        {
+                            $at_full_price = !empty($attached['discount_price']) ? (string) $attached['discount_price'] : (string) $attached['price'];
+                            $at_fc_price = !empty($attached['discount_fc_price']) ? (string) $attached['discount_fc_price'] : (string) $attached['fc_price'];
+                            $at_rec_first_price = (string) $attached['rec_first_price'];
+                            $at_rec_months      = (string) $attached['rec_months'];
+                            $at_rec_subsequent  = (string) $attached['rec_subsequent'];
+
+                            $in_data2 = $this->db->query('
+                                    INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, 
+                                        `ouc_p_quantity`, `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, 
+                                        `ouc_p_recurrent_subsequent`, `ouc_p_fitcoin_price`) 
+                                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                                array($order_id, $user_id, $attached['id'], $product_id, $attached['cart_quantity'], $at_full_price, $at_rec_months,
+                                    $at_rec_first_price, $at_rec_subsequent, $at_fc_price));
+
+                            if ($in_data2 !== false and 1 == $this->db->affected_rows())
+                            {
+                                $at_price = (!empty($at_full_price) and empty($at_rec_first_price)) ? $at_full_price : $at_rec_first_price;
+                                $result['total_amount'] += ($attached['cart_quantity'] * $at_price);
+                                $residual = $attached['quantity'] - $attached['cart_quantity'];
+                                $quantity = ($residual > 0) ? $residual : 0;
+
+                                // Изменение общего кол-ва товара в ИМ
+                                $up_data2 = $this->db->query('
+                                        UPDATE `products` SET `p_quantity`= ? WHERE `p_id`=? LIMIT 1',
+                                    array($quantity, $attached['id']));
+                                if ($up_data2 === false)
+                                {
+                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                }
+
+                                // Удаление товаров из корзины пользователя
+                                $up_data2 = $this->db->query('DELETE FROM `cart` WHERE `c_id`=? LIMIT 1', $attached['c_id']);
+                                if ($up_data2 === false)
+                                {
+                                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                                }
+                            }
+                            elseif ($in_data2 === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+
+                        }
+                        unset($attached);
+                    }
+                }
+                elseif ($in_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            unset($product);
         }
 
         return $result;
@@ -2935,11 +3011,12 @@ class Store_model extends CI_Model
     /**
      * Получение данных о заказе
      *
-     * @param $order_id
+     * @param int $order_id
+     * @param string $date
      * @return array
      * @throws Exception
      */
-    public function getOrder($order_id)
+    public function getOrder($order_id, $date = '')
     {
         $result = array();
 
@@ -2963,7 +3040,7 @@ class Store_model extends CI_Model
             unset($row);
 
             // Данные оплаты заказа
-            $payments = self::getOrderPayments($order_id);
+            $payments = self::getOrderPayments($order_id, $date);
             $payments['balance_amount'] = $result['order']['total_amount'] - $payments['succeeded_amount'];
             $result['order'] = array_merge($result['order'], $payments);
 
@@ -3254,13 +3331,15 @@ class Store_model extends CI_Model
             $result['order'] = self::parseOrderData($row);
             $result['order']['bought_course'] = 0;
             $payment_status = $row->o_payment_status;
+            $total_order_price = 0;
             $bought_course  = 0;
             unset($row);
 
             // Товары заказа. Общая стоимость
             $sel_cart = $this->db->query('
                 SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
-                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_first`, `ouc_promocode_id`, `pcu_discount_type`, `pcu_discount`, `pcu_code`,
+                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_promocode_id`, 
+                    `pcu_discount_type`, `pcu_discount`, `pcu_code`,
                     `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
                     `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`, 
                     `crs_name`, `crs_image`
@@ -3271,10 +3350,10 @@ class Store_model extends CI_Model
                 WHERE `ouc_o_id`=? and `ouc_u_id`=?', array($order_id, $user_id));
             if($sel_cart !== false and 0 < $sel_cart->num_rows())
             {
-                $total_order_price = 0;
                 $discount_percent = 0;
                 $discount_currency = 0;
                 $discount_free_weeks = 0;
+                $discount_type = '';
                 $promocodes = '';
                 $used_promocodes = array();
                 $i = 0;
@@ -3285,7 +3364,7 @@ class Store_model extends CI_Model
 
                     $full_price = (!empty($row->ouc_p_price) and $row->ouc_p_price > 0) ? $row->ouc_p_price : 0;
                     $rec_price  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first > 0) ? $row->ouc_p_recurrent_first : 0;
-                    $cart_product_price = (!empty($full_price) and empty($rec_price)) ? $full_price : $rec_price;
+                    $cart_product_price = $full_price;
 
                     $total_order_price += $cart_product_price*$row->ouc_p_quantity;
 
@@ -3301,6 +3380,8 @@ class Store_model extends CI_Model
                     {
                         $discount_free_weeks += $row->pcu_discount;
                     }
+
+                    $discount_type = $row->pcu_discount_type;
 
                     $promocodes .= (!empty($row->pcu_code)) ? ' '.$row->pcu_code : '';
 
@@ -3324,10 +3405,11 @@ class Store_model extends CI_Model
 
                 $total_order_discount = $discount_percent . $discount_currency . $discount_free_weeks;
 
-                $result['order']['price']     = $total_order_price;
-                $result['order']['promocode'] = $promocodes;
-                $result['order']['discount']  = $total_order_discount;
-                $result['used_promocodes']    = $used_promocodes;
+                $result['order']['price']         = $total_order_price;
+                $result['order']['promocode']     = $promocodes;
+                $result['order']['discount']      = $total_order_discount;
+                $result['order']['discount_type'] = $discount_type;
+                $result['used_promocodes']        = $used_promocodes;
             }
             elseif ($sel_cart === false)
             {
@@ -3353,7 +3435,116 @@ class Store_model extends CI_Model
 
             // Данные оплаты заказа
             $payments = self::getOrderPayments($order_id);
-            $payments['balance_amount'] = $result['order']['total_amount'] - $payments['succeeded_amount'];
+            $payments['balance_amount'] = ($payments['succeeded_amount'] > 0 or $result['order']['discount_type'] == 'free_week') ? ($total_order_price - $payments['succeeded_amount']) : 0;
+            $result['order'] = array_merge($result['order'], $payments);
+        }
+        elseif ($sel_order === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Данные заказа курса пользователя
+     *
+     * @param $user_id
+     * @param $order_id
+     * @param $course_id
+     * @return array
+     * @throws Exception
+     */
+    public function getUserCourseOrder($user_id, $order_id, $course_id)
+    {
+        $result = array();
+
+        $sel_order = $this->db->query('
+            SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
+                `o_delivery`, `o_payment_options`, `o_payment_status`, `o_total_amount`, `o_date_add`
+            FROM `orders` WHERE `o_u_id`=? and `o_id`=? LIMIT 1', array($user_id, $order_id));
+
+        if ($sel_order !== false and 1 == $sel_order->num_rows())
+        {
+            $row = $sel_order->row();
+            $order_payment_options = $row->o_payment_options;
+            $result['order'] = self::parseOrderData($row);
+            $result['order']['bought_course'] = 0;
+            $payment_status = $row->o_payment_status;
+            $total_order_price = 0;
+            $bought_course  = 0;
+            unset($row);
+
+            // Товары заказа. Общая стоимость
+            $sel_cart = $this->db->query('
+                SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
+                    `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, `ouc_promocode_id`, 
+                    `pcu_discount_type`, `pcu_discount`, `pcu_code`,
+                    `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
+                    `p_price`, `p_quantity`, `p_discount`, `p_discount_type`, `p_union_flag`, `p_blocked`, 
+                    `crs_name`, `crs_image`
+                FROM `orders_users_cart`
+                LEFT JOIN `products` ON `p_id`=`ouc_p_id`
+                LEFT JOIN `courses` ON `crs_id`=`p_course_id`
+                LEFT JOIN `promocodes_used` ON `pcu_id`=`ouc_promocode_id`
+                WHERE `ouc_o_id`=? and `ouc_u_id`=? and `p_course_id`=? LIMIT 1', array($order_id, $user_id, $course_id));
+            if($sel_cart !== false and 1 == $sel_cart->num_rows())
+            {
+                $row = $sel_cart->row();
+
+                $result['order']['product'] = self::parseOrderProductData($row);
+                $bought_course = (($payment_status == 'free' or $payment_status == 'succeeded') and $bought_course == 0) ? $row->p_course_id : $bought_course;
+
+                $full_price = (!empty($row->ouc_p_price) and $row->ouc_p_price > 0) ? $row->ouc_p_price : 0;
+                $rec_price  = (!empty($row->ouc_p_recurrent_first) and $row->ouc_p_recurrent_first > 0) ? $row->ouc_p_recurrent_first : 0;
+                $cart_product_price = $full_price;
+
+                $total_order_price = $cart_product_price*$row->ouc_p_quantity;
+
+                $discount_percent = ($row->pcu_discount_type == 'percent') ? $row->pcu_discount : 0;
+                $discount_currency = ($row->pcu_discount_type == 'currency') ? $row->pcu_discount : 0;
+                $discount_free_weeks = ($row->pcu_discount_type == 'free_week') ? $row->pcu_discount : 0;
+
+                $discount_type = $row->pcu_discount_type;
+
+                $promocodes = (!empty($row->pcu_code)) ? $row->pcu_code : '';
+
+                $discount_percent    = ($discount_percent > 0) ? $discount_percent.'%' : '';
+                $discount_currency   = ($discount_currency > 0) ? $discount_currency.' руб.' : '';
+                $discount_free_weeks = ($discount_free_weeks > 0) ? $discount_free_weeks.' беспл. нед.' : '';
+
+                $total_order_discount = $discount_percent . $discount_currency . $discount_free_weeks;
+
+                $result['order']['price']         = $total_order_price;
+                $result['order']['promocode']     = $promocodes;
+                $result['order']['discount']      = $total_order_discount;
+                $result['order']['discount_type'] = $discount_type;
+            }
+            elseif ($sel_cart === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            if($bought_course > 0)
+            {
+                $sel_uc = $this->db->query('SELECT `uc_id` FROM `users_courses` 
+                    WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_course_id`=? LIMIT 1',
+                    array($user_id, $order_id, $bought_course));
+                if ($sel_uc !== false and 1 == $sel_uc->num_rows())
+                {
+                    $row = $sel_uc->row();
+                    $uc_id = $row->uc_id;
+                    $result['order']['bought_course'] = $uc_id;
+                }
+                elseif ($sel_uc === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+
+            // Данные оплаты заказа
+            $payments = self::getOrderPayments($order_id);
+            $payments['balance_amount'] = ($payments['succeeded_amount'] > 0 or $result['order']['discount_type'] == 'free_week') ? ($total_order_price - $payments['succeeded_amount']) : 0;
             $result['order'] = array_merge($result['order'], $payments);
         }
         elseif ($sel_order === false)
@@ -3787,13 +3978,20 @@ class Store_model extends CI_Model
     /**
      * Получение данных о платежах заказа из БД
      *
-     * @param $order_id
+     * @param int $order_id
+     * @param string $date
      * @return array
      * @throws Exception
      */
-    public function getOrderPayments($order_id)
+    public function getOrderPayments($order_id, $date = '')
     {
         $result = array('payments' => array());
+
+        if(!empty($date))
+        {
+            $tmp_date = new DateTime($date);
+            $date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : $date;
+        }
 
         $sel_payments = $this->db->query('
             SELECT `op_id`, `op_o_id`, `op_number`, `op_payment_id`, `op_payment_type`, `op_status`, `op_paid`, `op_created_at`, 
@@ -3832,6 +4030,28 @@ class Store_model extends CI_Model
                 // Данные возвратов
                 $refunds = self::getPaymentRefunds($row->op_payment_id);
                 $result['payments'][$i] = array_merge($result['payments'][$i], $refunds);
+
+                // Предстоящий платеж
+                if($row->op_status == '' and (empty($result['upcoming_payment']) or ($result['upcoming_payment']['number'] > $row->op_number
+                        and ((!empty($date) and $row->op_following_date > $date) or $result['upcoming_payment']['date'] > $row->op_following_date))))
+                {
+                    $result['upcoming_payment']['id']       = $row->op_id;
+                    $result['upcoming_payment']['number']   = $row->op_number;
+                    $result['upcoming_payment']['date']     = $row->op_following_date;
+                    $result['upcoming_payment']['amount']   = $row->op_amount;
+                    $result['upcoming_payment']['currency'] = $row->op_currency;
+                }
+
+                // Пропущенный платеж
+                if(!empty($row->op_status) and $row->op_status != 'succeeded' and $row->op_following_date != '0000-00-00' and (empty($result['missed_payment']) or ($result['missed_payment']['number'] < $row->op_number
+                        and ((!empty($date) and $row->op_following_date < $date) or $result['missed_payment']['date'] < $row->op_following_date))))
+                {
+                    $result['missed_payment']['id']       = $row->op_id;
+                    $result['missed_payment']['number']   = $row->op_number;
+                    $result['missed_payment']['date']     = $row->op_following_date;
+                    $result['missed_payment']['amount']   = $row->op_amount;
+                    $result['missed_payment']['currency'] = $row->op_currency;
+                }
 
                 $i++;
             }

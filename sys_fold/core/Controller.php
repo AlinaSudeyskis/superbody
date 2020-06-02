@@ -1494,7 +1494,9 @@ class CI_Controller {
         $promocode    = array();
         $promocode_discount      = '';
         $promocode_discount_type = '';
-        $free_weeks = 0;
+        $free_weeks = 0;  // Кол-во бесплатных недель
+        $order_payment = false; // Флаг оплаты сущействующего заказа
+        $missed_payment_id = 0; // ID прорущенного платежа
 
         // Проверка данных пользователя
         $i_email   = (filter_var($i_email, FILTER_VALIDATE_EMAIL)) ? $i_email : null;
@@ -1515,6 +1517,7 @@ class CI_Controller {
             $email = $i_email;
             $name  = $i_name;
         }
+        //log_message('debug', 'UID ' . $user_id . ' OID ' . $order_id . ' CID ' . $course_id);
 
         // Если пользователь не авторизован, проверяем введенный им email (нет в БД - регистрация)
         /*if (empty($user_id) and !empty($email))
@@ -1522,9 +1525,9 @@ class CI_Controller {
             $user_id = self::checkEmail($email, $name);
         }*/
 
+        // Пользователь не авторизован
         if(empty($user_id) or empty($email) or empty($name))
         {
-            // Некорректный email
             $this->session->set_tempdata('message', 217, 60);
             header('Location: ' . $return_url . '?ref=1');
         }
@@ -1599,14 +1602,13 @@ class CI_Controller {
         }*/
 
         // Вариант оплаты (полный, разделить на месяцы)
-        $options = array('full_payment', 'partial_payment');
-        $payment_option = (in_array($s_payment_options, $options))
-            ? $s_payment_options
-            : 'full_payment';
+        $options = array('full_payment' => 'full_payment', 'partial_payment' => 'partial_payment', 'balance_payment' => 'full_payment', 'missed_payment' => 'partial_payment');
+        $payment_option = (array_key_exists($s_payment_options, $options)) ? $options[$s_payment_options] : 'full_payment';
+        $order_payment_option = (array_key_exists($s_payment_options, $options)) ? $s_payment_options : 'full_payment';
 
         // Способ оплаты
         $methods      = array('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank');
-        $payment_type = (in_array($s_payment_method, $methods) and $payment_option == 'full_payment')
+        $payment_type = (in_array($s_payment_method, $methods) and $payment_option != 'partial_payment')
             ? $s_payment_method
             : 'bank_card';
 
@@ -1618,75 +1620,31 @@ class CI_Controller {
         $login        = strip_tags($i_login);
         $method_login = (in_array($payment_type, $login_methods)) ? $login : '';
 
-        $full_course_price = '';
+        // Стоимость курса
+        $full_course_price = $course_data['db_price'];
         $rec_months = '';
         $rec_first_course_price = '';
         $rec_subseq_course_price = '';
 
-        // Стоимость курса в зависимости от варианта оплаты и доступности такой оплаты в настройка курса
-        if($payment_option == 'partial_payment' and $course_data['recurrent'] === true)
+        // Рекуррентная стоимость курса в зависимости отдоступности такой оплаты в настройка курса
+        if($course_data['recurrent'] === true)
         {
             $rec_months = $course_data['recur_months'];
             $rec_first_course_price = $course_data['db_recur_first'];
             $rec_subseq_course_price = $course_data['db_recur_subsequent'];
         }
-        else
-        {
-            $full_course_price = $course_data['db_price'];
-        }
 
-        // Расчет стоимости
-        // Введенный промокод
-        $i_promocode  = mb_substr(strip_tags($i_promocode), 0, 25);
+        // Перерасчет стоимости, с учетом скидки
+        $i_promocode  = mb_substr(strip_tags($i_promocode), 0, 25); // Введенный промокод
+        // Проверка введенного промокода
+        extract(self::recalculationOrderPrice($i_promocode, $course_id, $user_id, $order_id, $payment_option, $course_data['db_price'], $course_data['count_weeks'], $rec_months));
 
-        // Проверка промокода
-        if(!empty($i_promocode))
-        {
-            $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $this->date, $user_id);
-            if($promocode['discount'] !== false and !empty($promocode['id']))
-            {
-                $promocode_id = $promocode['id'];
-                $promocode_discount      = $promocode['discount'];
-                $promocode_discount_type = $promocode['discount_type'];
-
-                if($payment_option == 'full_payment')
-                {
-                    // Вычислеие цены со скидкой
-                    // Скидка - процент
-                    if($promocode_discount_type == 'percent')
-                    {
-                        $full_course_price = $course_data['db_price'] - ($course_data['db_price']*$promocode_discount/100);
-                    }
-                    // Скидка - сумма без процентного ограничения
-                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] == 0)
-                    {
-                        $new_price = $course_data['db_price'] - $promocode_discount;
-                        $full_course_price = ($new_price < 1) ? 1 : $new_price;
-                    }
-                    // Скидка - сумма с процентным ограничением
-                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] > 0)
-                    {
-                        $full_course_price  = $course_data['db_price'] - ($course_data['db_price']*$promocode['rel_percent']/100);
-                        $promocode_discount = $promocode['rel_percent'];
-                    }
-                    // Скидка - бесплатные недели
-                    elseif($promocode_discount_type == 'free_week' and $promocode_discount > 0 and $course_data['count_weeks'] >= $promocode_discount)
-                    {
-                        $free_weeks        = $promocode_discount;
-                        $week_price        = $course_data['db_price'] / $course_data['count_weeks'];
-                        $free_weeks_price  = $week_price * $free_weeks;
-                        $new_price         = $course_data['db_price'] - $free_weeks_price;
-                        $full_course_price = ($new_price < 1) ? 1 : $new_price;
-                    }
-                }
-            }
-        }
-
-        // Добавление товара в заказы пользователя
         $full_course_price = (!empty($full_course_price)) ? number_format($full_course_price, 2, '.', '') : '';
         $rec_first_course_price = (!empty($rec_first_course_price)) ? number_format($rec_first_course_price, 2, '.', '') : '';
+        $rec_subseq_course_price = (!empty($rec_subseq_course_price)) ? number_format($rec_subseq_course_price, 2, '.', '') : '';
 
-        $supposed_products['products'] = array( 0 => array(
+        // Добавление товара в заказы пользователя
+        $products['products'] = array( 0 => array(
             'id' => $course_data['p_id'],
             'name' => $course_data['name'],
             'cart_quantity' => 1,
@@ -1703,9 +1661,18 @@ class CI_Controller {
             'promo_discount_type' => $promocode_discount_type));
 
         // Amount
-        $order_total_amount   = $course_data['db_price'];
-        $payment_total_amount = (!empty($full_course_price) or $full_course_price === 0) ? $full_course_price : $rec_first_course_price;
+        $order_total_amount   = $full_course_price;
+        $payment_total_amount = ((!empty($full_course_price) and $payment_option != 'partial_payment') or $full_course_price === 0) ? $full_course_price : $rec_first_course_price;
 
+        /*log_message('debug', 'Full price: '. $full_course_price);
+        log_message('debug', 'First: '. $rec_first_course_price);
+        log_message('debug', 'Subsequent: '. $rec_subseq_course_price);
+        log_message('debug', 'Rec months: '. $rec_months);
+        log_message('debug', 'Order total amount: '. $order_total_amount);
+        log_message('debug', 'Payment total amount: '. $payment_total_amount);
+        log_message('debug', 'Products: '. print_r($products, true));*/
+
+        // Если курс питания, то сразу вычисляем дату начала и окончания курса
         if($course_data['category'] == 'nutrition')
         {
             $start_date = $this->date;
@@ -1725,23 +1692,69 @@ class CI_Controller {
 
         if(!empty($user_id))
         {
-            $res_check_uc = $this->Course_model->checkUserCourse($course_id, $user_id, $order_id, $this->date);
-            if($res_check_uc === true)
+            // Покупать могут все кроме тренера
+            if($user_type !== 2)
             {
-                //$res_check_order = $this->Store_model->checkUserOrder($user_id, $order_id, $supposed_products['products']);
-                if($user_type !== 2)
+                $uc_id = false;
+
+                // Был передан ID заказа. Проверка данных заказа, присвоение данных заказа платежу
+                if(is_numeric($order_id) and $order_id > 0)
                 {
-                    $uc_id = false;
-
-                    if(is_numeric($order_id))
+                    // Проверка корректности заказа
+                    $res_check_uc = $this->Course_model->checkUserOrder($user_id, $order_id, $course_id);
+                    if($res_check_uc['order'] === true and is_numeric($res_check_uc['uc_id']))
                     {
-                        $this->load->model('Store_model');
-                        $order = $this->Store_model->getOrder($order_id);
+                        $uc_id = $res_check_uc['uc_id']; // ID курса пользователя
 
+                        $this->load->model('Store_model');
+                        $order = $this->Store_model->getUserCourseOrder($user_id, $order_id, $course_id); // Данные заказа
+                        $order = $order['order'];
+
+                        // Присовение данных платежу. Обновление данных заказа
                         if(!empty($order))
                         {
-                            $order = $order['order'];
-                            if(!empty($order['products']))
+                            // Обновляем данные заказа, если не было еще платежей и курс еще не был активен
+                            if($res_check_uc['succeeded_payment'] === false and $res_check_uc['free_weeks'] === false and $order['payment_status_eng'] != 'not_paid')
+                            {
+                                $prev_address = '';
+                                $u_name = '';
+                                $u_surname = '';
+                                $code = '';
+                                $o_phone = '';
+                                $delivery = '';
+                                $payment_status = 'pending';
+
+                                //log_message('debug', 'Update order');
+
+                                $this->Store_model->updateUserOrder($order_id, $user_id, $prev_address, $u_name, $u_surname, $email,
+                                    $code, $o_phone, $delivery, $products, $payment_status, $payment_option, $order_total_amount, $this->date);
+                            }
+                            elseif(($order['payment_status_eng'] == 'not_paid' or ($order['payment_status_eng'] == 'canceled' and $res_check_uc['succeeded_payment'] === true)) and $order['balance_amount'] > 0)
+                            {
+                                // Проверка введенного промокода
+                                extract(self::recalculationOrderPrice($i_promocode, $course_id, $user_id, $order_id, $payment_option, $order['balance_amount'], $course_data['count_weeks'], $order['product']['rec_months']));
+
+                                $full_course_price = (!empty($full_course_price)) ? number_format($full_course_price, 2, '.', '') : '';
+
+                                $payment_total_amount = $full_course_price;
+
+                                $products['products'][0]['price'] = $full_course_price;
+                                $products['products'][0]['rec_first_price'] = $order['product']['rec_first'];
+                                $products['products'][0]['rec_subsequent'] = $order['product']['rec_subseq'];
+                                $products['products'][0]['rec_months'] = $rec_months;
+
+                                if($order_payment_option == 'missed_payment')
+                                {
+                                    $payment_total_amount = $order['missed_payment']['amount'];
+                                    $missed_payment_id = $order['missed_payment']['id'];
+
+                                    $products['products'][0]['rec_first_price'] = $order['missed_payment']['amount'];
+                                }
+
+                                $order_payment = true;
+                            }
+
+                            /*if(!empty($order['products']))
                             {
                                 $i = 0;
                                 foreach ($order['products'] as $product)
@@ -1776,121 +1789,128 @@ class CI_Controller {
                                     }
                                 }
                                 unset($product);
-                            }
+                            }*/
 
                             $res_order['order_id'] = $order_id;
-
-                            if($order['balance_amount'] > 0)
-                            {
-                                $payment_total_amount = $order['balance_amount'];
-                            }
                         }
                     }
-
-                    if(empty($order_id) or empty($products['products']))
+                    else
                     {
-                        $products = $supposed_products;
-
-                        $prev_address = '';
-                        $u_name = '';
-                        $u_surname = '';
-                        $code = '';
-                        $o_phone = '';
-                        $country = '';
-                        $city = '';
-                        $street = '';
-                        $building = '';
-                        $house = '';
-                        $postcode = '';
-                        $delivery = '';
-
-                        $this->load->model('Store_model');
-
-                        $payment_status = 'pending';
-
-                        $res_order = $this->Store_model->setOrder($user_id, $prev_address, $u_name, $u_surname, $email, $code, $o_phone,
-                            $country, $city, $street, $building, $house, $postcode, $delivery, $products, $payment_status, $payment_option, $order_total_amount, $this->date);
-
-                        if (!empty($res_order) and $res_order !== false and is_numeric($res_order['order_id']))
-                        {
-                            $uc_id = $this->Course_model->setNewUserCourse($res_order['order_id'], $course_id, $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
-                        }
+                        $this->session->set_tempdata('message', 207, 60);
+                        header('Location: ' . $return_url . '?ref=1');
                     }
+                }
+                // Проверка дубликатов активного курса и пользователя
+                else
+                {
+                    $res_check_duplicates = $this->Course_model->checkUserOrderCourseDuplicates($course_id, $user_id, $this->date);
+                    if($res_check_duplicates === true)
+                    {
+                        $this->session->set_tempdata('message', 207, 60);
+                        header('Location: ' . $return_url . '?ref=1');
+                    }
+                }
+
+                // Создание нового заказа
+                if(empty($order_id) and is_numeric($user_id) and !empty($email))
+                {
+                    $prev_address = '';
+                    $u_name = '';
+                    $u_surname = '';
+                    $code = '';
+                    $o_phone = '';
+                    $country = '';
+                    $city = '';
+                    $street = '';
+                    $building = '';
+                    $house = '';
+                    $postcode = '';
+                    $delivery = '';
+                    $payment_status = 'pending';
+
+                    $this->load->model('Store_model');
+
+                    $res_order = $this->Store_model->setOrder($user_id, $prev_address, $u_name, $u_surname, $email, $code, $o_phone,
+                        $country, $city, $street, $building, $house, $postcode, $delivery, $products, $payment_status, $payment_option, $order_total_amount, $this->date);
 
                     if (!empty($res_order) and $res_order !== false and is_numeric($res_order['order_id']))
                     {
-                        // Кол-во товаров в корзине
-                        self::updateSessionCart(0);
+                        $uc_id = $this->Course_model->setNewUserCourse($res_order['order_id'], $course_id, $user_id, $start_date, $end_date, $training_days, $user_coach, $free_weeks, $free_weeks_end_date, $this->date);
+                    }
+                }
 
-                        if($payment_total_amount >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
+                // Создание платежа, активация курса пользователя
+                if (!empty($res_order) and $res_order !== false and is_numeric($res_order['order_id']))
+                {
+                    // Кол-во товаров в корзине
+                    self::updateSessionCart(0);
+
+                    if($payment_total_amount >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
+                    {
+                        $payment_data = array(
+                            'oid' => $res_order['order_id'],
+                            'ucid' => $uc_id,
+                            'mpid' => $missed_payment_id,
+                            'order' => $order_payment,
+                            'amount' => $payment_total_amount,
+                            'type' => $payment_type,
+                            'option' => $payment_option,
+                            'phone' => $method_phone,
+                            'login' => $method_login,
+                            'customer_email' => $email,
+                            'customer_name' => $name,
+                            'order_items' => $products['products'][0],
+                            'return_url' => $return_url . '?ref=1'
+                        );
+                        //log_message('debug', 'Payment data: ' . print_r($payment_data, true));
+
+                        header('Location: /payment?' .http_build_query($payment_data));
+                    }
+                    elseif($payment_total_amount == 0 or (!empty($promocode) and $promocode_discount_type == 'free_week' and $promocode_discount > 0))
+                    {
+                        $free_weeks = ($promocode_discount_type == 'free_week') ? $promocode_discount : 0;
+                        $free_weeks_end_date = '';
+                        $payment_status = 'free';
+
+                        if(!empty($uc_id) and is_numeric($uc_id))
                         {
-                            $payment_data = array(
-                                'oid' => $res_order['order_id'],
-                                'ucid' => $uc_id,
-                                'amount' => $payment_total_amount,
-                                'type' => $payment_type,
-                                'option' => $payment_option,
-                                'phone' => $method_phone,
-                                'login' => $method_login,
-                                'customer_email' => $email,
-                                'customer_name' => $name,
-                                'order_items' => $products['products'][0],
-                                'return_url' => $return_url . '?ref=1'
-                            );
-
-                            header('Location: /payment?' .http_build_query($payment_data));
-                        }
-                        elseif($payment_total_amount == 0 or (!empty($promocode) and $promocode_discount_type == 'free_week' and $promocode_discount > 0))
-                        {
-                            $free_weeks = ($promocode_discount_type == 'free_week') ? $promocode_discount : 0;
-                            $free_weeks_end_date = '';
-                            $payment_status = 'free';
-
-                            if(!empty($uc_id) and is_numeric($uc_id))
+                            $this->Course_model->updateNewUserCourse($uc_id, $free_weeks, $free_weeks_end_date, $this->date);
+                            $this->Store_model->updateOrderStatus($res_order['order_id'], '', $payment_status);
+                            if($return_url == '/administration/user/'.$user_id.'/add_course')
                             {
-                                $this->Course_model->updateNewUserCourse($uc_id, $free_weeks, $free_weeks_end_date, $this->date);
-                                $this->Store_model->updateOrderStatus($res_order['order_id'], '', $payment_status);
-                                if($return_url == '/administration/user/'.$user_id.'/add_course')
-                                {
-                                    header('Location: '.$return_url);
+                                header('Location: '.$return_url);
 
-                                }
-                                else
-                                {
-                                    header('Location: /profile/course/'.$uc_id);
-                                }
                             }
                             else
                             {
-                                // Не сохранено
-                                $this->session->set_tempdata('message', 101, 60);
-                                header('Location: ' . $return_url . '?ref=1');
+                                header('Location: /profile/course/'.$uc_id);
                             }
                         }
                         else
                         {
-                            log_message('debug', __METHOD__.':'.__LINE__);
+                            // Не сохранено
+                            $this->session->set_tempdata('message', 101, 60);
                             header('Location: ' . $return_url . '?ref=1');
                         }
                     }
                     else
                     {
-                        // Не сохранено
-                        $this->session->set_tempdata('message', 101, 60);
+                        log_message('debug', __METHOD__.':'.__LINE__);
                         header('Location: ' . $return_url . '?ref=1');
                     }
                 }
                 else
                 {
-                    log_message('debug', __METHOD__.':'.__LINE__.' User is coach');
+                    // Не сохранено
+                    $this->session->set_tempdata('message', 101, 60);
                     header('Location: ' . $return_url . '?ref=1');
                 }
             }
             else
-            {
-                $this->session->set_tempdata('message', 207, 60);
-                header('Location: ' . $return_url . '?ref=1');
-            }
+                {
+                    log_message('debug', __METHOD__.':'.__LINE__.' User is coach');
+                    header('Location: ' . $return_url . '?ref=1');
+                }
         }
         else
         {
@@ -1898,6 +1918,84 @@ class CI_Controller {
             $this->session->set_tempdata('message', 5, 60);
             header('Location: ' . $return_url . '?ref=1');
         }
+    }
+
+    /**
+     * Вычисление стоимости курса с учетом промокода
+     *
+     * @param $i_promocode
+     * @param $course_id
+     * @param $user_id
+     * @param $order_id
+     * @param $payment_option
+     * @param $course_db_price
+     * @param $course_db_count_weeks
+     * @param $course_db_rec_months
+     * @return array
+     */
+    public function recalculationOrderPrice($i_promocode, $course_id, $user_id, $order_id, $payment_option, $course_db_price, $course_db_count_weeks, $course_db_rec_months)
+    {
+        $result = array();
+
+        if(!empty($i_promocode))
+        {
+            $promocode = $this->Course_model->getAvailableCoursePromocode($course_id, $i_promocode, $this->date, $user_id, $order_id);
+            //log_message('debug', 'Promocode: '. print_r($promocode, true));
+            if($promocode['discount'] !== false and !empty($promocode['id']))
+            {
+                $promocode_id = $promocode['id'];
+                $promocode_discount      = $promocode['discount'];
+                $promocode_discount_type = $promocode['discount_type'];
+
+                if($payment_option == 'full_payment')
+                {
+                    $full_course_price = $course_db_price;
+
+                    // Вычислеие цены со скидкой
+                    // Скидка - процент
+                    if($promocode_discount_type == 'percent')
+                    {
+                        $full_course_price = $course_db_price - ($course_db_price*$promocode_discount/100);
+                    }
+                    // Скидка - сумма без процентного ограничения
+                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] == 0)
+                    {
+                        $new_price = $course_db_price - $promocode_discount;
+                        $full_course_price = ($new_price < 1) ? 1 : $new_price;
+                    }
+                    // Скидка - сумма с процентным ограничением
+                    elseif($promocode_discount_type == 'currency' and $promocode['rel_percent'] > 0)
+                    {
+                        $full_course_price  = $course_db_price - ($course_db_price*$promocode['rel_percent']/100);
+                        $promocode_discount = $promocode['rel_percent'];
+                        $promocode_discount_type = 'percent';
+                    }
+                    // Скидка - бесплатные недели
+                    elseif($promocode_discount_type == 'free_week' and $promocode_discount > 0 and $course_db_count_weeks >= $promocode_discount)
+                    {
+                        $free_weeks  = $promocode_discount;
+                        $free_months = $free_weeks/4;
+
+                        $course_db_rec_months = (!empty($course_db_rec_months) and $free_months > 0) ? ceil($course_db_rec_months - $free_months) : $course_db_rec_months;
+
+                        $week_price        = $course_db_price / $course_db_count_weeks;
+                        $free_weeks_price  = $week_price * $free_weeks;
+                        $new_price         = $course_db_price - $free_weeks_price;
+                        $full_course_price = ($new_price < 1) ? 1 : $new_price;
+                    }
+
+                    $result = array(
+                        'full_course_price'       => $full_course_price,
+                        'promocode_id'            => $promocode_id,
+                        'promocode_discount'      => $promocode_discount,
+                        'promocode_discount_type' => $promocode_discount_type,
+                        'rec_months'              => $course_db_rec_months
+                    );
+                }
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -2057,7 +2155,8 @@ class CI_Controller {
      * @param $i_ua_number
      * @param $s_user_ua_type
      * @param $i_user_ua_number
-     * @param $i_promocode
+     * @param $i_promocodes
+     * @param $i_users
      * @param $r_crs_group
      * @param $s_crs_categories
      * @param $i_courses
@@ -2070,7 +2169,7 @@ class CI_Controller {
      */
     public function saveNewCoursePromocode($s_use_category, $i_code_name, $i_code_desc, $i_code_discount, $i_discount_type,
                                            $i_rel_percent, $s_pv_type, $i_validity_date_start, $i_validity_date_end, $s_ua_type,
-                                           $i_ua_number, $s_user_ua_type, $i_user_ua_number, $i_promocode, $r_crs_group,
+                                           $i_ua_number, $s_user_ua_type, $i_user_ua_number, $i_promocodes, $i_users, $r_crs_group,
                                            $s_crs_categories, $i_courses, $admin_id, $coach_id = 0)
     {
         $result = array('error' => false, 'promocode_id' => null);
@@ -2094,7 +2193,27 @@ class CI_Controller {
         $user_use_type  = ($s_user_ua_type == 'unlimited') ? 'unlimited' : 'number';
         $user_ua_number = (is_numeric($i_user_ua_number) and $user_use_type == 'number') ? $i_user_ua_number : '';
 
-        $promocode = strtoupper(mb_substr(strip_tags($i_promocode), 0, 25));
+        $promocodes = array();
+        $users      = array('insert' => array());
+
+        foreach($i_promocodes as $i_pc)
+        {
+            $i_pc = strtoupper(mb_substr(strip_tags($i_pc), 0, 25));
+            if(!empty($i_pc))
+            {
+                $promocodes[] = $i_pc;
+            }
+        }
+        unset($i_pc);
+
+        foreach($i_users as $i_user)
+        {
+            if(is_numeric($i_user))
+            {
+                $users['insert'][] = $i_user;
+            }
+        }
+        unset($i_user);
 
         $discount = ($discount_type == 'percent' and $discount > 100) ? 100 : $discount;
 
@@ -2145,11 +2264,11 @@ class CI_Controller {
             }
         }
 
-        if(!empty($discount) and !empty($promocode))
+        if(!empty($discount) and !empty($promocodes))
         {
             $res_ins = $this->Course_model->setNewPromocode($use_category, $pc_type, $name, $desc, $discount, $discount_type, $rel_percent,
                 $validity_type, $pv_date_start, $pv_date_end, $use_type, $ua_number, $user_use_type, $user_ua_number,
-                $promocode, $courses, $crs_categories, $coach_id, $admin_id, $this->date);
+                $promocodes, $users, $courses, $crs_categories, $coach_id, $admin_id, $this->date);
 
             if (is_numeric($res_ins))
             {

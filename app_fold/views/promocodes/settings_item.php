@@ -5,6 +5,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $coach_promocode = ($page_menu == 'c_promocodes') ? true : false;
 $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
 ?>
+<script type="text/javascript">
+    var pcs = <?php if(!empty($promocodes)): echo json_encode($promocodes); endif; ?>;
+</script>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Тип промокода:</div>
     <select name="s_use_category" class="journal_form_select">
@@ -20,8 +23,16 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
     <div class="kurs_block_h">Описание:</div>
     <input type="text" name="i_code_desc" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['description'])): echo $promocode['description']; endif; ?>" maxlength="255"/>
 </div>
+<div class="parent kurs_cur_wrap">
+    <div class="practice_block_h">Скидка</div>
+    <div class="h_subtitle" style="line-height: 15px;margin-top: 5px;"><b>ПРОЦЕНТ</b> - введите процент скидки, действующий в целом на курс.</div>
+    <div class="h_subtitle" style="line-height: 15px;margin-top: 1px;"><b>РУБ</b> - введите сумму скидки в рублях, действующую в целом на курс.*</div>
+    <div class="h_subtitle" style="line-height: 15px;margin-top: 1px;"><b>БЕСПЛАТНЫЕ НЕДЕЛИ</b> - введите количество бесплатных недель, которые будут доступны пользователю.</div>
+    <div class="h_subtitle" style="line-height: 15px;margin-top: 1px;"><b>* ОТНОСИТЕЛЬНЫЙ ПРОЦЕНТ</b> - введите процент скидки, ограничивающий скидку в рублях, т.е. скидка в рублях не может превышать указанный процент.</div>
+    <div class="h_subtitle" style="line-height: 15px;margin: 0 0 15px;"></div>
+</div>
 <div class="parent kurs_cur_wrap" id="pc-discount">
-    <div class="kurs_block_h">Скидка:</div>
+    <div class="kurs_block_h">Размер скидки:</div>
     <div class="kurs_block_two_all parent">
         <div class="anketa_form_two_wrap">
             <input type="text" name="i_code_discount" class="anketa_form_in" value="<?php if(!empty($promocode['discount'])): echo $promocode['discount']; endif; ?>"/>
@@ -30,7 +41,7 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
             <select name="s_discount_type" class="anketa_form_select <?php if($coach_promocode === true): echo 'disabled'; endif; ?>">
                 <option value="percent" <?php if(!empty($promocode['discount_type']) and $promocode['discount_type'] == 'percent'): ?>selected="selected"<?php endif; ?>>Процент</option>
                 <option value="currency" <?php if(!empty($promocode['discount_type']) and $promocode['discount_type'] == 'currency'): ?>selected="selected"<?php endif; ?>>Руб.</option>
-                <option value="free_week" <?php if(!empty($promocode['discount_type']) and $promocode['discount_type'] == 'free_week'): ?>selected="selected"<?php endif; ?>>Бесплатная неделя</option>
+                <option value="free_week" <?php if(!empty($promocode['discount_type']) and $promocode['discount_type'] == 'free_week'): ?>selected="selected"<?php endif; ?>>Бесплатные недели</option>
             </select>
         </div>
     </div>
@@ -48,13 +59,42 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
     <input type="number" name="i_relative_percent" step="1" min="1" max="100" class="anketa_form_in anketa_form_in_long" value="<?php echo $relative_percent; ?>"/>
 </div>
 <?php if(empty($disabled)):?>
-    <div class="parent kurs_cur_wrap">
+    <?php if($coach_promocode === false):?>
+        <div class="parent kurs_cur_wrap">
+            <div class="practice_block_h">Промокод</div>
+        </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Кол-во промокодов:</div>
+            <select name="s_pc_group_type" class="journal_form_select" id="s-pc-group-type">
+                <option value="one" <?php if($promocode['group_id'] == 0): ?>selected="selected"<?php endif; ?>>Один промокод</option>
+                <option value="several" <?php if($promocode['group_id'] > 0): ?>selected="selected"<?php endif; ?>>Группа промокодов</option>
+            </select>
+        </div>
+    <?php endif; ?>
+    <div class="parent kurs_cur_wrap" id="i-one-pc" <?php if(!empty($promocode['group_id']) and $promocode['group_id'] > 0): ?>style="display: none;"<?php endif; ?>>
         <div class="kurs_block_h">Промокод:</div>
-        <input type="text" name="i_promocode" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['code'])): echo $promocode['code']; endif; ?>" maxlength="25" id="generated-code"/>
-        <input type="button" value="Сгенерировать" class="full_photo_comm_reset" id="generate-code"/>
+        <div class="pc_generate_code">
+            <input type="text" name="i_promocodes[<?php echo $promocode['id']; ?>]" class="anketa_form_in anketa_form_in_long width_160" value="<?php if(!empty($promocode['code']) and empty($promocode['group_promocodes'])): echo $promocode['code']; endif; ?>" maxlength="25" id="generated-code"/>
+            <input type="button" value="Сгенерировать" class="full_photo_comm_reset generate_code"/>
+        </div>
+    </div>
+    <div class="parent kurs_cur_wrap" id="i-several-pc" <?php if(!empty($promocode['group_id']) and $promocode['group_id'] > 0): ?>style="display: block;"<?php endif; ?>>
+        <div class="kurs_block_h">Введите кол-во:</div>
+        <div class="pc_generate_code">
+            <input type="text" name="i_pc_count" class="anketa_form_in anketa_form_in_long width_160" value="" maxlength="3" id="generate-count-codes"/>
+            <input type="button" value="Сгенерировать" class="full_photo_comm_reset generate_code"/>
+        </div>
+    </div>
+    <div class="parent kurs_cur_wrap" id="i-generated-codes" <?php if(!empty($promocode['group_id']) and $promocode['group_id'] > 0 and !empty($promocode['group_promocodes'])): ?>style="display: block;"<?php endif; ?>>
+        <?php if(!empty($promocode['group_promocodes'])): ?>
+            <?php foreach ($promocode['group_promocodes'] as $key => $g_pc): ?>
+                <input type="text" name="i_promocodes[<?php echo $key; ?>]" class="anketa_form_in anketa_form_in_long" value="<?php echo $g_pc; ?>" maxlength="25">
+            <?php endforeach;
+            unset($g_pc); ?>
+        <?php endif; ?>
     </div>
 <?php endif;?>
-<div class="parent kurs_cur_wrap"><div class="practice_block_h"></div></div>
+<div class="parent kurs_cur_wrap"><div class="practice_block_h">Период возможности использования промокода</div></div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Период действия:</div>
     <select name="s_pv_type" class="journal_form_select <?php echo $disabled; ?>" id="s-pv-type">
@@ -64,17 +104,17 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
 </div>
 <div id="bl-pv" <?php if($promocode['validity_type'] == 'date_range'): ?>style="display: block;"<?php endif;?>>
     <div class="parent kurs_cur_wrap">
-        <div class="kurs_block_h" style="text-align: right;">с:</div>
+        <div class="kurs_block_h text_right">с:</div>
         <input type="date" name="i_validity_date_start" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['pv_date_start'])): echo $promocode['pv_date_start']; endif; ?>"/>
     </div>
     <div class="parent kurs_cur_wrap">
-        <div class="kurs_block_h" style="text-align: right;">до:</div>
+        <div class="kurs_block_h text_right">до:</div>
         <input type="date" name="i_validity_date_end" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['pv_date_end'])): echo $promocode['pv_date_end']; endif; ?>"/>
     </div>
 </div>
-<div class="parent kurs_cur_wrap"><div class="practice_block_h"></div></div>
 <div class="parent kurs_cur_wrap">
-    <div class="practice_block_h">Общее число использований</div>
+    <div class="practice_block_h"></div>
+    <div class="practice_block_h">Общее число использований промокода</div>
 </div>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Кол-во использований:</div>
@@ -87,10 +127,35 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
     <div class="kurs_block_h">Число использований:</div>
     <input type="number" name="i_ua_number" step="1" min="0" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['ua_number'])): echo $promocode['ua_number']; endif; ?>"/>
 </div>
-<div class="parent kurs_cur_wrap"><div class="practice_block_h"></div></div>
 <div class="parent kurs_cur_wrap">
-    <div class="practice_block_h">Число использований одним пользователем</div>
+    <div class="practice_block_h"></div>
+    <div class="practice_block_h">Число использований промокода одним пользователем</div>
 </div>
+<?php if($coach_promocode === false):?>
+    <div class="parent kurs_cur_wrap" id="attach-to-user-search">
+        <div class="kurs_block_h">Прикрепить к пользов.:</div>
+        <div class="add_tov_in_total anketa_form_in_long" style="float: left;">
+            <div class="add_tov_in pc_users">
+                <input type="text" name="user_id" class="anketa_form_in anketa_form_in_long <?php echo $page_menu; ?>" placeholder="Введите ID пользователя" autocomplete="off">
+                <div class="add_tov_list"></div>
+            </div>
+            <div class="add_tov_val">
+                <?php if(!empty($promocode['attached_users'])): ?>
+                    <?php foreach ($promocode['attached_users'] as $a_users):?>
+                        <div id="<?php echo $a_users['id']; ?>tov" class="add_tov_val_item pc_users parent">
+                            <input type="hidden" name="users[]" value="<?php echo $a_users['id']; ?>">
+                            <a href="/profile/<?php echo $a_users['id']; ?>" class="add_tov_val_cont parent">
+                                <span class="add_tov_val_h"><?php if(!empty($a_users['name'])): echo $a_users['name']; else: echo $a_users['email']; endif; ?></span>
+                            </a>
+                            <div class="del_tov"></div>
+                        </div>
+                    <?php endforeach;
+                    unset($course);?>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+<?php endif;?>
 <div class="parent kurs_cur_wrap">
     <div class="kurs_block_h">Кол-во использований:</div>
     <select name="s_user_ua_type" class="journal_form_select <?php echo $disabled; ?>" id="s-user-ua-type">
@@ -102,10 +167,10 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
     <div class="kurs_block_h">Число использований:</div>
     <input type="number" name="i_user_ua_number" step="1" min="1" class="anketa_form_in anketa_form_in_long" value="<?php if(!empty($promocode['user_ua_number'])): echo $promocode['user_ua_number']; endif; ?>"/>
 </div>
-<div class="parent kurs_cur_wrap"><div class="practice_block_h"></div></div>
 <?php if(empty($disabled)):?>
     <?php if(empty($extend_new_promocode) and $coach_promocode === false): ?>
         <div class="parent kurs_cur_wrap">
+            <div class="practice_block_h"></div>
             <div class="practice_block_h">Курсы</div>
         </div>
         <div class="parent kurs_cur_wrap">

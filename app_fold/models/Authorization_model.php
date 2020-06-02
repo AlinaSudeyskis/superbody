@@ -22,7 +22,7 @@ class Authorization_model extends CI_Model
     {
         $result = 'e2'; // Не удалось зарегестрировать E-mail
 
-        $sel_user = $this->db->query('SELECT `user_id` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
+        $sel_user = $this->db->query('SELECT `user_id`, `user_deleted` FROM `users` WHERE `user_email`=? LIMIT 1', $email);
         
         if ($sel_user !== false and $sel_user->num_rows() == 0)
         {
@@ -113,6 +113,12 @@ class Authorization_model extends CI_Model
         else
         {
             $result = 'e1'; // Пользователь с таким E-mail уже зарегистрирован.
+
+            $row = $sel_user->row();
+            if($row->user_deleted == 1)
+            {
+                $result = 'e3'; // Аккаунт удален.
+            }
         }
 
         return $result;
@@ -589,44 +595,51 @@ class Authorization_model extends CI_Model
     {
         $sel_user = $this->db->query('
             SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
-              `user_image`, `user_soc_image`, `user_activated` 
+              `user_image`, `user_soc_image`, `user_activated`, `user_deleted` 
             FROM `users` 
-            WHERE `user_email`=? and `user_deleted`=0 LIMIT 1', $email);
+            WHERE `user_email`=? LIMIT 1', $email);
 
         if ($sel_user !== false and 1 == $sel_user->num_rows())
         {
             $row = $sel_user->row();
-
-            // Сравнение введенного пароля и хэш пароля из БД
-            if (password_verify($password, $row->user_password))
+            if($row->user_deleted == 0)
             {
-                $this->db->query('
+
+                // Сравнение введенного пароля и хэш пароля из БД
+                if (password_verify($password, $row->user_password))
+                {
+                    $this->db->query('
                     UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_email`=? LIMIT 1',  array($date, $email));
 
-                $result['user_id']        = $row->user_id;
-                $result['user_name']      = $row->user_name;
-                $result['user_phone']     = $row->user_phone;
-                $result['user_email']     = $row->user_email;
-                $result['user_type']      = $row->user_type;
-                $result['user_blocked']   = $row->user_blocked;
-                $result['user_activated'] = $row->user_activated;
-                $result['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
-                $result['user_soc_image'] = '';
+                    $result['user_id']        = $row->user_id;
+                    $result['user_name']      = $row->user_name;
+                    $result['user_phone']     = $row->user_phone;
+                    $result['user_email']     = $row->user_email;
+                    $result['user_type']      = $row->user_type;
+                    $result['user_blocked']   = $row->user_blocked;
+                    $result['user_activated'] = $row->user_activated;
+                    $result['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+                    $result['user_soc_image'] = '';
 
-                if(!empty($row->user_soc_image))
-                {
-                    $Headers = @get_headers($row->user_soc_image);
-                    if(strpos($Headers[0], '200'))
+                    if(!empty($row->user_soc_image))
                     {
-                        $result['user_soc_image'] = $row->user_soc_image;
+                        $Headers = @get_headers($row->user_soc_image);
+                        if(strpos($Headers[0], '200'))
+                        {
+                            $result['user_soc_image'] = $row->user_soc_image;
+                        }
                     }
-                }
 
-                return $result;
+                    return $result;
+                }
+                else
+                {
+                    return 'error_password';
+                }
             }
             else
             {
-                return 'error_password';
+                return 'error_account_deleted';
             }
         }
         elseif($sel_user === false)
