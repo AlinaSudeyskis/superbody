@@ -594,8 +594,8 @@ class Authorization_model extends CI_Model
     public function userAuthorization($email, $password, $date)
     {
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
-              `user_image`, `user_soc_image`, `user_activated`, `user_deleted` 
+            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_country_code`, `user_phone`, `user_type`, 
+                   `user_blocked`, `user_image`, `user_soc_image`, `user_activated`, `user_deleted` 
             FROM `users` 
             WHERE `user_email`=? LIMIT 1', $email);
 
@@ -611,15 +611,16 @@ class Authorization_model extends CI_Model
                     $this->db->query('
                     UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_email`=? LIMIT 1',  array($date, $email));
 
-                    $result['user_id']        = $row->user_id;
-                    $result['user_name']      = $row->user_name;
-                    $result['user_phone']     = $row->user_phone;
-                    $result['user_email']     = $row->user_email;
-                    $result['user_type']      = $row->user_type;
-                    $result['user_blocked']   = $row->user_blocked;
-                    $result['user_activated'] = $row->user_activated;
-                    $result['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
-                    $result['user_soc_image'] = '';
+                    $result['user_id']           = $row->user_id;
+                    $result['user_name']         = $row->user_name;
+                    $result['user_country_code'] = $row->user_country_code;
+                    $result['user_phone']        = $row->user_phone;
+                    $result['user_email']        = $row->user_email;
+                    $result['user_type']         = $row->user_type;
+                    $result['user_blocked']      = $row->user_blocked;
+                    $result['user_activated']    = $row->user_activated;
+                    $result['user_image']        = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+                    $result['user_soc_image']    = '';
 
                     if(!empty($row->user_soc_image))
                     {

@@ -8231,7 +8231,7 @@ class Course extends CI_Controller
      */
     public function checkRevokedUsersCourses()
     {
-        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+        /*log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
         $result = $this->Course_model->checkUsersExpiringCourses($this->date);
         if(!empty($result))
         {
@@ -8256,7 +8256,7 @@ class Course extends CI_Controller
                 parent::sendEmail(11, $course['user_email'], $system_message);
             }
             unset($course);
-        }
+        }*/
     }
 
     /**

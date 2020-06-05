@@ -1076,12 +1076,7 @@ class User_model extends CI_Model
 
             $result['user_data']['user_bmi_txt'] = $bmi_txt;
 
-            $sel_anth_data = $this->db->query('
-                SELECT `user_weight` 
-                FROM `anthropometric` 
-                WHERE `user_id`=? 
-                ORDER BY `id` DESC
-                LIMIT 1', $user_id);
+            $sel_anth_data = $this->db->query('SELECT `user_weight` FROM `anthropometric` WHERE `user_id`=? ORDER BY `id` DESC LIMIT 1', $user_id);
 
             if ($sel_anth_data !== false and 1 == $sel_anth_data->num_rows())
             {

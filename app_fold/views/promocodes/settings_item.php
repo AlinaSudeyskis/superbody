@@ -74,7 +74,7 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
     <div class="parent kurs_cur_wrap" id="i-one-pc" <?php if(!empty($promocode['group_id']) and $promocode['group_id'] > 0): ?>style="display: none;"<?php endif; ?>>
         <div class="kurs_block_h">Промокод:</div>
         <div class="pc_generate_code">
-            <input type="text" name="i_promocodes[<?php echo $promocode['id']; ?>]" class="anketa_form_in anketa_form_in_long width_160" value="<?php if(!empty($promocode['code']) and empty($promocode['group_promocodes'])): echo $promocode['code']; endif; ?>" maxlength="25" id="generated-code"/>
+            <input type="text" name="i_promocodes[<?php echo $promocode['id']; ?>]" class="anketa_form_in anketa_form_in_long width_160 i_promocodes" value="<?php if(!empty($promocode['code']) and empty($promocode['group_promocodes'])): echo $promocode['code']; endif; ?>" maxlength="25" id="generated-code"/>
             <input type="button" value="Сгенерировать" class="full_photo_comm_reset generate_code"/>
         </div>
     </div>
@@ -88,10 +88,33 @@ $disabled = ((!empty($promocode) and $promocode['id'] == 1)) ? 'disabled' : '';
     <div class="parent kurs_cur_wrap" id="i-generated-codes" <?php if(!empty($promocode['group_id']) and $promocode['group_id'] > 0 and !empty($promocode['group_promocodes'])): ?>style="display: block;"<?php endif; ?>>
         <?php if(!empty($promocode['group_promocodes'])): ?>
             <?php foreach ($promocode['group_promocodes'] as $key => $g_pc): ?>
-                <input type="text" name="i_promocodes[<?php echo $key; ?>]" class="anketa_form_in anketa_form_in_long" value="<?php echo $g_pc; ?>" maxlength="25">
+                <input type="text" name="i_promocodes[<?php echo $key; ?>]" class="anketa_form_in anketa_form_in_long i_promocodes" value="<?php echo $g_pc; ?>" maxlength="25">
             <?php endforeach;
             unset($g_pc); ?>
         <?php endif; ?>
+    </div>
+    <div class="parent kurs_cur_wrap" style="width: 510px;">
+        <input type="button" name="bt_copy_promocodes" class="full_photo_comm_reset" value="Копировать" style="float: right; margin-right: 0;" onclick="copyPromocodes();">
+        <script>
+            function copyPromocodes() {
+                var i_pcs = $(".i_promocodes");
+                if(i_pcs.length > 0)
+                {
+                    var $tmp = $("<input>"), pcs = '';
+                    $("body").append($tmp);
+                    i_pcs.each(function(){
+                        pcs += $( this ).val() + ' ';
+                    });
+                    $tmp.val(pcs).select();
+                    document.execCommand("copy");
+                    $tmp.remove();
+                    $('input[name=bt_copy_promocodes]').val('Скопировано');
+                    setTimeout(function () {
+                        $('input[name=bt_copy_promocodes]').val('Копировать');
+                    }, 1500)
+                }
+            }
+        </script>
     </div>
 <?php endif;?>
 <div class="parent kurs_cur_wrap"><div class="practice_block_h">Период возможности использования промокода</div></div>

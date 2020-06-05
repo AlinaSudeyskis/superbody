@@ -2057,7 +2057,7 @@ $(document).ready(function() {
                     promo_block.next('.promo_block_info').remove();
                 }
             }
-    }
+        }
     );
 
     /**
@@ -2514,6 +2514,7 @@ $(document).ready(function() {
 
         Cookies.set('disclaimer', 'true', { expires: expire });
     });
+
 });
 
 

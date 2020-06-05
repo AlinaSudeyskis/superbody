@@ -461,11 +461,21 @@ class Authorization extends CI_Controller
                 parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'], $auth_result['user_activated'],
                     $auth_result['user_name'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
 
+                $user_data = $this->User_model->getQuestionnaireData($auth_result['user_id']);
+
                 $result['user_id']        = $auth_result['user_id'];
                 $result['user_email']     = $email;
                 $result['user_name']      = $auth_result['user_name'];
                 $result['user_image']     = $auth_result['user_image'];
                 $result['user_soc_image'] = $auth_result['user_soc_image'];
+                $result['user_phone']     = $auth_result['user_country_code'].$auth_result['user_phone'];
+
+                $result['user_gender']   = $user_data['user_data']['user_gender_eng'];
+                $result['user_birthday'] = $user_data['user_data']['user_birthday'];
+                $result['user_height']   = $user_data['user_data']['user_height'];
+                $result['user_weight']   = $user_data['user_data']['user_weight'];
+                $result['user_bmi']      = $user_data['user_data']['user_bmi'];
+                $result['user_bmr']      = $user_data['user_data']['user_bmr'];
             }
             elseif($auth_result == 'error_password')
             {

@@ -3583,8 +3583,8 @@ class Store_model extends CI_Model
                 if($up_data !== false and 1 == $this->db->affected_rows())
                 {
                     // Блокировка курсов
-                    $up_data2 = $this->db->query('UPDATE `orders` SET `o_payment_status`="revoke_permission" WHERE `o_id`=? LIMIT 1', $order_id);
-                    if($up_data2 === false)
+                    //$up_data2 = $this->db->query('UPDATE `orders` SET `o_payment_status`="revoke_permission" WHERE `o_id`=? LIMIT 1', $order_id);
+                    /*if($up_data2 === false)
                     {
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
@@ -3602,15 +3602,15 @@ class Store_model extends CI_Model
                     elseif($sel_fol_pay === false)
                     {
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
+                    }*/
 
                     // Блокировка курсов
-                    $up_data3 = $this->db->query('UPDATE `users_courses` SET `uc_blocked_date`=?, `uc_blocked_reason`="revoke_permission"
+                    /*$up_data3 = $this->db->query('UPDATE `users_courses` SET `uc_blocked_date`=?, `uc_blocked_reason`="revoke_permission"
                         WHERE `uc_o_id`=?', array($block_date, $order_id));
                     if($up_data3 === false)
                     {
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
-                    }
+                    }*/
 
                     // Удаление будущих платежей
                     $del_data = $this->db->query('DELETE FROM `orders_payment` WHERE `op_o_id`=? and `op_number`>0 and `op_following_date`>=?', array($order_id, $today));
