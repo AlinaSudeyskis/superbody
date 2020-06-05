@@ -461,6 +461,7 @@ class Authorization extends CI_Controller
                 parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'], $auth_result['user_activated'],
                     $auth_result['user_name'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
 
+                $this->load->model('User_model');
                 $user_data = $this->User_model->getQuestionnaireData($auth_result['user_id']);
 
                 $result['user_id']        = $auth_result['user_id'];
