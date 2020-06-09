@@ -1736,12 +1736,12 @@ class CI_Controller {
 
                                 $full_course_price = (!empty($full_course_price)) ? number_format($full_course_price, 2, '.', '') : '';
 
-                                $payment_total_amount = $full_course_price;
+                                $payment_total_amount = ((!empty($full_course_price) and $payment_option != 'partial_payment') or $full_course_price === 0) ? $full_course_price : $rec_first_course_price;
 
                                 $products['products'][0]['price'] = $full_course_price;
                                 $products['products'][0]['rec_first_price'] = $order['product']['rec_first'];
                                 $products['products'][0]['rec_subsequent'] = $order['product']['rec_subseq'];
-                                $products['products'][0]['rec_months'] = $rec_months;
+                                $products['products'][0]['rec_months'] = $order['product']['rec_months'];
 
                                 if($order_payment_option == 'missed_payment')
                                 {
