@@ -30,16 +30,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="lp_header_cont">
             <div class="lp_header container">
-                <?php if(!empty($landing['main_video_url'])): ?>
-                    <div class="video_col">
-                        <?php $remote_url = $landing['main_video_url'];
-                        $key = 0;
-                        include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
-                        <script>
-                            playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
-                        </script>
-                    </div>
-                <?php endif; ?>
                 <h1 class="lp_h1"><?php echo $landing['main_title']; ?></h1>
                 <?php if(!empty($landing['main_button'])): ?>
                     <span class="lp_block_desc lp_block1_but parent lp_desc" data-desc='<?php echo $landing['main_description']; ?>'><?php echo $landing['main_button']; ?></span>
@@ -59,7 +49,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="lp_block1_wrap" style="<?php echo $bl2_bg_color; ?>">
         <div class="lp_block_bg" style="<?php echo $bl2_bg; ?> <?php echo $bl2_bg_opacity; ?>"></div>
         <div class="lp_block1 container">
-            <div class="lp_block1_img"><img src="<?php echo $landing['block2']['image']; ?>" alt=""></div>
+            <div class="lp_block1_img">
+                <?php if(!empty($landing['main_video_url'])): ?>
+                    <div class="video_col">
+                        <?php $remote_url = $landing['main_video_url'];
+                        $key = 0;
+                        include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
+                        <script>
+                            playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+                        </script>
+                    </div>
+                <?php endif; ?>
+            </div>
             <div class="lp_block1_cont">
                 <h2 class="lp_block1_h"><?php echo $landing['block2']['title']; ?></h2>
                 <div class="lp_block1_desk"><?php echo $landing['block2']['subtitle']; ?></div>

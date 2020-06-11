@@ -45,7 +45,10 @@ class Authorization extends CI_Controller
         {
             if ($this->input->post('cb_politics', true))
             {
-                $email = (!empty($this->input->post('email', true))) ? $this->input->post('email', true) : null;
+                // Валидация E-mail
+                $email = trim($this->input->post('email', true));
+                $email = (!empty($this->input->post('email', true)) and filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : null;
+
                 $password         = $this->input->post('password', true);
                 $password_confirm = $this->input->post('password_confirm', true);
 
@@ -262,9 +265,8 @@ class Authorization extends CI_Controller
             if ($this->input->post('cb_politics', true))
             {
                 // Валидация E-mail
-                $email = (!empty($this->input->post('email', true)) and filter_var($this->input->post('email', true), FILTER_VALIDATE_EMAIL))
-                    ? $this->input->post('email', true)
-                    : null;
+                $email = trim($this->input->post('email', true));
+                $email = (!empty($this->input->post('email', true)) and filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : null;
 
                 $password = $this->input->post('password', true);
 

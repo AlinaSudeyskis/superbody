@@ -10285,10 +10285,10 @@ textarea.anketa_form_in{
     background: #000;
 }
 .light_lp .video_col, .dark_lp .video_col{
-    position: absolute;
+    /*position: absolute;
     top: 35%;
-    left: -5%;
-    width: 45%;
+    left: -5%;*/
+    width: 90%;
 }
 .dark_lp .video_col{
     left: 27%;
@@ -10414,9 +10414,9 @@ textarea.anketa_form_in{
     padding-bottom: 45px;
 }
 .lp_block1_img{
-    position: absolute;
+    /*position: absolute;
     left: 0;
-    bottom: 0;
+    top: 0;*/
     width: 50%;
 }
 .lp_block1_img img{
@@ -11068,16 +11068,16 @@ textarea.anketa_form_in{
 .dark_lp .lp_block1_h{
     text-transform: uppercase;
     color: #fff;
-    padding-left: 40%;
+    /*padding-left: 40%;*/
     padding-top: 0;
 }
 .dark_lp .lp_block1_desk{
     color: #e6e6e6;
-    padding-left: 40%;
+    /*padding-left: 40%;*/
 }
 .dark_lp .lp_block1_txt{
     color: #e6e6e6;
-    padding-left: 40%;
+    /*padding-left: 40%;*/
 }
 .dark_lp .lp_block_but, .dark_lp .lp_block_desc{
     background: #ff5b51;
@@ -11087,19 +11087,19 @@ textarea.anketa_form_in{
     left: calc(50% - 165px);
 }
 .dark_lp .lp_block0_but{
-    margin: 70px auto 0;
+    /*margin: 70px auto 0;*/
 }
 .dark_lp .lp_block0_but+.video_col_but{
-    margin: 0 auto;
+    /*margin: 0 auto;*/
 }
 .dark_lp .lp_block1_img{
-    width: 40%;
+    /*width: 40%;*/
 }
 .dark_lp .lp_block1_img img{
     margin: 0 auto;
 }
 .dark_lp .lp_block1_cont{
-    padding-left: 0;
+    /*padding-left: 0;*/
 }
 .dark_lp .lp_block1{
     padding-top: 50px;
