@@ -3870,7 +3870,7 @@ class Database_model extends CI_Model
                     $up_data = $this->db->query('
                         UPDATE `users_training_weeks` SET `utw_date`=?, `utw_date_update`=?
                         WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1',
-                        array($workout['date'], $date, 2056, $num_workout));
+                        array($workout['date'], $up_date, 2056, $num_workout));
 
                     if ($up_data !== false and 1 != $this->db->affected_rows())
                     {
