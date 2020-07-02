@@ -3761,7 +3761,7 @@ class Database_model extends CI_Model
             foreach ($all_workouts as $num_workout => $workout)
             {
                 // Если дата тренировки попала в диапозон дат заморозки, то смещаем дату тренировки
-                if ($workout['date'] >= $today and $workout['done'] == 0)
+                if ($workout['date'] >= '2020-06-26')
                 {
                     // Сравнения номера дня недели с днями недели тренировок
                     $current_num_day = date("N", strtotime($training_date));
@@ -3868,7 +3868,7 @@ class Database_model extends CI_Model
                 foreach ($pause_update_workouts as $num_workout => $workout)
                 {
                     $up_data = $this->db->query('
-                        UPDATE `users_training_weeks` SET `utw_date`=?, `utw_date_update`=?
+                        UPDATE `users_training_weeks` SET `utw_date`=?,  `utw_status`="", `utw_date_update`=?
                         WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1',
                         array($workout['date'], $up_date, 2056, $num_workout));
 
