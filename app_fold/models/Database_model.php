@@ -3493,7 +3493,7 @@ class Database_model extends CI_Model
     {
         $result = false;
 
-        $up_date = '2020-07-02 11:45';
+        $up_date = '2020-07-02 11:46';
         $fl_up_db = self::getDbUpdateData($up_date);
         if($fl_up_db === false)
         {
