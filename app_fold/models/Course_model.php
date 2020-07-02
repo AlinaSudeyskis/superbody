@@ -7508,7 +7508,7 @@ class Course_model extends CI_Model
                     elseif ($row->utw_status == 'in_progress')
                     {
                         $result['tw_wo'][$row->uc_id][$row->utw_id]['in_progress'] = 'in_progress';
-                        $result['tw_wo'][$row->uc_id][$row->utw_id]['color'] = '#bfbfbf';
+                        $result['tw_wo'][$row->uc_id][$row->utw_id]['color'] = '#c4de91';
                     }
                 }
                 unset($row);

@@ -49,7 +49,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php if (!empty($events)) :
                 $last_element = count($events);
                 foreach ($events as $key => $event) :
-                    $color = (!empty($event['pause']) and $event['pause'] === true) ? 'rgba(255, 159, 137, 0.5)' : $event['color']; ?>
+                $color = (!empty($event['blocked']) and $event['blocked'] == 'true') ? 'rgba(218, 218, 218, 1)' : $event['color'];
+                $color = (!empty($event['pause']) and $event['pause'] === true) ? 'rgba(255, 159, 137, 0.5)' : $color; ?>
                 {
                     start : '<?php echo $event['start'];?>',
                     end   : '<?php echo $event['end'];?>',

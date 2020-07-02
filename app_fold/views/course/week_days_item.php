@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div class="anketa_form_radio_all parent week_days <?php /*if(!empty($days_disabled)): echo $days_disabled; endif;*/ ?>">
+<div class="anketa_form_radio_all parent week_days <?php if(!empty($days_disabled)): echo $days_disabled; endif; ?>">
     <input type="hidden" name="count_weeks" id="count_weeks" value="<?php if (!empty($course['count_weeks'])) { echo $course['count_weeks']; }?>" />
     <input type="hidden" name="count_days" id="count_days" value="<?php if (!empty($course['count_days'])) { echo $course['count_days']; }?>" />
     <input type="hidden" name="count_rest" id="count_rest" value="<?php if (!empty($course['count_rest'])) { echo $course['count_rest']; }?>" />

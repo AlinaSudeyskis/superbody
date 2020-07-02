@@ -46,12 +46,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php endif; ?>
                             </div>
                         <?php endif;
-                        $days_disabled = (!empty($course['days']) or $course['blocked'] == 1) ? 'disabled' : '';
+                        $days_disabled = (!empty($course['days']) or $course['blocked'] == 1 or $course['paused'] == 1) ? 'disabled' : '';
                         if($course['category'] == 'workout'):?>
                             <div class="anketa_form_line parent">
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренировочные дни:</div></div>
                                 <?php include('./app_fold/views/course/week_days_item.php'); ?>
                             </div>
+                            <?php if($course['paused'] == 1): ?>
+                                <h3 class="info info_week_days">* Изменить выбранные тренировочные дни можно будет по окончанию заморозки курса.</h3>
+                            <?php endif; ?>
                             <?php //$time_disabled = (!empty($course['training_time']) or $course['blocked'] == 1) ? 'disabled' : '';
                             $uc_set = true; ?>
                             <div class="anketa_form_line parent">

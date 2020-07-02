@@ -8732,6 +8732,7 @@ class Course extends CI_Controller
      * AJAX Отображение видео тренировки поверх календаря
      *
      * @return void
+     * @throws Exception
      */
     public function showWorkout()
     {
@@ -8870,7 +8871,8 @@ class Course extends CI_Controller
                     foreach($course_events as $event)
                     {
                         $events .= '{';
-                        $color = (!empty($event['pause']) and $event['pause'] === true) ? 'rgba(255, 159, 137, 0.5)' : $event['color'];
+                        $color = (!empty($event['blocked']) and $event['blocked'] == 'true') ? 'rgba(218, 218, 218, 1)' : $event['color'];
+                        $color = (!empty($event['pause']) and $event['pause'] === true) ? 'rgba(255, 159, 137, 0.5)' : $color;
 
                         $events .= "start: '". $event['start'] ."',";
                         $events .= "end: '". $event['end'] ."',";
