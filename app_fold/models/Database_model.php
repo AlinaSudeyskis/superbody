@@ -3493,8 +3493,8 @@ class Database_model extends CI_Model
     {
         $result = false;
 
-        $date = '2020-07-02 11:45';
-        $fl_up_db = self::getDbUpdateData($date);
+        $up_date = '2020-07-02 11:45';
+        $fl_up_db = self::getDbUpdateData($up_date);
         if($fl_up_db === false)
         {
             $tmp_d = new DateTime($date);
@@ -3885,7 +3885,7 @@ class Database_model extends CI_Model
                 unset($workout);
             }
 
-            self::setDbUpdate($date);
+            self::setDbUpdate($up_date);
         }
 
         return $result;
