@@ -109,6 +109,7 @@ $route['ordering/(:num)']        = 'Store/ordering/$1';
 $route['viewed/video']           = 'Course/viewedVideo';
 $route['viewing/video']          = 'Course/viewingVideo';
 $route['show/video']             = 'Course/showVideo';
+$route['workout/(:num)/(:num)/(:num)']  = 'Course/showWorkoutVideo/$1/$2/$3';
 $route['show/instruction']       = 'Course/showInstructionVideo';
 $route['showMeal']               = 'Course/showMeal';
 $route['showMeals']              = 'Course/showMeals';

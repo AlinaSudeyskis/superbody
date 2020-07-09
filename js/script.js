@@ -2096,9 +2096,11 @@ playerTwoPlayer = undefined;
 /* pop_up */
 
 function pop_up_def(popup) {
-    var shadow = $("#shadow");
+    var shadow = $("#shadow"),
+        popup_width = popup.width(),
+        popup_height = popup.height();
 
-    popup.css({marginLeft:-popup.width()/2-15,marginTop:-popup.height()/2-15}).fadeIn(600); /*+$(window).scrollTop()*/
+    popup.fadeIn(600).css({marginLeft:-(popup_width/2),marginTop:-(popup_height/2)}); /*+$(window).scrollTop()*/
 
     $("#shadow, .close_video").fadeTo(600,0.8).on('click', function() {
         shadow.fadeOut(600);

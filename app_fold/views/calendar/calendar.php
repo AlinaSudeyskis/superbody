@@ -111,6 +111,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     || (pop_up_video.find('#myvid').length === 1 && (pop_up_video.find('#myvid').data('video-url') !== data.source || pop_up_desc.html() !== data.description)))
                                 {
                                     pop_up_video.html(data.video);
+                                    pop_up_video.append(data.workout_url);
                                     pop_up_video.find('#wo-instruction').hide();
 
                                     pop_up_video.find('.instruction').on('click', function(){

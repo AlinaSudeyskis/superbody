@@ -6538,6 +6538,19 @@ span.mess_block_full_time {
     cursor: pointer;
     text-transform: uppercase;
 }
+.wo_url {
+    color: #72d0f4;
+    text-decoration: none;
+    font-size: 12px;
+    display: block;
+    float: none;
+    /* clear: both; */
+    /* margin-top: 40px; */
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    padding: 12px;
+}
 
 .ta_dark {
     background: #f3f3f3;

@@ -8639,7 +8639,8 @@ class Course extends CI_Controller
                         "i_a" => $workout_instruction_a,
                         "i_video" => $workout_instruction,
                         "i_player" => $i_player,
-                        "source" => $v_source
+                        "source" => $v_source,
+                        "workout_url" => '<a href="/workout/'.$workout_id.'/'.$video_id.'/'.$this->user_id.'" class="wo_url" target="_blank">Открыть в новом окне</a>'
                     );
 
                     echo json_encode($display_result, JSON_NUMERIC_CHECK);
@@ -8797,6 +8798,87 @@ class Course extends CI_Controller
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * Отображение видео тренировки
+     *
+     * @param $user_id
+     * @param $workout_id
+     * @param $video_id
+     * @return void
+     */
+    public function showWorkoutVideo($workout_id, $video_id, $user_id)
+    {
+        if(is_numeric($user_id) and is_numeric($workout_id) and is_numeric($video_id))
+        {
+            // Проверка соответствия номера видео тренировке, курсу и пользователя
+            $result = $this->Course_model->matchWorkoutVideo($user_id, $workout_id, $video_id);
+
+            if ($result !== false)
+            {
+                // Данные видео
+                $video_data = $this->Course_model->getVideo($video_id);
+                $instruction_data = $this->Course_model->getVideo($result['workout']['instruction']);
+
+                if ($video_data !== false)
+                {
+                    $workout_done = '';
+                    $workout_description = '';
+                    $workout_video = '';
+                    $v_player = '';
+                    $workout_instruction_a = '';
+                    $workout_instruction = '';
+                    $i_player = '';
+                    $v_source = null;
+
+                    $v_remote_type = $video_data['video']['remote_type'];
+                    $v_remote_url = $video_data['video']['remote_url'];
+                    $v_poster = $video_data["video"]["poster"];
+                    $v_video = $video_data["video"]["video"];
+                    $i_remote_type = $instruction_data['video']['remote_type'];
+                    $i_remote_url = $instruction_data['video']['remote_url'];
+                    $i_poster = $instruction_data["video"]["poster"];
+                    $i_video = $instruction_data["video"]["video"];
+                    $w_done = $result['workout']['done'];
+                    $w_description = $result['workout']['description'];
+
+                    include_once('./app_fold/views/video/player/video_player.php');
+
+                    $display_result = array(
+                        "done" => $workout_done,
+                        "description" => $workout_description,
+                        "video" => $workout_video,
+                        "player" => $v_player,
+                        "i_a" => $workout_instruction_a,
+                        "i_video" => $workout_instruction,
+                        "i_player" => $i_player,
+                        "source" => $v_source
+                    );
+                }
+                else
+                {
+                    $display_result['error'] = 'Video data error';
+                }
+            }
+            else
+            {
+                $display_result['error'] = 'User course data error';
+            }
+        }
+        else
+        {
+            $display_result['error'] = 'End_param and start_param are incorrect.';
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'Тренировка';
+        $this->page_data['page_menu'] = 'workout';
+
+        //echo $display_result['video'];
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('video/video_page', $display_result);
+        $this->load->view('footer/empty_footer');
     }
 
     /**
