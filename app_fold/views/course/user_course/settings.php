@@ -46,7 +46,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <?php endif; ?>
                             </div>
                         <?php endif;
-                        $days_disabled = (!empty($course['days']) or $course['blocked'] == 1 or $course['paused'] == 1) ? 'disabled' : '';
+                        $days_disabled = ($course['blocked'] == 1 or $course['paused'] == 1) ? 'disabled' : '';
                         if($course['category'] == 'workout'):?>
                             <div class="anketa_form_line parent">
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Тренировочные дни:</div></div>
