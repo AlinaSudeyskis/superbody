@@ -155,9 +155,9 @@ class Authorization extends CI_Controller
     {
         $result = array('error' => null);
 
-        $email            = (!empty($this->input->get('email', true))) ? $this->input->get('email', true) : null;
-        $password         = $this->input->get('password', true);
-        $password_confirm = $this->input->get('password_confirm', true);
+        $email = (!empty($this->input->post('email', true))) ? $this->input->post('email', true) : null;
+        $password         = $this->input->post('password', true);
+        $password_confirm = $this->input->post('password_confirm', true);
 
         $reg_result = self::parseRegistration($email, $password, $password_confirm);
 
