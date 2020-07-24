@@ -170,16 +170,19 @@ class Authorization extends CI_Controller
         elseif ($reg_result == 'e1')
         {
             $result['error'] = 'Ошибка! Пользователь с таким E-mail уже зарегистрирован.';
+            $result['error_data'] = 'Email: '. $email .' Password matching: '. $password_matching;
             log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
         elseif ($reg_result == 'e2')
         {
             $result['error'] = 'Ошибка! Не удалось зарегестрировать E-mail.';
+            $result['error_data'] = 'Email: '. $email .' Password matching: '. $password_matching;
             log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
         elseif ($reg_result == 'e8')
         {
             $result['error'] = 'Ошибка! Проверьте, пожалуйста, корректность и заполните все поля регистрации.';
+            $result['error_data'] = 'Email: '. $email .' Password matching: '. $password_matching;
             log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
 
