@@ -158,6 +158,7 @@ class Authorization extends CI_Controller
         $email = (!empty($this->input->post('email', true))) ? $this->input->post('email', true) : null;
         $password         = $this->input->post('password', true);
         $password_confirm = $this->input->post('password_confirm', true);
+        $password_matching = ($password === $password_confirm) ? 'Match' : 'Not match';
 
         $reg_result = self::parseRegistration($email, $password, $password_confirm);
 
@@ -169,14 +170,17 @@ class Authorization extends CI_Controller
         elseif ($reg_result == 'e1')
         {
             $result['error'] = 'Ошибка! Пользователь с таким E-mail уже зарегистрирован.';
+            log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
         elseif ($reg_result == 'e2')
         {
             $result['error'] = 'Ошибка! Не удалось зарегестрировать E-mail.';
+            log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
         elseif ($reg_result == 'e8')
         {
             $result['error'] = 'Ошибка! Проверьте, пожалуйста, корректность и заполните все поля регистрации.';
+            log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
