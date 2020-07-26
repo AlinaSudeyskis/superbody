@@ -4315,16 +4315,15 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2020-07-26 16:48';
+        $date = '2020-07-26 16:49';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
             $diff_days = 11;
             $sel_payments = $this->db->query('
-            SELECT `op_id`, `op_following_date`, `o_payment_options` 
+            SELECT `op_id`, `op_following_date` 
             FROM `orders_payment`
-            LEFT JOIN `orders` ON `o_id`=`op_o_id`
-            WHERE `op_o_id`=2058 and `o_payment_options`="partial_payment"');
+            WHERE `op_o_id`=2058');
             if($sel_payments !== false and 0 < $sel_payments->num_rows())
             {
                 foreach ($sel_payments->result() as $row2)
