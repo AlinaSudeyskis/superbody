@@ -4315,7 +4315,7 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2020-07-26 16:47';
+        $date = '2020-07-26 16:48';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
@@ -4324,30 +4324,33 @@ class Database_model extends CI_Model
             SELECT `op_id`, `op_following_date`, `o_payment_options` 
             FROM `orders_payment`
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
-            WHERE `op_o_id`=? and `o_payment_options`="partial_payment" and `op_following_date`>?', array(2058, '2020-08-10'));
-            log_message('debug', $sel_payments->num_rows());
+            WHERE `op_o_id`=2058 and `o_payment_options`="partial_payment"');
             if($sel_payments !== false and 0 < $sel_payments->num_rows())
             {
                 foreach ($sel_payments->result() as $row2)
                 {
-                    $tmp_date = new DateTime($row2->op_following_date);
-
-                    if($diff_days > 0)
+                    log_message('debug', $row2->op_id .' '. $row2->op_following_date);
+                    if($row2->op_following_date > '2020-08-10')
                     {
-                        $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
-                    }
-                    elseif($diff_days < 0)
-                    {
-                        $diff_days = abs($diff_days);
-                        $tmp_date->sub(new DateInterval('P' . $diff_days . 'D'));
-                    }
+                        $tmp_date = new DateTime($row2->op_following_date);
 
-                    $new_following_date = $tmp_date->format('Y-m-d');
-                    log_message('debug', $row2->op_id .' '. $row2->op_following_date .' '. $new_following_date);
+                        if($diff_days > 0)
+                        {
+                            $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
+                        }
+                        elseif($diff_days < 0)
+                        {
+                            $diff_days = abs($diff_days);
+                            $tmp_date->sub(new DateInterval('P' . $diff_days . 'D'));
+                        }
 
-                    if($row2->op_following_date != $new_following_date)
-                    {
-                        $this->db->query('UPDATE `orders_payment` SET `op_following_date`=? WHERE `op_id`=? LIMIT 1', array($new_following_date, $row2->op_id));
+                        $new_following_date = $tmp_date->format('Y-m-d');
+                        log_message('debug', $new_following_date);
+
+                        if($row2->op_following_date != $new_following_date)
+                        {
+                            $this->db->query('UPDATE `orders_payment` SET `op_following_date`=? WHERE `op_id`=? LIMIT 1', array($new_following_date, $row2->op_id));
+                        }
                     }
                 }
             }
