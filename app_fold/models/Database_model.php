@@ -4188,6 +4188,7 @@ class Database_model extends CI_Model
                     $all_workouts        = (empty($all_workouts)) ? $db_workouts : $all_workouts;
                     $array_training_days = (empty($array_training_days)) ? str_split($db_training_days) : $array_training_days;
 
+                    log_message('debug', print_r($all_workouts, true));
                     foreach ($all_workouts as $num_workout => $workout)
                     {
                         // Если дата тренировки попала в диапозон дат заморозки, то смещаем дату тренировки
@@ -4286,6 +4287,7 @@ class Database_model extends CI_Model
                         }
                     }
                     unset($workout);
+                    log_message('debug', print_r($pause_update_workouts, true));
 
                     // Если дата последней тренировки больше конечной даты курса, то обновляем конечную дату.
                     if ($training_date > $course_end)
@@ -4299,14 +4301,14 @@ class Database_model extends CI_Model
                         foreach ($pause_update_workouts as $num_workout => $workout)
                         {
                             log_message('debug', $num_workout .' '. $workout['date']);
-                            $up_data = $this->db->query('
+                            /*$up_data = $this->db->query('
                                 UPDATE `users_training_weeks` SET `utw_date`=?,  `utw_status`="", `utw_date_update`=?
                                 WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1',
                                 array($workout['date'], $up_date, 2058, $num_workout));
                             if ($up_data === false)
                             {
                                 parent::logDbMessages(__METHOD__ . ':' . __LINE__);
-                            }
+                            }*/
                         }
                         unset($workout);
                     }
@@ -4314,46 +4316,35 @@ class Database_model extends CI_Model
             }
 
             $diff_days = $curr_pause_days;
-            $sel_data = $this->db->query('SELECT `uc_o_id` FROM `users_courses` WHERE `uc_id`=2058 LIMIT 1');
-            if($sel_data !== false and 1 == $sel_data->num_rows())
+            $sel_payments = $this->db->query('
+            SELECT `op_id`, `op_following_date`, `o_payment_options` 
+            FROM `orders_payment`
+            LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            WHERE `op_o_id`=? and `o_payment_options`="partial_payment" and `op_following_date`>=?', array(2058, $today));
+            if($sel_payments !== false and 0 < $sel_payments->num_rows())
             {
-                $row = $sel_data->row();
-                $order_id = $row->uc_o_id;
-
-                $sel_payments = $this->db->query('
-                SELECT `op_id`, `op_following_date`, `o_payment_options` 
-                FROM `orders_payment`
-                LEFT JOIN `orders` ON `o_id`=`op_o_id`
-                WHERE `op_o_id`=? and `o_payment_options`="partial_payment" and `op_following_date`>=?', array($order_id, $today));
-                if($sel_payments !== false and 0 < $sel_payments->num_rows())
+                foreach ($sel_payments->result() as $row2)
                 {
-                    foreach ($sel_payments->result() as $row2)
+                    $tmp_date = new DateTime($row2->op_following_date);
+
+                    if($diff_days > 0)
                     {
-                        $tmp_date = new DateTime($row2->op_following_date);
+                        $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
+                    }
+                    elseif($diff_days < 0)
+                    {
+                        $diff_days = abs($diff_days);
+                        $tmp_date->sub(new DateInterval('P' . $diff_days . 'D'));
+                    }
 
-                        if($diff_days > 0)
-                        {
-                            $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
-                        }
-                        elseif($diff_days < 0)
-                        {
-                            $diff_days = abs($diff_days);
-                            $tmp_date->sub(new DateInterval('P' . $diff_days . 'D'));
-                        }
+                    $new_following_date = $tmp_date->format('Y-m-d');
+                    log_message('debug', $row2->op_id .' '. $row2->op_following_date .' '. $new_following_date);
 
-                        $new_following_date = $tmp_date->format('Y-m-d');
-
-                        if($row2->op_following_date != $new_following_date)
-                        {
-                            log_message('debug', $row2->op_id .' '. $row2->op_following_date .' '. $new_following_date);
-                            $this->db->query('UPDATE `orders_payment` SET `op_following_date`=? WHERE `op_id`=? LIMIT 1', array($new_following_date, $row2->op_id));
-                        }
+                    if($row2->op_following_date != $new_following_date)
+                    {
+                        $this->db->query('UPDATE `orders_payment` SET `op_following_date`=? WHERE `op_id`=? LIMIT 1', array($new_following_date, $row2->op_id));
                     }
                 }
-            }
-            elseif($sel_data === false)
-            {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             self::setDbUpdate($date);
