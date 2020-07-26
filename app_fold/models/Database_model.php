@@ -4312,12 +4312,19 @@ class Database_model extends CI_Model
                 }
             }
 
-            $diff_days = $curr_pause_days;
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-07-26 16:47';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $diff_days = 11;
             $sel_payments = $this->db->query('
             SELECT `op_id`, `op_following_date`, `o_payment_options` 
             FROM `orders_payment`
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
-            WHERE `op_o_id`=? and `o_payment_options`="partial_payment" and `op_following_date`>=?', array(2058, '2020-08-10'));
+            WHERE `op_o_id`=? and `o_payment_options`="partial_payment" and `op_following_date`>?', array(2058, '2020-08-10'));
             log_message('debug', $sel_payments->num_rows());
             if($sel_payments !== false and 0 < $sel_payments->num_rows())
             {
