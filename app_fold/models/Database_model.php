@@ -3934,7 +3934,7 @@ class Database_model extends CI_Model
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
-            $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+            $tmp_date = DateTime::createFromFormat('Y-m-d H:i', $date);
             $today    = $tmp_date->format('Y-m-d');
 
             //$this->db->query('UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_reason`="payment_succeeded", `uc_blocked_date`="2020-07-26 14:09", `uc_free_weeks`=0, `uc_free_weeks_end_date`="0000-00-00", `uc_date_update`="2020-07-26 14:09" WHERE `uc_o_id`=2058');
