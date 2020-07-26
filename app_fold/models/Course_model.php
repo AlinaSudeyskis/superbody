@@ -9415,6 +9415,7 @@ class Course_model extends CI_Model
                     array($new_free_weeks_end, $pause_days, $date, $course_end, $user_course_id));
             if($up_data !== false and 1 == $this->db->affected_rows())
             {
+                log_message('debug', 'UPDATE course. Pause = 0');
                 if(is_array($update_workouts))
                 {
                     self::updateDatesUserWorkouts($user_course_id, $update_workouts, $date);
@@ -9865,7 +9866,7 @@ class Course_model extends CI_Model
 
         if(!empty($block_reason))
         {
-            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=?, `uc_blocked_reason`=?, `uc_blocked_date`=?, `uc_date_update`=? WHERE `uc_o_id`=?',
+            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=?, `uc_blocked_reason`=?, `uc_blocked_date`=?, `uc_free_weeks`=0, `uc_free_weeks_end_date`="0000-00-00", `uc_date_update`=? WHERE `uc_o_id`=?',
                 array($block, $block_reason, $block_date, $date, $order_id));
             if($up_data !== false and 0 < $this->db->affected_rows())
             {
@@ -9875,6 +9876,10 @@ class Course_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
+        }
+        else
+        {
+            log_message('error', 'Empty block reason. Order ID:' .$order_id. ' Block flag: ' .$block);
         }
 
         return $result;
@@ -10281,6 +10286,57 @@ class Course_model extends CI_Model
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
                 }
+
+                // Отправка email с уведомлением о заканчивающемся курсе
+                if(!empty($row->user_email))
+                {
+                    $result[$row->uc_id]['user_email']  = $row->user_email;
+                    $result[$row->uc_id]['course_name'] = $row->crs_name;
+                }
+            }
+            unset($row);
+        }
+        elseif ($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка наличия заканчивающихся курсов
+     *
+     * @param $date
+     * @return bool
+     * @throws Exception
+     */
+    public function checkPausedUsersCourses($date)
+    {
+        $result = false;
+
+        $tmp_date = new DateTime($date);
+        $today = $tmp_date->format('Y-m-d');
+
+        $sel_data = $this->db->query('
+            SELECT `uc_id`, `uc_course_id`, `uc_ends_email`, `crs_name`, `user_email`, `ucp_pause_end`
+            FROM `users_courses` 
+            LEFT JOIN `courses` ON `crs_id`=`uc_course_id`
+            LEFT JOIN `users` ON `user_id`=`uc_user_id`
+            LEFT JOIN `users_courses_pauses` ON `ucp_uc_id`=`uc_id`
+            WHERE `uc_paused`=1 and `ucp_pause_end`<=?
+            GROUP BY `uc_id`', array($today));
+        if ($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach ($sel_data->result() as $row)
+            {
+                $up_data = $this->db->query('UPDATE `users_courses` SET `uc_paused`=0 WHERE `uc_id`=? LIMIT 1', array($row->uc_id));
+                if($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+
+                //$result[$row->uc_id]['pause_end']  = $row->ucp_pause_end;
 
                 // Отправка email с уведомлением о заканчивающемся курсе
                 if(!empty($row->user_email))
