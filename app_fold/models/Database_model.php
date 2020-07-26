@@ -4192,7 +4192,7 @@ class Database_model extends CI_Model
                     foreach ($all_workouts as $num_workout => $workout)
                     {
                         // Если дата тренировки попала в диапозон дат заморозки, то смещаем дату тренировки
-                        if ($workout['date'] >= $today and $workout['done'] == 0)
+                        if ($workout['date'] >= '2020-07-15')
                         {
                             // Сравнения номера дня недели с днями недели тренировок
                             $current_num_day = date("N", strtotime($training_date));
