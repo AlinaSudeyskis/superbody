@@ -3930,7 +3930,7 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2020-07-26 14:07';
+        $date = '2020-07-26 14:08';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
@@ -4291,15 +4291,15 @@ class Database_model extends CI_Model
                     if ($training_date > $course_end)
                     {
                         $course_end = $training_date;
-                        //$this->db->query('UPDATE `users_courses` SET `uc_date_update`=?, `uc_date_end`=? WHERE `uc_id`=? LIMIT 1', array($date, $course_end, 2058));
+                        $this->db->query('UPDATE `users_courses` SET `uc_date_update`=?, `uc_date_end`=? WHERE `uc_id`=? LIMIT 1', array($date, $course_end, 2058));
                     }
 
                     if(!empty($pause_update_workouts))
                     {
                         foreach ($pause_update_workouts as $num_workout => $workout)
                         {
-                            log_message('debug', $workout['date']);
-                            /*$up_data = $this->db->query('
+                            //log_message('debug', $workout['date']);
+                            $up_data = $this->db->query('
                                 UPDATE `users_training_weeks` SET `utw_date`=?,  `utw_status`="", `utw_date_update`=?
                                 WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1',
                                 array($workout['date'], $up_date, 2058, $num_workout));
@@ -4312,7 +4312,7 @@ class Database_model extends CI_Model
                             {
                                 parent::logDbMessages(__METHOD__ . ':' . __LINE__);
                                 $result = false;
-                            }*/
+                            }
                         }
                         unset($workout);
                     }
@@ -4325,9 +4325,6 @@ class Database_model extends CI_Model
             {
                 $row = $sel_data->row();
                 $order_id = $row->uc_o_id;
-
-                $tmp_date = new DateTime($date);
-                $today = $tmp_date->format('Y-m-d');
 
                 $sel_payments = $this->db->query('
                 SELECT `op_id`, `op_following_date`, `o_payment_options` 
