@@ -3937,8 +3937,8 @@ class Database_model extends CI_Model
             $tmp_date = DateTime::createFromFormat('Y-m-d H:i', $date);
             $today    = $tmp_date->format('Y-m-d');
 
-            //$this->db->query('UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_reason`="payment_succeeded", `uc_blocked_date`="2020-07-26 14:09", `uc_free_weeks`=0, `uc_free_weeks_end_date`="0000-00-00", `uc_date_update`="2020-07-26 14:09" WHERE `uc_o_id`=2058');
-            //$this->db->query('UPDATE `orders` SET `o_payment_status`="succeeded" WHERE `o_id`=2058 LIMIT 1');
+            $this->db->query('UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_reason`="payment_succeeded", `uc_blocked_date`="2020-07-26 14:09", `uc_free_weeks`=0, `uc_free_weeks_end_date`="0000-00-00", `uc_date_update`="2020-07-26 14:09" WHERE `uc_o_id`=2058');
+            $this->db->query('UPDATE `orders` SET `o_payment_status`="succeeded" WHERE `o_id`=2058 LIMIT 1');
 
             $sel_course = $this->db->query('
                 SELECT `uc_id`, `uc_o_id`, `uc_course_id`, `uc_coach_id`, `uc_date_start`, `uc_date_end`, `uc_days`, `uc_time`, `uc_blocked`, 
@@ -4168,15 +4168,14 @@ class Database_model extends CI_Model
             $tm_date_to      = DateTime::createFromFormat('Y-m-d', $input_date);
             $date_pause_to   = ($input_date != '' and $tm_date_to !== false) ? $tm_date_to->format('Y-m-d') : '';
             $pause_update_workouts = null;
+            // Кол-во дней текущей заморозки
+            $interval        = $tm_date_to->diff($tmp_date);
+            $curr_pause_days = (int)$interval->format('%a');
+            unset($tm_date_to);
+            unset($tmp_date);
             // Заморозка курса (изменение дат тренировок, даты окончания курса)
             if (!empty($date_pause_to) and !empty($db_training_days))
             {
-                // Кол-во дней текущей заморозки
-                $interval        = $tm_date_to->diff($tmp_date);
-                $curr_pause_days = (int)$interval->format('%a');
-                unset($tm_date_to);
-                unset($tmp_date);
-
                 if ($curr_pause_days >= 7)
                 {
                     // Следующее число после окончания заморозки
@@ -4318,6 +4317,51 @@ class Database_model extends CI_Model
                         unset($workout);
                     }
                 }
+            }
+
+            $diff_days = $curr_pause_days;
+            $sel_data = $this->db->query('SELECT `uc_o_id` FROM `users_courses` WHERE `uc_id`=2058 LIMIT 1');
+            if($sel_data !== false and 1 == $sel_data->num_rows())
+            {
+                $row = $sel_data->row();
+                $order_id = $row->uc_o_id;
+
+                $tmp_date = new DateTime($date);
+                $today = $tmp_date->format('Y-m-d');
+
+                $sel_payments = $this->db->query('
+                SELECT `op_id`, `op_following_date`, `o_payment_options` 
+                FROM `orders_payment`
+                LEFT JOIN `orders` ON `o_id`=`op_o_id`
+                WHERE `op_o_id`=? and `o_payment_options`="partial_payment" and `op_following_date`>=?', array($order_id, $today));
+                if($sel_payments !== false and 0 < $sel_payments->num_rows())
+                {
+                    foreach ($sel_payments->result() as $row2)
+                    {
+                        $tmp_date = new DateTime($row2->op_following_date);
+
+                        if($diff_days > 0)
+                        {
+                            $tmp_date->add(new DateInterval('P' . $diff_days . 'D'));
+                        }
+                        elseif($diff_days < 0)
+                        {
+                            $diff_days = abs($diff_days);
+                            $tmp_date->sub(new DateInterval('P' . $diff_days . 'D'));
+                        }
+
+                        $new_following_date = $tmp_date->format('Y-m-d');
+
+                        if($row2->op_following_date != $new_following_date)
+                        {
+                            $this->db->query('UPDATE `orders_payment` SET `op_following_date`=? WHERE `op_id`=? LIMIT 1', array($new_following_date, $row2->op_id));
+                        }
+                    }
+                }
+            }
+            elseif($sel_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
 
             self::setDbUpdate($date);
