@@ -3930,7 +3930,7 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2020-07-26 14:08';
+        $date = '2020-07-26 14:09';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
@@ -4298,20 +4298,14 @@ class Database_model extends CI_Model
                     {
                         foreach ($pause_update_workouts as $num_workout => $workout)
                         {
-                            //log_message('debug', $workout['date']);
+                            log_message('debug', $num_workout .' '. $workout['date']);
                             $up_data = $this->db->query('
                                 UPDATE `users_training_weeks` SET `utw_date`=?,  `utw_status`="", `utw_date_update`=?
                                 WHERE `utw_uc_id`=? and `utw_workout`=? LIMIT 1',
                                 array($workout['date'], $up_date, 2058, $num_workout));
-
-                            if ($up_data !== false and 1 != $this->db->affected_rows())
-                            {
-                                $result = false;
-                            }
-                            elseif ($up_data === false)
+                            if ($up_data === false)
                             {
                                 parent::logDbMessages(__METHOD__ . ':' . __LINE__);
-                                $result = false;
                             }
                         }
                         unset($workout);
@@ -4351,6 +4345,7 @@ class Database_model extends CI_Model
 
                         if($row2->op_following_date != $new_following_date)
                         {
+                            log_message('debug', $row2->op_id .' '. $row2->op_following_date .' '. $new_following_date);
                             $this->db->query('UPDATE `orders_payment` SET `op_following_date`=? WHERE `op_id`=? LIMIT 1', array($new_following_date, $row2->op_id));
                         }
                     }
