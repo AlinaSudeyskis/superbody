@@ -3934,6 +3934,9 @@ class Database_model extends CI_Model
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
+            $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+            $today    = $tmp_date->format('Y-m-d');
+
             //$this->db->query('UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_reason`="payment_succeeded", `uc_blocked_date`="2020-07-26 14:09", `uc_free_weeks`=0, `uc_free_weeks_end_date`="0000-00-00", `uc_date_update`="2020-07-26 14:09" WHERE `uc_o_id`=2058');
             //$this->db->query('UPDATE `orders` SET `o_payment_status`="succeeded" WHERE `o_id`=2058 LIMIT 1');
 
@@ -4168,9 +4171,6 @@ class Database_model extends CI_Model
             // Заморозка курса (изменение дат тренировок, даты окончания курса)
             if (!empty($date_pause_to) and !empty($db_training_days))
             {
-                $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
-                $today    = $tmp_date->format('Y-m-d');
-
                 // Кол-во дней текущей заморозки
                 $interval        = $tm_date_to->diff($tmp_date);
                 $curr_pause_days = (int)$interval->format('%a');
