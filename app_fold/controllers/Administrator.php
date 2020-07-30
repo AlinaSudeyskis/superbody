@@ -275,10 +275,16 @@ class Administrator extends CI_Controller
     public function adminSettings($user_id, $page_type = 'settings')
     {
         $user = $this->Administrator_model->getAdmin($user_id);
+        $result = $user;
         if (!empty($user['user_data']))
         {
             $this->load->model('User_model');
             $user = $this->User_model->getUserSettingsData($user_id);
+
+            $this->load->model('Authorization_model');
+            $auth_data = $this->Authorization_model->getUserAuthorizationData($user_id);
+
+            $result = array_merge($user, $auth_data);
         }
 
         $user_data = $user['user_data'];
@@ -554,11 +560,11 @@ class Administrator extends CI_Controller
         $this->load->view('header/admin');
         if($user_data['user_deleted'] == 0)
         {
-            $this->load->view('admin/admin_settings', $user);
+            $this->load->view('admin/admin_settings', $result);
         }
         else
         {
-            $this->load->view('user/settings/user_settings_view', $user);
+            $this->load->view('user/settings/user_settings_view', $result);
         }
         $this->load->view('footer/footer');
     }

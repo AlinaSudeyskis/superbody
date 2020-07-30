@@ -12,25 +12,44 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Уведомления</h3>
+                            <?php if ($page_submenu == 'notif_users'): ?>
+                                <div class="content_block_h_ref">
+                                    <a href="/administration/notification/users/new" class="add_tab_but">Добавить уведомление</a>
+                                </div>
+                            <?php endif; ?>
                         </div>
+                        <ul class="anketa_block_nav parent">
+                            <li>
+                                <a href="/administration/notifications/users">
+                                    <span <?php if ($page_submenu == 'notif_users'): ?> class="anketa_active" <?php endif;?>>Для пользователей</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/administration/notifications/system">
+                                    <span <?php if ($page_submenu == 'notif_system'): ?> class="anketa_active" <?php endif;?>>Системные</span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 <div class="kurs_block_val notif_block">
-                    <?php if (!empty($notifications['text'])): ?>
+                    <?php if (!empty($notifications)): ?>
                         <div class="admin_list">
-                            <?php foreach ($notifications['text'] as $key => $notification) :
-                                if(!empty($notification)): ?>
-                                    <div class="admin_item parent">
-                                        <div class="admin_ava"></div>
-                                        <div class="admin_cont">
-                                            <div class="admin_name">
-                                                <a href="/administration/notification/<?php echo $key; ?>">[<?php echo $key; ?>] <?php echo $notification; ?></a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <?php endif;
-                            endforeach;
-                            unset($notification); ?>
+                            <?php if($page_submenu == 'notif_users'): ?>
+                                <?php foreach ($notifications as $key => $notification) :
+                                    if(!empty($notification)): ?>
+                                        <?php include('./app_fold/views/notification/users_notifications.php'); ?>
+                                    <?php endif;
+                                endforeach;
+                                unset($notification); ?>
+                            <?php elseif($page_submenu == 'notif_system'):?>
+                                <?php foreach ($notifications['text'] as $key => $notification) :
+                                    if(!empty($notification)): ?>
+                                        <?php include('./app_fold/views/notification/system_notifications.php'); ?>
+                                    <?php endif;
+                                endforeach;
+                                unset($notification); ?>
+                            <?php endif; ?>
                         </div>
                         <?php include('./app_fold/views/pagination.php');?>
                     <?php endif; ?>

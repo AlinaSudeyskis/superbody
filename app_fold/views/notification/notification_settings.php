@@ -13,6 +13,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Редактировать уведомление</h3>
                         </div>
+                        <ul class="anketa_block_nav parent">
+                            <li>
+                                <a href="/administration/notifications/users">
+                                    <span <?php if ($page_submenu == 'notif_users'): ?> class="anketa_active" <?php endif;?>>Для пользователей</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/administration/notifications/system">
+                                    <span <?php if ($page_submenu == 'notif_system'): ?> class="anketa_active" <?php endif;?>>Системные</span>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 <div class="kurs_block_val">

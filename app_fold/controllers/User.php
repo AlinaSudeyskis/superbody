@@ -74,11 +74,13 @@ class User extends CI_Controller
         $this->load->model('Blog_model');
         $this->load->model('Course_model');
         $this->load->model('Payment_model');
+        $this->load->model('Store_model');
 
         $title = !empty($this->session->user['name']) ? $this->session->user['name'] . ' - пользователь' : 'Страница пользователя' ;
 
         $u_training_time  = $this->User_model->getUserTrainingTime($user_id); // Тренировочное время пользователя
         $user_courses     = $this->Course_model->getUserCourses($user_id, $this->date, 'active', $u_training_time); // Выборка курсов пользователя
+        $courses_data     = $this->Store_model->getUserCoursesOrder($this->user_id, $user_courses);
         $course_notifs    = $this->Course_model->getUserCoursesNotifications($user_id, $this->date); // Выборка уведомлений курсов пользователя
         $payment_notifs   = $this->Payment_model->getUserWaitingPayments($user_id); // Выборка неподтверженных платежей
         $anthrop_data     = $this->User_model->getAnthropometricData($user_id, $this->date); // Антропометрические данные пользователя
@@ -102,7 +104,7 @@ class User extends CI_Controller
         //$courses[0]['id'] = 6;
         //$this->Course_model->unblockUserOrderCourses(80, 4, $courses, 'payment_succeeded', $this->date);
 
-        $result = array_merge($user_courses, $anthrop_data, $user_social, $u_data, $friend_promocode);
+        $result = array_merge($user_courses, $courses_data, $anthrop_data, $user_social, $u_data, $friend_promocode);
 
         if ($this->input->post('bt_buy_course', true) and $this->input->post('cb_offer', true) and
             (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
@@ -2923,6 +2925,7 @@ class User extends CI_Controller
 
     /**
      * Удаление пользователей и их данных из БД
+     * @throws Exception
      */
     public function deleteUsers()
     {
@@ -2949,7 +2952,32 @@ class User extends CI_Controller
 
         $result      = '';
         $search_text = (!is_numeric($this->input->post('search_text', true)) and !empty(mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255)))
-            ? (mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255).'*')
+            ? ('*'.mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255).'*')
+            : null;
+        $search_id = (is_numeric($this->input->post('search_text', true))) ? $this->input->post('search_text', true) : null;
+
+        if (!empty($search_text) or !empty($search_id)) {
+            $result = $this->User_model->searchUsers($search_text, $search_id);
+        }
+
+        echo $result;
+    }
+
+    /**
+     * AJAX поиск пользователей
+     *
+     * @return void
+     */
+    public function searchCoachUsers()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 2 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result      = '';
+        $search_text = (!is_numeric($this->input->post('search_text', true)) and !empty(mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255)))
+            ? ('*'.mb_substr(strip_tags($this->input->post('search_text', true)), 0, 255).'*')
             : null;
         $search_id = (is_numeric($this->input->post('search_text', true))) ? $this->input->post('search_text', true) : null;
 

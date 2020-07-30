@@ -27,15 +27,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                     <div class="chat_block_val">
                         <div class="chat_search_mob_but"><img src="/img/search_ico2.png" alt=""></div>
-                        <form action="#" class="chat_search_form parent disabled">
-                            <input type="text" class="chat_search_in" placeholder="Поиск">
-                            <input type="submit" value="" class="chat_search_but">
-                        </form>
+                        <div class="add_tov_in coach_users">
+                            <form action="#" class="chat_search_form parent <?php if(!empty($user_session) and $user_session['type'] != 2): ?>disabled<?php endif; ?>">
+                                <input type="text" name="user_id" class="chat_search_in promocodes" placeholder="Поиск" autocomplete="off">
+                                <input type="submit" value="" class="chat_search_but">
+                                <div class="add_tov_list"></div>
+                            </form>
+                        </div>
                         <div class="chat_contacts_wrap">
                             <?php if (!empty($user_new_conversation)):
                                 $new_conv = $user_new_conversation;?>
                                 <div class="chat_contact parent <?php if ($user_with == $new_conv['user_with']['id']) { echo 'chat_contact_active';}?>"
-                                     onclick="location.href='/messages/<?php echo $new_conv['user_with']['id'];?>';">
+                                     onclick="location.href='/messages/<?php echo $new_conv['user_with']['id'];?>';" id="chat-contact-<?php echo $new_conv['user_with']['id'];?>">
                                     <div class="chat_contact_img_wrap">
                                         <div class="chat_contact_img"><img src="<?php echo $new_conv['user_with']['image'];?>" alt=""></div>
                                     </div>
@@ -62,7 +65,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         endif;
                                     endif;?>
                                     <div class="chat_contact parent <?php if ($user_with == $conv['user_with']['id']) { echo 'chat_contact_active';}?>"
-                                         onclick="location.href='/messages/<?php echo $conv['user_with']['id'];?>';">
+                                         onclick="location.href='/messages/<?php echo $conv['user_with']['id'];?>';" id="chat-contact-<?php echo $new_conv['user_with']['id'];?>">
                                         <div class="chat_contact_img_wrap">
                                             <div class="chat_contact_img"><img src="<?php echo $conv['user_with']['image'];?>" alt=""></div>
                                             <!--<div class="chat_contact_status chat_contact_status_b"></div>-->
@@ -85,7 +88,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 unset($conv);
                             endif;?>
                             <div class="chat_contact parent <?php if ($user_with == 'feedback') { echo 'chat_contact_active';}?>"
-                                 onclick="location.href='/messages/feedback';">
+                                 onclick="location.href='/messages/feedback';" id="chat-contact-feedback">
                                 <div class="chat_contact_img_wrap">
                                     <div class="chat_contact_img"><img src="/img/menu_ico4.png" alt="" style="width:25px; height: auto; margin: 5px 4px;"></div>
                                     <!--<div class="chat_contact_status chat_contact_status_b"></div>-->

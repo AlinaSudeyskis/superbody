@@ -103,7 +103,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </a>
     </li>-->
     <li>
-        <a href="/administration/notifications" <?php if ($page_menu == 'notifications') { echo 'class="active"'; } ?>>
+        <a href="/administration/notifications/users" <?php if ($page_menu == 'notifications') { echo 'class="active"'; } ?>>
             <span><i class="fas fa-exclamation"></i></span><span>Уведомления</span>
         </a>
     </li>

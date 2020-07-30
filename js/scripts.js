@@ -242,6 +242,16 @@ $(document).ready(function() {
                 }
             });
 
+            $('#s-notif-users-group').on('change', function () {
+                var sev_users = $('#notif-users-group-search'),
+                    group_type = $(this).val();
+                if (group_type === 'all') {
+                    sev_users.hide();
+                } else {
+                    sev_users.show();
+                }
+            });
+
             // Блок информации
             var block_message = $('#block-message');
             if (block_message.length > 0 && block_message.hasClass('show')) {
@@ -261,6 +271,59 @@ $(document).ready(function() {
                 {
                     pcrp.hide();
                 }
+            });
+            /* выпадающий список пользователей */
+            $(document).on('input', '.add_tov_in.coach_users input:text', function () {
+                if($(this).val() !== '' && $(this).val().length < 255){
+                    var input_search = $(this).val(),
+                        tov_in = $(this);
+                    $.ajax({
+                        url: '/searchCoachUsers',
+                        type: 'post',
+                        dataType: 'json',
+                        data: {search_text: input_search},
+                        complete: function (result) {
+                            if(result !== "")
+                            {
+                                tov_in.parents(".add_tov_in").find(".add_tov_list").html(result.responseText);
+                                tov_in.parents(".add_tov_in").find(".add_tov_list").show();
+                            }
+                        }
+                    });
+                } else{
+                    $(this).parents(".add_tov_in").find(".add_tov_list").hide();
+                }
+            });
+            $(document).on("click", ".add_tov_in.coach_users .add_tren_item.user", function() {
+                if(!$(this).hasClass("disable")){
+                    var link = $(this).find(".add_tov_cont").attr("href"),
+                        image = $(this).find(".add_tov_img").html(),
+                        name = $(this).find(".add_tov_h").text(),
+                        number = $(this).attr("id"),
+                        parent_block = $(".chat_contacts_wrap");
+
+                    if(parent_block.find('#chat-contact-'+number).length === 0)
+                    {
+                        parent_block.prepend('<div class="chat_contact parent " onclick="location.href=\'/messages/'+number+'\';" id="chat-contact-'+number+'">\n' +
+                            '<div class="chat_contact_img_wrap"><div class="chat_contact_img">'+image+'</div></div>' +
+                            '<div class="chat_contact_cont">' +
+                                '<div class="chat_contact_cont_top parent">' +
+                                    '<div class="chat_contact_time"></div>' +
+                                    '<div class="chat_contact_name">'+name+'</div>' +
+                                '</div>' +
+                                '<div class="chat_contact_short_mess"></div>' +
+                            '</div>' +
+                        '</div>');
+                    }
+
+                    $(this).parents(".add_tov_list").hide();
+                    $(this).parents(".add_tov_list").parents('.add_tov_in.coach_users').find('input:text').val('');
+                    $(this).addClass("disable");
+
+                    let url = location.protocol + '//' + location.hostname + '/messages/' + number;
+                    $(location).attr('href',url);
+                }
+                return false;
             });
             /* выпадающий список курсов */
             $(document).on('input', '.add_tov_in.pc_course input:text', function () {
@@ -2514,6 +2577,10 @@ $(document).ready(function() {
 
         Cookies.set('disclaimer', 'true', { expires: expire });
     });
+
+    var x = new Date();
+    var currentTimeZoneOffsetInHours = -x.getTimezoneOffset() / 60;
+    console.log(currentTimeZoneOffsetInHours);
 
 });
 

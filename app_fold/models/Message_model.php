@@ -117,24 +117,24 @@ class Message_model extends CI_Model
     {
         $result = array('user_conversations' => array(), 'user_new_conversation' => array());
 
-        if(is_numeric($user_id) and is_numeric($user_with))
+        if(is_numeric($user_id))
         {
             // Флаг обозначения, что пользователь с кем идет переписка не найден в списке диалогов
             $fl_user_with = false;
 
             $sel_mess = $this->db->query('
-            SELECT `um_conv_id`, `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `user_name`, `user_email`, `user_image` 
-            FROM `users_messages` 
-            LEFT JOIN `users`
-              ON CASE 
-                WHEN `um_from`=? 
-                THEN `um_whom`=`user_id` 
-                ELSE `um_from`=`user_id` 
-                END
-            WHERE `um_blocked`=0 and (`um_from`=? or `um_whom`=?) 
-              and  `um_date` IN 
-                (SELECT max(`um_date`) FROM `users_messages` GROUP BY `um_conv_id`)
-            ORDER BY `um_date` DESC', array($user_id, $user_id, $user_id));
+                SELECT `um_conv_id`, `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `user_name`, `user_email`, `user_image` 
+                FROM `users_messages` 
+                LEFT JOIN `users`
+                  ON CASE 
+                    WHEN `um_from`=? 
+                    THEN `um_whom`=`user_id` 
+                    ELSE `um_from`=`user_id` 
+                    END
+                WHERE `um_blocked`=0 and (`um_from`=? or `um_whom`=?) 
+                  and  `um_date` IN 
+                    (SELECT max(`um_date`) FROM `users_messages` GROUP BY `um_conv_id`)
+                ORDER BY `um_date` DESC', array($user_id, $user_id, $user_id));
 
             if ($sel_mess !== false and 0 < $sel_mess->num_rows())
             {
@@ -150,7 +150,7 @@ class Message_model extends CI_Model
                         $result['user_conversations'][$i]['user_with']['id'] = $row->um_from;
                     }
 
-                    if($result['user_conversations'][$i]['user_with']['id'] == $user_with)
+                    if(is_numeric($user_with) and $result['user_conversations'][$i]['user_with']['id'] == $user_with)
                     {
                         $fl_user_with = true;
                     }
@@ -190,12 +190,12 @@ class Message_model extends CI_Model
             }
 
             // Данные нового пользователя
-            if($fl_user_with === false)
+            if($fl_user_with === false and is_numeric($user_with))
             {
                 $sel_user = $this->db->query('
-                SELECT `user_name`, `user_email`, `user_image` 
-                FROM `users`
-                WHERE `user_id`=? and `user_type`=2 LIMIT 1', $user_with);
+                    SELECT `user_name`, `user_email`, `user_image` 
+                    FROM `users`
+                    WHERE `user_id`=? LIMIT 1', $user_with);
 
                 if($sel_user !== false and 1 == $sel_user->num_rows())
                 {
@@ -234,7 +234,7 @@ class Message_model extends CI_Model
 
             // Данные пользователя с кем ведется диалог
             $result['conv_with']['name'] = '';
-            $sel_user_with = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image` FROM `users` WHERE `user_id`=? and `user_type`=2 LIMIT 1', $user_with);
+            $sel_user_with = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image` FROM `users` WHERE `user_id`=? LIMIT 1', $user_with);
 
             if ($sel_user_with !== false and 1 == $sel_user_with->num_rows())
             {
@@ -242,7 +242,7 @@ class Message_model extends CI_Model
 
                 $user_name = (!empty($row->user_name)) ? $row->user_name : $row->user_email;
 
-                $result['conv_with']['name'] = (!empty($user_name)) ? $user_name : 'Собеседник №' . $row->user_id;
+                $result['conv_with']['name'] = (!empty($user_name)) ? $user_name : 'Пользователь №' . $row->user_id;
             }
             elseif($sel_user_with === false)
             {

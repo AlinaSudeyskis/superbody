@@ -114,6 +114,7 @@ class CI_Controller {
      * @var string Код страны пользователя
      */
     public $country_code = '';
+    public $user_timezone = '';
 
     /**
      * @var array Коды стран
@@ -491,7 +492,7 @@ class CI_Controller {
         }
 
         // Проверка кода страны пользователя
-        if(empty($this->session->country_code))
+        if(!empty($this->session->user) and empty($this->session->country_code))
         {
             $client        = $_SERVER['HTTP_CLIENT_IP'];
             $forward       = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -503,17 +504,21 @@ class CI_Controller {
 
             $ip_data = (!empty($ip)) ? json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=".$ip)) : null;
 
-            if($ip_data && $ip_data->geoplugin_countryName != null)
+            if($ip_data)
             {
                 $this->country_code = $ip_data->geoplugin_countryCode;
+                $this->user_timezone = $ip_data->geoplugin_timezone;
 
                 $user_data['country_code'] = $ip_data->geoplugin_countryCode;
+                $user_data['user_timezone'] = $ip_data->geoplugin_timezone;
+                //log_message('debug', print_r($ip_data, true));
                 $this->session->set_userdata($user_data);
             }
         }
-        else
+        elseif(!empty($this->session->user))
         {
             $this->country_code = $this->session->country_code;
+            $this->user_timezone = $this->session->user_timezone;
         }
 
 		$this->list_errors = $this->Notification_model->getListNotifications();
@@ -558,6 +563,7 @@ class CI_Controller {
             "outsider" => false,
             "menu_courses" => $courses,
             "country_code" => $this->country_code,
+            "user_timezone" => $this->user_timezone,
             "user_notification" => array(),
             "e_new_messages" => $admin_new_fbs,
             "e_new_orders" => $admin_new_orders

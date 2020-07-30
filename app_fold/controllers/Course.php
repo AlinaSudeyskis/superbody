@@ -6193,9 +6193,9 @@ class Course extends CI_Controller
                 $crs_group      = $this->input->post('r_courses_group', true);
                 $crs_categories = $this->input->post('s_courses_categories', true);
 
-                $res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                /*$res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
                     $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode, $crs_group,
-                    $crs_categories, $courses, $this->user_id);
+                    $crs_categories, $courses, $this->user_id);*/
 
                 if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
                 {
@@ -7530,7 +7530,7 @@ class Course extends CI_Controller
                             // Поиск большего номера дня недели
                             foreach ($array_training_days as $key => $training_day) {
                                 if ($training_day > $current_num_day and $set_start_date === true) {
-                                    $diff_days = $training_day - $current_num_day;
+                                    $diff_days = abs($training_day - $current_num_day);
 
                                     $date = DateTime::createFromFormat('Y-m-d', $training_date);
                                     $date->add(new DateInterval('P' . $diff_days . 'D'));
@@ -7545,7 +7545,7 @@ class Course extends CI_Controller
                             // пользователя и вычисляем её дату
                             if ($training_date == $today) {
                                 // От 7 дней недели отнимаем день недели предыдущей тренировки и прибавляем день недели первой тренировки на неделе
-                                $diff_days = 7 - $current_num_day + $array_training_days[0];
+                                $diff_days = abs(7 - $current_num_day + $array_training_days[0]);
 
                                 // Временная дата предыдущей тренивроки
                                 $tem_date = new DateTime($training_date);
@@ -7575,6 +7575,7 @@ class Course extends CI_Controller
                                 // Разница между текущим номером недели тренировки и предыдущем.
                                 $diff_days = $array_training_days[$key_num_day+1] - $array_training_days[$key_num_day];
                             }
+                            $diff_days = abs($diff_days);
 
                             // Временная дата предыдущей тренивроки
                             $tem_date = new DateTime($training_date);
@@ -8221,6 +8222,39 @@ class Course extends CI_Controller
                 parent::sendEmail(11, $course['user_email'], $system_message);
 
                 $this->Course_model->setEmailSentUserExpiringCourse($uc_id);
+            }
+            unset($course);
+        }
+    }
+
+    /**
+     * Проверка наличия завершенных курсов пользователей и отправка уведомления на почту
+     */
+    public function checkPausedUsersCourses()
+    {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+        $result = $this->Course_model->checkPausedUsersCourses($this->date);
+        //log_message('debug', print_r($result, true));
+        if(!empty($result))
+        {
+            $notification = $this->Notification_model->getNotification(224);
+
+            foreach($result as $uc_id => $course)
+            {
+                $system_message['text'] = '<table border="0" cellpadding="0" cellspacing="0" style="margin:0; padding:0">'
+                    . '<tr><td style="width:30%; padding:0; margin:0;" width="30%">';
+                $system_message['text'] .= '<a href="https://superbody.pro/profile/course/' . $uc_id . '" '
+                    . 'style="text-transform: uppercase; font-weight: 300; font-size: 24px; line-height: 28px; '
+                    . 'padding: 20px 0 20px 30px; margin:0; color: #72d0f4; text-decoration: none;">'
+                    . $course['course_name'] . '</a>';
+                $system_message['text'] .= '</td><td style="width:70%; padding:0; margin:0;" width="70%">';
+                $system_message['text'] .= '<p style="text-align: center; padding: 20px 15px; color: #606060; '
+                    . 'font-weight: 300; border: none; white-space: normal; font-size: 18px; line-height: 22px;">'
+                    . $notification['notification']['text'] . '</p>';
+                $system_message['text'] .= '</td></tr>';
+                $system_message['text'] .= '</table>';
+
+                parent::sendEmail(20, $course['user_email'], $system_message);
             }
             unset($course);
         }

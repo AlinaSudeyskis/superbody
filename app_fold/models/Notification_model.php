@@ -43,6 +43,44 @@ class Notification_model extends CI_Model
     }
 
     /**
+     * Выборка списка уведомлений для пользователей
+     *
+     * @return array
+     */
+    public function getListUsersNotifications()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `un_text`, `un_date`, `un_time` FROM `users_notifications` ORDER BY `un_id`');
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 1;
+            foreach($sel_data->result() as $row)
+            {
+                $result[$i]['text'] = $row->un_text;
+                $result[$i]['time'] = mb_substr($row->un_time, 0, 5);
+
+                setlocale(LC_ALL, 'ru_RU.UTF-8');
+                $tmp_date = DateTime::createFromFormat('Y-m-d', $row->un_date);
+                $un_date = ($row->un_date != '0000-00-00' and $tmp_date !== false)
+                    ? $tmp_date->format('d.m.Y')
+                    : '';
+                $result[$i]['date'] = $un_date;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка данных уведомления
      *
      * @param $notification_id
@@ -452,5 +490,167 @@ class Notification_model extends CI_Model
         }
 
         return $result;
+    }
+
+    /**
+     * Сохранение уведомления для пользователя
+     *
+     * @param $n_text
+     * @param $n_date
+     * @param $n_time
+     * @param $users_group
+     * @param $sel_users
+     * @param $date
+     * @return bool|int
+     */
+    public function setUserNotification($n_text, $n_date, $n_time, $users_group, $sel_users, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('INSERT INTO `users_notifications` (`un_text`, `un_date`, `un_time`, `un_users`, `un_update`) VALUES (?, ?, ?, ?, ?)',
+            array($n_text, $n_date, $n_time, $users_group, $date));
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $n_id = $this->db->insert_id();
+
+            self::setUsersNotificationsGroup($n_id, $sel_users, $date);
+
+            $result = $n_id;
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных уведомления для пользователя
+     *
+     * @param $n_id
+     * @return array
+     */
+    public function getUserNotification($n_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `un_text`, `un_date`, `un_time`, `un_users` FROM `users_notifications` WHERE `un_id`=? LIMIT 1', $n_id);
+
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['notification']['text'] = $row->un_text;
+            $result['notification']['date'] = $row->un_date;
+            $result['notification']['time'] = $row->un_time;
+            $result['notification']['users_group'] = $row->un_users;
+
+            if($row->un_users == 'group')
+            {
+                $sel_users = $this->db->query('SELECT `ung_u_id`, `user_email`, `user_name`
+                    FROM `users_notifications_group`
+                    LEFT JOIN `users` ON `user_id`=`ung_u_id`
+                    WHERE `ung_un_id`=?', $n_id);
+                if($sel_users !== false and 0 < $sel_users->num_rows())
+                {
+                    $i = 0;
+                    foreach ($sel_users->result() as $row)
+                    {
+                        $result['notification']['users'][$i]['id'] = $row->ung_u_id;
+                        $result['notification']['users'][$i]['email'] = $row->user_email;
+                        $result['notification']['users'][$i]['name'] = $row->user_name;
+
+                        $result['notification']['users_ids'][$i] = $row->ung_u_id;
+
+                        $i++;
+                    }
+                    unset($row);
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     *
+     *
+     * @param $notification_id
+     * @param $notif_text
+     * @param $notif_date
+     * @param $notif_time
+     * @param $users_group
+     * @param $sel_users
+     * @param $date
+     * @return bool
+     */
+    public function updateUserNotification($notification_id, $notif_text, $notif_date, $notif_time, $users_group, $sel_users, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `users_notifications` SET `un_text`=?, `un_date`=?, `un_time`=?, `un_users`=?, `un_update`=? WHERE `un_id`=? LIMIT 1',
+            array($notif_text, $notif_date, $notif_time, $users_group, $date, $notification_id));
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+
+            self::setUsersNotificationsGroup($notification_id, $sel_users, $date);
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Добавление, удаление прикрепленных поьзователей к уведомлению
+     *
+     * @param $notification_id
+     * @param $selected_users
+     * @param $date
+     */
+    public function setUsersNotificationsGroup($notification_id, $selected_users, $date)
+    {
+        if(is_array($selected_users['insert']) and !empty($selected_users['insert']))
+        {
+            $values = '';
+            foreach($selected_users['insert'] as $user_id)
+            {
+                $values .= '('.$notification_id.', '.$user_id.', "'.$date.'"),';
+            }
+
+            $values = mb_substr($values, 0, -1);
+
+            if(!empty($values))
+            {
+                $ins_data = $this->db->query('INSERT INTO `users_notifications_group` (`ung_un_id`, `ung_u_id`, `ung_update`) VALUES '.$values);
+                if($ins_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
+        if(is_array($selected_users['delete']) and !empty($selected_users['delete']))
+        {
+            $values = '';
+            foreach($selected_users['delete'] as $user_id)
+            {
+                $values .= $user_id.',';
+            }
+
+            $values = mb_substr($values, 0, -1);
+
+            if(!empty($values))
+            {
+                $del_data = $this->db->query('DELETE FROM `users_notifications_group` WHERE `ung_un_id`=? and `ung_u_id` IN ('.$values.') ', $notification_id);
+                if($del_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+        }
     }
 }

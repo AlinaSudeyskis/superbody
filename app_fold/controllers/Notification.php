@@ -21,18 +21,34 @@ class Notification extends CI_Controller
         $this->load->model('Administrator_model');
     }
 
-    public function notifications()
+    /**
+     * Уведомления
+     *
+     * @param string $type
+     */
+    public function notifications($type = 'users')
     {
-        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        $type = ($type == 'users' or $type == 'system') ? $type : null;
+        $result = array();
+
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1 or empty($type) )
         {
             parent::pageNotFound($this->page_url);
         }
 
-        $result['notifications'] = $this->Notification_model->getListNotifications();
+        if($type == 'users')
+        {
+            $result['notifications'] = $this->Notification_model->getListUsersNotifications();
+        }
+        elseif($type == 'system')
+        {
+            $result['notifications'] = $this->Notification_model->getListNotifications();
+        }
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Уведомления';
         $this->page_data['page_menu'] = 'notifications';
+        $this->page_data['page_submenu'] = ($type == 'users') ? 'notif_users' : 'notif_system';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
@@ -43,16 +59,27 @@ class Notification extends CI_Controller
     /**
      * Форма редактирования данных уведомления
      *
+     * @param string $notification_type
      * @param $notification_id
      */
-    public function notification($notification_id)
+    public function notification($notification_type, $notification_id)
     {
         if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
         {
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Notification_model->getNotification($notification_id);
+        $notification_type = ($notification_type == 'system') ? 'system' : 'users';
+        $result = array();
+
+        if($notification_type == 'system')
+        {
+            $result = $this->Notification_model->getNotification($notification_id);
+        }
+        elseif($notification_type == 'users')
+        {
+            $result = $this->Notification_model->getUserNotification($notification_id);
+        }
 
         if($this->input->post('bt_save_notification', true))
         {
@@ -84,14 +111,144 @@ class Notification extends CI_Controller
 
             header('Location: /administration/notification/' . $notification_id);
         }
+        elseif($this->input->post('bt_save_user_notification', true))
+        {
+            $notif_db_data = $result['notification'];
+
+            $notif_text = mb_substr($this->input->post('ta_text', true), 0, 65000);
+
+            $i_date  = $this->input->post('i_date', true);
+            $tm_date = DateTime::createFromFormat('Y-m-d', $i_date);
+            $notif_date = ($i_date != '' and $tm_date !== false) ? $tm_date->format('Y-m-d') : '';
+
+            $i_time  = $this->input->post('i_time', true);
+            $tm_time = DateTime::createFromFormat('H:i', $i_time);
+            $notif_time = ($i_time != '' and $tm_time !== false) ? $tm_time->format('H:i') : '';
+
+            $users_group = ($this->input->post('s_users_group', true) == 'group') ? 'group' : 'all';
+            $sel_users = array();
+
+            if($users_group == 'group')
+            {
+                $i_users = $this->input->post('users', true);
+
+                foreach($i_users as $i_user)
+                {
+                    if(is_numeric($i_user) and !in_array($i_user, $notif_db_data['users_ids']))
+                    {
+                        $sel_users['insert'][] = $i_user;
+                    }
+                }
+                unset($i_user);
+
+                $sel_users['delete'] = array_diff($notif_db_data['users_ids'], $i_users);
+            }
+
+            if($notif_db_data['text'] != $notif_text or $notif_db_data['date'] != $notif_date or $notif_db_data['time'] != $notif_time
+                or $notif_db_data['users_group'] != $users_group)
+            {
+
+                $result = $this->Notification_model->updateUserNotification($notification_id, $notif_text, $notif_date, $notif_time, $users_group, $sel_users, $this->date);
+
+                if(is_numeric($result))
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                elseif($result === false)
+                {
+                    // Не сохранено
+                    $this->session->set_tempdata('message', 212, 60);
+                }
+
+                header('Location: /administration/notification/users/'. $notification_id);
+            }
+        }
 
         // Объединенные данные страница
         $this->page_data['title'] = 'АП - Уведомления';
         $this->page_data['page_menu'] = 'notifications';
+        $this->page_data['page_submenu'] = ($notification_type == 'users') ? 'notif_users' : 'notif_system';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('notification/notification_settings', $result);
+        if($notification_type == 'system')
+        {
+            $this->load->view('notification/notification_settings', $result);
+        }
+        elseif($notification_type == 'users')
+        {
+            $this->load->view('notification/user_notification_settings', $result);
+        }
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * Форма добавления уведомления для пользователя
+     */
+    public function newUserNotification()
+    {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        if($this->input->post('bt_save_notification', true))
+        {
+            $notif_text = mb_substr($this->input->post('ta_text', true), 0, 65000);
+
+            $i_date  = $this->input->post('i_date', true);
+            $tm_date = DateTime::createFromFormat('Y-m-d', $i_date);
+            $notif_date = ($i_date != '' and $tm_date !== false) ? $tm_date->format('Y-m-d') : '';
+
+            $i_time  = $this->input->post('i_time', true);
+            $tm_time = DateTime::createFromFormat('H:i', $i_time);
+            $notif_time = ($i_time != '' and $tm_time !== false) ? $tm_time->format('H:i') : '';
+
+            $users_group = ($this->input->post('s_users_group', true) == 'group') ? 'group' : 'all';
+            $sel_users = array();
+
+            if($users_group == 'group')
+            {
+                $i_users = $this->input->post('users', true);
+
+                foreach($i_users as $i_user)
+                {
+                    if(is_numeric($i_user))
+                    {
+                        $sel_users['insert'][] = $i_user;
+                    }
+                }
+                unset($i_user);
+            }
+
+            if(!empty($notif_text) and !empty($notif_date) and !empty($notif_time))
+            {
+                $result = $this->Notification_model->setUserNotification($notif_text, $notif_date, $notif_time, $users_group, $sel_users, $this->date);
+
+                if(is_numeric($result))
+                {
+                    // Сохранено
+                    $this->session->set_tempdata('message', 10, 60);
+                    header('Location: /administration/notification/users/'. $result);
+                }
+                elseif($result === false)
+                {
+                    // Не сохранено
+                    $this->session->set_tempdata('message', 212, 60);
+                    header('Location: /administration/notification/users/new');
+                }
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title'] = 'АП - Уведомления';
+        $this->page_data['page_menu'] = 'notifications';
+        $this->page_data['page_submenu'] = 'notif_users';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('notification/new_user_notification');
         $this->load->view('footer/footer');
     }
 

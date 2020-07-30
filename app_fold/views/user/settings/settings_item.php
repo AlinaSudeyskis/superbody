@@ -66,6 +66,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     <?php endif;?>
     <div class="anketa_form_line parent country_code">
+        <div class="anketa_form_h"><div class="anketa_form_h_cell">Часовой пояс:</div></div>
+        <div class="anketa_form_one_wrap anketa_form_three_wrap">
+            <select name="timezone" class="anketa_form_select" tabindex="0">
+                <?php $timezone_identifiers = DateTimeZone::listIdentifiers();
+                foreach($timezone_identifiers as $timezone_identifier):
+                    $dateTime = new DateTime("now", new DateTimeZone($timezone_identifier)); ?>
+
+                    <option value="<?php echo $timezone_identifier; ?>" <?php if(!empty($user_timezone) and $user_timezone == $timezone_identifier):?>selected<?php endif;?>>
+                        <?php echo $timezone_identifier; ?> <?php echo $dateTime->format('P'); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+    <div class="anketa_form_line parent country_code">
         <div class="anketa_form_h"><div class="anketa_form_h_cell">Код страны:</div></div>
         <div class="anketa_form_one_wrap anketa_form_three_wrap">
             <?php include_once('./app_fold/views/user/settings/country_code.php'); ?>

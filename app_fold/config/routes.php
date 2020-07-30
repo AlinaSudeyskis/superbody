@@ -123,6 +123,7 @@ $route['show/weeks']             = 'Course/showCourseWeeks';
 $route['displayCourse']          = 'Course/displayUserCourse';
 $route['displayNutrition']       = 'Course/displayUserNutrition';
 $route['searchUsers']            = 'User/searchUsers';
+$route['searchCoachUsers']       = 'User/searchCoachUsers';
 $route['searchPromo']            = 'Course/searchCoursePromocode';
 $route['checkPromo']             = 'Course/checkPromocode';
 $route['activateVideo']          = 'Course/activateCourseVideo';
@@ -296,8 +297,9 @@ $route['administration/site/(header|banner|about|contacts|auth|spec|meta|cookies
 $route['administration/site/banner/new']    = 'Administrator/newBanner';
 $route['administration/site/banner/(:num)'] = 'Administrator/siteBanner/$1';
 // Уведомления и письма
-$route['administration/notifications']          = 'Notification/notifications';
-$route['administration/notification/(:num)']    = 'Notification/notification/$1';
+$route['administration/notifications(/(users|system))?'] = 'Notification/notifications/$2';
+$route['administration/notification/(users|system)/(:num)'] = 'Notification/notification/$1/$2';
+$route['administration/notification/users/new'] = 'Notification/newUserNotification';
 $route['administration/emails']                 = 'Notification/emails';
 $route['administration/emails/addresses']       = 'Notification/emailsAddresses';
 $route['administration/emails/addresses/new']   = 'Notification/newEmailAddress';
@@ -409,4 +411,5 @@ $route['payment/verification']        = 'Payment/verificationSubsequentPayments'
 $route['course/coursesFreeWeeks']     = 'Course/checkUsersCoursesFreeWeeks';
 $route['course/usersWorkouts']        = 'Course/checkUsersWorkouts';
 $route['course/usersExpiringCourses'] = 'Course/checkUsersExpiringCourses';
+$route['course/usersPausedCourses']   = 'Course/checkPausedUsersCourses';
 $route['course/revokedUsersCourses']  = 'Course/checkRevokedUsersCourses';
