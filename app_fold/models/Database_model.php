@@ -4357,6 +4357,51 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-07-27 19:46';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_notifications` CHANGE `un_text` `un_text` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, 
+                CHANGE `un_users` `un_users` ENUM('all','group') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'all'");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-07-29 23:01';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `authorization_data` ( 
+                `ad_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `ad_u_id` INT(10) UNSIGNED NOT NULL , 
+                `ad_ip` INT(10) UNSIGNED NOT NULL , 
+                `ad_agent` TEXT NOT NULL , 
+                `ad_method` TEXT NOT NULL , 
+                `ad_region` TEXT NOT NULL , 
+                `ad_date` DATETIME NOT NULL ,
+                PRIMARY KEY (`ad_id`), INDEX `ix_ad_u_id` (`ad_u_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-07-30 09:36';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `authorization_data` CHANGE `ad_agent` `ad_agent` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `ad_method` `ad_method` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL, CHANGE `ad_region` `ad_region` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL;");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-07-30 09:36';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_timezone` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `user_soc_image`");
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

@@ -170,19 +170,31 @@ class Authorization extends CI_Controller
         elseif ($reg_result == 'e1')
         {
             $result['error'] = 'Ошибка! Пользователь с таким E-mail уже зарегистрирован.';
-            $result['error_data'] = 'Email: '. $email .' Password matching: '. $password_matching;
+            $result['error_data'] = array(
+                'email' => $email,
+                'password' => $password,
+                'password_confirm' => $password_confirm
+            );
             log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
         elseif ($reg_result == 'e2')
         {
             $result['error'] = 'Ошибка! Не удалось зарегестрировать E-mail.';
-            $result['error_data'] = 'Email: '. $email .' Password matching: '. $password_matching;
+            $result['error_data'] = array(
+                'email' => $email,
+                'password' => $password,
+                'password_confirm' => $password_confirm
+            );
             log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
         elseif ($reg_result == 'e8')
         {
             $result['error'] = 'Ошибка! Проверьте, пожалуйста, корректность и заполните все поля регистрации.';
-            $result['error_data'] = 'Email: '. $email .' Password matching: '. $password_matching;
+            $result['error_data'] = array(
+                'email' => $email,
+                'password' => $password,
+                'password_confirm' => $password_confirm
+            );
             log_message('error', $result['error'] .' E: '. $email .' P: '. $password_matching);
         }
 
@@ -236,6 +248,8 @@ class Authorization extends CI_Controller
                 $user_soc_via = 'native';
                 $user_soc_id = 0;
 
+                self::parseUserLogin($reg_user_id, 'native');
+
                 parent::updateSession($reg_user_id, $email, $user_type, $user_blocked, $user_activated, $user_name, $user_phone,
                     $user_image, $access_token, $user_soc_via, $user_soc_id, $this->date);
             }
@@ -285,6 +299,8 @@ class Authorization extends CI_Controller
                     if (is_array($result))
                     {
                         $user_image = (!empty($result['user_image'])) ? $result['user_image'] : $result['user_soc_image'];
+
+                        self::parseUserLogin($result['user_id'], 'native');
 
                         parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'], $result['user_activated'],
                             $result['user_name'], $result['user_phone'], $user_image, '', 'native', 0, $this->date);
@@ -1952,6 +1968,8 @@ class Authorization extends CI_Controller
 
             $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
 
+            self::parseUserLogin($user['id'], $user['soc_via']);
+
             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['activated'], $user['name'],
                 $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
@@ -2058,5 +2076,25 @@ class Authorization extends CI_Controller
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * Сохарнение данных о входе пользователя
+     *
+     * @param $user_id
+     * @param $method
+     */
+    public function parseUserLogin($user_id, $method)
+    {
+        if(!empty($user_id))
+        {
+            $user_ip      = (filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP)) ? $_SERVER['REMOTE_ADDR'] : '';
+            $user_agent   = strip_tags($_SERVER['HTTP_USER_AGENT']);
+            $ip_data      = (!empty($user_ip)) ? json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=".$user_ip)) : '';
+            $user_country = $ip_data->geoplugin_countryName;
+            $user_ip_long = ip2long($user_ip);
+
+            $this->Authorization_model->setAuthorizationUserData($user_id, $user_ip_long, $user_agent, $method, $user_country, $this->date);
+        }
     }
 }
