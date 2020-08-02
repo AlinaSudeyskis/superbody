@@ -4393,7 +4393,7 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
-        $date = '2020-07-30 09:36';
+        $date = '2020-07-30 09:37';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
@@ -4467,7 +4467,7 @@ class Database_model extends CI_Model
 
         $query_limit = (!empty($limit) and is_numeric($limit)) ? ' LIMIT '.$limit : '';
         $query_limit .= (!empty($query_limit) and !empty($offset) and is_numeric($offset)) ? ', '.$offset : '';
-        $query_limit = ($table == 'users_training_weeks') ? ' WHERE `utw_uc_id`='.$limit : $query_limit;
+        $query_limit = ($table == 'users_training_weeks') ? ' WHERE `utw_uc_id`='.$limit.' ORDER BY `utw_id` ASC' : $query_limit;
 
         $sel_data = $this->db->query('SELECT * FROM `'.$table.'`'.$query_limit);
         //log_message('debug', 'Last query: ' . print_r($this->db->last_query(), true));
