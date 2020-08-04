@@ -4424,6 +4424,7 @@ class Database_model extends CI_Model
             $this->db->query("UPDATE `users_training_weeks` SET `utw_status`='done' WHERE `utw_id`=292097 LIMIT 1");
 
             self::setDbUpdate($date);
+            $result = true;
         }
 
         return $result;
