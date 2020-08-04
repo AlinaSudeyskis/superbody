@@ -4427,6 +4427,16 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-08-04 16:16';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_courses` SET `uc_pause_days`=30 WHERE `uc_id`=1217 LIMIT 1");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
