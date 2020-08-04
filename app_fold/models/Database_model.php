@@ -4405,6 +4405,30 @@ class Database_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление базы данных август 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseAugust2020($date)
+    {
+        $result = false;
+
+        $date = '2020-08-04 15:37';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_courses` SET `uc_paused`=0 WHERE `uc_id`=1217 LIMIT 1");
+            $this->db->query("UPDATE `users_training_weeks` SET `utw_status`='done' WHERE `utw_id`=292096 LIMIT 1");
+            $this->db->query("UPDATE `users_training_weeks` SET `utw_status`='done' WHERE `utw_id`=292097 LIMIT 1");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
+
 
     /**
      * Поиск даты обновления в БД
