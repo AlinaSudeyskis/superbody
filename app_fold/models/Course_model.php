@@ -10356,7 +10356,47 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Проверка статуса тренировок пользователей за прошлые сутки
      *
+     * @param $date
+     * @return bool
+     * @throws Exception
+     */
+    public function checkUsersWorkoutsStatus($date)
+    {
+        $result = false;
+
+        $tmp_date = new DateTime($date);
+        $tmp_date->sub(new DateInterval('P1D'));
+        $yesterday = $tmp_date->format('Y-m-d');
+
+        // In progress
+        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="in_progress" WHERE `utw_progress_percent`>0 and `utw_progress_percent`<75 and `utw_date`=?', $yesterday);
+        if($up_data !== false and 0 < $this->db->affected_rows())
+        {
+            //log_message('debug', $this->db->affected_rows());
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        // Done
+        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="done" WHERE `utw_progress_percent`>75 and `utw_date`=?', $yesterday);
+        if($up_data !== false and 0 < $this->db->affected_rows())
+        {
+            //log_message('debug', $this->db->affected_rows());
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Проверка курсов пользователей на отозванное разрешение на автоматический платеж
      *
      * @param $date
      * @return bool|array
@@ -12607,9 +12647,7 @@ class Course_model extends CI_Model
         }
 
         return $result;
-    }
-
-    /**
+    }    /**
      * Выборка доступных(не заблокированных) прикрепленных курсов курса
      *
      * @param $course_id

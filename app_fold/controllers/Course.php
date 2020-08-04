@@ -8270,6 +8270,15 @@ class Course extends CI_Controller
     }
 
     /**
+     * Проверка статуса тренировок пользователей. Если процент прохождения сохранен и статус не изменен.
+     */
+    public function checkUsersWorkoutsStatus()
+    {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+        $this->Course_model->checkUsersWorkoutsStatus($this->date);
+    }
+
+    /**
      * Проверка курсов пользователя с отозванным разрешением на проведение оплаты. Блокировка курсов
      */
     public function checkRevokedUsersCourses()

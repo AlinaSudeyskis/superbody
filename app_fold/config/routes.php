@@ -413,3 +413,4 @@ $route['course/usersWorkouts']        = 'Course/checkUsersWorkouts';
 $route['course/usersExpiringCourses'] = 'Course/checkUsersExpiringCourses';
 $route['course/usersPausedCourses']   = 'Course/checkPausedUsersCourses';
 $route['course/revokedUsersCourses']  = 'Course/checkRevokedUsersCourses';
+$route['course/usersWorkoutsStatus']  = 'Course/checkUsersWorkoutsStatus';
