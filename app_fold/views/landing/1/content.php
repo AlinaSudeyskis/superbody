@@ -376,11 +376,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="lp_block7_desk"><?php echo $landing['block8']['desc1']; ?></div>
             <div class="lp_block7_line"><?php echo $landing['block8']['subtitle']; ?></div>
             <div class="lp_block7_desk"><?php echo $landing['block8']['desc2']; ?></div>
-            <div class="lp_block7_price">всего за
-                <?php if (!empty($landing['block8']['old_price'])): ?>
-                    <span><?php echo $landing['block8']['old_price']; ?></span> -
-                <?php endif;?>
-                <?php echo $course['price']; ?> руб
+            <div class="lp_block7_price">
+                <?php if($course['price'] > 0): ?>
+                    всего за
+                    <?php if (!empty($landing['block8']['old_price'])): ?>
+                        <span><?php echo $landing['block8']['old_price']; ?></span> -
+                    <?php endif;?>
+                    <?php echo $course['price']; ?> руб
+                <?php elseif($course['price'] == 0): ?>
+                    Бесплатно
+                <?php endif; ?>
             </div>
             <?php if (!empty($landing['block8']['button'])):?>
                 <div class="lp_block_buts_wrap">
