@@ -79,14 +79,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             </div>
                         <?php endif; ?>
                         <?php if (!empty($course['days'])):
-                            if ($course['paused'] == 0 and $course['blocked'] == 0 and $course['finished'] === false) :?>
+                            if ($course['paused'] == 0 and $course['blocked'] == 0 and $course['finished'] === false and !empty($calendar_min_date) and !empty($calendar_max_date)) :?>
                                 <div class="anketa_form_line parent">
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell">Заморозить курс до:</div></div>
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell">
                                         <input type="date" name="date_pause_to" min="<?php echo $calendar_min_date;?>" max="<?php echo $calendar_max_date;?>"/>
                                     </div></div>
                                     <div class="anketa_form_desk">
-                                        Минимальная заморозка курса 7 дней. Вы можете заморозить курс минимум до <?php echo $string_min_date;?>
+                                        Минимальная заморозка курса 7 дней, максимальная 30 дней. Вы можете заморозить курс минимум до <?php echo $string_min_date;?>
+                                    </div>
+                                </div>
+                            <?php elseif($course['pause_days'] == 30): ?>
+                                <div class="anketa_form_line parent">
+                                    <div class="anketa_form_h"><div class="anketa_form_h_cell">Заморозить курс:</div></div>
+                                    <div class="anketa_form_desk">
+                                        Курс можно заморозить максимум на 30 дней. Вы исчерпали лимит дней заморозки.
                                     </div>
                                 </div>
                             <?php endif;

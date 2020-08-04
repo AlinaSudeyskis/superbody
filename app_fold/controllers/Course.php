@@ -6188,14 +6188,15 @@ class Course extends CI_Controller
                 $ua_number      = $this->input->post('i_ua_number', true);
                 $user_use_type  = $this->input->post('s_user_ua_type', true);
                 $user_ua_number = $this->input->post('i_user_ua_number', true);
-                $promocode      = $this->input->post('i_promocode', true);
+                $i_promocodes   = $this->input->post('i_promocodes', true);
+                $users          = $this->input->post('users', true);
                 $courses        = array($extend_crs_id);
                 $crs_group      = $this->input->post('r_courses_group', true);
                 $crs_categories = $this->input->post('s_courses_categories', true);
 
-                /*$res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
-                    $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode, $crs_group,
-                    $crs_categories, $courses, $this->user_id);*/
+                $res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent, $validity_type,
+                    $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $i_promocodes, $users, $crs_group,
+                    $crs_categories, $courses, $this->user_id);
 
                 if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
                 {
@@ -6285,14 +6286,15 @@ class Course extends CI_Controller
                 $ua_number      = $this->input->post('i_ua_number', true);
                 $user_use_type  = $this->input->post('s_user_ua_type', true);
                 $user_ua_number = $this->input->post('i_user_ua_number', true);
-                $promocode      = $this->input->post('i_promocode', true);
+                $i_promocodes   = $this->input->post('i_promocodes', true);
+                $users          = $this->input->post('users', true);
                 $courses        = array($extend_id);
                 $crs_group      = $this->input->post('r_courses_group', true);
                 $crs_categories = $this->input->post('s_courses_categories', true);
 
                 $res_ins = parent::saveNewCoursePromocode($use_category, $name, $desc, $discount, $discount_type, $rel_percent,
-                    $validity_type, $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number, $promocode,
-                    $crs_group, $crs_categories, $courses, $this->user_id);
+                    $validity_type, $date_start, $date_end, $use_type, $ua_number, $user_use_type, $user_ua_number,
+                    $i_promocodes, $users, $crs_group, $crs_categories, $courses, $this->user_id);
 
                 if (is_numeric($res_ins['promocode_id']) and $res_ins['error'] === false)
                 {
@@ -6973,17 +6975,24 @@ class Course extends CI_Controller
         $course_data = array();
         $result = true;
 
-        // Ограничение календаря
-        $date              = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
-        $min_date          = $date->add(new DateInterval('P7D'));
-        $calendar_min_date = $min_date->format('Y-m-d');
-        $string_min_date   = $min_date->format('d.m.Y');
-        $max_date          = $date->add(new DateInterval('P30D'));
-        $calendar_max_date = $max_date->format('Y-m-d');
-        $string_max_date   = $max_date->format('d.m.Y');
-
         // Данные курса пользователя
         $course_data   = $this->Course_model->getUserCourseSettings($course_id, $this->user_id, $this->date);
+
+        // Ограничение календаря
+        $diff_pause_days = 30 - $course_data['course']['pause_days'];
+        if($diff_pause_days > 0)
+        {
+            $min_days = ($diff_pause_days >= 7) ? 7 : $diff_pause_days;
+
+            $date              = DateTime::createFromFormat('Y-m-d H:i:s', $this->date);
+            $min_date          = $date->add(new DateInterval('P'.$min_days.'D'));
+            $calendar_min_date = $min_date->format('Y-m-d');
+            $string_min_date   = $min_date->format('d.m.Y');
+            $date->sub(new DateInterval('P'.$min_days.'D'));
+            $max_date          = $date->add(new DateInterval('P'.$diff_pause_days.'D'));
+            $calendar_max_date = $max_date->format('Y-m-d');
+            $string_max_date   = $max_date->format('d.m.Y');
+        }
 
         // Остаточная стоимость курса
         if($course_data['course']['blocked_buy'] === true)
