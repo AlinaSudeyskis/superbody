@@ -18,7 +18,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <span class="admin_feedback_txt" style="text-decoration: none;"><?php echo $ad['agent']; ?></span>
                                 </span>
                                     <span class="admin_feedback_time_wrap parent">
-                                    <span class="admin_feedback_time"><?php echo $ad['method']; ?> <?php echo $ad['region']; ?></span>
+                                    <span class="admin_feedback_time"><?php echo $ad['method']; ?> <?php echo $ad['country']; ?>, <?php echo $ad['region']; ?>, <?php echo $ad['city']; ?></span>
                                 </span>
                             </span>
                         </div>

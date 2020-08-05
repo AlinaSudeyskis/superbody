@@ -2402,13 +2402,17 @@ class User extends CI_Controller
         $user = $this->User_model->getUserSettingsData($user_id);
         $user_courses = array();
         $courses_data = array();
+        $auth_data = array();
         if (!empty($user['user_data']))
         {
             $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, 'active'); // Выборка курсов пользователя
             $courses_data    = $this->Store_model->getUserCoursesOrder($user_id, $user_courses);
+
+            $this->load->model('Authorization_model');
+            $auth_data = $this->Authorization_model->getUserAuthorizationData($user_id);
         }
 
-        $result = array_merge($user_courses, $user, $courses_data);
+        $result = array_merge($user_courses, $user, $courses_data, $auth_data);
         $user_data = $result['user_data'];
 
         if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))

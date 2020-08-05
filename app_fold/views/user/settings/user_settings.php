@@ -72,5 +72,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php if(!empty($user_data) and !empty($page_2submenu) and ($page_2submenu == 'settings' or $page_2submenu == 'personal')):?>
                 <?php include_once('./app_fold/views/user/outsider_profile_item.php'); ?>
             <?php endif; ?>
+            <?php include_once('./app_fold/views/authorization/user_auth_data.php'); ?>
         </div>
     </div><!-- content -->

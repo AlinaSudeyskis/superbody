@@ -1466,7 +1466,7 @@ class Authorization_model extends CI_Model
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `ad_ip`, `ad_agent`, `ad_method`, `ad_region`, `ad_date` FROM `authorization_data` WHERE `ad_u_id`=? ORDER BY `ad_date` DESC LIMIT 30', $user_id);
+        $sel_data = $this->db->query('SELECT `ad_ip`, `ad_agent`, `ad_method`, `ad_country`, `ad_region`, `ad_city`, `ad_date` FROM `authorization_data` WHERE `ad_u_id`=? ORDER BY `ad_date` DESC LIMIT 30', $user_id);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -1479,7 +1479,9 @@ class Authorization_model extends CI_Model
 
                 $result['auth_data'][$i]['method'] = $row->ad_method;
 
+                $result['auth_data'][$i]['country'] = $row->ad_country;
                 $result['auth_data'][$i]['region'] = $row->ad_region;
+                $result['auth_data'][$i]['city'] = $row->ad_city;
                 $result['auth_data'][$i]['date'] = $row->ad_date;
 
                 $i++;

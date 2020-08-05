@@ -293,6 +293,10 @@ class Coach extends CI_Controller
         }
 
         $user = $this->Coach_model->getCoach($user_id);
+
+        $this->load->model('Authorization_model');
+        $auth_data = $this->Authorization_model->getUserAuthorizationData($user_id);
+
         $user_data = $user['user_data'];
 
         if ($this->input->post('bt_save_user_settings', true) and is_numeric($user_id))
@@ -628,10 +632,11 @@ class Coach extends CI_Controller
         $this->page_data['page_menu']     = 'users';
         $this->page_data['page_submenu']  = ($user_data['user_deleted'] == 1) ? 'a_users_archive' : 'a_coaches';
         $this->page_data['page_2submenu'] = ($page_type == 'settings') ? 'settings' : 'personal_data';
+        $result = array_merge($user, $auth_data);
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('coach/settings/coach_settings', $user);
+        $this->load->view('coach/settings/coach_settings', $result);
         $this->load->view('footer/footer');
     }
 
