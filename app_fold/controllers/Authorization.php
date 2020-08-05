@@ -2092,9 +2092,11 @@ class Authorization extends CI_Controller
             $user_agent   = strip_tags($_SERVER['HTTP_USER_AGENT']);
             $ip_data      = (!empty($user_ip)) ? json_decode(file_get_contents("http://www.geoplugin.net/json.gp?ip=".$user_ip)) : '';
             $user_country = $ip_data->geoplugin_countryName;
+            $user_region  = $ip_data->geoplugin_region;
+            $user_city    = $ip_data->geoplugin_city;
             $user_ip_long = ip2long($user_ip);
 
-            $this->Authorization_model->setAuthorizationUserData($user_id, $user_ip_long, $user_agent, $method, $user_country, $this->date);
+            $this->Authorization_model->setAuthorizationUserData($user_id, $user_ip_long, $user_agent, $method, $user_country, $user_region, $user_city, $this->date);
         }
     }
 }

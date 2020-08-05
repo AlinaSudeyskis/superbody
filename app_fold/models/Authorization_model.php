@@ -1428,16 +1428,18 @@ class Authorization_model extends CI_Model
      * @param $user_ip
      * @param $user_agent
      * @param $method
+     * @param $user_country
      * @param $user_region
+     * @param $user_city
      * @param $date
      * @return bool
      */
-    public function setAuthorizationUserData($user_id, $user_ip, $user_agent, $method, $user_region, $date)
+    public function setAuthorizationUserData($user_id, $user_ip, $user_agent, $method, $user_country, $user_region, $user_city, $date)
     {
         $result = false;
 
-        $ins_data = $this->db->query('INSERT INTO `authorization_data` (`ad_u_id`, `ad_ip`, `ad_agent`, `ad_method`, `ad_region`, `ad_date`) VALUES (?, ?, ?, ?, ?, ?)',
-            array($user_id, $user_ip, $user_agent, $method, $user_region, $date));
+        $ins_data = $this->db->query('INSERT INTO `authorization_data` (`ad_u_id`, `ad_ip`, `ad_agent`, `ad_method`, `ad_country`, `ad_region`, `ad_city`, `ad_date`) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)', array($user_id, $user_ip, $user_agent, $method, $user_country, $user_region, $user_city, $date));
 
         if($ins_data !== false and 1 == $this->db->affected_rows())
         {
