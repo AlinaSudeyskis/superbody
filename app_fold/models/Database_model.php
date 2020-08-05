@@ -4437,6 +4437,17 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-08-05 10:19';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `authorization_data` ADD `ad_country` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ad_method`");
+            $this->db->query("ALTER TABLE `authorization_data` ADD `ad_city` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `ad_region`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
