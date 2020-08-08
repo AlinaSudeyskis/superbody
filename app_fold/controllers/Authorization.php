@@ -155,7 +155,7 @@ class Authorization extends CI_Controller
     {
         $result = array('error' => null);
 
-        $email = (!empty($this->input->get('email', true))) ? $this->input->post('email', true) : null;
+        $email = (!empty($this->input->get('email', true))) ? $this->input->get('email', true) : null;
         $password         = $this->input->get('password', true);
         $password_confirm = $this->input->get('password_confirm', true);
         $password_matching = ($password === $password_confirm) ? 'Match' : 'Not match';
