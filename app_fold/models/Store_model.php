@@ -2,6 +2,15 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 use YandexCheckout\Client;
+use YandexCheckout\Common\Exceptions\ApiException;
+use YandexCheckout\Common\Exceptions\BadApiRequestException;
+use YandexCheckout\Common\Exceptions\ExtensionNotFoundException;
+use YandexCheckout\Common\Exceptions\ForbiddenException;
+use YandexCheckout\Common\Exceptions\InternalServerError;
+use YandexCheckout\Common\Exceptions\NotFoundException;
+use YandexCheckout\Common\Exceptions\ResponseProcessingException;
+use YandexCheckout\Common\Exceptions\TooManyRequestsException;
+use YandexCheckout\Common\Exceptions\UnauthorizedException;
 use YandexCheckout\Model\PaymentInterface;
 use YandexCheckout\Request\Refunds\CreateRefundResponse;
 
@@ -97,7 +106,7 @@ class Store_model extends CI_Model
     {
         $result = array();
 
-        $sel_cats = $this->db->query('SELECT `cat_id`, `cat_name` FROM `categories` ORDER BY `cat_id` ASC');
+        $sel_cats = $this->db->query('SELECT `cat_id`, `cat_name` FROM `categories` ORDER BY `cat_id`');
 
         if ($sel_cats !== false and 0 < $sel_cats->num_rows())
         {
@@ -465,7 +474,7 @@ class Store_model extends CI_Model
         $result = array();
 
         $sel_cats = $this->db->query('SELECT `cat_id`, `cat_name`, `cat_description` FROM `categories`
-            WHERE `cat_blocked`=0 ORDER BY `cat_id` ASC');
+            WHERE `cat_blocked`=0 ORDER BY `cat_id`');
 
         if ($sel_cats !== false and 0 < $sel_cats->num_rows())
         {
@@ -614,6 +623,7 @@ class Store_model extends CI_Model
      * @param float $last_discount Акция последнего элемента
      * @param int $limit Кол-во товаров на страницу (LIMIT + 1 (next))
      * @return array
+     * @throws Exception
      */
     public function getProducts($first_id = null, $first_price = null, $first_discount = null,
                                 $last_id = null, $last_price = null, $last_discount = null, $limit = 9)
@@ -757,6 +767,7 @@ class Store_model extends CI_Model
      *
      * @param $product_id
      * @return array
+     * @throws Exception
      */
     public function getProduct($product_id)
     {
@@ -1242,6 +1253,7 @@ class Store_model extends CI_Model
      * @param float $last_price Цена последнего элемента
      * @param float $last_discount Акция последнего элемента
      * @return array
+     * @throws Exception
      */
     public function getStoreProducts($category_id = null, $subcategory_id = null, $sort = null, $search = null, $limit = 9,
                                      $first_id = null, $first_price = null, $first_discount = null,
@@ -1560,6 +1572,7 @@ class Store_model extends CI_Model
      * @param string $search Строка поиска
      * @param int $limit Кол-во товаров на страницу
      * @return array
+     * @throws Exception
      */
     public function getLastStoreProducts($sort = null, $search = null, $limit = 5)
     {
@@ -1676,6 +1689,7 @@ class Store_model extends CI_Model
      *
      * @param $product_id
      * @return array
+     * @throws Exception
      */
     public function getStoreProduct($product_id)
     {
@@ -1752,6 +1766,7 @@ class Store_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getUserCartProducts($user_id)
     {
@@ -1809,6 +1824,7 @@ class Store_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getUserCartInStockProducts($user_id)
     {
@@ -2338,6 +2354,7 @@ class Store_model extends CI_Model
      *
      * @param array $products Товары сохраненные в корзине сессии пользователя
      * @return array
+     * @throws Exception
      */
     public function getSessionCartProducts($products)
     {
@@ -2390,6 +2407,7 @@ class Store_model extends CI_Model
      * @param int $product_id
      * @param array $attached_products
      * @return array
+     * @throws Exception
      */
     public function getAttachedSessionCartProducts($product_id, $attached_products)
     {
@@ -2511,6 +2529,7 @@ class Store_model extends CI_Model
      *
      * @param array $products Товары сохраненные в корзине сессии пользователя
      * @return array
+     * @throws Exception
      */
     public function getSessionCartInStockProducts($products)
     {
@@ -2906,6 +2925,7 @@ class Store_model extends CI_Model
      * @param string|null $payment_status
      * @param int|null $search_text
      * @return array
+     * @throws Exception
      */
     public function getOrders($payment_status = null, $search_text = null)
     {
@@ -3141,6 +3161,7 @@ class Store_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getUserOrders($user_id)
     {
@@ -3202,7 +3223,7 @@ class Store_model extends CI_Model
                         // Выборка расписания тренировок
                         $sel_workouts = $this->db->query('
                             SELECT `utw_status` FROM `users_training_weeks` WHERE `utw_uc_id`=?
-                            ORDER BY `utw_date` ASC', $row2->uc_id);
+                            ORDER BY `utw_date`', $row2->uc_id);
                         if ($sel_workouts !== false and 0 < $sel_workouts->num_rows())
                         {
                             $workouts_done = 0;
@@ -3570,8 +3591,8 @@ class Store_model extends CI_Model
 
         if(is_numeric($order_id) and is_numeric($user_id))
         {
-            $tmp_date = new DateTime($date);
-            $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : $date;
+            $tmp_date = new DateTime(parent::parseDatetime($date));
+            $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : parent::parseDatetime($date);
 
             $sel_data = $this->db->query('SELECT `o_id` FROM `orders` WHERE `o_id`=? and `o_u_id`=? LIMIT 1', array($order_id, $user_id));
             if($sel_data !== false and 1 == $sel_data->num_rows())
@@ -3989,8 +4010,8 @@ class Store_model extends CI_Model
 
         if(!empty($date))
         {
-            $tmp_date = new DateTime($date);
-            $date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : $date;
+            $tmp_date = new DateTime(parent::parseDatetime($date));
+            $date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : parent::parseDatetime($date);
         }
 
         $sel_payments = $this->db->query('
@@ -4104,6 +4125,7 @@ class Store_model extends CI_Model
      *
      * @param $order_id
      * @return array
+     * @throws Exception
      */
     public function getOrderWaitingPayments($order_id)
     {
@@ -4151,28 +4173,31 @@ class Store_model extends CI_Model
 
             try {
                 $result['payment'] = $client->getPaymentInfo($payment_id);
-            } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+            } catch (BadApiRequestException $e) {
                 log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
                 $result['error'] = $e->getMessage();
-            } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+            } catch (ForbiddenException $e) {
                 log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
                 $result['error'] = $e->getMessage();
-            } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+            } catch (InternalServerError $e) {
                 log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
                 $result['error'] = $e->getMessage();
-            } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+            } catch (NotFoundException $e) {
                 log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
                 $result['error'] = $e->getMessage();
-            } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+            } catch (ResponseProcessingException $e) {
                 log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
                 $result['error'] = $e->getMessage();
-            } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+            } catch (TooManyRequestsException $e) {
                 log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
                 $result['error'] = $e->getMessage();
-            } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+            } catch (UnauthorizedException $e) {
                 log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
                 $result['error'] = $e->getMessage();
-            } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+            } catch (ApiException $e) {
+                log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
+                $result['error'] = $e->getMessage();
+            } catch (ExtensionNotFoundException $e) {
                 log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
                 $result['error'] = $e->getMessage();
             }
@@ -4208,28 +4233,28 @@ class Store_model extends CI_Model
                 $payment_id,
                 $idempotenceKey
             );
-        } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+        } catch (BadApiRequestException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+        } catch (ForbiddenException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+        } catch (InternalServerError $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+        } catch (NotFoundException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+        } catch (ResponseProcessingException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+        } catch (TooManyRequestsException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+        } catch (UnauthorizedException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+        } catch (ApiException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
         } catch (Exception $e) {
@@ -4257,28 +4282,28 @@ class Store_model extends CI_Model
                 $payment_id,
                 uniqid('', true)
             );
-        } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+        } catch (BadApiRequestException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+        } catch (ForbiddenException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+        } catch (InternalServerError $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+        } catch (NotFoundException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+        } catch (ResponseProcessingException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+        } catch (TooManyRequestsException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+        } catch (UnauthorizedException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+        } catch (ApiException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
         } catch (Exception $e) {
@@ -4362,28 +4387,28 @@ class Store_model extends CI_Model
                 ),
                 $idempotenceKey
             );
-        } catch (\YandexCheckout\Common\Exceptions\BadApiRequestException $e) {
+        } catch (BadApiRequestException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ForbiddenException $e) {
+        } catch (ForbiddenException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\InternalServerError $e) {
+        } catch (InternalServerError $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\NotFoundException $e) {
+        } catch (NotFoundException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ResponseProcessingException $e) {
+        } catch (ResponseProcessingException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\TooManyRequestsException $e) {
+        } catch (TooManyRequestsException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\UnauthorizedException $e) {
+        } catch (UnauthorizedException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
-        } catch (\YandexCheckout\Common\Exceptions\ApiException $e) {
+        } catch (ApiException $e) {
             log_message('error', __METHOD__ . ':' .__LINE__. ' ' . $e->getMessage());
             $result['error'] = $e->getMessage();
         } catch (Exception $e) {
@@ -4433,6 +4458,7 @@ class Store_model extends CI_Model
      *
      * @param string $payment_id
      * @return array
+     * @throws Exception
      */
     public function getPaymentRefunds($payment_id)
     {
@@ -4460,7 +4486,7 @@ class Store_model extends CI_Model
                         ? $status[$row->opr_refund_status] : '';
 
                     setlocale(LC_ALL, 'ru_RU.UTF-8');
-                    $dt_create = new DateTime($row->opr_refund_created_at);
+                    $dt_create = new DateTime(parent::parseDatetime($row->opr_refund_created_at));
                     $created_at = (!empty($row->opr_refund_created_at) and $dt_create !== false)
                         ? $dt_create->format('d F Y, H:i')
                         : '';
@@ -4489,6 +4515,7 @@ class Store_model extends CI_Model
      * @param $product_id
      * @param $product_name
      * @return array
+     * @throws Exception
      */
     public function searchProducts($product_id = null, $product_name = null)
     {
@@ -4533,6 +4560,7 @@ class Store_model extends CI_Model
      *
      * @param $row
      * @return array
+     * @throws Exception
      */
     protected function parseProductData($row)
     {
@@ -4616,9 +4644,9 @@ class Store_model extends CI_Model
 
         // Дата добавления
         setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $date     = DateTime::createFromFormat('Y-m-d H:i:s', $row->p_date_add);
+        $date     = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->p_date_add));
         $date_add = ($row->p_date_add != '0000-00-00 00:00:00' or $date !== false)
-            ? strftime('%d %B %G, %H:%M', strtotime($row->p_date_add))
+            ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row->p_date_add)))
             : '';
         $result['date'] = $date_add;
 
@@ -4705,6 +4733,7 @@ class Store_model extends CI_Model
      *
      * @param $row
      * @return mixed
+     * @throws Exception
      */
     protected function parseOrderData($row)
     {
@@ -4739,7 +4768,7 @@ class Store_model extends CI_Model
 
         // Дата добавления
         // setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $row->o_date_add);
+        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->o_date_add));
         $date_add = ($row->o_date_add != '0000-00-00 00:00:00' and $tmp_date !== false)
             ? $tmp_date->format('d.m.Y')
             : '';
@@ -4862,11 +4891,11 @@ class Store_model extends CI_Model
         $result['method_id']    = $row->op_payment_method_id;
 
         setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $dt_create = new DateTime($row->op_created_at);
+        $dt_create = new DateTime(parent::parseDatetime($row->op_created_at));
         $created_at = (!empty($row->op_created_at) and $dt_create !== false)
             ? $dt_create->format('d F Y, H:i')
             : '';
-        $dt_expires = new DateTime($row->op_expires_at);
+        $dt_expires = new DateTime(parent::parseDatetime($row->op_expires_at));
         $expires_at = (!empty($row->op_expires_at) and $dt_expires !== false)
             ? $dt_expires->format('d F Y, H:i')
             : '';
@@ -4877,7 +4906,7 @@ class Store_model extends CI_Model
 
         $result['following_date']  = (!empty($row->op_following_date) and $row->op_following_date != '0000-00-00') ? $following : '';
         $result['created_at']      = $created_at;
-        $result['created_at_orig'] = $row->op_created_at;
+        $result['created_at_orig'] = parent::parseDatetime($row->op_created_at);
         $result['expires_at']      = $expires_at;
 
         $result['customer_email'] = $row->op_customer_email;

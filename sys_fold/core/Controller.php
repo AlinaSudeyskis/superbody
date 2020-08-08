@@ -384,7 +384,9 @@ class CI_Controller {
 		$this->load =& load_class('Loader', 'core');
 		$this->load->initialize();
 		log_message('info', 'Controller Class Initialized');
-
+		
+        // echo 'date_default_timezone_set: ' . date_default_timezone_get() . '<br />';
+        date_default_timezone_set('UTC');
 		$this->date = date("Y-m-d H:i:s");
 
 		$this->page_url = $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
@@ -420,7 +422,7 @@ class CI_Controller {
             // Уничтожение сессии, для повтороной авторизации, если дата авторизации меньше метки,
             // заданной для обновления сессий пользователя
             $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->session->user['date_auth']);
-            $u_date = $tmp_date->format('U');
+            $u_date = ($tmp_date !== false) ? $tmp_date->format('U') : null;
             if ($u_date < '1577449706')
             {
                 header('Location: /logout');
@@ -492,7 +494,7 @@ class CI_Controller {
         }
 
         // Проверка кода страны пользователя
-        if(!empty($this->session->user) and empty($this->session->country_code))
+        if(empty($this->session->country_code) or empty($this->session->user_timezone))
         {
             $client        = $_SERVER['HTTP_CLIENT_IP'];
             $forward       = $_SERVER['HTTP_X_FORWARDED_FOR'];
@@ -506,16 +508,34 @@ class CI_Controller {
 
             if($ip_data)
             {
-                $this->country_code = $ip_data->geoplugin_countryCode;
-                $this->user_timezone = $ip_data->geoplugin_timezone;
+                if(empty($this->session->country_code))
+                {
+                    $this->country_code = $ip_data->geoplugin_countryCode;
+                    $user_data['country_code'] = $ip_data->geoplugin_countryCode;
+                }
+                else
+                {
+                    $this->country_code = $this->session->country_code;
+                }
 
-                $user_data['country_code'] = $ip_data->geoplugin_countryCode;
-                $user_data['user_timezone'] = $ip_data->geoplugin_timezone;
+                if(empty($this->session->user_timezone))
+                {
+                    $this->user_timezone = $ip_data->geoplugin_timezone;
+                    $user_data['user_timezone'] = $ip_data->geoplugin_timezone;
+                }
+                else
+                {
+                    $this->user_timezone = $this->session->user_timezone;
+                }
+
                 //log_message('debug', print_r($ip_data, true));
-                $this->session->set_userdata($user_data);
+                if(!empty($user_data))
+                {
+                    $this->session->set_userdata($user_data);
+                }
             }
         }
-        elseif(!empty($this->session->user))
+        else
         {
             $this->country_code = $this->session->country_code;
             $this->user_timezone = $this->session->user_timezone;
@@ -693,6 +713,7 @@ class CI_Controller {
      * @param $user_blocked
      * @param $user_activated
      * @param $user_name
+     * @param $user_timezone
      * @param $user_phone
      * @param $user_image
      * @param $access_token
@@ -701,8 +722,8 @@ class CI_Controller {
      * @param $date
      * @param null $login_from
      */
-    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name, $user_phone, $user_image,
-                                  $access_token, $user_soc_via, $user_soc_id, $date, $login_from = null)
+    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name, $user_timezone,
+                                  $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date, $login_from = null)
     {
         $split_name = mb_split(' ', $user_name);
         $s_name     = !empty($split_name[0]) ? $split_name[0] : '';
@@ -717,6 +738,7 @@ class CI_Controller {
             $user_data['user']['activated']    = $user_activated;
             $user_data['user']['access_token'] = $access_token;
             $user_data['user']['date_auth']    = $date;
+            $user_data['user_timezone']        = $user_timezone;
 
             $this->session->set_userdata($user_data);
         }
@@ -724,7 +746,7 @@ class CI_Controller {
         {
             // Создание сессии
             self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name, $s_name,
-                $s_surname, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date, $login_from);
+                $s_surname, $user_timezone, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date, $login_from);
         }
     }
 
@@ -739,6 +761,7 @@ class CI_Controller {
      * @param $user_name
      * @param $s_name
      * @param $s_surname
+     * @param $user_timezone
      * @param $user_phone
      * @param $user_image
      * @param $access_token
@@ -748,7 +771,7 @@ class CI_Controller {
      * @param null $login_from
      */
     protected function createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name,
-                                         $s_name, $s_surname, $user_phone, $user_image, $access_token, $user_soc_via,
+                                         $s_name, $s_surname, $user_timezone, $user_phone, $user_image, $access_token, $user_soc_via,
                                          $user_soc_id, $date, $login_from = null)
     {
         $cart_count = (!empty($this->session->cart['count']) and is_numeric($this->session->cart['count']) and $this->session->cart['count'] > 0) ? $this->session->cart['count'] : 0;
@@ -782,7 +805,8 @@ class CI_Controller {
             "cart" => array(
                 "count" => $cart_count,
                 "products" => array()
-            )
+            ),
+            "user_timezone" => $user_timezone
         );
 
         if(!empty($login_from) and is_numeric($login_from))

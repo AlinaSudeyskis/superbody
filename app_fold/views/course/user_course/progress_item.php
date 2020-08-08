@@ -21,9 +21,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <?php if(empty($outsider)): ?>
         <div class="oi_d_link">
-            <?php $calendar_active = ($course['display'] == 0) ? 'active' : ''; ?>
-            <?php if($course['category'] == 'workout' or $course['category'] == 'nutrition'): ?>
-                <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>"><?php if($course['display'] == 0): ?>Добавить в календарь<?php else: ?>Удалить из календаря<?php endif; ?></a>
+            <?php if(empty($course['order']['payment_status_eng']) or $course['order']['payment_status_eng'] == 'pending' or $course['order']['payment_status_eng'] == 'not_paid' or
+                $course['order']['payment_status_eng'] == 'canceled' or $course['order']['payment_status_eng'] == 'revoke_permission'): ?>
+                <a href="#" class="buy_course" data-cid="<?php echo $course['course_id']; ?>" data-oid="<?php echo $course['order']['id']; ?>" data-ucid="<?php echo $course['id']; ?>">Оплатить</a>
+            <?php else: ?>
+                <?php $calendar_active = ($course['display'] == 0) ? 'active' : ''; ?>
+                <?php if($course['category'] == 'workout' or $course['category'] == 'nutrition'): ?>
+                    <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>"><?php if($course['display'] == 0): ?>Добавить в календарь<?php else: ?>Удалить из календаря<?php endif; ?></a>
+                <?php endif;?>
             <?php endif;?>
         </div>
     <?php endif; ?>

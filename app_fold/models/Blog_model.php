@@ -439,6 +439,7 @@ class Blog_model extends CI_Model
      *
      * @param $post_id
      * @return array
+     * @throws Exception
      */
     public function getBlogPost($post_id)
     {
@@ -481,7 +482,7 @@ class Blog_model extends CI_Model
                     $result['post']['comments'][$i]['user_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
                     $result['post']['comments'][$i]['user_image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
 
-                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->bc_date_update);
+                    $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->bc_date_update));
                     $comment_date = ($row->bc_date_update != '0000-00-00 00:00:00' or $date !== false)
                         ? strftime('%d %B %G, %H:%M', strtotime($row->bc_date_update))
                         : '';
@@ -620,6 +621,7 @@ class Blog_model extends CI_Model
      * Выборка комментариев блогов
      *
      * @return array
+     * @throws Exception
      */
     public function getBlogsComments()
     {
@@ -646,9 +648,9 @@ class Blog_model extends CI_Model
                 $result['comments'][$i]['approval']   = $row->bc_approval;
 
                 setlocale(LC_ALL, 'ru_RU.UTF-8');
-                $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->bc_date_add);
+                $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->bc_date_add));
                 $message_date = ($row->bc_date_add != '0000-00-00 00:00:00' or $date !== false)
-                    ? strftime('%d %B %G, %H:%M', strtotime($row->bc_date_add))
+                    ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row->bc_date_add)))
                     : '';
 
                 $result['comments'][$i]['date'] = $message_date;
@@ -670,6 +672,7 @@ class Blog_model extends CI_Model
      *
      * @param $comment_id
      * @return array
+     * @throws Exception
      */
     public function getBlogComment($comment_id)
     {
@@ -696,9 +699,9 @@ class Blog_model extends CI_Model
             $result['comment']['approval']   = $row->bc_approval;
 
             setlocale(LC_ALL, 'ru_RU.UTF-8');
-            $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->bc_date_add);
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->bc_date_add));
             $message_date = ($row->bc_date_add != '0000-00-00 00:00:00' and $date !== false)
-                ? strftime('%d %B %G, %H:%M', strtotime($row->bc_date_add))
+                ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row->bc_date_add)))
                 : '';
 
             $result['comment']['date'] = $message_date;
@@ -772,6 +775,7 @@ class Blog_model extends CI_Model
      *
      * @param $row
      * @return array
+     * @throws Exception
      */
     protected function parseBlogPostData($row)
     {
@@ -790,9 +794,9 @@ class Blog_model extends CI_Model
         if (!empty($row->cb_post_date_add))
         {
             setlocale(LC_ALL, 'ru_RU.UTF-8');
-            $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->cb_post_date_add);
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->cb_post_date_add));
             $message_date = ($row->cb_post_date_add != '0000-00-00 00:00:00' and $date !== false)
-                ? strftime('%e %B %G', strtotime($row->cb_post_date_add))
+                ? strftime('%e %B %G', strtotime(parent::parseDatetime($row->cb_post_date_add)))
                 : '';
 
             $result['date'] = $message_date;
@@ -803,9 +807,9 @@ class Blog_model extends CI_Model
         if (!empty($row->cb_post_date_update))
         {
             setlocale(LC_ALL, 'ru_RU.UTF-8');
-            $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->cb_post_date_update);
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->cb_post_date_update));
             $message_date = ($row->cb_post_date_update != '0000-00-00 00:00:00' and $date !== false)
-                ? strftime('%d %B %G, %H:%M', strtotime($row->cb_post_date_update))
+                ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row->cb_post_date_update)))
                 : '';
 
             $result['date_update'] = $message_date;

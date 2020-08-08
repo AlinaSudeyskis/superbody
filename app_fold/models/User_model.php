@@ -83,6 +83,7 @@ class User_model extends CI_Model
      * @param null|int $first_id
      * @param null|int $last_id
      * @return array
+     * @throws Exception
      */
     public function getUsersData($users_category = 'auth', $search_text = null, $first_id = null, $last_id = null)
     {
@@ -216,6 +217,7 @@ class User_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getAUser($user_id)
     {
@@ -243,6 +245,7 @@ class User_model extends CI_Model
      * @param null|int $first_id
      * @param null|int $last_id
      * @return array
+     * @throws Exception
      */
     public function getUsersArchive($search_text = null, $first_id = null, $last_id = null)
     {
@@ -289,6 +292,7 @@ class User_model extends CI_Model
      * @param $user_id
      * @param int $archive_user
      * @return bool|array
+     * @throws Exception
      */
     public function getUserSettingsData($user_id, $archive_user = 0)
     {
@@ -296,7 +300,7 @@ class User_model extends CI_Model
         $result = array ('user_data' => array());
 
         $sel_data = $this->db->query('
-            SELECT `users`.`user_id`, `user_name`, `user_email`, `user_password`, `user_country_code`, `user_phone`, 
+            SELECT `users`.`user_id`, `user_name`, `user_email`, `user_password`, `user_timezone`, `user_country_code`, `user_phone`, 
                `user_image`, `user_soc_image`, `user_blocked`, `user_activated`, `user_activate_code`, `user_type`, 
                `user_gender`, `user_birthday`, `user_deleted`, `user_delete_date`, `user_delete_by`, `user_new_email`, 
                `user_new_email_idempotent`, `user_restore_account_idempotent`, `user_new_email_date`, `user_activate_date`
@@ -387,19 +391,20 @@ class User_model extends CI_Model
      * @param int $user_id ID пользователя
      * @param string $name Ф.И.О. пользователя
      * @param string $password_hash Хэш пароля
+     * @param $timezone
      * @param string $code Код страны
      * @param string $phone Телефон пользователя
      * @param string $path_avatar Путь к изображению пользователя
      * @param datetime $date Текущая дата
      * @return bool
      */
-    public function setUserSettingsData($user_id, $name, $password_hash, $code, $phone, $path_avatar, $date)
+    public function setUserSettingsData($user_id, $name, $password_hash, $timezone, $code, $phone, $path_avatar, $date)
     {
         $up_data = $this->db->query('
             UPDATE `users` 
-            SET `user_name`=?, `user_password`=?, `user_country_code`=?, `user_phone`=?, `user_image`=?, `user_date_update`=?
+            SET `user_name`=?, `user_password`=?, `user_timezone`=?, `user_country_code`=?, `user_phone`=?, `user_image`=?, `user_date_update`=?
             WHERE `user_id`=? LIMIT 1', 
-                array($name, $password_hash, $code, $phone, $path_avatar, $date, $user_id));
+                array($name, $password_hash, $timezone, $code, $phone, $path_avatar, $date, $user_id));
         
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -1191,6 +1196,9 @@ class User_model extends CI_Model
 
         if(!empty($user_id))
         {
+            $tmp_date = new DateTime(parent::parseDatetime($today));
+            $today = $tmp_date->format('Y-m-d');
+
             $sel_anth_data = $this->db->query('
             SELECT `user_weight`, `user_circumference_chest`, `user_circumference_waist`, `user_circumference_buttocks`, `user_date_add`
             FROM `anthropometric` 
@@ -1214,7 +1222,7 @@ class User_model extends CI_Model
                     //$datetime = $date->format('Y') . ', ' . $month . ', ' . $date->format('d');
                     //$datetime = $date->format('Y-m-d H:i:s');
                     //$datetime = $interval->format('%a');
-                    $date         = $row->user_date_add;
+                    $date         = parent::parseDatetime($row->user_date_add);
                     $weight       = $row->user_weight;
                     $chest        = $row->user_circumference_chest;
                     $waist        = $row->user_circumference_waist;
@@ -1342,7 +1350,7 @@ class User_model extends CI_Model
                     $left_biceps = $row->user_circumference_left_biceps;
                     $right_biceps = $row->user_circumference_right_biceps;
 
-                    $tmp_date = new DateTime($date);
+                    $tmp_date = new DateTime(parent::parseDatetime($date));
                     $today = $tmp_date->format('Y-m-d');
 
                     $result = self::setAnthropometricData($user_id, $weight, $chest, $waist, $buttocks, $waist_sides,
@@ -1700,6 +1708,7 @@ class User_model extends CI_Model
      * Статистика о пользователях
      *
      * @return array
+     * @throws Exception
      */
     public function getUsersStatistics()
     {
@@ -1795,6 +1804,7 @@ class User_model extends CI_Model
      *
      * @param $row
      * @return array
+     * @throws Exception
      */
     public function parseUserData($row)
     {
@@ -1804,6 +1814,7 @@ class User_model extends CI_Model
         $result['default_name']            = ($row->user_type == 3) ? 'Страница администратора' : 'Страница пользователя';
         $result['user_name']               = (!empty($row->user_name)) ? $row->user_name : '';
         $result['user_email']              = (!empty($row->user_email)) ? $row->user_email : '';
+        $result['user_timezone']           = (!empty($row->user_timezone)) ? $row->user_timezone : '';
         $result['user_country_code']       = (!empty($row->user_country_code)) ? $row->user_country_code : '';
         $result['user_phone']              = (!empty($row->user_phone)) ? $row->user_phone : '';
         $result['user_password_hash']      = (!empty($row->user_password)) ? $row->user_password : '';
@@ -1814,7 +1825,7 @@ class User_model extends CI_Model
         $result['user_image']              = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
         $result['user_soc_image']          = '';
         $result['user_deleted']            = (!empty($row->user_deleted)) ? 1 : null;
-        $result['user_delete_date']        = (!empty($row->user_delete_date)) ? $row->user_delete_date : null;
+        $result['user_delete_date']        = (!empty($row->user_delete_date)) ? parent::parseDatetime($row->user_delete_date) : null;
         $result['user_delete_by']          = (!empty($row->user_delete_by)) ? $row->user_delete_by : null;
         $result['user_new_email']          = (!empty($row->user_new_email)) ? $row->user_new_email : null;
         $result['user_ne_idempotent']      = (!empty($row->user_new_email_idempotent)) ? $row->user_new_email_idempotent : null;
@@ -1839,9 +1850,9 @@ class User_model extends CI_Model
         if($row->user_delete_date != '0000-00-00')
         {
             setlocale(LC_ALL, 'ru_RU.UTF-8');
-            $tmp_dd = DateTime::createFromFormat('Y-m-d', $row->user_delete_date);
+            $tmp_dd = DateTime::createFromFormat('Y-m-d', parent::parseDatetime($row->user_delete_date));
             $tmp_dd = ($tmp_dd !== false)
-                ? strftime('%d %b %G', strtotime($row->user_delete_date))
+                ? strftime('%d %b %G', strtotime(parent::parseDatetime($row->user_delete_date)))
                 : '';
 
             $result['user_delete_date'] = $tmp_dd;

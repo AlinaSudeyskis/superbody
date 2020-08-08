@@ -3112,7 +3112,7 @@ class Course_model extends CI_Model
 
             if(!empty($first_date))
             {
-                $tmp_date = new DateTime($first_date);
+                $tmp_date = new DateTime(parent::parseDatetime($first_date));
                 $first_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y') : '';
             }
             $result['statistics']['first_date'] = (!empty($first_date)) ? $first_date : '';
@@ -3251,7 +3251,7 @@ class Course_model extends CI_Model
 
         if(!empty($first_date))
         {
-            $tmp_date = new DateTime($first_date);
+            $tmp_date = new DateTime(parent::parseDatetime($first_date));
             $first_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y') : '';
         }
         $result['courses_statistics']['first_date'] = (!empty($first_date)) ? $first_date : '';
@@ -6198,12 +6198,13 @@ class Course_model extends CI_Model
      * @param int $user_id
      * @param string $date
      * @return bool|array
+     * @throws Exception
      */
     public function getWorkoutVideo($user_id, $date)
     {
         $result = false;
 
-        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($date));
         $today    = $tmp_date->format('Y-m-d');
         $video_id = 0;
         $video_description = '';
@@ -6656,7 +6657,7 @@ class Course_model extends CI_Model
         $result = false;
         $video_types = array(1 => 'promo', 2 => 'workouts', 3 => 'instructions');
         $type_id = array_search($video_type, $video_types);
-        log_message('debug', $type_id);
+        //log_message('debug', $type_id);
 
         if(!empty($type_id))
         {
@@ -6719,7 +6720,7 @@ class Course_model extends CI_Model
 
         if(($courses_type == 'active' or $courses_type == 'finished') and is_numeric($user_id))
         {
-            $tmp_date = new DateTime($date);
+            $tmp_date = new DateTime(parent::parseDatetime($date));
             $today    = $tmp_date->format('Y-m-d');
             $tmp_date->sub(new DateInterval('P7D'));
             // Дата неделю назад от текущей даты
@@ -6914,6 +6915,7 @@ class Course_model extends CI_Model
      *
      * @param $row
      * @return array
+     * @throws Exception
      */
     public function parseCourseOrderData($row)
     {
@@ -6930,7 +6932,7 @@ class Course_model extends CI_Model
 
         // Дата добавления
         // setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $row->o_date_add);
+        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->o_date_add));
         $date_add = ($row->o_date_add != '0000-00-00 00:00:00' and $tmp_date !== false)
             ? $tmp_date->format('d.m.Y')
             : '';
@@ -6960,7 +6962,7 @@ class Course_model extends CI_Model
      */
     public function parseUserCourseWorkoutsData($course, $key, $color, $ei, $next_training, $next_training_date, $user_training_time, $ingestions, $date)
     {
-        $tmp_date   = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        $tmp_date   = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($date));
         $today      = $tmp_date->format('Y-m-d');
         $workouts   = null;
         $nutritions = null;
@@ -7093,10 +7095,10 @@ class Course_model extends CI_Model
                 foreach ($pauses as $pause)
                 {
                     // Начало заморозки
-                    $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['start']);
+                    $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($pause['start']));
                     $pause_start = $temp_date->format('Y-m-d');
                     // Окончание заморозки
-                    $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', $pause['end']);
+                    $temp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($pause['end']));
                     $pause_end = $temp_date->format('Y-m-d');
 
                     if (empty($events) or $pause_end != $events[$ei - 1]['end'])
@@ -7393,7 +7395,7 @@ class Course_model extends CI_Model
     {
         $result = array('next_workout' => '', 'uc_id' => '');
 
-        $tmp_date = new DateTime($date);
+        $tmp_date = new DateTime(parent::parseDatetime($date));
         $date = $tmp_date->format('Y-m-d');
 
         $sel_data = $this->db->query('
@@ -7643,7 +7645,7 @@ class Course_model extends CI_Model
             unset($row);
 
             // Обновление дат тренировок
-            $tmp_date = new DateTime($date);
+            $tmp_date = new DateTime(parent::parseDatetime($date));
             $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
             unset($tmp_date);
 
@@ -8525,7 +8527,7 @@ class Course_model extends CI_Model
         {
             $row = $sel_course->row();
 
-            $tmp_d = new DateTime($date);
+            $tmp_d = new DateTime(parent::parseDatetime($date));
             $today = $tmp_d->format('Y-m-d');
 
             // Даты начала и окончания курса
@@ -8768,6 +8770,7 @@ class Course_model extends CI_Model
      * @param $user_id
      * @param $courses
      * @return mixed
+     * @throws Exception
      */
     public function getUserPassedWorkouts($user_id, $courses)
     {
@@ -9022,7 +9025,7 @@ class Course_model extends CI_Model
     public function checkUserOrderCourseDuplicates($course_id, $user_id, $date)
     {
         $result   = false;
-        $tmp_date = new DateTime($date);
+        $tmp_date = new DateTime(parent::parseDatetime($date));
         $today    = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
 
         if(is_numeric($course_id) and is_numeric($user_id))
@@ -9933,12 +9936,13 @@ class Course_model extends CI_Model
      * @param $user_id
      * @param $date
      * @return array
+     * @throws Exception
      */
     public function getUserNutritionMenu($user_course_id, $user_id, $date)
     {
         $result = array('course_menu' => array());
 
-        $tmp_date    = new DateTime($date);
+        $tmp_date    = new DateTime(parent::parseDatetime($date));
         $cur_num_day = ((int) $tmp_date->format('N')); // +1
         $monday      = $tmp_date->sub(new DateInterval("P". $cur_num_day ."D"));
         $monday_date = $monday->format('Y-m-d');
@@ -10033,7 +10037,7 @@ class Course_model extends CI_Model
                 $start_date = '';
                 $end_date   = '';
 
-                // Высилить старт и окончание курса от текущей даты, если дата курса пользователя,
+                // Вычислить старт и окончание курса от текущей даты, если дата курса пользователя,
                 // к которому прикреплен курс, уже вычислена
                 if(!empty($uc_date_start))
                 {
@@ -10041,7 +10045,7 @@ class Course_model extends CI_Model
                     $course_duration = $row->crs_count_weeks * $row->crs_count_days;
                     unset($row);
 
-                    $tmp_date = new DateTime($date);
+                    $tmp_date = new DateTime(parent::parseDatetime($date));
                     $start_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
                     $tmp_date->add(new DateInterval("P".$course_duration."D"));
                     $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
@@ -10219,7 +10223,7 @@ class Course_model extends CI_Model
     public function checkUsersWorkouts($date)
     {
         $result   = true;
-        $tmp_date = new DateTime($date);
+        $tmp_date = new DateTime(parent::parseDatetime($date));
         $today    = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
 
         $sel_data = $this->db->query('SELECT `uc_id` FROM `users_courses` 
@@ -10266,7 +10270,7 @@ class Course_model extends CI_Model
         $result = false;
 
         // Курсы, которые заканчиваются через неделю или меньше + курсы продления
-        $tmp_date = new DateTime($date);
+        $tmp_date = new DateTime(parent::parseDatetime($date));
         $today = $tmp_date->format('Y-m-d');
         $tomorrow = $today . ' 23:59:59';
 
@@ -10315,7 +10319,7 @@ class Course_model extends CI_Model
     {
         $result = false;
 
-        $tmp_date = new DateTime($date);
+        $tmp_date = new DateTime(parent::parseDatetime($date));
         $today = $tmp_date->format('Y-m-d');
 
         $sel_data = $this->db->query('
@@ -13992,6 +13996,7 @@ class Course_model extends CI_Model
      *
      * @param $row
      * @return mixed
+     * @throws Exception
      */
     protected function parseCourseReviewData($row)
     {
@@ -14004,9 +14009,9 @@ class Course_model extends CI_Model
         setlocale(LC_ALL, 'ru_RU.UTF-8');
         if (!empty($row->cr_date_add))
         {
-            $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->cr_date_add);
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->cr_date_add));
             $date_add = ($row->cr_date_add != '0000-00-00 00:00:00' and $date !== false)
-                ? strftime('%d %B %G', strtotime($row->cr_date_add))
+                ? strftime('%d %B %G', strtotime(parent::parseDatetime($row->cr_date_add)))
                 : '';
 
             $message_date = ($row->cr_date_add != '0000-00-00 00:00:00' or $date !== false)
@@ -14022,9 +14027,9 @@ class Course_model extends CI_Model
         }
         if (!empty($row->cr_update))
         {
-            $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->cr_update);
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->cr_update));
             $date_update = ($row->cr_update != '0000-00-00 00:00:00' and $date !== false)
-                ? strftime('%d %B %G, %H:%M', strtotime($row->cr_update))
+                ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row->cr_update)))
                 : '';
 
             $message_date = ($row->cr_update != '0000-00-00 00:00:00' or $date !== false)
@@ -14077,15 +14082,15 @@ class Course_model extends CI_Model
         $result['attached_users']     = $row->pc_attached_users;
         $result['attached_users_ids'] = array();
         $result['admin_id']           = $row->pc_admin_id;
-        $result['date_add']           = $row->pc_date_add;
-        $result['update']             = $row->pc_update;
+        $result['date_add']           = parent::parseDatetime($row->pc_date_add);
+        $result['update']             = parent::parseDatetime($row->pc_update);
         $result['active']             = false;
         $result['active_string']      = 'Не активен';
         $result['courses']            = array();
 
         if(!empty($date))
         {
-            $tmp_date = new DateTime($date);
+            $tmp_date = new DateTime(parent::parseDatetime($date));
             $today = $tmp_date->format('Y-m-d');
 
             $pc_used = self::getPromocodeUsedAmount($row->pc_id);
@@ -14113,6 +14118,7 @@ class Course_model extends CI_Model
      *
      * @param $row
      * @return mixed
+     * @throws Exception
      */
     protected function parseCourseExtendData($row)
     {
@@ -14124,8 +14130,8 @@ class Course_model extends CI_Model
         $result['weeks_after']  = $row->ce_weeks_after;
         $result['blocked']      = $row->ce_blocked;
         $result['admin_id']     = $row->ce_admin_id;
-        $result['date_add']     = $row->ce_date_add;
-        $result['update']       = $row->ce_update;
+        $result['date_add']     = parent::parseDatetime($row->ce_date_add);
+        $result['update']       = parent::parseDatetime($row->ce_update);
 
         return $result;
     }
@@ -14213,7 +14219,7 @@ class Course_model extends CI_Model
         $result['ml_name']   = (!empty($row->ml_name)) ? $row->ml_name : null;
         $result['ml_weight'] = (!empty($row->udm_ml_weight)) ? $row->udm_ml_weight : null;
         $result['datetime']  = (!empty($row->udm_datetime)) ? $row->udm_datetime : null;
-        $result['update']    = (!empty($row->udm_update)) ? $row->udm_update : null;
+        $result['update']    = (!empty($row->udm_update)) ? parent::parseDatetime($row->udm_update) : null;
 
         if(!empty($row->udm_datetime))
         {

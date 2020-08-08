@@ -69,6 +69,7 @@ class Journal_model extends CI_Model
      * Выборка всех статей
      *
      * @return array
+     * @throws Exception
      */
     public function getEArticlesList()
     {
@@ -141,6 +142,7 @@ class Journal_model extends CI_Model
      *
      * @param $post_id
      * @return array
+     * @throws Exception
      */
     public function getJournalPost($post_id)
     {
@@ -210,6 +212,7 @@ class Journal_model extends CI_Model
      *
      * @param int $type_id
      * @return array
+     * @throws Exception
      */
     public function getJournalPosts($type_id = 1)
     {
@@ -304,6 +307,7 @@ class Journal_model extends CI_Model
      *
      * @param $article_id
      * @return array
+     * @throws Exception
      */
     public function getEArticle($article_id)
     {
@@ -465,6 +469,7 @@ class Journal_model extends CI_Model
      * Выборка всех не заблокированных статей
      *
      * @return array
+     * @throws Exception
      */
     public function getArticlesList()
     {
@@ -500,6 +505,7 @@ class Journal_model extends CI_Model
      *
      * @param $article_id
      * @return array
+     * @throws Exception
      */
     public function getArticle($article_id)
     {
@@ -583,6 +589,7 @@ class Journal_model extends CI_Model
      * Выборка всех интервью
      *
      * @return array
+     * @throws Exception
      */
     public function getEInterviewsList()
     {
@@ -618,6 +625,7 @@ class Journal_model extends CI_Model
      *
      * @param $interview_id
      * @return array
+     * @throws Exception
      */
     public function getEInterview($interview_id)
     {
@@ -779,6 +787,7 @@ class Journal_model extends CI_Model
      * Выборка не заблокированных интервью
      *
      * @return array
+     * @throws Exception
      */
     public function getInterviewsList()
     {
@@ -814,6 +823,7 @@ class Journal_model extends CI_Model
      *
      * @param $interview_id
      * @return array
+     * @throws Exception
      */
     public function getInterview($interview_id)
     {
@@ -898,6 +908,7 @@ class Journal_model extends CI_Model
      * Выборка всех новостей
      *
      * @return array
+     * @throws Exception
      */
     public function getENewsList()
     {
@@ -932,6 +943,7 @@ class Journal_model extends CI_Model
      *
      * @param $news_id
      * @return array
+     * @throws Exception
      */
     public function getENews($news_id)
     {
@@ -1092,6 +1104,7 @@ class Journal_model extends CI_Model
      * Выборка не заблокированных новостей
      *
      * @return array
+     * @throws Exception
      */
     public function getNewsList()
     {
@@ -1127,6 +1140,7 @@ class Journal_model extends CI_Model
      *
      * @param $news_id
      * @return array
+     * @throws Exception
      */
     public function getNews($news_id)
     {
@@ -1157,6 +1171,7 @@ class Journal_model extends CI_Model
      *
      * @param $row
      * @return array
+     * @throws Exception
      */
     protected function parseJournalData($row)
     {
@@ -1178,9 +1193,9 @@ class Journal_model extends CI_Model
         $result['type']       = !empty($row->j_type) ? $row->j_type : null;
 
         setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $row->j_date_add);
+        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->j_date_add));
         $journal_date = ($row->j_date_add != '0000-00-00 00:00:00' or $tmp_date !== false)
-            ? strftime('%d.%m.%Y', strtotime($row->j_date_add))
+            ? strftime('%d.%m.%Y', strtotime(parent::parseDatetime($row->j_date_add)))
             : '';
         $result['date'] = $journal_date;
 

@@ -112,6 +112,7 @@ class Message_model extends CI_Model
      * @param $user_id
      * @param $user_with
      * @return array
+     * @throws Exception
      */
     public function getUserConversations($user_id, $user_with)
     {
@@ -162,7 +163,7 @@ class Message_model extends CI_Model
                     $result['user_conversations'][$i]['text'] = $row->um_text;
 
                     setlocale(LC_ALL, 'ru_RU.UTF-8');
-                    $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->um_date);
+                    $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->um_date));
                     $message_date = ($row->um_date != '0000-00-00 00:00:00' or $date !== false)
                         ? $date->format('d.m.Y')
                         : '';
@@ -222,6 +223,7 @@ class Message_model extends CI_Model
      * @param int $user_with ID пользователя с кем идет переписка
      * @param string $date Текущая дата
      * @return array
+     * @throws Exception
      */
     public function getUserMessages($user_id, $user_with, $date)
     {
@@ -289,6 +291,7 @@ class Message_model extends CI_Model
      * Выборка личных сообщений пользователей
      *
      * @return array
+     * @throws Exception
      */
     public function getMessages()
     {
@@ -314,9 +317,9 @@ class Message_model extends CI_Model
                 $result['messages'][$i]['text'] = $row->um_text;
 
                 setlocale(LC_ALL, 'ru_RU.UTF-8');
-                $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->um_date);
+                $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->um_date));
                 $message_date = ($row->um_date != '0000-00-00 00:00:00' or $date !== false)
-                    ? strftime('%d %B %G, %H:%M', strtotime($row->um_date))
+                    ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row->um_date)))
                     : '';
 
                 $result['messages'][$i]['date']    = $message_date;
@@ -339,6 +342,7 @@ class Message_model extends CI_Model
      *
      * @param $message_id
      * @return array
+     * @throws Exception
      */
     public function getMessage($message_id)
     {
@@ -364,7 +368,7 @@ class Message_model extends CI_Model
             $result['message']['text'] = $row->um_text;
 
             setlocale(LC_ALL, 'ru_RU.UTF-8');
-            $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->um_date);
+            $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->um_date));
             $message_date = ($row->um_date != '0000-00-00 00:00:00' or $date !== false)
                 ? strftime('%d %B %G, %H:%M', strtotime($row->um_date))
                 : '';
@@ -592,6 +596,7 @@ class Message_model extends CI_Model
      * Список диалогов с пользователями обратной связи
      *
      * @return array
+     * @throws Exception
      */
     public function getFeedbackMessages()
     {
@@ -637,6 +642,7 @@ class Message_model extends CI_Model
      * @param null|int $conv_id ID беседы
      * @param string $date Текущая дата
      * @return array
+     * @throws Exception
      */
     public function getFeedbackUserMessages($user_id = null, $user_email = null, $conv_id = null, $date = null)
     {
@@ -709,6 +715,7 @@ class Message_model extends CI_Model
      * @param null|int $conv_id ID беседы
      * @param string $date Текущая дата
      * @return array
+     * @throws Exception
      */
     public function getUserFeedbackMessages($user_id = null, $user_email = null, $conv_id = null, $date = null)
     {
@@ -781,6 +788,7 @@ class Message_model extends CI_Model
      * @param null|int $conv_id ID беседы
      * @param string $date Текущая дата
      * @return array
+     * @throws Exception
      */
     public function getLastTwoUserFeedbackMessages($user_id = null, $user_email = null, $conv_id = null, $date = null)
     {
@@ -973,6 +981,7 @@ class Message_model extends CI_Model
      * @param string $user_email E-mail пользователя
      * @param int $conv_id ID диалога пользователя
      * @return array
+     * @throws Exception
      */
     public function getFeedbackUserConversation($user_email, $conv_id)
     {
@@ -1004,9 +1013,9 @@ class Message_model extends CI_Model
                 $result['fb_user_messages'][$i]['text'] = mb_substr($row->fb_text, 0, 255);
 
                 setlocale(LC_ALL, 'ru_RU.UTF-8');
-                $date = DateTime::createFromFormat('Y-m-d H:i:s', $row->fb_date_add);
+                $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->fb_date_add));
                 $message_date = ($row->fb_date_add != '0000-00-00 00:00:00' or $date !== false)
-                    ? strftime('%d %B %G, %H:%M', strtotime($row->fb_date_add))
+                    ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row->fb_date_add)))
                     : '';
 
                 $result['fb_user_messages'][$i]['date'] = $message_date;
@@ -1191,6 +1200,7 @@ class Message_model extends CI_Model
      * @param object $row
      * @param string $date
      * @return array
+     * @throws Exception
      */
     public function parseMessageData($row, $date)
     {
@@ -1201,14 +1211,14 @@ class Message_model extends CI_Model
         $result['text'] = $row->um_text;
 
         setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $row->um_date);
+        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->um_date));
         $message_date = ($row->um_date != '0000-00-00 00:00:00' and $tmp_date !== false)
             ? $tmp_date->format('d.m.Y')
             : '';
         $message_time = ($row->um_date != '0000-00-00 00:00:00' and $tmp_date !== false)
             ? $tmp_date->format('H:i')
             : '';
-        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($date));
         $fl_date = ($tmp_date !== false and $tmp_date->format('d.m.Y') == $message_date) ? 1 : 0;
 
         $result['date']    = $message_date;
@@ -1225,6 +1235,7 @@ class Message_model extends CI_Model
      * @param object $row
      * @param string $date
      * @return mixed
+     * @throws Exception
      */
     public function parseFeedbackData($row, $date = null)
     {
@@ -1257,7 +1268,7 @@ class Message_model extends CI_Model
         $result['new']  = $row->fb_new;
 
         setlocale(LC_ALL, 'ru_RU.UTF-8');
-        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $row->fb_date_add);
+        $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->fb_date_add));
         $message_date = ($row->fb_date_add != '0000-00-00 00:00:00' and $tmp_date !== false)
             ? $tmp_date->format('d.m.Y')
             : '';
@@ -1270,7 +1281,7 @@ class Message_model extends CI_Model
 
         if (!empty($date))
         {
-            $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $date);
+            $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($date));
             $fl_date = ($tmp_date !== false and $tmp_date->format('d.m.Y') == $message_date) ? 1 : 0;
             $result['fl_date'] = $fl_date;
         }
@@ -1383,6 +1394,7 @@ class Message_model extends CI_Model
      *
      * @param $section_id
      * @return array
+     * @throws Exception
      */
     public function getQaSection($section_id)
     {
@@ -1399,7 +1411,7 @@ class Message_model extends CI_Model
             $result['section']['id']       = $row->qas_id;
             $result['section']['name']     = $row->qas_name;
             $result['section']['blocked']  = $row->qas_blocked;
-            $result['section']['update']   = $row->qas_update;
+            $result['section']['update']   = parent::parseDatetime($row->qas_update);
             $result['section']['admin_id'] = $row->qas_admin_id;
         }
         elseif($sel_data === false)
@@ -1469,6 +1481,7 @@ class Message_model extends CI_Model
     /**
      * Выборка разделов
      * @return array
+     * @throws Exception
      */
     public function getQaSections()
     {
@@ -1481,10 +1494,10 @@ class Message_model extends CI_Model
             $i = 0;
             foreach ($sel_data->result() as $row)
             {
-                $result['sections'][$i]['id'] = $row->qas_id;
-                $result['sections'][$i]['name'] = $row->qas_name;
-                $result['sections'][$i]['blocked'] = $row->qas_bloked;
-                $result['sections'][$i]['update'] = $row->qas_update;
+                $result['sections'][$i]['id']       = $row->qas_id;
+                $result['sections'][$i]['name']     = $row->qas_name;
+                $result['sections'][$i]['blocked']  = $row->qas_bloked;
+                $result['sections'][$i]['update']   = parent::parseDatetime($row->qas_update);
                 $result['sections'][$i]['admin_id'] = $row->qas_admin_id;
 
                 $i++;
@@ -1532,6 +1545,7 @@ class Message_model extends CI_Model
      *
      * @param $subsection_id
      * @return array
+     * @throws Exception
      */
     public function getQaSubsection($subsection_id)
     {
@@ -1548,7 +1562,7 @@ class Message_model extends CI_Model
             $result['subsection']['section_id'] = $row->qass_qas_id;
             $result['subsection']['name']       = $row->qass_name;
             $result['subsection']['blocked']    = $row->qass_blocked;
-            $result['subsection']['update']     = $row->qass_update;
+            $result['subsection']['update']     = parent::parseDatetime($row->qass_update);
             $result['subsection']['admin_id']   = $row->qass_admin_id;
         }
         elseif($sel_data === false)
@@ -1646,6 +1660,7 @@ class Message_model extends CI_Model
      *
      * @param $section_id
      * @return array
+     * @throws Exception
      */
     public function getQaSectionSubsections($section_id)
     {
@@ -1662,7 +1677,7 @@ class Message_model extends CI_Model
                 $result['subsections'][$i]['id']       = $row->qass_id;
                 $result['subsections'][$i]['name']     = $row->qass_name;
                 $result['subsections'][$i]['blocked']  = $row->qass_blocked;
-                $result['subsections'][$i]['update']   = $row->qass_update;
+                $result['subsections'][$i]['update']   = parent::parseDatetime($row->qass_update);
                 $result['subsections'][$i]['admin_id'] = $row->qass_admin_id;
 
                 $i++;
@@ -1681,6 +1696,7 @@ class Message_model extends CI_Model
      * Выборка всех подразделов
      *
      * @return array
+     * @throws Exception
      */
     public function getQaSubsections()
     {
@@ -1696,7 +1712,7 @@ class Message_model extends CI_Model
                 $result['subsections'][$row->qass_qas_id][$row->qass_id]['id']       = $row->qass_id;
                 $result['subsections'][$row->qass_qas_id][$row->qass_id]['name']     = $row->qass_name;
                 $result['subsections'][$row->qass_qas_id][$row->qass_id]['blocked']  = $row->qass_blocked;
-                $result['subsections'][$row->qass_qas_id][$row->qass_id]['update']   = $row->qass_update;
+                $result['subsections'][$row->qass_qas_id][$row->qass_id]['update']   = parent::parseDatetime($row->qass_update);
                 $result['subsections'][$row->qass_qas_id][$row->qass_id]['admin_id'] = $row->qass_admin_id;
             }
             unset($row);
@@ -1747,6 +1763,7 @@ class Message_model extends CI_Model
      * Выборка статьей
      * @param $count_ug
      * @return array
+     * @throws Exception
      */
     public function getQaArticles($count_ug)
     {
@@ -1782,6 +1799,7 @@ class Message_model extends CI_Model
      * @param $article_id
      * @param $count_ug
      * @return array
+     * @throws Exception
      */
     public function getQaArticle($article_id, $count_ug)
     {
@@ -2150,6 +2168,7 @@ class Message_model extends CI_Model
      * @param $article_id
      * @param $user_type
      * @return array
+     * @throws Exception
      */
     public function getPublicQaArticle($section_id, $subsection_id, $article_id, $user_type)
     {
@@ -2245,6 +2264,7 @@ class Message_model extends CI_Model
      *
      * @param $row
      * @return array
+     * @throws Exception
      */
     protected function parseQaData($row)
     {
@@ -2256,7 +2276,7 @@ class Message_model extends CI_Model
         $result['name']          = $row->qa_name;
         $result['text']          = (!empty($row->qa_text)) ? $row->qa_text : null;
         $result['blocked']       = $row->qa_blocked;
-        $result['update']        = $row->qa_update;
+        $result['update']        = parent::parseDatetime($row->qa_update);
         $result['admin_id']      = $row->qa_admin_id;
         $result['users_group']   = array();
 

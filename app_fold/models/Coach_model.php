@@ -619,6 +619,7 @@ class Coach_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getCoachClientsActivity($user_id)
     {
@@ -676,7 +677,7 @@ class Coach_model extends CI_Model
 
                         $result['clients'][$key]['missed_workouts'] = parent::endingWords($row->missed_workouts, '</span> пропущенное занятие.', '</span> пропущенных занятий.');
 
-                        $date = DateTime::createFromFormat('Y-m-d', $row->utw_date);
+                        $date = DateTime::createFromFormat('Y-m-d', parent::parseDatetime($row->utw_date));
                         $missed_date = ($row->utw_date != '0000-00-00' and $date !== false) ? $date->format('d.m.Y') : '';
 
                         $result['clients'][$key]['missed_date'] = $missed_date;

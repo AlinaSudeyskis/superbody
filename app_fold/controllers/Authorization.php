@@ -242,6 +242,7 @@ class Authorization extends CI_Controller
                 $user_blocked = 0;
                 $user_activated = 0;
                 $user_name = '';
+                $user_timezone = '';
                 $user_phone = '';
                 $user_image = '';
                 $access_token = '';
@@ -250,7 +251,7 @@ class Authorization extends CI_Controller
 
                 self::parseUserLogin($reg_user_id, 'native');
 
-                parent::updateSession($reg_user_id, $email, $user_type, $user_blocked, $user_activated, $user_name, $user_phone,
+                parent::updateSession($reg_user_id, $email, $user_type, $user_blocked, $user_activated, $user_name, $user_timezone, $user_phone,
                     $user_image, $access_token, $user_soc_via, $user_soc_id, $this->date);
             }
 
@@ -303,7 +304,7 @@ class Authorization extends CI_Controller
                         self::parseUserLogin($result['user_id'], 'native');
 
                         parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'], $result['user_activated'],
-                            $result['user_name'], $result['user_phone'], $user_image, '', 'native', 0, $this->date);
+                            $result['user_name'], $result['user_timezone'], $result['user_phone'], $user_image, '', 'native', 0, $this->date);
 
                         // После успешной авторизации переход на страницу пользователя
                         header('Location: /profile/'.$result['user_id']);
@@ -386,7 +387,7 @@ class Authorization extends CI_Controller
                 $user_image = (!empty($search_user['user_image'])) ? $search_user['user_image'] : $search_user['user_soc_image'];
 
                 parent::updateSession($search_user['user_id'], $search_user['user_email'], $search_user['user_type'], $search_user['user_blocked'], $search_user['user_activated'],
-                    $search_user['user_name'], $search_user['user_phone'], $user_image, '', 'native', 0, $this->date);
+                    $search_user['user_name'], $search_user['user_timezone'], $search_user['user_phone'], $user_image, '', 'native', 0, $this->date);
 
                 // После успешной авторизации переход на страницу тренера
                 header('Location: /profile/'.$search_user['user_id']);
@@ -437,7 +438,7 @@ class Authorization extends CI_Controller
                 $user_image = (!empty($auth_result['user_image'])) ? $auth_result['user_image'] : $auth_result['user_soc_image'];
 
                 parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'], $auth_result['user_activated'],
-                    $auth_result['user_name'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
+                    $auth_result['user_name'], $auth_result['user_timezone'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
 
                 $result['user_id']    = $auth_result['user_id'];
                 $result['user_email'] = $email;
@@ -484,7 +485,7 @@ class Authorization extends CI_Controller
                 $user_image = (!empty($auth_result['user_image'])) ? $auth_result['user_image'] : $auth_result['user_soc_image'];
 
                 parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'], $auth_result['user_activated'],
-                    $auth_result['user_name'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
+                    $auth_result['user_name'], $auth_result['user_timezone'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
 
                 $this->load->model('User_model');
                 $user_data = $this->User_model->getQuestionnaireData($auth_result['user_id']);
@@ -1971,7 +1972,7 @@ class Authorization extends CI_Controller
             self::parseUserLogin($user['id'], $user['soc_via']);
 
             parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['activated'], $user['name'],
-                $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+                $user['user_timezone'], $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
             $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
                 ? $return . $this->session->user['id'] : $return;

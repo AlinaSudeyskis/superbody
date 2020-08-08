@@ -71,7 +71,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <select name="timezone" class="anketa_form_select" tabindex="0">
                 <?php $timezone_identifiers = DateTimeZone::listIdentifiers();
                 foreach($timezone_identifiers as $timezone_identifier):
-                    $dateTime = new DateTime("now", new DateTimeZone($timezone_identifier)); ?>
+                    $dateTime = new DateTime("now", new DateTimeZone($timezone_identifier));
+                    $user_timezone = (!empty($user_data['user_timezone'])) ? $user_data['user_timezone'] : $user_timezone; ?>
 
                     <option value="<?php echo $timezone_identifier; ?>" <?php if(!empty($user_timezone) and $user_timezone == $timezone_identifier):?>selected<?php endif;?>>
                         <?php echo $timezone_identifier; ?> <?php echo $dateTime->format('P'); ?>

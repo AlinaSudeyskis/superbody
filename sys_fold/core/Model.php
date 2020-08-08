@@ -63,14 +63,15 @@ class CI_Model {
 
 	// --------------------------------------------------------------------
 
-	/**
-	 * __get magic
-	 *
-	 * Allows models to access CI's loaded classes using the same
-	 * syntax as controllers.
-	 *
-	 * @param	string	$key
-	 */
+    /**
+     * __get magic
+     *
+     * Allows models to access CI's loaded classes using the same
+     * syntax as controllers.
+     *
+     * @param string $key
+     * @return
+     */
 	public function __get($key)
 	{
 		// Debugging note:
@@ -339,10 +340,26 @@ class CI_Model {
             }
             elseif ($sel_social === false)
             {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                self::logDbMessages(__METHOD__.':'.__LINE__);
             }
         }
 
         return $result;
+    }
+
+    /**
+     * Обработка даты в соответствии с часовым поясом пользователя
+     *
+     * @param $date
+     * @return mixed
+     * @throws Exception
+     */
+    public function parseDatetime($date)
+    {
+        $datetime = new DateTime($date);
+        $user_timezone = new DateTimeZone($this->session->user_timezone);
+        $datetime->setTimezone($user_timezone);
+
+        return $datetime->format("Y-m-d H:i:s");
     }
 }

@@ -953,6 +953,7 @@ class Administrator_model extends CI_Model
      *
      * @param $banner_id
      * @return bool
+     * @throws Exception
      */
     public function getBanner($banner_id)
     {
@@ -972,7 +973,7 @@ class Administrator_model extends CI_Model
             $result['banner']['video_url'] = (!empty($row->sb_video_url)) ? $row->sb_video_url : '';
             $result['banner']['url']       = $row->sb_url;
             $result['banner']['blocked']   = $row->sb_blocked;
-            $result['banner']['date']      = $row->sb_update;
+            $result['banner']['date']      = parent::parseDatetime($row->sb_update);
         }
         elseif ($sel_banner === false)
         {

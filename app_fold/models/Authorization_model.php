@@ -269,8 +269,9 @@ class Authorization_model extends CI_Model
      * @param int $social_id ID пользователя в соц. сети
      * @param string $email E-mail пользователя в соц. сети
      * @param string $name Имя пользователя в соц. сети
-     * @param datetime $date Текущая дата и время
+     * @param string $date Текущая дата и время
      * @return bool | int
+     * @throws Exception
      */
     public function loginViaFacebook($social_id, $email = '', $name = '', $date = '')
     {
@@ -286,7 +287,7 @@ class Authorization_model extends CI_Model
                 $user_data['user'] = $this->session->user;
                 $user_data['user']['email'] = $email;
                 $user_data['user']['social_id'] = $social_id;
-                $user_data['user']['date_auth'] = $date;
+                $user_data['user']['date_auth'] = parent::parseDatetime($date);
 
                 $this->session->set_userdata($user_data);
             }
@@ -300,7 +301,7 @@ class Authorization_model extends CI_Model
                         "type" => $row->user_type,
                         "auth_via" => $row->user_auth_via,
                         "social_id" => $social_id,
-                        "date_auth" => $date
+                        "date_auth" => parent::parseDatetime($date)
                     ),
                     "new_messages" => 0,
                     "new_fb_messages" => 0
@@ -327,7 +328,7 @@ class Authorization_model extends CI_Model
                         "name" => $name,
                         "type" => 1,
                         "social_id" => $social_id,
-                        "date_auth" => $date
+                        "date_auth" => parent::parseDatetime($date)
                     ),
                     "new_messages" => 0,
                     "new_fb_messages" => 0
@@ -538,7 +539,7 @@ class Authorization_model extends CI_Model
 
                 // Выборка данных пользователя
                 $sel_user = $this->db->query('
-                    SELECT `user_email`, `user_type`, `user_blocked`, `user_activated`, `user_name`, `user_phone`, `user_image`, `user_soc_image` 
+                    SELECT `user_email`, `user_type`, `user_blocked`, `user_activated`, `user_name`, `user_timezone`, `user_phone`, `user_image`, `user_soc_image` 
                     FROM `users`
                     WHERE `user_id`=? LIMIT 1', $user_id);
 
@@ -552,6 +553,7 @@ class Authorization_model extends CI_Model
                     $result['user']['blocked']      = $row->user_blocked;
                     $result['user']['activated']    = $row->user_activated;
                     $result['user']['name']         = (!empty($row->user_name)) ? $row->user_name : $user_soc_name;
+                    $result['user']['user_timezone'] = $row->user_timezone;
                     $result['user']['phone']        = $row->user_phone;
                     $result['user']['image']        = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
                     $result['user']['soc_image']    = '';
@@ -595,7 +597,7 @@ class Authorization_model extends CI_Model
     public function userAuthorization($email, $password, $date)
     {
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_country_code`, `user_phone`, `user_type`, 
+            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_timezone`, `user_country_code`, `user_phone`, `user_type`, 
                    `user_blocked`, `user_image`, `user_soc_image`, `user_activated`, `user_deleted` 
             FROM `users` 
             WHERE `user_email`=? LIMIT 1', $email);
@@ -609,11 +611,11 @@ class Authorization_model extends CI_Model
                 // Сравнение введенного пароля и хэш пароля из БД
                 if (password_verify($password, $row->user_password))
                 {
-                    $this->db->query('
-                    UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_email`=? LIMIT 1',  array($date, $email));
+                    $this->db->query('UPDATE `users` SET `user_login`=1, `user_date_update`=? WHERE `user_email`=? LIMIT 1',  array($date, $email));
 
                     $result['user_id']           = $row->user_id;
                     $result['user_name']         = $row->user_name;
+                    $result['user_timezone']     = $row->user_timezone;
                     $result['user_country_code'] = $row->user_country_code;
                     $result['user_phone']        = $row->user_phone;
                     $result['user_email']        = $row->user_email;
@@ -666,7 +668,7 @@ class Authorization_model extends CI_Model
         $result = false;
 
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_phone`, `user_type`, `user_blocked`, 
+            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_timezone`, `user_phone`, `user_type`, `user_blocked`, 
               `user_image`, `user_soc_image`, `user_activated` 
             FROM `users` 
             WHERE `user_id`=? LIMIT 1', $user_id);
@@ -677,6 +679,7 @@ class Authorization_model extends CI_Model
 
             $result['user_id']        = $row->user_id;
             $result['user_name']      = $row->user_name;
+            $result['user_timezone']  = $row->user_timezone;
             $result['user_phone']     = $row->user_phone;
             $result['user_email']     = $row->user_email;
             $result['user_type']      = $row->user_type;
@@ -763,9 +766,12 @@ class Authorization_model extends CI_Model
      * @param $idempotent
      * @param $date
      * @return bool
+     * @throws Exception
      */
     public function checkRestore($email, $code, $idempotent, $date)
     {
+        $result = false;
+
         $sel_data = $this->db->query('SELECT `user_restore_date`, `user_idempotent` FROM `users` 
             WHERE `user_email`=? and `user_activate_code`=? and `user_idempotent`=? LIMIT 1',
                 array($email, $code, $idempotent));
@@ -781,22 +787,15 @@ class Authorization_model extends CI_Model
             // Разница во времени не должна превышать 60 минут
             if($interval->format('a') == 0 and $interval->format('h') == 0 and $interval->format('i') <= 59)
             {
-                return true;
-            }
-            else
-            {
-                return false;
+                $result = true;
             }
         }
         elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -811,6 +810,8 @@ class Authorization_model extends CI_Model
      */
     public function updatePassword($email, $code, $idempotent, $password_hash, $date)
     {
+        $result = false;
+
         if(!empty($password_hash))
         {
             $up_data = $this->db->query('
@@ -820,22 +821,15 @@ class Authorization_model extends CI_Model
 
             if($up_data !== false and 1 == $this->db->affected_rows())
             {
-                return true;
+                $result = true;
             }
             elseif($up_data === false)
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
-                return false;
-            }
-            else
-            {
-                return false;
             }
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -1154,6 +1148,7 @@ class Authorization_model extends CI_Model
      * @param $user_id
      * @param $date
      * @return bool
+     * @throws Exception
      */
     public function checkChangingEmail($user_id, $date)
     {
@@ -1170,7 +1165,7 @@ class Authorization_model extends CI_Model
             {
                 $result['user_email']      = $row->user_email;
                 $result['activate_code']   = $row->user_activate_code;
-                $result['new_email_date']  = ($row->user_new_email_date != '0000-00-00 00:00:00') ? $row->user_new_email_date : '';
+                $result['new_email_date']  = ($row->user_new_email_date != '0000-00-00 00:00:00') ? parent::parseDatetime($row->user_new_email_date) : '';
                 $result['idempotent']      = $row->user_new_email_idempotent;
 
                 $result['availability_send_email']      = true;
@@ -1218,7 +1213,7 @@ class Authorization_model extends CI_Model
 
             $result['user_email']    = $row->user_email;
             $result['activate_code'] = $row->user_activate_code;
-            $result['activate_date'] = ($row->user_activate_date != '0000-00-00 00:00:00') ? $row->user_activate_date : '';
+            $result['activate_date'] = ($row->user_activate_date != '0000-00-00 00:00:00') ? parent::parseDatetime($row->user_activate_date) : '';
 
             $result['availability_send_email']      = true;
             $result['availability_send_email_date'] = null;
@@ -1461,6 +1456,7 @@ class Authorization_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getUserAuthorizationData($user_id)
     {
@@ -1482,7 +1478,7 @@ class Authorization_model extends CI_Model
                 $result['auth_data'][$i]['country'] = $row->ad_country;
                 $result['auth_data'][$i]['region'] = $row->ad_region;
                 $result['auth_data'][$i]['city'] = $row->ad_city;
-                $result['auth_data'][$i]['date'] = $row->ad_date;
+                $result['auth_data'][$i]['date'] = parent::parseDatetime($row->ad_date);
 
                 $i++;
             }

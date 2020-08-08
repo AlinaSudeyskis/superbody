@@ -253,7 +253,7 @@ class Payment_model extends CI_Model
                 if ($course['recurrent'] === true)
                 {
                     $months = $course['rec_months'] - 1;
-                    $following_date = $date;
+                    $following_date = parent::parseDatetime($date);
 
                     // Цикл добавления будущих платежей
                     if($months >= 1)
@@ -435,7 +435,7 @@ class Payment_model extends CI_Model
             $row = $sel_data->row();
             $order_id = $row->uc_o_id;
 
-            $tmp_date = new DateTime($date);
+            $tmp_date = new DateTime(parent::parseDatetime($date));
             $today = $tmp_date->format('Y-m-d');
 
             $sel_payments = $this->db->query('

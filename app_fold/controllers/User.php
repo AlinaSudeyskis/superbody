@@ -1241,6 +1241,9 @@ class User extends CI_Controller
                 }
             }
 
+            // Часовой пояс
+            $timezone = strip_tags($this->input->post('timezone', true));
+
             // Телефон
             $code  = mb_substr(strip_tags($this->input->post('country', true)), 0, 2);
             $code  = (array_key_exists($code, $this->countries_codes)) ? $this->countries_codes[$code] : '';
@@ -1294,10 +1297,10 @@ class User extends CI_Controller
 
             // Сохранение данных в БД
             if (!empty($user_data['user_email']) and ($name != $user_data['user_name'] or $phone != $user_data['user_phone']
-                or $code != $user_data['user_country_code'] or $password_hash != $user_data['user_password_hash']
-                or $avatar != $user_data['user_image']))
+                or $code != $user_data['user_country_code'] or $timezone != $user_data['user_timezone']
+                or $password_hash != $user_data['user_password_hash'] or $avatar != $user_data['user_image']))
             {
-                $result = $this->User_model->setUserSettingsData($this->user_id, $name, $password_hash, $code, $phone, $path_avatar, $this->date);
+                $result = $this->User_model->setUserSettingsData($this->user_id, $name, $password_hash, $timezone, $code, $phone, $path_avatar, $this->date);
 
                 if ($result === false)
                 {
@@ -1313,6 +1316,7 @@ class User extends CI_Controller
                     $user_data['user']['phone'] = $phone;
                     $user_data['user']['image'] = $avatar;
                     $user_data['user']['date']  = $this->date;
+                    $user_data['user_timezone'] = $timezone;
 
                     $this->session->set_userdata($user_data);
 
@@ -2668,7 +2672,7 @@ class User extends CI_Controller
                 $user_image = (!empty($search_user['user_image'])) ? $search_user['user_image'] : $search_user['user_soc_image'];
 
                 parent::updateSession($search_user['user_id'], $search_user['user_email'], $search_user['user_type'], $search_user['user_blocked'], $search_user['user_activated'],
-                    $search_user['user_name'], $search_user['user_phone'], $user_image, '', 'native', 0, $this->date, $login_from);
+                    $search_user['user_name'], $search_user['user_timezone'], $search_user['user_phone'], $user_image, '', 'native', 0, $this->date, $login_from);
 
                 // После успешной авторизации переход на страницу тренера
                 header('Location: /profile/'.$search_user['user_id']);

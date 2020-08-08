@@ -65,7 +65,12 @@ $course['count_days'] = count($wo_data['available_days']);*/
                     <div class="anketa_block_item_h">Перенести тренировки недели</div>
                     <div class="anketa_block_cont calendar_content_block">
                         <div id="calendar2" class="calendar" data-events="<?php echo $events; ?>"></div>
+                        <div class="anketa_form_line parent" style="margin-top: 20px;">
+                            <div class="anketa_form_h" style="max-width: 250px;"><div class="anketa_form_h_cell" style="width: auto;">Изменение времени тренировки:</div></div>
+                            <input type="text" name="i_days_time[][]" value="" class="anketa_form_in time" placeholder="чч:мм" maxlength="5" minlength="5" style="width: 70px;">
+                        </div>
                         <div class="h_subtitle" style="line-height: 15px;margin-top: 15px; text-align: left; font-size: 12px;">
+                            <div>- Для переноса нажмите мышкой (зажмите пальцем) необходимую тренировку и перетащите на нужный день.</div>
                             <div>- Перенести можно <span class="text_upper">пропущенную</span> или <span class="text_upper">новую</span> тренировки.</div>
                             <div>- Перенос возможен на <span class="text_upper">текущую</span> или <span class="text_upper">будущую</span> даты.</div>
                             <div>- <span class="text_upper">Не возможно</span> перенести тренировку на день с уже существующей тренировкой одного и того же курса.</div>

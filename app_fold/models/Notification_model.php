@@ -147,6 +147,7 @@ class Notification_model extends CI_Model
      * Выборка списка эл. писем
      *
      * @return array
+     * @throws Exception
      */
     public function getListEmails()
     {
@@ -168,7 +169,7 @@ class Notification_model extends CI_Model
                 $result['emails'][$i]['email']    = (!empty($row->ea_email)) ? $row->ea_name . ' [' . $row->ea_email . ']' : '';
                 $result['emails'][$i]['subject']  = $row->e_subject;
                 $result['emails'][$i]['admin_id'] = $row->e_admin_id;
-                $result['emails'][$i]['date']     = $row->e_date;
+                $result['emails'][$i]['date']     = parent::parseDatetime($row->e_date);
 
                 $i++;
             }
@@ -187,6 +188,7 @@ class Notification_model extends CI_Model
      *
      * @param $email_id
      * @return array
+     * @throws Exception
      */
     public function getEmail($email_id)
     {
@@ -252,6 +254,7 @@ class Notification_model extends CI_Model
      * Выборка email адресов сайта
      *
      * @return array
+     * @throws Exception
      */
     public function getListEmailsAddresses()
     {
@@ -269,7 +272,7 @@ class Notification_model extends CI_Model
                 $result['addresses'][$i]['email']    = $row->ea_email;
                 $result['addresses'][$i]['default']  = $row->ea_default;
                 $result['addresses'][$i]['admin_id'] = $row->ea_admin_id;
-                $result['addresses'][$i]['date']     = $row->date;
+                $result['addresses'][$i]['date']     = parent::parseDatetime($row->date);
 
                 if($row->ea_default == 1)
                 {
@@ -293,6 +296,7 @@ class Notification_model extends CI_Model
      *
      * @param $email_id
      * @return array
+     * @throws Exception
      */
     public function getEmailAddress($email_id)
     {
@@ -312,7 +316,7 @@ class Notification_model extends CI_Model
             $result['address']['email']    = $row->ea_email;
             $result['address']['default']  = $row->ea_default;
             $result['address']['admin_id'] = $row->ea_admin_id;
-            $result['address']['date']     = $row->ea_date;
+            $result['address']['date']     = parent::parseDatetime($row->ea_date);
         }
         elseif($sel_data === false)
         {
@@ -412,6 +416,7 @@ class Notification_model extends CI_Model
      *
      * @param $row
      * @return array
+     * @throws Exception
      */
     public function parseEmailData($row)
     {
@@ -427,7 +432,7 @@ class Notification_model extends CI_Model
         $result['text']         = ($row->e_text) ? parent::showBBcodes($row->e_text) : '';
         $result['image']        = (!empty($row->e_images)) ? mb_substr($row->e_images, 1) : '';
         $result['admin_id']     = $row->e_admin_id;
-        $result['date']         = $row->e_date;
+        $result['date']         = parent::parseDatetime($row->e_date);
 
         return $result;
     }
