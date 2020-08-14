@@ -9,7 +9,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         language_url : '/js/tinymce/langs/ru.js',
         plugins: "bbcode",
         toolbar: "undo redo | bold italic | forecolor",
-        min_height : 200
+        min_height : 200,
+        paste_auto_cleanup_on_paste: true
     });
 </script>
 <div class="anketa_form_line parent">
