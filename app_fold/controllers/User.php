@@ -146,14 +146,15 @@ class User extends CI_Controller
 
             $update_workouts = array();
 
-            $postpone_courses     = json_decode($this->input->post('i_changed_events', true), true);
-            $new_postpone_courses = array();
+            $postpone_courses      = json_decode($this->input->post('i_changed_events', true), true);
+            $postpone_time_courses = $this->input->post('i_days_time', true);
+            $new_postpone_courses  = array();
             //$postpone_courses = json_decode($postpone_courses, true);
             //asort($postpone_workouts);
             //$last_date = end($postpone_workouts);
             //$crs_wo_id = '';
 
-            if(!empty($wo_data))
+            if(!empty($wo_data) and !empty($postpone_courses))
             {
                 foreach($wo_data as $uc_id => $week_workouts)
                 {
@@ -203,20 +204,25 @@ class User extends CI_Controller
                 $this->session->set_tempdata('message', 196, 60);
             }
 
+            if(!empty($postpone_time_courses))
+            {
+                $result = $this->Course_model->postponeUserCourseWeekWorkoutsTime($this->user_id, $postpone_time_courses, $this->date);
+            }
+
             if(!empty($new_postpone_courses))
             {
                 $result = $this->Course_model->postponeUserCourseWeekWorkouts($this->user_id, $new_postpone_courses, $this->date);
+            }
 
-                if($result === true)
-                {
-                    // Изменения сохранены
-                    $this->session->set_tempdata('message', 10, 60);
-                }
-                else
-                {
-                    // Изменения не сохранены
-                    $this->session->set_tempdata('message', 196, 60);
-                }
+            if($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 196, 60);
             }
 
             /*$current_num_day = date("N", strtotime($this->date));

@@ -252,6 +252,48 @@ class Notification extends CI_Controller
         $this->load->view('footer/footer');
     }
 
+    /**
+     * Уведомления для пользозвателя
+     */
+    public function getUserNotifications()
+    {
+        $user_id = (is_numeric($this->input->get('user_id', true))) ? $this->input->get('user_id', true) : null;
+        $result  = null;
+
+        if(!empty($user_id))
+        {
+            $result = $this->Notification_model->getUserNotifications($user_id, $this->date);
+        }
+        else
+        {
+            $result['error'] = 'Некорректный ID пользователя';
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * Сохранить уведомления для пользозвателя как прочитанные
+     */
+    public function setUserNotifications()
+    {
+        $user_id = (is_numeric($this->input->get('user_id', true))) ? $this->input->get('user_id', true) : null;
+        $notifications_id = (is_array($this->input->get('notif_ids', true))) ? $this->input->get('notif_ids', true) : null;
+
+        $result  = null;
+
+        if(!empty($user_id) and !empty($notifications_id))
+        {
+            $result = $this->Notification_model->setUserNotificationsRead($user_id, $notifications_id, $this->date);
+        }
+        else
+        {
+            $result['error'] = 'Некорректный ID пользователя и/или ID уведомлений';
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
     public function emails()
     {
         if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)

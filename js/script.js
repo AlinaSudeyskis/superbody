@@ -17,6 +17,8 @@ function getInternetExplorerVersion() {
     return rv;
 }
 $(document).ready(function () {
+    $.ajaxSetup({cache: false});
+    
     tinymce.init({
         selector: "textarea.formatted_textarea",
         menubar: false,
@@ -1008,6 +1010,48 @@ $(document).ready(function () {
                         {
                             this_but.html('Добавить в календарь');
                         }
+                        block_message.html(data.info);
+                        block_message.removeClass('error');
+                        block_message.addClass('info');
+                    }
+                    else
+                    {
+                        block_message.html(data.info);
+                        block_message.removeClass('info');
+                        block_message.addClass('error');
+                    }
+                    showBlockMessage(block_message);
+                }
+            });
+        }
+    });
+    /* Скрыть курс со страницы пользователя */
+    $(".hide_u_course").on('click', function (event) {
+        event.preventDefault();
+        const this_but = $(this),
+            crs_id = this_but.data('crsid');
+
+        if ($.isNumeric(crs_id)) {
+            const block_message = $('#block-message');
+
+            $.ajax({
+                url: '/hideCourse',
+                type: 'post',
+                dataType: 'json',
+                data: {crs_id: crs_id},
+                complete: function (result) {
+                    const data = result.responseJSON;
+
+                    if($(block_message).is(":visible"))
+                    {
+                        block_message.animate({"top": "-=40px"}, "slow");
+                        block_message.hide();
+                    }
+
+                    if(data.result === true)
+                    {
+                        this_but.parents('.orders_container').hide();
+
                         block_message.html(data.info);
                         block_message.removeClass('error');
                         block_message.addClass('info');

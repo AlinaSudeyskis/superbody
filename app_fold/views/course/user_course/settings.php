@@ -108,6 +108,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество пропущенных занятий:</div></div>
                                     <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo $course['workouts_missed']; ?></div></div>
                                 </div>
+                            <?php endif;
+                            if (!empty($course['workouts_passed'])) :?>
+                                <div class="anketa_form_line parent">
+                                    <div class="anketa_form_h"><div class="anketa_form_h_cell">Количество оставшихся занятий:</div></div>
+                                    <div class="anketa_form_h"><div class="anketa_form_h_cell"><?php echo (($course['count_weeks']*$course['count_days']) - $course['workouts_passed']); ?></div></div>
+                                </div>
                             <?php endif; ?>
                             <div class="anketa_form_line parent">
                                 <div class="anketa_form_h"><div class="anketa_form_h_cell">Пройдено курса:</div></div>

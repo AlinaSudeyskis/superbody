@@ -6735,12 +6735,12 @@ class Course_model extends CI_Model
             $this->db->join('courses', 'uc_course_id = crs_id', 'left');
             if($courses_type == 'active')
             {
-                $where = "uc_user_id=".$user_id." and (uc_blocked=1 or (uc_blocked=0 and (uc_date_end>='".$today."' or uc_date_end='0000-00-00')))";
+                $where = "uc_user_id=".$user_id." and uc_hide=0 and (uc_blocked=1 or (uc_blocked=0 and (uc_date_end>='".$today."' or uc_date_end='0000-00-00')))";
                 $this->db->where($where);
             }
             elseif($courses_type == 'finished')
             {
-                $where = "uc_user_id=".$user_id." and uc_blocked=0 and uc_date_end<'".$today."' and uc_date_end<>'0000-00-00'";
+                $where = "uc_user_id=".$user_id." and uc_hide=0 and uc_blocked=0 and uc_date_end<'".$today."' and uc_date_end<>'0000-00-00'";
                 $this->db->where($where);
             }
             $this->db->order_by('uc_date_end', 'DESC');
@@ -7346,6 +7346,33 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Блокировка курсов пользователей
+     *
+     * @param $date
+     * @return bool
+     * @throws Exception
+     */
+    public function blockUsersCourses($date)
+    {
+        $result = true;
+        $tmp_date = new DateTime($date);
+        $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : null;
+
+        if(!empty($today))
+        {
+            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_reason`="not_paid", `uc_blocked_date`=?, `uc_date_update`=? WHERE `uc_blocked`=0 and `uc_date_block`<=?',
+                array($date, $date, $today));
+            if($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                $result = false;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Проверка и блокировка курса пользователя, если бесплатные недели промокода закончились
      *
      * @param $user_id
@@ -7364,8 +7391,7 @@ class Course_model extends CI_Model
 
         $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_date`=?, `uc_blocked_reason`=? 
             WHERE `uc_user_id`=? and `uc_o_id`=? and `uc_blocked`=0 and `uc_free_weeks`>0 and `uc_free_weeks_end_date`<=? and `uc_free_weeks_end_date`<>"0000-00-00"
-            LIMIT 1',
-                array($date, $reason, $user_id, $order_id, $short_date));
+            LIMIT 1', array($date, $reason, $user_id, $order_id, $short_date));
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
             $up_order = $this->db->query('UPDATE `orders` SET `o_payment_status`="not_paid" WHERE `o_id`=? LIMIT 1', $order_id);
@@ -7559,6 +7585,41 @@ class Course_model extends CI_Model
                 unset($wos_by_date);
 
                 self::shiftUserCourseNumWorkouts($user_course_id);
+            }
+            unset($crs);
+            unset($user_course_id);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Перенос тренировок курса текущей недели
+     *
+     * @param $user_id
+     * @param $workouts_time
+     * @param $date
+     * @return bool
+     */
+    public function postponeUserCourseWeekWorkoutsTime($user_id, $workouts_time, $date)
+    {
+        $result = true;
+
+        if(is_numeric($user_id) and !empty($workouts_time))
+        {
+            foreach ($workouts_time as $user_course_id => $workouts)
+            {
+                foreach ($workouts as $wo_id => $wo_time)
+                {
+                    $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_time`=?, `utw_date_update`=? WHERE `utw_id`=? and `utw_uc_id`=? LIMIT 1',
+                        array($wo_time, $date, $wo_id, $user_course_id));
+                    if($up_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        $result = false;
+                    }
+                }
+                unset($wos_by_date);
             }
             unset($crs);
             unset($user_course_id);
@@ -8518,9 +8579,10 @@ class Course_model extends CI_Model
         $sel_course = $this->db->query('
             SELECT `uc_id`, `uc_o_id`, `uc_course_id`, `uc_coach_id`, `uc_date_start`, `uc_date_end`, `uc_days`, `uc_time`, `uc_blocked`, 
               `uc_blocked_date`, `uc_blocked_reason`, `uc_paused`, `uc_pause_days`, `uc_free_weeks_end_date`, `crs_name`, `crs_description`, `crs_image`,
-              `crs_count_weeks`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, `crs_count_rest`, `crs_category` 
+              `crs_count_weeks`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, `crs_count_rest`, `crs_category`, `o_payment_options` 
             FROM `users_courses`
             LEFT JOIN `courses` ON `uc_course_id`=`crs_id`
+            LEFT JOIN `orders` ON `o_id`=`uc_o_id`
             WHERE `uc_id`=? and `uc_user_id`=? LIMIT 1', array($user_course_id, $user_id));
 
         if ($sel_course !== false and 1 == $sel_course->num_rows())
@@ -8571,6 +8633,7 @@ class Course_model extends CI_Model
             $result['course']['pauses']            = array();
             $result['course']['finished']          = ($row->uc_date_end != '0000-00-00' and $row->uc_date_end < $today) ? true : false;
             $result['course']['attached_courses']  = array();
+            $result['course']['payment_options']   = $row->o_payment_options;
 
             // Время тренировок
             if(!empty($row->uc_time))
@@ -9869,8 +9932,11 @@ class Course_model extends CI_Model
 
         if(!empty($block_reason))
         {
-            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=?, `uc_blocked_reason`=?, `uc_blocked_date`=?, `uc_free_weeks`=0, `uc_free_weeks_end_date`="0000-00-00", `uc_date_update`=? WHERE `uc_o_id`=?',
-                array($block, $block_reason, $block_date, $date, $order_id));
+            $future_date_block = ($block == 0) ? $block_date : '';
+            $block_date = ($block == 1) ? $block_date : '';
+
+            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_date_block`=?, `uc_blocked`=?, `uc_blocked_reason`=?, `uc_blocked_date`=?, `uc_free_weeks`=0, `uc_free_weeks_end_date`="0000-00-00", `uc_date_update`=? WHERE `uc_o_id`=?',
+                array($future_date_block, $block, $block_reason, $block_date, $date, $order_id));
             if($up_data !== false and 0 < $this->db->affected_rows())
             {
                 $result = true;
@@ -9883,6 +9949,31 @@ class Course_model extends CI_Model
         else
         {
             log_message('error', 'Empty block reason. Order ID:' .$order_id. ' Block flag: ' .$block);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление будущей даты блокировки курса
+     *
+     * @param $user_course_id
+     * @param $block_date
+     * @param $date
+     * @return bool
+     */
+    public function updateCourseFutureBlockDate($user_course_id, $block_date, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `users_courses` SET `uc_date_block`=?, `uc_date_update`=? WHERE `uc_id`=? LIMIT 1', array($block_date, $date, $user_course_id));
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;
@@ -10068,7 +10159,7 @@ class Course_model extends CI_Model
     }
 
     /**
-     * Выбор курса тренировок для отображения в календарь
+     * Изменение статуса курса тренировок для отображения в календарь
      *
      * @param $user_course_id
      * @param $display
@@ -10085,6 +10176,36 @@ class Course_model extends CI_Model
             $up_data = $this->db->query('
                 UPDATE `users_courses` SET `uc_display`=?, `uc_date_update`=? 
                 WHERE `uc_id`=? and `uc_user_id`=? LIMIT 1', array($display, $date, $user_course_id, $user_id));
+            if($up_data !== false and 1 == $this->db->affected_rows())
+            {
+                $result = true;
+            }
+            elseif($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Скрыть курс пользователя из списка на странице "Мои курсы"
+     *
+     * @param $user_course_id
+     * @param $user_id
+     * @param $date
+     * @return bool
+     */
+    public function hideUserCourse($user_course_id, $user_id, $date)
+    {
+        $result = false;
+
+        if(is_numeric($user_course_id) and is_numeric($user_id))
+        {
+            $up_data = $this->db->query('
+                UPDATE `users_courses` SET `uc_hide`=1, `uc_date_update`=? 
+                WHERE `uc_id`=? and `uc_user_id`=? LIMIT 1', array($date, $user_course_id, $user_id));
             if($up_data !== false and 1 == $this->db->affected_rows())
             {
                 $result = true;
@@ -10285,11 +10406,11 @@ class Course_model extends CI_Model
         {
             foreach ($sel_data->result() as $row)
             {
-                $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_date`=? WHERE `uc_id`=? LIMIT 1', array($date, $row->uc_id));
+                /*$up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_date`=? WHERE `uc_id`=? LIMIT 1', array($date, $row->uc_id));
                 if($up_data === false)
                 {
                     parent::logDbMessages(__METHOD__.':'.__LINE__);
-                }
+                }*/
 
                 // Отправка email с уведомлением о заканчивающемся курсе
                 if(!empty($row->user_email))

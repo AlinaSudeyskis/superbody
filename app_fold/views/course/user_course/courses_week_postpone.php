@@ -65,16 +65,15 @@ $course['count_days'] = count($wo_data['available_days']);*/
                     <div class="anketa_block_item_h">Перенести тренировки недели</div>
                     <div class="anketa_block_cont calendar_content_block">
                         <div id="calendar2" class="calendar" data-events="<?php echo $events; ?>"></div>
-                        <div class="anketa_form_line parent" style="margin-top: 20px;">
-                            <div class="anketa_form_h" style="max-width: 250px;"><div class="anketa_form_h_cell" style="width: auto;">Изменение времени тренировки:</div></div>
-                            <input type="text" name="i_days_time[][]" value="" class="anketa_form_in time" placeholder="чч:мм" maxlength="5" minlength="5" style="width: 70px;">
+                        <div class="anketa_form_line parent" style="margin: 15px 0 10px;" id="days-time">
+                            <div class="anketa_form_h" style="max-width: 250px; display: none;"><div class="anketa_form_h_cell" style="width: auto;">Изменение времени тренировки:</div></div>
                         </div>
-                        <div class="h_subtitle" style="line-height: 15px;margin-top: 15px; text-align: left; font-size: 12px;">
-                            <div>- Для переноса нажмите мышкой (зажмите пальцем) необходимую тренировку и перетащите на нужный день.</div>
+                        <div class="h_subtitle" style="line-height: 15px; margin: 15px 0; text-align: left; font-size: 12px;">
                             <div>- Перенести можно <span class="text_upper">пропущенную</span> или <span class="text_upper">новую</span> тренировки.</div>
                             <div>- Перенос возможен на <span class="text_upper">текущую</span> или <span class="text_upper">будущую</span> даты.</div>
                             <div>- <span class="text_upper">Не возможно</span> перенести тренировку на день с уже существующей тренировкой одного и того же курса.</div>
                             <div>- В один день может быть две тренировки одного и того же курса, если одна из тренировок <span class="text_upper">пропущена</span>.</div>
+                            <div>- Для изменения <span class="text_upper">времени</span> тренировки, нажмите на необходимую тренировку.</div>
                         </div>
                     </div>
                 </div>
@@ -86,7 +85,7 @@ $course['count_days'] = count($wo_data['available_days']);*/
                         defaultView: 'dayGridWeek',
                         firstDay: 1,
                         locale: 'ru',
-                        displayEventTime: false,
+                        displayEventTime: true,
                         eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false },
                         columnHeaderFormat: { weekday: 'short', day: 'numeric', month: 'numeric' },
                         height: 130,
@@ -303,6 +302,52 @@ $course['count_days'] = count($wo_data['available_days']);*/
                                     countPostpone++;
                                 }
                             }
+                        },
+                        eventClick: function(calEvent) {
+                            let days_time = $('#days-time');
+
+                            days_time.children().hide();
+                            days_time.find('.anketa_form_h').show();
+
+                            if(calEvent.event.extendedProps.ev_bl !== 'true')
+                            {
+                                if(days_time.find('#i-days-time-'+calEvent.event.extendedProps.ev_uc+'-'+calEvent.event.extendedProps.endParam).length === 0)
+                                {
+                                    days_time.append('<div id="i-days-time-'+calEvent.event.extendedProps.ev_uc+'-'+calEvent.event.extendedProps.endParam+'"><span class="days_time_text">'+calEvent.event.title+'</span><input type="text" name="i_days_time['+calEvent.event.extendedProps.ev_uc+']['+calEvent.event.extendedProps.endParam+']" value="'+calEvent.event.extendedProps.ev_time+'" class="anketa_form_in time days_time" placeholder="чч:мм" data-db-time="'+calEvent.event.extendedProps.ev_time+'" maxlength="5" minlength="5" style="width: 70px;"></div>');
+                                }
+                                else
+                                {
+                                    days_time.find('#i-days-time-'+calEvent.event.extendedProps.ev_uc+'-'+calEvent.event.extendedProps.endParam).show();
+                                }
+                            }
+                            else
+                            {
+                                if(days_time.find('#i-days-time-text').length === 0)
+                                {
+                                    days_time.append('<span id="i-days-time-text" class="anketa_form_in" style="text-align: left;">Курс заблокирован</span>');
+                                }
+                                else
+                                {
+                                    days_time.find('#i-days-time-text').show();
+                                }
+                            }
+
+                            days_time.find('.days_time').on('input', function(){
+                                if($(this).val() !== $(this).data('db-time'))
+                                {
+                                    $('#bt-save-postpone').prop('disabled', false);
+                                }
+                            });
+
+                            if(days_time.find('.days_time').length > 0)
+                            {
+                                days_time.find('.days_time').each(function(){
+                                    if($(this).val() !== $(this).data('db-time'))
+                                    {
+                                        $('#bt-save-postpone').prop('disabled', false);
+                                    }
+                                });
+                            }
                         }
                     });
 
@@ -317,6 +362,8 @@ $course['count_days'] = count($wo_data['available_days']);*/
                             delete changed_events[i];
                         });
                         $('#i-changed-events').val('');
+                        $('#days-time').children('.days_time').remove();
+                        $('#days-time').children().hide();
                         console.clear();
                     });
                 </script>

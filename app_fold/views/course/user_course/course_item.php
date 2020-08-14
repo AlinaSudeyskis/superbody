@@ -132,6 +132,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php endif;?>
                         </div>
                     <?php endif; ?>
+                    <?php if($course['order']['payment_status_eng'] == 'pending'): ?>
+                        <div class="oi_d_link">
+                            <a href="#" class="hide_u_course" data-crsid="<?php echo $course['id']; ?>">Скрыть со страницы</a>
+                        </div>
+                    <?php endif; ?>
                     <div class="oi_d_link">
                         <?php if(!empty($course['id']) and empty($outsider)): ?>
                             <a href="/profile/course/<?php echo $course['id']; ?>">Подробнее</a>

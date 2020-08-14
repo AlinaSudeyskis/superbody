@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <?php if(!empty($video) and empty($error)): ?>
-<div style="width: 640px; height: 360px;">
+<div style="width: 640px;/* height: 360px;*/ margin: 25px auto;">
     <?php echo $video; ?>
 </div>
 <script>

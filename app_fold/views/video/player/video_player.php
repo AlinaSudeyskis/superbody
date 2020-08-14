@@ -79,4 +79,4 @@ elseif(!empty($i_remote_url) and !empty($i_remote_type) and $i_remote_type == 'y
 }
 $workout_instruction = (!empty($inst_video)) ? '<div id="wo-instruction">' . $inst_video . '</div>' : '';
 $workout_inst_but = (!empty($inst_video)) ? "<div class='workout_form_but instruction'>Инструктаж</div>" : '';
-$workout_video = (!empty($w_video)) ? '<div id="wo-video">' . $w_video . '</div>' . $workout_instruction . '<div id="wo-description">' . $workout_description . '</div>' . $workout_done . $workout_inst_but : '';
+$workout_video = (!empty($w_video)) ? '<div id="wo-video">' . $w_video . '</div>' . $workout_instruction . '<div id="wo-description">' . $workout_description . '</div><div style="height: 50px;">' . $workout_done . $workout_inst_but . '</div>' : '';

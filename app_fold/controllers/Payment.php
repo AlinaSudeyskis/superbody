@@ -297,13 +297,20 @@ class Payment extends CI_Controller
                 $order_status = ($payment_event == 'refund' and $payment_status == 'succeeded') ? 'payment_refunded' : $payment_status;
                 $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, $order_status);
 
+                $tmp_date = new DateTime($this->date);
+                $tmp_date->add(new DateInterval('P1M'));
+                $next_month = $tmp_date->format('Y-m-d');
+
                 // Изменение статуса курсов
                 $payment_statuses = array('waiting_for_capture' => 'waiting_for_capture', 'payment_succeeded' => 'succeeded', 'payment_canceled' => 'canceled', 'not_paid' => 'pending');
+
                 $courses_status   = (!empty($payment_status) and array_search($payment_status, $payment_statuses)) ? array_search($payment_status, $payment_statuses) : '';
                 //$courses_status   = ($check_account === false and $payment_status == 'succeeded') ? 'not_activated_account' : $courses_status;
                 $courses_status   = ($payment_event == 'refund' and $payment_status == 'succeeded') ? 'payment_refunded' : $courses_status;
-                $block_date       = ($courses_status == 'payment_succeeded') ? '' : $this->date;
-                $block            = ($courses_status == 'payment_succeeded') ? 0 : 1;
+
+                $block_date = ($courses_status == 'payment_succeeded') ? $next_month : $this->date;
+                $block      = ($courses_status == 'payment_succeeded') ? 0 : 1;
+
                 $this->Course_model->updateOrderCoursesStatus($payment['order_id'], $courses_status, $block_date, $block, $this->date);
 
                 if ($payment_status == 'succeeded' and $payment_event == 'payment')

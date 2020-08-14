@@ -6976,7 +6976,7 @@ class Course extends CI_Controller
         $result = true;
 
         // Данные курса пользователя
-        $course_data   = $this->Course_model->getUserCourseSettings($course_id, $this->user_id, $this->date);
+        $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id, $this->date);
 
         // Ограничение календаря
         $diff_pause_days = 30 - $course_data['course']['pause_days'];
@@ -7034,9 +7034,9 @@ class Course extends CI_Controller
 
         if ($this->input->post('bt_save_course', true))
         {
-            $result_td = true; // Результат сохранения изменения дней тренировок
-            $result_uw = true; // Результат сохранения обновленных дат тренировок
-            $result_sp = true; // Результат заморозки курса
+            $result_td = null; // Результат сохранения изменения дней тренировок
+            $result_uw = null; // Результат сохранения обновленных дат тренировок
+            $result_sp = null; // Результат заморозки курса
 
             // Выбранный тренер
             $coach_id = is_numeric($this->input->post('user_coach', true)) ? $this->input->post('user_coach', true) : 0;
@@ -7075,6 +7075,11 @@ class Course extends CI_Controller
             $array_training_days  = (!empty($training_days)) ? str_split($training_days) : null;
             // Время тренировок
             $training_times = (!empty($array_training_times)) ? implode(';', $array_training_times) : '';
+
+            if($course_days > count($array_training_days))
+            {
+                $array_training_days = array();
+            }
 
             // Вычисление старта и окончания курса
             if (empty($db_training_days) and !empty($array_training_days))
@@ -7136,7 +7141,7 @@ class Course extends CI_Controller
             }
 
             // Сохранение изменений дней тренировок
-            if (!empty($array_training_days) and !empty($db_training_days) and $training_days != $db_training_days)
+            if (!empty($db_training_days) and !empty($array_training_days) and $training_days != $db_training_days)
             {
                 $tem_date = new DateTime($this->date);
                 $today    = $tem_date->format('Y-m-d');
@@ -7441,7 +7446,7 @@ class Course extends CI_Controller
                 $this->Course_model->updateDatesUserWorkouts($uc_id, $update_workouts, $this->date);
             }
             // Изменение времени тренировок пользователя
-            elseif(!empty($training_times) and (empty($db_training_time) or $array_training_times != $db_training_time))
+            elseif(!empty($db_training_days) and !empty($training_times) and (empty($db_training_time) or $array_training_times != $db_training_time))
             {
                 $result_td = $this->Course_model->setUserTrainingTime($uc_id, $training_times, $this->date);
 
@@ -7466,6 +7471,12 @@ class Course extends CI_Controller
                 }
             }
 
+            // Изменение даты блокировки курса по дате окончания курса, при полной оплате
+            if(($course_end != $db_course['db_date_end'] or !empty($new_course_end)) and $db_course['payment_options'] == 'full_payment')
+            {
+                $this->Course_model->updateCourseFutureBlockDate($uc_id, $course_end, $this->date);
+            }
+
             // Сохранение изменений выбранного тренера
             if ($coach_id != $db_course['coach_id'])
             {
@@ -7473,7 +7484,8 @@ class Course extends CI_Controller
             }
 
             /* ОТВЕТ */
-            if ($result_td === true and $result_sp === true)
+            if ((($result_td === true and $result_sp === true) or ($result_td === null and $result_sp === true)
+                or ($result_td === true and $result_sp === null)) and $course_days == count($array_training_days))
             {
                 // Изменения сохранены
                 $this->session->set_tempdata('message', 10, 60);
@@ -7481,7 +7493,11 @@ class Course extends CI_Controller
             else
             {
                 $error_code = 30;
-                if ($result_td === false and $result_sp === true)
+                if($course_days > count($array_training_days))
+                {
+                    $error_code = 225;
+                }
+                elseif ($result_td === false and $result_sp === true)
                 {
                     $error_code = 79;
                 }
@@ -8174,6 +8190,15 @@ class Course extends CI_Controller
     }
 
     /**
+     * Блокировка курсов пользователей
+     */
+    public function blockUsersCourses()
+    {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+        $this->Course_model->blockUsersCourses($this->date);
+    }
+
+    /**
      * Проверка наличия завершенных курсов пользователей и отправка уведомления на почту
      */
     public function checkUsersExpiringCourses()
@@ -8692,7 +8717,7 @@ class Course extends CI_Controller
                         "i_video" => $workout_instruction,
                         "i_player" => $i_player,
                         "source" => $v_source,
-                        "workout_url" => '<a href="/workout/'.$workout_id.'/'.$video_id.'/'.$this->user_id.'" class="wo_url" target="_blank">Открыть в новом окне</a>'
+                        "workout_url" => '<a href="/profile/workout/'.$workout_id.'/'.$video_id.'" class="wo_url" target="_blank">Открыть в новом окне</a>'
                     );
 
                     echo json_encode($display_result, JSON_NUMERIC_CHECK);
@@ -8934,6 +8959,88 @@ class Course extends CI_Controller
     }
 
     /**
+     * Отображение видео тренировки
+     *
+     * @param $workout_id
+     * @param $video_id
+     * @return void
+     */
+    public function showProfileWorkoutVideo($workout_id, $video_id)
+    {
+        if(is_numeric($this->user_id) and is_numeric($workout_id) and is_numeric($video_id))
+        {
+            // Проверка соответствия номера видео тренировке, курсу и пользователя
+            $result = $this->Course_model->matchWorkoutVideo($this->user_id, $workout_id, $video_id);
+
+            if ($result !== false)
+            {
+                // Данные видео
+                $video_data = $this->Course_model->getVideo($video_id);
+                $instruction_data = $this->Course_model->getVideo($result['workout']['instruction']);
+
+                if ($video_data !== false)
+                {
+                    $workout_done = '';
+                    $workout_description = '';
+                    $workout_video = '';
+                    $v_player = '';
+                    $workout_instruction_a = '';
+                    $workout_instruction = '';
+                    $i_player = '';
+                    $v_source = null;
+
+                    $v_remote_type = $video_data['video']['remote_type'];
+                    $v_remote_url = $video_data['video']['remote_url'];
+                    $v_poster = $video_data["video"]["poster"];
+                    $v_video = $video_data["video"]["video"];
+                    $i_remote_type = $instruction_data['video']['remote_type'];
+                    $i_remote_url = $instruction_data['video']['remote_url'];
+                    $i_poster = $instruction_data["video"]["poster"];
+                    $i_video = $instruction_data["video"]["video"];
+                    $w_done = $result['workout']['done'];
+                    $w_description = $result['workout']['description'];
+
+                    include_once('./app_fold/views/video/player/video_player.php');
+
+                    $display_result = array(
+                        "done" => $workout_done,
+                        "description" => $workout_description,
+                        "video" => ''.$workout_video.'',
+                        "player" => $v_player,
+                        "i_a" => $workout_instruction_a,
+                        "i_video" => $workout_instruction,
+                        "i_player" => $i_player,
+                        "source" => $v_source
+                    );
+                }
+                else
+                {
+                    $display_result['error'] = 'Video data error';
+                }
+            }
+            else
+            {
+                $display_result['error'] = 'User course data error';
+            }
+        }
+        else
+        {
+            $display_result['error'] = 'End_param and start_param are incorrect.';
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']     = 'Тренировка';
+        $this->page_data['page_menu'] = 'workout';
+
+        //echo $display_result['video'];
+        $this->load->view('header/header', $this->page_data);
+        $this->load->view('header/profile');
+        $this->load->view('user/profile_line');
+        $this->load->view('video/profile_video_page', $display_result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
      * AJAX Отображение формы переноса тренировок текущей недели
      * @throws Exception
      */
@@ -9016,6 +9123,7 @@ class Course extends CI_Controller
                         $events .= "color: '". $color ."',";
                         $events .= "ev_st: '". $event['status'] ."',";
                         $events .= "ev_date: '". mb_substr($event['start'], 0, 10) ."',";
+                        $events .= "ev_time: '". mb_substr($event['start'], 11, 5) ."',";
                         $events .= "ev_bc: '". $color ."',";
                         $events .= "ev_uc: '". $event['uc_id'] ."'";
 
@@ -9355,7 +9463,38 @@ class Course extends CI_Controller
             }
             else
             {
-                log_message('error', 'User course id error. User course id = '. $user_course_id .' User id = ' . $this->user_id);
+                log_message('error', 'Result error. User course id = '. $user_course_id .' User id = ' . $this->user_id);
+            }
+        }
+        else
+        {
+            log_message('error', 'User course id error. User course id = '. $user_course_id .' User id = ' . $this->user_id);
+        }
+
+        echo json_encode($result, JSON_NUMERIC_CHECK);
+    }
+
+    /**
+     * AJAX. Скрыть курс пользователя из списка на странице "Мои курсы"
+     */
+    public function hideUserCourse()
+    {
+        $result['result'] = false;
+        $result['info']   = 'Ошибка! Курс не скрыт со страницы.';
+
+        $user_course_id = is_numeric($this->input->post('crs_id', true)) ? $this->input->post('crs_id', true) : null;
+
+        if(!empty($user_course_id))
+        {
+            $result['result'] = $this->Course_model->hideUserCourse($user_course_id, $this->user_id, $this->date);
+
+            if($result['result'] === true)
+            {
+                $result['info'] = 'Сохранено';
+            }
+            else
+            {
+                log_message('error', 'Result error. User course id = '. $user_course_id .' User id = ' . $this->user_id);
             }
         }
         else

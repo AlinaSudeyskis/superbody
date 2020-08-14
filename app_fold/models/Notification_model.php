@@ -658,4 +658,92 @@ class Notification_model extends CI_Model
             }
         }
     }
+
+    /**
+     * Выборка непрочитанных уведомлений для пользователя
+     *
+     * @param $user_id
+     * @param $date
+     * @return array
+     * @throws Exception
+     */
+    public function getUserNotifications($user_id, $date)
+    {
+        $result = array();
+
+        $tmp_date = new DateTime(parent::parseDatetime($date));
+        $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+        $sel_data = $this->db->query('
+            SELECT `un_id`, `un_text`, `un_date`, `un_time`, `un_users`, `unr_id`
+            FROM `users_notifications`
+            LEFT JOIN `users_notifications_group` ON `ung_un_id`=`un_id`
+            LEFT JOIN `users_notifications_read` ON `unr_un_id`=`un_id` and `unr_u_id`=?
+            WHERE (`un_users`="all" or `ung_u_id`=?) and `unr_id` IS NULL and `un_date`<=?
+            GROUP BY `un_id`', array($user_id, $user_id, $today));
+
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['notifications'][$i]['id'] = $row->un_id;
+                $result['notifications'][$i]['text'] = $row->un_text;
+                $result['notifications'][$i]['date'] = $row->un_date;
+                $result['notifications'][$i]['time'] = $row->un_time;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение уведомлений как прочитанные
+     *
+     * @param $user_id
+     * @param $notifications_id
+     * @param $date
+     * @return array
+     */
+    public function setUserNotificationsRead($user_id, $notifications_id, $date)
+    {
+        $result = array();
+
+        foreach ($notifications_id as $notif_id)
+        {
+            if(is_numeric($notif_id))
+            {
+                $sel_data = $this->db->query('SELECT `unr_id` FROM `users_notifications_read` WHERE `unr_u_id`=? and `unr_un_id`=? LIMIT 1', array($user_id, $notif_id));
+                if($sel_data !== false and 0 == $sel_data->num_rows())
+                {
+                    $ins_data = $this->db->query('INSERT INTO `users_notifications_read` (`unr_u_id`, `unr_un_id`, `unr_update`) VALUES (?, ?, ?)', array($user_id, $notif_id, $date));
+                    if($ins_data === false)
+                    {
+                        parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        $result['error_ids'][$notif_id] = 'Не сохранено';
+                    }
+                }
+                elseif($sel_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            else
+            {
+                $result['error_ids'][$notif_id] = 'Некорректный тип данных';
+            }
+        }
+        unset($notif_id);
+
+        $result = (empty($result)) ? true : $result;
+
+        return $result;
+    }
 }
