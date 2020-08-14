@@ -4448,6 +4448,123 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-08-11 16:24';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (225, 'error', 'Ошибка! Тренировочные дни не сохранены. Количество выбранных дней меньше предусмотренного курсом количества.', 'Ошибка! Тренировочные дни не сохранены. Количество выбранных дней меньше предусмотренного курсом количества.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-08-12 09:55';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` ADD `uc_hide` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0' AFTER `uc_date_end`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-08-13 08:58';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `users_notifications_read` ( `unr_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , `unr_un_id` INT UNSIGNED NOT NULL , `unr_u_id` INT UNSIGNED NOT NULL , `unr_update` DATETIME NOT NULL , PRIMARY KEY (`unr_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-08-13 09:12';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_notifications_read` ADD INDEX `ix_u_un_id` (`unr_u_id`, `unr_un_id`)");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-08-13 13:27';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_courses` ADD `uc_date_block` DATE NOT NULL AFTER `uc_hide`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-08-14 11:25';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `authorization_data` SET `ad_date`=DATE_SUB(`ad_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `blog_comments` SET `bc_date_add`=DATE_SUB(`bc_date_add`, INTERVAL 3 HOUR), `bc_date_update`=DATE_SUB(`bc_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `cart` SET `c_date_update`=DATE_SUB(`c_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `categories` SET `cat_date_add`=DATE_SUB(`cat_date_add`, INTERVAL 3 HOUR), `cat_date_update`=DATE_SUB(`cat_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `coach_blog` SET `cb_post_date_add`=DATE_SUB(`cb_post_date_add`, INTERVAL 3 HOUR), `cb_post_date_update`=DATE_SUB(`cb_post_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `coach_data` SET `cd_date_update`=DATE_SUB(`cd_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `coach_portfolio` SET `cp_date_add`=DATE_SUB(`cp_date_add`, INTERVAL 3 HOUR), `cp_date_update`=DATE_SUB(`cp_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses` SET `crs_date_add`=DATE_SUB(`crs_date_add`, INTERVAL 3 HOUR), `crs_date_update`=DATE_SUB(`crs_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses_attached` SET `ca_date`=DATE_SUB(`ca_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses_coaches` SET `cc_date_add`=DATE_SUB(`cc_date_add`, INTERVAL 3 HOUR), `cc_date_update`=DATE_SUB(`cc_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses_days_schedule` SET `cds_update`=DATE_SUB(`cds_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses_extends` SET `ce_date_add`=DATE_SUB(`ce_date_add`, INTERVAL 3 HOUR), `ce_update`=DATE_SUB(`ce_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses_ingestions` SET `ci_update`=DATE_SUB(`ci_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses_landing_pages` SET `clp_date_add`=DATE_SUB(`clp_date_add`, INTERVAL 3 HOUR), `clp_date_update`=DATE_SUB(`clp_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses_reviews` SET `cr_date_add`=DATE_SUB(`cr_date_add`, INTERVAL 3 HOUR), `cr_update`=DATE_SUB(`cr_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `courses_training_weeks` SET `ctw_date_add`=DATE_SUB(`ctw_date_add`, INTERVAL 3 HOUR), `ctw_date_update`=DATE_SUB(`ctw_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `course_type` SET `ct_date_add`=DATE_SUB(`ct_date_add`, INTERVAL 3 HOUR), `ct_date_update`=DATE_SUB(`ct_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `emails` SET `e_date`=DATE_SUB(`e_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `emails_addresses` SET `ea_date`=DATE_SUB(`ea_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `feedback` SET `fb_date_add`=DATE_SUB(`fb_date_add`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `ingestions` SET `ing_date_add`=DATE_SUB(`ing_date_add`, INTERVAL 3 HOUR), `ing_date_update`=DATE_SUB(`ing_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `ingestions_type` SET `it_date_add`=DATE_SUB(`it_date_add`, INTERVAL 3 HOUR), `it_date_update`=DATE_SUB(`it_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `ingredients` SET `ingr_update`=DATE_SUB(`ingr_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `journal` SET `j_date_add`=DATE_SUB(`j_date_add`, INTERVAL 3 HOUR), `j_date_update`=DATE_SUB(`j_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `landing_pages` SET `lp_date_add`=DATE_SUB(`lp_date_add`, INTERVAL 3 HOUR), `lp_date_update`=DATE_SUB(`lp_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `meals` SET `ml_update`=DATE_SUB(`ml_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `meals_types` SET `mt_update`=DATE_SUB(`mt_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `meals_videos` SET `mv_update`=DATE_SUB(`mv_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `orders` SET `o_date_add`=DATE_SUB(`o_date_add`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `orders_payment` SET `op_date_add`=DATE_SUB(`op_date_add`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `products` SET `p_date_add`=DATE_SUB(`p_date_add`, INTERVAL 3 HOUR), `p_date_update`=DATE_SUB(`p_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `products_categories` SET `pc_date_update`=DATE_SUB(`pc_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `products_group` SET `pg_date_update`=DATE_SUB(`pg_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `promocodes` SET `pc_date_add`=DATE_SUB(`pc_date_add`, INTERVAL 3 HOUR), `pc_update`=DATE_SUB(`pc_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `promocodes_attached_users` SET `pau_update`=DATE_SUB(`pau_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `promocodes_for_friend` SET `pff_date_add`=DATE_SUB(`pff_date_add`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `promocodes_used` SET `pcu_date`=DATE_SUB(`pcu_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `promocode_courses` SET `pcc_update`=DATE_SUB(`pcc_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `questionnaire` SET `user_date_update`=DATE_SUB(`user_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `question_answer` SET `qa_update`=DATE_SUB(`qa_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `q_a_groups` SET `qag_date`=DATE_SUB(`qag_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `q_a_sections` SET `qas_update`=DATE_SUB(`qas_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `q_a_subsections` SET `qass_update`=DATE_SUB(`qass_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `site_banners` SET `sb_update`=DATE_SUB(`sb_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `site_info` SET `si_date`=DATE_SUB(`si_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `subcategories` SET `subcat_date_add`=DATE_SUB(`subcat_date_add`, INTERVAL 3 HOUR), `subcat_date_update`=DATE_SUB(`subcat_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `subscription` SET `s_date`=DATE_SUB(`s_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users` SET `user_restore_date`=DATE_SUB(`user_restore_date`, INTERVAL 3 HOUR), `user_date_update`=DATE_SUB(`user_date_update`, INTERVAL 3 HOUR), `user_activate_date`=DATE_SUB(`user_activate_date`, INTERVAL 3 HOUR), `user_date_reg`=DATE_SUB(`user_date_reg`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_courses` SET `uc_date_update`=DATE_SUB(`uc_date_update`, INTERVAL 3 HOUR), `uc_blocked_date`=DATE_SUB(`uc_blocked_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_day_meals` SET `udm_datetime`=DATE_SUB(`udm_datetime`, INTERVAL 3 HOUR), `udm_update`=DATE_SUB(`udm_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_messages` SET `um_date`=DATE_SUB(`um_date`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_notifications` SET `un_update`=DATE_SUB(`un_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_notifications_group` SET `ung_update`=DATE_SUB(`ung_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_notifications_read` SET `unr_update`=DATE_SUB(`unr_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_social` SET `us_update`=DATE_SUB(`us_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_training_days` SET `utd_date_update`=DATE_SUB(`utd_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `users_training_weeks` SET `utw_date_update`=DATE_SUB(`utw_date_update`, INTERVAL 3 HOUR)");
+            $this->db->query("UPDATE `video` SET `video_date_add`=DATE_SUB(`video_date_add`, INTERVAL 3 HOUR), `video_date_update`=DATE_SUB(`video_date_update`, INTERVAL 3 HOUR)");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
