@@ -1518,7 +1518,7 @@ div.info{
     background: #fff;
     border-bottom: 3px solid #cdcdcd;
     margin-bottom: 40px;
-    /*overflow: hidden;*/
+    overflow: hidden;
 }
 .user_prof_wrap{
     display: flex;

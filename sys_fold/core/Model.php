@@ -357,7 +357,7 @@ class CI_Model {
     public function parseDatetime($date)
     {
         $datetime = new DateTime($date);
-        $user_timezone = new DateTimeZone($this->session->user_timezone);
+        $user_timezone = (!empty($this->session->user_timezone)) ? new DateTimeZone($this->session->user_timezone) : new DateTimeZone('UTC');
         $datetime->setTimezone($user_timezone);
 
         return $datetime->format("Y-m-d H:i:s");
