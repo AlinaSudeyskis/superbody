@@ -1518,7 +1518,7 @@ div.info{
     background: #fff;
     border-bottom: 3px solid #cdcdcd;
     margin-bottom: 40px;
-    overflow: hidden;
+    /*overflow: hidden;*/
 }
 .user_prof_wrap{
     display: flex;
@@ -12370,7 +12370,7 @@ textarea.anketa_form_in{
     margin-top: -20px;
 }
 .add_tov_val_item{
-    padding-top: 20px;
+    margin-top: 20px;
     /*margin-bottom: 18px;*/
     position: relative;
     width: 330px;
@@ -12392,9 +12392,10 @@ textarea.anketa_form_in{
 .del_tov{
     position: absolute;
     right: 10px;
-    margin-top: 10px;
+    top: 12px;
+    /*margin-top: 10px;*/
     /*margin-top: 2px;*/
-    margin-left: 30px;
+    /*margin-left: 30px;*/
     width: 13px;
     height: 13px;
     background: url(/img/close.png) 0 0 no-repeat;
@@ -12457,7 +12458,7 @@ textarea.anketa_form_in{
 .practice_block .add_tov_val_item,
 .instruction_block .add_tov_val_item,
 .nutrition_block .add_tov_val_item{
-    padding-top: 0;
+    margin-top: 0;
 }
 .meal ~ .add_tov_val .add_tov_val_item{
     /*margin-left: 180px;*/
@@ -12695,7 +12696,7 @@ input.tren_form_block_check{
     padding: 18px 0;
 }
 .landing_admin_form .add_tov_val_item{
-    padding-top: 0;
+    margin-top: 0;
 }
 .landing_admin_form .add_tov_val_item:last-child{
     margin-bottom: 18px;
@@ -15679,7 +15680,7 @@ input.tren_form_block_check{
         margin-right: 0;
     }
     .add_tov_val_item{
-        padding-top: 0;
+        /*margin-top: 0;*/
     }
     .add_tov_val_sale{
         margin-top: 10px;
@@ -17593,6 +17594,15 @@ input.tren_form_block_check{
     }
     #wo-done{
         float: unset;
+    }
+}
+
+@media (max-width: 390px) {
+    .anketa_form_in_long, .anketa_form_one_wrap {
+        width: 100%;
+    }
+    .add_tov_val_item{
+        width: 100%;
     }
 }
 

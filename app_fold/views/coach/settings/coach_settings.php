@@ -60,7 +60,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
             </div>
+            <?php include_once('./app_fold/views/authorization/user_auth_data.php'); ?>
         </div><!-- content_col -->
-        <?php include_once('./app_fold/views/authorization/user_auth_data.php'); ?>
     </div>
 </div><!-- content -->

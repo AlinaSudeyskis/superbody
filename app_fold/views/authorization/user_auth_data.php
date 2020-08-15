@@ -6,26 +6,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <h3>Данные входа</h3>
     </div>
     <div class="kurs_block_val">
-        <div class="anketa_block_cont">
-            <!--<div class="admin_list">-->
-                <?php if(!empty($auth_data)): ?>
-                    <?php foreach($auth_data as $ad): ?>
-                        <div class="admin_item promocodes">
-                            <span class="admin_feedback_link parent">
-                                <span class="admin_feedback_cont parent">
-                                    <span class="admin_feedback_info parent"><?php echo $ad['date']; ?></span>
-                                    <span class="admin_feedback_txt"><?php echo $ad['ip']; ?></span>
-                                    <span class="admin_feedback_txt" style="text-decoration: none;"><?php echo $ad['agent']; ?></span>
-                                </span>
-                                    <span class="admin_feedback_time_wrap parent">
-                                    <span class="admin_feedback_time"><?php echo $ad['method']; ?> <?php echo $ad['country']; ?>, <?php echo $ad['region']; ?>, <?php echo $ad['city']; ?></span>
-                                </span>
+        <?php if(!empty($auth_data)): ?>
+            <div class="anketa_block_cont">
+                <?php foreach($auth_data as $ad): ?>
+                    <div class="admin_item promocodes">
+                        <span class="admin_feedback_link parent">
+                            <span class="admin_feedback_cont parent">
+                                <span class="admin_feedback_info parent"><?php echo $ad['date']; ?></span>
+                                <span class="admin_feedback_txt"><?php echo $ad['ip']; ?></span>
+                                <span class="admin_feedback_txt" style="text-decoration: none;"><?php echo $ad['agent']; ?></span>
                             </span>
-                        </div>
-                    <?php endforeach;
-                    unset($ad); ?>
-                <?php endif; ?>
-            <!--</div>-->
-        </div>
+                                <span class="admin_feedback_time_wrap parent">
+                                <span class="admin_feedback_time"><?php echo $ad['method']; ?> <?php echo $ad['country']; ?>, <?php echo $ad['region']; ?>, <?php echo $ad['city']; ?></span>
+                            </span>
+                        </span>
+                    </div>
+                <?php endforeach;
+                unset($ad); ?>
+            </div>
+        <?php else: ?>
+            <h3 class="info">Информация не найдена</h3>
+        <?php endif; ?>
     </div>
 </div><!-- content_col -->
