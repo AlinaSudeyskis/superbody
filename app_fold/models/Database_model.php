@@ -4565,6 +4565,17 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+
+        $date = '2020-08-17 16:41';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_courses` SET `uc_blocked`=0, `uc_blocked_reason`='', `uc_date_update`='2020-08-17 16:42' WHERE `uc_blocked`=1 and `uc_date_block`='0000-00-00' and `uc_blocked_date`='2020-08-14 21:00:00'");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
