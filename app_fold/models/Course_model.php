@@ -7360,7 +7360,7 @@ class Course_model extends CI_Model
 
         if(!empty($today))
         {
-            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_reason`="not_paid", `uc_blocked_date`=?, `uc_date_update`=? WHERE `uc_blocked`=0 and `uc_date_block`<=?',
+            $up_data = $this->db->query('UPDATE `users_courses` SET `uc_blocked`=1, `uc_blocked_reason`="not_paid", `uc_blocked_date`=?, `uc_date_update`=? WHERE `uc_blocked`=0 and `uc_date_block`<=? and `uc_date_block`<>"0000-00-00"',
                 array($date, $date, $today));
             if($up_data === false)
             {
