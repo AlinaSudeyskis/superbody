@@ -70,6 +70,73 @@ $(document).ready(function () {
         }
     }
 
+    /*playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+    playerTwoPlayer.on('pause', function(pause) {
+        playerTwoPlayer.getCurrentTime().then(function(seconds) {});
+    });
+    playerTwoPlayer.on('ended', function(data) {
+        playerTwoPlayer.getVideoTitle().then(function(title) {
+            if(data.percent === 100)
+            {
+                $.ajax({
+                    url: '/viewing/video',
+                    type: 'post',
+                    data: {
+                        woid: calEvent.event.extendedProps.endParam,
+                        ved_time: data.seconds,
+                        ved_percent: data.percent
+                    },
+                    complete: function(result){
+                        if (result.responseText === 'true')
+                        {
+                        }
+                    }
+                });
+            }
+        });
+    });
+    var prev_seconds = null;
+    playerTwoPlayer.on('timeupdate', function(data){
+        playerTwoPlayer.getVideoTitle().then(function(title) {
+            var seconds = Math.floor(data.seconds);
+            if((seconds % 10) === 0 && seconds !== prev_seconds)
+            {
+                $.ajax({
+                    url: '/viewing/video',
+                    type: 'post',
+                    data: {
+                        woid: calEvent.event.extendedProps.endParam,
+                        ved_time: data.seconds,
+                        ved_percent: data.percent
+                    },
+                    complete: function(result){
+                        if (result.responseText === 'true')
+                        {
+                            prev_seconds = seconds;
+                        }
+                    }
+                });
+            }
+            if (data.percent > 0.75 && viewed === false) {
+                $.ajax({
+                    url: '/viewed/video',
+                    type: 'post',
+                    data: {
+                        woid: calEvent.event.extendedProps.endParam
+                    },
+                    complete: function(result){
+                        if (result.responseText === 'true')
+                        {
+                            calEvent.event.setProp( 'backgroundColor', 'rgb(153, 230, 0)' );
+                            //$('#calendar').fullCalendar('updateEvent', calEvent);
+                            viewed = true;
+                        }
+                    }
+                });
+            }
+        });
+    });*/
+
     var pr_bl_add_tov_val_item = $(".practice_block .add_tov_val_item");
     if (pr_bl_add_tov_val_item.length > 0) {
         pr_bl_add_tov_val_item.each(function () {
@@ -1028,44 +1095,66 @@ $(document).ready(function () {
     /* Скрыть курс со страницы пользователя */
     $(".hide_u_course").on('click', function (event) {
         event.preventDefault();
-        const this_but = $(this),
-            crs_id = this_but.data('crsid');
+        let this_but = $(this),
+            crs_id = this_but.data('crsid'),
+            confirm_hide = $('#confirm_hide_course');
 
-        if ($.isNumeric(crs_id)) {
-            const block_message = $('#block-message');
-
-            $.ajax({
-                url: '/hideCourse',
-                type: 'post',
-                dataType: 'json',
-                data: {crs_id: crs_id},
-                complete: function (result) {
-                    const data = result.responseJSON;
-
-                    if($(block_message).is(":visible"))
-                    {
-                        block_message.animate({"top": "-=40px"}, "slow");
-                        block_message.hide();
-                    }
-
-                    if(data.result === true)
-                    {
-                        this_but.parents('.orders_container').hide();
-
-                        block_message.html(data.info);
-                        block_message.removeClass('error');
-                        block_message.addClass('info');
-                    }
-                    else
-                    {
-                        block_message.html(data.info);
-                        block_message.removeClass('info');
-                        block_message.addClass('error');
-                    }
-                    showBlockMessage(block_message);
-                }
-            });
+        if(confirm_hide.length === 0)
+        {
+            $('body').append('<div id="confirm_hide_course"><span>Восстановить курс будет не возможно. Вы действительно хотите скрыть курс со страницы?</span><a href="#" class="confirm_hide_u_course" data-crsid="'+crs_id+'">Да</a></div>');
+            confirm_hide = $('#confirm_hide_course');
+            pop_up_def(confirm_hide);
         }
+        else
+        {
+            confirm_hide.html('<span>Восстановить курс будет не возможно. Вы действительно хотите скрыть курс со страницы?</span><a href="#" class="confirm_hide_u_course" data-crsid="'+crs_id+'">Да</a>');
+            pop_up_def(confirm_hide);
+        }
+
+        confirm_hide.find(".confirm_hide_u_course").on('click', function (event) {
+            event.preventDefault();
+            const crs_id = this_but.data('crsid');
+
+            if ($.isNumeric(crs_id)) {
+                const block_message = $('#block-message');
+
+                $.ajax({
+                    url: '/hideCourse',
+                    type: 'post',
+                    dataType: 'json',
+                    data: {crs_id: crs_id},
+                    complete: function (result) {
+                        const data = result.responseJSON;
+
+                        if($(block_message).is(":visible"))
+                        {
+                            block_message.animate({"top": "-=40px"}, "slow");
+                            block_message.hide();
+                        }
+
+                        if(data.result === true)
+                        {
+                            this_but.parents('.orders_container').hide();
+                            confirm_hide.hide();
+                            $('#shadow').fadeOut(600);
+
+                            block_message.html(data.info);
+                            block_message.removeClass('error');
+                            block_message.addClass('info');
+                        }
+                        else
+                        {
+                            confirm_hide.hide();
+                            $('#shadow').fadeOut(600);
+                            block_message.html(data.info);
+                            block_message.removeClass('info');
+                            block_message.addClass('error');
+                        }
+                        showBlockMessage(block_message);
+                    }
+                });
+            }
+        });
     });
 
     /* Выбор курсов питания для отображения в календаре */

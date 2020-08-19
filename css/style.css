@@ -1433,7 +1433,7 @@ div.info{
     color: #9df151;
 }
 .oi_d_buy a, .oi_d_buy span,
-.oi_d_link a, .oi_d_link span {
+.oi_d_link a, .oi_d_link span, .confirm_hide_u_course, .cancel_hide_u_course {
     color: #ffffff;
     text-decoration: none;
     text-transform: uppercase;
@@ -1442,11 +1442,12 @@ div.info{
     width: 130px;
     display: block;
     margin: 0 auto;
+    text-align: center;
 }
-.oi_d_buy a, .oi_d_link a, .oi_d_link a.calendar_course.active {
+.oi_d_buy a, .oi_d_link a, .oi_d_link a.calendar_course.active, .confirm_hide_u_course {
     background-color: #00bff0;
 }
-.oi_d_buy span, .oi_d_link span, .oi_d_link a.calendar_course, .oi_d_link a.hide_u_course {
+.oi_d_buy span, .oi_d_link span, .oi_d_link a.calendar_course, .oi_d_link a.hide_u_course, .cancel_hide_u_course {
     background-color: #9c9c9c;
 }
 .oi_d_link a.calendar_course, .oi_d_link a.hide_u_course{
@@ -2488,11 +2489,11 @@ tr:first-child > td > .fc-day-grid-event{
 #shadow3{
     z-index: 99;
 }
-#pop-up_video, #check-promocode-form{
+#pop-up_video, #check-promocode-form, #confirm_hide_course{
     width: 90%;
     max-width: 900px;
     padding: 15px;
-    z-index: 113;
+    z-index: 114;
     left: 50%;
     top: 50%;
     background: #fff;
@@ -2501,6 +2502,9 @@ tr:first-child > td > .fc-day-grid-event{
     /*height: auto;*/
     /*min-height: 330px;*/
     max-height: 90%;
+}
+#confirm_hide_course{
+    text-align: center;
 }
 #pop-up_user_photo{
     width: 100%;
@@ -4224,6 +4228,8 @@ h2.block_h>span>a {
     margin: 0 auto;
 }
 .contact_tel, .contact_mail{
+    display: flex;
+    justify-content: center;
     height: 22px;
     line-height: 22px;
     font-size: 15px;
@@ -4231,14 +4237,7 @@ h2.block_h>span>a {
     font-weight: normal;
     /*background: url(/img/c_tel.png) 2px 5px no-repeat;*/
     margin: 20px auto 10px;
-    width: -moz-fit-content;
-    width: fit-content;
 }
-
-.contact_tel, .contact_mail{
-    width: -webkit-fit-content;
-}
-
 .contact_mail{
     /*background: url(/img/c_mail.png) 0 5px no-repeat;*/
 }
@@ -4274,6 +4273,14 @@ h2.block_h>span>a {
 }
 .px-video-progress{
 	background: #e1e1e1;
+}
+.video_page
+{
+    width: 640px;
+    margin: 25px auto;
+}
+.wo_buts{
+    height: 50px;
 }
 
 
@@ -12373,7 +12380,7 @@ textarea.anketa_form_in{
     margin-top: 20px;
     /*margin-bottom: 18px;*/
     position: relative;
-    width: 330px;
+    /*width: 330px;*/
 }
 .add_tov_val_item:last-child{
     margin-bottom: 30px;
@@ -15643,6 +15650,18 @@ input.tren_form_block_check{
         width: 55%;
         left: 22.3%;
         top: 34%;
+    }
+
+    .video_page
+    {
+        width: 90%;
+    }
+    .wo_buts{
+        height: 130px;
+    }
+    .wo_url
+    {
+        clear: both;
     }
 }
 

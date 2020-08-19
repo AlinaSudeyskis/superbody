@@ -830,7 +830,7 @@ class User_model extends CI_Model
     {
         $result = true;
 
-        $sel_data = $this->db->query('SELECT `user_id`, `user_email` FROM `users` WHERE `user_delete_date`=?', $today);
+        $sel_data = $this->db->query('SELECT `user_id`, `user_email` FROM `users` WHERE `user_delete`=1 and `user_delete_date`<=? and `user_delete_date`<>"0000-00-00"', $today);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
@@ -1825,7 +1825,7 @@ class User_model extends CI_Model
         $result['user_image']              = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
         $result['user_soc_image']          = '';
         $result['user_deleted']            = (!empty($row->user_deleted)) ? 1 : null;
-        $result['user_delete_date']        = (!empty($row->user_delete_date)) ? parent::parseDatetime($row->user_delete_date) : null;
+        $result['user_delete_date']        = (!empty($row->user_delete_date)) ? $row->user_delete_date : null;
         $result['user_delete_by']          = (!empty($row->user_delete_by)) ? $row->user_delete_by : null;
         $result['user_new_email']          = (!empty($row->user_new_email)) ? $row->user_new_email : null;
         $result['user_ne_idempotent']      = (!empty($row->user_new_email_idempotent)) ? $row->user_new_email_idempotent : null;
@@ -1850,9 +1850,9 @@ class User_model extends CI_Model
         if($row->user_delete_date != '0000-00-00')
         {
             setlocale(LC_ALL, 'ru_RU.UTF-8');
-            $tmp_dd = DateTime::createFromFormat('Y-m-d', parent::parseDatetime($row->user_delete_date));
+            $tmp_dd = DateTime::createFromFormat('Y-m-d', $row->user_delete_date);
             $tmp_dd = ($tmp_dd !== false)
-                ? strftime('%d %b %G', strtotime(parent::parseDatetime($row->user_delete_date)))
+                ? strftime('%d %b %G', strtotime($row->user_delete_date))
                 : '';
 
             $result['user_delete_date'] = $tmp_dd;

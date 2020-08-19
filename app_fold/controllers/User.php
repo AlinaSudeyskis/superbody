@@ -2943,6 +2943,8 @@ class User extends CI_Controller
      */
     public function deleteUsers()
     {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+
         $tmp_date = new DateTime($this->date);
         $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
 

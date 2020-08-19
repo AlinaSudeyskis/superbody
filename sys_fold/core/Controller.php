@@ -1875,7 +1875,7 @@ class CI_Controller {
                     // Кол-во товаров в корзине
                     self::updateSessionCart(0);
 
-                    if($payment_total_amount >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
+                    if($order_total_amount >= 1 and $payment_total_amount >= 1 and (empty($promocode) or $promocode['discount_type'] != 'free_week'))
                     {
                         $payment_data = array(
                             'oid' => $res_order['order_id'],
@@ -1896,7 +1896,7 @@ class CI_Controller {
 
                         header('Location: /payment?' .http_build_query($payment_data));
                     }
-                    elseif($payment_total_amount == 0 or (!empty($promocode) and $promocode_discount_type == 'free_week' and $promocode_discount > 0))
+                    elseif($order_total_amount == 0 or (!empty($promocode) and $promocode_discount_type == 'free_week' and $promocode_discount > 0))
                     {
                         $free_weeks = ($promocode_discount_type == 'free_week') ? $promocode_discount : 0;
                         $free_weeks_end_date = '';

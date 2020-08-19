@@ -44,19 +44,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <div class="anketa_form_h"><div class="anketa_form_h_cell">Email:</div></div>
                                         <span class="anketa_form_in"><?php if (!empty($user_data['user_email'])) { echo $user_data['user_email']; } ?></span>
                                     </div>
-                                    <div class="anketa_form_line parent">
-                                        <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото:</div></div>
-                                        <?php if (!empty($user_data['user_image'])) : ?>
-                                            <div class="tren_set_form_img settings_img">
-                                                <img src="<?php echo $user_data['user_image'];?>" alt="">
-                                            </div>
-                                        <?php endif;?>
-                                        <?php if (!empty($user_data['user_soc_image'])) : ?>
-                                            <div class="tren_set_form_img settings_img">
-                                                <img src="<?php echo $user_data['user_soc_image'];?>" alt="">
-                                            </div>
-                                        <?php endif;?>
-                                    </div>
+                                    <?php if (!empty($user_data['user_image']) or !empty($user_data['user_soc_image'])) : ?>
+                                        <div class="anketa_form_line parent">
+                                            <div class="anketa_form_h"><div class="anketa_form_h_cell">Фото:</div></div>
+                                            <?php if (!empty($user_data['user_image'])) : ?>
+                                                <div class="tren_set_form_img settings_img">
+                                                    <img src="<?php echo $user_data['user_image'];?>" alt="">
+                                                </div>
+                                            <?php endif;?>
+                                            <?php if (!empty($user_data['user_soc_image'])) : ?>
+                                                <div class="tren_set_form_img settings_img">
+                                                    <img src="<?php echo $user_data['user_soc_image'];?>" alt="">
+                                                </div>
+                                            <?php endif;?>
+                                        </div>
+                                    <?php endif;?>
                                 </div>
 
                                 <div class="video_admin_form">
