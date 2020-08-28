@@ -4565,7 +4565,6 @@ class Database_model extends CI_Model
             $result = true;
         }
 
-
         $date = '2020-08-17 16:41';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
@@ -4575,6 +4574,65 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
             $result = true;
         }
+
+        $date = '2020-08-28 18:48';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            // In progress
+            $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="in_progress" WHERE `utw_progress_percent`>0 and `utw_progress_percent`<75');
+            if($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            // Done
+            $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="done" WHERE `utw_progress_percent`>75');
+            if($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        /*$date = '2020-08-17 17:18';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users_courses` SET `uc_date_block`=`uc_free_weeks_end_date`, `uc_date_update`='2020-08-17 17:18' WHERE `uc_date_block`='0000-00-00' and `uc_free_weeks_end_date`<>'0000-00-00' and `uc_blocked_date`='2020-08-14 21:00:00'");
+
+            $sel_data = $this->db->query('SELECT `uc_id`, `uc_o_id` FROM `users_courses` WHERE `uc_date_block`="0000-00-00" and `uc_free_weeks_end_date`="0000-00-00" and `uc_blocked_date`="2020-08-14 21:00:00"');
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach ($sel_data->result() as $row)
+                {
+                    $sel_order = $this->db->query('SELECT `o_payment_status`, `o_payment_options` FROM `orders` WHERE `o_id`=? LIMIT 1', $row->uc_o_id);
+                    if($sel_order !== false and 1 == $sel_order->num_rows())
+                    {
+                        $row2 = $sel_order->row();
+
+                        $payment_statuses = array('waiting_for_capture' => 'waiting_for_capture', 'succeeded' => 'payment_succeeded', 'canceled' => 'payment_canceled', 'pending' => 'not_paid', 'payment_refunded' => 'payment_refunded', 'not_paid' => 'not_paid');
+                        $uc_status = (array_key_exists($row2->o_payment_status, $payment_statuses)) ? $payment_statuses[$row2->o_payment_status] : '';
+
+                        if($row2->o_payment_options == 'full_payment')
+                        {
+
+                        }
+                        elseif($row2->o_payment_options == 'partial_payment')
+                        {
+
+                        }
+
+                        $this->db->query("UPDATE `users_courses` SET `uc_date_block`=?, `uc_blocked_reason`=?, `uc_date_update`='2020-08-17 17:18' WHERE `uc_id`=? LIMIT 1", array($uc_date_block, $uc_status, $row->uc_id));
+                    }
+                }
+            }
+            
+            self::setDbUpdate($date);
+            $result = true;
+        }*/
 
         return $result;
     }
