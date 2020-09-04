@@ -297,39 +297,57 @@ class Message_model extends CI_Model
     {
         $result = array();
 
-        $sel_messages = $this->db->query('
-            SELECT `um_id`, `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `um_blocked`, `user_name`, `user_email`, `user_image` 
-            FROM `users_messages` 
-            LEFT JOIN `users` ON `um_from`=`user_id`
-            ORDER BY `um_date` DESC');
+        $sel_convs = $this->db->query('SELECT `um_id`, `um_conv_id`, max(`um_date`) FROM `users_messages` GROUP BY `um_conv_id` ORDER BY max(`um_date`) DESC');
 
-        if ($sel_messages !== false and 0 < $sel_messages->num_rows())
+        if ($sel_convs !== false and 0 < $sel_convs->num_rows())
         {
             $i = 0;
-            foreach ($sel_messages->result() as $row)
+            foreach ($sel_convs->result() as $row)
             {
-                $result['messages'][$i]['id'] = $row->um_id;
+                $sel_messages = $this->db->query('
+                    SELECT `um_id`, `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `um_blocked`, `uf`.`user_name` `uf_user_name`, `uf`.`user_type` `uf_user_type`, `uf`.`user_email` `uf_user_email`, 
+                           `uf`.`user_image` `uf_user_image`, `uw`.`user_name` `uw_user_name`, `uw`.`user_type` `uw_user_type`, `uw`.`user_email` `uw_user_email`, `uw`.`user_image` `uw_user_image`
+                    FROM `users_messages` 
+                    LEFT JOIN `users` `uf` ON `um_from`=`uf`.`user_id`
+                    LEFT JOIN `users` `uw` ON `um_whom`=`uw`.`user_id`
+                    WHERE `um_conv_id`=?
+                    ORDER BY `um_date` DESC LIMIT 1', $row->um_conv_id);
+                if($sel_messages !== false and 1 == $sel_messages->num_rows())
+                {
+                    $row2 = $sel_messages->row();
 
-                $result['messages'][$i]['user']['id']    = $row->um_from;
-                $result['messages'][$i]['user']['name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                $result['messages'][$i]['user']['image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                    $result['messages'][$i]['conv_id'] = $row->um_conv_id;
 
-                $result['messages'][$i]['text'] = $row->um_text;
+                    $result['messages'][$i]['user_from']['id']    = $row2->um_from;
+                    $result['messages'][$i]['user_from']['name']  = (!empty($row2->uf_user_name)) ? $row2->uf_user_name : $row2->uf_user_email;
+                    $result['messages'][$i]['user_from']['type']  = $row2->uf_user_type;
+                    $result['messages'][$i]['user_from']['image'] = (!empty($row2->uf_user_image)) ? mb_substr($row2->uf_user_image, 1) : '';
 
-                setlocale(LC_ALL, 'ru_RU.UTF-8');
-                $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->um_date));
-                $message_date = ($row->um_date != '0000-00-00 00:00:00' or $date !== false)
-                    ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row->um_date)))
-                    : '';
+                    $result['messages'][$i]['user_whom']['id']    = $row2->um_whom;
+                    $result['messages'][$i]['user_whom']['name']  = (!empty($row2->uw_user_name)) ? $row2->uw_user_name : $row2->uw_user_email;
+                    $result['messages'][$i]['user_whom']['image'] = (!empty($row2->uw_user_image)) ? mb_substr($row2->uw_user_image, 1) : '';
 
-                $result['messages'][$i]['date']    = $message_date;
-                $result['messages'][$i]['blocked'] = $row->um_blocked;
+                    $result['messages'][$i]['text'] = $row2->um_text;
 
-                $i++;
+                    setlocale(LC_ALL, 'ru_RU.UTF-8');
+                    $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row2->um_date));
+                    $message_date = ($row2->um_date != '0000-00-00 00:00:00' or $date !== false)
+                        ? strftime('%d %B %G, %H:%M', strtotime(parent::parseDatetime($row2->um_date)))
+                        : '';
+
+                    $result['messages'][$i]['date']    = $message_date;
+                    $result['messages'][$i]['blocked'] = $row2->um_blocked;
+
+                    $i++;
+                }
+                elseif($sel_messages === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
             }
             unset($row);
         }
-        elseif($sel_messages === false)
+        elseif($sel_convs === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -379,6 +397,75 @@ class Message_model extends CI_Model
         elseif($sel_message === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка сообщений диалога с пользователем
+     *
+     * @param $conversation_id
+     * @param string $date Текущая дата
+     * @return array
+     * @throws Exception
+     */
+    public function getMessagesByConversationId($conversation_id, $date)
+    {
+        $result = array('user_messages' => array(), 'user_with_blocked' => 0);
+
+        if (is_numeric($conversation_id))
+        {
+            // ID диалога
+            $result['conv_id'] = $conversation_id;
+            $result['coach_id'] = null;
+            $user_with = null;
+
+            $sel_mess = $this->db->query('
+            SELECT `um_from`, `um_whom`, `um_text`, `um_date`, `um_new`, `user_id`, `user_type`, `user_name`, `user_email`, `user_image`, `user_blocked` 
+            FROM `users_messages` 
+            LEFT JOIN `users` ON `um_from`=`user_id`
+            WHERE `um_conv_id`=? and `um_blocked`=0', $conversation_id);
+
+            if ($sel_mess !== false and 0 < $sel_mess->num_rows())
+            {
+                $i = 0;
+                foreach ($sel_mess->result() as $row)
+                {
+                    $result['user_messages'][$i] = self::parseMessageData($row, $date);
+
+                    $user_with = ($row->user_type == 2) ? $row->um_whom : $row->um_from;
+                    $result['coach_id'] = ($row->user_type == 2) ? $row->um_from : $row->um_whom;
+                    $result['coach_name'] = $row->user_name;
+
+                    $i++;
+                }
+                unset($row);
+
+                // Данные пользователя с кем ведется диалог
+                $result['conv_with']['name'] = '';
+                $sel_user_with = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image` FROM `users` WHERE `user_id`=? LIMIT 1', $user_with);
+
+                if ($sel_user_with !== false and 1 == $sel_user_with->num_rows())
+                {
+                    $row = $sel_user_with->row();
+
+                    $user_name = (!empty($row->user_name)) ? $row->user_name : $row->user_email;
+
+                    $result['conv_with']['id'] = $row->user_id;
+                    $result['conv_with']['name'] = (!empty($user_name)) ? $user_name : 'Пользователь №' . $row->user_id;
+                }
+                elseif($sel_user_with === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+                unset($row);
+                $sel_user_with->free_result();
+            }
+            elseif($sel_mess === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
         }
 
         return $result;

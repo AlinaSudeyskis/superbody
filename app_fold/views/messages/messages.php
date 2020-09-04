@@ -21,17 +21,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php if (!empty($messages)) :
                                 foreach ($messages as $message) : ?>
                                     <div class="full_photo_block_comm parent">
-                                        <div class="full_photo_block_comm_img">
-                                            <?php if (!empty($message['user']['image'])) : ?>
-                                                <img src="<?php echo $message['user']['image']; ?>" alt="" />
-                                            <?php endif;?>
-                                        </div>
+                                        <!--<div class="full_photo_block_comm_img">
+                                            <?php /*if (!empty($message['user']['image'])) : */?>
+                                                <img src="<?php /*echo $message['user']['image']; */?>" alt="" />
+                                            <?php /*endif;*/?>
+                                        </div>-->
                                         <div class="full_photo_block_comm_cont">
-                                            <div class="full_photo_block_comm_name"><?php echo $message['user']['name']; ?></div>
-                                            <div class="full_photo_block_comm_txt"><?php echo $message['text']; ?></div>
+                                            <div class="full_photo_block_comm_name">
+                                                <?php if($message['user_from']['type'] == 2): ?><u><?php endif; ?><?php echo $message['user_from']['name']; ?><?php if($message['user_from']['type'] == 2): ?></u><?php endif; ?>
+                                                -
+                                                <?php if($message['user_whom']['type'] == 2): ?><u><?php endif; ?><?php echo $message['user_whom']['name']; ?><?php if($message['user_whom']['type'] == 2): ?></u><?php endif; ?>
+                                            </div>
+                                            <div class="full_photo_block_comm_txt"><?php echo $message['date']; ?>: <i><?php echo $message['text']; ?></i></div>
 
                                             <div class="admin_set">
-                                                <a href="/administration/message/<?php echo $message['id']; ?>">Настройки</a>
+                                                <a href="/administration/message/<?php echo $message['conv_id']; ?>">Подробнее</a>
                                             </div>
                                         </div>
                                     </div>

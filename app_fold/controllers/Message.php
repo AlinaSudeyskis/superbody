@@ -168,14 +168,12 @@ class Message extends CI_Controller
     }
 
     /**
-     * АП. Сообщение пользователя
+     * АП. Переписка пользователя
      *
-     * Разблокировка или блокировка сообщения администрацией
-     *
-     * @param $message_id
+     * @param $conversation_id
      * @return void
      */
-    public function message($message_id)
+    public function message($conversation_id)
     {
         // Если пользователь не авторизован, вывод страницы 404
         if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
@@ -216,14 +214,39 @@ class Message extends CI_Controller
         }
 
         // Объединенные данные страница
-        $this->page_data['title'] = 'АП - Редактирование данных сообщения пользователя';
+        $this->page_data['title'] = 'АП - Переписка пользователя с тренером';
         $this->page_data['page_menu'] = 'messages';
 
-        $result = $this->Message_model->getMessage($message_id);
+        $result = $this->Message_model->getMessagesByConversationId($conversation_id, $this->date);
+
+        if ($this->input->post('bt_send_message', true))
+        {
+            $res_mess = null;
+
+            $message_text = mb_substr(strip_tags($this->input->post('ta_message_text')), 0, 1000);
+
+            if (is_numeric($result['conv_with']['id']))
+            {
+                $res_mess = $this->Message_model->setUserMessage($result['coach_id'], $result['conv_with']['id'], $message_text, $this->date);
+
+                if ($res_mess === true)
+                {
+                    // Изменения сохранены
+                    $this->session->set_tempdata('message', 131, 60);
+                }
+                elseif($res_mess === false)
+                {
+                    // Изменения не сохранены
+                    $this->session->set_tempdata('message', 51, 60);
+                }
+            }
+
+            header('Location: /administration/message/' . $conversation_id);
+        }
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('messages/message', $result);
+        $this->load->view('messages/conversation', $result);
         $this->load->view('footer/footer');
     }
 

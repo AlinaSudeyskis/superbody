@@ -6088,6 +6088,7 @@ textarea.journal_post_comm_in{
     top: 0;
     height: auto;
     background-color: rgba(147, 149, 158, 0.94);
+    z-index: 112;
 }
 span#cookie_stop {
     padding: 3px 15px;
@@ -8285,7 +8286,7 @@ span.mess_block_full_time {
 }
 .chat_mess_block_name h3{
     padding-left: 16px;
-    max-width: 170px;
+    /*max-width: 170px;*/
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -8315,6 +8316,10 @@ span.mess_block_full_time {
     left: 325px;
     background: #ccc;
 }
+.chat_content_block_wrap.one_col:before{
+    content: '';
+    background: none;
+}
 .chat_contact_block{
     float: left;
     width: 325px;
@@ -8324,6 +8329,10 @@ span.mess_block_full_time {
     width: -moz-calc(100% - 325px);
     width: -webkit-calc(100% - 325px);
     float: left;
+}
+.chat_content_block_wrap.one_col .chat_mess_block_wrap{
+    width: 100%;
+    float: none;
 }
 .chat_search_form{
     padding: 10px 0;
