@@ -37,6 +37,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             include_once('./app_fold/views/site/settings/meta_data.php');
                         elseif ($page_submenu == 'a_cookies') :
                             include_once('./app_fold/views/site/settings/cookies.php');
+                        elseif ($page_submenu == 'a_advertising') :
+                            include_once('./app_fold/views/site/settings/advertising.php');
                         else:?>
                             <h3 class="info">Информация не найдена</h3>
                         <?php endif;?>

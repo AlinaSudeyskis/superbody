@@ -128,6 +128,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <span id="cookie_stop">Ok</span>
     </div>
 <?php endif; ?>
+<?php if (!empty($site_info['advertising_mobile'])):
+    echo $site_info['advertising_mobile'];
+endif; ?>
 
 <script src="/js/lightbox.js"></script>
 <script src="/js/vimeo_player.js"></script>

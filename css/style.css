@@ -663,7 +663,7 @@ audio, canvas, progress, video{
 }
 .header_bg_wrap{
     position: relative;
-    display: none;
+    /*display: none;*/
 }
 .header_bg{
     height:100%;

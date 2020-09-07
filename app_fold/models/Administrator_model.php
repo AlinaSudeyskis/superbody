@@ -507,6 +507,35 @@ class Administrator_model extends CI_Model
     }
 
     /**
+     * Выборка данных рекламы
+     *
+     * @return bool|array
+     */
+    public function getSiteAdvertising()
+    {
+        $result = false;
+
+        $sel_info = $this->db->query('
+            SELECT `si_id`, `si_advertising_mobile`, `si_advertising_vertical`, `si_advertising_horizontal` 
+            FROM `site_info` LIMIT 1');
+
+        if ($sel_info !== false and 1 == $sel_info->num_rows())
+        {
+            $row = $sel_info->row();
+
+            $result['advertising_mobile']     = $row->si_advertising_mobile;
+            $result['advertising_vertical']   = $row->si_advertising_vertical;
+            $result['advertising_horizontal'] = $row->si_advertising_horizontal;
+        }
+        elseif ($sel_info === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка баннеров сайта
      *
      * @return bool
@@ -943,6 +972,37 @@ class Administrator_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение кода рекламы
+     *
+     * @param $mobile
+     * @param $vertical
+     * @param $horizontal
+     * @param $date
+     * @param $admin_id
+     * @return bool
+     */
+    public function setSiteAdvertisingData($mobile, $vertical, $horizontal, $date, $admin_id)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('
+            UPDATE `site_info` SET `si_advertising_mobile`=?, `si_advertising_vertical`=?, 
+               `si_advertising_horizontal`=?, `si_date`=?, `si_user_id`=?
+            WHERE `si_id`=? LIMIT 1', array($mobile, $vertical, $horizontal, $date, $admin_id, 1));
+
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
 
         return $result;

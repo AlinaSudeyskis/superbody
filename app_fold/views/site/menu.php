@@ -47,4 +47,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'a_cookies'): ?> class="anketa_active" <?php endif;?>>Cookies</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/site/advertising">
+            <span <?php if ($page_submenu == 'a_advertising'): ?> class="anketa_active" <?php endif;?>>Реклама</span>
+        </a>
+    </li>
 </ul>

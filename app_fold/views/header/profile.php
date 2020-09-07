@@ -9,9 +9,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
     <div class="header_bg_wrap">
-        <div class="header_bg">
-            <?php include_once('./app_fold/views/header/slider.php'); ?>
-        </div>
-        <?php include_once('./app_fold/views/header/banner_js.php');?>
+        <?php if (!empty($site_info['advertising_horizontal'])):
+            echo $site_info['advertising_horizontal'];
+        else: ?>
+            <div class="header_bg">
+                <?php include_once('./app_fold/views/header/slider.php'); ?>
+            </div>
+            <?php include_once('./app_fold/views/header/banner_js.php');?>
+        <?php endif; ?>
     </div>
 </div><!-- header -->

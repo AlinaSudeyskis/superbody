@@ -35,6 +35,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </a>
             </div>-->
         </div>
-        <div class="up_but up_but_bot hide_chart"></div>
+        <!--<div class="up_but up_but_bot hide_chart"></div>-->
     </div><!-- profile_line -->
 <?php endif;?>

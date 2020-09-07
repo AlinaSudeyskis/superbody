@@ -71,4 +71,7 @@ if (!empty($user_session)) :
         <?php endif; ?>
         <!--<li><a href="#"><span><img src="/img/menu_ico11.png" alt=""></span><span>FitCoin</span></a></li>-->
     </ul>
+    <?php if (!empty($site_info['advertising_vertical'])):
+        echo $site_info['advertising_vertical'];
+    endif; ?>
 <?php endif;?>

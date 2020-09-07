@@ -649,6 +649,11 @@ class Administrator extends CI_Controller
             $result = $this->Administrator_model->getSiteCookiesData();
             $this->page_data['page_submenu'] = 'a_cookies';
         }
+        elseif($page == 'advertising')
+        {
+            $result = $this->Administrator_model->getSiteAdvertising();
+            $this->page_data['page_submenu'] = 'a_advertising';
+        }
 
         // Сохранение изменений
         if ($this->input->post('bt_save_index', true))
@@ -902,6 +907,27 @@ class Administrator extends CI_Controller
             }
 
             header('Location: /administration/site/cookies');
+        }
+        elseif ($this->input->post('bt_save_advertising', true))
+        {
+            $mobile = mb_substr($this->input->post('ta_advertising_mobile', true), 0, 65000);
+            $vertical = mb_substr($this->input->post('ta_advertising_vertical', true), 0, 65000);
+            $horizontal = mb_substr($this->input->post('ta_advertising_horizontal', true), 0, 65000);
+
+            $result = $this->Administrator_model->setSiteAdvertisingData($mobile, $vertical, $horizontal, $this->date, $this->user_id);
+
+            if ($result === true)
+            {
+                // Изменения сохранены
+                $this->session->set_tempdata('message', 10, 60);
+            }
+            else
+            {
+                // Изменения не сохранены
+                $this->session->set_tempdata('message', 111, 60);
+            }
+
+            header('Location: /administration/site/advertising');
         }
 
         // Объединенные данные страница
