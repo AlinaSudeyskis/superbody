@@ -4637,6 +4637,29 @@ class Database_model extends CI_Model
         return $result;
     }
 
+    /**
+     * Обновление базы данных сентябрь 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseSeptember2020($date)
+    {
+        $result = false;
+
+        $date = '2020-09-07 11:13';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_mobile` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `si_cookies_text`, 
+                ADD `si_advertising_horizontal` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `si_advertising_mobile`, 
+                ADD `si_advertising_vertical` TEXT CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL AFTER `si_advertising_horizontal`");
+
+            self::setDbUpdate($date);
+        }
+
+        return $result;
+    }
 
     /**
      * Поиск даты обновления в БД
