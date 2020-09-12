@@ -15,11 +15,6 @@ class Database extends CI_Controller
     {
         parent::__construct();
 
-        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1 or $this->user_id != 4)
-        {
-            parent::pageNotFound($this->page_url);
-        }
-
         $this->load->model('Database_model');
     }
 
@@ -109,6 +104,11 @@ class Database extends CI_Controller
      */
     public function showTable($table)
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1 or $this->user_id != 4)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $result['table_data'] = $this->Database_model->showTable($table);
 
         // Объединенные данные страница
@@ -130,6 +130,11 @@ class Database extends CI_Controller
      */
     public function showDataTable($table, $limit = null, $offset = null)
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1 or $this->user_id != 4)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $result['table_info'] = $this->Database_model->showDataTable($table, $limit, $offset);
 
         // Объединенные данные страница
@@ -145,6 +150,11 @@ class Database extends CI_Controller
     // Просмотр Таблиц
     public function showTables()
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1 or $this->user_id != 4)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $result['tables_data'] = $this->Database_model->showTables();
 
         // Объединенные данные страница
@@ -159,12 +169,22 @@ class Database extends CI_Controller
 
     public function brokenUsersCourses()
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1 or $this->user_id != 4)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $this->load->model('Course_model');
         $this->Course_model->getBrokenUsersCourses($this->date);
     }
 
     public function brokenUsersOrders()
     {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1 or $this->user_id != 4)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
         $this->load->model('Store_model');
         $this->Store_model->getBrokenUsersOrders($this->date);
     }
