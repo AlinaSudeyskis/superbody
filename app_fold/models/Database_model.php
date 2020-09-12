@@ -4658,6 +4658,61 @@ class Database_model extends CI_Model
             self::setDbUpdate($date);
         }
 
+        $date = '2020-09-09 15:20';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_advertising_type` TINYINT(3) UNSIGNED NOT NULL AFTER `user_type`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-09-09 15:22';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_data = $this->db->query("SELECT `o_u_id` FROM `orders` WHERE `o_payment_status` IN ('payment_refunded', 'not_paid', 'free') GROUP BY `o_u_id`");
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach($sel_data->result() as $row)
+                {
+                    log_message('debug', $row->o_u_id);
+                    $this->db->query("UPDATE `users` SET `user_advertising_type`=1 WHERE `user_id`=? LIMIT 1", $row->o_u_id);
+                    if($this->db->affected_rows() == 1)
+                    {
+                        log_message('debug', 'UPDATE `user_advertising_type`=1');
+                    }
+                }
+                unset($row);
+            }
+            $sel_data->free_result();
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-09-09 15:23';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $sel_data = $this->db->query("SELECT `o_u_id` FROM `orders` WHERE `o_payment_status`='succeeded' GROUP BY `o_u_id`");
+            if($sel_data !== false and 0 < $sel_data->num_rows())
+            {
+                foreach($sel_data->result() as $row)
+                {
+                    log_message('debug', $row->o_u_id);
+                    $this->db->query("UPDATE `users` SET `user_advertising_type`=2 WHERE `user_id`=? LIMIT 1", $row->o_u_id);
+                    if($this->db->affected_rows() == 1)
+                    {
+                        log_message('debug', 'UPDATE `user_advertising_type`=2');
+                    }
+                }
+                unset($row);
+            }
+            $sel_data->free_result();
+
+            self::setDbUpdate($date);
+        }
+
         return $result;
     }
 

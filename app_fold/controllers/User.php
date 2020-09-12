@@ -2675,10 +2675,9 @@ class User extends CI_Controller
                 }
 
                 // Создание новой сессии
-                $user_image = (!empty($search_user['user_image'])) ? $search_user['user_image'] : $search_user['user_soc_image'];
+                $search_user['user_images'] = (!empty($search_user['user_image'])) ? $search_user['user_image'] : $search_user['user_soc_image'];
 
-                parent::updateSession($search_user['user_id'], $search_user['user_email'], $search_user['user_type'], $search_user['user_blocked'], $search_user['user_activated'],
-                    $search_user['user_name'], $search_user['user_timezone'], $search_user['user_phone'], $user_image, '', 'native', 0, $this->date, $login_from);
+                parent::updateSession($search_user, '', 'native', 0, $this->date, $login_from);
 
                 // После успешной авторизации переход на страницу тренера
                 header('Location: /profile/'.$search_user['user_id']);

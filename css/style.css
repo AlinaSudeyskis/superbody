@@ -9798,6 +9798,7 @@ span.tip>.bt_link, .bt_link {
 .anketa_form_line{
 	margin-bottom: 20px;
     min-height: 36px;
+    overflow: hidden;
 }
 .anketa_form_line.subsections{
     display: none;

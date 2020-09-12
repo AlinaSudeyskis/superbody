@@ -52,3 +52,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
 <?php endif;?>
+<div class="anketa_form_line parent">
+    <div class="anketa_form_h"><div class="anketa_form_h_cell">Реклама:</div></div>
+    <div style="font-size: 13px; line-height: 35px;">
+        <?php if(empty($user_data['user_advertising']) or $user_data['user_advertising'] == 0): ?>
+            Нет данных или у пользователя нет курсов
+        <?php elseif(!empty($user_data['user_advertising']) and $user_data['user_advertising'] == 1): ?>
+            Пользователь с наличием только бесплатных курсов или наличием пропущенной оплаты
+        <?php elseif(!empty($user_data['user_advertising']) and $user_data['user_advertising'] == 2): ?>
+            Пользователь с наличием хотя бы одного оплаченного курса
+        <?php elseif(!empty($user_data['user_advertising']) and $user_data['user_advertising'] == 3): ?>
+            Пользователь с оплаченным «Без рекламы»
+        <?php endif; ?>
+    </div>
+</div>

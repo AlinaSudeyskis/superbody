@@ -598,7 +598,7 @@ class Authorization_model extends CI_Model
     {
         $sel_user = $this->db->query('
             SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_timezone`, `user_country_code`, `user_phone`, `user_type`, 
-                   `user_blocked`, `user_image`, `user_soc_image`, `user_activated`, `user_deleted` 
+                   `user_advertising_type`, `user_blocked`, `user_image`, `user_soc_image`, `user_activated`, `user_deleted` 
             FROM `users` 
             WHERE `user_email`=? LIMIT 1', $email);
 
@@ -607,7 +607,6 @@ class Authorization_model extends CI_Model
             $row = $sel_user->row();
             if($row->user_deleted == 0)
             {
-
                 // Сравнение введенного пароля и хэш пароля из БД
                 if (password_verify($password, $row->user_password))
                 {
@@ -620,6 +619,7 @@ class Authorization_model extends CI_Model
                     $result['user_phone']        = $row->user_phone;
                     $result['user_email']        = $row->user_email;
                     $result['user_type']         = $row->user_type;
+                    $result['user_advertising']  = $row->user_advertising_type;
                     $result['user_blocked']      = $row->user_blocked;
                     $result['user_activated']    = $row->user_activated;
                     $result['user_image']        = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
@@ -668,7 +668,7 @@ class Authorization_model extends CI_Model
         $result = false;
 
         $sel_user = $this->db->query('
-            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_timezone`, `user_phone`, `user_type`, `user_blocked`, 
+            SELECT `user_id`, `user_password`, `user_name`, `user_email`, `user_timezone`, `user_phone`, `user_type`, `user_advertising_type`, `user_blocked`, 
               `user_image`, `user_soc_image`, `user_activated` 
             FROM `users` 
             WHERE `user_id`=? LIMIT 1', $user_id);
@@ -677,16 +677,17 @@ class Authorization_model extends CI_Model
         {
             $row = $sel_user->row();
 
-            $result['user_id']        = $row->user_id;
-            $result['user_name']      = $row->user_name;
-            $result['user_timezone']  = $row->user_timezone;
-            $result['user_phone']     = $row->user_phone;
-            $result['user_email']     = $row->user_email;
-            $result['user_type']      = $row->user_type;
-            $result['user_blocked']   = $row->user_blocked;
-            $result['user_activated'] = $row->user_activated;
-            $result['user_image']     = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
-            $result['user_soc_image'] = '';
+            $result['user_id']          = $row->user_id;
+            $result['user_name']        = $row->user_name;
+            $result['user_timezone']    = $row->user_timezone;
+            $result['user_phone']       = $row->user_phone;
+            $result['user_email']       = $row->user_email;
+            $result['user_type']        = $row->user_type;
+            $result['user_advertising'] = $row->user_advertising_type;
+            $result['user_blocked']     = $row->user_blocked;
+            $result['user_activated']   = $row->user_activated;
+            $result['user_image']       = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
+            $result['user_soc_image']   = '';
 
             if(!empty($row->user_soc_image))
             {

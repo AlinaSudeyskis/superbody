@@ -423,7 +423,7 @@ class CI_Controller {
             // заданной для обновления сессий пользователя
             $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->session->user['date_auth']);
             $u_date = ($tmp_date !== false) ? $tmp_date->format('U') : null;
-            if ($u_date < '1577449706')
+            if ($u_date < '1599910020')
             {
                 header('Location: /logout');
             }
@@ -462,15 +462,16 @@ class CI_Controller {
                     'products' => $this->session->cart['products'],
                 ));
 
-            $user_session_data['user']['email']      = $user_data['user_data']['user_email'];
-            $user_session_data['user']['name']       = $user_data['user_data']['user_name'];
-            $user_session_data['user']['phone']      = $user_data['user_data']['user_phone'];
-            $user_session_data['user']['image']      = $user_data['user_data']['user_image'];
-            $user_session_data['user']['type']       = $user_data['user_data']['user_type'];
-            $user_session_data['user']['blocked']    = $user_data['user_data']['user_blocked'];
-            $user_session_data['user']['subscribed'] = $user_data['user_data']['user_subscribed'];
-            $user_session_data['user']['activated']  = $user_data['user_data']['user_activated'];
-            $user_session_data['user']['date_auth']  = $this->date;
+            $user_session_data['user']['email']       = $user_data['user_data']['user_email'];
+            $user_session_data['user']['name']        = $user_data['user_data']['user_name'];
+            $user_session_data['user']['phone']       = $user_data['user_data']['user_phone'];
+            $user_session_data['user']['image']       = $user_data['user_data']['user_image'];
+            $user_session_data['user']['type']        = $user_data['user_data']['user_type'];
+            $user_session_data['user']['advertising'] = $user_data['user_data']['user_advertising'];
+            $user_session_data['user']['blocked']     = $user_data['user_data']['user_blocked'];
+            $user_session_data['user']['subscribed']  = $user_data['user_data']['user_subscribed'];
+            $user_session_data['user']['activated']   = $user_data['user_data']['user_activated'];
+            $user_session_data['user']['date_auth']   = $this->date;
 
             $this->session->set_userdata($user_session_data);
             // Проверка существования изображения пользователя
@@ -707,24 +708,27 @@ class CI_Controller {
     /**
      * Обновление/создание сессии пользователя
      *
-     * @param $user_id
-     * @param $user_email
-     * @param $user_type
-     * @param $user_blocked
-     * @param $user_activated
-     * @param $user_name
-     * @param $user_timezone
-     * @param $user_phone
-     * @param $user_image
+     * @param $user_data
      * @param $access_token
      * @param $user_soc_via
      * @param $user_soc_id
      * @param $date
      * @param null $login_from
      */
-    public function updateSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name, $user_timezone,
-                                  $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date, $login_from = null)
+    public function updateSession($user_data, $access_token, $user_soc_via, $user_soc_id, $date, $login_from = null)
     {
+        //log_message('debug', __METHOD__.':'.__LINE__.' '. print_r($user_data, true));
+        $user_id          = $user_data['user_id'];
+        $user_email       = $user_data['user_email'];
+        $user_type        = $user_data['user_type'];
+        $user_advertising = $user_data['user_advertising'];
+        $user_name        = $user_data['user_name'];
+        $user_blocked     = $user_data['user_blocked'];
+        $user_activated   = $user_data['user_activated'];
+        $user_timezone    = $user_data['user_timezone'];
+        $user_phone       = $user_data['user_phone'];
+        $user_image       = $user_data['user_images'];
+
         $split_name = mb_split(' ', $user_name);
         $s_name     = !empty($split_name[0]) ? $split_name[0] : '';
         $s_surname  = !empty($split_name[1]) ? $split_name[1] : '';
@@ -745,7 +749,7 @@ class CI_Controller {
         else
         {
             // Создание сессии
-            self::createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name, $s_name,
+            self::createUserSession($user_id, $user_email, $user_type, $user_advertising, $user_blocked, $user_activated, $user_name, $s_name,
                 $s_surname, $user_timezone, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date, $login_from);
         }
     }
@@ -756,6 +760,7 @@ class CI_Controller {
      * @param $user_id
      * @param $user_email
      * @param $user_type
+     * @param $user_advertising
      * @param $user_blocked
      * @param $user_activated
      * @param $user_name
@@ -770,7 +775,7 @@ class CI_Controller {
      * @param $date
      * @param null $login_from
      */
-    protected function createUserSession($user_id, $user_email, $user_type, $user_blocked, $user_activated, $user_name,
+    protected function createUserSession($user_id, $user_email, $user_type, $user_advertising, $user_blocked, $user_activated, $user_name,
                                          $s_name, $s_surname, $user_timezone, $user_phone, $user_image, $access_token, $user_soc_via,
                                          $user_soc_id, $date, $login_from = null)
     {
@@ -792,6 +797,7 @@ class CI_Controller {
                 "s_surname" => $s_surname,
                 "phone" => $user_phone,
                 "type" => $user_type,
+                "advertising" => $user_advertising,
                 "blocked" => $user_blocked,
                 "activated" => $user_activated,
                 "image" => $user_image,

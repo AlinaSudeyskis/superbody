@@ -301,7 +301,7 @@ class User_model extends CI_Model
 
         $sel_data = $this->db->query('
             SELECT `users`.`user_id`, `user_name`, `user_email`, `user_password`, `user_timezone`, `user_country_code`, `user_phone`, 
-               `user_image`, `user_soc_image`, `user_blocked`, `user_activated`, `user_activate_code`, `user_type`, 
+               `user_image`, `user_soc_image`, `user_blocked`, `user_activated`, `user_activate_code`, `user_type`, `user_advertising_type`, 
                `user_gender`, `user_birthday`, `user_deleted`, `user_delete_date`, `user_delete_by`, `user_new_email`, 
                `user_new_email_idempotent`, `user_restore_account_idempotent`, `user_new_email_date`, `user_activate_date`
             FROM `users` 
@@ -1822,6 +1822,7 @@ class User_model extends CI_Model
         $result['user_activated']          = ($row->user_activated == 1) ? $row->user_activated : 0;
         $result['user_activate_code']      = (!empty($row->user_activate_code)) ? $row->user_activate_code : '';
         $result['user_type']               = (!empty($row->user_type)) ? $row->user_type : '';
+        $result['user_advertising']        = (!empty($row->user_advertising_type)) ? $row->user_advertising_type : '';
         $result['user_image']              = (!empty($row->user_image) and is_file($row->user_image)) ? mb_substr($row->user_image, 1) : '';
         $result['user_soc_image']          = '';
         $result['user_deleted']            = (!empty($row->user_deleted)) ? 1 : null;

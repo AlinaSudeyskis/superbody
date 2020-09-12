@@ -238,21 +238,22 @@ class Authorization extends CI_Controller
                 parent::sendEmail(1, $email, $system_message);
 
                 // Обновление данных сессии
-                $user_type = 1;
-                $user_blocked = 0;
-                $user_activated = 0;
-                $user_name = '';
-                $user_timezone = '';
-                $user_phone = '';
-                $user_image = '';
+                $user_data['user_id'] = $reg_user_id;
+                $user_data['user_email'] = $email;
+                $user_data['user_type'] = 1;
+                $user_data['user_blocked'] = 0;
+                $user_data['user_activated'] = 0;
+                $user_data['user_name'] = '';
+                $user_data['user_timezone'] = '';
+                $user_data['user_phone'] = '';
+                $user_data['user_images'] = '';
                 $access_token = '';
                 $user_soc_via = 'native';
                 $user_soc_id = 0;
 
                 self::parseUserLogin($reg_user_id, 'native');
 
-                parent::updateSession($reg_user_id, $email, $user_type, $user_blocked, $user_activated, $user_name, $user_timezone, $user_phone,
-                    $user_image, $access_token, $user_soc_via, $user_soc_id, $this->date);
+                parent::updateSession($user_data, $access_token, $user_soc_via, $user_soc_id, $this->date);
             }
 
             $result = $result_registration;
@@ -299,12 +300,11 @@ class Authorization extends CI_Controller
 
                     if (is_array($result))
                     {
-                        $user_image = (!empty($result['user_image'])) ? $result['user_image'] : $result['user_soc_image'];
+                        $result['user_images'] = (!empty($result['user_image'])) ? $result['user_image'] : $result['user_soc_image'];
 
                         self::parseUserLogin($result['user_id'], 'native');
 
-                        parent::updateSession($result['user_id'], $result['user_email'], $result['user_type'], $result['user_blocked'], $result['user_activated'],
-                            $result['user_name'], $result['user_timezone'], $result['user_phone'], $user_image, '', 'native', 0, $this->date);
+                        parent::updateSession($result, '', 'native', 0, $this->date);
 
                         // После успешной авторизации переход на страницу пользователя
                         header('Location: /profile/'.$result['user_id']);
@@ -384,10 +384,9 @@ class Authorization extends CI_Controller
                 }
 
                 // Создание новой сессии
-                $user_image = (!empty($search_user['user_image'])) ? $search_user['user_image'] : $search_user['user_soc_image'];
+                $search_user['user_images'] = (!empty($search_user['user_image'])) ? $search_user['user_image'] : $search_user['user_soc_image'];
 
-                parent::updateSession($search_user['user_id'], $search_user['user_email'], $search_user['user_type'], $search_user['user_blocked'], $search_user['user_activated'],
-                    $search_user['user_name'], $search_user['user_timezone'], $search_user['user_phone'], $user_image, '', 'native', 0, $this->date);
+                parent::updateSession($search_user, '', 'native', 0, $this->date);
 
                 // После успешной авторизации переход на страницу тренера
                 header('Location: /profile/'.$search_user['user_id']);
@@ -435,10 +434,9 @@ class Authorization extends CI_Controller
 
             if (is_array($auth_result))
             {
-                $user_image = (!empty($auth_result['user_image'])) ? $auth_result['user_image'] : $auth_result['user_soc_image'];
+                $auth_result['user_images'] = (!empty($auth_result['user_image'])) ? $auth_result['user_image'] : $auth_result['user_soc_image'];
 
-                parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'], $auth_result['user_activated'],
-                    $auth_result['user_name'], $auth_result['user_timezone'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
+                parent::updateSession($auth_result, '', 'native', 0, $this->date);
 
                 $result['user_id']    = $auth_result['user_id'];
                 $result['user_email'] = $email;
@@ -482,10 +480,9 @@ class Authorization extends CI_Controller
 
             if (is_array($auth_result))
             {
-                $user_image = (!empty($auth_result['user_image'])) ? $auth_result['user_image'] : $auth_result['user_soc_image'];
+                $auth_result['user_images'] = (!empty($auth_result['user_image'])) ? $auth_result['user_image'] : $auth_result['user_soc_image'];
 
-                parent::updateSession($auth_result['user_id'], $auth_result['user_email'], $auth_result['user_type'], $auth_result['user_blocked'], $auth_result['user_activated'],
-                    $auth_result['user_name'], $auth_result['user_timezone'], $auth_result['user_phone'], $user_image, '', 'native', 0, $this->date);
+                parent::updateSession($auth_result, '', 'native', 0, $this->date);
 
                 $this->load->model('User_model');
                 $user_data = $this->User_model->getQuestionnaireData($auth_result['user_id']);
@@ -1967,12 +1964,19 @@ class Authorization extends CI_Controller
         {
             $user = $result['user'];
 
-            $user_image = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
+            $user_data['user_id'] = $user['id'];
+            $user_data['user_email'] = $user['email'];
+            $user_data['user_type'] = $user['type'];
+            $user_data['user_blocked'] = $user['blocked'];
+            $user_data['user_activated'] = $user['activated'];
+            $user_data['user_name'] = $user['name'];
+            $user_data['user_timezone'] = $user['user_timezone'];
+            $user_data['user_phone'] = $user['phone'];
+            $user_data['user_images'] = (!empty($user['image'])) ? $user['image'] : $user['soc_image'];
 
             self::parseUserLogin($user['id'], $user['soc_via']);
 
-            parent::updateSession($user['id'], $user['email'], $user['type'], $user['blocked'], $user['activated'], $user['name'],
-                $user['user_timezone'], $user['phone'], $user_image, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
+            parent::updateSession($user_data, $user['access_token'], $user['soc_via'], $user['soc_id'], $this->date);
 
             $return = ($return == '/profile/' and !empty($this->session->user['id']) and is_numeric($this->session->user['id']))
                 ? $return . $this->session->user['id'] : $return;
