@@ -779,7 +779,6 @@ class CI_Controller {
                                          $s_name, $s_surname, $user_timezone, $user_phone, $user_image, $access_token, $user_soc_via,
                                          $user_soc_id, $date, $login_from = null)
     {
-        log_message('debug', __METHOD__.':'.__LINE__);
         $cart_count = (!empty($this->session->cart['count']) and is_numeric($this->session->cart['count']) and $this->session->cart['count'] > 0) ? $this->session->cart['count'] : 0;
         $cart_products = (!empty($this->session->cart['products']) and is_array($this->session->cart['products'])) ? $this->session->cart['products'] : array();
 
@@ -820,10 +819,8 @@ class CI_Controller {
         {
             $user_data['user']['login_from'] = $login_from;
         }
-        log_message('debug', print_r($user_data, true));
 
         $this->session->set_userdata($user_data);
-        log_message('debug', print_r($this->session, true));
     }
 
     /**

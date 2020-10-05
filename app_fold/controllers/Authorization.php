@@ -287,7 +287,6 @@ class Authorization extends CI_Controller
         {
             if ($this->input->post('cb_politics', true))
             {
-                log_message('debug', 'login()');
                 // Валидация E-mail
                 $email = trim($this->input->post('email', true));
                 $email = (!empty($this->input->post('email', true)) and filter_var($email, FILTER_VALIDATE_EMAIL)) ? $email : null;
@@ -297,13 +296,11 @@ class Authorization extends CI_Controller
                 // Авторизация пользователя
                 if (!empty($email) and !empty($password))
                 {
-                    log_message('debug', $email . ' ' . $password);
                     $result = $this->Authorization_model->userAuthorization($email, $password, $this->date);
 
                     if (is_array($result))
                     {
                         $result['user_images'] = (!empty($result['user_image'])) ? $result['user_image'] : $result['user_soc_image'];
-                        log_message('debug', print_r($result, true));
 
                         self::parseUserLogin($result['user_id'], 'native');
 
