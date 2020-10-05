@@ -41,7 +41,7 @@ class User extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        log_message('debug', print_r($this->session, true));
+        //log_message('debug', print_r($this->session, true));
 
         // Страница пользователя или администратора
         if (!empty($this->user_id) and $this->user_id == $user_id and $this->session->user['type'] != 2)

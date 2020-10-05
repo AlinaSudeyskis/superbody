@@ -491,7 +491,7 @@ class CI_Controller {
             (!is_numeric($this->session->user['id']) or (!empty($this->session->user['email']) and
                     !filter_var($this->session->user['email'], FILTER_VALIDATE_EMAIL))))
         {
-            //$this->session->sess_destroy();
+            $this->session->sess_destroy();
         }
 
         // Проверка кода страны пользователя
