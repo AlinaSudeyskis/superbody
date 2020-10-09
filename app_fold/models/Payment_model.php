@@ -208,19 +208,33 @@ class Payment_model extends CI_Model
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_payment_options` 
-            FROM `orders_payment` WHERE `op_payment_id`=? LIMIT 1', $payment_id);
+        $sel_data = $this->db->query('SELECT `op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_payment_options`, `o_u_id` 
+            FROM `orders_payment`
+            LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            WHERE `op_payment_id`=? LIMIT 1', $payment_id);
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
 
-            $result['order_id']       = $row->op_o_id;
-            $result['customer_email'] = $row->op_customer_email;
-            $result['customer_name']  = $row->op_customer_name;
-            $result['option']         = $row->op_payment_options;
-            $result['type']           = $row->op_payment_type;
-            $result['login']          = $row->op_pt_login;
-            $result['phone']          = $row->op_pt_phone;
+            $result['order_id']        = $row->op_o_id;
+            $result['customer_email']  = $row->op_customer_email;
+            $result['customer_name']   = $row->op_customer_name;
+            $result['option']          = $row->op_payment_options;
+            $result['type']            = $row->op_payment_type;
+            $result['login']           = $row->op_pt_login;
+            $result['phone']           = $row->op_pt_phone;
+            $result['premium_account'] = 0;
+            $result['user_id']         = $row->o_u_id;
+
+            $sel_order = $this->db->query('SELECT `ouc_premium_account` FROM `orders_users_cart` WHERE `ouc_o_id`=? and `ouc_premium_account`=1 LIMIT 1', $row->op_o_id);
+            if($sel_order !== false and 1 == $sel_order->num_rows())
+            {
+                $result['premium_account'] = 1;
+            }
+            elseif($sel_order === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
         elseif($sel_data === false)
         {
@@ -368,6 +382,62 @@ class Payment_model extends CI_Model
                         parent::logDbMessages(__METHOD__.':'.__LINE__);
                     }
                 }
+            }
+            unset($row);
+        }
+        elseif ($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка платежей, которые нужно провести.
+     * Выборка платежей на текующаю дату и выборка отмененных платежей предыдущей недели.
+     *
+     * @param string $today Текущая дата
+     * @param string $week_ago Дата неделю назад
+     * @return array
+     */
+    public function getPremiumPayments($today, $week_ago)
+    {
+        $result = array('payments' => array());
+        $i = 0;
+
+        // Выборка текущих платежей для оплаты
+        // Выборка не выполненных платежей
+        $sel_data = $this->db->query('
+            SELECT `op_id`, `op_o_id`, `op_customer_email`, `op_customer_name`, `op_pt_phone`, `op_pt_login`, `op_payment_type`, `op_amount`, `op_currency`, 
+                   `op_payment_id`, `op_payment_method_id`, `op_payment_options`, `op_status`, `o_user_email`, `o_u_id`,
+                   `user_id`, `user_blocked`, `user_deleted`, `user_advertising_type`, `user_premium_end`, `ouc_premium_account` 
+            FROM `orders_payment`
+            LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            LEFT JOIN `users` ON `user_id`=`o_u_id`
+            LEFT JOIN `orders_users_cart` ON `ouc_o_id`=`o_id`
+            WHERE `op_payment_method_saved`=1 and `user_advertising_type`=2 and `user_premium_end`<>"0000-00-00" and `user_premium_end`<? 
+              and `user_blocked`=0 and `user_deleted`=0 and `op_revoke_permission`=0 and `op_status`="succeeded" and `ouc_premium_account`=1
+            ORDER BY `op_id` DESC', $today);
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            foreach($sel_data->result() as $row)
+            {
+                $result['payments'][$i]['id']             = $row->op_id;
+                $result['payments'][$i]['order_id']       = $row->op_o_id;
+                $result['payments'][$i]['customer_email'] = $row->op_customer_email;
+                $result['payments'][$i]['customer_name']  = $row->op_customer_name;
+                $result['payments'][$i]['phone']  = $row->op_pt_phone;
+                $result['payments'][$i]['login']  = $row->op_pt_login;
+                $result['payments'][$i]['type']           = $row->op_payment_type;
+                $result['payments'][$i]['amount']         = $row->op_amount;
+                $result['payments'][$i]['currency']       = $row->op_currency;
+                $result['payments'][$i]['method_id']      = $row->op_payment_id;
+                $result['payments'][$i]['options']        = $row->op_payment_options;
+                $result['payments'][$i]['status']         = $row->op_status;
+                $result['payments'][$i]['user_email']     = $row->o_user_email;
+
+                $i++;
             }
             unset($row);
         }

@@ -910,11 +910,13 @@ class Administrator extends CI_Controller
         }
         elseif ($this->input->post('bt_save_advertising', true))
         {
-            $mobile = mb_substr($this->input->post('ta_advertising_mobile', true), 0, 65000);
-            $vertical = mb_substr($this->input->post('ta_advertising_vertical', true), 0, 65000);
-            $horizontal = mb_substr($this->input->post('ta_advertising_horizontal', true), 0, 65000);
+            $mobile = mb_substr($this->input->post('ta_advertising_mobile'), 0, 65000);
+            $vertical = mb_substr($this->input->post('ta_advertising_vertical'), 0, 65000);
+            $horizontal = mb_substr($this->input->post('ta_advertising_horizontal'), 0, 65000);
+            $popup = mb_substr($this->input->post('ta_advertising_popup'), 0, 15000);
+            $month_price = is_numeric($this->input->post('i_premium_month', true)) ? $this->input->post('i_premium_month', true) : 0;
 
-            $result = $this->Administrator_model->setSiteAdvertisingData($mobile, $vertical, $horizontal, $this->date, $this->user_id);
+            $result = $this->Administrator_model->setSiteAdvertisingData($mobile, $vertical, $horizontal, $popup, $month_price, $this->date, $this->user_id);
 
             if ($result === true)
             {
@@ -1035,7 +1037,7 @@ class Administrator extends CI_Controller
         if ($this->input->post('bt_save_banner', true))
         {
             // Загрузка изображения на сервер
-            $banner_img = '.'.$result['banner']['image'];
+            $banner_img = (!empty($result['banner']['image'])) ? '.'.$result['banner']['image'] : '';
             if(is_uploaded_file($_FILES['banner_file']['tmp_name']))
             {
                 $path = './banners/';
@@ -1069,10 +1071,12 @@ class Administrator extends CI_Controller
                 : '';
             $banner_video = ($video_url != $result['banner']['video_url']) ? $video_url : $result['banner']['video_url'];
 
+            $advertising = mb_substr($this->input->post('ta_advertising'), 0, 65000);
+
             if ((!empty($banner_img) and $result['banner']['image'] != $banner_img) or (!empty($banner_video) and $video_url != $result['banner']['video_url'])
-                or $banner_url != $result['banner']['url'])
+                or $banner_url != $result['banner']['url'] or $advertising != $result['banner']['advertising'])
             {
-                $res_b = $this->Administrator_model->setBannerSettings($banner_id, $banner_img, $banner_video, $banner_url, $this->user_id, $this->date);
+                $res_b = $this->Administrator_model->setBannerSettings($banner_id, $banner_img, $banner_video, $banner_url, $advertising, $this->user_id, $this->date);
 
                 if ($res_b === true)
                 {

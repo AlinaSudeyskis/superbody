@@ -1,26 +1,31 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<?php if (!empty($site_info['banners'])):
-    foreach($site_info['banners'] as $si_banner):
-        if (!empty($si_banner['url'])):?>
-            <a href="<?php echo $si_banner['url'];?>">
-        <?php endif;?>
+<?php if (!empty($site_info['banners'])): ?>
+    <?php foreach($site_info['banners'] as $si_banner): ?>
+        <?php if($si_banner['id'] == 1 and !empty($si_banner['advertising'])): ?>
+            <?php echo $si_banner['advertising'];
+            break; ?>
+        <?php else:
+            if (!empty($si_banner['url'])):?>
+                <a href="<?php echo $si_banner['url'];?>">
+            <?php endif;?>
 
-        <div class="sing-in_bg">
-            <?php if(!empty($si_banner['video_url'])):
-                $remove_url = $si_banner['video_url'];
-                $key = 0; ?>
-                <?php //include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
-                <div data-vimeo-url="<?php echo $remove_url; ?>?autoplay=1" id="banner-vimeo-player-<?php echo $key; ?>" class="vimeo_players" data-vimeo-width="1903" data-vimeo-height="350" data-vimeo-loop="true" data-vimeo-autoplay="true" data-vimeo-background="true" data-vimeo-allow="autoplay; encrypted-media"></div>
-                <?php $key++; ?>
-            <?php else: ?>
-                <img src="<?php echo $si_banner['image'];?>" alt="">
-            <?php endif; ?>
-        </div>
+            <div class="sing-in_bg">
+                <?php if(!empty($si_banner['video_url'])):
+                    $remove_url = $si_banner['video_url'];
+                    $key = 0; ?>
+                    <?php //include('./app_fold/views/video/player/vimeo_player_item.php'); ?>
+                    <div data-vimeo-url="<?php echo $remove_url; ?>?autoplay=1" id="banner-vimeo-player-<?php echo $key; ?>" class="vimeo_players" data-vimeo-width="1903" data-vimeo-height="350" data-vimeo-loop="true" data-vimeo-autoplay="true" data-vimeo-background="true" data-vimeo-allow="autoplay; encrypted-media"></div>
+                    <?php $key++; ?>
+                <?php else: ?>
+                    <img src="<?php echo $si_banner['image'];?>" alt="">
+                <?php endif; ?>
+            </div>
 
-        <?php if (!empty($si_banner['url'])):?>
-            </a>
+            <?php if (!empty($si_banner['url'])):?>
+                </a>
+            <?php endif;?>
         <?php endif;?>
     <?php endforeach;
     unset($si_banner); ?>

@@ -149,12 +149,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <input type="text" name="i_login" value="" class="admin_form_txt admin_form_txt_short" />
         </div>
     <?php endif;?>
-    <?php if($course['promocode_availability'] === true or (!empty($executive) and $executive === true)): // and empty($order['balance_amount']) ?>
+    <?php if(($course['promocode_availability'] === true or (!empty($executive) and $executive === true)) and $course['price'] > 0): // and empty($order['balance_amount']) ?>
         <div class="parent kurs_cur_wrap promo_block">
             <div class="kurs_block_h"></div>
             <div class="promo_line">У меня есть промокод</div>
             <div class="promo_info">Промокод не доступен</div>
         </div>
+    <?php endif; ?>
+    <?php if($course['price'] == 0 and !empty($course['description_free'])): ?>
+        <div class="h_subtitle" style="margin: 15px 0;"><?php echo $course['description_free']; ?></div>
     <?php endif; ?>
     <div class="parent kurs_cur_wrap">
         <div class="kurs_block_h"></div>
@@ -178,7 +181,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php endif; ?>
     <div class="anketa_form_buts_wrap parent">
         <?php if (!empty($courses_id) and in_array($course['id'], $courses_id) and empty($order['balance_amount'])): ?>
-            <input type="submit" name="bought" value="Куплен" class="anketa_form_but disabled"/>
+            <?php
+            $but_text = ($course['new_price'] == 0 or $course['price'] == 0) ? 'Уже добавлен в "Мои курсы"' : 'Куплен';
+            $but_width = ($course['new_price'] == 0 or $course['price'] == 0) ? 215 : 115;
+            ?>
+            <input type="submit" name="bought" value='<?php echo $but_text; ?>' class="anketa_form_but disabled" style="width: <?php echo $but_width; ?>px;"/>
         <?php else: ?>
             <?php
             $but_text = ((!empty($executive) and $executive === true) or $course['new_price'] != 0 or $course['price'] != 0) ? 'Купить' : 'Добавить в "Мои курсы"';
@@ -189,7 +196,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 
     <?php if ($course['recurrent'] === true):?>
-        <div class="h_subtitle">* Выбирая разделенние платежа на несколько частей, Вы соглашаетесь на сохранение данных оплаты. Последующие платежи будут проходить автоматически. Прервать оплату Вы можете написав администрации сайта.</div>
+        <div class="h_subtitle">* Выбирая разделение платежа на несколько частей, Вы соглашаетесь на сохранение данных оплаты. Последующие платежи будут проходить автоматически. Прервать оплату Вы можете написав администрации сайта.</div>
     <?php endif?>
     <div class="purchase_policy">
         <?php include('./app_fold/views/footer/policy_agreement.php'); ?>

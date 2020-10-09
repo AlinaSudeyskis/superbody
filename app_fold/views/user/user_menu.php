@@ -69,6 +69,23 @@ if (!empty($user_session)) :
                 </a>
             </li>
         <?php endif; ?>
+        <?php if(!empty($user_session) and $user_session['advertising'] != 3): ?>
+            <li>
+                <a href="#" class="m_pop-up_premium">
+                    <span><i class="fas fa-crown"></i></span><span>Премиум аккаунт</span>
+                </a>
+            </li>
+            <li class="pm_golden_black">
+                <a href="#" class="m_pop-up_premium">
+                    <span><i class="fas fa-crown"></i></span><span>Премиум аккаунт</span>
+                </a>
+            </li>
+            <li class="pm_golden_red">
+                <a href="#" class="m_pop-up_premium">
+                    <span><i class="fas fa-crown"></i></span><span>Премиум аккаунт</span>
+                </a>
+            </li>
+        <?php endif; ?>
         <!--<li><a href="#"><span><img src="/img/menu_ico11.png" alt=""></span><span>FitCoin</span></a></li>-->
     </ul>
     <?php if (!empty($site_info['advertising_vertical']) and !empty($user_session) and $user_session['advertising'] == 1):

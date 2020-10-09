@@ -516,7 +516,7 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_info = $this->db->query('
-            SELECT `si_id`, `si_advertising_mobile`, `si_advertising_vertical`, `si_advertising_horizontal` 
+            SELECT `si_id`, `si_advertising_mobile`, `si_advertising_vertical`, `si_advertising_horizontal`, `si_advertising_popup`, `si_advertising_month_price`
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -526,6 +526,8 @@ class Administrator_model extends CI_Model
             $result['advertising_mobile']     = $row->si_advertising_mobile;
             $result['advertising_vertical']   = $row->si_advertising_vertical;
             $result['advertising_horizontal'] = $row->si_advertising_horizontal;
+            $result['advertising_popup']      = $row->si_advertising_popup;
+            $result['advertising_month_price'] = $row->si_advertising_month_price;
         }
         elseif ($sel_info === false)
         {
@@ -546,7 +548,7 @@ class Administrator_model extends CI_Model
 
         $sel_banners = $this->db->query('
             SELECT `sb_id`, `sb_image`, `sb_url`, `sb_blocked`
-            FROM `site_banners`');
+            FROM `site_banners` ORDER BY `sb_id`');
 
         if ($sel_banners !== false and 0 < $sel_banners->num_rows())
         {
@@ -885,29 +887,29 @@ class Administrator_model extends CI_Model
      * @param $banner_image
      * @param $banner_video
      * @param $banner_url
+     * @param $advertising
      * @param $user_id
      * @param $date
      * @return bool
      */
-    public function setBannerSettings($banner_id, $banner_image, $banner_video, $banner_url, $user_id, $date)
+    public function setBannerSettings($banner_id, $banner_image, $banner_video, $banner_url, $advertising, $user_id, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
-            UPDATE `site_banners` SET `sb_image`=?, `sb_video_url`=?, `sb_url`=?, `sb_update`=? WHERE `sb_id`=? LIMIT 1',
-            array($banner_image, $banner_video, $banner_url, $date, $banner_id));
+            UPDATE `site_banners` SET `sb_image`=?, `sb_video_url`=?, `sb_url`=?, `sb_advertising`=?, `sb_update`=? WHERE `sb_id`=? LIMIT 1',
+            array($banner_image, $banner_video, $banner_url, $advertising, $date, $banner_id));
 
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -983,18 +985,20 @@ class Administrator_model extends CI_Model
      * @param $mobile
      * @param $vertical
      * @param $horizontal
+     * @param $popup
+     * @param $month_price
      * @param $date
      * @param $admin_id
      * @return bool
      */
-    public function setSiteAdvertisingData($mobile, $vertical, $horizontal, $date, $admin_id)
+    public function setSiteAdvertisingData($mobile, $vertical, $horizontal, $popup, $month_price, $date, $admin_id)
     {
         $result = false;
 
         $up_data = $this->db->query('
-            UPDATE `site_info` SET `si_advertising_mobile`=?, `si_advertising_vertical`=?, 
-               `si_advertising_horizontal`=?, `si_date`=?, `si_user_id`=?
-            WHERE `si_id`=? LIMIT 1', array($mobile, $vertical, $horizontal, $date, $admin_id, 1));
+            UPDATE `site_info` SET `si_advertising_mobile`=?, `si_advertising_vertical`=?, `si_advertising_horizontal`=?, 
+                                   `si_advertising_popup`=?, `si_advertising_month_price`=?, `si_date`=?, `si_user_id`=?
+            WHERE `si_id`=? LIMIT 1', array($mobile, $vertical, $horizontal, $popup, $month_price, $date, $admin_id, 1));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {
@@ -1020,7 +1024,7 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_banner = $this->db->query('
-            SELECT `sb_id`, `sb_image`, `sb_video_url`, `sb_url`, `sb_u_id`, `sb_update`, `sb_blocked` 
+            SELECT `sb_id`, `sb_image`, `sb_video_url`, `sb_url`, `sb_advertising`, `sb_u_id`, `sb_update`, `sb_blocked` 
             FROM `site_banners` 
             WHERE `sb_id`=? LIMIT 1', $banner_id);
 
@@ -1028,12 +1032,13 @@ class Administrator_model extends CI_Model
         {
             $row = $sel_banner->row();
 
-            $result['banner']['id']        = $row->sb_id;
-            $result['banner']['image']     = (is_file($row->sb_image)) ? mb_substr($row->sb_image, 1) : '';
-            $result['banner']['video_url'] = (!empty($row->sb_video_url)) ? $row->sb_video_url : '';
-            $result['banner']['url']       = $row->sb_url;
-            $result['banner']['blocked']   = $row->sb_blocked;
-            $result['banner']['date']      = parent::parseDatetime($row->sb_update);
+            $result['banner']['id']          = $row->sb_id;
+            $result['banner']['image']       = (is_file($row->sb_image)) ? mb_substr($row->sb_image, 1) : '';
+            $result['banner']['video_url']   = (!empty($row->sb_video_url)) ? $row->sb_video_url : '';
+            $result['banner']['url']         = $row->sb_url;
+            $result['banner']['advertising'] = $row->sb_advertising;
+            $result['banner']['blocked']     = $row->sb_blocked;
+            $result['banner']['date']        = parent::parseDatetime($row->sb_update);
         }
         elseif ($sel_banner === false)
         {

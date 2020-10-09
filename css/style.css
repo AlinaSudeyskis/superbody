@@ -862,6 +862,12 @@ span.cont_ref  {
     margin: 0;
     padding: 20px 0;
 }
+.profile_menu .pm_golden_black{
+    background-color: #484848;
+}
+.profile_menu .pm_golden_red{
+    background-color: #e25050;
+}
 .profile_menu li{
     list-style: none;
     font-size: 14px;
@@ -889,9 +895,27 @@ span.cont_ref  {
 .profile_menu a:hover, .profile_menu a.active{
     background: #d8edf3;
 }
+.profile_menu .pm_golden_black a{
+    color: #ffffff;
+}
+.profile_menu .pm_golden_red a{
+    color: #ffffff;
+    width: 200px;
+    margin: 0 auto;
+}
+.profile_menu .pm_golden_black a:hover, .profile_menu .pm_golden_black a.active{
+    background: #6f6f6f;
+}
+.profile_menu li.pm_golden_red:hover, .profile_menu .pm_golden_red a:hover{
+    cursor: pointer;
+    background: #d03a3a;
+}
 .profile_menu i {
     font-size: 24px;
     color: #00b2e0;
+}
+.profile_menu .pm_golden_black i, .profile_menu .pm_golden_red i{
+    color: #ffcb38;
 }
 .left_sidebar{
     padding-right: 0;
@@ -2489,7 +2513,7 @@ tr:first-child > td > .fc-day-grid-event{
 #shadow3{
     z-index: 99;
 }
-#pop-up_video, #check-promocode-form, #confirm_hide_course{
+#pop-up_video, #check-promocode-form, #confirm_hide_course, #pop-up_premium{
     width: 90%;
     max-width: 900px;
     padding: 15px;
@@ -6726,12 +6750,12 @@ span.mess_block_full_time {
 .contact_but_desk .sing-in_h.tren_form_block_check_wrap label a.policy{
     color: #505961;
 }
-.purchase_form .sing-in_h.tren_form_block_check_wrap label{
+.purchase_form .sing-in_h.tren_form_block_check_wrap label, .premium_form .sing-in_h.tren_form_block_check_wrap label{
     color: #33363f;
     background: url(/img/check.png) 0 0 no-repeat;
     background-size: 14px;
 }
-.purchase_form .reg_in_link{
+.purchase_form .reg_in_link, .premium_form .reg_in_link{
     color: #33363f;
 }
 .sing-in_h.tren_form_block_check_wrap input:checked + label {
@@ -9798,7 +9822,6 @@ span.tip>.bt_link, .bt_link {
 .anketa_form_line{
 	margin-bottom: 20px;
     min-height: 36px;
-    overflow: hidden;
 }
 .anketa_form_line.subsections{
     display: none;
@@ -11801,10 +11824,14 @@ textarea.anketa_form_in{
     line-height: 15px;
     margin: 10px 20px 10px 0;
 }
-.purchase_form .anketa_form_buts_wrap {
+.purchase_form .anketa_form_buts_wrap, .premium_form .anketa_form_buts_wrap {
     padding: 0 0 10px;
+    /*margin: 0 auto;
+    width: 115px;*/
+}
+.purchase_form .anketa_form_buts_wrap input, .premium_form .anketa_form_buts_wrap input {
     margin: 0 auto;
-    width: 115px;
+    float: none;
 }
 .pf_price_wrap{
     display: flex;

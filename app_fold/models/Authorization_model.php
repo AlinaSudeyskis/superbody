@@ -634,6 +634,15 @@ class Authorization_model extends CI_Model
                         }
                     }
 
+                    $sel_order = $this->db->query('SELECT `o_id`, `ouc_premium_account` FROM `orders` LEFT JOIN `orders_users_cart` ON `ouc_o_id`=`o_id` 
+                        WHERE `o_u_id`=? and `ouc_premium_account`=1 LIMIT 1', array($row->user_id));
+                    if($sel_order !== false and 1 == $sel_order->num_rows())
+                    {
+                        $row2 = $sel_order->row();
+
+                        $result['user_premium_order'] = $row2->o_id;
+                    }
+
                     return $result;
                 }
                 else

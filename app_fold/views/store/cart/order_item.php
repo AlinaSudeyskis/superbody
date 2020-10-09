@@ -114,6 +114,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="ordering_block_side_cont_h info_ordering_pay">№ <?php echo $order['id']; ?></div>
                 <div class="ordering_block_side_cont_txt">Дата заказа: <?php echo $order['date']; ?></div>
                 <div class="ordering_block_side_cont_txt"><?php echo $order['user_email']; ?></div>
+                <?php if(!empty($order['premium_end'])):?>
+                    <div class="ordering_block_side_cont_txt">Дата окончания действия: <?php echo $order['premium_end']; ?></div>
+                <?php endif;?>
             </div>
         </div>
         <div class="ordering_block_side_info">

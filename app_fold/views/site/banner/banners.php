@@ -5,10 +5,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php if (!empty($banners)) :
         foreach ($banners as $banner) :?>
             <div class="admin_item parent">
-                <div class="admin_video"><img src="<?php echo $banner['image']?>" alt=""></div>
+                <?php if(!empty($banner['image'])): ?>
+                    <div class="admin_video"><img src="<?php echo $banner['image']?>" alt=""></div>
+                <?php endif; ?>
                 <div class="admin_video_cont">
                     <div class="admin_name">
-                        <a href="/administration/site/banner/<?php echo $banner['id']?>">Баннер №<?php echo $banner['id']?></a>
+                        <?php if($banner['id'] > 1): ?>
+                            <a href="/administration/site/banner/<?php echo $banner['id']?>">Баннер №<?php echo $banner['id']?></a>
+                        <?php else: ?>
+                            <a href="/administration/site/banner/<?php echo $banner['id']?>">Баннер рекламы</a>
+                        <?php endif; ?>
                     </div>
                     <div class="admin_set">
                         <a href="/administration/site/banner/<?php echo $banner['id']?>">Редактировать</a>

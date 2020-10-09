@@ -138,6 +138,23 @@ class User extends CI_Controller
                     $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url, $order_id);
             }
         }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
+        }
         elseif($this->input->post('bt_save_postpone', true))
         {
             $tmp_date = new DateTime($this->date);
@@ -3037,5 +3054,22 @@ class User extends CI_Controller
         $system_message['text'] .= '</a></b>';
 
         parent::sendEmail(17, $user_email, $system_message);
+    }
+
+    /**
+     * Cron. Проверка завершения действия премиум аккаунта.
+     * @throws Exception
+     */
+    public function checkExpiredPremiumAccount()
+    {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+
+        $tmp_date = new DateTime($this->date);
+        $today = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+        if(!empty($today))
+        {
+            $this->User_model->checkExpiredPremiumAccount($today);
+        }
     }
 }

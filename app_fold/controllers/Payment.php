@@ -269,6 +269,7 @@ class Payment extends CI_Controller
 
         if(!empty($payment_id))
         {
+            $this->load->model('User_model');
             $this->load->model('Store_model');
             $this->load->model('Course_model');
 
@@ -298,39 +299,55 @@ class Payment extends CI_Controller
                 $this->Store_model->updateOrderStatus($payment['order_id'], $payment_id, $order_status);
 
                 $tmp_date = new DateTime($this->date);
+                $today = $tmp_date->format('Y-m-d');
                 $tmp_date->add(new DateInterval('P1M'));
                 $next_month = $tmp_date->format('Y-m-d');
 
-                // Изменение статуса курсов
-                $payment_statuses = array('waiting_for_capture' => 'waiting_for_capture', 'payment_succeeded' => 'succeeded', 'payment_canceled' => 'canceled', 'not_paid' => 'pending');
-
-                $courses_status   = (!empty($payment_status) and array_search($payment_status, $payment_statuses)) ? array_search($payment_status, $payment_statuses) : '';
-                //$courses_status   = ($check_account === false and $payment_status == 'succeeded') ? 'not_activated_account' : $courses_status;
-                $courses_status   = ($payment_event == 'refund' and $payment_status == 'succeeded') ? 'payment_refunded' : $courses_status;
-
-                $block_date = ($courses_status == 'payment_succeeded') ? $next_month : $this->date;
-                $block      = ($courses_status == 'payment_succeeded') ? 0 : 1;
-
-                $this->Course_model->updateOrderCoursesStatus($payment['order_id'], $courses_status, $block_date, $block, $this->date);
-
-                if ($payment_status == 'succeeded' and $payment_event == 'payment')
+                // Изменение статуса премиум аккаунта
+                if($payment['premium_account'] == 1)
                 {
-                    // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
-                    if (!empty($payment) and $payment['option'] == 'partial_payment' and $payment_method_saved == 1)
+                    if($payment_event == 'payment' and $payment_status == 'succeeded')
                     {
-                        // Выборка курса заказа по номеру платежа
-                        $courses = $this->Store_model->getOrderCourses($payment_id);
+                        $this->User_model->setUserPremiumAccount($payment['user_id'], $next_month, $this->date);
+                    }
+                    elseif($payment_event == 'refund' and $payment_status == 'succeeded')
+                    {
+                        $this->User_model->blockUserPremiumAccount($payment['user_id'], $today, $this->date);
+                    }
+                }
+                // Изменение статуса курсов
+                else
+                {
+                    $payment_statuses = array('waiting_for_capture' => 'waiting_for_capture', 'payment_succeeded' => 'succeeded', 'payment_canceled' => 'canceled', 'not_paid' => 'pending');
 
-                        if (!empty($courses['courses']))
-                        {
-                            //$user_id = $courses['user_id'];
+                    $courses_status   = (!empty($payment_status) and array_search($payment_status, $payment_statuses)) ? array_search($payment_status, $payment_statuses) : '';
+                    //$courses_status   = ($check_account === false and $payment_status == 'succeeded') ? 'not_activated_account' : $courses_status;
+                    $courses_status   = ($payment_event == 'refund' and $payment_status == 'succeeded') ? 'payment_refunded' : $courses_status;
 
-                            // Сохранение последующих платежей
-                            $this->Payment_model->setSubsequentPayments($payment['order_id'], $payment['customer_email'], $payment['customer_name'], $payment['type'], $payment['login'], $payment['phone'], $payment_method_id, $courses['courses'], $this->date);
-                        }
-                        else
+                    $block_date = ($courses_status == 'payment_succeeded') ? $next_month : $this->date;
+                    $block      = ($courses_status == 'payment_succeeded') ? 0 : 1;
+
+                    $this->Course_model->updateOrderCoursesStatus($payment['order_id'], $courses_status, $block_date, $block, $this->date);
+
+                    if ($payment_status == 'succeeded' and $payment_event == 'payment')
+                    {
+                        // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев
+                        if (!empty($payment) and $payment['option'] == 'partial_payment' and $payment_method_saved == 1)
                         {
-                            log_message('error', __METHOD__.':'.__LINE__. ' Empty courses');
+                            // Выборка курса заказа по номеру платежа
+                            $courses = $this->Store_model->getOrderCourses($payment_id);
+
+                            if (!empty($courses['courses']))
+                            {
+                                //$user_id = $courses['user_id'];
+
+                                // Сохранение последующих платежей
+                                $this->Payment_model->setSubsequentPayments($payment['order_id'], $payment['customer_email'], $payment['customer_name'], $payment['type'], $payment['login'], $payment['phone'], $payment_method_id, $courses['courses'], $this->date);
+                            }
+                            else
+                            {
+                                log_message('error', __METHOD__.':'.__LINE__. ' Empty courses');
+                            }
                         }
                     }
                 }
@@ -665,7 +682,7 @@ class Payment extends CI_Controller
     }
 
     /**
-     * Проверка наличия платежей на выполнение
+     * Проверка наличия платежей для оплаты курсов на выполнение
      * @throws Exception
      */
     public function verificationSubsequentPayments()
@@ -782,6 +799,98 @@ class Payment extends CI_Controller
 
         // Выборка и удаление платежей, не прошедшие успешную оплату в течении последней недели
         $this->Payment_model->deleteCanceledPayments($week_ago);
+    }
+
+    /**
+     * Проверка наличия платежей для оплаты премиум аккаунта на выполнение
+     * @throws Exception
+     */
+    public function verificationPremiumAccounts()
+    {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+        $tmp_date = new DateTime($this->date);
+        // Текущая дата
+        $today = $tmp_date->format('Y-m-d');
+        // Дата неделю назад
+        $tmp_date->sub(new DateInterval('P8D'));
+        $week_ago = $tmp_date->format('Y-m-d');
+
+        // Список платежей на выполнение
+        $subsequent = $this->Payment_model->getPremiumPayments($today, $week_ago);
+        //log_message('debug', print_r($subsequent, true));
+
+        // Выполнение платежей
+        if (!empty($subsequent['payments']))
+        {
+            foreach($subsequent['payments'] as $payment)
+            {
+                $this->load->model('Store_model');
+                $order = $this->Store_model->getOrder($payment['order_id']);
+
+                if(!empty($order))
+                {
+                    $order = $order['order'];
+                    $products = array();
+                    if(!empty($order['products']))
+                    {
+                        $i = 0;
+                        foreach ($order['products'] as $product)
+                        {
+                            $products['products'][$i]['id'] = 0;
+                            $products['products'][$i]['name'] = 'Премиум аккаунт';
+                            $products['products'][$i]['cart_quantity'] = $product['cart_quantity'];
+                            $products['products'][$i]['price'] = $product['price'];
+                            $products['products'][$i]['rec_first_price'] = $product['rec_first'];
+                            $products['products'][$i]['rec_months'] = $product['rec_months'];
+                            $products['products'][$i]['rec_subsequent'] = $product['rec_subseq'];
+                            $products['products'][$i]['fc_price'] = $product['fc_price'];
+                            $products['products'][$i]['discount_price'] = $product['discount_price'];
+                            $products['products'][$i]['discount_fc_price'] = $product['discount_fc_price'];
+                            $products['products'][$i]['promo_id'] = '';
+                            $products['products'][$i]['promo_code'] = '';
+                            $products['products'][$i]['promo_discount'] = '';
+                            $products[$i]['promo_discount_type'] = '';
+
+                            $i++;
+                        }
+                        unset($product);
+
+                        // Создание запроса платежа и его выпонение
+                        $res_create = self::createRepeatPayment($payment['order_id'], $payment['amount'], $payment['currency'], $payment['options'],
+                            $payment['method_id'], $payment['customer_email'], $payment['customer_name'], $products['products'][0]);
+
+                        if(!empty($res_create['response']))
+                        {
+                            $response = $res_create['response'];
+                            if(!empty($response->_id))
+                            {
+                                $created_at = $response->_createdAt->_date . $response->_createdAt->_timezone;
+
+                                // Сохранение данных оплаты в БД
+                                $this->Payment_model->setNewOrderPayment($payment['order_id'], $response->_id, $response->_status, $payment['amount'], $payment['currency'],
+                                    $created_at, $payment['options'], $payment['type'], $payment['customer_email'], $payment['customer_name'], $payment['phone'], $payment['login'], $this->date);
+                            }
+                            else
+                            {
+                                log_message('debug', __METHOD__ . __LINE__ . ' empty $response->_id: ' . $payment['method_id'] . ' ' .print_r($res_create, true));
+                            }
+                        }
+                        else
+                        {
+                            log_message('debug', __METHOD__ .':'. __LINE__ . ' Payment create error: ' . $payment['method_id'] . ' ' .print_r($payment, true) . ' ' .print_r($res_create, true));
+                        }
+                    }
+                }
+                else
+                {
+                    log_message('debug', __METHOD__.':'.__LINE__.' Order error: '. $payment['method_id'] . ' ' .print_r($order, true));
+                }
+            }
+            unset($payment);
+        }
+
+        // Выборка и удаление платежей, не прошедшие успешную оплату в течении последней недели
+        //$this->Payment_model->deleteCanceledPayments($week_ago);
     }
 
     /**

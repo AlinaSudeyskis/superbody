@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-$col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_4' : 'col_3'; // col_5
+$col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_5' : 'col_4'; // col_5
+$col_x = (!empty($user_session) and $user_session['advertising'] == 3) ? 'col_4' : $col_x; // col_5
 ?>
 <div class="row cat_item_block <?php echo $col_x; ?>">
     <!--<div class="cat_item_wrap">
@@ -54,4 +55,12 @@ $col_x = (!empty($user_session) and $user_session['type'] == 3) ? 'col_4' : 'col
             <div class="cat_desk">Финансы<br/>Покупки</div>
         </a>
     </div>-->
+    <?php if(!empty($user_session) and $user_session['advertising'] != 3): ?>
+        <div class="cat_item_wrap">
+            <div class="cat_item m_pop-up_premium">
+                <div class="cat_img" style="background-color: #484848;"><i class="fas fa-crown" style="font-size: 40px; color: #ffcb38;"></i></div>
+                <div class="cat_desk">Премиум аккаунт</div>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>

@@ -344,7 +344,7 @@ $route['administration/store/product/(:num)'] = 'Store/product/$1';
 $route['administration/orders(/(capture|succeeded|canceled|pending|refunded|revoke|free|unpaid))?'] = 'Store/orders/$2';
 $route['administration/order/(:num)']         = 'Store/order/$1';
 //$route['orders']                              = 'Store/userOrders';
-//$route['order/(:num)']                        = 'Store/userOrder/$1';
+$route['order/(:num)']                        = 'Store/userOrder/$1';
 $route['getSubcategories']                    = 'Store/getSubcategories';
 $route['searchProduct']                       = 'Store/searchProduct';
 // Landing
@@ -419,3 +419,5 @@ $route['course/revokedUsersCourses']  = 'Course/checkRevokedUsersCourses';
 $route['course/usersWorkoutsStatus']  = 'Course/checkUsersWorkoutsStatus';
 $route['course/blockUsersCourses']    = 'Course/blockUsersCourses';
 $route['users/delete']                = 'User/deleteUsers';
+$route['users/expiredPremiumAccount'] = 'User/checkExpiredPremiumAccount';
+$route['payment/premiumVerification'] = 'Payment/verificationPremiumAccounts';

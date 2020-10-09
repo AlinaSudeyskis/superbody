@@ -1529,6 +1529,11 @@ $(document).ready(function() {
                 return(return_array);
             }
 
+            var pop_up_premium = $('#pop-up_premium');
+            $('.m_pop-up_premium').on('click', function(){
+                pop_up_home(pop_up_premium);
+            });
+
             // Поиск тренера курса
             $('#input-coach-search').keyup(function () {
                 var input_search = $(this).val();
@@ -2580,7 +2585,7 @@ $(document).ready(function() {
 
     var x = new Date();
     var currentTimeZoneOffsetInHours = -x.getTimezoneOffset() / 60;
-    console.log(currentTimeZoneOffsetInHours);
+    //console.log(currentTimeZoneOffsetInHours);
 
 });
 

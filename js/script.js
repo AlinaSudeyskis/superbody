@@ -2304,6 +2304,10 @@ function pop_up_home(popup) {
                 }
             });
         }
+        if(player)
+        {
+            player.pauseVideo();
+        }
     });
 }
 function pop_up_user_photo(popup) {

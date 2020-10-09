@@ -8,8 +8,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php if (!empty($product_item['image'])): ?>
                 <div class="busket_block_col_img"><img src="<?php echo $product_item['image']; ?>" alt=""></div>
             <?php endif;?>
-            <div class="busket_block_col_param">
-                <div class="ordering_block_col_name"><a href="/course/<?php echo $product_item['course_id'];?>"><?php echo $product_item['name'];?></a></div>
+            <div class="busket_block_col_param" <?php if(empty($product_item['image'])):?>style="margin-left:0;"<?php endif;?>>
+                <div class="ordering_block_col_name"><?php echo $product_item['name'];?></div>
             </div>
         </div>
     </div>
@@ -24,7 +24,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="ordering_block_col_cont tov_number">
             <?php if ($product_item['quantity'] > 0 and $product_item['course_id'] == 0) :?>
                 <?php echo $product_item['cart_quantity']; ?>
-            <?php elseif ($product_item['course_id'] > 0) :
+            <?php else :
                 $quantity = 1;
                 echo 1;
             endif;?>

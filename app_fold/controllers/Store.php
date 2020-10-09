@@ -1493,7 +1493,7 @@ class Store extends CI_Controller
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Заказ №' . $order_id;
-        $this->page_data['page_menu'] = 'orders';
+        $this->page_data['page_menu'] = 'u_courses';
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');

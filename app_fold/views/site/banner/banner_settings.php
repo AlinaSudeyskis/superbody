@@ -18,24 +18,30 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <div class="anketa_block">
-                        <div class="anketa_block_cont">
-                            <form action="" method="post" enctype="multipart/form-data">
-                                <div class="admin_form_buts_wrap_container">
-                                    <div class="admin_form_buts_wrap parent">
-                                        <?php if ($banner['blocked'] == 0) :?>
-                                            <input type="submit" name="bt_block_banner" class="video_admin_form_block" value="Блокировать"/>
-                                        <?php else :?>
-                                            <input type="submit" name="bt_unblock_banner" class="video_admin_form_block" value="Разблокировать"/>
-                                        <?php endif;?>
-                                        <input type="submit" name="bt_delete_banner" class="video_admin_form_block" value="Удалить"/>
-                                        <input type="submit" name="bt_save_banner" value="Сохранить" class="video_admin_form_send defaultActionButton" />
+                    <?php if(!empty($banner)): ?>
+                        <div class="anketa_block">
+                            <div class="anketa_block_cont">
+                                <form action="" method="post" enctype="multipart/form-data">
+                                    <div class="admin_form_buts_wrap_container">
+                                        <div class="admin_form_buts_wrap parent">
+                                            <?php if ($banner['blocked'] == 0) :?>
+                                                <input type="submit" name="bt_block_banner" class="video_admin_form_block" value="Блокировать"/>
+                                            <?php else :?>
+                                                <input type="submit" name="bt_unblock_banner" class="video_admin_form_block" value="Разблокировать"/>
+                                            <?php endif;?>
+                                            <?php if($banner['id'] > 1): ?>
+                                                <input type="submit" name="bt_delete_banner" class="video_admin_form_block" value="Удалить"/>
+                                            <?php endif;?>
+                                            <input type="submit" name="bt_save_banner" value="Сохранить" class="video_admin_form_send defaultActionButton" />
+                                        </div>
                                     </div>
-                                </div>
-                                <?php include_once('./app_fold/views/site/banner/settings_item.php'); ?>
-                            </form>
+                                    <?php include_once('./app_fold/views/site/banner/settings_item.php'); ?>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    <?php else: ?>
+                        <h3 class="info">Информация не найдена</h3>
+                    <?php endif; ?>
                 </div>
             </div>
         </div><!-- content_col -->

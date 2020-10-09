@@ -49,14 +49,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div>*/
 ?>
-
-
 <div class="orders_container">
     <?php if(!empty($course['image'])): ?>
         <div class="order_image"><img src="<?php echo $course['image']; ?>" alt="" /></div>
     <?php endif; ?>
     <div class="order_info_wrap">
-        <div class="oi_title"><?php echo $course['name']; ?></div>
+        <div class="oi_title">
+            <?php if(empty($fl_premium_order)): ?>
+                <?php echo $course['name']; ?>
+            <?php else: ?>
+                Премиум аккаунт
+            <?php endif; ?>
+        </div>
         <div class="oi_subtitle"><?php echo $course['description']; ?></div>
         <div class="oi_info">
             <?php if (!empty($course['coaches'])): ?>
@@ -132,16 +136,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php endif;?>
                         </div>
                     <?php endif; ?>
-                    <?php if($course['order']['payment_status_eng'] == 'pending'): ?>
+                    <?php if($course['order']['payment_status_eng'] == 'pending' and empty($fl_premium_order)): ?>
                         <div class="oi_d_link">
                             <a href="#" class="hide_u_course" data-crsid="<?php echo $course['id']; ?>">Скрыть со страницы</a>
                         </div>
                     <?php endif; ?>
                     <div class="oi_d_link">
-                        <?php if(!empty($course['id']) and empty($outsider)): ?>
+                        <?php if(!empty($course['id']) and empty($outsider) and empty($fl_premium_order)): ?>
                             <a href="/profile/course/<?php echo $course['id']; ?>">Подробнее</a>
-                        <?php elseif(!empty($outsider)): ?>
+                        <?php elseif(!empty($outsider) and empty($fl_premium_order)): ?>
                             <a href="/administration/order/<?php echo $course['order']['id']; ?>">Подробнее</a>
+                        <?php elseif(!empty($fl_premium_order) and $fl_premium_order === true): ?>
+                            <a href="/order/<?php echo $course['order']['id']; ?>">Подробнее</a>
                         <?php else: ?>
                             <span>Продолжить</span>
                         <?php endif; ?>

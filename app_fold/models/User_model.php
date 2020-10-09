@@ -1800,6 +1800,70 @@ class User_model extends CI_Model
     }
 
     /**
+     * Изменение рекламного статуса пользователя, если истек строк действия премиум аккаунта
+     *
+     * @param $today
+     * @return bool
+     */
+    public function checkExpiredPremiumAccount($today)
+    {
+        $result = true;
+
+        $up_data = $this->db->query('UPDATE `users` SET `user_advertising_type`=2 WHERE `user_premium_end`<? and `user_advertising_type`=3', $today);
+        if($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $result = false;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Установка премиум аккаунта пользователю
+     *
+     * @param $user_id
+     * @param $next_month
+     * @param $date
+     * @return bool
+     */
+    public function setUserPremiumAccount($user_id, $next_month, $date)
+    {
+        $result = true;
+
+        $up_data = $this->db->query('UPDATE `users` SET `user_advertising_type`=3, `user_premium_end`=?, `user_date_update`=? WHERE `user_id`=?', array($next_month, $date, $user_id));
+        if($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $result = false;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Удаление премиум аккаунта пользователя
+     *
+     * @param $user_id
+     * @param $today
+     * @param $date
+     * @return bool
+     */
+    public function blockUserPremiumAccount($user_id, $today, $date)
+    {
+        $result = true;
+
+        $up_data = $this->db->query('UPDATE `users` SET `user_advertising_type`=2, `user_premium_end`=?, `user_date_update`=? WHERE `user_id`=?', array($today, $date, $user_id));
+        if($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $result = false;
+        }
+
+        return $result;
+    }
+
+    /**
      * Обработка данных пользователя
      *
      * @param $row

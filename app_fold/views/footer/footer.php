@@ -110,6 +110,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="close_user_meal"></div>
 </div><!-- pop-up_user_meal -->
 
+<div id="pop-up_premium">
+    <?php echo $site_info['advertising_popup']; ?>
+    <form action="" method="post" class="anketa_form video_admin_form premium_form">
+        <div class="anketa_form_buts_wrap parent" style="width: 160px; text-align: center;"><?php echo $site_info['advertising_month_price'] ?> руб. в месяц</div>
+        <div class="parent kurs_cur_wrap">
+            <div class="sing-in_h tren_form_block_check_wrap">
+                <input type="checkbox" name="cb_offer" class="tren_form_block_check" id="cb-politics-3" required="required" checked="checked">
+                <label for="cb-politics-3">согласие с
+                    <a href="<?php if(!empty($site_info['agreement'])): echo $site_info['agreement']; endif; ?>" class="reg_in_link" target="_blank">пользовательским соглашением</a>
+                </label>
+            </div>
+        </div>
+        <div class="anketa_form_buts_wrap parent">
+            <input type="hidden" name="ord_id" value="<?php if(!empty($user_session['premium_order'])): echo $user_session['premium_order']; endif; ?>">
+            <input type="submit" name="bt_pay_premium" value="Оплатить" data-def-val="Оплатить" class="anketa_form_but red">
+        </div>
+        <div class="h_subtitle">* Нажав на кнопку "Оплатить", Вы соглашаетесь на сохранение данных оплаты. Последующие платежи будут проходить автоматически. Прервать оплату Вы можете написав администрации сайта.</div>
+        <div class="purchase_policy">
+            <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
+        </div>
+    </form>
+</div><!-- pop-up_user_meal -->
+
 <div id="check-promocode-form">
     <div class="parent kurs_cur_wrap promo_block">
         <div class="kurs_block_h">Промокод:</div>

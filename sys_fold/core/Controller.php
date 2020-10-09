@@ -423,7 +423,7 @@ class CI_Controller {
             // заданной для обновления сессий пользователя
             $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', $this->session->user['date_auth']);
             $u_date = ($tmp_date !== false) ? $tmp_date->format('U') : null;
-            if ($u_date < '1599910020')
+            if ($u_date < '1602078554')
             {
                 header('Location: /logout');
             }
@@ -718,16 +718,17 @@ class CI_Controller {
     public function updateSession($user_data, $access_token, $user_soc_via, $user_soc_id, $date, $login_from = null)
     {
         //log_message('debug', __METHOD__.':'.__LINE__.' '. print_r($user_data, true));
-        $user_id          = $user_data['user_id'];
-        $user_email       = $user_data['user_email'];
-        $user_type        = $user_data['user_type'];
-        $user_advertising = $user_data['user_advertising'];
-        $user_name        = $user_data['user_name'];
-        $user_blocked     = $user_data['user_blocked'];
-        $user_activated   = $user_data['user_activated'];
-        $user_timezone    = $user_data['user_timezone'];
-        $user_phone       = $user_data['user_phone'];
-        $user_image       = $user_data['user_images'];
+        $user_id            = $user_data['user_id'];
+        $user_email         = $user_data['user_email'];
+        $user_type          = $user_data['user_type'];
+        $user_advertising   = $user_data['user_advertising'];
+        $user_premium_order = $user_data['user_premium_order'];
+        $user_name          = $user_data['user_name'];
+        $user_blocked       = $user_data['user_blocked'];
+        $user_activated     = $user_data['user_activated'];
+        $user_timezone      = $user_data['user_timezone'];
+        $user_phone         = $user_data['user_phone'];
+        $user_image         = $user_data['user_images'];
 
         $split_name = mb_split(' ', $user_name);
         $s_name     = !empty($split_name[0]) ? $split_name[0] : '';
@@ -749,7 +750,7 @@ class CI_Controller {
         else
         {
             // Создание сессии
-            self::createUserSession($user_id, $user_email, $user_type, $user_advertising, $user_blocked, $user_activated, $user_name, $s_name,
+            self::createUserSession($user_id, $user_email, $user_type, $user_advertising, $user_premium_order, $user_blocked, $user_activated, $user_name, $s_name,
                 $s_surname, $user_timezone, $user_phone, $user_image, $access_token, $user_soc_via, $user_soc_id, $date, $login_from);
         }
     }
@@ -761,6 +762,7 @@ class CI_Controller {
      * @param $user_email
      * @param $user_type
      * @param $user_advertising
+     * @param $user_premium_order
      * @param $user_blocked
      * @param $user_activated
      * @param $user_name
@@ -775,7 +777,7 @@ class CI_Controller {
      * @param $date
      * @param null $login_from
      */
-    protected function createUserSession($user_id, $user_email, $user_type, $user_advertising, $user_blocked, $user_activated, $user_name,
+    protected function createUserSession($user_id, $user_email, $user_type, $user_advertising, $user_premium_order, $user_blocked, $user_activated, $user_name,
                                          $s_name, $s_surname, $user_timezone, $user_phone, $user_image, $access_token, $user_soc_via,
                                          $user_soc_id, $date, $login_from = null)
     {
@@ -798,6 +800,7 @@ class CI_Controller {
                 "phone" => $user_phone,
                 "type" => $user_type,
                 "advertising" => $user_advertising,
+                "premium_order" => $user_premium_order,
                 "blocked" => $user_blocked,
                 "activated" => $user_activated,
                 "image" => $user_image,
@@ -1947,6 +1950,187 @@ class CI_Controller {
                     log_message('debug', __METHOD__.':'.__LINE__.' User is coach');
                     header('Location: ' . $return_url . '?ref=1');
                 }
+        }
+        else
+        {
+            // Пользователь не авторизован
+            $this->session->set_tempdata('message', 5, 60);
+            header('Location: ' . $return_url . '?ref=1');
+        }
+    }
+
+    /**
+     * Оплата премиум аккаунта
+     *
+     * @param $s_payment_options
+     * @param $s_payment_method
+     * @param $i_phone
+     * @param $i_login
+     * @param $i_email
+     * @param $i_name
+     * @param $return_url
+     * @param string $order_id
+     * @throws Exception
+     */
+    public function buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id = '')
+    {
+        //log_message('debug', __METHOD__.':'.__LINE__);
+        $products['products'] = array();
+
+        $order_payment = false; // Флаг оплаты сущействующего заказа
+
+        // Проверка данных пользователя
+        $i_email   = (filter_var($i_email, FILTER_VALIDATE_EMAIL)) ? $i_email : null;
+        $i_name    = (mb_substr(strip_tags($i_name), 0, 255)) ? $i_name : null;
+        $user_id   = (!empty($user_id) and is_numeric($user_id)) ? $user_id : null;
+        $email     = (!empty($user_email)) ? $user_email : null;
+        $name      = null;
+        $user_type = null;
+        if(empty($user_id) and is_numeric($this->user_id))
+        {
+            $user_id   = $this->user_id;
+            $email     = (!empty($this->session->user['email'])) ? $this->session->user['email'] : $i_email;
+            $name      = (!empty($this->session->user['name'])) ? $this->session->user['name'] : $i_name;
+            $user_type = $this->session->user['type'];
+        }
+        elseif(empty($user_id))
+        {
+            $email = $i_email;
+            $name  = $i_name;
+        }
+
+        // Пользователь не авторизован
+        if(empty($user_id) or empty($email) or empty($name))
+        {
+            $this->session->set_tempdata('message', 217, 60);
+            header('Location: ' . $return_url . '?ref=1');
+        }
+
+        // Даты начала и окончания курса
+        $start_date = '';
+        $end_date   = '';
+
+        // Вариант оплаты (полный, разделить на месяцы)
+        $options = array('full_payment' => 'full_payment', 'partial_payment' => 'partial_payment', 'balance_payment' => 'full_payment', 'missed_payment' => 'partial_payment');
+        $payment_option = (array_key_exists($s_payment_options, $options)) ? $options[$s_payment_options] : 'full_payment';
+        $order_payment_option = (array_key_exists($s_payment_options, $options)) ? $s_payment_options : 'full_payment';
+
+        // Способ оплаты
+        $methods      = array('bank_card', 'yandex_money', 'sberbank', 'qiwi', 'webmoney', 'alfabank');
+        $payment_type = (in_array($s_payment_method, $methods) and $payment_option != 'partial_payment')
+            ? $s_payment_method
+            : 'bank_card';
+
+        // Данные для способа оплаты
+        $phone_methods = array('qiwi', 'sberbank');
+        $login_methods = array('alfabank');
+        $phone        = (is_numeric($i_phone)) ? $i_phone : '';
+        $method_phone = (in_array($payment_type, $phone_methods)) ? $phone : '';
+        $login        = strip_tags($i_login);
+        $method_login = (in_array($payment_type, $login_methods)) ? $login : '';
+
+        // Стоимость курса
+        $premium_price = $this->page_data['site_info']['advertising_month_price'];
+
+        $premium_price = (!empty($premium_price)) ? number_format($premium_price, 2, '.', '') : '';
+
+        // Добавление товара в заказы пользователя
+        $products['products'] = array( 0 => array(
+            'id' => 0,
+            'premium_account' => 1,
+            'name' => 'Премиум аккаунт Superbody',
+            'cart_quantity' => 1,
+            'price' => $premium_price,
+            'rec_first_price' => $premium_price));
+
+        // Amount
+        $order_total_amount   = $premium_price;
+        $payment_total_amount = $premium_price;
+
+        // Вычисляем дату начала и окончания курса
+        $start_date = $this->date;
+        $tmp_date = new DateTime($start_date);
+        $tmp_date->add(new DateInterval("P1M"));
+        $end_date = ($tmp_date !== false) ? $tmp_date->format('Y-m-d') : '';
+
+        if(!empty($user_id))
+        {
+            // Покупать могут все кроме тренера
+            if($user_type !== 2)
+            {
+                $uc_id = false;
+
+                // Был передан ID заказа.
+                if(is_numeric($order_id) and $order_id > 0)
+                {
+                    $res_order['order_id'] = $order_id;
+                }
+
+                // Создание нового заказа
+                if(empty($order_id) and is_numeric($user_id) and !empty($email))
+                {
+                    $prev_address = '';
+                    $u_name = '';
+                    $u_surname = '';
+                    $code = '';
+                    $o_phone = '';
+                    $country = '';
+                    $city = '';
+                    $street = '';
+                    $building = '';
+                    $house = '';
+                    $postcode = '';
+                    $delivery = '';
+                    $payment_status = 'pending';
+
+                    $this->load->model('Store_model');
+
+                    $res_order = $this->Store_model->setOrder($user_id, $prev_address, $u_name, $u_surname, $email, $code, $o_phone,
+                        $country, $city, $street, $building, $house, $postcode, $delivery, $products, $payment_status, $payment_option, $order_total_amount, $this->date);
+                }
+
+                // Создание платежа, активация курса пользователя
+                if (!empty($res_order) and $res_order !== false and is_numeric($res_order['order_id']))
+                {
+                    if($order_total_amount >= 1 and $payment_total_amount >= 1)
+                    {
+                        $payment_data = array(
+                            'oid' => $res_order['order_id'],
+                            'ucid' => '',
+                            'mpid' => '',
+                            'order' => $order_payment,
+                            'amount' => $payment_total_amount,
+                            'type' => $payment_type,
+                            'option' => $payment_option,
+                            'phone' => $method_phone,
+                            'login' => $method_login,
+                            'customer_email' => $email,
+                            'customer_name' => $name,
+                            'order_items' => $products['products'][0],
+                            'return_url' => $return_url . '?ref=1'
+                        );
+                        //log_message('debug', 'Payment data: ' . print_r($payment_data, true));
+
+                        header('Location: /payment?' .http_build_query($payment_data));
+                    }
+                    else
+                    {
+                        log_message('debug', __METHOD__.':'.__LINE__);
+                        header('Location: ' . $return_url . '?ref=1');
+                    }
+                }
+                else
+                {
+                    // Не сохранено
+                    $this->session->set_tempdata('message', 101, 60);
+                    header('Location: ' . $return_url . '?ref=1');
+                }
+            }
+            else
+            {
+                log_message('debug', __METHOD__.':'.__LINE__.' User is coach');
+                header('Location: ' . $return_url . '?ref=1');
+            }
         }
         else
         {

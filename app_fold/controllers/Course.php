@@ -1330,6 +1330,7 @@ class Course extends CI_Controller
 
             // Описание
             $description = mb_substr(strip_tags($this->input->post('description', true)), 0, 1000);
+            $description_free = mb_substr(strip_tags($this->input->post('ta_description_free', true)), 0, 15000);
 
             // Metadata
             $meta_description = mb_substr(strip_tags($this->input->post('ta_meta_description', true)), 0, 255);
@@ -1482,11 +1483,10 @@ class Course extends CI_Controller
                 or $course_type != $course['type'] or $meta_description != $course['meta_description']
                 or $meta_keywords != $course['meta_keywords'] or $count_weeks != $course['count_weeks']
                 or $count_days != $course['count_days'] or $count_rest != $course['count_rest']
-                or $course_image != ('.' . $course['image'])) {
+                or $course_image != ('.' . $course['image']) or $description_free != $course['description_free']) {
 
-                $result_settings = $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description,
-                    $meta_description, $meta_keywords, $price, $fc_price, $course_type, $count_weeks, $count_days,
-                    $count_rest, $this->date);
+                $result_settings = $this->Course_model->setCourseSettings($course_id, $course_image, $name, $description, $description_free,
+                    $meta_description, $meta_keywords, $price, $fc_price, $course_type, $count_weeks, $count_days, $count_rest, $this->date);
             }
 
             // Сохранение данных рекуррентной цены
@@ -6839,9 +6839,11 @@ class Course extends CI_Controller
         // Исходная страница
         $return_url = '/profile/courses/';
 
-        $courses_type = ($courses_type == 'finished') ? 'finished' : 'active';
-        $user_courses = $this->Course_model->getUserCourses($this->user_id, $this->date, $courses_type);
-        $courses_data = $this->Store_model->getUserCoursesOrder($this->user_id, $user_courses);
+        $courses_type  = ($courses_type == 'finished') ? 'finished' : 'active';
+        $premium_order = $this->Store_model->getUserPremiumOrder($this->user_id);
+        $user_courses  = $this->Course_model->getUserCourses($this->user_id, $this->date, $courses_type);
+        $courses_data  = $this->Store_model->getUserCoursesOrder($this->user_id, $user_courses);
+        $result        = array_merge($premium_order, $courses_data);
         //print_r($courses_data);
 
         //$this->Course_model->setNewUserCourse(25, 12, 4, '', '', '', '', $this->date);
@@ -6902,7 +6904,7 @@ class Course extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('course/user_course/courses', $courses_data);
+        $this->load->view('course/user_course/courses', $result);
         $this->load->view('footer/footer');
     }
 
@@ -8717,7 +8719,8 @@ class Course extends CI_Controller
                         "i_video" => $workout_instruction,
                         "i_player" => $i_player,
                         "source" => $v_source,
-                        "workout_url" => '<a href="/profile/workout/'.$workout_id.'/'.$video_id.'" class="wo_url" target="_blank">Открыть в новом окне</a>'
+                        "workout_url" => '<a href="/profile/workout/'.$workout_id.'/'.$video_id.'" class="wo_url" target="_blank">Открыть в новом окне</a>',
+                        "player_type" => $v_remote_type
                     );
 
                     echo json_encode($display_result, JSON_NUMERIC_CHECK);

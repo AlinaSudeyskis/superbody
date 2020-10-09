@@ -2504,7 +2504,7 @@ class Course_model extends CI_Model
         $result['course'] = NULL;
 
         $sel_course = $this->db->query('
-            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`, 
+            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_description_free`, `crs_type_id`, `crs_count_weeks`, 
               `crs_count_days`, `crs_meta_description`, `crs_meta_keywords`, `crs_price`, `crs_recurrent_price`, 
               `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
               `crs_fitcoin_price`, `crs_count_rest`, `crs_blocked`, `clp_id`, `clp_activated`, `p_id`, `ct_blocked`
@@ -2657,7 +2657,7 @@ class Course_model extends CI_Model
         $del_data = $this->db->query('DELETE FROM `courses_training_weeks` WHERE `ctw_id`>=3275 and `ctw_id`<=3379');*/
 
         $sel_course = $this->db->query('
-            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_type_id`, `crs_count_weeks`,
+            SELECT `crs_id`, `crs_category`, `crs_image`, `crs_name`, `crs_description`, `crs_description_free`, `crs_type_id`, `crs_count_weeks`,
               `crs_meta_keywords`, `crs_meta_description`, `crs_count_days`, `crs_price`, `crs_fitcoin_price`, 
               `crs_recurrent_price`, `crs_recurrent_months`, `crs_recurrent_first`, `crs_recurrent_subsequent`, 
               `crs_count_rest`, `crs_blocked`, `crs_archive`, `clp_id`, `clp_activated`
@@ -3373,6 +3373,7 @@ class Course_model extends CI_Model
      * @param string $image
      * @param string $name
      * @param string $description
+     * @param $description_free
      * @param string $meta_description
      * @param string $meta_keywords
      * @param float $price
@@ -3384,17 +3385,17 @@ class Course_model extends CI_Model
      * @param datetime $date
      * @return bool
      */
-    public function setCourseSettings($course_id, $image, $name, $description, $meta_description, $meta_keywords,
+    public function setCourseSettings($course_id, $image, $name, $description, $description_free, $meta_description, $meta_keywords,
                                       $price, $fc_price, $course_type, $count_weeks, $count_days, $count_rest, $date)
     {
         $result = false;
 
         $up_data = $this->db->query('
           UPDATE `courses` 
-          SET `crs_type_id`=?, `crs_image`=?, `crs_name`=?, `crs_description`=?, `crs_meta_description`=?, `crs_meta_keywords`=?, 
+          SET `crs_type_id`=?, `crs_image`=?, `crs_name`=?, `crs_description`=?, `crs_description_free`=?, `crs_meta_description`=?, `crs_meta_keywords`=?, 
             `crs_price`=?, `crs_fitcoin_price`=?, `crs_count_weeks`=?, `crs_count_days`=?, `crs_count_rest`=?, `crs_date_update`=? 
           WHERE `crs_id`=? LIMIT 1',
-            array($course_type, $image, $name, $description, $meta_description, $meta_keywords, $price, $fc_price,
+            array($course_type, $image, $name, $description, $description_free, $meta_description, $meta_keywords, $price, $fc_price,
                 $count_weeks, $count_days, $count_rest, $date, $course_id));
         
         if ($up_data !== false and 1 == $this->db->affected_rows())
@@ -10496,10 +10497,10 @@ class Course_model extends CI_Model
         $yesterday = $tmp_date->format('Y-m-d');
 
         // In progress
-        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="in_progress" WHERE `utw_progress_percent`>0 and `utw_progress_percent`<75 and `utw_date`=?', $yesterday);
+        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="in_progress" WHERE `utw_progress_percent`>0 and `utw_progress_percent`<75 and `utw_status`=""');
         if($up_data !== false and 0 < $this->db->affected_rows())
         {
-            //log_message('debug', $this->db->affected_rows());
+            log_message('debug', $this->db->affected_rows());
         }
         elseif($up_data === false)
         {
@@ -10507,10 +10508,10 @@ class Course_model extends CI_Model
         }
 
         // Done
-        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="done" WHERE `utw_progress_percent`>75 and `utw_date`=?', $yesterday);
+        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="done" WHERE `utw_progress_percent`>75 and `utw_status`=""');
         if($up_data !== false and 0 < $this->db->affected_rows())
         {
-            //log_message('debug', $this->db->affected_rows());
+            log_message('debug', $this->db->affected_rows());
         }
         elseif($up_data === false)
         {
@@ -13359,6 +13360,7 @@ class Course_model extends CI_Model
         $result['image']            = (!empty($row->crs_image)) ? mb_substr($row->crs_image, 1) : null;
         $result['name']             = (!empty($row->crs_name)) ? $row->crs_name : null;
         $result['description']      = (!empty($row->crs_description)) ? $row->crs_description : null;
+        $result['description_free'] = (!empty($row->crs_description_free)) ? $row->crs_description_free : null;
         $result['meta_description'] = (!empty($row->crs_meta_description)) ? $row->crs_meta_description : null;
         $result['meta_keywords']    = (!empty($row->crs_meta_keywords)) ? $row->crs_meta_keywords : null;
         $result['type']             = (!empty($row->crs_type_id)) ? $row->crs_type_id : null;

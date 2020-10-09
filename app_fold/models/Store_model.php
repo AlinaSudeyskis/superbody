@@ -3329,6 +3329,56 @@ class Store_model extends CI_Model
     }
 
     /**
+     * Выборка заказа оплаты премиум аккаунта
+     *
+     * @param $user_id
+     * @return bool|mixed
+     * @throws Exception
+     */
+    public function getUserPremiumOrder($user_id)
+    {
+        $result = false;
+
+        $sel_data = $this->db->query('SELECT `o_id`, `ouc_premium_account`, `ouc_p_price` FROM `orders` LEFT JOIN `orders_users_cart` ON `ouc_o_id`=`o_id` WHERE `ouc_premium_account`=1 and `o_u_id`=? LIMIT 1', $user_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+            $order_id = $row->o_id;
+            $result['premium_order']['price'] = $row->ouc_p_price;
+
+            $sel_order = $this->db->query('
+                SELECT `o_id`, `o_u_id`, `o_user_name`, `o_user_surname`, `o_user_email`, `o_user_country_code`, `o_user_phone`,            
+                    `o_delivery`, `o_payment_options`, `o_payment_status`, `o_total_amount`, `o_date_add`
+                FROM `orders` WHERE `o_u_id`=? and `o_id`=? LIMIT 1', array($user_id, $order_id));
+
+            if ($sel_order !== false and 1 == $sel_order->num_rows())
+            {
+                $row = $sel_order->row();
+                $order_payment_options = $row->o_payment_options;
+                $result['premium_order'] = self::parseOrderData($row);
+                $payment_status = $row->o_payment_status;
+                $total_order_price = 0;
+                $bought_course  = 0;
+                unset($row);
+
+                // Данные оплаты заказа
+                //$payments = self::getOrderPayments($order_id);
+                //$result['premium_order'] = array_merge($result['premium_order'], $payments);
+            }
+            elseif ($sel_order === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборк данных заказа пользователя
      *
      * @param $user_id
@@ -3358,7 +3408,7 @@ class Store_model extends CI_Model
 
             // Товары заказа. Общая стоимость
             $sel_cart = $this->db->query('
-                SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_p_quantity`, `ouc_p_price`, 
+                SELECT `ouc_id`, `ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_attached_p_id`, `ouc_premium_account`, `ouc_p_quantity`, `ouc_p_price`, 
                     `ouc_p_fitcoin_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_promocode_id`, 
                     `pcu_discount_type`, `pcu_discount`, `pcu_code`,
                     `p_course_id`, `p_name`, `p_short_description`, `p_full_description`, `p_images`, `p_fitcoin_price`,
@@ -3403,9 +3453,7 @@ class Store_model extends CI_Model
                     }
 
                     $discount_type = $row->pcu_discount_type;
-
                     $promocodes .= (!empty($row->pcu_code)) ? ' '.$row->pcu_code : '';
-
                     if(!empty($row->ouc_promocode_id))
                     {
                         $used_promocodes[$i]['id']            = $row->ouc_promocode_id;
@@ -3414,6 +3462,25 @@ class Store_model extends CI_Model
                         $types = array('%' => 'percent', ' руб.' => 'currency', ' бесплат. нед.' => 'free_week');
                         $used_promocodes[$i]['discount_type'] = array_search($row->pcu_discount_type, $types);
                         $used_promocodes[$i]['discount']      = $row->pcu_discount;
+                    }
+
+                    if($row->ouc_premium_account == 1)
+                    {
+                        $sel_premium_end = $this->db->query('SELECT `user_premium_end` FROM `users` WHERE `user_id`=? LIMIT 1', $user_id);
+                        if($sel_premium_end !== false and 1 == $sel_premium_end->num_rows())
+                        {
+                            $row2 = $sel_premium_end->row();
+                            $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row2->user_premium_end));
+                            $date_end = ($row2->user_premium_end != '0000-00-00 00:00:00' and $tmp_date !== false)
+                                ? $tmp_date->format('d.m.Y')
+                                : '';
+
+                            $result['order']['premium_end'] = $date_end;
+                        }
+                        elseif($sel_premium_end === false)
+                        {
+                            parent::logDbMessages(__METHOD__.':'.__LINE__);
+                        }
                     }
 
                     $i++;
@@ -4031,12 +4098,12 @@ class Store_model extends CI_Model
 
                 if ($row->op_status != 'succeeded' and $row->op_status != 'canceled')
                 {
-                    $res_pay = self::getPaymentInfo($row->op_payment_id);
+                    /*$res_pay = self::getPaymentInfo($row->op_payment_id);
 
                     if ($res_pay['payment'] !== false and $res_pay['payment']->_status == 'pending')
                     {
                         $confirm_url = !empty($res_pay['payment']->_confirmation->_confirmationUrl) ? $res_pay['payment']->_confirmation->_confirmationUrl : '';
-                    }
+                    }*/
                 }
 
                 // Данные платежа
@@ -4841,6 +4908,13 @@ class Store_model extends CI_Model
             // Изображения
             $result['image'] = (!empty($row->crs_image) and is_file($row->crs_image))
                 ? mb_substr($row->crs_image, 1) : null;
+        }
+        elseif($row->ouc_premium_account > 0)
+        {
+            $result['name']     = 'Премиум аккаунт';
+            $result['price']    = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : '';
+            $result['cart_quantity'] = 1;
+            $result['image']    = null;
         }
         else
         {

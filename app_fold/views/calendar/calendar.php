@@ -184,79 +184,82 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     }
                                 }
 
-                                playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
+                                if(data.player_type === 'vimeo')
+                                {
+                                    playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
 
-                                playerTwoPlayer.on('play', function(data) {});
+                                    playerTwoPlayer.on('play', function(data) {});
 
-                                playerTwoPlayer.on('seeked', function(data) {});
+                                    playerTwoPlayer.on('seeked', function(data) {});
 
-                                playerTwoPlayer.on('pause', function(pause) {
-                                    playerTwoPlayer.getCurrentTime().then(function(seconds) {});
-                                });
-
-                                playerTwoPlayer.on('ended', function(data) {
-                                    playerTwoPlayer.getVideoTitle().then(function(title) {
-                                        if(data.percent === 100)
-                                        {
-                                            $.ajax({
-                                                url: '/viewing/video',
-                                                type: 'post',
-                                                data: {
-                                                    woid: calEvent.event.extendedProps.endParam,
-                                                    ved_time: data.seconds,
-                                                    ved_percent: data.percent
-                                                },
-                                                complete: function(result){
-                                                    if (result.responseText === 'true')
-                                                    {
-                                                    }
-                                                }
-                                            });
-                                        }
+                                    playerTwoPlayer.on('pause', function(pause) {
+                                        playerTwoPlayer.getCurrentTime().then(function(seconds) {});
                                     });
-                                });
 
-                                var prev_seconds = null;
-                                playerTwoPlayer.on('timeupdate', function(data){
-                                    playerTwoPlayer.getVideoTitle().then(function(title) {
-                                        var seconds = Math.floor(data.seconds);
-                                        if((seconds % 10) === 0 && seconds !== prev_seconds)
-                                        {
-                                            $.ajax({
-                                                url: '/viewing/video',
-                                                type: 'post',
-                                                data: {
-                                                    woid: calEvent.event.extendedProps.endParam,
-                                                    ved_time: data.seconds,
-                                                    ved_percent: data.percent
-                                                },
-                                                complete: function(result){
-                                                    if (result.responseText === 'true')
-                                                    {
-                                                        prev_seconds = seconds;
+                                    playerTwoPlayer.on('ended', function(data) {
+                                        playerTwoPlayer.getVideoTitle().then(function(title) {
+                                            if(data.percent === 100)
+                                            {
+                                                $.ajax({
+                                                    url: '/viewing/video',
+                                                    type: 'post',
+                                                    data: {
+                                                        woid: calEvent.event.extendedProps.endParam,
+                                                        ved_time: data.seconds,
+                                                        ved_percent: data.percent
+                                                    },
+                                                    complete: function(result){
+                                                        if (result.responseText === 'true')
+                                                        {
+                                                        }
                                                     }
-                                                }
-                                            });
-                                        }
-                                        if (data.percent > 0.75 && viewed === false) {
-                                            $.ajax({
-                                                url: '/viewed/video',
-                                                type: 'post',
-                                                data: {
-                                                    woid: calEvent.event.extendedProps.endParam
-                                                },
-                                                complete: function(result){
-                                                    if (result.responseText === 'true')
-                                                    {
-                                                        calEvent.event.setProp( 'backgroundColor', 'rgb(153, 230, 0)' );
-                                                        //$('#calendar').fullCalendar('updateEvent', calEvent);
-                                                        viewed = true;
-                                                    }
-                                                }
-                                            });
-                                        }
+                                                });
+                                            }
+                                        });
                                     });
-                                });
+
+                                    var prev_seconds = null;
+                                    playerTwoPlayer.on('timeupdate', function(data){
+                                        playerTwoPlayer.getVideoTitle().then(function(title) {
+                                            var seconds = Math.floor(data.seconds);
+                                            if((seconds % 10) === 0 && seconds !== prev_seconds)
+                                            {
+                                                $.ajax({
+                                                    url: '/viewing/video',
+                                                    type: 'post',
+                                                    data: {
+                                                        woid: calEvent.event.extendedProps.endParam,
+                                                        ved_time: data.seconds,
+                                                        ved_percent: data.percent
+                                                    },
+                                                    complete: function(result){
+                                                        if (result.responseText === 'true')
+                                                        {
+                                                            prev_seconds = seconds;
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            if (data.percent > 0.75 && viewed === false) {
+                                                $.ajax({
+                                                    url: '/viewed/video',
+                                                    type: 'post',
+                                                    data: {
+                                                        woid: calEvent.event.extendedProps.endParam
+                                                    },
+                                                    complete: function(result){
+                                                        if (result.responseText === 'true')
+                                                        {
+                                                            calEvent.event.setProp( 'backgroundColor', 'rgb(153, 230, 0)' );
+                                                            //$('#calendar').fullCalendar('updateEvent', calEvent);
+                                                            viewed = true;
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    });
+                                }
                             }
                         }
                     });

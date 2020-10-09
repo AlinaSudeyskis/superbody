@@ -184,6 +184,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
         </div>
+        <div class="parent kurs_cur_wrap">
+            <div class="kurs_block_h">Описание бесплатного курса:</div>
+            <textarea name="ta_description_free" class="journal_form_textarea admin_form_txt_middle"
+                      placeholder="" maxlength="15000"><?php echo $course['description_free']; ?></textarea>
+        </div>
         <div class="add_tov_in_total">
             <div class="add_tov_in coaches">
                 <div class="practice_block_h">Тренеры:</div>

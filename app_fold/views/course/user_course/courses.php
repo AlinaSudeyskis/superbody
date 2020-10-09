@@ -29,7 +29,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </li>
                     </ul>
                     <div class="orders_container_wrap">
-                        <?php if(!empty($courses) or !empty($blocked_courses)):
+                        <?php if(!empty($courses) or !empty($blocked_courses) or !empty($premium_order)):
+                            if (!empty($premium_order)) :
+                                $course['order'] = $premium_order;
+                                $fl_premium_order = true;
+                                include('./app_fold/views/course/user_course/course_item.php');
+                                $fl_premium_order = false;
+                            endif;
                             if (!empty($courses)) :
                                 foreach ($courses as $course) :
                                     $blocked = '';
