@@ -6704,7 +6704,7 @@ span.mess_block_full_time {
     display: -ms-flexbox;
     display: flex;
     -webkit-flex-flow: row nowrap;
-    -ms-flex-flow: row nowrap;
+    /*-ms-flex-flow: row nowrap;*/
     flex-flow: row nowrap;
     margin: 0 auto;
 }
@@ -8918,7 +8918,6 @@ span.mess_block_full_time {
     -ms-flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-evenly;
-    -webkit-justify-content: space-evenly;
     max-width: 1130px;
     margin: 40px auto;
 }
