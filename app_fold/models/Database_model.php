@@ -4717,6 +4717,42 @@ class Database_model extends CI_Model
     }
 
     /**
+     * Обновление базы данных октябрь 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseOctober2020($date)
+    {
+        $result = false;
+
+        $date = '2020-10-08 18:53';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `courses` ADD `crs_description_free` TEXT NOT NULL AFTER `crs_description`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-10-09 08:56';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $date = '2020-10-09';
+            $this->db->query("UPDATE `users_training_weeks` SET `utw_status`='done' WHERE `utw_uc_id`=2084 and `utw_date`<?", $date);
+            $this->db->query("UPDATE `users_training_weeks` SET `utw_status`='done' WHERE `utw_uc_id`=2078 and `utw_date`<?", $date);
+            $this->db->query("UPDATE `users_training_weeks` SET `utw_status`='done' WHERE `utw_uc_id`=2079 and `utw_date`<?", $date);
+
+            $date = '2020-10-09 08:56';
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        return $result;
+    }
+
+    /**
      * Поиск даты обновления в БД
      *
      * @param $date

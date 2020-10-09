@@ -77,6 +77,7 @@ class Database extends CI_Controller
         //$up_data = $this->Database_model->updateDatabaseJuly2020($this->date);
         $up_data = $this->Database_model->updateDatabaseAugust2020($this->date);
         $up_data = $this->Database_model->updateDatabaseSeptember2020($this->date);
+        $up_data = $this->Database_model->updateDatabaseOctober2020($this->date);
 
         if($up_data !== false)
         {
