@@ -4,6 +4,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div class="col-lg-4 col-md-6 col-sm-6 col-xs-6">
     <div class="kurs_page_block parent">
         <div class="kurs_page_block_cont">
+            <?php if($course['price'] == 0): ?>
+                <div class="kurs_page_block_free">Бесплатно</div>
+            <?php endif; ?>
             <div class="kurs_page_block_h"><?php echo $course['name']; ?></div>
             <div class="kurs_page_block_desk"><?php echo $course['description']; ?></div>
             <div class="kurs_page_block_slider">
