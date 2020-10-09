@@ -1809,7 +1809,7 @@ class User_model extends CI_Model
     {
         $result = true;
 
-        $up_data = $this->db->query('UPDATE `users` SET `user_advertising_type`=2 WHERE `user_premium_end`<? and `user_advertising_type`=3', $today);
+        $up_data = $this->db->query('UPDATE `users` SET `user_advertising_type`=1 WHERE `user_premium_end`<? and `user_advertising_type`=3', $today);
         if($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
