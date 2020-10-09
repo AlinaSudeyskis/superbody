@@ -55,7 +55,7 @@ $col_x = (!empty($user_session) and $user_session['advertising'] == 3) ? 'col_4'
             <div class="cat_desk">Финансы<br/>Покупки</div>
         </a>
     </div>-->
-    <?php if(!empty($user_session) and $user_session['advertising'] != 3): ?>
+    <?php if(!empty($user_session) and $user_session['advertising'] != 3 and $user_session['type'] == 3): ?>
         <div class="cat_item_wrap">
             <div class="cat_item m_pop-up_premium">
                 <div class="cat_img" style="background-color: #484848;"><i class="fas fa-crown" style="font-size: 40px; color: #ffcb38;"></i></div>

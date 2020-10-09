@@ -69,7 +69,7 @@ if (!empty($user_session)) :
                 </a>
             </li>
         <?php endif; ?>
-        <?php if(!empty($user_session) and $user_session['advertising'] != 3): ?>
+        <?php if(!empty($user_session) and $user_session['advertising'] != 3 and $user_session['type'] == 3): ?>
             <li>
                 <a href="#" class="m_pop-up_premium">
                     <span><i class="fas fa-crown"></i></span><span>Премиум аккаунт</span>
