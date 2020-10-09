@@ -3337,7 +3337,7 @@ class Store_model extends CI_Model
      */
     public function getUserPremiumOrder($user_id)
     {
-        $result = false;
+        $result = array();
 
         $sel_data = $this->db->query('SELECT `o_id`, `ouc_premium_account`, `ouc_p_price` FROM `orders` LEFT JOIN `orders_users_cart` ON `ouc_o_id`=`o_id` WHERE `ouc_premium_account`=1 and `o_u_id`=? LIMIT 1', $user_id);
         if($sel_data !== false and 1 == $sel_data->num_rows())
