@@ -151,7 +151,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <span id="cookie_stop">Ok</span>
     </div>
 <?php endif; ?>
-<?php if (!empty($site_info['advertising_mobile']) and !empty($user_session) and $user_session['advertising'] == 1):
+<?php if (!empty($site_info['advertising_mobile']) and !empty($user_session) and $user_session['advertising'] == 1 and $user_session['type'] == 3):
     echo $site_info['advertising_mobile'];
 endif; ?>
 
