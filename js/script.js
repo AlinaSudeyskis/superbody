@@ -2271,7 +2271,15 @@ function pop_up_home(popup) {
         $('body').append('<div id="shadow2"></div>');
         shadow = $("#shadow2");
     }
-    popup.css({marginLeft:-(popup.outerWidth()/2),marginTop:-(popup.outerHeight()/2)}).fadeIn(600);
+
+    if($(window).width() > '479')
+    {
+        popup.css({marginLeft:-(popup.outerWidth()/2),marginTop:-(popup.outerHeight()/2)}).fadeIn(600);
+    }
+    else
+    {
+        popup.css({left:((popup.outerWidth()*5)/90),top:((popup.outerHeight()*5)/90)}).fadeIn(600);
+    }
 
     // если необходимо делегирование событий, замените на mouseenter и mouseleave соответственно
     $(popup).hover(function() {

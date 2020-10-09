@@ -2528,6 +2528,7 @@ tr:first-child > td > .fc-day-grid-event{
     /*height: auto;*/
     /*min-height: 330px;*/
     max-height: 90%;
+    overflow: hidden;
 }
 #confirm_hide_course{
     text-align: center;
