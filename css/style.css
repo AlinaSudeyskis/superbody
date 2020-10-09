@@ -1059,7 +1059,7 @@ span.cont_ref  {
     flex: 1 1 auto;
     -webkit-flex: 1 1 auto;
     max-width: 300px;
-    /*margin: 0 10px;*/
+    margin: 0 10px;
     cursor: pointer;
 }
 .tc_item_title {
@@ -17597,6 +17597,7 @@ input.tren_form_block_check{
     .tc_item{
         width: 100%;
         max-width: none;
+        margin: 0;
     }
 
 }
