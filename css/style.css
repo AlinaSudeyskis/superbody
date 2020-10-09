@@ -1059,7 +1059,7 @@ span.cont_ref  {
     flex: 1 1 auto;
     -webkit-flex: 1 1 auto;
     max-width: 300px;
-    margin: 0 10px;
+    /*margin: 0 10px;*/
     cursor: pointer;
 }
 .tc_item_title {
@@ -2528,7 +2528,7 @@ tr:first-child > td > .fc-day-grid-event{
     /*height: auto;*/
     /*min-height: 330px;*/
     max-height: 90%;
-    overflow: hidden;
+    overflow: scroll;
 }
 #confirm_hide_course{
     text-align: center;

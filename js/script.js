@@ -2278,7 +2278,7 @@ function pop_up_home(popup) {
     }
     else
     {
-        popup.css({left:((popup.outerWidth()*5)/90),top:((popup.outerHeight()*5)/90)}).fadeIn(600);
+        popup.css({left:(($(window).width()*5)/100),top:(($(window).height()*5)/100)}).fadeIn(600);
     }
 
     // если необходимо делегирование событий, замените на mouseenter и mouseleave соответственно

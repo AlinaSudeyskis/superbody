@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-$css_version = 11.3;
-$js_version = 8.6;
+$css_version = 11.4;
+$js_version = 8.7;
 ?>
 
 <link rel="stylesheet" href="/css/style.css?version=<?php echo $css_version; ?>">
