@@ -4712,6 +4712,60 @@ class Database_model extends CI_Model
 
             self::setDbUpdate($date);
         }
+        $date = '2020-09-17 11:55';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_popup` TEXT(15000) NOT NULL AFTER `si_advertising_vertical`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-09-26 15:07';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_banners` ADD `sb_advertising` TEXT NOT NULL AFTER `sb_url`");
+            $this->db->query("INSERT INTO `site_banners` (`sb_id`, `sb_u_id`, `sb_update`) VALUES (1, 4, '2020-09-20 15:35:07')");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-09-30 12:22';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_month_price` DECIMAL(10,2) UNSIGNED NOT NULL AFTER `si_advertising_popup`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-09-30 13:41';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `orders_users_cart` ADD `ouc_premium_account` TINYINT(1) UNSIGNED NOT NULL AFTER `ouc_p_id`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-09-30 13:42';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_premium_start` DATE NOT NULL AFTER `user_advertising_type`, ADD `user_premium_end` DATE NOT NULL AFTER `user_premium_start`");
+
+            self::setDbUpdate($date);
+        }
+
+        $date = '2020-09-30 14:32';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_auto_premium` TINYINT(1) UNSIGNED NOT NULL DEFAULT '1' AFTER `user_premium_end`");
+
+            self::setDbUpdate($date);
+        }
 
         return $result;
     }
