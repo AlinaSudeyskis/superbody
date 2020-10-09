@@ -4815,6 +4815,16 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-10-09 14:31';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users_training_weeks` ADD `utw_clicked` TINYINT(1) UNSIGNED NOT NULL AFTER `utw_crs_workout`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 

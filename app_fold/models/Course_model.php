@@ -6429,6 +6429,12 @@ class Course_model extends CI_Model
             $result['workout']['description'] = $db_workout_desc;
             $result['workout']['instruction'] = $instruction;
 
+            $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_clicked`=1 WHERE `utw_id`=? and `utw_clicked`=0 LIMIT 1', $workout_id);
+            if($up_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+
             return $result;
         }
         else
