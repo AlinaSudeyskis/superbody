@@ -4749,6 +4749,18 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-10-09 08:57';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $date = '2020-10-09';
+            $this->db->query("UPDATE `users_training_weeks` SET `utw_status`='done' WHERE `utw_uc_id`=2085 and `utw_date`<?", $date);
+
+            $date = '2020-10-09 08:57';
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
