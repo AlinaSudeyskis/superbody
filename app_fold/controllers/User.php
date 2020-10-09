@@ -1156,6 +1156,9 @@ class User extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        // Исходная страница
+        $return_url = '/settings';
+
         $user = array();
 
         // Получение данных пользователя из БД
@@ -1520,6 +1523,23 @@ class User extends CI_Controller
             }
             header('Location: /settings');
         }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
+        }
 
 
         // Страница пользователя или администратора
@@ -1596,6 +1616,7 @@ class User extends CI_Controller
 
     /**
      * График антропометрических данных пользователя
+     * @throws Exception
      */
     public function progress()
     {
@@ -1702,6 +1723,7 @@ class User extends CI_Controller
      *
      * @param string $page_tab
      * @return void
+     * @throws Exception
      */
     public function userQuestionnaire($page_tab)
     {
@@ -1713,6 +1735,9 @@ class User extends CI_Controller
 
         $page_tabs = array('anthropometric', 'progress', 'parameters', 'condition', 'regime');
         $page_tab = (in_array($page_tab, $page_tabs)) ? $page_tab : 'anthropometric';
+
+        // Исходная страница
+        $return_url = '/questionnaire/'.$page_tab;
 
         // Валидация и сохранение данных анкеты в БД
         if ($this->input->post('bt_save_anthrop', true))
@@ -1790,7 +1815,7 @@ class User extends CI_Controller
 
             header('Location: /questionnaire/anthropometric');
         }
-        if ($this->input->post('bt_save_physical_param', true))
+        elseif ($this->input->post('bt_save_physical_param', true))
         {
             // Пол
             $genders = array('male', 'female');
@@ -1841,7 +1866,7 @@ class User extends CI_Controller
 
             header('Location: /questionnaire/parameters');
         }
-        if ($this->input->post('bt_save_physical_condition', true))
+        elseif ($this->input->post('bt_save_physical_condition', true))
         {
             // Физическое состояние
             $physical_condition = (is_numeric($this->input->post('physical_condition', true))) ? $this->input->post('physical_condition', true) : '';
@@ -1878,7 +1903,7 @@ class User extends CI_Controller
 
             header('Location: /questionnaire/condition');
         }
-        if ($this->input->post('bt_save_daily_regime', true))
+        elseif ($this->input->post('bt_save_daily_regime', true))
         {
             // Время бодрствования
             $minutes = mb_strlen($this->input->post('waking_from', true)) <= 2 ? ':00' : '';
@@ -1925,6 +1950,23 @@ class User extends CI_Controller
             //$this->session->set_userdata('type_questionnaire', 3);
 
             header('Location: /questionnaire/regime');
+        }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
         }
 
         // Получение данных анкеты из БД

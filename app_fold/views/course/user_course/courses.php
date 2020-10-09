@@ -29,8 +29,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </li>
                     </ul>
                     <div class="orders_container_wrap">
-                        <?php if(!empty($courses) or !empty($blocked_courses) or !empty($premium_order)):
-                            if (!empty($premium_order)) :
+                        <?php if(!empty($courses) or !empty($blocked_courses) or (!empty($premium_order) and $page_submenu == 'active')):
+                            if (!empty($premium_order) and $page_submenu == 'active') :
                                 $course['order'] = $premium_order;
                                 $fl_premium_order = true;
                                 include('./app_fold/views/course/user_course/course_item.php');

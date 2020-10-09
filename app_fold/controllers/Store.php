@@ -1457,6 +1457,7 @@ class Store extends CI_Controller
      * Страница заказа для пользователя
      *
      * @param $order_id
+     * @throws Exception
      */
     public function userOrder($order_id)
     {
@@ -1464,6 +1465,9 @@ class Store extends CI_Controller
         if (empty($this->user_id)) {
             parent::pageNotFound($this->page_url);
         }
+
+        // Исходная страница
+        $return_url = '/order/'.$order_id;
 
         $after_payment = (!empty($this->input->get('return', true))) ? true : false;
 
@@ -1489,6 +1493,23 @@ class Store extends CI_Controller
             }
 
             header('Location: /order/'. $order_id);
+        }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
         }
 
         // Объединенные данные страница

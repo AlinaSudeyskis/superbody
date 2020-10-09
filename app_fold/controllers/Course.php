@@ -6895,6 +6895,23 @@ class Course extends CI_Controller
                     $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $i_promocode, $return_url, $order_id);
             }
         }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
+        }
 
         // Объединенные данные страница
         $this->page_data['title']        = 'Мои курсы';
@@ -6976,6 +6993,9 @@ class Course extends CI_Controller
          */
         $course_data = array();
         $result = true;
+
+        // Исходная страница
+        $return_url = '/profile/course/'.$course_id;
 
         // Данные курса пользователя
         $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id, $this->date);
@@ -7736,6 +7756,23 @@ class Course extends CI_Controller
 
             header('Location: /profile/course/' . $course_id);
         }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
+        }
 
         // Уведомления курсов
         if(!empty($course_notifs['notifications']))
@@ -7840,6 +7877,7 @@ class Course extends CI_Controller
      * Отзывы пользователя о курсе
      *
      * @param $user_course_id
+     * @throws Exception
      */
     public function userCourseReviews($user_course_id)
     {
@@ -7847,6 +7885,9 @@ class Course extends CI_Controller
         {
             parent::pageNotFound($this->page_url);
         }
+
+        // Исходная страница
+        $return_url = '/profile/course/'.$user_course_id.'/reviews';
 
         // Данные курса
         $course_data = $this->Course_model->getUserCourseSettings($user_course_id, $this->user_id);
@@ -7880,6 +7921,23 @@ class Course extends CI_Controller
 
             header('Location: /profile/course/' . $user_course_id . '/reviews');
         }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
+        }
 
         $result = array_merge($course_data, $reviews);
 
@@ -7900,6 +7958,7 @@ class Course extends CI_Controller
      *
      * @param $course_id
      * @param $review_id
+     * @throws Exception
      */
     public function userCourseReview($course_id, $review_id)
     {
@@ -7907,6 +7966,9 @@ class Course extends CI_Controller
         {
             parent::pageNotFound($this->page_url);
         }
+
+        // Исходная страница
+        $return_url = '/profile/course/'.$course_id.'/review/'.$review_id;
 
         $course_data = $this->Course_model->getUserCourseSettings($course_id, $this->user_id);
         $review      = $this->Course_model->getUserCourseReview($course_id, $this->user_id, $review_id);
@@ -7954,6 +8016,23 @@ class Course extends CI_Controller
                 header('Location: /profile/course/' . $course_id . '/review/' . $review_id);
             }
         }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
+        }
 
         // Объединенные данные страница
         $this->page_data['title'] = 'Мои курсы';
@@ -7970,6 +8049,7 @@ class Course extends CI_Controller
     /**
      * @param $user_course_id
      * @param $order_id
+     * @throws Exception
      */
     public function userCourseOrder($user_course_id, $order_id)
     {
@@ -7977,6 +8057,9 @@ class Course extends CI_Controller
         {
             parent::pageNotFound($this->page_url);
         }
+
+        // Исходная страница
+        $return_url = '/profile/course/'.$user_course_id.'/order/'.$order_id;
 
         $this->load->model('Store_model');
 
@@ -8001,6 +8084,23 @@ class Course extends CI_Controller
             }
 
             header('Location: /profile/course/' . $user_course_id . '/order/'. $order_id);
+        }
+        elseif ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
         }
 
         /*$course_data = array();
@@ -8361,6 +8461,7 @@ class Course extends CI_Controller
      * @param int $section_id
      * @param string $subsection_id
      * @param string $article_id
+     * @throws Exception
      */
     public function userMeals($section_id = 1, $subsection_id = '', $article_id = '')
     {
@@ -8375,6 +8476,27 @@ class Course extends CI_Controller
         $users_types   = array('user' => 1, 'coach' => 2, 'admin' => 3);
         $user_type     = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
         $this->load->model('Message_model');
+
+        // Исходная страница
+        $return_url = (!empty($subsection_id) and !empty($article_id)) ? '/profile/meals/'.$section_id.'/'.$subsection_id.'/'.$article_id : '/profile/meals';
+
+        if ($this->input->post('bt_pay_premium', true) and $this->input->post('cb_offer', true) and
+            (!empty($this->user_id) or (empty($this->user_id) and $this->input->post('cb_politics', true))))
+        {
+            $order_id  = (is_numeric($this->input->post('ord_id', true))) ? $this->input->post('ord_id', true) : null;
+
+            // Вариант оплаты (полный, разделить на месяцы)
+            $s_payment_options = 'partial_payment';
+            // Способ оплаты
+            $s_payment_method = 'bank_card';
+            // Данные для способа оплаты
+            $i_phone = $this->input->post('i_phone', true);
+            $i_login = $this->input->post('i_login', true);
+            $i_email = $this->input->post('email', true);
+            $i_name  = $this->input->post('name', true);
+
+            parent::buyPremium($s_payment_options, $s_payment_method, $i_phone, $i_login, $i_email, $i_name, $return_url, $order_id);
+        }
 
         //$user_bmr        = $this->User_model->getUserBMR($this->user_id);
         //$meals_last_week = $this->Course_model->getLastWeekMeals($this->user_id, $this->date);
