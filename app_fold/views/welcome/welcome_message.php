@@ -83,7 +83,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <h2 class="main_subh">Достигайте желаемых результатов с помощью программ тренировок и питания</h2>
     <div class="main_subh_text">Курсы разработаны профессионалами</div>
 
-    <?php if($site_info['spec_display'] == 1): ?>
+    <?php if(!empty($site_info['spec_display']) and $site_info['spec_display'] == 1): ?>
         <div class="new_kurs_row row">
             <div class="col-lg-9 col-md-8 col-sm-12 col-xs-12 new_kurs_wrap">
                 <h2 class="block_h">НОВЫЕ КУРСЫ</h2>

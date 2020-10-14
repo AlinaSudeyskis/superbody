@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 
-<?php if (empty($user_session) and $site_info['auth_display'] == 1): ?>
+<?php if (empty($user_session) and !empty($site_info['auth_display']) and $site_info['auth_display'] == 1): ?>
     <div class="reg_wrap kurs_page_reg_wrap">
         <div class="reg_row">
             <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">

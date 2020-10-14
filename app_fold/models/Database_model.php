@@ -4825,6 +4825,16 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-10-11 12:36';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` CHANGE `si_soc_pinteres` `si_soc_pinterest` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 

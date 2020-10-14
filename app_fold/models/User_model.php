@@ -16,6 +16,7 @@ class User_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getUser($user_id)
     {
@@ -48,6 +49,7 @@ class User_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getAvailableUser($user_id)
     {
@@ -1875,15 +1877,15 @@ class User_model extends CI_Model
         $result = array();
 
         $result['user_id']                 = (!empty($row->user_id)) ? $row->user_id : '';
-        $result['default_name']            = ($row->user_type == 3) ? 'Страница администратора' : 'Страница пользователя';
+        $result['default_name']            = (!empty($row->user_type) and $row->user_type == 3) ? 'Страница администратора' : 'Страница пользователя';
         $result['user_name']               = (!empty($row->user_name)) ? $row->user_name : '';
         $result['user_email']              = (!empty($row->user_email)) ? $row->user_email : '';
         $result['user_timezone']           = (!empty($row->user_timezone)) ? $row->user_timezone : '';
         $result['user_country_code']       = (!empty($row->user_country_code)) ? $row->user_country_code : '';
         $result['user_phone']              = (!empty($row->user_phone)) ? $row->user_phone : '';
         $result['user_password_hash']      = (!empty($row->user_password)) ? $row->user_password : '';
-        $result['user_blocked']            = ($row->user_blocked == 1) ? $row->user_blocked : 0;
-        $result['user_activated']          = ($row->user_activated == 1) ? $row->user_activated : 0;
+        $result['user_blocked']            = (!empty($row->user_blocked) and $row->user_blocked == 1) ? $row->user_blocked : 0;
+        $result['user_activated']          = (!empty($row->user_activated) and $row->user_activated == 1) ? $row->user_activated : 0;
         $result['user_activate_code']      = (!empty($row->user_activate_code)) ? $row->user_activate_code : '';
         $result['user_type']               = (!empty($row->user_type)) ? $row->user_type : '';
         $result['user_advertising']        = (!empty($row->user_advertising_type)) ? $row->user_advertising_type : '';
@@ -1912,7 +1914,7 @@ class User_model extends CI_Model
         $result['split_name']['name']    = !empty($split_name[0]) ? $split_name[0] : 'Пользователь';
         $result['split_name']['surname'] = !empty($split_name[1]) ? $split_name[1] : '';
 
-        if($row->user_delete_date != '0000-00-00')
+        if(!empty($row->user_delete_date) and $row->user_delete_date != '0000-00-00')
         {
             setlocale(LC_ALL, 'ru_RU.UTF-8');
             $tmp_dd = DateTime::createFromFormat('Y-m-d', $row->user_delete_date);

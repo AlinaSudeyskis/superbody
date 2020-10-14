@@ -497,9 +497,9 @@ class CI_Controller {
         // Проверка кода страны пользователя
         if(empty($this->session->country_code) or empty($this->session->user_timezone))
         {
-            $client        = $_SERVER['HTTP_CLIENT_IP'];
-            $forward       = $_SERVER['HTTP_X_FORWARDED_FOR'];
-            $remote        = $_SERVER['REMOTE_ADDR'];
+            $client        = (!empty($_SERVER['HTTP_CLIENT_IP'])) ? $_SERVER['HTTP_CLIENT_IP'] : null;
+            $forward       = (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : null;
+            $remote        = (!empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : null;
 
             if(filter_var($client, FILTER_VALIDATE_IP)) $ip = $client;
             elseif(filter_var($forward, FILTER_VALIDATE_IP)) $ip = $forward;
@@ -575,7 +575,7 @@ class CI_Controller {
             "user_session" => (!empty($this->session->user)) ? $this->session->user : '',
             "new_messages" => (!empty($this->session->new_messages)) ? $this->session->new_messages : 0,
             "new_fb_messages" => (!empty($this->session->new_fb_messages)) ? $this->session->new_fb_messages : 0,
-            "user_subscribed" => ($this->session->user['subscribed'] === true) ? true : false,
+            "user_subscribed" => (!empty($this->session->user['subscribed']) and $this->session->user['subscribed'] === true) ? true : false,
             "cart_count" => (!empty($this->session->cart['count'])) ? $this->session->cart['count'] : 0,
             "message" => $this->page_message,
             "message_type" => $this->page_message_type,

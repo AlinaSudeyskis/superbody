@@ -111,9 +111,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 </div><!-- pop-up_user_meal -->
 
 <div id="pop-up_premium">
-    <?php echo $site_info['advertising_popup']; ?>
+    <?php if(!empty($site_info['advertising_popup'])): echo $site_info['advertising_popup']; endif; ?>
     <form action="" method="post" class="anketa_form video_admin_form premium_form">
-        <div class="anketa_form_buts_wrap parent" style="width: 160px; text-align: center;"><?php echo $site_info['advertising_month_price'] ?> руб. в месяц</div>
+        <div class="anketa_form_buts_wrap parent" style="width: 160px; text-align: center;"><?php if(!empty($site_info['advertising_month_price'])): echo $site_info['advertising_month_price']; ?> руб. в месяц <?php endif; ?></div>
         <div class="parent kurs_cur_wrap">
             <div class="sing-in_h tren_form_block_check_wrap">
                 <input type="checkbox" name="cb_offer" class="tren_form_block_check" id="cb-politics-3" required="required" checked="checked">
