@@ -85,6 +85,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php endif;?>
 </head>
 <body>
+<?php if (!empty($site_info['advertising_mobile']) and !empty($user_session) and $user_session['advertising'] == 1 and $user_session['type'] == 3):
+    echo $site_info['advertising_mobile'];
+endif; ?>
+
 <?php include_once('./app_fold/views/header/reporting_services.php'); ?>
 
 <?php include_once('./app_fold/views/header/block_message.php'); ?>
