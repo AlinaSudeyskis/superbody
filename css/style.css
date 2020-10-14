@@ -112,7 +112,7 @@ audio, canvas, progress, video{
     position: relative;
     overflow: hidden;
     background: #000000;
-    height: 350px;
+    /*height: 350px;*/
 }
 .sing-in{
     width: 620px;
@@ -13447,6 +13447,9 @@ input.tren_form_block_check{
         width: 60px;
         float: left;
         overflow: hidden;
+    }
+    .advertising{
+        display: none;
     }
     .content_col{
         float: none;
