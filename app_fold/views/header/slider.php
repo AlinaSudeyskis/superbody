@@ -5,6 +5,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php foreach($site_info['banners'] as $si_banner): ?>
         <?php if($si_banner['id'] == 1 and !empty($si_banner['advertising']) and !empty($user_session) and $user_session['type'] == 3): ?>
             <?php echo $si_banner['advertising'];
+            $advertising_banner = true;
             break; ?>
         <?php else:
             if (!empty($si_banner['url'])):?>
