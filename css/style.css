@@ -16537,6 +16537,10 @@ input.tren_form_block_check{
     .tc_item{
         width: 50%;
     }
+
+    .advertising.mobile{
+        display: block;
+    }
 }
 
 @media (max-width: 600px){
