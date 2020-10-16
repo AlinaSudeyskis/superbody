@@ -79,7 +79,7 @@ if (!empty($user_session)) :
         <!--<li><a href="#"><span><img src="/img/menu_ico11.png" alt=""></span><span>FitCoin</span></a></li>-->
     </ul>
     <div class="advertising">
-        <?php if (!empty($site_info['advertising_vertical']) and !empty($user_session) and $user_session['advertising'] == 1 and $user_session['type'] == 3):
+        <?php if (!empty($site_info['advertising_vertical']) and empty($site_info['advertising_vertical_hide']) and !empty($user_session) and $user_session['advertising'] == 1 and $user_session['type'] == 3):
             echo $site_info['advertising_vertical'];
         endif; ?>
     </div>

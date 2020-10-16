@@ -9,15 +9,36 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="video_admin_form site_info">
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell">Мобильная:</div></div>
+            <div class="anketa_form_h">
+                <div class="anketa_form_h_cell">Мобильная:</div>
+                <div class="anketa_form_info_cont soc_block_check_wrap" style="float: none;">
+                    <input type="checkbox" name="cb_hide_mobile" id="cb-hide-mobile" class="tren_form_block_check"
+                           <?php if(!empty($advertising_mobile_hide) and $advertising_mobile_hide == 1): ?>checked="checked"<?php endif;?>>
+                    <label for="cb-hide-mobile">Отключить</label>
+                </div>
+            </div>
             <textarea name="ta_advertising_mobile" class="journal_form_textarea admin_form_txt_middle"><?php if (!empty($advertising_mobile)) { echo $advertising_mobile; }?></textarea>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell">Вертикальная:</div></div>
+            <div class="anketa_form_h">
+                <div class="anketa_form_h_cell">Вертикальная:</div>
+                <div class="anketa_form_info_cont soc_block_check_wrap" style="float: none;">
+                    <input type="checkbox" name="cb_hide_vertical" id="cb-hide-vertical" class="tren_form_block_check"
+                           <?php if(!empty($advertising_vertical_hide) and $advertising_vertical_hide == 1): ?>checked="checked"<?php endif;?>>
+                    <label for="cb-hide-vertical">Отключить</label>
+                </div>
+            </div>
             <textarea name="ta_advertising_vertical" class="journal_form_textarea admin_form_txt_middle"><?php if (!empty($advertising_vertical)) { echo $advertising_vertical; }?></textarea>
         </div>
         <div class="anketa_form_line parent">
-            <div class="anketa_form_h"><div class="anketa_form_h_cell">Горизонтальная:</div></div>
+            <div class="anketa_form_h">
+                <div class="anketa_form_h_cell">Горизонтальная:</div>
+                <div class="anketa_form_info_cont soc_block_check_wrap" style="float: none;">
+                    <input type="checkbox" name="cb_hide_horizontal" id="cb-hide-horizontal" class="tren_form_block_check"
+                           <?php if(!empty($advertising_horizontal_hide) and $advertising_horizontal_hide == 1): ?>checked="checked"<?php endif;?>>
+                    <label for="cb-hide-horizontal">Отключить</label>
+                </div>
+            </div>
             <textarea name="ta_advertising_horizontal" class="journal_form_textarea admin_form_txt_middle"><?php if (!empty($advertising_horizontal)) { echo $advertising_horizontal; }?></textarea>
         </div>
         <div class="anketa_form_line parent">

@@ -516,18 +516,22 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_info = $this->db->query('
-            SELECT `si_id`, `si_advertising_mobile`, `si_advertising_vertical`, `si_advertising_horizontal`, `si_advertising_popup`, `si_advertising_month_price`
+            SELECT `si_id`, `si_advertising_mobile`, `si_advertising_mobile_hide`, `si_advertising_vertical`, `si_advertising_vertical_hide`, 
+                   `si_advertising_horizontal`, `si_advertising_horizontal_hide`, `si_advertising_popup`, `si_advertising_month_price`
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
         {
             $row = $sel_info->row();
 
-            $result['advertising_mobile']     = $row->si_advertising_mobile;
-            $result['advertising_vertical']   = $row->si_advertising_vertical;
-            $result['advertising_horizontal'] = $row->si_advertising_horizontal;
-            $result['advertising_popup']      = $row->si_advertising_popup;
-            $result['advertising_month_price'] = $row->si_advertising_month_price;
+            $result['advertising_mobile']          = $row->si_advertising_mobile;
+            $result['advertising_mobile_hide']     = $row->si_advertising_mobile_hide;
+            $result['advertising_vertical']        = $row->si_advertising_vertical;
+            $result['advertising_vertical_hide']   = $row->si_advertising_vertical_hide;
+            $result['advertising_horizontal']      = $row->si_advertising_horizontal;
+            $result['advertising_horizontal_hide'] = $row->si_advertising_horizontal_hide;
+            $result['advertising_popup']           = $row->si_advertising_popup;
+            $result['advertising_month_price']     = $row->si_advertising_month_price;
         }
         elseif ($sel_info === false)
         {
@@ -983,22 +987,26 @@ class Administrator_model extends CI_Model
      * Сохранение кода рекламы
      *
      * @param $mobile
+     * @param $mobile_hide
      * @param $vertical
+     * @param $vertical_hide
      * @param $horizontal
+     * @param $horizontal_hide
      * @param $popup
      * @param $month_price
      * @param $date
      * @param $admin_id
      * @return bool
      */
-    public function setSiteAdvertisingData($mobile, $vertical, $horizontal, $popup, $month_price, $date, $admin_id)
+    public function setSiteAdvertisingData($mobile, $mobile_hide, $vertical, $vertical_hide, $horizontal, $horizontal_hide, $popup, $month_price, $date, $admin_id)
     {
         $result = false;
 
         $up_data = $this->db->query('
-            UPDATE `site_info` SET `si_advertising_mobile`=?, `si_advertising_vertical`=?, `si_advertising_horizontal`=?, 
+            UPDATE `site_info` SET `si_advertising_mobile`=?, `si_advertising_mobile_hide`=?, `si_advertising_vertical`=?, 
+                                   `si_advertising_vertical_hide`=?, `si_advertising_horizontal`=?, `si_advertising_horizontal_hide`=?, 
                                    `si_advertising_popup`=?, `si_advertising_month_price`=?, `si_date`=?, `si_user_id`=?
-            WHERE `si_id`=? LIMIT 1', array($mobile, $vertical, $horizontal, $popup, $month_price, $date, $admin_id, 1));
+            WHERE `si_id`=? LIMIT 1', array($mobile, $mobile_hide, $vertical, $vertical_hide, $horizontal, $horizontal_hide, $popup, $month_price, $date, $admin_id, 1));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {

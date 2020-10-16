@@ -152,6 +152,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 <?php endif; ?>
 
+<?php if (!empty($site_info['advertising_mobile']) and empty($site_info['advertising_mobile_hide']) and !empty($user_session) and $user_session['advertising'] == 1 and $user_session['type'] == 3):?>
+    <div class="advertising mobile"><?php echo $site_info['advertising_mobile']; ?></div>
+<?php endif; ?>
+
 <script src="/js/lightbox.js"></script>
 <script src="/js/vimeo_player.js"></script>
 <?php include_once('./app_fold/views/footer/jivo_script.php'); ?>

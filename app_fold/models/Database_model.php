@@ -4835,6 +4835,18 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-10-16 16:07';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_mobile_hide` TINYINT(1) UNSIGNED NOT NULL AFTER `si_advertising_mobile`");
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_horizontal_hide` TINYINT(1) UNSIGNED NOT NULL AFTER `si_advertising_horizontal`");
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_vertical_hide` TINYINT(1) UNSIGNED NOT NULL AFTER `si_advertising_vertical`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
