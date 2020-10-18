@@ -1988,6 +1988,7 @@ $(document).ready(function() {
                             else if(data.woid.length > 1)
                             {
                                 var pop_up_video = $('#pop-up_video');
+                                pop_up_video.addClass('today_courses');
                                 pop_up_video.html(data.crss);
                                 pop_up_home(pop_up_video);
 

@@ -2531,6 +2531,8 @@ tr:first-child > td > .fc-day-grid-event{
     /*height: auto;*/
     /*min-height: 330px;*/
     max-height: 90%;
+}
+#pop-up_video.today_courses{
     overflow-y: auto;
 }
 #confirm_hide_course{
