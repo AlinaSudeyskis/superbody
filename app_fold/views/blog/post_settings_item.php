@@ -39,6 +39,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         force_p_newlines : false,
         forced_root_block : 'div',
         invalid_elements : 'br',
-        fix_list_elements : true
+        fix_list_elements : true,
+        contextmenu_never_use_native: true,
+        contextmenu: "copy cut paste"
     });
 </script>

@@ -7,7 +7,9 @@ $(document).ready(function(){
         language_url : '/js/tinymce/langs/ru.js',
         plugins: "bbcode",
         toolbar: "undo redo | bold italic | forecolor",
-        max_chars_indicator: "pageLength"
+        max_chars_indicator: "pageLength",
+        contextmenu_never_use_native: true,
+        contextmenu: "copy cut paste"
     });
     if($('.kurs_block_val').length > 0 && $('.content_block_container').length > 0)
     {

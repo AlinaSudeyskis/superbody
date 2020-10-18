@@ -9,7 +9,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         language_url : '/js/tinymce/langs/ru.js',
         plugins: "image link imagetools",
         toolbar: "undo redo | styleselect | fontselect fontsizeselect | bold italic | alignleft aligncenter alignright alignjustify | outdent indent | link image | forecolor",
-        fontsize_formats: "8px 10px 12px 14px 18px 24px 36px 42px 50px"
+        fontsize_formats: "8px 10px 12px 14px 18px 24px 36px 42px 50px",
+        contextmenu_never_use_native: true,
+        contextmenu: "copy cut paste"
     });
 </script>
 <div id="content" class="container">
