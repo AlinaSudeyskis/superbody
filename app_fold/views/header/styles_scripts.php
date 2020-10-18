@@ -1,6 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-$css_version = 11.9;
+$css_version = 12.0;
 $js_version = 8.8;
 ?>
 

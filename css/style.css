@@ -1053,12 +1053,15 @@ span.cont_ref  {
     -webkit-align-items: flex-start;
     align-content: space-around;
     -webkit-align-content: space-around;
+    flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
 }
 
 .tc_item {
     flex: 1 1 auto;
     -webkit-flex: 1 1 auto;
-    max-width: 300px;
+    max-width: 270px;
     margin: 0 10px;
     cursor: pointer;
 }
@@ -2528,7 +2531,7 @@ tr:first-child > td > .fc-day-grid-event{
     /*height: auto;*/
     /*min-height: 330px;*/
     max-height: 90%;
-    overflow: scroll;
+    overflow-y: auto;
 }
 #confirm_hide_course{
     text-align: center;
