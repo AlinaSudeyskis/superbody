@@ -14,7 +14,13 @@ include_once('./app_fold/views/breadcrumb.php');
                 else:
                     include_once('./app_fold/views/user/user_menu.php');
                 endif;
-            endif;?>
+            else: ?>
+                <div class="advertising">
+                    <?php if (!empty($site_info['advertising_vertical']) and empty($site_info['advertising_vertical_hide'])):
+                        echo $site_info['advertising_vertical'];
+                    endif; ?>
+                </div>
+            <?php endif;?>
         </div><!-- left_sidebar -->
         <div class="col-lg-10 content_col">
             <div class="content_block">
