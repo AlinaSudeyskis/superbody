@@ -105,6 +105,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 var pop_up_video = $("#pop-up_video"),
                                     pop_up_desc = pop_up_video.find('#wo-description'),
                                     viewed = false;
+                                pop_up_video.removeClass('today_courses');
                                 if(pop_up_video.is(':empty')
                                     || (pop_up_video.find('#vimeo-player-0').length === 0 && pop_up_video.find('#myvid').length === 0)
                                     || (pop_up_video.find('#vimeo-player-0').length === 1 && (pop_up_video.find('#vimeo-player-0').data('vimeo-url') !== data.source || pop_up_desc.html() !== data.description))
@@ -432,6 +433,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             if (!data.error) {
                                 var pop_up_video = $("#pop-up_video"),
                                     pop_up_desc = pop_up_video.find('#wo-description').html();
+                                pop_up_video.removeClass('today_courses');
                                 if(pop_up_video.is(':empty')
                                     || (pop_up_video.find('#vimeo-player-1').length === 0 && pop_up_video.find('#ivid').length === 0)
                                     || (pop_up_video.find('#vimeo-player-1').length === 1 && (pop_up_video.find('#vimeo-player-1').data('vimeo-url') !== data.source || pop_up_desc !== data.description))

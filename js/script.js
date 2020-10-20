@@ -2185,6 +2185,7 @@ $(document).ready(function () {
             $('body').append('<div id="pop-up_video"></div>');
             pop_up_video = $("#pop-up_video");
         }
+        pop_up_video.removeClass('today_courses');
         pop_up_video.html('<div class="lp_desc_wrap"><div class="lp_desc_text">' + $(this).data('desc') + '</div></div>' + '<div class="purchase_pop-up_close"></div>');
         pop_up_home(pop_up_video);
     });
