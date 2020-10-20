@@ -3,7 +3,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <?php if($landing['hide'] === false):
     $bl1_bg_color = (!empty($landing['bg_color'])) ? 'background: ' . $landing['bg_color'] . ';' : '';?>
+    <div class="header_bg_wrap in_bg_wrap">
+        <div class="header_bg">
+            <?php include_once('./app_fold/views/header/slider.php'); ?>
+        </div>
+        <?php include_once('./app_fold/views/header/banner_js.php');?>
+    </div>
     <div class="lp_header_wrap" style="<?php echo $bl1_bg_color; ?>">
+        <div class="lp_top_head_wrap">
+            <div class="lp_top_head container">
+                <a href="/" class="lp_top_head_logo"><img src="/img/logo.png" alt=""></a>
+            </div>
+        </div>
         <div class="lp_header_bg">
             <?php if (!empty($landing['slider_images'])) :
                 $img_opacity = ($landing['slider_opacity'] > 0) ? 'opacity: '.$landing['slider_opacity'] : '';
@@ -23,11 +34,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 arrows: false
             });
         </script>
-        <div class="lp_top_head_wrap">
-            <div class="lp_top_head container">
-                <a href="/" class="lp_top_head_logo"><img src="/img/logo.png" alt=""></a>
-            </div>
-        </div>
         <div class="lp_header_cont">
             <div class="lp_header container">
                 <h1 class="lp_h1"><?php echo $landing['main_title']; ?></h1>

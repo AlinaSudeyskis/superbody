@@ -10404,6 +10404,9 @@ textarea.anketa_form_in{
     border-bottom: 1px solid rgba(255,255,255,.5);
     z-index: 1;
 }
+.dark_lp .lp_top_head_wrap{
+    position: relative;
+}
 .lp_top_head{
     padding-top: 8px;
 }
@@ -10457,7 +10460,7 @@ textarea.anketa_form_in{
     left: 0;
     bottom: 0;
 }
-.lp_header_wrap .slick-dots{
+.lp_page .slick-dots{
     margin: -54px 0 0;
     padding: 0 0 54px;
     height: 28px;
@@ -10466,7 +10469,7 @@ textarea.anketa_form_in{
     z-index: 100;
     line-height: 14px;
 }
-.lp_header_wrap .slick-dots li{
+.lp_page .slick-dots li{
     list-style: none;
     display: inline-block;
     width: 14px;
@@ -10474,7 +10477,7 @@ textarea.anketa_form_in{
     overflow: hidden;
     margin: 0 5px;
 }
-.lp_header_wrap .slick-dots li button{
+.lp_page .slick-dots li button{
     display: block;
     border: none;
     width: 14px;
@@ -10485,7 +10488,7 @@ textarea.anketa_form_in{
     background: #fff;
     border-radius: 50%;
 }
-.lp_header_wrap .slick-dots .slick-active button{
+.lp_page .slick-dots .slick-active button{
     background: #00bff0;
 }
 .lp_block1_wrap{
@@ -11133,7 +11136,7 @@ textarea.anketa_form_in{
     padding: 0 16px;
     text-transform: uppercase;
     text-align: center;
-    top: 30%; /*38*/
+    top: 55%; /*30*/
 }
 .dark_lp .lp_h1 span{
     color: #ff5b51;
@@ -11142,7 +11145,7 @@ textarea.anketa_form_in{
 .dark_lp .lp_header_bg img{
     opacity: 1;
 }
-.dark_lp .lp_header_wrap .slick-dots .slick-active button{
+.dark_lp.lp_page .slick-dots .slick-active button{
     background: #ff5b51;
 }
 .dark_lp .lp_block1_wrap{
@@ -14610,11 +14613,11 @@ input.tren_form_block_check{
     }
 
     .main_bg_wrap.mob_hide{
-        height: 200px;
-        display: none;
+        /*height: 200px;*/
+        /*display: none;*/
     }
     .header_bg_main{
-        display: none;
+        /*display: none;*/
     }
     .menu a.menu_login{
         display: block;

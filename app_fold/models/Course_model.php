@@ -3716,7 +3716,8 @@ class Course_model extends CI_Model
                 if ($row->ctw_repeat_workout > 0)
                 {
                     $video_id       = $result['workouts'][$row->ctw_repeat_workout]['video_id'];
-                    $video_name     = $result['workouts'][$row->ctw_repeat_workout]['video_name'];
+                    $video_name     = (!empty($result['workouts'][$row->ctw_repeat_workout]['video_name']))
+                        ? $result['workouts'][$row->ctw_repeat_workout]['video_name'] : 'Тренировка №'.$num_workout;
                     $video_poster   = $result['workouts'][$row->ctw_repeat_workout]['video_poster'];
                     $video_path     = $result['workouts'][$row->ctw_repeat_workout]['video_path'];
                     $remote_type    = $result['workouts'][$row->ctw_repeat_workout]['remote_type'];
@@ -3725,7 +3726,7 @@ class Course_model extends CI_Model
                 else
                 {
                     $video_id       = $row->ctw_video_id;
-                    $video_name     = $row->video_name;
+                    $video_name     = (!empty($row->video_name)) ? $row->video_name : 'Тренировка №'.$num_workout;
                     $video_poster   = is_file($row->video_poster) ? mb_substr($row->video_poster, 1) : '';
                     $video_path     = is_file($row->video_path) ? mb_substr($row->video_path, 1) : '';
                     $remote_type    = $row->video_remote_type;
