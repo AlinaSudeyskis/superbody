@@ -1137,7 +1137,7 @@ class Course extends CI_Controller
             // Удаление тренировок
             $schedule['delete'] = !empty($course_schedule['num_workout']) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
 
-            if (!empty($name) and !empty($description) and !empty($price))
+            if (!empty($name) and !empty($description))
             {
                 $course_category = 'workout';
 
@@ -1188,7 +1188,7 @@ class Course extends CI_Controller
                 header('Location: /administration/course/'.$course_id);
             }
             else {
-                // Курс не сохранены
+                // Курс не сохранен
                 $this->session->set_tempdata('message', 30, 60);
                 header('Location: /administration/course/new');
             }
