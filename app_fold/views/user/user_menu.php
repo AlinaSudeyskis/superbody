@@ -18,6 +18,16 @@ if (!empty($user_session)) :
         </li>
         <?php $user_blocked = ($user_session['blocked'] == 1) ? 'class="disabled"' : '';?>
         <li>
+            <a href="/profile/<?php echo $user_session['id'];?>" class="scroll_to" data-id="calendar" <?php echo $user_blocked; ?> >
+                <span><i class="far fa-calendar-alt"></i></span><span>Мои тренировки</span>
+            </a>
+        </li>
+        <li>
+            <a href="/profile/meals" <?php if ($page_menu == 'u_meals') { echo 'class="active"'; } ?> <?php echo $user_blocked; ?>>
+                <span><i class="fas fa-apple-alt"></i></span><span>Моё питание</span>
+            </a>
+        </li>
+        <li>
             <a href="/questionnaire" <?php if ($page_menu == 'questionnaire') { echo 'class="active"'; } ?> <?php echo $user_blocked; ?> >
                 <span><i class="fas fa-clipboard-list"></i></span><span>Анкета</span>
             </a>
@@ -25,16 +35,6 @@ if (!empty($user_session)) :
         <li>
             <a href="/profile/courses" <?php if ($page_menu == 'u_courses') { echo 'class="active"'; } ?> <?php echo $user_blocked; ?> >
                 <span><img src="/img/menu_ico6.png" alt=""></span><span>Мои курсы</span>
-            </a>
-        </li>
-        <li>
-            <a href="/profile/meals" <?php if ($page_menu == 'u_meals') { echo 'class="active"'; } ?> <?php echo $user_blocked; ?>>
-                <span><i class="fas fa-apple-alt"></i></span><span>Питание</span>
-            </a>
-        </li>
-        <li>
-            <a href="/profile/<?php echo $user_session['id'];?>" class="scroll_to" data-id="calendar" <?php echo $user_blocked; ?> >
-                <span><i class="far fa-calendar-alt"></i></span><span>Календарь</span>
             </a>
         </li>
         <li>
