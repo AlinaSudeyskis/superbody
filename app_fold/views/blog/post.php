@@ -7,16 +7,7 @@ $breadcrumbs = array('/blog' => 'Блог', '/blog/post' => $post_title);
 include_once('./app_fold/views/breadcrumb.php');?>
 <div id="content" class="container">
     <div class="row">
-        <div class="col-lg-2 left_sidebar">
-            <?php if (!empty($user_session)):
-                if ($user_session['type'] == 2):
-                    include_once('./app_fold/views/coach/coach_menu.php');
-                else:
-                    include_once('./app_fold/views/user/user_menu.php');
-                endif;
-            endif;?>
-        </div><!-- left_sidebar -->
-        <div class="col-lg-10 content_col">
+        <div class="content_col">
             <div class="content_block new_content_block">
                 <div class="content_block_h parent">
                     <h3>Блог тренера</h3>
@@ -31,11 +22,75 @@ include_once('./app_fold/views/breadcrumb.php');?>
                             <div class="parent">
                                 <div class="comment_page_cont">
                                     <div class="comment_page_cont_h"><?php echo $post['title'];?></div>
+                                    <?php if(!empty($post['video'])): ?>
+                                        <?php if($post['video_type'] == 'vimeo'): ?>
+                                            <?php $remote_url = $post['video'];
+                                            $key = 0;
+                                            include('./app_fold/views/video/player/vimeo_player_item.php');?>
+                                        <?php elseif($post['video_type'] == 'youtube') : ?>
+                                            <?php $remote_url = $post['video'];
+                                            $key = 0;
+                                            include('./app_fold/views/video/player/youtube_player_item.php');?>
+                                        <?php endif;?>
+                                    <?php endif; ?>
                                     <div class="comment_page_cont_txt"><?php echo $post['text'];?></div>
                                     <div class="comment_page_cont_link"><a href="/profile/<?php echo $post['user']['id'];?>"><?php echo $post['user']['name'];?></a></div>
 
                                 </div>
                             </div>
+                            <?php if($post['attached_courses']):?>
+                                <h2 class="block_h">Рекомендуемые курсы:</h2>
+                                <div class="kurs_page_row row">
+                                    <?php foreach($post['attached_courses'] as $course):
+                                        include('./app_fold/views/course/course_item.php');
+                                    endforeach;
+                                    unset($course);?>
+                                </div>
+
+                                <script>
+                                    $('.kurs_page_block_slider').slick({
+                                        dots: false,
+                                        infinite: true,
+                                        autoplaySpeed: 5000,
+                                        speed: 500,
+                                        autoplay: true,
+                                        arrows: false,
+                                        pauseOnFocus: false
+                                    });
+                                    $('.kurs_page_row_slider').slick({
+                                        dots: false,
+                                        infinite: true,
+                                        speed: 500,
+                                        autoplay: false,
+                                        arrows: true,
+                                        slidesToShow: 3,
+                                        slidesToScroll: 1,
+                                        responsive: [
+                                            {
+                                                breakpoint: 1420,
+                                                settings: {
+                                                    slidesToShow: 2,
+                                                    slidesToScroll: 1
+                                                }
+                                            },
+                                            {
+                                                breakpoint: 1140,
+                                                settings: {
+                                                    slidesToShow: 2,
+                                                    slidesToScroll: 1
+                                                }
+                                            },
+                                            {
+                                                breakpoint: 650,
+                                                settings: {
+                                                    slidesToShow: 1,
+                                                    slidesToScroll: 1
+                                                }
+                                            }
+                                        ]
+                                    });
+                                </script>
+                            <?php endif;?>
                             <?php if (!empty($post['comments'])) :?>
                                 <div class="full_photo_block_comm_wrap">
                                     <?php foreach ($post['comments'] as $comment) :

@@ -36,7 +36,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </div>
                             </div>
                         <?php else:?>
-                            <form action="" method="post">
+                            <form action="" method="post" enctype="multipart/form-data">
                                 <div class="admin_form_buts_wrap_container">
                                     <div class="admin_form_buts_wrap parent">
                                         <input type="submit" name="bt_save_post" class="admin_form_submit defaultActionButton" value="Сохранить">
@@ -73,7 +73,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     <input type="text" name="mail" class="comment_page_form_in" placeholder="E-mail">-->
                                     <textarea name="post_comment" placeholder="Оставить комментарий" class="full_photo_comm_in"></textarea>
                                     <div class="full_photo_comm_but_wrap parent">
-                                        <input type="submit" name="bt_send_comment" value="Добавить" class="full_photo_comm_but">
+                                        <input type="submit" name="bt_send_comment" value="Добавить комментарий" class="full_photo_comm_but">
                                     </div>
                                 </form>
                             </div>

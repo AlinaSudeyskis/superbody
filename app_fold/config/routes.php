@@ -138,8 +138,10 @@ $route['posts']       = 'Blog/getCoachPosts';
 $route['post/new']    = 'Blog/newCoachPost';
 $route['post/(:num)'] = 'Blog/getCoachPost/$1';
 // Записи блога
-$route['blog']        = 'Blog/getPublicPosts';
-$route['blog/(:num)'] = 'Blog/getPublicPost/$1';
+$route['blog']             = 'Blog/getPublicPosts';
+$route['blog/(:num)']      = 'Blog/getPublicCategoryPosts/$1';
+$route['blog/post/(:num)'] = 'Blog/getPublicPost/$1';
+$route['sortPosts']        = 'Blog/getSortPosts';
 // Сообщения
 $route['messages']        = 'Message/userConversation';
 $route['messages/(:num)'] = 'Message/userConversation/$1';
@@ -268,10 +270,13 @@ $route['administration/ingestion/new']    = 'Course/newIngestion';
 $route['administration/ingestion/(:num)'] = 'Course/ingestion/$1';
 
 // Записи блога
-$route['administration/blog/posts']          = 'Blog/blogPosts';
-$route['administration/blog/post/(:num)']    = 'Blog/blogPost/$1';
-$route['administration/blog/comments']       = 'Blog/blogComments';
-$route['administration/blog/comment/(:num)'] = 'Blog/blogComment/$1';
+$route['administration/blog/posts']           = 'Blog/blogPosts';
+$route['administration/blog/post/(:num)']     = 'Blog/blogPost/$1';
+$route['administration/blog/comments']        = 'Blog/blogComments';
+$route['administration/blog/comment/(:num)']  = 'Blog/blogComment/$1';
+$route['administration/blog/categories']      = 'Blog/blogCategories';
+$route['administration/blog/category/(:num)'] = 'Blog/blogCategory/$1';
+$route['administration/blog/category/new']    = 'Blog/newBlogCategory';
 $route['upload_post_images'] = 'Blog/postUploadImage';
 // Сообщения
 $route['administration/messages']        = 'Message/messages';

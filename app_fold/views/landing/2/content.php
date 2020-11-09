@@ -2,12 +2,6 @@
 defined('BASEPATH') OR exit('No direct script access allowed'); ?>
 <?php if($landing['hide'] === false):
     $bl1_bg_color = (!empty($landing['bg_color'])) ? 'background: ' . $landing['bg_color'] . ';' : '';?>
-    <div class="header_bg_wrap in_bg_wrap">
-        <div class="header_bg">
-            <?php include_once('./app_fold/views/header/slider.php'); ?>
-        </div>
-        <?php include_once('./app_fold/views/header/banner_js.php');?>
-    </div>
     <div class="lp_header_wrap" style="<?php echo $bl1_bg_color; ?>">
         <div class="lp_top_head_wrap">
             <div class="lp_top_head container">
@@ -97,6 +91,13 @@ defined('BASEPATH') OR exit('No direct script access allowed'); ?>
         </div>
     </div><!-- lp_block1_wrap -->
 <?php endif; ?>
+
+<div class="header_bg_wrap in_bg_wrap">
+    <div class="header_bg">
+        <?php include_once('./app_fold/views/header/slider.php'); ?>
+    </div>
+    <?php include_once('./app_fold/views/header/banner_js.php');?>
+</div>
 
 <?php if($landing['block3']['hide'] === false):
     $bl3_bg_color = (!empty($landing['block3']['bg_color'])) ? 'background: ' . $landing['block3']['bg_color'] . ';' : '';

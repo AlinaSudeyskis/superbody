@@ -18,7 +18,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <?php if(!empty($post)): ?>
-                        <form action="" method="post">
+                        <form action="" method="post" enctype="multipart/form-data">
                             <div class="admin_form_buts_wrap_container">
                                 <div class="admin_form_buts_wrap parent">
                                     <?php if ($post['approval'] == 0) :?>

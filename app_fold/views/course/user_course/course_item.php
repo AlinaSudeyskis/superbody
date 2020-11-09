@@ -128,9 +128,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <?php if(($course['category'] == 'workout' or $course['category'] == 'nutrition') and $page_submenu != 'finished'): ?>
                                 <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>">
                                     <?php if($course['display'] == 0): ?>
-                                        Добавить в календарь
+                                        Добавить в расписание
                                     <?php else: ?>
-                                        Удалить из календаря
+                                        Удалить из расписания
                                     <?php endif; ?>
                                 </a>
                             <?php endif;?>

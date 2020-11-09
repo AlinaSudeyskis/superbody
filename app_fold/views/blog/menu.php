@@ -12,4 +12,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'blog_comments'): ?> class="anketa_active" <?php endif; ?>>Комментарии</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/blog/categories">
+            <span <?php if ($page_submenu == 'blog_categories'): ?> class="anketa_active" <?php endif; ?>>Категории</span>
+        </a>
+    </li>
 </ul>

@@ -122,32 +122,29 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="parent kurs_cur_wrap">
             <div class="kurs_block_h">Отдых:</div>
             <select name="s_count_rest" id="count_rest" class="journal_form_select">
-                <?php if (!empty($course['count_rest']) and 0 <= $course['count_rest']) :?>
-                    <option value="">Минимальный отдых между тренировками</option>
-                    <option value="0" <?php if (0 == $course['count_rest']) :?>selected="selected"<?php endif;?>>
-                        Без отдыха (по умолчанию)</option>
-                    <option value="1" <?php if (1 == $course['count_rest']) :?>selected="selected"<?php endif;?>>
-                        Один день</option>
-                    <option value="2" <?php if (2 == $course['count_rest']) :?>selected="selected"<?php endif;?>>
-                        Два дня</option>
-                    <option value="3" <?php if (3 == $course['count_rest']) :?>selected="selected"<?php endif;?>>
-                        Три дня</option>
-                <?php else:?>
-                    <option value="" selected="selected">Минимальный отдых между тренировками</option>
-                    <option value="0">Без отдыха (по умолчанию)</option>
-                    <option value="1">Один день</option>
-                    <option value="2">Два дня</option>
-                    <option value="3">Три дня</option>
-                <?php endif;?>
+                <option value="">Минимальный отдых между тренировками</option>
+                <option value="0" <?php if (!empty($course['count_rest']) and 0 == $course['count_rest']) :?>selected="selected"<?php endif;?>>Без отдыха (по умолчанию)</option>
+                <option value="1" <?php if (!empty($course['count_rest']) and 1 == $course['count_rest']) :?>selected="selected"<?php endif;?>>Один день</option>
+                <option value="2" <?php if (!empty($course['count_rest']) and 2 == $course['count_rest']) :?>selected="selected"<?php endif;?>>Два дня</option>
+                <option value="3" <?php if (!empty($course['count_rest']) and 3 == $course['count_rest']) :?>selected="selected"<?php endif;?>>Три дня</option>
             </select>
             <div class="kurs_cur">(дн.)</div>
         </div>
+
+        <div class="practice_block_h">Стоимость курса:</div>
         <div class="parent kurs_cur_wrap">
-            <div class="kurs_block_h">Стоимость курса:</div>
+            <div class="kurs_block_h">Тип курса:</div>
+            <select name="s_paid_type" class="journal_form_select" id="s-paid-type">
+                <option value="paid" <?php if (!empty($course['db_price']) and $course['db_price'] > 0) :?>selected="selected"<?php endif;?>>Платный</option>
+                <option value="free" <?php if (empty($course['db_price']) or $course['db_price'] == 0) :?>selected="selected"<?php endif;?>>Бесплатный</option>
+            </select>
+        </div>
+        <div class="parent kurs_cur_wrap" id="i-full-payment" <?php if (empty($course['db_price']) or $course['db_price'] == 0) :?>style="display: none;"<?php endif;?>>
+            <div class="kurs_block_h">Полная стоимость курса:</div>
             <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['db_price'])) : echo $course['db_price']; endif;?>" required="required" id="course-price"/>
             <div class="kurs_cur">Руб.</div>
         </div>
-        <div class="content_block new_content_block ovv content_block_internal">
+        <div class="content_block new_content_block ovv content_block_internal" id="s-recurrent-block" <?php if (empty($course['db_price']) or $course['db_price'] == 0) :?>style="display: none;"<?php endif;?>>
             <div class="content_block_h parent">
                 <h3>Рекуррентный платеж</h3>
                 <div class="content_block_h_buts">
@@ -184,7 +181,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
             </div>
         </div>
-        <div class="parent kurs_cur_wrap">
+        <div class="parent kurs_cur_wrap" id="ta-free-description" <?php if (!empty($course['db_price']) and $course['db_price'] > 0) :?>style="display: none;"<?php endif;?>>
             <div class="kurs_block_h">Описание бесплатного курса:</div>
             <textarea name="ta_description_free" class="journal_form_textarea admin_form_txt_middle"
                       placeholder="" maxlength="15000"><?php echo $course['description_free']; ?></textarea>

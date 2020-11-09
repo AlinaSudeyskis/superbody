@@ -2361,6 +2361,46 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Выборка курсов по ID
+     *
+     * @param $courses_id
+     * @return array
+     */
+    public function getPublicCoursesByIds($courses_id)
+    {
+        $result = array('courses' => array());
+
+        $courses_id = implode(',', $courses_id);
+
+        $sel_courses = $this->db->query('
+            SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `crs_recurrent_subsequent`, `clp_id`, `clp_activated` 
+            FROM `courses` 
+            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+            WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_id` IN ('.$courses_id.')');
+        if($sel_courses !== false and 0 < $sel_courses->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_courses->result() as $key => $row)
+            {
+                $result['courses'][$i] = self::parseCourseData($row);
+
+                // Тренеры курса
+                $coaches = self::getCourseCoaches($row->crs_id);
+                $result['courses'][$i] = array_merge($result['courses'][$i], $coaches);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_courses === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка списка тренеров, к которым прикреплен хотя бы один курс
      *
      * @return mixed

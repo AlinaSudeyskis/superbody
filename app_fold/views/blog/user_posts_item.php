@@ -17,22 +17,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
     <div class="kurs_block_val">
-        <div class="subscription_block">
-            <div class="subscription_block_cont">
-                <?php if(!empty($posts)): ?>
-                    <?php foreach ($posts as $post) :?>
-                        <div class="subscription_block_item">
-                            <div class="subscription_block_h"><a href="<?php echo $path . $post['id'];?>"><?php echo $post['title'];?></a></div>
-                            <div class="subscription_block_txt"><?php echo $post['short_desc'];?></div>
-                            <div class="subscription_block_link"><span><?php echo $post['date'];?></span></div>
-                        </div>
-                    <?php endforeach;
-                    unset($post); ?>
-                <?php else: ?>
-                    <h3 class="info">Информация не найдена</h3>
-                <?php endif; ?>
-            </div>
-        </div>
-        <?php include_once('./app_fold/views/pagination.php');?>
+        <?php if (!empty($posts)): ?>
+            <div class="posts_block_row">
+                <?php foreach ($posts as $post):
+                    $post_path = $path; ?>
+                    <?php include('./app_fold/views/blog/posts_item.php'); ?>
+                <?php endforeach;
+                unset($post);?>
+            </div><!-- posts_block_row -->
+            <?php include_once('./app_fold/views/pagination.php'); ?>
+        <?php else: ?>
+            <h3 class="info">Информация не найдена</h3>
+        <?php endif;?>
     </div>
 </div>

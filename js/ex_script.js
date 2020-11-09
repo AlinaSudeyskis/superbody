@@ -115,6 +115,43 @@ $(document).ready(function(){
         }
     });
 
+    $('select[name=s_blog_poster_type]').on('change', function(){
+        var blog_poster_url = $('#blog-poster-video-url'),
+            blog_poster_image = $('#blog-poster-image');
+
+        blog_poster_url.hide();
+        blog_poster_image.hide();
+
+        if($(this).val() === 'vimeo' || $(this).val() === 'youtube')
+        {
+            blog_poster_url.show();
+        }
+        else if($(this).val() === 'image')
+        {
+            blog_poster_image.show();
+        }
+    });
+
+    $('#s-paid-type').on('change', function(){
+        var block_full_payment = $('#i-full-payment'),
+            block_recurrent = $('#s-recurrent-block'),
+            block_free_desc = $('#ta-free-description');
+
+        block_full_payment.hide();
+        block_recurrent.hide();
+        block_free_desc.hide();
+
+        if($(this).val() === 'paid')
+        {
+            block_full_payment.show();
+            block_recurrent.show();
+        }
+        else if($(this).val() === 'free')
+        {
+            block_free_desc.show();
+        }
+    });
+
     /* Добавление информации об остаточном кол-ве символов для ввода */
     if($('form.landing_admin_form').length === 1)
     {
@@ -1058,6 +1095,13 @@ $(document).ready(function(){
             });
         } else{
             $(this).parents(".add_tov_in").find(".add_tov_list").hide();
+        }
+    });
+    $(document).on('click', function () {
+        var add_tov_list = $(this).find(".add_tov_in").children(".add_tov_list");
+        if(add_tov_list.length > 0 && add_tov_list.is(":visible"))
+        {
+            add_tov_list.hide();
         }
     });
     /* выпадающий список пользователей */

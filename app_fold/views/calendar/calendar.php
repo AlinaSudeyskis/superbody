@@ -115,7 +115,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     pop_up_video.append(data.workout_url);
                                     pop_up_video.find('#wo-instruction').hide();
 
-                                    pop_up_video.find('.instruction').on('click', function(){
+                                    pop_up_video.find('.instruction').one('click', function(){
                                         if($(this).html() === 'Тренировка')
                                         {
                                             $(this).html('Инструктаж');
@@ -146,7 +146,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         pop_up_video.find('#wo-instruction').toggle();
                                     });
 
-                                    pop_up_video.find('#wo-done').on('click', function(){
+                                    pop_up_video.find('#wo-done').one('click', function(){
                                         var wo_but = $(this).find('#bt-workout-done'),
                                             wo_id = $(this).find('#wo-id').val();
 
@@ -169,7 +169,61 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         });
                                     });
                                 }
+                                if(pop_up_video.find('.purchase_pop-up_close').length === 0)
+                                {
+                                    pop_up_video.append('<div class="purchase_pop-up_close" style="opacity: 0.6;"></div>');
+                                }
+                                if(pop_up_video.find('.pop-up_advertising').length === 0 && data.advertising && data.advertising_hide === 0)
+                                {
+                                    pop_up_video.append('<div class="pop-up_advertising">' +
+                                        '<div class="pu_advertising">' + data.advertising + '</div>' +
+                                        '<div id="timerBlock">' +
+                                            '<p class="ad_timer workout_form_but">Приступить к тренировке Вы сможете через <span class="seconds">8</span> сек.</p>' +
+                                            '<p class="ad_skip workout_form_but" style="display:none;">Пропустить</p>' +
+                                        '</div>' +
+                                        <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1  and (!$advertising_display_none or $advertising_display_all or $advertising_display_admin)): ?>
+                                        '<div class="premium_button">' +
+                                            '<a href="#" class="m_pop-up_premium" style="padding-left: 8px;">' +
+                                                '<span><i class="fas fa-crown"></i></span><span>Премиум аккаунт</span>' +
+                                            '</a>' +
+                                        '</div>' +
+                                        <?php endif; ?>
+                                    '</div>');
+                                }
                                 pop_up_home(pop_up_video);
+
+                                const timerBlock = $('#timerBlock'),
+                                    timer = $('.seconds'),
+                                    num_sec = 8;
+
+                                let index = num_sec;
+                                const timerId = setInterval(function () {
+                                    timer.html(--index);
+                                }, 1000);
+
+                                const afterTimerId = setTimeout(function() {
+                                    clearInterval(timerId);
+                                    timerBlock.find('.ad_timer').hide();
+                                    timerBlock.find('.ad_skip').show();
+                                }, num_sec*1000);
+
+                                pop_up_video.find('.ad_skip').one('click', function(){
+                                    pop_up_video.find('.pop-up_advertising').hide();
+                                });
+
+                                pop_up_video.one('click', '.purchase_pop-up_close', function(){
+                                    index = num_sec;
+                                    timer.html(index);
+                                    clearTimeout(afterTimerId);
+                                    clearInterval(timerId);
+                                });
+                                $('#shadow2').one('click', function(){
+                                    index = num_sec;
+                                    timer.html(index);
+                                    clearTimeout(afterTimerId);
+                                    clearInterval(timerId);
+                                });
+
                                 if(getInternetExplorerVersion()===-1) {
                                     if (data.player === 1) {
                                         $("#myvid").each(function () {
@@ -189,15 +243,15 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 {
                                     playerTwoPlayer = new Vimeo.Player('vimeo-player-0', options);
 
-                                    playerTwoPlayer.on('play', function(data) {});
+                                    playerTwoPlayer.one('play', function(data) {});
 
-                                    playerTwoPlayer.on('seeked', function(data) {});
+                                    playerTwoPlayer.one('seeked', function(data) {});
 
-                                    playerTwoPlayer.on('pause', function(pause) {
+                                    playerTwoPlayer.one('pause', function(pause) {
                                         playerTwoPlayer.getCurrentTime().then(function(seconds) {});
                                     });
 
-                                    playerTwoPlayer.on('ended', function(data) {
+                                    playerTwoPlayer.one('ended', function(data) {
                                         playerTwoPlayer.getVideoTitle().then(function(title) {
                                             if(data.percent === 100)
                                             {
@@ -220,7 +274,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     });
 
                                     var prev_seconds = null;
-                                    playerTwoPlayer.on('timeupdate', function(data){
+                                    playerTwoPlayer.one('timeupdate', function(data){
                                         playerTwoPlayer.getVideoTitle().then(function(title) {
                                             var seconds = Math.floor(data.seconds);
                                             if((seconds % 10) === 0 && seconds !== prev_seconds)
@@ -288,7 +342,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 //meal_slider(up_meal);
                             }
 
-                            up_meal.on('click', '.show_meal', function(){
+                            up_meal.one('click', '.show_meal', function(){
                                 var mlid = $(this).data('mlid'),
                                     unid = $(this).data('unid'),
                                     did  = $(this).data('did'),
@@ -317,7 +371,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 });
                             });
 
-                            up_meal.on('click', '.return_back', function(){
+                            up_meal.one('click', '.return_back', function(){
                                 var unid = $(this).data('unid'),
                                     did  = $(this).data('did'),
                                     iid  = $(this).data('iid'),
@@ -345,7 +399,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 });
                             });
 
-                            up_meal.on('click', '#change-meal', function(){
+                            up_meal.one('click', '#change-meal', function(){
                                 var meal_other = up_meal.find('.meal_other_wrap');
                                 if(meal_other.is(':hidden'))
                                 {
@@ -359,7 +413,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 }
                             });
 
-                            up_meal.on('click', '.meal_other_link', function(){
+                            up_meal.one('click', '.meal_other_link', function(){
                                 var mlid = $(this).data('mlid'),
                                     unid = $(this).data('unid'),
                                     did  = $(this).data('did'),
@@ -388,7 +442,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 });
                             });
 
-                            up_meal.on('click', '.show_ml_img', function(){
+                            up_meal.one('click', '.show_ml_img', function(event){
                                 event.preventDefault();
                                 var popup   = $("#ml_img_pop-up"),
                                     shadow  = $("#shadow"),
@@ -409,7 +463,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 }
                                 up_meal.hide();
                                 popup.css({marginLeft:-popup.width()/2,marginTop:-popup.height()/2}).fadeIn(600);
-                                $("#shadow, .ml_img_pop-up_close").fadeTo(600, opacity).click(function() {
+                                $("#shadow, .ml_img_pop-up_close").fadeTo(600, opacity).one('click', function() {
                                     shadow.fadeOut(600);
                                     up_meal.fadeIn(600);
                                     popup.fadeOut(600);

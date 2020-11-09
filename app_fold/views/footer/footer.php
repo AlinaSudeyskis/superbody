@@ -91,49 +91,57 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="shadow"></div>
 <div id="shadow2"></div>
 
-<div id="pop-up_video">
-    <div class="close_video"></div>
-</div><!-- pop-up_video -->
-<div id="pop-up_review">
-    <div class="close_video"></div>
-</div><!-- pop-up_review -->
+<div id="pop-ups">
+    <div id="pop-up_video">
+        <div class="close_video"></div>
+    </div><!-- pop-up_video -->
 
-<div id="pop-up_postpone">
-    <div class="close_video"></div>
-</div><!-- pop-up_video -->
+    <div id="pop-up_review">
+        <div class="close_video"></div>
+    </div><!-- pop-up_review -->
 
-<div id="pop-up_meal">
-    <div class="close_meal"></div>
-</div><!-- pop-up_meal -->
+    <div id="pop-up_postpone">
+        <div class="close_video"></div>
+    </div><!-- pop-up_video -->
 
-<div id="pop-up_user_meal">
-    <div class="close_user_meal"></div>
-</div><!-- pop-up_user_meal -->
+    <div id="pop-up_meal">
+        <div class="close_meal"></div>
+    </div><!-- pop-up_meal -->
 
-<div id="pop-up_premium">
-    <?php if(!empty($site_info['advertising_popup'])): echo $site_info['advertising_popup']; endif; ?>
-    <form action="" method="post" class="anketa_form video_admin_form premium_form">
-        <div class="anketa_form_buts_wrap parent" style="width: 160px; text-align: center;"><?php if(!empty($site_info['advertising_month_price'])): echo $site_info['advertising_month_price']; ?> руб. в месяц <?php endif; ?></div>
-        <div class="parent kurs_cur_wrap">
-            <div class="sing-in_h tren_form_block_check_wrap">
-                <input type="checkbox" name="cb_offer" class="tren_form_block_check" id="cb-politics-3" required="required" checked="checked">
-                <label for="cb-politics-3">согласие с
-                    <a href="<?php if(!empty($site_info['agreement'])): echo $site_info['agreement']; endif; ?>" class="reg_in_link" target="_blank">пользовательским соглашением</a>
-                </label>
+    <div id="pop-up_user_meal">
+        <div class="close_user_meal"></div>
+    </div><!-- pop-up_user_meal -->
+
+    <div id="pop-up_premium">
+        <div class="premium_h">
+            <div><i class="fas fa-crown"></i></div>
+            <div class="premium_h_text">Премиум доступ</div>
+            <div><i class="fas fa-crown"></i></div>
+        </div>
+        <form action="" method="post" class="anketa_form video_admin_form premium_form">
+            <div class="premium_popup_text"><?php if(!empty($site_info['advertising_popup'])): echo $site_info['advertising_popup']; endif; ?></div>
+            <div class="anketa_form_buts_wrap parent premium_price"><?php if(!empty($site_info['advertising_month_price'])): echo $site_info['advertising_month_price']; ?><span>рублей в месяц</span><?php endif; ?></div>
+            <div class="parent kurs_cur_wrap">
+                <div class="sing-in_h tren_form_block_check_wrap">
+                    <input type="checkbox" name="cb_offer" class="tren_form_block_check" id="cb-politics-3" required="required" checked="checked">
+                    <label for="cb-politics-3">согласие с
+                        <a href="<?php if(!empty($site_info['agreement'])): echo $site_info['agreement']; endif; ?>" class="reg_in_link" target="_blank">пользовательским соглашением</a>
+                    </label>
+                </div>
             </div>
-        </div>
-        <div class="anketa_form_buts_wrap parent">
-            <input type="hidden" name="ord_id" value="<?php if(!empty($user_session['premium_order'])): echo $user_session['premium_order']; endif; ?>">
-            <input type="submit" name="bt_pay_premium" value="Оплатить" data-def-val="Оплатить" class="anketa_form_but red">
-        </div>
-        <div class="h_subtitle">* Нажав на кнопку "Оплатить", Вы соглашаетесь на сохранение данных оплаты. Последующие платежи будут проходить автоматически. Прервать оплату Вы можете написав администрации сайта.</div>
-        <div class="purchase_policy">
-            <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
-        </div>
-    </form>
-</div><!-- pop-up_user_meal -->
+            <div class="anketa_form_buts_wrap parent">
+                <input type="hidden" name="ord_id" value="<?php if(!empty($user_session['premium_order'])): echo $user_session['premium_order']; endif; ?>">
+                <input type="submit" name="bt_pay_premium" value="Оплатить" data-def-val="Оплатить" class="anketa_form_but red">
+            </div>
+            <div class="h_subtitle">* Нажав на кнопку "Оплатить", Вы соглашаетесь на сохранение данных оплаты. Последующие платежи будут проходить автоматически. Прервать оплату Вы можете написав администрации сайта.</div>
+            <div class="purchase_policy">
+                <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
+            </div>
+        </form>
+        <div class="premium_pop-up_close" style="opacity: 0.6;"></div>
+    </div><!-- pop-up_user_meal -->
 
-<div id="check-promocode-form">
+    <div id="check-promocode-form">
     <div class="parent kurs_cur_wrap promo_block">
         <div class="kurs_block_h">Промокод:</div>
         <input type="text" name="promocode" value="" maxlength="25" class="admin_form_txt admin_form_txt_short" autofocus="autofocus" id="i-promocode">
@@ -142,6 +150,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
 </div><!-- check-promocode-form -->
+</div>
 
 <?php include_once('./app_fold/views/course/payment_form_up.php'); ?>
 
