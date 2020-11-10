@@ -2299,7 +2299,7 @@ function closePopup(this_e, popup, shadow)
     popup.hide();
     let advertising_block = $('body').find('.pop-up_advertising');
     let advertising_block_hidden = advertising_block.is(':hidden');
-    if(advertising_block_hidden)
+    if(advertising_block.length === 0 || advertising_block_hidden)
     {
         shadow.fadeOut(600);
     }

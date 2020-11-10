@@ -1008,7 +1008,7 @@ class Course extends CI_Controller
             $meta_keywords = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
 
             // Стоиомсть курса
-            $price = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
+            $price = ($this->input->post('s_paid_type', true) == 'paid' and is_numeric($this->input->post('price', true))) ? $this->input->post('price', true) : 0;
             $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
 
             // Рекуррентная стоимость
@@ -1041,33 +1041,20 @@ class Course extends CI_Controller
 
             // Тренеры курса
             $coaches = array();
-            if (!empty($this->input->post('coaches', true))) {
+            if (!empty($this->input->post('coaches', true)))
+            {
                 $input_coaches = $this->input->post('coaches', true);
                 $percent       = $this->input->post('coaches_percent', true);
 
                 // Добавление или изменение данных тренера
-                foreach ($input_coaches as $key => $coach) {
-                    if (is_numeric($coach)) {
-                        // Поиск в массиве сохраненных тренеров
-                        $search_key = !empty($course_coaches) ? array_search($coach, $course_coaches['id']) : false;
-                        // Если нашел тренера и значения процента отличаются, обновить данные
-                        if (is_numeric($search_key) and $course_coaches['percent'][$search_key] != $percent[$key]) {
-                            $coaches['update'][$coach] = $percent[$key];
-                        }
-                        // Если не нашел тренера, добавить данные
-                        elseif ($search_key === false) {
-                            $coaches['insert'][$coach] = $percent[$key];
-                        }
+                foreach ($input_coaches as $key => $coach)
+                {
+                    if (is_numeric($coach))
+                    {
+                        $coaches['insert'][$coach] = (is_numeric($percent[$key])) ? $percent[$key] : 0;
                     }
                 }
                 unset($coach);
-
-                // Удаление тренеров
-                $coaches['delete'] = !empty($course_coaches['id']) ? array_diff($course_coaches['id'], $input_coaches) : '';
-            }
-            else {
-                // Удаление тренеров
-                $coaches['delete'] = !empty($course_coaches['id']) ? $course_coaches['id'] : '';
             }
 
             // Инструктаж
@@ -1337,7 +1324,7 @@ class Course extends CI_Controller
             $meta_keywords = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
 
             // Стоиомсть курса
-            $price    = (is_numeric($this->input->post('price', true))) ? $this->input->post('price', true) : '';
+            $price = ($this->input->post('s_paid_type', true) == 'paid' and is_numeric($this->input->post('price', true))) ? $this->input->post('price', true) : 0;
             $fc_price = (is_numeric($this->input->post('fc_price', true))) ? $this->input->post('fc_price', true) : '';
 
             // Рекуррентная стоимость
@@ -1385,12 +1372,12 @@ class Course extends CI_Controller
                         // Если нашел тренера и значения процента отличаются, обновить данные
                         if (is_numeric($search_key) and $course_coaches['percent'][$search_key] != $percent[$key])
                         {
-                            $coaches['update'][$coach] = $percent[$key];
+                            $coaches['update'][$coach] = (is_numeric($percent[$key])) ? $percent[$key] : 0;
                         }
                         // Если не нашел тренера, добавить данные
                         elseif ($search_key === false)
                         {
-                            $coaches['insert'][$coach] = $percent[$key];
+                            $coaches['insert'][$coach] = (is_numeric($percent[$key])) ? $percent[$key] : 0;
                         }
                     }
                 }
@@ -1473,10 +1460,10 @@ class Course extends CI_Controller
             $schedule['delete'] = (!empty($course_schedule['num_workout'])) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
 
             /* СОХРАНЕНИЕ ИЗМНЕНИЙ */
-            $result_settings  = null;
-            $result_recurrent = null;
-            $result_schedule  = null;
-            $result_coaches   = null;
+            $result_settings  = true;
+            $result_recurrent = true;
+            $result_schedule  = true;
+            $result_coaches   = true;
 
             // Сохранение основных данных курса
             if ($name != $course['name'] or $description != $course['description'] or $price != $course['db_price']

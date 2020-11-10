@@ -4430,10 +4430,10 @@ class Course_model extends CI_Model
         if (!empty($coaches['insert'])) {
             $values = '';
             foreach ($coaches['insert'] as $coach_id => $percent) {
-                if (empty($values) and $percent > 0) {
+                if (empty($values)) {
                     $values = '(' . $course_id .', ' . $coach_id . ', ' . $percent . ', "' . $date . '", "' . $date . '")';
                 }
-                elseif(!empty($values) and $percent > 0) {
+                elseif(!empty($values)) {
                     $values .= ', (' . $course_id .', ' . $coach_id . ', ' . $percent . ', "' . $date . '", "' . $date . '")';
                 }
             }

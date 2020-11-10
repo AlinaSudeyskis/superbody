@@ -9787,9 +9787,9 @@ span.mess_block_full_time {
 .tren_set_form_img.settings_img {
     width: 160px;
 }
-.tren_set_form_img img{
+.kurs_cur_wrap .tren_set_form_img img, .tren_set_form_img img{
     display: block;
-    /*width: 160px;*/
+    width: auto;
     height: 160px;
     margin: 0 auto;
 }

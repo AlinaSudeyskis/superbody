@@ -16,7 +16,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <div class="tren_set_form_r">
                 <div class="parent kurs_cur_wrap">
-                    <div class="kurs_block_h">Изображение:</div>
+                    <div class="kurs_block_h">Изображение (405x270):</div>
                     <div class="video_down_line parent">
                         <div class="video_down_line_but_wrap">
                             <label for="video_down_line_but1cs" class="video_down_line_but">
@@ -141,7 +141,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
         <div class="parent kurs_cur_wrap" id="i-full-payment" <?php if (empty($course['db_price']) or $course['db_price'] == 0) :?>style="display: none;"<?php endif;?>>
             <div class="kurs_block_h">Полная стоимость курса:</div>
-            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['db_price'])) : echo $course['db_price']; endif;?>" required="required" id="course-price"/>
+            <input type="text" name="price" class="admin_form_txt kurs_form_txt_short" placeholder="Стоимость курса" value="<?php if (!empty($course['db_price'])) : echo $course['db_price']; endif;?>" id="course-price"/>
             <div class="kurs_cur">Руб.</div>
         </div>
         <div class="content_block new_content_block ovv content_block_internal" id="s-recurrent-block" <?php if (empty($course['db_price']) or $course['db_price'] == 0) :?>style="display: none;"<?php endif;?>>
