@@ -10,9 +10,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </div>
     </div>
     <div class="kurs_block_val">
-        <div class="tren_client_row parent">
-            <?php if (!empty($clients)) :
-                foreach ($clients as $client) :?>
+        <?php if (!empty($clients)): ?>
+            <div class="tren_client_row parent">
+                <?php foreach ($clients as $client) :?>
                     <div class="tren_client_col">
                         <div class="tren_client_wrap parent">
                             <div class="tren_client_img_wrap">
@@ -44,10 +44,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 <?php endforeach;
                 unset($client);?>
-            <?php else: ?>
-                <h3 class="info">Информация не найдена</h3>
-            <?php endif;?>
-        </div>
+            </div>
+        <?php else: ?>
+            <h3 class="info">Информация не найдена</h3>
+        <?php endif;?>
         <?php if(!empty($number_clients)):?>
             <div class="tren_client_count"><?php echo $number_clients;?></div>
         <?php endif; ?>

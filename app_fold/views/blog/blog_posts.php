@@ -18,13 +18,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <?php if (!empty($posts)): ?>
-                        <div class="admin_list posts_page">
+                        <div class="posts_block_row">
                             <?php foreach ($posts as $post):
                                 $post_path = '/administration/blog/post/'; ?>
                                 <?php include('./app_fold/views/blog/posts_item.php'); ?>
                             <?php endforeach;
-                            unset($article); ?>
-                        </div>
+                            unset($post);?>
+                        </div><!-- posts_block_row -->
                         <?php include_once('./app_fold/views/pagination.php'); ?>
                     <?php else: ?>
                         <h3 class="info">Информация не найдена</h3>

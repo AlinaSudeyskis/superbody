@@ -284,6 +284,10 @@ class CI_Model {
                 {
                     $result['pagination']['last_id'] = $row->crs_id;
                 }
+                elseif($row_type == 'blog')
+                {
+                    $result['pagination']['last_id'] = $row->cb_id;
+                }
             }
             // Данные первого элемента страницы
             if ($prev_page === true and $key == 0)
@@ -298,6 +302,10 @@ class CI_Model {
                 elseif($row_type == 'course')
                 {
                     $result['pagination']['first_id'] = $row->crs_id;
+                }
+                elseif($row_type == 'blog')
+                {
+                    $result['pagination']['first_id'] = $row->cb_id;
                 }
             }
         }

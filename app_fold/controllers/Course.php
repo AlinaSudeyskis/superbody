@@ -1008,7 +1008,7 @@ class Course extends CI_Controller
             $meta_keywords = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
 
             // Стоиомсть курса
-            $price = is_numeric($this->input->post('price', true)) ? $this->input->post('price', true) : '';
+            $price = ($this->input->post('s_paid_type', true) == 'paid' and is_numeric($this->input->post('price', true))) ? $this->input->post('price', true) : 0;
             $fc_price = is_numeric($this->input->post('fc_price', true)) ? $this->input->post('fc_price', true) : '';
 
             // Рекуррентная стоимость
@@ -1041,33 +1041,20 @@ class Course extends CI_Controller
 
             // Тренеры курса
             $coaches = array();
-            if (!empty($this->input->post('coaches', true))) {
+            if (!empty($this->input->post('coaches', true)))
+            {
                 $input_coaches = $this->input->post('coaches', true);
                 $percent       = $this->input->post('coaches_percent', true);
 
                 // Добавление или изменение данных тренера
-                foreach ($input_coaches as $key => $coach) {
-                    if (is_numeric($coach)) {
-                        // Поиск в массиве сохраненных тренеров
-                        $search_key = !empty($course_coaches) ? array_search($coach, $course_coaches['id']) : false;
-                        // Если нашел тренера и значения процента отличаются, обновить данные
-                        if (is_numeric($search_key) and $course_coaches['percent'][$search_key] != $percent[$key]) {
-                            $coaches['update'][$coach] = $percent[$key];
-                        }
-                        // Если не нашел тренера, добавить данные
-                        elseif ($search_key === false) {
-                            $coaches['insert'][$coach] = $percent[$key];
-                        }
+                foreach ($input_coaches as $key => $coach)
+                {
+                    if (is_numeric($coach))
+                    {
+                        $coaches['insert'][$coach] = (is_numeric($percent[$key])) ? $percent[$key] : 0;
                     }
                 }
                 unset($coach);
-
-                // Удаление тренеров
-                $coaches['delete'] = !empty($course_coaches['id']) ? array_diff($course_coaches['id'], $input_coaches) : '';
-            }
-            else {
-                // Удаление тренеров
-                $coaches['delete'] = !empty($course_coaches['id']) ? $course_coaches['id'] : '';
             }
 
             // Инструктаж
@@ -1137,7 +1124,7 @@ class Course extends CI_Controller
             // Удаление тренировок
             $schedule['delete'] = !empty($course_schedule['num_workout']) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
 
-            if (!empty($name) and !empty($description) and !empty($price))
+            if (!empty($name) and !empty($description))
             {
                 $course_category = 'workout';
 
@@ -1188,7 +1175,7 @@ class Course extends CI_Controller
                 header('Location: /administration/course/'.$course_id);
             }
             else {
-                // Курс не сохранены
+                // Курс не сохранен
                 $this->session->set_tempdata('message', 30, 60);
                 header('Location: /administration/course/new');
             }
@@ -1337,7 +1324,7 @@ class Course extends CI_Controller
             $meta_keywords = mb_substr(strip_tags($this->input->post('ta_meta_keywords', true)), 0, 1000);
 
             // Стоиомсть курса
-            $price    = (is_numeric($this->input->post('price', true))) ? $this->input->post('price', true) : '';
+            $price = ($this->input->post('s_paid_type', true) == 'paid' and is_numeric($this->input->post('price', true))) ? $this->input->post('price', true) : 0;
             $fc_price = (is_numeric($this->input->post('fc_price', true))) ? $this->input->post('fc_price', true) : '';
 
             // Рекуррентная стоимость
@@ -1385,12 +1372,12 @@ class Course extends CI_Controller
                         // Если нашел тренера и значения процента отличаются, обновить данные
                         if (is_numeric($search_key) and $course_coaches['percent'][$search_key] != $percent[$key])
                         {
-                            $coaches['update'][$coach] = $percent[$key];
+                            $coaches['update'][$coach] = (is_numeric($percent[$key])) ? $percent[$key] : 0;
                         }
                         // Если не нашел тренера, добавить данные
                         elseif ($search_key === false)
                         {
-                            $coaches['insert'][$coach] = $percent[$key];
+                            $coaches['insert'][$coach] = (is_numeric($percent[$key])) ? $percent[$key] : 0;
                         }
                     }
                 }
@@ -1473,10 +1460,10 @@ class Course extends CI_Controller
             $schedule['delete'] = (!empty($course_schedule['num_workout'])) ? array_diff($course_schedule['num_workout'], $schedule_workouts) : '';
 
             /* СОХРАНЕНИЕ ИЗМНЕНИЙ */
-            $result_settings  = null;
-            $result_recurrent = null;
-            $result_schedule  = null;
-            $result_coaches   = null;
+            $result_settings  = true;
+            $result_recurrent = true;
+            $result_schedule  = true;
+            $result_coaches   = true;
 
             // Сохранение основных данных курса
             if ($name != $course['name'] or $description != $course['description'] or $price != $course['db_price']
@@ -6764,7 +6751,7 @@ class Course extends CI_Controller
 
         $result_courses = $this->Course_model->getAvailableCourses(9, $courses_category, $courses_type, $first_id, $last_id);
 
-        if (!empty($result_courses['courses']))
+        if (!empty($result_courses['courses']['workouts'][$courses_type]))
         {
             foreach ($result_courses['courses']['workouts'][$courses_type] as $course)
             {
@@ -6788,7 +6775,7 @@ class Course extends CI_Controller
         }
         else
         {
-            $result['products'] = "false";
+            $result['courses'] = "false";
         }
 
         //echo $result;
@@ -8470,12 +8457,13 @@ class Course extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $section_id    = 1;
+        $section_id    = (is_numeric($section_id)) ? $section_id : null;
         $subsection_id = (is_numeric($subsection_id)) ? $subsection_id : null;
         $article_id    = (is_numeric($article_id)) ? $article_id : null;
         $users_types   = array('user' => 1, 'coach' => 2, 'admin' => 3);
         $user_type     = (!empty($this->session->user['type'])) ? array_search($this->session->user['type'], $users_types) : 'general';
         $this->load->model('Message_model');
+        $this->load->model('Blog_model');
 
         // Исходная страница
         $return_url = (!empty($subsection_id) and !empty($article_id)) ? '/profile/meals/'.$section_id.'/'.$subsection_id.'/'.$article_id : '/profile/meals';
@@ -8501,7 +8489,8 @@ class Course extends CI_Controller
         //$user_bmr        = $this->User_model->getUserBMR($this->user_id);
         //$meals_last_week = $this->Course_model->getLastWeekMeals($this->user_id, $this->date);
 
-        if(is_numeric($section_id) and is_numeric($subsection_id))
+        // Питание из раздела "Инструкции"
+        /*if(is_numeric($section_id) and is_numeric($subsection_id))
         {
             $section    = $this->Message_model->getPublicQaSection(1, $user_type);
             $subsection = $this->Message_model->getPublicQaSubsection(1, $subsection_id, $user_type);
@@ -8517,6 +8506,20 @@ class Course extends CI_Controller
             $articles      = $this->Message_model->getPublicQaSubsectionArticles($section_id, $subsection_id, $user_type);
             $result        = array_merge($section, $subsection, $articles);
             $page_submenu  = 'section';
+        }*/
+
+        // Питание из раздела "Блог"
+        if(is_numeric($section_id))
+        {
+            $categories = $this->Blog_model->getBlogUserMealCategories();
+            $category_posts = $this->Blog_model->getBlogCategoryPosts($section_id);
+            $result = array_merge($categories, $category_posts);
+            $page_submenu = 'article';
+        }
+        else
+        {
+            $result = $this->Blog_model->getBlogUserMealCategories();
+            $page_submenu  = 'section';
         }
 
         //$result = array_merge($def_nutrition); //$user_bmr, $meals_last_week,
@@ -8525,6 +8528,7 @@ class Course extends CI_Controller
         $this->page_data['title']             = 'Питание';
         $this->page_data['page_menu']         = 'u_meals';
         $this->page_data['page_submenu']      = $page_submenu;
+        $this->page_data['page_section']      = $section_id;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
@@ -8842,7 +8846,9 @@ class Course extends CI_Controller
                         "i_player" => $i_player,
                         "source" => $v_source,
                         "workout_url" => '<a href="/profile/workout/'.$workout_id.'/'.$video_id.'" class="wo_url" target="_blank">Открыть в новом окне</a>',
-                        "player_type" => $v_remote_type
+                        "player_type" => $v_remote_type,
+                        "advertising" => $this->page_data['site_info']['advertising_before_workout'],
+                        "advertising_hide" => $this->page_data['site_info']['advertising_before_workout_hide']
                     );
 
                     echo json_encode($display_result, JSON_NUMERIC_CHECK);

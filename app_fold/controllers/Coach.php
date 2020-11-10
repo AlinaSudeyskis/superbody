@@ -625,6 +625,62 @@ class Coach extends CI_Controller
                 header('Location: /administration/coach/'.$user_id);
             }
         }
+        elseif ($this->input->post('bt_e_activate_send_again', true) and is_numeric($user_id))
+        {
+            $this->load->model('Authorization_model');
+
+            $res_check = $this->Authorization_model->checkActivateEmail($user_id, $this->date);
+
+            if(is_array($res_check))
+            {
+                if($res_check['availability_send_email'] === true)
+                {
+                    self::sendEActivateEmail($res_check['user_email'], $res_check['activate_code']);
+
+                    $this->Authorization_model->setResendingActivateEmailDate($user_id, $this->date);
+
+                    // Данные о смене были сохранены
+                    $this->session->set_tempdata('message', 202, 60);
+                }
+            }
+            header('Location: /administration/coach/'.$user_id);
+
+        }
+        elseif ($this->input->post('bt_e_change_email_send_again', true) and is_numeric($user_id))
+        {
+            $this->load->model('Authorization_model');
+
+            $res_check = $this->Authorization_model->checkChangingEmail($user_id, $this->date);
+
+            if(is_array($res_check))
+            {
+                if($res_check['availability_send_email'] === true)
+                {
+                    self::sendEChangeEmail($res_check['user_email'], $res_check['activate_code'], $res_check['idempotent']);
+
+                    $this->Authorization_model->setResendingChangeEmailDate($user_id, $this->date);
+
+                    // Данные о смене были сохранены
+                    $this->session->set_tempdata('message', 198, 60);
+                }
+            }
+            header('Location: /administration/coach/'.$user_id);
+        }
+        elseif ($this->input->post('bt_activate_account', true) and is_numeric($user_id))
+        {
+            $this->load->model('Authorization_model');
+            $res_up = $this->Authorization_model->activateAccount($user_id, $this->date);
+
+            if ($res_up === true) {
+                // Сохранено
+                $this->session->set_tempdata('message', 10, 60);
+            } else {
+                // Не сохранено
+                $this->session->set_tempdata('message', 3, 60);
+            }
+
+            header('Location: /administration/coach/'.$user_id);
+        }
 
         // Объединенные данные страница
         $this->page_data['title']         = 'АП - Редактирование данных тренера';

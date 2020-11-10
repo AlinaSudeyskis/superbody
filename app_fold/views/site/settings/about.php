@@ -9,7 +9,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         theme: "silver",
         language_url : '/js/tinymce/langs/ru.js',
         plugins: "textcolor colorpicker bbcode",
-        toolbar: "undo redo | bold italic | forecolor"
+        toolbar: "undo redo | bold italic | forecolor",
+        contextmenu_never_use_native: true,
+        contextmenu: "copy cut paste"
     });
 </script>
 <form action="" method="post">

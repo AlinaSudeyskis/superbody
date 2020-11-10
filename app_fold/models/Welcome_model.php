@@ -93,8 +93,10 @@ class Welcome_model extends CI_Model
               `si_contacts_text2`, `si_contacts_bg`, `si_auth_display`, `si_auth_title1`, `si_auth_title2`, `si_auth_subtitle1`, `si_auth_subtitle2`, 
               `si_auth_text1`, `si_auth_text2`, `si_auth_url1`, `si_auth_url2`, `si_auth_url_name1`, `si_auth_url_name2`, 
               `si_spec_display`, `si_spec_name`, `si_spec_title`, `si_spec_text`, `si_spec_url`, `si_spec_url_text`, `si_cookies_title`, `si_cookies_text`,
-              `si_advertising_mobile`, `si_advertising_mobile_hide`, `si_advertising_vertical`, `si_advertising_vertical_hide`, 
-              `si_advertising_horizontal`, `si_advertising_horizontal_hide`, `si_advertising_popup`, `si_advertising_month_price`
+              `si_premium_display`, `si_advertising_display`, `si_advertising_mobile`, `si_advertising_mobile_hide`, `si_advertising_vertical`, `si_advertising_vertical_hide`, 
+              `si_advertising_vertical_mobile`, `si_advertising_vertical_mobile_hide`, `si_advertising_horizontal`, `si_advertising_horizontal_hide`, 
+              `si_advertising_horizontal_mobile`, `si_advertising_horizontal_mobile_hide`, `si_advertising_before_workout`, `si_advertising_before_workout_hide`, 
+              `si_advertising_popup`, `si_advertising_month_price`
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -150,12 +152,20 @@ class Welcome_model extends CI_Model
             $result['spec_url_text']          = $row->si_spec_url_text;
             $result['cookies_title']          = $row->si_cookies_title;
             $result['cookies_text']           = $row->si_cookies_text;
+            $result['advertising_premium_display'] = $row->si_premium_display;
+            $result['advertising_display']         = $row->si_advertising_display;
             $result['advertising_mobile']          = $row->si_advertising_mobile;
             $result['advertising_mobile_hide']     = $row->si_advertising_mobile_hide;
             $result['advertising_vertical']        = $row->si_advertising_vertical;
             $result['advertising_vertical_hide']   = $row->si_advertising_vertical_hide;
             $result['advertising_horizontal']      = $row->si_advertising_horizontal;
             $result['advertising_horizontal_hide'] = $row->si_advertising_horizontal_hide;
+            $result['advertising_vertical_mobile']        = $row->si_advertising_vertical_mobile;
+            $result['advertising_vertical_mobile_hide']   = $row->si_advertising_vertical_mobile_hide;
+            $result['advertising_horizontal_mobile']      = $row->si_advertising_horizontal_mobile;
+            $result['advertising_horizontal_mobile_hide'] = $row->si_advertising_horizontal_mobile_hide;
+            $result['advertising_before_workout']         = $row->si_advertising_before_workout;
+            $result['advertising_before_workout_hide']    = $row->si_advertising_before_workout_hide;
             $result['advertising_popup']           = $row->si_advertising_popup;
             $result['advertising_month_price']     = $row->si_advertising_month_price;
 

@@ -139,9 +139,16 @@ include_once('./app_fold/views/breadcrumb.php');?>
                 speed: 500,
                 autoplay: false,
                 arrows: true,
-                slidesToShow: 3,
+                slidesToShow: 4,
                 slidesToScroll: 1,
                 responsive: [
+                    {
+                        breakpoint: 1930,
+                        settings: {
+                            slidesToShow: 3,
+                            slidesToScroll: 1
+                        }
+                    },
                     {
                         breakpoint: 1420,
                         settings: {

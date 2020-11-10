@@ -24,10 +24,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <?php include('./app_fold/views/authorization/auth_form.php'); ?>
             </div>
         <?php endif;?>
-        <div class="header_bg header_bg_main">
-            <?php include_once('./app_fold/views/header/slider.php'); ?>
-        </div>
-        <?php if(empty($advertising_banner)): include_once('./app_fold/views/header/banner_js.php'); endif;?>
+        <?php $main_banner = true;
+        include_once('./app_fold/views/header/slider.php'); ?>
     </div>
     <?php include_once('./app_fold/views/header/soc.php');?>
     <div class="header_mid header_mid_profile parent">

@@ -4829,7 +4829,7 @@ class Database_model extends CI_Model
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
-            $this->db->query("ALTER TABLE `site_info` CHANGE `si_soc_pinteres` `si_soc_pinterest` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+            $this->db->query("ALTER TABLE `site_info` CHANGE `si_soc_pinterest` `si_soc_pinterest` VARCHAR(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
 
             self::setDbUpdate($date);
             $result = true;
@@ -4842,6 +4842,116 @@ class Database_model extends CI_Model
             $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_mobile_hide` TINYINT(1) UNSIGNED NOT NULL AFTER `si_advertising_mobile`");
             $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_horizontal_hide` TINYINT(1) UNSIGNED NOT NULL AFTER `si_advertising_horizontal`");
             $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_vertical_hide` TINYINT(1) UNSIGNED NOT NULL AFTER `si_advertising_vertical`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-10-26 14:15';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `blog_categories` ( `bc_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , `bc_name` VARCHAR(255) NOT NULL , `bc_update` DATETIME NOT NULL , `bc_admin_id` INT UNSIGNED NOT NULL , PRIMARY KEY (`bc_id`)) ENGINE = MyISAM");
+            $this->db->query("ALTER TABLE `coach_blog` ADD `cb_bc_id` INT UNSIGNED NOT NULL AFTER `cb_id`");
+            $this->db->query("ALTER TABLE `coach_blog` ADD `cb_poster_type` ENUM('vimeo', 'youtube', 'image', '') NOT NULL AFTER `cb_u_id`, ADD `cb_poster` VARCHAR(255) NOT NULL AFTER `cb_poster_type`");
+            $this->db->query("CREATE TABLE `blog_courses` ( `bcrs_id` INT UNSIGNED NOT NULL AUTO_INCREMENT , `bcrs_cb_id` INT UNSIGNED NOT NULL , `bcrs_crs_id` INT UNSIGNED NOT NULL , `bcrs_update` DATETIME NOT NULL , `bcrs_admin_id` INT UNSIGNED NOT NULL , PRIMARY KEY (`bcrs_id`), INDEX `ix_bcrs_cb_id` (`bcrs_cb_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-10-29 11:33';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `coach_blog` CHANGE `cb_poster_type` `cb_poster_type` ENUM('vimeo','youtube','image','') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT ''");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных ноябрь 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseNovember2020($date)
+    {
+        $result = false;
+
+        $date = '2020-11-01 14:47';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_display` TINYINT(3) UNSIGNED NOT NULL AFTER `si_cookies_text`");
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_horizontal_mobile` TEXT NOT NULL AFTER `si_advertising_horizontal_hide`");
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_horizontal_mobile_hide` TINYINT(1) UNSIGNED NOT NULL AFTER `si_advertising_horizontal_mobile`");
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_vertical_mobile` TEXT NOT NULL AFTER `si_advertising_vertical_hide`");
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_vertical_mobile_hide` TINYINT(1) UNSIGNED NOT NULL AFTER `si_advertising_vertical_mobile`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-11-04 16:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_premium_display` TINYINT(1) UNSIGNED NOT NULL AFTER `si_cookies_text`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-11-05 10:57';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `coach_blog` ADD `cb_post_video_type` ENUM('vimeo','youtube', '') NOT NULL DEFAULT '' AFTER `cb_post_keywords`, 
+                ADD `cb_post_video_url` VARCHAR(255) NOT NULL AFTER `cb_post_video_type`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-11-06 12:45';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_page`, `smt_title`, `smt_admin_id`, `smt_update`) VALUES ('Блог', 'Блог', 4, '2020-11-06 12:45')");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-11-06 12:50';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("DELETE FROM `site_meta_tags` WHERE `smt_id`=13 LIMIT 1");
+            $this->db->query("INSERT INTO `site_meta_tags` (`smt_id`, `smt_page`, `smt_title`, `smt_admin_id`, `smt_update`) VALUES (14, 'Блог', 'Блог', 4, '2020-11-06 12:45')");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-11-09 15:18';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_advertising_before_workout` TEXT NOT NULL AFTER `si_advertising_vertical_mobile_hide`, ADD `si_advertising_before_workout_hide` TINYINT(1) NOT NULL AFTER `si_advertising_before_workout`");
+            $this->db->query("UPDATE `site_info` SET `si_advertising_popup`='<div>Оплачивая премиум аккаунт Вы:</div>
+                <ul>
+                <li>Получаете полный бесплатный доступ даже к премиум курсам</li>
+                <li>Отключаете всю баннерную рекламу на портале*</li>
+                <li>Получаете возможность учавствовать бесплатно в премиум вебинарах</li>
+                <li>Получаете персональную консультацию от наших тренеров в чате.</li>
+                </ul>
+                <div><span style=\"font-size: 10px;\">* Реклама, внутри курсов с интегрированными видео со сторонних ресурсов, отключена <strong>НЕ БУДЕТ</strong>.</span></div>' WHERE `si_id`=1 LIMIT 1");
 
             self::setDbUpdate($date);
             $result = true;

@@ -832,7 +832,7 @@ class User_model extends CI_Model
     {
         $result = true;
 
-        $sel_data = $this->db->query('SELECT `user_id`, `user_email` FROM `users` WHERE `user_delete`=1 and `user_delete_date`<=? and `user_delete_date`<>"0000-00-00"', $today);
+        $sel_data = $this->db->query('SELECT `user_id`, `user_email` FROM `users` WHERE `user_deleted`=1 and `user_delete_date`<=? and `user_delete_date`<>"0000-00-00"', $today);
 
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {

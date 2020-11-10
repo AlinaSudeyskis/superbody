@@ -1530,7 +1530,8 @@ $(document).ready(function() {
             }
 
             var pop_up_premium = $('#pop-up_premium');
-            $('.m_pop-up_premium').on('click', function(){
+            body.on('click', '.m_pop-up_premium', function(event){
+                event.preventDefault();
                 pop_up_home(pop_up_premium);
             });
 
@@ -1886,16 +1887,18 @@ $(document).ready(function() {
             posts_block.on('click', '.shop_block_nav #prev_page', function (event) {
                 event.preventDefault();
 
-                var first_id       = $('#i_first_id').val();
+                var category_id = $('#category_id').val(),
+                    first_id    = $('#i_first_id').val();
 
-                searchPosts(first_id, null);
+                searchPosts(category_id, first_id, null);
             });
             posts_block.on('click', '.shop_block_nav #next_page', function (event) {
                 event.preventDefault();
 
-                var last_id        = $('#i_last_id').val();
+                var category_id = $('#category_id').val(),
+                    last_id     = $('#i_last_id').val();
 
-                searchPosts(null, last_id);
+                searchPosts(category_id, null, last_id);
             });
 
             // Поиск товара по ID
@@ -1988,6 +1991,7 @@ $(document).ready(function() {
                             else if(data.woid.length > 1)
                             {
                                 var pop_up_video = $('#pop-up_video');
+                                pop_up_video.addClass('today_courses');
                                 pop_up_video.html(data.crss);
                                 pop_up_home(pop_up_video);
 
@@ -2000,7 +2004,7 @@ $(document).ready(function() {
                     }
                 });
             });
-            $('#wo-m, #wo-pp').on('click', function(event){
+            $('#wo-m, #wo-pp').one('click', function(event){
                 event.preventDefault();
                 $.ajax({
                     url: '/show/postpone',
@@ -2241,6 +2245,36 @@ $(document).ready(function() {
                     kurs_rows = $(".kurs_page_row.row");
                 if (data.courses !== "false") {
                     kurs_rows.html(data.courses);
+                    kurs_rows.next("#pagination").remove();
+                    kurs_rows.after(data.pagination);
+                }
+                else {
+                    kurs_rows.html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
+                }
+            }
+        });
+    }
+
+    /**
+     * Поиск записей блога
+     * @param category_id
+     * @param first_id
+     * @param last_id
+     */
+    function searchPosts(category_id, first_id, last_id)
+    {
+        $.ajax({
+            url: '/sortPosts',
+            type: 'post',
+            dataType: 'json',
+            data: {category_id: category_id,
+                first_id: first_id,
+                last_id: last_id},
+            complete: function (result) {
+                var data = jQuery.parseJSON(result.responseText),
+                    kurs_rows = $(".kurs_page_row.row");
+                if (data.posts !== "false") {
+                    kurs_rows.html(data.posts);
                     kurs_rows.next("#pagination").remove();
                     kurs_rows.after(data.pagination);
                 }

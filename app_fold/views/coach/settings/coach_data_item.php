@@ -10,7 +10,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         plugins: "bbcode",
         toolbar: "undo redo | bold italic | forecolor",
         min_height : 200,
-        paste_auto_cleanup_on_paste: true
+        paste_auto_cleanup_on_paste: true,
+        contextmenu_never_use_native: true,
+        contextmenu: "copy cut paste"
     });
 </script>
 <div class="anketa_form_line parent">

@@ -8,9 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php include_once('./app_fold/views/header/menu.php');?>
         </div>
     </div>
-    <?php if (!empty($site_info['advertising_horizontal']) and empty($site_info['advertising_horizontal_hide'])): ?>
-        <div class="header_bg_wrap">
-            <?php echo $site_info['advertising_horizontal']; ?>
-        </div>
-    <?php endif; ?>
+    <div class="header_bg_wrap">
+        <?php include_once('./app_fold/views/header/slider.php'); ?>
+    </div>
 </div><!-- header -->

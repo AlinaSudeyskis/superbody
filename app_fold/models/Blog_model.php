@@ -14,34 +14,45 @@ class Blog_model extends CI_Model
     /**
      * Сохранение сообщений блога тренера
      *
+     * @param $post_category_id
      * @param int $user_id
+     * @param $post_poster_type
+     * @param $post_poster
+     * @param $post_video_type
+     * @param $post_video
      * @param string $title
      * @param string $short_desc
      * @param $keywords
      * @param string $text
+     * @param $delete_courses
+     * @param $insert_courses
      * @param string $date
      * @return bool|int
      */
-    public function setBlogPost($user_id, $title, $short_desc, $keywords, $text, $date)
+    public function setBlogPost($post_category_id, $user_id, $post_poster_type, $post_poster,
+                    $post_video_type, $post_video, $title, $short_desc, $keywords, $text, $delete_courses, $insert_courses, $date)
     {
+        $result = false;
+
         $ins_data = $this->db->query('
-            INSERT INTO `coach_blog` (`cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, 
-              `cb_post_date_add`, `cb_post_date_update`)
-            VALUES (?, ?, ?, ?, ?, ?, ?)', array($user_id, $title, $short_desc, $keywords, $text, $date, $date));
+            INSERT INTO `coach_blog` (`cb_bc_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, 
+                                      `cb_post_keywords`, `cb_post_video_type`, `cb_post_video_url`, `cb_post_text`,
+                                      `cb_post_date_add`, `cb_post_date_update`)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array($post_category_id, $user_id, $post_poster_type, $post_poster,
+            $post_video_type, $post_video, $title, $short_desc, $keywords, $text, $date, $date));
 
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
-            return $this->db->insert_id();
+            $result = $this->db->insert_id();
+
+            self::updateBlogPostCourses($result, $delete_courses, $insert_courses, $date);
         }
         elseif ($ins_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            return false;
-        }
+
+        return $result;
     }
 
     /**
@@ -51,13 +62,14 @@ class Blog_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getCoachBlogPosts($user_id)
     {
         $result = array();
 
         $sel_blog = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_date_add` 
+            SELECT `cb_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_date_add` 
             FROM `coach_blog` 
             WHERE `cb_u_id`=? ORDER BY `cb_post_date_add` DESC', $user_id);
 
@@ -85,13 +97,14 @@ class Blog_model extends CI_Model
      * @param int $user_id ID тренера
      * @param int $post_id ID записи
      * @return array
+     * @throws Exception
      */
     public function getCoachBlogPost($user_id, $post_id)
     {
         $result = array('post' => array());
 
         $sel_post = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval` 
+            SELECT `cb_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval` 
             FROM `coach_blog` 
             WHERE `cb_id`=? and `cb_u_id`=? LIMIT 1', array($post_id, $user_id));
 
@@ -100,29 +113,12 @@ class Blog_model extends CI_Model
             $row = $sel_post->row();
 
             $result['post'] = self::parseBlogPostData($row);
-            $result['post']['comments']   = array();
 
-            // Выборка комментариев к записи блога тренера
-            $sel_comments = $this->db->query('
-                SELECT `bc_id`, `bc_text`, `bc_u_id`, `user_name`, `user_email`, `user_image`
-                FROM `blog_comments`
-                LEFT JOIN `users` 
-                  ON `bc_u_id`=`user_id`
-                WHERE `bc_blog_id`=? and `bc_approval`=1', $row->cb_id);
+            $attached_courses = self::getBlogPostAttachedCourses($post_id);
+            $result['post']['attached_courses'] = $attached_courses['attached_courses_id'];
 
-            if (0 < $sel_comments->num_rows()) {
-                $i = 0;
-                foreach ($sel_comments->result() as $row) {
-                    $result['post']['comments'][$i]['id']      = $row->bc_id;
-                    $result['post']['comments'][$i]['text']    = $row->bc_text;
-                    $result['post']['comments'][$i]['u_id']    = $row->bc_u_id;
-                    $result['post']['comments'][$i]['u_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                    $result['post']['comments'][$i]['u_image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
-
-                    $i++;
-                }
-                unset($row);
-            }
+            $comments = self::getBlogPostComments($post_id);
+            $result['post']['comments'] = $comments['comments'];
         }
         elseif($sel_post === false)
         {
@@ -171,85 +167,52 @@ class Blog_model extends CI_Model
     /**
      * Получение одобренных записей блога.
      *
+     * @param null $category_id
      * @param null $first_id
      * @param null $last_id
      * @return array
+     * @throws Exception
      */
-    public function getPublicBlogPosts($first_id = null, $last_id = null)
+    public function getPublicBlogPosts($category_id = null, $first_id = null, $last_id = null)
     {
         $result    = array('posts' => array(), 'first_id' => '', 'last_id' => '');
         $next_page = false;
         $prev_page = false;
-        $limit     = 3; // (count_posts + 1)
+        $limit     = 9; // (count_posts + 1)
 
-        $query = 'SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_date_add`, `user_name`, `user_email` ';
+        $query = 'SELECT `cb_id`, `cb_u_id`, `cb_bc_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, 
+            `cb_post_keywords`, `cb_post_date_add`, `user_name`, `user_email` ';
         $query .= 'FROM `coach_blog` ';
         $query .= 'LEFT JOIN `users` ON `cb_u_id`=`user_id` ';
         $query .= 'WHERE `cb_post_approval`=1 ';
+        $query .= (is_numeric($category_id)) ? 'and `cb_bc_id`='.$category_id.' ' : '';
         if(!empty($last_id))
         {
-            $query .= "and `cb_post_date_add`<".$last_id.' ';
+            $query .= "and `cb_id`<".$last_id.' ';
         }
         elseif(!empty($first_id))
         {
-            $query .= "and `cb_post_date_add`>=".$first_id.' ';
+            $query .= "and `cb_id`>".$first_id.' ';
         }
         $query .= 'ORDER BY `cb_post_date_add` DESC ';
-        //$query .= 'LIMIT '.$limit;
+        $query .= (is_numeric($category_id)) ? 'LIMIT '.$limit : '';
         $sel_blog = $this->db->query($query);
 
         if ($sel_blog !== false and 0 < $sel_blog->num_rows())
         {
-            $count_rows = $sel_blog->num_rows();
-            $elements   = $sel_blog->result();
+            $elements = $sel_blog->result();
 
-            // Если нажата "Предыдущая страница"
-            /*if (!empty($first_id))
-            {
-                if ($count_rows == $limit)
-                {
-                    // Извлекаем первый элемент массива
-                    array_shift($elements);
-                    krsort($elements);
-                    $count_rows--;
-                    $prev_page = true;
-                }
-                $next_page = true;
-            }*/
-            // Если нажата "Следующая страница"
-            /*elseif (!empty($last_id))
-            {
-                if ($count_rows == $limit)
-                {
-                    // Извлекаем последний элемент массива
-                    array_pop($elements);
-                    $count_rows--;
-                    $next_page = true;
-                }
+            // Данные пагинации
+            $pagination = parent::parsePagination('blog', $first_id, $last_id, $limit, $elements);
+            $result['pagination'] = $pagination['pagination'];
 
-                $prev_page = true;
-            }*/
-            // Первая страница
-           /* elseif ($count_rows == $limit and empty($first_id) and empty($last_id))
-            {
-                // Извлекаем последний элемент массива
-                array_pop($elements);
-                $count_rows--;
-                $next_page = true;
-            }*/
-
+            $elements = $pagination['elements'];
             $i = 0;
             foreach ($elements as $key => $row)
             {
-                $result['posts'][$i] = self::parseBlogPostData($row);
-                $result['posts'][$i]['user']['id']    = $row->cb_u_id;
-                $result['posts'][$i]['user']['name']  = !empty($row->user_name) ? $row->user_name : 'Тренер №'.$row->cb_u_id;
-
-                // Данные пагинации
-                // Данные последнего элемента страницы
-                //$result['last_id'] = ($next_page === true and (empty($result['last_id']) or $result['last_id'] > $row->cb_post_date_add)) ?  $row->cb_post_date_add : $result['last_id'];
-                // Данные первого элемента страницы
-                //$result['first_id'] = ($prev_page === true and (empty($result['first_id']) or $result['first_id'] < $row->cb_post_date_add)) ? $row->cb_post_date_add : $result['first_id'];
+                $result['posts'][$row->cb_bc_id][$i] = self::parseBlogPostData($row);
+                $result['posts'][$row->cb_bc_id][$i]['user']['id']    = $row->cb_u_id;
+                $result['posts'][$row->cb_bc_id][$i]['user']['name']  = !empty($row->user_name) ? $row->user_name : 'Тренер №'.$row->cb_u_id;
 
                 $i++;
             }
@@ -270,13 +233,14 @@ class Blog_model extends CI_Model
      *
      * @param $user_id
      * @return array
+     * @throws Exception
      */
     public function getPublicCoachBlogPosts($user_id)
     {
         $result = array();
 
         $sel_blog = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_date_add`, `user_name`, `user_email` 
+            SELECT `cb_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_date_add`, `user_name`, `user_email` 
             FROM `coach_blog` 
             LEFT JOIN `users` ON `cb_u_id`=`user_id`
             WHERE `cb_u_id`=? and `cb_post_approval`=1 ORDER BY `cb_post_date_add` DESC', $user_id);
@@ -304,15 +268,18 @@ class Blog_model extends CI_Model
 
     /**
      * Выборка одобренной записи блога тренера
+     *
      * @param int $post_id ID записи
      * @return array
+     * @throws Exception
      */
     public function getPublicBlogPost($post_id)
     {
         $result = array('post' => array());
 
         $sel_post = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `user_name`, `user_email` 
+            SELECT `cb_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_video_type`, `cb_post_video_url`, `cb_post_title`, `cb_post_short_description`, 
+                   `cb_post_keywords`, `cb_post_text`, `user_name`, `user_email` 
             FROM `coach_blog` 
             LEFT JOIN `users`
             ON `cb_u_id`=`user_id`
@@ -325,35 +292,12 @@ class Blog_model extends CI_Model
             $result['post'] = self::parseBlogPostData($row);
             $result['post']['user']['id']    = $row->cb_u_id;
             $result['post']['user']['name']  = (!empty($row->user_name)) ? $row->user_name : 'Автор';
-            $result['post']['comments']   = array();
 
-            // Выборка комментариев к записи блога тренера
-            $sel_comments = $this->db->query('
-                SELECT `bc_id`, `bc_text`, `user_id`, `user_name`, `user_email`, `user_image`
-                FROM `blog_comments`
-                LEFT JOIN `users` ON `bc_u_id`=`user_id`
-                WHERE `bc_blog_id`=? and `bc_approval`=1', $row->cb_id);
+            $attached_courses = self::getBlogPostAttachedCourses($post_id);
+            $result['post']['attached_courses'] = $attached_courses['attached_courses_id'];
 
-            if ($sel_comments !== false and 0 < $sel_comments->num_rows())
-            {
-                $i = 0;
-                foreach ($sel_comments->result() as $row) {
-                    $result['post']['comments'][$i]['id']      = $row->bc_id;
-                    $result['post']['comments'][$i]['text']    = $row->bc_text;
-                    $result['post']['comments'][$i]['u_id']    = $row->user_id;
-
-                    $u_name  = (!empty($row->user_name)) ? $row->user_name : 'Пользователь №'.$row->user_id;
-                    $result['post']['comments'][$i]['u_name']  = (!empty($u_name) and is_numeric($row->user_id)) ? $u_name : 'Пользователь удален';
-                    $result['post']['comments'][$i]['u_image'] = (!empty($row->user_image)) ? mb_substr($row->user_image, 1) : '';
-
-                    $i++;
-                }
-                unset($row);
-            }
-            elseif ($sel_comments === false)
-            {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
-            }
+            $comments = self::getBlogPostComments($post_id);
+            $result['post']['comments'] = $comments['comments'];
         }
         elseif ($sel_post === false)
         {
@@ -394,20 +338,21 @@ class Blog_model extends CI_Model
     }
 
 
-    /* НАЧАЛО БЛОКА ОБРАБОТКАИ ДАННЫХ ЗАПИСЕЙ БЛОГОВ И КОММЕНТАРИЕВ АП */
+    /* НАЧАЛО БЛОКА ОБРАБОТКАИ ДАННЫХ ЗАПИСЕЙ БЛОГОВ, КОММЕНТАРИЕВ И КАТЕГОРИЙ АП */
 
 
     /**
      * Выборка записей блогов
      *
      * @return array
+     * @throws Exception
      */
     public function getBlogsPosts()
     {
         $result = array();
         
         $sel_blog_mess = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval`, 
+            SELECT `cb_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval`, 
               `cb_post_date_add`, `user_name`, `user_email` 
             FROM `coach_blog` 
             LEFT JOIN `users` ON `cb_u_id`=`user_id`
@@ -446,8 +391,8 @@ class Blog_model extends CI_Model
         $result = array();
 
         $sel_message = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval`, 
-              `cb_post_date_add`, `user_name`, `user_email` 
+            SELECT `cb_id`, `cb_bc_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, 
+                   `cb_post_keywords`, `cb_post_video_type`, `cb_post_video_url`, `cb_post_text`, `cb_post_approval`, `cb_post_date_add`, `user_name`, `user_email` 
             FROM `coach_blog` 
             LEFT JOIN `users`
             ON `cb_u_id`=`user_id`
@@ -458,47 +403,103 @@ class Blog_model extends CI_Model
             $row = $sel_message->row();
 
             $result['post'] = self::parseBlogPostData($row);
-            $result['post']['user_id']    = $row->cb_u_id;
-            $result['post']['user_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-            $result['post']['comments'] = array();
+            $result['post']['user_id']   = $row->cb_u_id;
+            $result['post']['user_name'] = !empty($row->user_name) ? $row->user_name : $row->user_email;
 
-            $sel_comments = $this->db->query('
+            $attached_courses = self::getBlogPostAttachedCourses($post_id);
+            $result['post']['attached_courses_id'] = $attached_courses['attached_courses_id'];
+            $result['post']['attached_courses'] = $attached_courses['attached_courses'];
+
+            $comments = self::getBlogPostComments($post_id);
+            $result['post']['comments'] = $comments['comments'];
+        }
+        elseif($sel_message === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка комментариев записи блога
+     *
+     * @param $post_id
+     * @return array
+     * @throws Exception
+     */
+    public function getBlogPostComments($post_id)
+    {
+        $result = array('comments' => array());
+
+        $sel_comments = $this->db->query('
               SELECT `bc_id`, `bc_u_id`, `bc_text`, `bc_approval`, `bc_date_update`, 
                 `user_name`, `user_email`, `user_image` 
               FROM `blog_comments`
               LEFT JOIN `users`
                 ON `bc_u_id`=`user_id`
-              WHERE `bc_blog_id`=?', $row->cb_id);
+              WHERE `bc_blog_id`=?', $post_id);
 
-            if ($sel_comments !== false and 0 < $sel_comments->num_rows())
+        if ($sel_comments !== false and 0 < $sel_comments->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_comments->result() as $row)
             {
-                $i = 0;
-                foreach ($sel_comments->result() as $row)
-                {
-                    $result['post']['comments'][$i]['id']         = $row->bc_id;
-                    $result['post']['comments'][$i]['text']       = $row->bc_text;
-                    $result['post']['comments'][$i]['approval']   = $row->bc_approval;
-                    $result['post']['comments'][$i]['user_id']    = $row->bc_u_id;
-                    $result['post']['comments'][$i]['user_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
-                    $result['post']['comments'][$i]['user_image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
+                $result['comments'][$i]['id']         = $row->bc_id;
+                $result['comments'][$i]['text']       = $row->bc_text;
+                $result['comments'][$i]['approval']   = $row->bc_approval;
+                $result['comments'][$i]['user_id']    = $row->bc_u_id;
+                $result['comments'][$i]['user_name']  = !empty($row->user_name) ? $row->user_name : $row->user_email;
+                $result['comments'][$i]['user_image'] = !empty($row->user_image) ? mb_substr($row->user_image, 1) : '';
 
-                    $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->bc_date_update));
-                    $comment_date = ($row->bc_date_update != '0000-00-00 00:00:00' or $date !== false)
-                        ? strftime('%d %B %G, %H:%M', strtotime($row->bc_date_update))
-                        : '';
+                $date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->bc_date_update));
+                $comment_date = ($row->bc_date_update != '0000-00-00 00:00:00' or $date !== false)
+                    ? strftime('%d %B %G, %H:%M', strtotime($row->bc_date_update))
+                    : '';
 
-                    $result['post']['comments'][$i]['date'] = $comment_date;
+                $result['comments'][$i]['date'] = $comment_date;
 
-                    $i++;
-                }
-                unset($row);
+                $i++;
             }
-            elseif ($sel_comments === false)
-            {
-                parent::logDbMessages(__METHOD__.':'.__LINE__);
-            }
+            unset($row);
         }
-        elseif($sel_message === false)
+        elseif ($sel_comments === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка прикрепленных курсов к записи блога
+     *
+     * @param $post_id
+     * @return array
+     */
+    public function getBlogPostAttachedCourses($post_id)
+    {
+        $result = array();
+
+        $sel_courses = $this->db->query('
+            SELECT `bcrs_crs_id`, `crs_name`, `crs_blocked`, `crs_archive`
+            FROM `blog_courses`
+            LEFT JOIN `courses` ON `crs_id`=`bcrs_crs_id`
+            WHERE `bcrs_cb_id`=? and `crs_blocked`=0 and `crs_archive`=0', $post_id);
+        if($sel_courses !== false and 0 < $sel_courses->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_courses->result() as $row)
+            {
+                $result['attached_courses_id'][$i] = $row->bcrs_crs_id;
+                $result['attached_courses'][$i]['id'] = $row->bcrs_crs_id;
+                $result['attached_courses'][$i]['name'] = $row->crs_name;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_courses === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }
@@ -510,32 +511,80 @@ class Blog_model extends CI_Model
      * Сохранение изменений записи блога
      *
      * @param $post_id
+     * @param $post_category_id
+     * @param $post_poster_type
+     * @param $post_poster
+     * @param $post_video_type
+     * @param $post_video
      * @param $post_title
      * @param $post_desc
      * @param $post_keywords
      * @param $post_text
+     * @param $delete_courses
+     * @param $insert_courses
      * @param $date
      * @return bool
      */
-    public function updateBlogPost($post_id, $post_title, $post_desc, $post_keywords, $post_text, $date)
+    public function updateBlogPost($post_id, $post_category_id, $post_poster_type, $post_poster, $post_video_type, $post_video, $post_title, $post_desc,
+                                   $post_keywords, $post_text, $delete_courses, $insert_courses, $date)
     {
+        $result = false;
+
         $up_data = $this->db->query('
             UPDATE `coach_blog` 
-            SET `cb_post_title`=?, `cb_post_short_description`=?, `cb_post_keywords`=?, `cb_post_text`=?, `cb_post_date_update`=? 
+            SET `cb_bc_id`=?, `cb_poster_type`=?, `cb_poster`=?, `cb_post_video_type`=?, `cb_post_video_url`=?, `cb_post_title`=?, `cb_post_short_description`=?, 
+                `cb_post_keywords`=?, `cb_post_text`=?, `cb_post_date_update`=? 
             WHERE `cb_id`=? LIMIT 1',
-            array($post_title, $post_desc, $post_keywords, $post_text, $date, $post_id));
+                array($post_category_id, $post_poster_type, $post_poster, $post_video_type, $post_video, $post_title,
+                    $post_desc, $post_keywords, $post_text, $date, $post_id));
         if ($up_data !== false and 1 == $this->db->affected_rows())
         {
-            return true;
+            $result = true;
+
+            self::updateBlogPostCourses($post_id, $delete_courses, $insert_courses, $date);
         }
         elseif ($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
+
+        return $result;
+    }
+
+    /**
+     * Обновление прикрепленных курсов записи блога
+     *
+     * @param $post_id
+     * @param $delete_courses
+     * @param $insert_courses
+     * @param $date
+     */
+    public function updateBlogPostCourses($post_id, $delete_courses, $insert_courses, $date)
+    {
+        if(!empty($delete_courses))
         {
-            return false;
+            $courses_id = implode(',', $delete_courses);
+            $del_data = $this->db->query('DELETE FROM `blog_courses` WHERE `bcrs_cb_id`=? and `bcrs_crs_id` IN ('.$courses_id.')', $post_id);
+            if($del_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
+        }
+
+        if(!empty($insert_courses))
+        {
+            $courses_id = '';
+            foreach($insert_courses as $crs_id)
+            {
+                $courses_id .= (!empty($courses_id)) ? ', ' : '';
+                $courses_id .= '('.$post_id.', '.$crs_id.', "'.$date.'")';
+            }
+
+            $ins_data = $this->db->query('INSERT INTO `blog_courses` (`bcrs_cb_id`, `bcrs_crs_id`, `bcrs_update`) VALUES '.$courses_id);
+            if($ins_data === false)
+            {
+                parent::logDbMessages(__METHOD__.':'.__LINE__);
+            }
         }
     }
 
@@ -766,7 +815,187 @@ class Blog_model extends CI_Model
         }
     }
 
-    /* КОНЕЦ БЛОКА ОБРАБОТКАИ ДАННЫХ ЗАПИСЕЙ БЛОГОВ И КОММЕНТАРИЕВ АП */
+
+    /**
+     * Выборка списка категорий блога
+     *
+     * @return array
+     */
+    public function getBlogsCategories()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `bc_id`, `bc_name` FROM `blog_categories`');
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['blog_categories'][$row->bc_id]['id']   = $row->bc_id;
+                $result['blog_categories'][$row->bc_id]['name'] = $row->bc_name;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка первых двух категорий (питание и рецепты)
+     *
+     * @return array
+     */
+    public function getBlogUserMealCategories()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `bc_id`, `bc_name` FROM `blog_categories` WHERE `bc_id`=1 or `bc_id`=2');
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                $result['blog_categories'][$i]['id']   = $row->bc_id;
+                $result['blog_categories'][$i]['name'] = $row->bc_name;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка записей блога по категории
+     *
+     * @param $category_id
+     * @return array
+     * @throws Exception
+     */
+    public function getBlogCategoryPosts($category_id)
+    {
+        $result = array();
+
+        $sel_blog_mess = $this->db->query('
+            SELECT `cb_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval`, 
+              `cb_post_date_add`, `user_name`, `user_email` 
+            FROM `coach_blog` 
+            LEFT JOIN `users` ON `cb_u_id`=`user_id`
+            WHERE `cb_bc_id`=?
+            ORDER BY `cb_post_date_add` DESC', $category_id);
+
+        if ($sel_blog_mess !== false and 0 < $sel_blog_mess->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_blog_mess->result() as $row)
+            {
+                $result['posts'][$i] = self::parseBlogPostData($row);
+                $result['posts'][$i]['user']['id']   = $row->cb_u_id;
+                $result['posts'][$i]['user']['name'] = !empty($row->user_name) ? $row->user_name : $row->user_email;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_blog_mess === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных категории блога
+     *
+     * @param $category_id
+     * @return array
+     */
+    public function getBlogCategory($category_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `bc_id`, `bc_name` FROM `blog_categories` WHERE `bc_id`=? LIMIT 1', $category_id);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['blog_category']['id']   = $row->bc_id;
+            $result['blog_category']['name'] = $row->bc_name;
+
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение категории блога
+     *
+     * @param $name
+     * @param $admin_id
+     * @param $date
+     * @return bool|int
+     */
+    public function setNewBlogCategory($name, $admin_id, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('INSERT INTO `blog_categories` (`bc_name`, `bc_admin_id`, `bc_update`) VALUES (?, ?, ?)', array($name, $admin_id, $date));
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = $this->db->insert_id();
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление данных категории блога
+     *
+     * @param $category_id
+     * @param $name
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function updateBlogCategory($category_id, $name, $admin_id, $date)
+    {
+        $result = false;
+
+        $ins_data = $this->db->query('UPDATE `blog_categories` SET `bc_name`=?, `bc_admin_id`=?, `bc_update`=? WHERE `bc_id`=? LIMIT 1', array($name, $admin_id, $date, $category_id));
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /* КОНЕЦ БЛОКА ОБРАБОТКИ ДАННЫХ ЗАПИСЕЙ БЛОГОВ, КОММЕНТАРИЕВ И КАТЕГОРИЙ АП */
 
     /* НАЧАЛО БЛОКА ФУНКЦИЙ ОБРАБОТКИ ДАННЫХ */
 
@@ -780,16 +1009,22 @@ class Blog_model extends CI_Model
     protected function parseBlogPostData($row)
     {
         $result = array();
+        $poster_types = array('vimeo', 'youtube', 'image');
 
-        $result['id']         = $row->cb_id;
-        $result['title']      = (!empty($row->cb_post_title)) ? $row->cb_post_title : 'Статья №'.$row->cb_id;
-        $result['short_desc'] = (!empty($row->cb_post_short_description)) ? $row->cb_post_short_description : null;
-        $result['keywords']   = (!empty($row->cb_post_keywords)) ? $row->cb_post_keywords : null;
-        $result['text']       = (!empty($row->cb_post_text))
+        $result['id']          = $row->cb_id;
+        $result['category_id'] = (!empty($row->cb_bc_id)) ? $row->cb_bc_id : null;
+        $result['poster_type'] = (!empty($row->cb_poster_type) and in_array($row->cb_poster_type, $poster_types)) ? $row->cb_poster_type : '';
+        $result['poster']      = null;
+        $result['video_type']  = (!empty($row->cb_post_video_type) and in_array($row->cb_post_video_type, $poster_types)) ? $row->cb_post_video_type : '';
+        $result['video']       = (!empty($row->cb_post_video_url)) ? $row->cb_post_video_url : '';
+        $result['title']       = (!empty($row->cb_post_title)) ? $row->cb_post_title : 'Статья №'.$row->cb_id;
+        $result['short_desc']  = (!empty($row->cb_post_short_description)) ? $row->cb_post_short_description : null;
+        $result['keywords']    = (!empty($row->cb_post_keywords)) ? $row->cb_post_keywords : null;
+        $result['text']        = (!empty($row->cb_post_text))
             ? nl2br(parent::showBBcodes($row->cb_post_text))
             : null;
-        $result['bbc_text']   = (!empty($row->cb_post_text)) ? $row->cb_post_text : null;
-        $result['approval']   = (!empty($row->cb_post_approval)) ? $row->cb_post_approval : null;
+        $result['bbc_text']    = (!empty($row->cb_post_text)) ? $row->cb_post_text : null;
+        $result['approval']    = (!empty($row->cb_post_approval)) ? $row->cb_post_approval : null;
 
         if (!empty($row->cb_post_date_add))
         {
@@ -813,6 +1048,12 @@ class Blog_model extends CI_Model
                 : '';
 
             $result['date_update'] = $message_date;
+        }
+
+        if(!empty($result['poster_type']))
+        {
+            $result['poster'] = ($row->cb_poster_type == 'image' and is_file($row->cb_poster))
+                ? mb_substr($row->cb_poster, 1) : $row->cb_poster;
         }
 
         return $result;

@@ -2361,6 +2361,46 @@ class Course_model extends CI_Model
     }
 
     /**
+     * Выборка курсов по ID
+     *
+     * @param $courses_id
+     * @return array
+     */
+    public function getPublicCoursesByIds($courses_id)
+    {
+        $result = array('courses' => array());
+
+        $courses_id = implode(',', $courses_id);
+
+        $sel_courses = $this->db->query('
+            SELECT `crs_id`, `crs_name`, `crs_image`, `crs_description`, `crs_price`, `crs_recurrent_first`, `crs_recurrent_subsequent`, `clp_id`, `clp_activated` 
+            FROM `courses` 
+            LEFT JOIN `courses_landing_pages` ON `clp_course_id`=`crs_id`
+            WHERE `crs_blocked`=0 and `crs_archive`=0 and `crs_id` IN ('.$courses_id.')');
+        if($sel_courses !== false and 0 < $sel_courses->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_courses->result() as $key => $row)
+            {
+                $result['courses'][$i] = self::parseCourseData($row);
+
+                // Тренеры курса
+                $coaches = self::getCourseCoaches($row->crs_id);
+                $result['courses'][$i] = array_merge($result['courses'][$i], $coaches);
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_courses === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Выборка списка тренеров, к которым прикреплен хотя бы один курс
      *
      * @return mixed
@@ -3716,7 +3756,8 @@ class Course_model extends CI_Model
                 if ($row->ctw_repeat_workout > 0)
                 {
                     $video_id       = $result['workouts'][$row->ctw_repeat_workout]['video_id'];
-                    $video_name     = $result['workouts'][$row->ctw_repeat_workout]['video_name'];
+                    $video_name     = (!empty($result['workouts'][$row->ctw_repeat_workout]['video_name']))
+                        ? $result['workouts'][$row->ctw_repeat_workout]['video_name'] : 'Тренировка №'.$num_workout;
                     $video_poster   = $result['workouts'][$row->ctw_repeat_workout]['video_poster'];
                     $video_path     = $result['workouts'][$row->ctw_repeat_workout]['video_path'];
                     $remote_type    = $result['workouts'][$row->ctw_repeat_workout]['remote_type'];
@@ -3725,7 +3766,7 @@ class Course_model extends CI_Model
                 else
                 {
                     $video_id       = $row->ctw_video_id;
-                    $video_name     = $row->video_name;
+                    $video_name     = (!empty($row->video_name)) ? $row->video_name : 'Тренировка №'.$num_workout;
                     $video_poster   = is_file($row->video_poster) ? mb_substr($row->video_poster, 1) : '';
                     $video_path     = is_file($row->video_path) ? mb_substr($row->video_path, 1) : '';
                     $remote_type    = $row->video_remote_type;
@@ -4389,10 +4430,10 @@ class Course_model extends CI_Model
         if (!empty($coaches['insert'])) {
             $values = '';
             foreach ($coaches['insert'] as $coach_id => $percent) {
-                if (empty($values) and $percent > 0) {
+                if (empty($values)) {
                     $values = '(' . $course_id .', ' . $coach_id . ', ' . $percent . ', "' . $date . '", "' . $date . '")';
                 }
-                elseif(!empty($values) and $percent > 0) {
+                elseif(!empty($values)) {
                     $values .= ', (' . $course_id .', ' . $coach_id . ', ' . $percent . ', "' . $date . '", "' . $date . '")';
                 }
             }

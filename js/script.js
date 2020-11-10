@@ -27,7 +27,9 @@ $(document).ready(function () {
         language_url: '/js/tinymce/langs/ru.js',
         plugins: "bbcode",
         toolbar: "undo redo | bold italic | forecolor",
-        max_chars_indicator: "pageLength"
+        max_chars_indicator: "pageLength",
+        contextmenu_never_use_native: true,
+        contextmenu: "copy cut paste"
     });
 
     /* Видео превью */
@@ -2183,6 +2185,7 @@ $(document).ready(function () {
             $('body').append('<div id="pop-up_video"></div>');
             pop_up_video = $("#pop-up_video");
         }
+        pop_up_video.removeClass('today_courses');
         pop_up_video.html('<div class="lp_desc_wrap"><div class="lp_desc_text">' + $(this).data('desc') + '</div></div>' + '<div class="purchase_pop-up_close"></div>');
         pop_up_home(pop_up_video);
     });
@@ -2235,7 +2238,7 @@ function pop_up_def(popup) {
 
     popup.fadeIn(600).css({marginLeft:-(popup_width/2),marginTop:-(popup_height/2)}); /*+$(window).scrollTop()*/
 
-    $("#shadow, .close_video").fadeTo(600,0.8).on('click', function() {
+    $("#shadow, .close_video").fadeTo(600,0.8).one('click', function() {
         shadow.fadeOut(600);
         //shadow2.fadeOut(600);
         popup.fadeOut(600);
@@ -2265,7 +2268,7 @@ function pop_up_def(popup) {
     //disableScroll();
 }
 function pop_up_home(popup) {
-    var shadow = $("#shadow2");
+    let shadow = $("#shadow2");
     if(shadow.length === 0)
     {
         $('body').append('<div id="shadow2"></div>');
@@ -2288,35 +2291,43 @@ function pop_up_home(popup) {
         returnScroll();
     });
 
-    $("#shadow2, .home_pop-up_close, .close_meal, .close_user_meal, .close_user_photo, .purchase_pop-up_close").fadeTo(600,0.6).on('click', function() {
+    shadow.fadeTo(600,0.6).one('click', function(){ closePopup($(this), popup, shadow); });
+    popup.one('click', '.home_pop-up_close, .close_meal, .close_user_meal, .close_user_photo, .purchase_pop-up_close, .premium_pop-up_close', function(){ closePopup($(this), popup, shadow); });
+}
+function closePopup(this_e, popup, shadow)
+{
+    popup.hide();
+    let advertising_block = $('body').find('.pop-up_advertising');
+    let advertising_block_hidden = advertising_block.is(':hidden');
+    if(advertising_block.length === 0 || advertising_block_hidden)
+    {
         shadow.fadeOut(600);
-        popup.fadeOut(600);
-        //popup.empty();
-        if(playerTwoPlayer)
-        {
-            playerTwoPlayer.pause().then(function() {
-                // The video is paused
-            }).catch(function(error) {
-                switch (error.name) {
-                    case 'PasswordError':
-                        // The video is password-protected
-                        break;
+    }
+    //popup.empty();
+    if(playerTwoPlayer)
+    {
+        playerTwoPlayer.pause().then(function() {
+            // The video is paused
+        }).catch(function(error) {
+            switch (error.name) {
+                case 'PasswordError':
+                    // The video is password-protected
+                    break;
 
-                    case 'PrivacyError':
-                        // The video is private
-                        break;
+                case 'PrivacyError':
+                    // The video is private
+                    break;
 
-                    default:
-                        // Some other error occurred
-                        break;
-                }
-            });
-        }
-        if(player)
-        {
-            player.pauseVideo();
-        }
-    });
+                default:
+                    // Some other error occurred
+                    break;
+            }
+        });
+    }
+    if(player)
+    {
+        player.pauseVideo();
+    }
 }
 function pop_up_user_photo(popup) {
     popup.fadeIn(600);

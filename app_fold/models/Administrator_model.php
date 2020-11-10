@@ -261,7 +261,7 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_info = $this->db->query('
-            SELECT `si_id`, `si_logo`, `si_index_title`, `si_index_text`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinteres`, 
+            SELECT `si_id`, `si_logo`, `si_index_title`, `si_index_text`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinterest`, 
               `si_soc_google_plus`, `si_soc_tumblr`, `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, 
               `si_phone`, `si_mes_telegram`, `si_mes_whatsapp`, `si_mes_viber`, `si_email`, `si_rights`, `si_agreement`, 
               `si_policy`, `si_personal_data`, `si_personal_data_text`, `si_offer_data`, `si_footer`, `si_about`, 
@@ -372,7 +372,7 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_info = $this->db->query('
-            SELECT `si_id`, `si_logo`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinteres`, `si_soc_google_plus`, `si_soc_tumblr`, 
+            SELECT `si_id`, `si_logo`, `si_soc_facebook`, `si_soc_twitter`, `si_soc_pinterest`, `si_soc_google_plus`, `si_soc_tumblr`, 
               `si_soc_instagram`, `si_soc_ok`, `si_soc_vk`, `si_soc_youtube`, `si_rights`, `si_agreement`, `si_policy`, 
               `si_personal_data`, `si_personal_data_text`, `si_offer_data`, `si_footer`, `si_user_id`, `si_date` 
             FROM `site_info` LIMIT 1');
@@ -516,20 +516,30 @@ class Administrator_model extends CI_Model
         $result = false;
 
         $sel_info = $this->db->query('
-            SELECT `si_id`, `si_advertising_mobile`, `si_advertising_mobile_hide`, `si_advertising_vertical`, `si_advertising_vertical_hide`, 
-                   `si_advertising_horizontal`, `si_advertising_horizontal_hide`, `si_advertising_popup`, `si_advertising_month_price`
+            SELECT `si_id`, `si_premium_display`, `si_advertising_display`, `si_advertising_mobile`, `si_advertising_mobile_hide`, `si_advertising_vertical`, `si_advertising_vertical_hide`, 
+                   `si_advertising_vertical_mobile`, `si_advertising_vertical_mobile_hide`, `si_advertising_horizontal`, `si_advertising_horizontal_hide`, 
+                   `si_advertising_horizontal_mobile`, `si_advertising_horizontal_mobile_hide`, `si_advertising_before_workout`, `si_advertising_before_workout_hide`, 
+                   `si_advertising_popup`, `si_advertising_month_price`
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
         {
             $row = $sel_info->row();
 
+            $result['advertising_premium_display'] = $row->si_premium_display;
+            $result['advertising_display']         = $row->si_advertising_display;
             $result['advertising_mobile']          = $row->si_advertising_mobile;
             $result['advertising_mobile_hide']     = $row->si_advertising_mobile_hide;
             $result['advertising_vertical']        = $row->si_advertising_vertical;
             $result['advertising_vertical_hide']   = $row->si_advertising_vertical_hide;
             $result['advertising_horizontal']      = $row->si_advertising_horizontal;
             $result['advertising_horizontal_hide'] = $row->si_advertising_horizontal_hide;
+            $result['advertising_vertical_mobile']        = $row->si_advertising_vertical_mobile;
+            $result['advertising_vertical_mobile_hide']   = $row->si_advertising_vertical_mobile_hide;
+            $result['advertising_horizontal_mobile']      = $row->si_advertising_horizontal_mobile;
+            $result['advertising_horizontal_mobile_hide'] = $row->si_advertising_horizontal_mobile_hide;
+            $result['advertising_before_workout']         = $row->si_advertising_before_workout;
+            $result['advertising_before_workout_hide']    = $row->si_advertising_before_workout_hide;
             $result['advertising_popup']           = $row->si_advertising_popup;
             $result['advertising_month_price']     = $row->si_advertising_month_price;
         }
@@ -674,7 +684,7 @@ class Administrator_model extends CI_Model
 
         $up_info = $this->db->query('
             UPDATE `site_info` 
-            SET `si_logo`=?, `si_soc_facebook`=?, `si_soc_twitter`=?, `si_soc_pinteres`=?, `si_soc_google_plus`=?, `si_soc_tumblr`=?, 
+            SET `si_logo`=?, `si_soc_facebook`=?, `si_soc_twitter`=?, `si_soc_pinterest`=?, `si_soc_google_plus`=?, `si_soc_tumblr`=?, 
               `si_soc_instagram`=?, `si_soc_ok`=?, `si_soc_vk`=?, `si_soc_youtube`=?, `si_rights`=?, `si_agreement`=?, 
               `si_policy`=?, `si_personal_data`=?, `si_personal_data_text`=?, `si_offer_data`=?, `si_footer`=?, `si_user_id`=?, `si_date`=? 
             WHERE `si_id`=? LIMIT 1',
@@ -986,27 +996,41 @@ class Administrator_model extends CI_Model
     /**
      * Сохранение кода рекламы
      *
+     * @param $premium_display
+     * @param $display
      * @param $mobile
      * @param $mobile_hide
      * @param $vertical
      * @param $vertical_hide
+     * @param $vertical_mobile
+     * @param $vertical_mobile_hide
      * @param $horizontal
      * @param $horizontal_hide
+     * @param $horizontal_mobile
+     * @param $horizontal_mobile_hide
+     * @param $before_workout
+     * @param $before_workout_hide
      * @param $popup
      * @param $month_price
      * @param $date
      * @param $admin_id
      * @return bool
      */
-    public function setSiteAdvertisingData($mobile, $mobile_hide, $vertical, $vertical_hide, $horizontal, $horizontal_hide, $popup, $month_price, $date, $admin_id)
+    public function setSiteAdvertisingData($premium_display, $display, $mobile, $mobile_hide, $vertical, $vertical_hide,  $vertical_mobile, $vertical_mobile_hide,
+                                           $horizontal, $horizontal_hide, $horizontal_mobile, $horizontal_mobile_hide, $before_workout,
+                                           $before_workout_hide, $popup, $month_price, $date, $admin_id)
     {
         $result = false;
 
         $up_data = $this->db->query('
-            UPDATE `site_info` SET `si_advertising_mobile`=?, `si_advertising_mobile_hide`=?, `si_advertising_vertical`=?, 
-                                   `si_advertising_vertical_hide`=?, `si_advertising_horizontal`=?, `si_advertising_horizontal_hide`=?, 
+            UPDATE `site_info` SET `si_premium_display`=?, `si_advertising_display`=?, `si_advertising_mobile`=?, `si_advertising_mobile_hide`=?, `si_advertising_vertical`=?, 
+                                   `si_advertising_vertical_hide`=?, `si_advertising_vertical_mobile`=?, `si_advertising_vertical_mobile_hide`=?, 
+                                   `si_advertising_horizontal`=?, `si_advertising_horizontal_hide`=?, `si_advertising_horizontal_mobile`=?, 
+                                   `si_advertising_horizontal_mobile_hide`=?, `si_advertising_before_workout`=?, `si_advertising_before_workout_hide`=?, 
                                    `si_advertising_popup`=?, `si_advertising_month_price`=?, `si_date`=?, `si_user_id`=?
-            WHERE `si_id`=? LIMIT 1', array($mobile, $mobile_hide, $vertical, $vertical_hide, $horizontal, $horizontal_hide, $popup, $month_price, $date, $admin_id, 1));
+            WHERE `si_id`=? LIMIT 1', array($premium_display, $display, $mobile, $mobile_hide, $vertical, $vertical_hide, $vertical_mobile, $vertical_mobile_hide,
+                $horizontal, $horizontal_hide, $horizontal_mobile, $horizontal_mobile_hide, $before_workout, $before_workout_hide,
+                $popup, $month_price, $date, $admin_id, 1));
 
         if($up_data !== false and 1 == $this->db->affected_rows())
         {

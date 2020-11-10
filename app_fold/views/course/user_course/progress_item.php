@@ -27,7 +27,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php else: ?>
                 <?php $calendar_active = ($course['display'] == 0) ? 'active' : ''; ?>
                 <?php if($course['category'] == 'workout' or $course['category'] == 'nutrition'): ?>
-                    <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>"><?php if($course['display'] == 0): ?>Добавить в календарь<?php else: ?>Удалить из календаря<?php endif; ?></a>
+                    <a href="#" class="calendar_course <?php echo $calendar_active; ?>" data-crsid="<?php echo $course['id']; ?>"><?php if($course['display'] == 0): ?>Добавить в расписание<?php else: ?>Удалить из расписания<?php endif; ?></a>
                 <?php endif;?>
             <?php endif;?>
         </div>

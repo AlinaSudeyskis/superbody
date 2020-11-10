@@ -910,16 +910,26 @@ class Administrator extends CI_Controller
         }
         elseif ($this->input->post('bt_save_advertising', true))
         {
+            $premium_display = ($this->input->post('cb_premium_display_hide')) ? 0 : 1;
+            $display = (is_numeric($this->input->post('s_advertising_display', true))) ? $this->input->post('s_advertising_display', true) : 0;
             $mobile = mb_substr($this->input->post('ta_advertising_mobile'), 0, 65000);
             $mobile_hide = ($this->input->post('cb_hide_mobile')) ? 1 : 0;
             $vertical = mb_substr($this->input->post('ta_advertising_vertical'), 0, 65000);
             $vertical_hide = ($this->input->post('cb_hide_vertical')) ? 1 : 0;
+            $vertical_mobile = mb_substr($this->input->post('ta_advertising_vertical_mobile'), 0, 65000);
+            $vertical_mobile_hide = ($this->input->post('cb_hide_vertical_mobile')) ? 1 : 0;
             $horizontal = mb_substr($this->input->post('ta_advertising_horizontal'), 0, 65000);
             $horizontal_hide = ($this->input->post('cb_hide_horizontal')) ? 1 : 0;
+            $horizontal_mobile = mb_substr($this->input->post('ta_advertising_horizontal_mobile'), 0, 65000);
+            $horizontal_mobile_hide = ($this->input->post('cb_hide_horizontal_mobile')) ? 1 : 0;
+            $before_workout = mb_substr($this->input->post('ta_advertising_before_workout'), 0, 65000);
+            $before_workout_hide = ($this->input->post('cb_hide_before_workout')) ? 1 : 0;
             $popup = mb_substr($this->input->post('ta_advertising_popup'), 0, 15000);
-            $month_price = is_numeric($this->input->post('i_premium_month', true)) ? $this->input->post('i_premium_month', true) : 0;
+            $month_price = (is_numeric($this->input->post('i_premium_month', true))) ? $this->input->post('i_premium_month', true) : 0;
 
-            $result = $this->Administrator_model->setSiteAdvertisingData($mobile, $mobile_hide, $vertical, $vertical_hide, $horizontal, $horizontal_hide, $popup, $month_price, $this->date, $this->user_id);
+            $result = $this->Administrator_model->setSiteAdvertisingData($premium_display, $display, $mobile, $mobile_hide, $vertical, $vertical_hide,
+                $vertical_mobile, $vertical_mobile_hide, $horizontal, $horizontal_hide, $horizontal_mobile, $horizontal_mobile_hide, $before_workout,
+                $before_workout_hide, $popup, $month_price, $this->date, $this->user_id);
 
             if ($result === true)
             {

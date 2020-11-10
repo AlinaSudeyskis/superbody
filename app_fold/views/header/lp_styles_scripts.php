@@ -42,8 +42,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <script src="/js/amcharts/amcharts.js"></script>
     <script src="/js/amcharts/serial.js"></script>
     <script src="/js/amcharts/amstock.js"></script>
-    <script src="/js/fullcalendar.min.js"></script>
-    <script src="/js/locale-all.js"></script>
+    <script src='/fullcalendar/core/main.js'></script>
+    <script src='/fullcalendar/daygrid/main.js'></script>
+    <script src='/fullcalendar/timegrid/main.js'></script>
+    <script src='/fullcalendar/list/main.js'></script>
+    <script src='/fullcalendar/interaction/main.js'></script>
     <script src="/js/strings.js"></script>
     <script src="/js/px-video.js"></script>
     <script src="/js/slick.min.js"></script>
