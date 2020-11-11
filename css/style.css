@@ -12468,7 +12468,7 @@ textarea.anketa_form_in{
     /*overflow: hidden;*/
 }
 .kurs_cur_wrap img {
-    width: 100%;
+    max-width: 100%;
 }
 .kurs_cur_h{
     text-align: center;
