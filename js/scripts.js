@@ -1995,9 +1995,18 @@ $(document).ready(function() {
                                 pop_up_video.html(data.crss);
                                 pop_up_home(pop_up_video);
 
-                                $('.tc_item').on('click', function(){
-                                    var woid = $(this).data('woid');
-                                    $('#event-' + woid + '.fc-content').trigger('click');
+                                $('.tc_item').one('click', function(){
+                                    var woid = $(this).data('woid'),
+                                        d_cal_ev = $('#event-' + woid + '.fc-content'),
+                                        m_cal_ev = $('#event-' + woid + '.fc-list-item');
+                                    if(d_cal_ev.length === 1)
+                                    {
+                                        d_cal_ev.trigger('click');
+                                    }
+                                    else if(m_cal_ev.length === 1)
+                                    {
+                                        m_cal_ev.trigger('click');
+                                    }
                                 });
                             }
                         }

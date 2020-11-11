@@ -77,6 +77,10 @@ audio, canvas, progress, video{
 .advertising.mobile{
     display: none;
 }
+.advertising.side {
+    width: 200px;
+    margin: 0 auto;
+}
 
 .sing-in_bg{
     overflow: hidden;
@@ -6354,6 +6358,7 @@ span#cookie_stop {
     width: 100%;
     height: 100%;
     background-color: #000000;
+    overflow: hidden;
 }
 .pop-up_advertising #timerBlock {
     position: absolute;
@@ -16013,16 +16018,20 @@ input.tren_form_block_check{
         top: 34%;
     }
 
-    .video_page
-    {
+    .video_page{
         width: 90%;
     }
     .wo_buts{
-        height: 130px;
+        height: 100px;
     }
-    .wo_url
-    {
+    .wo_url{
         clear: both;
+    }
+
+    .premium_button{
+        bottom: 56px;
+        right: 0;
+        left: unset;
     }
 }
 
@@ -17049,6 +17058,9 @@ input.tren_form_block_check{
         width: 100%;
     }
 
+    #pop-up_video.today_courses{
+        width: 90%;
+    }
 }
 
 @media (max-width: 539px){
@@ -17122,7 +17134,16 @@ input.tren_form_block_check{
     .profile_menu{
         display: block !important;
     }
+}
 
+@media (max-height: 560px){
+
+    .wo_buts {
+        height: 130px;
+    }
+    .embed-container {
+        min-height: 240px;
+    }
 }
 
 @media (max-width: 479px){
@@ -18201,6 +18222,12 @@ input.tren_form_block_check{
 
     .premium_h div:last-child{
         display: none;
+    }
+    .pop-up_advertising .workout_form_but {
+        width: 100%;
+    }
+    .pop-up_advertising #timerBlock{
+        width: 100%;
     }
 }
 
