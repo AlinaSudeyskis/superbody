@@ -85,6 +85,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             ],
             eventPositioned:function(calEvent) {
                 $(calEvent.el).find('.fc-content').attr("id", "event-" + calEvent.event.extendedProps.endParam);
+                $(calEvent.el).attr("id", "event-" + calEvent.event.extendedProps.endParam);
             },
             eventClick: function(calEvent, jsEvent, view) {
                 if (calEvent.event.extendedProps.ev_gr === "workout" && calEvent.event.extendedProps.startParam !== "" && calEvent.event.extendedProps.ev_bl === false)
