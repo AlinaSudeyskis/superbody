@@ -1910,6 +1910,46 @@ $(document).ready(function () {
         adaptiveHeight: false
     });
 
+    $('.courses_progress').slick({
+        dots: true,
+        infinite: true,
+        arrows: true,
+        speed: 300,
+        autoplay: false,
+        slidesToShow: 5,
+        slidesToScroll: 5,
+        responsive: [
+            {
+                breakpoint: 1920,
+                settings: {
+                    slidesToShow: 4,
+                    slidesToScroll: 4
+                }
+            },
+            {
+                breakpoint: 1750,
+                settings: {
+                    slidesToShow: 3,
+                    slidesToScroll: 3
+                }
+            },
+            {
+                breakpoint: 1340,
+                settings: {
+                    slidesToShow: 2,
+                    slidesToScroll: 2
+                }
+            },
+            {
+                breakpoint: 925,
+                settings: {
+                    slidesToShow: 1,
+                    slidesToScroll: 1
+                }
+            }
+        ]
+    });
+
     $('.tren_block').slick({
         dots: false,
         infinite: true,

@@ -9,7 +9,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="content_block_h_close"></div>
         </div>
     </div>
-    <div class="tren_prof_page_block parent">
+    <div class="tren_prof_page_block parent courses_progress">
         <?php //$courses_percent_done = true;
         if(!empty($courses_percent_done) and (!empty($courses) or !empty($blocked_courses))): ?>
             <?php if(!empty($courses)):

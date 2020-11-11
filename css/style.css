@@ -2523,7 +2523,8 @@ tr:first-child > td > .fc-day-grid-event{
     z-index: 99;
 }
 #pop-up_video, #check-promocode-form, #confirm_hide_course, #pop-up_premium{
-    width: 95%;
+    width: 90%;
+    max-width: 900px;
     padding: 15px;
     z-index: 114;
     left: 50%;
@@ -2531,7 +2532,7 @@ tr:first-child > td > .fc-day-grid-event{
     background: #fff;
     position: fixed;
     display: none;
-    max-height: 95%;
+    max-height: 90%;
 }
 #pop-up_video.today_courses{
     overflow-y: auto;
@@ -2545,13 +2546,32 @@ tr:first-child > td > .fc-day-grid-event{
 }
 #pop-up_premium{
     width: 50%;
+    min-width: 700px;
     padding: 0;
 }
-
+#pop-up_premium .premium_wrap {
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    flex-direction: column;
+    -ms-flex-direction: column;
+    -webkit-flex-direction: column;
+}
+.premium_content {
+    overflow-y: auto;
+    flex-basis: auto;
+    -webkit-flex-basis: auto;
+}
 .premium_h {
     font-size: 24px;
     font-weight: 200;
     height: 66px;
+    flex-basis: 66px;
+    -webkit-flex-basis: 66px;
+    flex-shrink: 0;
+    -webkit-flex-shrink: 0;
     padding: 20px 0;
     color: #ffcb38;
     background-color: #484848;
@@ -2795,15 +2815,25 @@ tr:first-child > td > .fc-day-grid-event{
 }
 
 .posts_block_col{
-    /*float: left;
-    width: 25%;
-    padding: 0 15px;*/
     padding-bottom: 30px;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    flex-direction: column;
+    -webkit-flex-direction: column;
+    -ms-flex-direction: column;
 }
 .posts_block_col_poster{
     /*height: 250px;*/
     background-color: #f5f5f5;
     overflow: hidden;
+    /*display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;*/
+    display: flex;
 }
 .posts_block_col_poster img{
     width: 100%;
@@ -2812,12 +2842,19 @@ tr:first-child > td > .fc-day-grid-event{
     margin: 15px 0;
     overflow: hidden;
 }
+.posts_block_row > div {
+    /*max-height: 316px;*/
+}
 .posts_block_col_h{
     width: 100%;
     height: 50px;
     background: #72d0f4;
-    display: flex;
-    display:-webkit-flex;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    flex: 0 0 50px;
 }
 .posts_block_col_but{
     width: 100%;
@@ -2829,6 +2866,7 @@ tr:first-child > td > .fc-day-grid-event{
     display:-webkit-flex;
     justify-content: center;
     -webkit-justify-content: center;
+    flex: 0 0 35px;
 }
 .posts_block_col_but_right{
     width: 50%;
@@ -3136,8 +3174,6 @@ h2.block_h>span>a {
 	display: block;
 }
 
-/* уведомления */
-
 .notifications_block_wrap{
     /*position: relative;
     padding: 31px 15px;
@@ -3149,13 +3185,13 @@ h2.block_h>span>a {
     padding: 20px 0;
     overflow: hidden;
 }
-.notifications_block .slick-track {
+.notifications_block .slick-track, .courses_progress .slick-track {
     display: flex;
     display:-webkit-flex;
     align-items: center;
     -webkit-align-items: center;
 }
-.notifications_block .slick-arrow{
+.notifications_block .slick-arrow, .courses_progress .slick-arrow{
     position: absolute;
     top: 0;
     left: 0;
@@ -3173,7 +3209,7 @@ h2.block_h>span>a {
     cursor: pointer;
     z-index: 10;
 }
-.notifications_block .slick-next{
+.notifications_block .slick-next, .courses_progress .slick-next{
     right: 0;
     left: auto;
     background: url(/img/r_arr.png) 0 calc(50% - 5px) no-repeat;
@@ -3187,7 +3223,7 @@ h2.block_h>span>a {
     position: relative;
     overflow: hidden;
 }
-.notifications_block .slick-active:after{
+.notifications_block .slick-active:after, .courses_progress .slick-active:after{
     content: '';
     width: 1px;
     height: 88%;
@@ -3196,10 +3232,10 @@ h2.block_h>span>a {
     left: 100%;
     background: #a9ddf1;
 }
-.notifications_block .slick-active:last-child:after{
+.notifications_block .slick-active:last-child:after, .courses_progress .slick-active:last-child:after{
     display: none;
 }
-.notifications_block .slick-dots{
+.notifications_block .slick-dots, .courses_progress .slick-dots{
     padding: 0;
     margin: 15px 0;
     text-align: center;
@@ -3209,7 +3245,7 @@ h2.block_h>span>a {
     z-index: 100;
     line-height: 14px;
 }
-.notifications_block .slick-dots li{
+.notifications_block .slick-dots li, .courses_progress .slick-dots li{
     list-style: none;
     display: inline-block;
     width: 14px;
@@ -3217,7 +3253,7 @@ h2.block_h>span>a {
     overflow: hidden;
     margin: 0 5px;
 }
-.notifications_block .slick-dots li button{
+.notifications_block .slick-dots li button, .courses_progress .slick-dots li button{
     display: block;
     border: none;
     width: 14px;
@@ -3228,7 +3264,7 @@ h2.block_h>span>a {
     background: #cdcdcd;
     border-radius: 50%;
 }
-.notifications_block .slick-dots .slick-active button{
+.notifications_block .slick-dots .slick-active button, .courses_progress .slick-dots .slick-active button{
     background: #00bff0;
 }
 .notification_block .anketa_form_h {
@@ -3274,6 +3310,10 @@ h2.block_h>span>a {
     -webkit-justify-content: center;
     align-items: center;
     -webkit-align-items: center;
+}
+
+.courses_progress .slick-list{
+    width: 1300px;
 }
 /*.notification_block .ff_promocode h3.info {
     flex-grow: 0;
@@ -6779,6 +6819,7 @@ span.mess_block_full_time {
 .posts_block_col_poster .embed-container {
     padding-bottom: 56.25%;
     min-height: unset;
+    flex: 1 1 auto;
 }
 .embed-container iframe, .embed-container object, .embed-container embed {
     position: absolute;
@@ -13278,6 +13319,11 @@ input.tren_form_block_check{
 
 
 /******** Адаптив ********/
+@media (max-width: 1920px){
+    .courses_progress .slick-list{
+        width: 1040px;
+    }
+}
 
 @media (max-width: 1750px){
 
@@ -13295,6 +13341,9 @@ input.tren_form_block_check{
 		width: 100%;
 	}
 
+    .courses_progress .slick-list{
+        width: 780px;
+    }
 }
 
 @media (max-width: 1599px){
@@ -13478,6 +13527,12 @@ input.tren_form_block_check{
     }
     .shop_tov_wrap{
         width: 25%;
+    }
+}
+
+@media (max-width: 1340px){
+    .courses_progress .slick-list{
+        width: 520px;
     }
 }
 
@@ -14759,6 +14814,9 @@ input.tren_form_block_check{
     .landing_block .landing_title span{
         font-size: 19px;
     }
+    .courses_progress .slick-list{
+        width: 260px;
+    }
 }
 
 @media (max-width: 900px){
@@ -15789,6 +15847,14 @@ input.tren_form_block_check{
     }
     .practice_block .tov_form_textarea{
         margin-bottom: 0;
+    }
+
+    #pop-up_premium {
+        width: 95%;
+        min-width: unset;
+    }
+    .premium_wrap{
+        height: 466px;
     }
 }
 
@@ -17859,6 +17925,9 @@ input.tren_form_block_check{
         margin: 0;
     }
 
+    #pop-up_premium {
+        width: 90%;
+    }
 }
 
 @media (max-width: 439px){
@@ -18128,6 +18197,10 @@ input.tren_form_block_check{
     #purchase_pop-up #block-message{
         font-size: 10px;
         text-transform: uppercase;
+    }
+
+    .premium_h div:last-child{
+        display: none;
     }
 }
 
