@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
-<div class="col-lg-3 col-md-4 col-sm-6 col-xs-6">
+<div class="col-lg-3 col-md-4 col-sm-6 col-xs-12">
     <div class="posts_block_col">
         <div class="posts_block_col_h">
             <a href="<?php echo $post_path.$post['id'];?>" class="posts_block_col_title">
