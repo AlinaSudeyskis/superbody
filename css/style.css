@@ -6892,6 +6892,7 @@ span.mess_block_full_time {
 .embed-container {
     position: relative;
     min-height: 360px;
+    height: calc(100% - 100px);
 }
 .video_col .embed-container {
     padding-bottom: 56.25%;
