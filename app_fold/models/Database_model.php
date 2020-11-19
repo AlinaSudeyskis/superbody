@@ -4957,6 +4957,26 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-11-12 15:18';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` ADD `si_blog_share_top` TEXT NOT NULL AFTER `si_advertising_month_price`, ADD `si_blog_share_bottom` TEXT NOT NULL AFTER `si_blog_share_top`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-11-13 13:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `blog_categories` ADD `bc_image` VARCHAR(255) NOT NULL AFTER `bc_name`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
