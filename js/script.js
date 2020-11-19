@@ -2251,6 +2251,8 @@ $(document).ready(function () {
                     auth_form.find('.return_purchase').hide();
                     auth_form.find('.page_form').html(data.form);
                     auth_form.show();
+                    grecaptcha.render('reg-g-recaptcha');
+                    $('.anketa_form_select').styler();
 
                     purchase.css({marginLeft: -purchase.width() / 2, marginTop: -purchase.height() / 2});
                 }

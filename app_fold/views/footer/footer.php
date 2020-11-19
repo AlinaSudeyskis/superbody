@@ -8,13 +8,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <div id="footer">
     <div class="container">
         <div class="row">
-            <?php $block2 = (!empty($user_session) and is_array($user_session) and
-                array_key_exists('subscribed', $user_session) and $user_session['subscribed'] === true)
-                ? 'col-lg-9 col-md-9 col-sm-12 col-xs-12'
-                : 'col-lg-5 col-md-5 col-sm-6 col-xs-12';
+            <?php if(!empty($user_session) and is_array($user_session) and array_key_exists('subscribed', $user_session) and $user_session['subscribed'] === true)
+            {
+                $block_subs = '';
+                $block_logo = 'col-lg-7 col-md-6 col-sm-8 col-xs-12';
+                $block_app  = 'col-lg-2 col-md-3 col-sm-4 col-xs-12';
+                $block_menu = 'col-lg-3 col-md-3 col-sm-4 col-xs-12';
+            }
+            else
+            {
+                $block_subs = 'col-lg-4 col-md-4 col-sm-6 col-xs-12';
+                $block_logo = 'col-lg-4 col-md-5 col-sm-6 col-xs-12';
+                $block_app  = 'col-lg-2 col-md-3 col-sm-12 col-xs-12';
+                $block_menu = 'col-lg-2 col-md-2 col-sm-6 col-xs-12';
+            }
             ?>
             <?php if(empty($user_session['subscribed']) or (is_array($user_session) and array_key_exists('subscribed', $user_session) and $user_session['subscribed'] === false)): ?>
-                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12 footer_subscribe_wrap">
+                <div class="<?php echo $block_subs; ?> footer_subscribe_wrap">
                     <div class="footer_h">ПОДПИСКА НА НОВОСТИ</div>
                     <div class="footer_desk">ПОДПИШИТЕСЬ НА НОВОСТИ НАШЕГО ПОРТАЛА И БУДЬТЕ В КУРСЕ ВСЕХ СОБЫТИЙ</div>
                     <form action="/" id="subscribe_form" method="post">
@@ -34,7 +44,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </form>
                 </div>
             <?php endif; ?>
-            <div class="<?php echo $block2; ?>">
+            <div class="<?php echo $block_logo; ?>">
                 <a href="" class="f_logo"><img src="/img/logo.png" alt=""></a>
                 <div class="f_logo_desk"><?php if (!empty($site_info['rights'])): echo $site_info['rights']; endif;?></div>
                 <div class="f_contact">
@@ -53,7 +63,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <?php include('./app_fold/views/footer/policy_agreement.php'); ?>
                 </div>
             </div>
-            <div class="col-lg-3 col-md-3 col-sm-4 col-xs-12 footer_menu_wrap">
+            <div class="<?php echo $block_app; ?> footer_application">
+                <a href="https://play.google.com/store/apps/details?id=com.Globalmediaserviceltd.SUPERBODY.PRO" target="_blank"><img src="/img/footer_app.png" alt=""></a>
+            </div>
+            <div class="<?php echo $block_menu; ?> footer_menu_wrap">
                 <div class="row">
                     <div class="col-lg-12 col-md-12 col-sm-6 col-xs-6">
                         <div class="footer_h">МЕНЮ</div>
@@ -95,6 +108,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div id="pop-up_video">
         <div class="close_video"></div>
     </div><!-- pop-up_video -->
+    <div id="pop-up_workout">
+        <div class="close_video"></div>
+    </div><!-- pop-up_workout -->
 
     <div id="pop-up_review">
         <div class="close_video"></div>

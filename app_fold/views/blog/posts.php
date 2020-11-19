@@ -19,12 +19,17 @@ include_once('./app_fold/views/breadcrumb.php');
             $posts_slider = ''; ?>
             <h2 class="block_h">
                 <?php $category_name = ($cat_id > 0 and !empty($blog_categories[$cat_id]['name'])) ? $blog_categories[$cat_id]['name'] : 'Статьи без категории'; ?>
-                <?php echo $category_name; ?>
+                <?php if(empty($category_id)): ?><a href="blog/<?php echo $cat_id; ?>"><?php endif; ?><?php echo $category_name; ?><?php if(empty($category_id)): ?></a><?php endif; ?>
                 <?php if(empty($category_id)): ?>
                     <span><a href="blog/<?php echo $cat_id; ?>">Посмотреть все статьи категории</a></span>
                     <?php $posts_slider = 'kurs_page_row_slider'; ?>
                 <?php endif; ?>
             </h2>
+            <?php if(empty($category_id)): ?>
+                <div class="posts_category_img">
+                    <a href="blog/<?php echo $cat_id; ?>"><img src="<?php echo $blog_categories[$cat_id]['image']; ?>" alt=""></a>
+                </div>
+            <?php endif; ?>
             <div class="kurs_page_row row <?php echo $posts_slider; ?>">
                 <?php foreach($b_posts as $post): ?>
                     <?php include('./app_fold/views/blog/posts_item.php'); ?>
@@ -78,7 +83,7 @@ include_once('./app_fold/views/breadcrumb.php');
                         }
                     },
                     {
-                        breakpoint: 750,
+                        breakpoint: 560,
                         settings: {
                             slidesToShow: 1,
                             slidesToScroll: 1

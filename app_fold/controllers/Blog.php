@@ -264,10 +264,26 @@ class Blog extends CI_Controller
         if($this->input->post('bt_save_category_settings', true))
         {
             $name = mb_substr($this->input->post('name', true), 0, 255);
+            $category_image = '';
 
-            if(!empty($name) and $name != $result['blog_category']['name'])
+            // Сохранение изображения
+            $img_path = './post_images/';
+
+            if (is_uploaded_file($_FILES['i_blog_category_image']['tmp_name'])) {
+                $image = parent::uploadImage('i_blog_category_image', $_FILES['i_blog_category_image']['type'], $img_path);
+                $full_path_img = $img_path . $image;
+                if (file_exists($full_path_img)) {
+                    if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                        $category_image = $full_path_img;
+                    } else {
+                        unlink($full_path_img);
+                    }
+                }
+            }
+
+            if(!empty($name) and ($name != $result['blog_category']['name'] or $category_image != $result['blog_category']['image']))
             {
-                $res_up = $this->Blog_model->updateBlogCategory($category_id, $name, $this->user_id, $this->date);
+                $res_up = $this->Blog_model->updateBlogCategory($category_id, $name, $category_image, $this->user_id, $this->date);
 
                 if($res_up === true)
                 {
@@ -309,10 +325,26 @@ class Blog extends CI_Controller
         if($this->input->post('bt_save_new_category', true))
         {
             $name = mb_substr($this->input->post('name', true), 0, 255);
+            $category_image = '';
+
+            // Сохранение изображения
+            $img_path = './post_images/';
+
+            if (is_uploaded_file($_FILES['i_blog_category_image']['tmp_name'])) {
+                $image = parent::uploadImage('i_blog_category_image', $_FILES['i_blog_category_image']['type'], $img_path);
+                $full_path_img = $img_path . $image;
+                if (file_exists($full_path_img)) {
+                    if ($this->security->xss_clean($full_path_img, TRUE) !== FALSE) {
+                        $category_image = $full_path_img;
+                    } else {
+                        unlink($full_path_img);
+                    }
+                }
+            }
 
             if(!empty($name))
             {
-                $res_ins = $this->Blog_model->setNewBlogCategory($name, $this->user_id, $this->date);
+                $res_ins = $this->Blog_model->setNewBlogCategory($name, $category_image, $this->user_id, $this->date);
 
                 if($res_ins !== false and is_numeric($res_ins))
                 {
@@ -343,6 +375,51 @@ class Blog extends CI_Controller
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
         $this->load->view('blog/category_new');
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * АП. Сохранение данных кода "Поделиться в соцсетях"
+     */
+    public function blogShare()
+    {
+        // Если пользователь не авторизован, вывод страницы 404
+        if (empty($this->user_id) or $this->session->user['type'] != 3 or $this->session->user['blocked'] == 1) {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result = $this->Blog_model->getBlogShare();
+
+        if($this->input->post('bt_save_share', true))
+        {
+            $share_top = mb_substr($this->input->post('ta_share_top'), 0, 2000);
+            $share_bottom = mb_substr($this->input->post('ta_share_bottom'), 0, 2000);
+
+            if($share_top !== $result['blog_share_top'] or $share_bottom !== $result['blog_share_bottom'])
+            {
+                $res_up = $this->Blog_model->updateBlogShare($share_top, $share_bottom, $this->user_id, $this->date);
+
+                if($res_up === true)
+                {
+                    $this->session->set_tempdata('message', 10, 60);
+                }
+                else
+                {
+                    $this->session->set_tempdata('message', 9, 60);
+                }
+            }
+
+            header('Location: /administration/blog/share');
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Форма редактирования кода "Поделиться в соц сетях"';
+        $this->page_data['page_menu']    = 'a_blog';
+        $this->page_data['page_submenu'] = 'blog_share';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('blog/share', $result);
         $this->load->view('footer/footer');
     }
 
@@ -627,7 +704,9 @@ class Blog extends CI_Controller
         $result = array_merge($categories, $posts);
 
         // Объединенные данные страница
-        $this->page_data['title']       = 'Блог';
+        $this->page_data['title']       = $this->page_data['metadata'][14]['title'];
+        $this->page_data['keywords']    = $this->page_data['metadata'][14]['keywords'];
+        $this->page_data['description'] = $this->page_data['metadata'][14]['description'];
         $this->page_data['page_menu']   = 'blog';
         $this->page_data['category_id'] = $category_id;
 

@@ -96,7 +96,7 @@ class Welcome_model extends CI_Model
               `si_premium_display`, `si_advertising_display`, `si_advertising_mobile`, `si_advertising_mobile_hide`, `si_advertising_vertical`, `si_advertising_vertical_hide`, 
               `si_advertising_vertical_mobile`, `si_advertising_vertical_mobile_hide`, `si_advertising_horizontal`, `si_advertising_horizontal_hide`, 
               `si_advertising_horizontal_mobile`, `si_advertising_horizontal_mobile_hide`, `si_advertising_before_workout`, `si_advertising_before_workout_hide`, 
-              `si_advertising_popup`, `si_advertising_month_price`
+              `si_advertising_popup`, `si_advertising_month_price`, `si_blog_share_top`, `si_blog_share_bottom`
             FROM `site_info` LIMIT 1');
 
         if ($sel_info !== false and 1 == $sel_info->num_rows())
@@ -168,6 +168,8 @@ class Welcome_model extends CI_Model
             $result['advertising_before_workout_hide']    = $row->si_advertising_before_workout_hide;
             $result['advertising_popup']           = $row->si_advertising_popup;
             $result['advertising_month_price']     = $row->si_advertising_month_price;
+            $result['blog_share_top']    = $row->si_blog_share_top;
+            $result['blog_share_bottom'] = $row->si_blog_share_bottom;
 
             $sel_banners = $this->db->query('
                 SELECT `sb_id`, `sb_image`, `sb_video_url`, `sb_url`, `sb_advertising` FROM `site_banners` WHERE `sb_blocked`=0 ORDER BY `sb_id`');

@@ -282,6 +282,28 @@ audio, canvas, progress, video{
     text-decoration: none;
     color: #ffffff;
 }
+.header_auth {
+    display: flex;
+    margin:  0 auto;
+}
+.header_auth a, .header_auth span{
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    color: #fff;
+    text-transform: uppercase;
+    font-size: 14px;
+    line-height: 13px;
+    background-color: #00b6e4;
+    margin-right: 1px;
+}
+.header_auth span{
+    cursor: default;
+    background-color: #00b0dc;
+}
+.header_auth a:hover {
+    background-color: #00b0dc;
+}
 .header_soc{
     /*float: right;*/
     padding: 8px 0 0;
@@ -888,10 +910,24 @@ span.cont_ref  {
     text-align: center;
     vertical-align: middle;
 }
-.profile_menu span:last-child{
+.profile_menu span:nth-child(2){
     display: table-cell;
     padding-left: 15px;
     vertical-align: middle;
+}
+.profile_menu span.app {
+    /* vertical-align: unset; */
+    /* margin-top: -5px; */
+    position: absolute;
+    top: 10px;
+    left: 49px;
+    padding-left: 0;
+}
+.profile_menu span.follow_app {
+    font-size: 12px;
+    position: absolute;
+    bottom: 8px;
+    left: 50px;
 }
 .profile_menu a{
     display: block;
@@ -1505,7 +1541,32 @@ div.info{
     padding: 10px 0;
     border-right: 1px solid #bee3f1;
 }
-
+.blog_share{
+    margin: 10px 0;
+}
+.blog_share.top{
+    text-align: right;
+}
+.blog_share.bottom{
+    text-align: center;
+}
+.blog_share_text{
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: 100;
+    font-size: 17px;
+    color: #696969;
+    letter-spacing: 1px;
+}
+.posts_page .posts_category_img{
+    display: none;
+    width: 100%;
+    max-height: 360px;
+    overflow: hidden;
+}
+.posts_page .posts_category_img img{
+    width: 100%;
+}
 
 /* график */
 
@@ -2203,10 +2264,21 @@ tr:first-child > td > .fc-day-grid-event{
     position: relative;
 }
 .footer_subscribe_wrap{
-    padding-right: 6%;
+    padding-right: 3%;
+}
+.footer_application {
+    margin-top: 15px;
+}
+.footer_application a {
+    display: block;
+    width: 170px;
+    margin: 0 auto;
 }
 .footer_menu_wrap{
     padding-left: 6%;
+}
+.footer_menu_wrap.col-lg-2{
+    padding-left: 3%;
 }
 .footer_menu{
     margin: 0;
@@ -2397,7 +2469,7 @@ tr:first-child > td > .fc-day-grid-event{
     background: #ffffff;
     width: 80%;
     max-width: 570px;
-    height: 500px;
+    height: 560px;
     max-height: 90%;
     z-index: 113;
     left: 50%;
@@ -2411,7 +2483,7 @@ tr:first-child > td > .fc-day-grid-event{
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     padding: 5% 7%;
-    height: 500px;
+    height: 560px;
     max-height: 100%;
     overflow-y: auto;
 }
@@ -2526,7 +2598,7 @@ tr:first-child > td > .fc-day-grid-event{
 #shadow3{
     z-index: 99;
 }
-#pop-up_video, #check-promocode-form, #confirm_hide_course, #pop-up_premium{
+#pop-up_video, #pop-up_workout, #check-promocode-form, #confirm_hide_course, #pop-up_premium{
     width: 90%;
     max-width: 900px;
     padding: 15px;
@@ -2541,6 +2613,10 @@ tr:first-child > td > .fc-day-grid-event{
 #pop-up_video.today_courses{
     overflow-y: auto;
     width: 50%;
+}
+#pop-up_workout{
+    height: 90%;
+    max-width: unset;
 }
 #confirm_hide_course{
     text-align: center;
@@ -6835,6 +6911,7 @@ span.mess_block_full_time {
 }
 #wo-video{
     /*max-height: calc(100% - 100px);*/
+    height: calc(100% - 100px);
 }
 #wo-description{
     padding: 10px;
@@ -10341,6 +10418,16 @@ span.tip>.bt_link, .bt_link {
 .anketa_form_radio_all{
 	float: left;
 }
+.sing-in_via {
+    display: flex;justify-content: center;margin-bottom: 7px;
+}
+.sing-in_via .anketa_form_radio + label {
+    border: 1px solid #fff;
+    border-radius: 0;
+    color: #fff;
+    height: 30px;
+    line-height: 29px;
+}
 .anketa_form_radio_wrap{
 	float: left;
 	padding: 3px 0;
@@ -10379,6 +10466,26 @@ span.tip>.bt_link, .bt_link {
     color: #fff;
     border-color: #2acaf2;
 }
+.sing-in_phone{
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    justify-content: center;
+    -webkit-justify-content: center;
+}
+.sing-in_phone .anketa_form_three_wrap{
+    width: unset;
+    padding: 0;
+    float: unset;
+    margin: 0 0 10px;
+}
+.sing-in_phone > input{
+    margin: 0 0 10px;
+    width: 150px;
+}
+
 .anketa_form_three_all{
 	float: left;
 	margin-left: -10px;
@@ -10423,6 +10530,15 @@ span.tip>.bt_link, .bt_link {
 	border: none;
 	box-shadow: none;
 }
+.sing-in_phone .anketa_form_three_wrap .anketa_form_select .jq-selectbox__select{
+	height: 30px;
+}
+.sing-in_phone .anketa_form_three_wrap .anketa_form_select .jq-selectbox__select{
+    background: none;
+    border: 1px solid #ffffff;
+    color: #ffffff;
+    border-right: none;
+}
 .anketa_form_three_wrap .anketa_form_select .jq-selectbox__trigger,
 .anketa_form_two_wrap .anketa_form_select .jq-selectbox__trigger{
 	height: calc(100% - 8px);
@@ -10440,6 +10556,11 @@ span.tip>.bt_link, .bt_link {
     right: 10px;
     top: 10px;
 }
+.sing-in_phone .anketa_form_three_wrap .anketa_form_select .jq-selectbox__trigger-arrow{
+    border-top: 9px solid #ffffff;
+    right: 9px;
+    top: 7px;
+}
 .anketa_form_three_wrap .anketa_form_select .jq-selectbox__select,
 .anketa_form_two_wrap .anketa_form_select .jq-selectbox__select{
 	font-size: 13px;
@@ -10448,6 +10569,9 @@ span.tip>.bt_link, .bt_link {
 	line-height: 35px;
 	padding: 0 46px 0 15px;
 	text-shadow: none;
+}
+.sing-in_phone .anketa_form_three_wrap .anketa_form_select .jq-selectbox__select{
+    line-height: 30px;
 }
 .anketa_form_three_wrap .anketa_form_select .jq-selectbox__select-text,
 .anketa_form_two_wrap .anketa_form_select .jq-selectbox__select-text{
@@ -13500,12 +13624,15 @@ input.tren_form_block_check{
     .sing-in{
         top: 25px; /*125*/
     }
-    .footer_subscribe_wrap{
-        padding-right: 5%;
-    }
     .footer_menu_wrap{
         padding-left: 5%;
     }
+    .footer_menu_wrap.col-lg-2{
+        padding-left: 3%;
+    }
+    /*.footer_subscribe_wrap{
+        padding-right: 3%;
+    }*/
     .subscribe_form_in{
         width: 155px;
     }
@@ -13793,6 +13920,10 @@ input.tren_form_block_check{
         /*position: absolute;
         right: 0;
         bottom: 0;*/
+    }
+
+    .footer_menu_wrap.col-md-2{
+        display: none;
     }
 
 }
@@ -15965,6 +16096,10 @@ input.tren_form_block_check{
     #i-generated-codes {
         margin-left: 0;
     }
+
+    .f_policy {
+        text-align: center;
+    }
 }
 
 @media (max-width: 650px){
@@ -16785,7 +16920,7 @@ input.tren_form_block_check{
     .js-fullscreen-controls .pull-left:first-child{
         width: 40% !important;
     }
-    #pop-up_video, #pop-up_meal, #check-promocode-form{
+    #pop-up_video, #pop-up_workout, #pop-up_meal, #check-promocode-form{
         min-height: 310px;
     }
     .close_video{
@@ -17060,6 +17195,13 @@ input.tren_form_block_check{
 
     #pop-up_video.today_courses{
         width: 90%;
+    }
+
+    .posts_page .kurs_page_row_slider{
+        display: none;
+    }
+    .posts_page .posts_category_img{
+        display: block;
     }
 }
 
@@ -17972,6 +18114,11 @@ input.tren_form_block_check{
     }
     .header_soc{
         margin: 0 0 0 auto;
+    }
+    .header_auth a{
+        padding: 7px 10px;
+        font-size: 13px;
+        line-height: 25px;
     }
 
     .pc_generate_code{

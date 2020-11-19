@@ -277,6 +277,7 @@ $route['administration/blog/comment/(:num)']  = 'Blog/blogComment/$1';
 $route['administration/blog/categories']      = 'Blog/blogCategories';
 $route['administration/blog/category/(:num)'] = 'Blog/blogCategory/$1';
 $route['administration/blog/category/new']    = 'Blog/newBlogCategory';
+$route['administration/blog/share']           = 'Blog/blogShare';
 $route['upload_post_images'] = 'Blog/postUploadImage';
 // Сообщения
 $route['administration/messages']        = 'Message/messages';

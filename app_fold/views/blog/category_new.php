@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     </div>
                 </div>
                 <div class="kurs_block_val">
-                    <form action="" method="post">
+                    <form action="" method="post" enctype="multipart/form-data">
                         <div class="admin_form_buts_wrap_container">
                             <div class="admin_form_buts_wrap parent">
                                 <input type="submit" name="bt_save_new_category" value="Сохранить" class="video_admin_form_send defaultActionButton" />

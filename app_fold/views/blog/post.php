@@ -22,6 +22,7 @@ include_once('./app_fold/views/breadcrumb.php');?>
                             <div class="parent">
                                 <div class="comment_page_cont">
                                     <div class="comment_page_cont_h"><?php echo $post['title'];?></div>
+                                    <div class="blog_share top"><?php if(!empty($site_info) and !empty($site_info['blog_share_top'])): echo $site_info['blog_share_top']; endif; ?></div>
                                     <?php if(!empty($post['video'])): ?>
                                         <?php if($post['video_type'] == 'vimeo'): ?>
                                             <?php $remote_url = $post['video'];
@@ -35,7 +36,12 @@ include_once('./app_fold/views/breadcrumb.php');?>
                                     <?php endif; ?>
                                     <div class="comment_page_cont_txt"><?php echo $post['text'];?></div>
                                     <div class="comment_page_cont_link"><a href="/profile/<?php echo $post['user']['id'];?>"><?php echo $post['user']['name'];?></a></div>
-
+                                    <?php if(!empty($site_info) and !empty($site_info['blog_share_bottom'])):?>
+                                        <div class="blog_share bottom">
+                                            <div class="blog_share_text">Поделиться:</div>
+                                            <?php echo $site_info['blog_share_bottom']; ?>
+                                        </div>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                             <?php if($post['attached_courses']):?>

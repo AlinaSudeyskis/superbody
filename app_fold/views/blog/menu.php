@@ -17,4 +17,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <span <?php if ($page_submenu == 'blog_categories'): ?> class="anketa_active" <?php endif; ?>>Категории</span>
         </a>
     </li>
+    <li>
+        <a href="/administration/blog/share">
+            <span <?php if ($page_submenu == 'blog_share'): ?> class="anketa_active" <?php endif; ?>>Поделиться в соцсетях</span>
+        </a>
+    </li>
 </ul>

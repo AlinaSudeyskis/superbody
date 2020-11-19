@@ -45,6 +45,7 @@ $display_admin = (!empty($site_info) and $site_info['advertising_display'] == 2 
             <?php endif;?>
         <?php endforeach;
         unset($si_banner); ?>
+        <?php $standard_banner = true; ?>
     <?php endif;?>
 </div>
 <?php if(empty($advertising_banner)): include_once('./app_fold/views/header/banner_js.php'); endif;?>

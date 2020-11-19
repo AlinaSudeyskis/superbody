@@ -43,7 +43,22 @@ class Authorization extends CI_Controller
         // Проверка введенных данных и сохранение в БД
         if($this->input->post('bt_registry', true))
         {
-            if ($this->input->post('cb_politics', true))
+            $g_c_resp = $this->input->post('g-recaptcha-response', true);
+
+            $myCurl = curl_init();
+            curl_setopt_array($myCurl, array(
+                CURLOPT_URL => 'https://www.google.com/recaptcha/api/siteverify',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST => true,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_POSTFIELDS => http_build_query(array('secret' => '6LdyBmYUAAAAAM7E7voVemkU62C_BmqHZ7aNH20a',
+                    'response' => $g_c_resp, 'remoteip' => $_SERVER['REMOTE_ADDR']))
+            ));
+            $response = curl_exec($myCurl);
+            curl_close($myCurl);
+            $resp_info = json_decode($response);
+
+            if ($this->input->post('cb_politics', true) and $resp_info->success === true)
             {
                 // Валидация E-mail
                 $email = trim($this->input->post('email', true));
@@ -120,32 +135,49 @@ class Authorization extends CI_Controller
     {
         $result = array('error' => null);
 
-        $email = (!empty($this->input->post('email', true))) ? $this->input->post('email', true) : null;
-        $password         = $this->input->post('password', true);
-        $password_confirm = $this->input->post('password_confirm', true);
+        $g_c_resp = $this->input->post('g-recaptcha-response', true);
 
-        $reg_result = self::parseRegistration($email, $password, $password_confirm);
+        $myCurl = curl_init();
+        curl_setopt_array($myCurl, array(
+            CURLOPT_URL => 'https://www.google.com/recaptcha/api/siteverify',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST => true,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_POSTFIELDS => http_build_query(array('secret' => '6LdyBmYUAAAAAM7E7voVemkU62C_BmqHZ7aNH20a',
+                'response' => $g_c_resp, 'remoteip' => $_SERVER['REMOTE_ADDR']))
+        ));
+        $response = curl_exec($myCurl);
+        curl_close($myCurl);
+        $resp_info = json_decode($response);
 
-        if (is_numeric($reg_result))
+        if ($this->input->post('cb_politics', true) and $resp_info->success === true)
         {
-            $result['user_id'] = $reg_result;
-            $result['user_email'] = $email;
+            $email = (!empty($this->input->post('email', true))) ? $this->input->post('email', true) : null;
+            $password = $this->input->post('password', true);
+            $password_confirm = $this->input->post('password_confirm', true);
+
+            $reg_result = self::parseRegistration($email, $password, $password_confirm);
+
+            if (is_numeric($reg_result)) {
+                $result['user_id'] = $reg_result;
+                $result['user_email'] = $email;
+            }
+            elseif ($reg_result == 'e1') {
+                $result['error'] = 'Ошибка! Пользователь с таким E-mail уже зарегистрирован.';
+            }
+            elseif ($reg_result == 'e2') {
+                $result['error'] = 'Ошибка! Не удалось зарегестрировать E-mail.';
+            }
+            elseif ($reg_result == 'e3') {
+                $result['error'] = 'Ошибка! Аккаунт с указанным E-mail удален. Обратитесь в службу поддержки для восстановления аккаунта.';
+            }
+            elseif ($reg_result == 'e8') {
+                $result['error'] = 'Ошибка! Проверьте, пожалуйста, корректность и заполните все поля регистрации.';
+            }
         }
-        elseif ($reg_result == 'e1')
+        else
         {
-            $result['error'] = 'Ошибка! Пользователь с таким E-mail уже зарегистрирован.';
-        }
-        elseif ($reg_result == 'e2')
-        {
-            $result['error'] = 'Ошибка! Не удалось зарегестрировать E-mail.';
-        }
-        elseif ($reg_result == 'e3')
-        {
-            $result['error'] = 'Ошибка! Аккаунт с указанным E-mail удален. Обратитесь в службу поддержки для восстановления аккаунта.';
-        }
-        elseif ($reg_result == 'e8')
-        {
-            $result['error'] = 'Ошибка! Проверьте, пожалуйста, корректность и заполните все поля регистрации.';
+            $result['error'] = ' Ошибка! Вы не подтвердили согласие на обработку персональных данных.';
         }
 
         echo json_encode($result, JSON_NUMERIC_CHECK);
@@ -317,8 +349,7 @@ class Authorization extends CI_Controller
                     }
                     elseif($result == 'error_user')
                     {
-                        $registration      = true;
-                        $reg_data['email'] = $email;
+                        header('Location: /registry');
                     }
                 }
                 else
@@ -404,14 +435,7 @@ class Authorization extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');
 
-        if($registration === false)
-        {
-            $this->load->view('authorization/login');
-        }
-        else
-        {
-            $this->load->view('authorization/registration', $reg_data);
-        }
+        $this->load->view('authorization/login');
 
         $this->load->view('footer/footer');
     }

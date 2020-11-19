@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 ?>
 <div class="embed-container">
     <?php $url_video_id = mb_substr($remote_url, (strpos($remote_url, 'embed/')+6)); ?>
-    <iframe id="player" type="text/html" width="640" height="360" src="<?php echo $remote_url; ?>?enablejsapi=1&loop=1&modestbranding=1&showinfo=0&playlist=<?php echo $url_video_id; ?>&origin=https://superbody.pro&rel=0" frameborder="0" allowfullscreen></iframe>
+    <iframe id="player" type="text/html" width="1920" height="1080" src="<?php echo $remote_url; ?>?enablejsapi=1&loop=1&modestbranding=1&showinfo=0&playlist=<?php echo $url_video_id; ?>&origin=https://superbody.pro&rel=0" frameborder="0" allowfullscreen></iframe>
 </div>
 <script>
     var tag = document.createElement('script');

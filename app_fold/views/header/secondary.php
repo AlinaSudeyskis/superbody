@@ -10,7 +10,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php include_once('./app_fold/views/header/slider.php'); ?>
     </div>
 </div><!-- header -->
-<div class="prezent_head">
+<div class="prezent_head <?php if(empty($advertising_banner) and empty($standard_banner)):?>hide_chart<?php endif;?>">
     <h1 class="prezent_h1"><?php echo $title;?></h1>
     <div class="prezent_cont parent">
         <div class="prezent_l">
@@ -30,5 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <div class="prezent_desk">Ознакомьтесь с доступными курсами. Любой курс содержит программу питания и синхронизируется с вашим календарем. Возможность задать вопрос лично тренеру. Ведение статистике в личном кабинете. Конкурсы, призы и подарки. Спешите стать участником нашего клуба.</div>
         </div>
     </div>
-    <div class="up_but up_but_bot"></div>
+    <?php if(!empty($advertising_banner) or !empty($standard_banner)):?>
+        <div class="up_but up_but_bot"></div>
+    <?php endif;?>
 </div><!-- prezent_head -->

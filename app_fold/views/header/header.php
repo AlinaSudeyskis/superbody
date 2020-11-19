@@ -80,9 +80,10 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
     <script src="https://player.vimeo.com/api/player.js"></script>
     <?php if($_SERVER['SERVER_NAME'] != 'sb.theoutlines.ru' and mb_substr($_SERVER['REQUEST_URI'], 0, 15) != '/administration'): ?>
-    <script src="//static-login.sendpulse.com/apps/fc3/build/loader.js" sp-form-id="23a222fb3923d54bb39a6c7de5790b59d655651dc07e91e90adad86c6f323576"></script>
-    <script charset="UTF-8" src="//web.webpushs.com/js/push/2b45b28120dd22639aa19427eabaedab_1.js" async></script>
+        <script src="//static-login.sendpulse.com/apps/fc3/build/loader.js" sp-form-id="23a222fb3923d54bb39a6c7de5790b59d655651dc07e91e90adad86c6f323576"></script>
+        <script charset="UTF-8" src="//web.webpushs.com/js/push/2b45b28120dd22639aa19427eabaedab_1.js" async></script>
     <?php endif;?>
+    <script src="https://yastatic.net/share2/share.js" async></script>
 </head>
 <body>
 

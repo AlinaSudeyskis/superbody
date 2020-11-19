@@ -825,14 +825,15 @@ class Blog_model extends CI_Model
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `bc_id`, `bc_name` FROM `blog_categories`');
+        $sel_data = $this->db->query('SELECT `bc_id`, `bc_name`, `bc_image` FROM `blog_categories`');
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $i = 0;
             foreach($sel_data->result() as $row)
             {
-                $result['blog_categories'][$row->bc_id]['id']   = $row->bc_id;
-                $result['blog_categories'][$row->bc_id]['name'] = $row->bc_name;
+                $result['blog_categories'][$row->bc_id]['id']    = $row->bc_id;
+                $result['blog_categories'][$row->bc_id]['name']  = $row->bc_name;
+                $result['blog_categories'][$row->bc_id]['image'] = (is_file($row->bc_image)) ? mb_substr($row->bc_image, 1) : '';
 
                 $i++;
             }
@@ -926,13 +927,14 @@ class Blog_model extends CI_Model
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `bc_id`, `bc_name` FROM `blog_categories` WHERE `bc_id`=? LIMIT 1', $category_id);
+        $sel_data = $this->db->query('SELECT `bc_id`, `bc_name`, `bc_image` FROM `blog_categories` WHERE `bc_id`=? LIMIT 1', $category_id);
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
 
-            $result['blog_category']['id']   = $row->bc_id;
-            $result['blog_category']['name'] = $row->bc_name;
+            $result['blog_category']['id']    = $row->bc_id;
+            $result['blog_category']['name']  = $row->bc_name;
+            $result['blog_category']['image'] = (is_file($row->bc_image)) ? mb_substr($row->bc_image, 1) : '';
 
             unset($row);
         }
@@ -948,15 +950,17 @@ class Blog_model extends CI_Model
      * Сохранение категории блога
      *
      * @param $name
+     * @param $category_image
      * @param $admin_id
      * @param $date
      * @return bool|int
      */
-    public function setNewBlogCategory($name, $admin_id, $date)
+    public function setNewBlogCategory($name, $category_image, $admin_id, $date)
     {
         $result = false;
 
-        $ins_data = $this->db->query('INSERT INTO `blog_categories` (`bc_name`, `bc_admin_id`, `bc_update`) VALUES (?, ?, ?)', array($name, $admin_id, $date));
+        $ins_data = $this->db->query('INSERT INTO `blog_categories` (`bc_name`, `bc_image`, `bc_admin_id`, `bc_update`) VALUES (?, ?, ?, ?)',
+            array($name, $category_image, $admin_id, $date));
         if($ins_data !== false and 1 == $this->db->affected_rows())
         {
             $result = $this->db->insert_id();
@@ -974,20 +978,74 @@ class Blog_model extends CI_Model
      *
      * @param $category_id
      * @param $name
+     * @param $category_image
      * @param $admin_id
      * @param $date
      * @return bool
      */
-    public function updateBlogCategory($category_id, $name, $admin_id, $date)
+    public function updateBlogCategory($category_id, $name, $category_image, $admin_id, $date)
     {
         $result = false;
 
-        $ins_data = $this->db->query('UPDATE `blog_categories` SET `bc_name`=?, `bc_admin_id`=?, `bc_update`=? WHERE `bc_id`=? LIMIT 1', array($name, $admin_id, $date, $category_id));
+        $ins_data = $this->db->query('UPDATE `blog_categories` SET `bc_name`=?, `bc_image`=?, `bc_admin_id`=?, `bc_update`=? WHERE `bc_id`=? LIMIT 1',
+            array($name, $category_image, $admin_id, $date, $category_id));
         if($ins_data !== false and 1 == $this->db->affected_rows())
         {
             $result = true;
         }
         elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка данных кода "Поделиться в соцсетях"
+     *
+     * @return array
+     */
+    public function getBlogShare()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `si_blog_share_top`, `si_blog_share_bottom` FROM `site_info` WHERE `si_id`=1 LIMIT 1');
+        if($sel_data !== false and 1 == $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['blog_share_top'] = $row->si_blog_share_top;
+            $result['blog_share_bottom'] = $row->si_blog_share_bottom;
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение данных кода "Поделиться в соцсетях"
+     *
+     * @param $share_top
+     * @param $share_bottom
+     * @param $admin_id
+     * @param $date
+     * @return bool
+     */
+    public function updateBlogShare($share_top, $share_bottom, $admin_id, $date)
+    {
+        $result = false;
+
+        $up_data = $this->db->query('UPDATE `site_info` SET `si_blog_share_top`=?, `si_blog_share_bottom`=?, `si_user_id`=?, `si_date`=? WHERE `si_id`=1 LIMIT 1',
+            array($share_top, $share_bottom, $admin_id, $date));
+        if($up_data !== false and 1 == $this->db->affected_rows())
+        {
+            $result = true;
+        }
+        elseif($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
         }

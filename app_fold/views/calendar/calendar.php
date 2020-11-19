@@ -103,7 +103,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             var data = jQuery.parseJSON(result.responseText);
                             if (!data.error)
                             {
-                                var pop_up_video = $("#pop-up_video"),
+                                var pop_up_video = $("#pop-up_workout"),
                                     pop_up_desc = pop_up_video.find('#wo-description'),
                                     viewed = false;
                                 pop_up_video.removeClass('today_courses');
@@ -170,6 +170,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         });
                                     });
                                 }
+
                                 if(pop_up_video.find('.purchase_pop-up_close').length === 0)
                                 {
                                     pop_up_video.append('<div class="purchase_pop-up_close" style="opacity: 0.6;"></div>');
@@ -206,6 +207,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                     clearInterval(timerId);
                                     timerBlock.find('.ad_timer').hide();
                                     timerBlock.find('.ad_skip').show();
+                                    pop_up_video.find('.pop-up_advertising').hide();
                                 }, num_sec*1000);
 
                                 pop_up_video.find('.ad_skip').one('click', function(){

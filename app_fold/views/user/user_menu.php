@@ -74,6 +74,11 @@ if (!empty($user_session)) :
                 </a>
             </li>
         <?php endif; ?>
+        <li>
+            <a href="https://play.google.com/store/apps/details?id=com.Globalmediaserviceltd.SUPERBODY.PRO">
+                <span><i class="fab fa-google-play"></i></span><span class="app">Скачать приложение</span><span class="follow_app">Google play</span>
+            </a>
+        </li>
         <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1 and ($advertising_display_none !== false or $advertising_display_all or $advertising_display_admin)): ?>
             <li class="pm_golden_black">
                 <a href="#" class="m_pop-up_premium" style="padding-left: 8px;">
