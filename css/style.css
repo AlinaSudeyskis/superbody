@@ -13677,6 +13677,12 @@ input.tren_form_block_check{
     }
 }
 
+@media (max-width: 1253px){
+    .follow_app{
+        display: none;
+    }
+}
+
 @media (max-width: 1199px){
 
     .lp_dark_footer_cont{

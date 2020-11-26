@@ -321,8 +321,7 @@ class User_model extends CI_Model
 
             if(!empty($row->user_email))
             {
-                $sel_subscr = $this->db->query('
-                    SELECT `s_id` FROM `subscription` WHERE `s_email`=? LIMIT 1', $row->user_email);
+                $sel_subscr = $this->db->query('SELECT `s_id` FROM `subscription` WHERE `s_email`=? LIMIT 1', $row->user_email);
 
                 if ($sel_subscr !== false and 1 == $sel_subscr->num_rows())
                 {
@@ -359,9 +358,7 @@ class User_model extends CI_Model
                 $result['user_data']['user_gender_rus'] = ($row->user_gender == 'female') ? 'Женский' : 'Мужской';
             }
 
-            $sel_weight = $this->db->query('
-                SELECT `user_weight` FROM `anthropometric` WHERE `user_id`=? ORDER BY `user_date_add` DESC LIMIT 1', $user_id);
-
+            $sel_weight = $this->db->query('SELECT `user_weight` FROM `anthropometric` WHERE `user_id`=? ORDER BY `user_date_add` DESC LIMIT 1', $user_id);
             if ($sel_weight !== false and 1 == $sel_weight->num_rows())
             {
                 $row3 = $sel_weight->row();
@@ -372,19 +369,13 @@ class User_model extends CI_Model
             {
                 parent::logDbMessages(__METHOD__.':'.__LINE__);
             }
-
-            return $result;
         }
         elseif ($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
-        else
-        {
-            // Пользователь не найден
-            return false;
-        }
+
+        return $result;
     }
 
     /**

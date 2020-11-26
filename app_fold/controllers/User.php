@@ -2474,13 +2474,17 @@ class User extends CI_Controller
         $user_courses = array();
         $courses_data = array();
         $auth_data = array();
-        if (!empty($user['user_data']))
+        if (!empty($user['user_data']) and $user['user_data']['user_deleted'] == 0)
         {
             $user_courses    = $this->Course_model->getUserCourses($user_id, $this->date, 'active'); // Выборка курсов пользователя
             $courses_data    = $this->Store_model->getUserCoursesOrder($user_id, $user_courses);
 
             $this->load->model('Authorization_model');
             $auth_data = $this->Authorization_model->getUserAuthorizationData($user_id);
+        }
+        elseif(!empty($user['user_data']) and $user['user_data']['user_deleted'] == 1)
+        {
+            header('Location: /administration/user/archive/'.$user_id);
         }
 
         $result = array_merge($user_courses, $user, $courses_data, $auth_data);
@@ -2705,7 +2709,7 @@ class User extends CI_Controller
                 // Пользователь удален
                 $this->session->set_tempdata('message', 179, 60);
 
-                header('Location: /administration/users/archive/'.$user_id);
+                header('Location: /administration/user/archive/'.$user_id);
             }
             else
             {
@@ -2957,14 +2961,14 @@ class User extends CI_Controller
                 $user_types    = array('user' => 1, 'coach' => 2, 'admin' => 3);
                 $user_type     = array_search($user_data['user_type'], $user_types);
 
-                header('Location: /administration/users/archive/'.$user_id);
+                header('Location: /administration/user/archive/'.$user_id);
             }
             else
             {
                 // Пользователь не восстановлен
                 $this->session->set_tempdata('message', 186, 60);
 
-                header('Location: /administration/users/archive/'.$user_id);
+                header('Location: /administration/user/archive/'.$user_id);
             }
         }
         elseif($this->input->post('bt_delete_user', true))
