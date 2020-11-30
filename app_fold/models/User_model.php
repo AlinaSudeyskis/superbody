@@ -1846,7 +1846,29 @@ class User_model extends CI_Model
     {
         $result = true;
 
-        $up_data = $this->db->query('UPDATE `users` SET `user_advertising_type`=2, `user_premium_end`=?, `user_date_update`=? WHERE `user_id`=?', array($today, $date, $user_id));
+        $up_data = $this->db->query('UPDATE `users` SET `user_advertising_type`=1, `user_premium_end`=?, `user_date_update`=? WHERE `user_id`=?', array($today, $date, $user_id));
+        if($up_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+            $result = false;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Удаление премиум аккаунта пользователя
+     *
+     * @param $user_id
+     * @param $type
+     * @param $date
+     * @return bool
+     */
+    public function updateUserAdvertisingType($user_id, $type, $date)
+    {
+        $result = true;
+
+        $up_data = $this->db->query('UPDATE `users` SET `user_advertising_type`=?, `user_date_update`=? WHERE `user_id`=?', array($type, $date, $user_id));
         if($up_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);

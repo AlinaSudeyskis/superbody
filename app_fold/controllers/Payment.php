@@ -329,6 +329,9 @@ class Payment extends CI_Controller
 
                     $this->Course_model->updateOrderCoursesStatus($payment['order_id'], $courses_status, $block_date, $block, $this->date);
 
+                    $advertising_type = ($courses_status == 'payment_succeeded') ? 2 : 1;
+                    $this->User_model->updateUserAdvertisingType($payment['user_id'], $advertising_type, $this->date);
+
                     if ($payment_status == 'succeeded' and $payment_event == 'payment')
                     {
                         // Сохранение последующих платежей? если выбрана оплата, разделенная на несколько месяцев

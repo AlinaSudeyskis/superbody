@@ -954,6 +954,7 @@ class CI_Controller {
      *
      * @param $user_id
      * @param $weight
+     * @throws Exception
      */
     protected function calcBmiBmr($user_id, $weight)
     {
