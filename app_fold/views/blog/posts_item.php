@@ -11,7 +11,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="posts_block_col_poster">
             <?php if($post['poster_type'] == 'image' or empty($post['poster'])): ?>
                 <?php $poster_img = (!empty($post['poster'])) ? $post['poster'] : '/img/video_img.png'; ?>
-                <img src="<?php echo $poster_img; ?>" alt="">
+                <a href="<?php echo $post_path.$post['id'];?>"><img src="<?php echo $poster_img; ?>" alt=""></a>
             <?php elseif($post['poster_type'] == 'vimeo' and !empty($post['poster'])): ?>
                 <?php $remote_url =$post['poster'];
                 $key = 0;
