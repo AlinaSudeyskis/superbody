@@ -2263,6 +2263,23 @@ $(document).ready(function () {
     $('.practice_block').on('click', '.purchase_pop-up_close', function(){
         $(this).parent('.practice_block').fadeOut(600);
     });
+
+    $('select[name=s_blog_poster_type]').on('change', function(){
+        var blog_poster_url = $('#blog-poster-video-url'),
+            blog_poster_image = $('#blog-poster-image');
+
+        blog_poster_url.hide();
+        blog_poster_image.hide();
+
+        if($(this).val() === 'vimeo' || $(this).val() === 'youtube')
+        {
+            blog_poster_url.show();
+        }
+        else if($(this).val() === 'image')
+        {
+            blog_poster_image.show();
+        }
+    });
 });
 var options, playerTwoPlayer;
 options = {

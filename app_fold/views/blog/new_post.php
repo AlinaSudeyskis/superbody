@@ -17,7 +17,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </div>
                 <div class="kurs_block_val">
                     <div class="anketa_block_cont">
-                        <form action="" method="post">
+                        <form action="" method="post" enctype="multipart/form-data">
                             <div class="admin_form_buts_wrap_container">
                                 <div class="admin_form_buts_wrap parent">
                                     <input type="submit" name="bt_save_post" class="admin_form_submit defaultActionButton" value="Сохранить">

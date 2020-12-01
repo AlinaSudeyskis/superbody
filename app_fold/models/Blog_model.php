@@ -39,7 +39,7 @@ class Blog_model extends CI_Model
                                       `cb_post_keywords`, `cb_post_video_type`, `cb_post_video_url`, `cb_post_text`,
                                       `cb_post_date_add`, `cb_post_date_update`)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', array($post_category_id, $user_id, $post_poster_type, $post_poster,
-            $post_video_type, $post_video, $title, $short_desc, $keywords, $text, $date, $date));
+                $title, $short_desc, $keywords, $post_video_type, $post_video, $text, $date, $date));
 
         if ($ins_data !== false and 1 == $this->db->affected_rows())
         {
@@ -104,8 +104,9 @@ class Blog_model extends CI_Model
         $result = array('post' => array());
 
         $sel_post = $this->db->query('
-            SELECT `cb_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, `cb_post_keywords`, `cb_post_text`, `cb_post_approval` 
-            FROM `coach_blog` 
+            SELECT `cb_id`, `cb_bc_id`, `cb_u_id`, `cb_poster_type`, `cb_poster`, `cb_post_title`, `cb_post_short_description`, 
+                   `cb_post_keywords`, `cb_post_video_type`, `cb_post_video_url`, `cb_post_text`, `cb_post_approval`, `cb_post_date_add` 
+            FROM `coach_blog`  
             WHERE `cb_id`=? and `cb_u_id`=? LIMIT 1', array($post_id, $user_id));
 
         if ($sel_post !== false and 1 == $sel_post->num_rows())
@@ -115,7 +116,8 @@ class Blog_model extends CI_Model
             $result['post'] = self::parseBlogPostData($row);
 
             $attached_courses = self::getBlogPostAttachedCourses($post_id);
-            $result['post']['attached_courses'] = $attached_courses['attached_courses_id'];
+            $result['post']['attached_courses_id'] = $attached_courses['attached_courses_id'];
+            $result['post']['attached_courses'] = $attached_courses['attached_courses'];
 
             $comments = self::getBlogPostComments($post_id);
             $result['post']['comments'] = $comments['comments'];
@@ -836,6 +838,44 @@ class Blog_model extends CI_Model
                 $result['blog_categories'][$row->bc_id]['image'] = (is_file($row->bc_image)) ? mb_substr($row->bc_image, 1) : '';
 
                 $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Выборка списка категорий блога, хотя бы с одной статьей
+     *
+     * @return array
+     */
+    public function getAvailableBlogsCategories()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `bc_id`, `bc_name`, `bc_image`, COUNT(`cb_id`) as `count_posts`, `cb_post_approval` 
+            FROM `blog_categories`
+            LEFT JOIN `coach_blog` ON `cb_bc_id`=`bc_id`
+            WHERE `cb_post_approval`=1
+            GROUP BY `bc_id`');
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach($sel_data->result() as $row)
+            {
+                if($row->count_posts > 0)
+                {
+                    $result['blog_categories'][$row->bc_id]['id']    = $row->bc_id;
+                    $result['blog_categories'][$row->bc_id]['name']  = $row->bc_name;
+                    $result['blog_categories'][$row->bc_id]['image'] = (is_file($row->bc_image)) ? mb_substr($row->bc_image, 1) : '';
+
+                    $i++;
+                }
             }
             unset($row);
         }

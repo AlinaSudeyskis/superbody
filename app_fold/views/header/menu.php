@@ -30,7 +30,18 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 </ul>
             <?php endif;?>
         </li>
-        <li><a href="/blog" <?php if ($page_menu == 'blog') { echo 'class="active"'; } ?>>БЛОГ</a></li>
+        <li <?php if (!empty($menu_blog_categories['blog_categories'])) :?> class="submenu_li" <?php endif;?>>
+            <a href="/blog" <?php if ($page_menu == 'blog') { echo 'class="active"'; } ?>>БЛОГ</a>
+            <span class="more_submenu"></span>
+            <?php if (!empty($menu_blog_categories['blog_categories'])) :?>
+                <ul class="submenu">
+                    <?php foreach ($menu_blog_categories['blog_categories'] as $m_bc) :?>
+                        <li><a href="/blog/<?php echo $m_bc['id']; ?>"><?php echo $m_bc['name']; ?></a></li>
+                    <?php endforeach;
+                    unset($m_bc);?>
+                </ul>
+            <?php endif;?>
+        </li>
         <?php if (!empty($user_session)) :?>
             <li><a href="<?php echo '/profile/' . $user_session['id']; ?>" <?php if ($page_menu == 'profile') { echo 'class="active"'; } ?>>ПРОФИЛЬ</a></li>
         <?php endif;?>

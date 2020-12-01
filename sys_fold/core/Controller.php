@@ -393,6 +393,7 @@ class CI_Controller {
 
         $this->load->model('Welcome_model');
         $this->load->model('Course_model');
+        $this->load->model('Blog_model');
         $this->load->model('Notification_model');
 
         $admin_new_fbs    = null;
@@ -559,6 +560,9 @@ class CI_Controller {
         // Список доступных пользователю категорий курсов
         $courses = $this->Course_model->getAvailableCourseTypes();
 
+        // Список доступных пользователю категорий блога
+        $blog_categories = $this->Blog_model->getAvailableBlogsCategories();
+
         // Данные сайта (контактные данные, о нас, соц. сети и т.д.)
         $site_info = $this->Welcome_model->getSiteInfo();
 
@@ -583,6 +587,7 @@ class CI_Controller {
             "page_submenu" => '',
             "outsider" => false,
             "menu_courses" => $courses,
+            "menu_blog_categories" => $blog_categories,
             "country_code" => $this->country_code,
             "user_timezone" => $this->user_timezone,
             "user_notification" => array(),

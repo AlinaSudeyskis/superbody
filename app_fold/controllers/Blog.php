@@ -464,7 +464,9 @@ class Blog extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
-        $result = $this->Blog_model->getCoachBlogPost($this->user_id, $post_id);
+        $post = $this->Blog_model->getCoachBlogPost($this->user_id, $post_id);
+        $categories = $this->Blog_model->getBlogsCategories();
+        $result = array_merge($post, $categories);
 
         if($this->input->post('bt_save_post', true))
         {
@@ -579,6 +581,8 @@ class Blog extends CI_Controller
             parent::pageNotFound($this->page_url);
         }
 
+        $result = $this->Blog_model->getBlogsCategories();
+
         if ($this->input->post('bt_save_post', true))
         {
             $post_title       = '';
@@ -594,6 +598,8 @@ class Blog extends CI_Controller
             $post_video       = '';
 
             extract(self::parsePostData($this->input->post()));
+
+            $insert_courses = $post_courses;
 
             if(!empty($post_title) and !empty($post_text))
             {
@@ -630,7 +636,7 @@ class Blog extends CI_Controller
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/profile');
         $this->load->view('user/profile_line');
-        $this->load->view('blog/new_post');
+        $this->load->view('blog/new_post', $result);
         $this->load->view('footer/footer');
     }
 
