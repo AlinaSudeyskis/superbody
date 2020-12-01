@@ -2387,11 +2387,11 @@ class User extends CI_Controller
         $categories = array('users', 'admins', 'coaches', 'archive');
         $subcategories = array('auth', 'bought');
 
-        $users_category = ($this->input->post('category', true) and in_array($this->input->post('category', true), $categories))
-            ? $this->input->post('category', true)
+        $users_category = ($this->input->post('category_id', true) and in_array($this->input->post('category_id', true), $categories))
+            ? $this->input->post('category_id', true)
             : null;
-        $subcategory = ($this->input->post('subcategory', true) and in_array($this->input->post('category', true), $subcategories))
-            ? $this->input->post('subcategory', true)
+        $subcategory = ($this->input->post('subcategory_id', true) and in_array($this->input->post('subcategory_id', true), $subcategories))
+            ? $this->input->post('subcategory_id', true)
             : null;
         $search_text = $this->input->post('search', true) ? mb_substr(strip_tags($this->input->post('search', true)), 0, 255) : null;
         $first_id = ($this->input->post('first_id', true) and is_numeric($this->input->post('first_id', true)))
