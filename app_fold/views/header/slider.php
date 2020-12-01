@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 $display_none  = (empty($site_info) or $site_info['advertising_display'] == 0) ? true : false;
-$display_all   = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and $user_session['advertising'] == 1) ? true : false;
+$display_all   = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and ($user_session['advertising'] == 0 or $user_session['advertising'] == 1)) ? true : false;
 $display_admin = (!empty($site_info) and $site_info['advertising_display'] == 2 and !empty($user_session) and $user_session['type'] == 3) ? true : false;
 ?>
 <div class="header_bg <?php if($main_banner === true):?>header_bg_main<?php endif;?>">

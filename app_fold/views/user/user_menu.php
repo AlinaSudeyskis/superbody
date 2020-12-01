@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 $advertising_display_none  = (empty($site_info) or $site_info['advertising_display'] == 0) ? true : false;
-$advertising_display_all   = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and $user_session['advertising'] == 1) ? true : false;
+$advertising_display_all   = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and ($user_session['advertising'] == 0 or $user_session['advertising'] == 1)) ? true : false;
 $advertising_display_admin = (!empty($site_info) and $site_info['advertising_display'] == 2 and !empty($user_session) and $user_session['type'] == 3) ? true : false;
 
 if (!empty($user_session)) :
