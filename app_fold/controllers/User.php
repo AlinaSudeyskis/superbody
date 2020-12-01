@@ -2387,7 +2387,7 @@ class User extends CI_Controller
         $categories = array('users', 'admins', 'coaches', 'archive');
         $subcategories = array('auth', 'bought');
 
-        $users_category = ($this->input->post('category_id', true) and in_array($this->input->post('category', true), $categories))
+        $users_category = ($this->input->post('category', true) and in_array($this->input->post('category', true), $categories))
             ? $this->input->post('category', true)
             : null;
         $subcategory = ($this->input->post('subcategory', true) and in_array($this->input->post('subcategory', true), $subcategories))
