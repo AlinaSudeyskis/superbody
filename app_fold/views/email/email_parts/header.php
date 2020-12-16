@@ -227,7 +227,7 @@
                 <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-spacing:0;">
                     <tr>
                         <td align="center" style="padding-top:0; padding-bottom:0; padding-right:0; padding-left:0; text-align:center;">
-                            <a href="https://superbody.pro/profile"
+                            <a href="https://superbody.pro/profile<?php echo $recipient_id; ?>"
                                style="width:100%; text-decoration: none; text-align:center; color: #FFFFFF;
                                text-transform: uppercase; font-size: 12px; line-height: 24px;">Личный кабинет</a>
                         </td>
