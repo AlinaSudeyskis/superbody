@@ -329,8 +329,11 @@ class Payment extends CI_Controller
 
                     $this->Course_model->updateOrderCoursesStatus($payment['order_id'], $courses_status, $block_date, $block, $this->date);
 
-                    $advertising_type = ($courses_status == 'payment_succeeded') ? 2 : 1;
-                    $this->User_model->updateUserAdvertisingType($payment['user_id'], $advertising_type, $this->date);
+                    $advertising_type = ($courses_status == 'payment_succeeded') ? 2 : 4;
+                    if($advertising_type != $payment['current_user_ad_type'])
+                    {
+                        $this->User_model->updateUserAdvertisingType($payment['user_id'], $advertising_type, $this->date);
+                    }
 
                     if ($payment_status == 'succeeded' and $payment_event == 'payment')
                     {
@@ -840,7 +843,7 @@ class Payment extends CI_Controller
                         foreach ($order['products'] as $product)
                         {
                             $products['products'][$i]['id'] = 0;
-                            $products['products'][$i]['name'] = 'Премиум аккаунт';
+                            $products['products'][$i]['name'] = 'Премиум доступ';
                             $products['products'][$i]['cart_quantity'] = $product['cart_quantity'];
                             $products['products'][$i]['price'] = $product['price'];
                             $products['products'][$i]['rec_first_price'] = $product['rec_first'];

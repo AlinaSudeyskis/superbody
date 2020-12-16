@@ -95,10 +95,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 <?php endif; ?>
 
 <div class="header_bg_wrap in_bg_wrap">
-    <div class="header_bg">
-        <?php include_once('./app_fold/views/header/slider.php'); ?>
-    </div>
-    <?php include_once('./app_fold/views/header/banner_js.php');?>
+    <?php include_once('./app_fold/views/header/slider.php'); ?>
 </div>
 
 <?php if($landing['block3']['hide'] === false):

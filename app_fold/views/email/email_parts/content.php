@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         </td>
                     </tr>
                 <?php endif;
-                if(!empty($system_message['text'])): ?>
+                if(!empty($system_message['text']) or !empty($email['text'])): ?>
                     <tr style="margin:0; padding:0">
                         <td style="width:100%; margin:0; padding-top:10px; padding-right:10px; padding-bottom:10px; padding-left:10px;">
                             <table border="0" cellpadding="0" cellspacing="0" style="width:100%; background-color:#ffffff; border-bottom: 3px solid #cdcdcd;">

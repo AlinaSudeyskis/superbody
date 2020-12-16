@@ -11,7 +11,16 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
 </div><!-- header -->
 <div class="prezent_head <?php if(empty($advertising_banner) and empty($standard_banner)):?>hide_chart<?php endif;?>">
-    <h1 class="prezent_h1"><?php echo $title;?></h1>
+    <h1 class="prezent_h1<?php if($page_menu == 'blog'): ?> blog<?php endif; ?>"><?php echo $title;?></h1>
+    <?php if($page_menu == 'blog'): ?>
+        <div class="shop_search_form_wrap">
+            <div class="open_search_form"></div>
+            <form action="" class="shop_search_form parent" method="post">
+                <input type="text" name="search" class="shop_search_in" placeholder="Поиск" value="<?php if(!empty($search)): echo $search; endif; ?>">
+                <input type="submit" name="bt_search_posts" class="shop_search_but" value="">
+            </form>
+        </div>
+    <?php endif; ?>
     <div class="prezent_cont parent">
         <div class="prezent_l">
             <div class="video_cont">

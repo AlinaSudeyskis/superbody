@@ -108,7 +108,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         </a>
     </li>
     <li>
-        <a href="/administration/emails" <?php if ($page_menu == 'emails') { echo 'class="active"'; } ?>>
+        <a href="/administration/sent/emails" <?php if ($page_menu == 'emails') { echo 'class="active"'; } ?>>
             <span><i class="far fa-envelope"></i></span><span>Эл. письма</span>
         </a>
     </li>

@@ -527,7 +527,7 @@ class Administrator_model extends CI_Model
             $row = $sel_info->row();
 
             $result['advertising_premium_display'] = $row->si_premium_display;
-            $result['advertising_display']         = $row->si_advertising_display;
+            $result['advertising_display']         = explode(";", $row->si_advertising_display);
             $result['advertising_mobile']          = $row->si_advertising_mobile;
             $result['advertising_mobile_hide']     = $row->si_advertising_mobile_hide;
             $result['advertising_vertical']        = $row->si_advertising_vertical;

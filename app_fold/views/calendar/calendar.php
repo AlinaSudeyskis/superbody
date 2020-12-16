@@ -186,7 +186,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                         <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1  and (!$advertising_display_none or $advertising_display_all or $advertising_display_admin)): ?>
                                         '<div class="premium_button">' +
                                             '<a href="#" class="m_pop-up_premium" style="padding-left: 8px;">' +
-                                                '<span><i class="fas fa-crown"></i></span><span>Премиум аккаунт</span>' +
+                                                '<span><i class="fas fa-crown"></i></span><span>Премиум доступ</span>' +
                                             '</a>' +
                                         '</div>' +
                                         <?php endif; ?>

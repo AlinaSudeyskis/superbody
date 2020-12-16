@@ -4911,7 +4911,7 @@ class Store_model extends CI_Model
         }
         elseif($row->ouc_premium_account > 0)
         {
-            $result['name']     = 'Премиум аккаунт';
+            $result['name']     = 'Премиум доступ';
             $result['price']    = (!empty($row->ouc_p_price) and $row->ouc_p_price != '0.00') ? $row->ouc_p_price : '';
             $result['cart_quantity'] = 1;
             $result['image']    = null;

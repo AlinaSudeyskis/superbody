@@ -1916,11 +1916,18 @@ $(document).ready(function () {
         arrows: true,
         speed: 300,
         autoplay: false,
-        slidesToShow: 5,
-        slidesToScroll: 5,
+        slidesToShow: 4,
+        slidesToScroll: 4,
         responsive: [
             {
-                breakpoint: 1920,
+                breakpoint: 2250,
+                settings: {
+                    slidesToShow: 5,
+                    slidesToScroll: 5
+                }
+            },
+            {
+                breakpoint: 1921,
                 settings: {
                     slidesToShow: 4,
                     slidesToScroll: 4

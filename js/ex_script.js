@@ -135,6 +135,17 @@ $(document).ready(function(){
         }
     });
 
+    $('#select-email-recipient').on('change', function(){
+        var block_search = $('#e-users-search');
+
+        block_search.hide();
+
+        if($(this).val() === 'several')
+        {
+            block_search.show();
+        }
+    });
+
     /* Добавление информации об остаточном кол-ве символов для ввода */
     if($('form.landing_admin_form').length === 1)
     {
@@ -941,7 +952,7 @@ $(document).ready(function(){
                 name = $(this).find(".add_tov_h").text(),
                 price = $(this).find(".add_tov_price").text(),
                 number = $(this).attr("id");
-            if ($('#'+number+'tov').length == 0) {
+            if ($('#'+number+'tov').length === 0) {
                 $(this).parents(".add_tov_in_total").find(".add_tov_val")
                     .append('<div id="'+number+'tov" class="add_tov_val_item parent">' +
                         '<a href="'+link+'" class="add_tov_val_cont parent"><span class="add_tov_val_h">'+name+'</span>' +
@@ -961,7 +972,7 @@ $(document).ready(function(){
 
     /* выпадающий список видео */
     $(document).on('input', '.add_tov_in.video input:text', function () {
-        if($(this).val() != '' && $(this).val().length < 255){
+        if($(this).val() !== '' && $(this).val().length < 255){
             var input_search = $(this).val(),
                 c_id = $('#c-id').val(),
                 tov_in = $(this);
@@ -1713,11 +1724,7 @@ $(document).ready(function(){
     /**
      * Поиск уведомлений
      * @param first_id
-     * @param first_price
-     * @param first_discount
      * @param last_id
-     * @param last_price
-     * @param last_discount
      */
     function searchNotifications(first_id, last_id)
     {
@@ -1731,7 +1738,7 @@ $(document).ready(function(){
                 last_id: last_id},
             complete: function (result) {
                 var data = result.responseJSON;
-                if (data.notif != "false")
+                if (data.notif !== "false")
                 {
                     notif_block.html(data.notif);
                     notif_block.next("#pagination").remove();

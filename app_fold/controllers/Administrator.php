@@ -910,8 +910,14 @@ class Administrator extends CI_Controller
         }
         elseif ($this->input->post('bt_save_advertising', true))
         {
+            $display_unauthorized = ($this->input->post('cb_display_unauthorized', true)) ? '1;' : '';
+            $display_free = ($this->input->post('cb_display_free', true)) ? '2;' : '';
+            $display_missed = ($this->input->post('cb_display_missed', true)) ? '3;' : '';
+            $display_admins = ($this->input->post('cb_display_admins', true)) ? '4;' : '';
+
+            $display = $display_unauthorized.$display_free.$display_missed.$display_admins;
+
             $premium_display = ($this->input->post('cb_premium_display_hide')) ? 0 : 1;
-            $display = (is_numeric($this->input->post('s_advertising_display', true))) ? $this->input->post('s_advertising_display', true) : 0;
             $mobile = mb_substr($this->input->post('ta_advertising_mobile'), 0, 65000);
             $mobile_hide = ($this->input->post('cb_hide_mobile')) ? 1 : 0;
             $vertical = mb_substr($this->input->post('ta_advertising_vertical'), 0, 65000);

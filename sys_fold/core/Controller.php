@@ -569,6 +569,17 @@ class CI_Controller {
         // Данные сайта (контактные данные, о нас, соц. сети и т.д.)
         $site_metadata = $this->Welcome_model->getSiteMetaData();
 
+        // Реклама
+        $ad_display_none         = (empty($site_info) or empty($site_info['advertising_display'])) ? true : false;
+        $ad_display_unauthorized = (!empty($site_info) and in_array(1, $site_info['advertising_display']) and (empty($user_session) or (!empty($user_session) and $user_session['advertising'] == 0))) ? true : false;
+        $ad_display_free         = (!empty($site_info) and in_array(2, $site_info['advertising_display']) and !empty($user_session) and $user_session['advertising'] == 1) ? true : false;
+        $ad_display_missed       = (!empty($site_info) and in_array(3, $site_info['advertising_display']) and !empty($user_session) and $user_session['advertising'] == 4) ? true : false;
+        $ad_display_admin        = (!empty($site_info) and in_array(4, $site_info['advertising_display']) and !empty($user_session) and $user_session['type'] == 3) ? true : false;
+        $display_advertising     = ($ad_display_none === false and ($ad_display_unauthorized or $ad_display_free or $ad_display_missed or $ad_display_admin)) ? true : false;
+        /*var_dump($display_none);
+        var_dump($display_all);
+        var_dump($display_admin);*/
+
         // Данные страницы
         $this->page_data = array(
             "title" => '',
@@ -592,7 +603,8 @@ class CI_Controller {
             "user_timezone" => $this->user_timezone,
             "user_notification" => array(),
             "e_new_messages" => $admin_new_fbs,
-            "e_new_orders" => $admin_new_orders
+            "e_new_orders" => $admin_new_orders,
+            "display_advertising" => $display_advertising
         );
 	}
 
@@ -1921,6 +1933,13 @@ class CI_Controller {
                         {
                             $this->Course_model->updateNewUserCourse($uc_id, $free_weeks, $free_weeks_end_date, $this->date);
                             $this->Store_model->updateOrderStatus($res_order['order_id'], '', $payment_status);
+
+                            $advertising_type = (empty($this->session->user['advertising'])) ? 1 : $this->session->user['advertising'];
+                            if($advertising_type != $this->session->user['advertising'])
+                            {
+                                $this->User_model->updateUserAdvertisingType($user_id, $advertising_type, $this->date);
+                            }
+
                             if($return_url == '/administration/user/'.$user_id.'/add_course')
                             {
                                 header('Location: '.$return_url);
@@ -2044,7 +2063,7 @@ class CI_Controller {
         $products['products'] = array( 0 => array(
             'id' => 0,
             'premium_account' => 1,
-            'name' => 'Премиум аккаунт Superbody',
+            'name' => 'Премиум доступ Superbody',
             'cart_quantity' => 1,
             'price' => $premium_price,
             'rec_first_price' => $premium_price));

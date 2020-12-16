@@ -1888,17 +1888,19 @@ $(document).ready(function() {
                 event.preventDefault();
 
                 var category_id = $('#category_id').val(),
-                    first_id    = $('#i_first_id').val();
+                    first_id    = $('#i_first_id').val(),
+                    search      = $('input[name=search]').val();
 
-                searchPosts(category_id, first_id, null);
+                searchPosts(category_id, search, first_id, null);
             });
             posts_block.on('click', '.shop_block_nav #next_page', function (event) {
                 event.preventDefault();
 
                 var category_id = $('#category_id').val(),
-                    last_id     = $('#i_last_id').val();
+                    last_id     = $('#i_last_id').val(),
+                    search      = $('input[name=search]').val();
 
-                searchPosts(category_id, null, last_id);
+                searchPosts(category_id, search, null, last_id);
             });
 
             // Поиск товара по ID
@@ -2267,16 +2269,18 @@ $(document).ready(function() {
     /**
      * Поиск записей блога
      * @param category_id
+     * @param search
      * @param first_id
      * @param last_id
      */
-    function searchPosts(category_id, first_id, last_id)
+    function searchPosts(category_id, search, first_id, last_id)
     {
         $.ajax({
             url: '/sortPosts',
             type: 'post',
             dataType: 'json',
             data: {category_id: category_id,
+                search: search,
                 first_id: first_id,
                 last_id: last_id},
             complete: function (result) {
@@ -2288,7 +2292,7 @@ $(document).ready(function() {
                     kurs_rows.after(data.pagination);
                 }
                 else {
-                    kurs_rows.html("<br/>К сожалению, по Вашему запросу ни чего не найдено.");
+                    kurs_rows.html("<h3 class='info'>К сожалению, по Вашему запросу ни чего не найдено.</h3>");
                 }
             }
         });

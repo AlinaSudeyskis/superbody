@@ -23,7 +23,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         $url_page = (!empty($page_2submenu) and array_search($page_2submenu, $pages)) ? array_search($page_2submenu, $pages) : ''; ?>
                         <form action="/administration/users/<?php echo $url_page; ?>" class="search_form parent" method="post">
                             <input type="text" name="search" class="search_in" placeholder="Поиск" value="<?php if(!empty($search_text)): echo $search_text; endif; ?>">
-                            <input type="submit" name="bt_users_search" class="search_but" value="Отправить">
+                            <input type="submit" name="bt_users_search" class="search_but defaultActionButton" value="Отправить">
                         </form>
                     </div>
                     <?php if (!empty($users)):?>

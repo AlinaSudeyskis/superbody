@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Эл. письма</h3>
-                            <div class="content_block_h_ref"><a href="/administration/emails/addresses/new" class="add_tab_but">Добавить эл. адрес</a></div>
+                            <?php include_once('./app_fold/views/email/email_menu_links.php'); ?>
                         </div>
                         <?php include_once('./app_fold/views/email/emails_menu.php'); ?>
                     </div>
@@ -22,7 +22,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php if (!empty($emails)) :
                             foreach ($emails as $email) : ?>
                                 <div class="admin_item emails">
-                                    <a class="admin_feedback_link parent" href="/administration/email/<?php echo $email['id']; ?>">
+                                    <a class="admin_feedback_link parent" href="/administration/system/email/<?php echo $email['id']; ?>">
                                         <span class="admin_feedback_cont parent">
                                             <span class="admin_feedback_info parent"><?php echo $email['name']; ?></span>
                                             <span class="admin_feedback_txt"><?php echo $email['subject']; ?></span>

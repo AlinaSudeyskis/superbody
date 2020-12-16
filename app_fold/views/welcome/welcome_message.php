@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div>
     <div class="video_row row video_block">
         <?php if (!empty($video)) :
-            foreach ($video as $key => $vd) :?>
+            foreach ($video as $key => $vd): ?>
                 <div class="video_col">
                     <div class="video_col_h">
                         <a href="/course/<?php echo $vd['course_id']; ?>" class="video_title">
@@ -42,7 +42,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                             <a href="/course/<?php echo $vd['course_id']; ?>">Подробнее</a>
                         </div>
                         <div class="video_col_but_right">
-                            <a href="#" class="buy_course" data-cid="<?php echo $vd['course_id']; ?>">Купить</a>
+                            <a href="#" class="buy_course" data-cid="<?php echo $vd['course_id']; ?>">
+                                <?php if($vd['course_price'] > 0): ?>Купить<?php else:?>Добавить в "Мои курсы"<?php endif; ?>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -52,7 +54,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     </div><!-- video_row -->
     <span class="cont_ref"><a href="/courses">Посмотреть все курсы</a></span>
 
-    <h2 class="main_subh">Тренировки дома от 299 рублей в месяц</h2>
+    <h2 class="main_subh">Бесплатные тренировки дома</h2>
     <div class="main_subh_text" style="padding-bottom: 20px;">Просто включайте видео и повторяйте за тренером – подготовка не нужна</div>
     <div class="main_text">Создайте фигуру мечты и улучшите состояние здоровья с нашими программами фитнес-тренировок – гарантируем эффективность каждого курса при соблюдении рекомендаций по технике выполнения упражнений и правильному питанию. Если возникнут вопросы, обратитесь к онлайн-консультанту или своему тренеру – всегда готовы дать бесплатные профессиональные советы для достижения вашей цели.</div>
     <div class="main_block_wrap">

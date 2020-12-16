@@ -208,23 +208,26 @@ class Payment_model extends CI_Model
     {
         $result = array();
 
-        $sel_data = $this->db->query('SELECT `op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_payment_options`, `o_u_id` 
+        $sel_data = $this->db->query('
+            SELECT `op_o_id`, `op_customer_email`, `op_customer_name`, `op_payment_type`, `op_pt_login`, `op_pt_phone`, `op_payment_options`, `o_u_id`, `user_advertising_type`
             FROM `orders_payment`
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
+            LEFT JOIN `users` ON `user_id`=`o_u_id`
             WHERE `op_payment_id`=? LIMIT 1', $payment_id);
         if($sel_data !== false and 1 == $sel_data->num_rows())
         {
             $row = $sel_data->row();
 
-            $result['order_id']        = $row->op_o_id;
-            $result['customer_email']  = $row->op_customer_email;
-            $result['customer_name']   = $row->op_customer_name;
-            $result['option']          = $row->op_payment_options;
-            $result['type']            = $row->op_payment_type;
-            $result['login']           = $row->op_pt_login;
-            $result['phone']           = $row->op_pt_phone;
-            $result['premium_account'] = 0;
-            $result['user_id']         = $row->o_u_id;
+            $result['order_id']             = $row->op_o_id;
+            $result['customer_email']       = $row->op_customer_email;
+            $result['customer_name']        = $row->op_customer_name;
+            $result['option']               = $row->op_payment_options;
+            $result['type']                 = $row->op_payment_type;
+            $result['login']                = $row->op_pt_login;
+            $result['phone']                = $row->op_pt_phone;
+            $result['premium_account']      = 0;
+            $result['user_id']              = $row->o_u_id;
+            $result['current_user_ad_type'] = $row->user_advertising_type;
 
             $sel_order = $this->db->query('SELECT `ouc_premium_account` FROM `orders_users_cart` WHERE `ouc_o_id`=? and `ouc_premium_account`=1 LIMIT 1', $row->op_o_id);
             if($sel_order !== false and 1 == $sel_order->num_rows())

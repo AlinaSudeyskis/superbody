@@ -67,14 +67,14 @@ elseif(!empty($user_session) and $user_session['type'] == 1)
     </div>-->
     <?php
     $advertising_display_none  = (empty($site_info) or $site_info['advertising_display'] == 0) ? true : false;
-    $advertising_display_all   = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and $user_session['advertising'] == 1) ? true : false;
-    $advertising_display_admin = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and $user_session['type'] == 3) ? true : false;
+    $advertising_display_all   = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and ($user_session['advertising'] == 0 or $user_session['advertising'] == 1)) ? true : false;
+    $advertising_display_admin = (!empty($site_info) and $site_info['advertising_display'] == 2 and !empty($user_session) and $user_session['type'] == 3) ? true : false;
 
     if(!empty($site_info) and $site_info['advertising_premium_display'] == 1 and (!$advertising_display_none or $advertising_display_all or $advertising_display_admin)): ?>
         <div class="cat_item_wrap">
             <div class="cat_item m_pop-up_premium">
                 <div class="cat_img" style="background-color: #484848;"><i class="fas fa-crown" style="font-size: 40px; color: #ffcb38;"></i></div>
-                <div class="cat_desk">Премиум аккаунт</div>
+                <div class="cat_desk">Премиум доступ</div>
             </div>
         </div>
     <?php endif; ?>

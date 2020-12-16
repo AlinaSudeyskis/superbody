@@ -1,12 +1,8 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
-$display_none  = (empty($site_info) or $site_info['advertising_display'] == 0) ? true : false;
-$display_all   = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and ($user_session['advertising'] == 0 or $user_session['advertising'] == 1)) ? true : false;
-$display_admin = (!empty($site_info) and $site_info['advertising_display'] == 2 and !empty($user_session) and $user_session['type'] == 3) ? true : false;
 ?>
 <div class="header_bg <?php if($main_banner === true):?>header_bg_main<?php endif;?>">
-    <?php if(!empty($site_info) and ($display_none !== false or $display_all or $display_admin) and
+    <?php if(!empty($site_info) and !empty($display_advertising) and $display_advertising === true and
         ((!empty($site_info['advertising_horizontal']) and empty($site_info['advertising_horizontal_hide'])) or
             (!empty($site_info['advertising_horizontal_mobile']) and empty($site_info['advertising_horizontal_mobile_hide'])))): ?>
         <?php if(!empty($site_info['advertising_horizontal']) and empty($site_info['advertising_horizontal_hide'])): ?>

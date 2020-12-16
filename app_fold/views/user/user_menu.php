@@ -1,10 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$advertising_display_none  = (empty($site_info) or $site_info['advertising_display'] == 0) ? true : false;
-$advertising_display_all   = (!empty($site_info) and $site_info['advertising_display'] == 1 and !empty($user_session) and ($user_session['advertising'] == 0 or $user_session['advertising'] == 1)) ? true : false;
-$advertising_display_admin = (!empty($site_info) and $site_info['advertising_display'] == 2 and !empty($user_session) and $user_session['type'] == 3) ? true : false;
-
 if (!empty($user_session)) :
 ?>
     <div class="mob_side_menu_but_wrap">
@@ -79,16 +75,16 @@ if (!empty($user_session)) :
                 <span><i class="fab fa-google-play"></i></span><span class="app">Скачать приложение</span><span class="follow_app">Google play</span>
             </a>
         </li>
-        <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1 and ($advertising_display_none !== false or $advertising_display_all or $advertising_display_admin)): ?>
+        <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1): ?>
             <li class="pm_golden_black">
                 <a href="#" class="m_pop-up_premium" style="padding-left: 8px;">
-                    <span><i class="fas fa-crown"></i></span><span>Премиум аккаунт</span>
+                    <span><i class="fas fa-crown"></i></span><span>Премиум доступ</span>
                 </a>
             </li>
         <?php endif; ?>
         <!--<li><a href="#"><span><img src="/img/menu_ico11.png" alt=""></span><span>FitCoin</span></a></li>-->
     </ul>
-    <?php if (!empty($site_info) and ($advertising_display_none !== false or $advertising_display_all or $advertising_display_admin)): ?>
+    <?php if (!empty($site_info) and !empty($display_advertising) and $display_advertising === true): ?>
         <?php if(!empty($site_info['advertising_vertical']) and empty($site_info['advertising_vertical_hide'])): ?>
             <div class="advertising side">
                 <?php echo $site_info['advertising_vertical']; ?>

@@ -1545,7 +1545,8 @@ div.info{
     margin: 10px 0;
 }
 .blog_share.top{
-    text-align: right;
+    margin: 10px 0 10px auto;
+    width: 250px;
 }
 .blog_share.bottom{
     text-align: center;
@@ -1557,6 +1558,12 @@ div.info{
     font-size: 17px;
     color: #696969;
     letter-spacing: 1px;
+}
+.blog_share.top .blog_share_text {
+    width: 110px;
+    font-size: 14px;
+    margin: 0;
+    float: left;
 }
 .posts_page .posts_category_img{
     display: none;
@@ -3400,7 +3407,7 @@ h2.block_h>span>a {
 }
 
 .courses_progress .slick-list{
-    width: 1300px;
+    width: 1040px;
 }
 /*.notification_block .ff_promocode h3.info {
     flex-grow: 0;
@@ -3900,6 +3907,12 @@ h2.block_h>span>a {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    padding: 0 0 0 40px;
+}
+.prezent_head.hide_chart .prezent_h1.blog{
+    width: calc(100% - 330px);
+    width: -moz-calc(100% - 330px);
+    width: -webkit-calc(100% - 330px);
 }
 .prezent_h1_fix{
     width: 260px;
@@ -7231,7 +7244,7 @@ span.mess_block_full_time {
 }
 .soc_block_check_wrap
 {
-    padding: 6px 0 6px 10px;
+    /*padding: 6px 0 6px 10px;*/
 }
 .soc_block_check_wrap input{
     /*display: none;*/
@@ -7350,6 +7363,9 @@ span.mess_block_full_time {
     margin-top: 1px;
     margin-bottom: 30px;
 }
+.prezent_head + .shop_cat_wrap{
+    margin-top: -30px;
+}
 .shop_cat{
     margin: 0;
     padding: 7px 0 7px 110px;
@@ -7377,6 +7393,10 @@ span.mess_block_full_time {
 .shop_search_form_wrap{
     float: right;
 }
+.prezent_head .shop_search_form_wrap{
+    margin-right: 50px;
+    margin-top: -15px;
+}
 .shop_search_form{
     width: 250px;
     height: 30px;
@@ -7403,7 +7423,7 @@ span.mess_block_full_time {
     border: none;
     padding: 0;
     border-radius: 0 5px 5px 0;
-    background: url(/img/search_ico.png) 50% 50% no-repeat, #00bff0;
+    background: url(/img/search_ico.png) 50% 50% no-repeat, #72d0f4;
     float: left;
     cursor: pointer;
 }
@@ -10048,7 +10068,7 @@ span.mess_block_full_time {
 	line-height: 35px;
 	text-transform: uppercase;
 	color: #595959;
-	/*padding: 17px 0;*/
+	padding: 17px 0;
 }
 .block_item_h{
     margin:0 25px;
@@ -10063,6 +10083,11 @@ span.mess_block_full_time {
 	color: #33363f;
     min-width: 42px;
     max-width: 180px;
+}
+.anketa_form_h + span {
+    font-size: 14px;
+    font-style: italic;
+    line-height: 35px;
 }
 /*.progress_form .anketa_form_h {
     max-width: 140px;
@@ -11935,7 +11960,7 @@ textarea.anketa_form_in{
     -webkit-justify-content: center;
     border-bottom: 1px solid #e5e5e5;
 }
-.admin_form_buts_wrap input{
+.admin_form_buts_wrap input, .admin_form_buts_wrap a{
     margin: 10px;
 }
 .admin_form_buts{
@@ -12844,7 +12869,10 @@ textarea.anketa_form_in{
     margin-top: 20px;
     /*margin-bottom: 18px;*/
     position: relative;
-    /*width: 330px;*/
+    width: 330px;
+}
+.add_tov_in.coaches + .add_tov_val > .add_tov_val_item {
+    width:auto;
 }
 .add_tov_val_item:last-child{
     margin-bottom: 30px;
@@ -12863,7 +12891,7 @@ textarea.anketa_form_in{
 .del_tov{
     position: absolute;
     right: 10px;
-    top: 12px;
+    top: 10px;
     /*margin-top: 10px;*/
     /*margin-top: 2px;*/
     /*margin-left: 30px;*/
@@ -13426,7 +13454,7 @@ input.tren_form_block_check{
     font-size: 12px;
     background-color: #e6e6e6;
 }
-.prezent_head + #breadcrumb{
+.prezent_head + #breadcrumb, .prezent_head + .shop_cat_wrap + #breadcrumb{
     margin-top: -30px;
 }
 #content > #breadcrumb{
@@ -13456,9 +13484,9 @@ input.tren_form_block_check{
 
 
 /******** Адаптив ********/
-@media (max-width: 1920px){
+@media (min-width: 2250px){
     .courses_progress .slick-list{
-        width: 1040px;
+        width: 1300px;
     }
 }
 
@@ -16776,11 +16804,28 @@ input.tren_form_block_check{
     .shop_search_form_wrap{
         float: none;
     }
+    .prezent_head .shop_search_form_wrap{
+        margin-right: 0;
+        margin-bottom: -15px;
+    }
+    .prezent_head.hide_chart .shop_search_form_wrap{
+        float: right;
+    }
+    .prezent_head.hide_chart .prezent_h1.blog {
+        width: calc(100% - 250px);
+        width: -moz-calc(100% - 250px);
+        width: -webkit-calc(100% - 250px);
+    }
     .shop_search_form{
         padding-top: 23px;
         height: 53px;
         margin: 0 auto;
         display: none;
+    }
+    .prezent_head .shop_search_form{
+        display: block;
+        padding-top: 0;
+        height: auto;
     }
     /*.open_search_form{
         width: 40px;

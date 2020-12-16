@@ -294,7 +294,130 @@ class Notification extends CI_Controller
         echo json_encode($result, JSON_NUMERIC_CHECK);
     }
 
-    public function emails()
+    public function sendEmails()
+    {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $addresses = $this->Notification_model->getListEmailsAddresses();
+
+        if($this->input->post('bt_send_emails', true))
+        {
+            $email_from     = $this->input->post('s_email_address', true);
+            $recipients     = ($this->input->post('s_recipient', true) == 'several') ? 'several' : 'all';
+            $subject        = $this->input->post('email_subject', true);
+            $text           = $this->input->post('email_text', true);
+            $selected_users = array();
+
+            if($recipients == 'several')
+            {
+                $selected_users = $this->input->post('users', true);
+            }
+
+            if(!empty($email_from) and !empty($recipients) and !empty($subject) and !empty($text))
+            {
+                $res_ins = $this->Notification_model->setUserEmail($email_from, $recipients, $selected_users, $subject, $text, $this->user_id, $this->date);
+
+                if($res_ins['result'] === true)
+                {
+                    if(!empty($res_ins['users']))
+                    {
+                        $email_address = $this->Notification_model->getEmailAddress($email_from);
+                        $email['text'] = $text;
+
+                        $site_info  = $this->page_data['site_info'];
+
+                        $headers   = "Content-type: text/html; charset=utf-8 \r\n";
+                        $headers   .= "From: " . $email_address['address']['name'] . "<" . $email_address['address']['email'] . ">\r\n";
+                        $headers   .= "Reply-To: " . $email_address['address']['email'] . "\r\n";
+
+                        foreach($res_ins['users'] as $sel_user)
+                        {
+                            $recipient_email = $sel_user['email'];
+                            $recipient_id = $sel_user['id'];
+                            $email_to = "<".$sel_user['email'].">";
+
+                            ob_start();
+                            include('./app_fold/views/email/email_parts/full_page.php');
+                            $message = ob_get_contents();
+                            ob_end_clean();
+
+                            mail($email_to, $subject, $message, $headers);
+                        }
+                    }
+
+                    // Сохранено
+                    $this->session->set_tempdata('message', 10, 60);
+
+                    header('Location: /administration/sent/email/'.$res_ins['sent_email_id']);
+                }
+            }
+            else
+            {
+                $this->session->set_tempdata('message', 29, 60);
+                header('Location: /administration/send/email/new');
+            }
+        }
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Эл. письма';
+        $this->page_data['page_menu']    = 'emails';
+        $this->page_data['page_submenu'] = 'sent_emails';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('email/send_email', $addresses);
+        $this->load->view('footer/footer');
+    }
+
+    public function sentEmails()
+    {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $result = $this->Notification_model->getSentEmails();
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Эл. письма';
+        $this->page_data['page_menu']    = 'emails';
+        $this->page_data['page_submenu'] = 'sent_emails';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('email/sent_emails', $result);
+        $this->load->view('footer/footer');
+    }
+
+    /**
+     * @param $email_id
+     */
+    public function sentEmail($email_id)
+    {
+        if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
+        {
+            parent::pageNotFound($this->page_url);
+        }
+
+        $email = $this->Notification_model->getSentEmail($email_id);
+        $email_address = $this->Notification_model->getEmailAddress($email['sent_email']['address_id']);
+        $result = array_merge($email, $email_address);
+
+        // Объединенные данные страница
+        $this->page_data['title']        = 'АП - Эл. письма';
+        $this->page_data['page_menu']    = 'emails';
+        $this->page_data['page_submenu'] = 'sent_emails';
+
+        $this->load->view('header/header_admin', $this->page_data);
+        $this->load->view('header/admin');
+        $this->load->view('email/sent_email', $result);
+        $this->load->view('footer/footer');
+    }
+
+    public function systemEmails()
     {
         if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
         {
@@ -306,11 +429,11 @@ class Notification extends CI_Controller
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Эл. письма';
         $this->page_data['page_menu']    = 'emails';
-        $this->page_data['page_submenu'] = 'emails';
+        $this->page_data['page_submenu'] = 'system_emails';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('email/emails', $result);
+        $this->load->view('email/system_emails', $result);
         $this->load->view('footer/footer');
     }
 
@@ -319,7 +442,7 @@ class Notification extends CI_Controller
      *
      * @param $email_id
      */
-    public function email($email_id)
+    public function systemEmail($email_id)
     {
         if (empty($this->user_id) or 3 != $this->session->user['type'] or $this->session->user['blocked'] == 1)
         {
@@ -412,11 +535,11 @@ class Notification extends CI_Controller
         // Объединенные данные страница
         $this->page_data['title']        = 'АП - Эл. письма';
         $this->page_data['page_menu']    = 'emails';
-        $this->page_data['page_submenu'] = 'emails';
+        $this->page_data['page_submenu'] = 'system_emails';
 
         $this->load->view('header/header_admin', $this->page_data);
         $this->load->view('header/admin');
-        $this->load->view('email/email_settings', $result);
+        $this->load->view('email/system_email_settings', $result);
         $this->load->view('footer/footer');
     }
 

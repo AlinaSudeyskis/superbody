@@ -6171,7 +6171,7 @@ class Course_model extends CI_Model
 
         $sel_video = $this->db->query('
             SELECT `video_id`, `video_name`, `video_path`, `video_poster`, `video_remote_type`, `video_remote_url`, `video_crs_id`, `video_date_add`, 
-              `crs_name`, `crs_blocked`, `crs_type_id`, `ct_blocked`
+              `crs_name`, `crs_price`, `crs_blocked`, `crs_type_id`, `ct_blocked`
             FROM `video`
             LEFT JOIN `courses` ON `crs_id`=`video_crs_id`
             LEFT JOIN `course_type` ON `ct_id`=`crs_type_id`
@@ -14133,17 +14133,18 @@ class Course_model extends CI_Model
     {
         $result = array();
 
-        $result['id']          = $row->video_id;
-        $result['type']        = (!empty($row->video_type)) ? $row->video_type : null;
-        $result['active']      = (!empty($row->video_active)) ? $row->video_active : 0;
-        $result['name']        = (!empty($row->video_name)) ? $row->video_name : null;
-        $result['remote_type'] = (!empty($row->video_remote_type)) ? $row->video_remote_type : null;
-        $result['remote_url']  = (!empty($row->video_remote_url)) ? $row->video_remote_url : null;
-        $result['poster']      = (!empty($row->video_poster) and is_file($row->video_poster)) ? mb_substr($row->video_poster, 1) : null;
-        $result['video']       = (!empty($row->video_path) and is_file($row->video_path)) ? mb_substr($row->video_path, 1) : null;
-        $result['blocked']     = (!empty($row->video_blocked)) ? $row->video_blocked : null;
-        $result['course_id']   = (!empty($row->video_crs_id)) ? $row->video_crs_id : null;
-        $result['course_name'] = (!empty($row->crs_name)) ? $row->crs_name : null;
+        $result['id']           = $row->video_id;
+        $result['type']         = (!empty($row->video_type)) ? $row->video_type : null;
+        $result['active']       = (!empty($row->video_active)) ? $row->video_active : 0;
+        $result['name']         = (!empty($row->video_name)) ? $row->video_name : null;
+        $result['remote_type']  = (!empty($row->video_remote_type)) ? $row->video_remote_type : null;
+        $result['remote_url']   = (!empty($row->video_remote_url)) ? $row->video_remote_url : null;
+        $result['poster']       = (!empty($row->video_poster) and is_file($row->video_poster)) ? mb_substr($row->video_poster, 1) : null;
+        $result['video']        = (!empty($row->video_path) and is_file($row->video_path)) ? mb_substr($row->video_path, 1) : null;
+        $result['blocked']      = (!empty($row->video_blocked)) ? $row->video_blocked : null;
+        $result['course_id']    = (!empty($row->video_crs_id)) ? $row->video_crs_id : null;
+        $result['course_name']  = (!empty($row->crs_name)) ? $row->crs_name : null;
+        $result['course_price'] = (!empty($row->crs_price)) ? $row->crs_price : 0;
 
         return $result;
     }

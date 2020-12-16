@@ -170,12 +170,13 @@ class Blog_model extends CI_Model
      * Получение одобренных записей блога.
      *
      * @param null $category_id
+     * @param null $search
      * @param null $first_id
      * @param null $last_id
      * @return array
      * @throws Exception
      */
-    public function getPublicBlogPosts($category_id = null, $first_id = null, $last_id = null)
+    public function getPublicBlogPosts($category_id = null, $search = null, $first_id = null, $last_id = null)
     {
         $result    = array('posts' => array(), 'first_id' => '', 'last_id' => '');
         $next_page = false;
@@ -188,6 +189,7 @@ class Blog_model extends CI_Model
         $query .= 'LEFT JOIN `users` ON `cb_u_id`=`user_id` ';
         $query .= 'WHERE `cb_post_approval`=1 ';
         $query .= (is_numeric($category_id)) ? 'and `cb_bc_id`='.$category_id.' ' : '';
+        $query .= (!empty($search)) ? 'and MATCH (`cb_post_title`, `cb_post_short_description`, `cb_post_text`) AGAINST ("+'.$search.'*" IN BOOLEAN MODE) ' : '';
         if(!empty($last_id))
         {
             $query .= "and `cb_id`<".$last_id.' ';

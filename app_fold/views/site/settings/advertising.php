@@ -11,11 +11,26 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <div class="anketa_form_line parent">
             <div class="anketa_form_h"><div class="anketa_form_h_cell">Кто видит рекламу:</div></div>
             <div class="anketa_form_one_wrap anketa_form_three_wrap">
-                <select name="s_advertising_display" class="anketa_form_select">
-                    <option value="0" <?php if(!empty($advertising_display) and $advertising_display == 0):?>selected="selected"<?php endif;?>>Никто</option>
-                    <option value="1" <?php if(!empty($advertising_display) and $advertising_display == 1):?>selected="selected"<?php endif;?>>Все</option>
-                    <option value="2" <?php if(!empty($advertising_display) and $advertising_display == 2):?>selected="selected"<?php endif;?>>Администраторы</option>
-                </select>
+                <div class="anketa_form_info_cont soc_block_check_wrap" style="float: none;">
+                    <input type="checkbox" name="cb_display_unauthorized" id="cb-display-unauthorized" class="tren_form_block_check"
+                           <?php if(!empty($advertising_display) and in_array(1, $advertising_display)):?>checked="checked"<?php endif;?>>
+                    <label for="cb-display-unauthorized">Неавторизованные пользователи / Нет курсов</label>
+                </div>
+                <div class="anketa_form_info_cont soc_block_check_wrap" style="float: none;">
+                    <input type="checkbox" name="cb_display_free" id="cb-display-free" class="tren_form_block_check"
+                           <?php if(!empty($advertising_display) and in_array(2, $advertising_display)):?>checked="checked"<?php endif;?>>
+                    <label for="cb-display-free">Пользователи с бесплатными курсами</label>
+                </div>
+                <div class="anketa_form_info_cont soc_block_check_wrap" style="float: none;">
+                    <input type="checkbox" name="cb_display_missed" id="cb-display-missed" class="tren_form_block_check"
+                           <?php if(!empty($advertising_display) and in_array(3, $advertising_display)):?>checked="checked"<?php endif;?>>
+                    <label for="cb-display-missed">Пользователи с пропущенной оплатой</label>
+                </div>
+                <div class="anketa_form_info_cont soc_block_check_wrap" style="float: none;">
+                    <input type="checkbox" name="cb_display_admins" id="cb-display-admins" class="tren_form_block_check"
+                           <?php if(!empty($advertising_display) and in_array(4, $advertising_display)):?>checked="checked"<?php endif;?>>
+                    <label for="cb-display-admins">Администраторы</label>
+                </div>
             </div>
         </div>
         <div class="anketa_form_line parent">
@@ -84,7 +99,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             </div>
             <textarea name="ta_advertising_before_workout" class="journal_form_textarea admin_form_txt_middle"><?php if (!empty($advertising_before_workout)) { echo $advertising_before_workout; }?></textarea>
         </div>
-        <div class="practice_block_h">Всплывающий блок "Премиум аккаунт"</div>
+        <div class="practice_block_h">Всплывающий блок "Премиум доступ"</div>
         <div class="tren_form_block_check_wrap">
             <input type="checkbox" name="cb_premium_display_hide" <?php if(empty($advertising_premium_display) or $advertising_premium_display == 0): ?>checked="checked"<?php endif;?> class="tren_form_block_check" id="tren_form_block_check1bg">
             <label for="tren_form_block_check1bg">Отключить кнопку "Примиум аккаунт"</label>

@@ -412,6 +412,196 @@ class Notification_model extends CI_Model
     }
 
     /**
+     * Выборка отправленных писем пользователям
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function getSentEmails()
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `se_id`, `se_subject`, `se_text`, `se_whom_type`, `se_user_email`, `se_date` FROM `sent_emails`');
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $i = 0;
+            foreach ($sel_data->result() as $row)
+            {
+                $result['sent_emails'][$i]['id']         = $row->se_id;
+                $result['sent_emails'][$i]['subject']    = $row->se_subject;
+                $result['sent_emails'][$i]['text']       = $row->se_text;
+                $result['sent_emails'][$i]['whom_type']  = $row->se_whom_type;
+                $result['sent_emails'][$i]['user_email'] = $row->se_user_email;
+
+                setlocale(LC_ALL, 'ru_RU.UTF-8');
+                $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->se_date));
+                $sent_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y H:i') : '';
+                $result['sent_emails'][$i]['date'] = $sent_date;
+
+                $i++;
+            }
+            unset($row);
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Сохранение данных эл. письма, отправляемого пользователям
+     *
+     * @param $email_from
+     * @param $recipients
+     * @param $selected_users
+     * @param $subject
+     * @param $text
+     * @param $admin_id
+     * @param $date
+     * @return array
+     */
+    public function setUserEmail($email_from, $recipients, $selected_users, $subject, $text, $admin_id, $date)
+    {
+        $result = array('result' => false, 'users' => array(), 'sent_email_id' => null);
+
+        $ins_data = $this->db->query('INSERT INTO `sent_emails`(`se_ea_id`, `se_subject`, `se_text`, `se_whom_type`, `se_admin_id`, `se_date`) 
+            VALUES (?, ?, ?, ?, ?, ?)', array($email_from, $subject, $text, $recipients, $admin_id, $date));
+
+        if($ins_data !== false and 1 == $this->db->affected_rows())
+        {
+            $sent_email_id = $this->db->insert_id();
+            if($recipients == 'several')
+            {
+                $users_id = implode(", ", $selected_users);
+                $sel_users = $this->db->query('SELECT `user_id`, `user_email` FROM `users` WHERE `user_id` IN ('.$users_id.')');
+                if($sel_users !== false and 0 < $sel_users->num_rows())
+                {
+                    $i = 0;
+                    foreach($sel_users->result() as $row)
+                    {
+                        if(!empty($row->user_email) and filter_var($row->user_email, FILTER_VALIDATE_EMAIL) !== false)
+                        {
+                            $result['users'][$i]['id'] = $row->user_id;
+                            $result['users'][$i]['email'] = $row->user_email;
+
+                            $ins_user_data = $this->db->query('INSERT INTO `sent_emails_users`(`seu_se_id`, `seu_u_id`, `seu_u_email`) VALUES(?, ?, ?)',
+                                array($sent_email_id, $row->user_id, $row->user_email));
+                            if($ins_user_data === false)
+                            {
+                                parent::logDbMessages(__METHOD__.':'.__LINE__);
+                            }
+
+                            $i++;
+                        }
+                    }
+                    unset($row);
+                }
+                elseif($sel_users === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            elseif($recipients == 'all')
+            {
+                $sel_users = $this->db->query('SELECT `user_id`, `user_email`, `s_unsubscribe` FROM `users`
+                    LEFT JOIN `subscription` ON `s_email`=`user_email`
+                    WHERE `user_email` IS NOT NULL and `user_deleted`=0 and `user_type`=1 and `s_unsubscribe`=0');
+                if($sel_users !== false and 0 < $sel_users->num_rows())
+                {
+                    $i = 0;
+                    foreach($sel_users->result() as $row)
+                    {
+                        if(!empty($row->user_email) and filter_var($row->user_email, FILTER_VALIDATE_EMAIL) !== false)
+                        {
+                            $result['users'][$i]['id'] = $row->user_id;
+                            $result['users'][$i]['email'] = $row->user_email;
+                            $i++;
+                        }
+                    }
+                    unset($row);
+                }
+                elseif($sel_users === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+
+            $result['result'] = true;
+            $result['sent_email_id'] = $sent_email_id;
+        }
+        elseif($ins_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Данные отправленного письма пользователю
+     *
+     * @param $email_id
+     * @return array
+     * @throws Exception
+     */
+    public function getSentEmail($email_id)
+    {
+        $result = array();
+
+        $sel_data = $this->db->query('SELECT `se_id`, `se_ea_id`, `se_subject`, `se_text`, `se_whom_type`, `se_date` FROM `sent_emails` WHERE `se_id`=? LIMIT 1', $email_id);
+        if($sel_data !== false and 0 < $sel_data->num_rows())
+        {
+            $row = $sel_data->row();
+
+            $result['sent_email']['id']         = $row->se_id;
+            $result['sent_email']['address_id'] = $row->se_ea_id;
+            $result['sent_email']['subject']    = $row->se_subject;
+            $result['sent_email']['text']       = $row->se_text;
+            $result['sent_email']['whom_type']  = $row->se_whom_type;
+            $result['sent_email']['users']      = array();
+
+            setlocale(LC_ALL, 'ru_RU.UTF-8');
+            $tmp_date = DateTime::createFromFormat('Y-m-d H:i:s', parent::parseDatetime($row->se_date));
+            $sent_date = ($tmp_date !== false) ? $tmp_date->format('d.m.Y H:i') : '';
+            $result['sent_email']['date'] = $sent_date;
+
+            if($row->se_whom_type == 'several')
+            {
+                $sel_users = $this->db->query('
+                    SELECT `seu_u_id`, `seu_u_email`, `user_name` 
+                    FROM `sent_emails_users` 
+                    LEFT JOIN `users` ON `user_id`=`seu_u_id`
+                    WHERE `seu_se_id`=?', $email_id);
+                if($sel_users !== false and 0 < $sel_users->num_rows())
+                {
+                    $i = 0;
+                    foreach ($sel_users->result() as $row)
+                    {
+                        $result['sent_email']['users'][$i]['id'] = $row->seu_u_id;
+                        $result['sent_email']['users'][$i]['email'] = $row->seu_u_email;
+                        $result['sent_email']['users'][$i]['name'] = $row->user_name;
+                        $i++;
+                    }
+                    unset($row);
+                }
+                elseif($sel_users === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+
+        }
+        elseif($sel_data === false)
+        {
+            parent::logDbMessages(__METHOD__.':'.__LINE__);
+        }
+
+        return $result;
+    }
+
+    /**
      * Обработка данных эл. письма
      *
      * @param $row

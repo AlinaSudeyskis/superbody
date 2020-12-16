@@ -678,8 +678,10 @@ class Blog extends CI_Controller
     {
         $this->load->model('Coach_model');
 
+        $search = (!empty($this->input->post('search', true))) ? $this->input->post('search', true) : null;
+
         $categories = $this->Blog_model->getBlogsCategories();
-        $posts = $this->Blog_model->getPublicBlogPosts();
+        $posts = $this->Blog_model->getPublicBlogPosts(null, $search);
         $result = array_merge($categories, $posts);
 
         // Объединенные данные страница
@@ -704,9 +706,10 @@ class Blog extends CI_Controller
         $this->load->model('Coach_model');
 
         $category_id = (is_numeric($category_id)) ? $category_id : null;
+        $search      = (!empty($this->input->post('search', true))) ? $this->input->post('search', true) : null;
 
         $categories = $this->Blog_model->getBlogsCategories();
-        $posts = $this->Blog_model->getPublicBlogPosts($category_id);
+        $posts = $this->Blog_model->getPublicBlogPosts($category_id, $search);
         $result = array_merge($categories, $posts);
 
         // Объединенные данные страница
@@ -715,6 +718,7 @@ class Blog extends CI_Controller
         $this->page_data['description'] = $this->page_data['metadata'][14]['description'];
         $this->page_data['page_menu']   = 'blog';
         $this->page_data['category_id'] = $category_id;
+        $this->page_data['search']      = $search;
 
         $this->load->view('header/header', $this->page_data);
         $this->load->view('header/secondary');
@@ -728,7 +732,7 @@ class Blog extends CI_Controller
     public function getSortPosts()
     {
         $posts_category = (is_numeric($this->input->post('category_id', true))) ? $this->input->post('category_id', true) : null;
-
+        $search_text = $this->input->post('search', true) ? mb_substr(strip_tags($this->input->post('search', true)), 0, 255) : null;
         $first_id = ($this->input->post('first_id', true) and is_numeric($this->input->post('first_id', true)))
             ? $this->input->post('first_id', true)
             : null;
@@ -741,7 +745,7 @@ class Blog extends CI_Controller
         $result['sql']        = '';
         $result['sql_result'] = '';
 
-        $result_posts = $this->Blog_model->getPublicBlogPosts($posts_category, $first_id, $last_id);
+        $result_posts = $this->Blog_model->getPublicBlogPosts($posts_category, $search_text, $first_id, $last_id);
 
         if (!empty($result_posts['posts'][$posts_category]))
         {
@@ -782,12 +786,11 @@ class Blog extends CI_Controller
     {
         if ($this->input->post('bt_send_comment', true) and !empty($this->input->post('post_comment', true)))
         {
-            $user_id      = $this->user_id;
             $post_comment = mb_substr(strip_tags($this->input->post('post_comment', true)), 0, 500);
 
             if (!empty($post_comment))
             {
-                $res_send_comm = $this->Blog_model->setBlogComment($user_id, $post_id, $post_comment, $this->date);
+                $res_send_comm = $this->Blog_model->setBlogComment($this->user_id, $post_id, $post_comment, $this->date);
 
                 if ($res_send_comm === true)
                 {
@@ -819,8 +822,7 @@ class Blog extends CI_Controller
         $this->page_data['page_menu']   = 'blog';
 
         $this->load->view('header/header', $this->page_data);
-        $this->load->view('header/profile');
-        $this->load->view('user/profile_line');
+        $this->load->view('header/secondary');
         $this->load->view('blog/post', $result);
         $this->load->view('footer/footer');
     }

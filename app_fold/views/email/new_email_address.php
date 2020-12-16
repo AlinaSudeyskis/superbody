@@ -12,7 +12,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                     <div class="content_block_container">
                         <div class="content_block_h new_content_block_h parent">
                             <h3>Добавление нового эл. адреса</h3>
-                            <div class="content_block_h_ref"><a href="/administration/emails/addresses/new" class="add_tab_but">Добавить эл. адрес</a></div>
+                            <?php include_once('./app_fold/views/email/email_menu_links.php'); ?>
                         </div>
                         <?php include_once('./app_fold/views/email/emails_menu.php'); ?>
                     </div>

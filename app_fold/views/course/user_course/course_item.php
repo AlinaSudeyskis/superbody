@@ -58,7 +58,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
             <?php if(empty($fl_premium_order)): ?>
                 <?php echo $course['name']; ?>
             <?php else: ?>
-                Премиум аккаунт
+                Премиум доступ
             <?php endif; ?>
         </div>
         <div class="oi_subtitle"><?php echo $course['description']; ?></div>
