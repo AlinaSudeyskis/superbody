@@ -5029,6 +5029,94 @@ class Database_model extends CI_Model
     }
 
     /**
+     * Обновление базы данных ноябрь 2020
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseDecember2020($date)
+    {
+        $result = false;
+
+        $date = '2020-12-02 15:19';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `coach_blog` ADD FULLTEXT `fix_blog_title_desc_text` (`cb_post_title`, `cb_post_short_description`, `cb_post_text`)");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-03 10:59';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `sent_emails` ( 
+                `se_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `se_ea_id` TINYINT(3) UNSIGNED NOT NULL , 
+                `se_subject` VARCHAR(255) NOT NULL , 
+                `se_text` VARCHAR(2000) NOT NULL , 
+                `se_whom_type` ENUM('all','select') NOT NULL , 
+                `se_user_id` INT(10) UNSIGNED NOT NULL , 
+                `se_user_email` VARCHAR(255) NOT NULL , 
+                `se_admin_id` INT(10) UNSIGNED NOT NULL , 
+                `se_date` DATETIME NOT NULL , 
+                PRIMARY KEY (`se_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-15 15:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("CREATE TABLE `sent_emails_users` ( 
+                `seu_id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT , 
+                `seu_se_id` INT(10) UNSIGNED NOT NULL , 
+                `seu_u_id` INT(10) UNSIGNED NOT NULL , 
+                `seu_u_email` VARCHAR(255) NOT NULL , 
+                PRIMARY KEY (`seu_id`)) ENGINE = MyISAM");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-15 15:12';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `sent_emails` CHANGE `se_whom_type` `se_whom_type` ENUM('all','several') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-16 15:45';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (226, 'error', 'Ошибка! Не удалось сохранить данные.', 'Ошибка! Не удалось сохранить данные.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-16 21:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `site_info` CHANGE `si_advertising_display` `si_advertising_display` VARCHAR(50) NOT NULL");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        return $result;
+    }
+
+    /**
      * Поиск даты обновления в БД
      *
      * @param $date
