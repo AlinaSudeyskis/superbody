@@ -5,9 +5,21 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <div class="sing-in_h">через социальную сеть:</div>
     <?php include_once('./app_fold/views/authorization/auth_soc_item.php'); ?>
     <div class="sing-in_h">или введите данные:</div>
+    <!--<div class="sing-in_via">
+        <div class="anketa_form_radio_wrap">
+            <input type="radio" name="login_via" class="anketa_form_radio" value="phone" id="login_via_phone" checked="checked">
+            <label for="login_via_phone">Телефон</label>
+        </div>
+        <div class="anketa_form_radio_wrap">
+            <input type="radio" name="login_via" class="anketa_form_radio" value="email" id="login_via_email">
+            <label for="login_via_email">Email</label>
+        </div>
+    </div>-->
+    <!--<input type="text" name="phone" class="sing-in_in" placeholder="телефон" value="" maxlength="50"/>-->
     <input type="text" name="email" placeholder="e-mail" value="<?php if(!empty($email)): echo $email; endif;?>" maxlength="255" autocomplete="off" class="sing-in_in valid_email"/>
     <input type="password" name="password" placeholder="пароль" value="" maxlength="255" minlength="8" autocomplete="off" class="sing-in_in"/>
     <input type="password" name="password_confirm" placeholder="подтвердить пароль" value="" maxlength="255" minlength="8" autocomplete="off" class="sing-in_in"/>
+    <div class="g-recaptcha" data-sitekey="6LdyBmYUAAAAANOua7WQ-8GHQlw9TWGnnHf7rPeB" id="reg-g-recaptcha"></div>
     <div class="sing-in_h tren_form_block_check_wrap">
         <input type="checkbox" name="cb_politics" class="tren_form_block_check" id="cb-politics" required="required" checked="checked" />
         <label for="cb-politics">согласие на
