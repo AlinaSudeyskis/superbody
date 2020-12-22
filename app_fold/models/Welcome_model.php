@@ -59,21 +59,41 @@ class Welcome_model extends CI_Model
      */
     public function unsubscribeEmail($email)
     {
-        $up_data = $this->db->query('UPDATE `subscription` SET `s_unsubscribe`=1 WHERE `s_email`=? LIMIT 1', $email);
+        $result = false;
 
-        if($up_data !== false and 1 == $this->db->affected_rows())
+        $sel_data = $this->db->query('SELECT `s_unsubscribe` FROM `subscription` WHERE `s_email`=? LIMIT 1', $email);
+        if($sel_data !== false and 1 == $sel_data->num_rows())
         {
-            return true;
+            $row = $sel_data->row();
+
+            if($row->s_unsubscribe == 0)
+            {
+                $up_data = $this->db->query('UPDATE `subscription` SET `s_unsubscribe`=1 WHERE `s_email`=? LIMIT 1', $email);
+                if($up_data !== false and 1 == $this->db->affected_rows())
+                {
+                    $result = true;
+                }
+                elseif($up_data === false)
+                {
+                    parent::logDbMessages(__METHOD__.':'.__LINE__);
+                }
+            }
+            else
+            {
+                $result = 227;
+            }
         }
-        elseif($up_data === false)
+        elseif($sel_data === false)
         {
             parent::logDbMessages(__METHOD__.':'.__LINE__);
-            return false;
         }
         else
         {
-            return false;
+            $result = 228;
         }
+
+
+        return $result;
     }
 
     /**

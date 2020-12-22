@@ -527,7 +527,7 @@ class Notification extends CI_Controller
                 }
             }
 
-            header('Location: /administration/email/' . $email_id);
+            header('Location: /administration/system/email/' . $email_id);
         }
 
         $result = array_merge($email_data, $addresses);

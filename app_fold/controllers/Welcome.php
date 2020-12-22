@@ -290,7 +290,7 @@ class Welcome extends CI_Controller
             else
             {
                 // Не сохранено
-                $info_code = 140;
+                $info_code = $res_up;
             }
         }
         else
