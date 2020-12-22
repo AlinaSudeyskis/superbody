@@ -5113,6 +5113,27 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2020-12-21 21:10';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` ADD `user_phone_activate_code` TINYINT(3) UNSIGNED NOT NULL AFTER `user_activate_code`");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-22 9:59';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (227, 'error', 'Email уже удален из подписчиков.', 'Email уже удален из подписчиков.', 4, '2018-04-19 14:23:42')");
+            $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (228, 'error', 'Ошибка! Указанный email не найден.', 'Ошибка! Указанный email не найден.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
