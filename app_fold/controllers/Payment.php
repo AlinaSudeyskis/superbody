@@ -390,7 +390,8 @@ class Payment extends CI_Controller
         $external_types = array('sberbank', 'alfabank');
         $idempotenceKey = uniqid('', true);
         $description    = 'Оплата заказа №' . $order_id;
-        $return_url     = 'https://superbody.pro/profile/course/' . $user_course_id . '/order/' . $order_id . '?return=true';
+        $return_url     = (is_numeric($user_course_id)) ? 'https://superbody.pro/profile/course/' . $user_course_id . '/order/' . $order_id . '?return=true'
+            : 'https://superbody.pro/order/' . $order_id . '?return=true';
         $save           = ($payment_option == 'partial_payment') ? true : false;
         $method_id      = strip_tags($payment_method_id);
         $confirm_type   = (in_array($payment_type, $external_types)) ? 'external' : 'redirect';
