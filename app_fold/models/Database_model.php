@@ -5199,6 +5199,16 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2021-01-04 21:53';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users` SET `user_advertising_type`=2, `user_premium_start`='0000-00-00', `user_premium_end`='0000-00-00' WHERE `user_id`=3278");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
