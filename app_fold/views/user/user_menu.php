@@ -75,7 +75,7 @@ if (!empty($user_session)) :
                 <span><i class="fab fa-google-play"></i></span><span class="app">Скачать приложение</span><span class="follow_app">Google play</span>
             </a>
         </li>
-        <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1): ?>
+        <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1 and !empty($user_session) and $user_session['advertising'] <> 3): ?>
             <li class="pm_golden_black">
                 <a href="#" class="m_pop-up_premium" style="padding-left: 8px;">
                     <span><i class="fas fa-crown"></i></span><span>Премиум доступ</span>
