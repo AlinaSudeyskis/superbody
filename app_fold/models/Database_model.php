@@ -5219,6 +5219,16 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2021-01-04 22:01';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `orders` SET `o_payment_status`='succeeded' WHERE `o_id`=2152");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
