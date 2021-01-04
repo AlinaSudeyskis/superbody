@@ -8848,7 +8848,8 @@ class Course extends CI_Controller
                         "workout_url" => '<a href="/profile/workout/'.$workout_id.'/'.$video_id.'" class="wo_url" target="_blank">Открыть в новом окне</a>',
                         "player_type" => $v_remote_type,
                         "advertising" => $this->page_data['site_info']['advertising_before_workout'],
-                        "advertising_hide" => $this->page_data['site_info']['advertising_before_workout_hide']
+                        "advertising_hide" => $this->page_data['site_info']['advertising_before_workout_hide'],
+                        "display_advertising" => $this->page_data['display_advertising']
                     );
 
                     echo json_encode($display_result, JSON_NUMERIC_CHECK);

@@ -175,7 +175,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 {
                                     pop_up_video.append('<div class="purchase_pop-up_close" style="opacity: 0.6;"></div>');
                                 }
-                                if(pop_up_video.find('.pop-up_advertising').length === 0 && data.advertising && data.advertising_hide === 0)
+                                if(pop_up_video.find('.pop-up_advertising').length === 0 && data.advertising && data.advertising_hide === 0 && data.display_advertising === true)
                                 {
                                     pop_up_video.append('<div class="pop-up_advertising">' +
                                         '<div class="pu_advertising">' + data.advertising + '</div>' +
@@ -183,7 +183,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                             '<p class="ad_timer workout_form_but">Приступить к тренировке Вы сможете через <span class="seconds">8</span> сек.</p>' +
                                             '<p class="ad_skip workout_form_but" style="display:none;">Пропустить</p>' +
                                         '</div>' +
-                                        <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1  and (!$advertising_display_none or $advertising_display_all or $advertising_display_admin)): ?>
+                                        <?php if(!empty($site_info) and $site_info['advertising_premium_display'] == 1 and !empty($user_session) and $user_session['advertising'] <> 3): ?>
                                         '<div class="premium_button">' +
                                             '<a href="#" class="m_pop-up_premium" style="padding-left: 8px;">' +
                                                 '<span><i class="fas fa-crown"></i></span><span>Премиум доступ</span>' +
