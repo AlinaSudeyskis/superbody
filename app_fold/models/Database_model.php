@@ -5177,7 +5177,7 @@ class Database_model extends CI_Model
     {
         $result = false;
 
-        $date = '2020-12-02 15:19';
+        $date = '2021-01-04 21:30';
         $fl_up_db = self::getDbUpdateData($date);
         if($fl_up_db === false)
         {
