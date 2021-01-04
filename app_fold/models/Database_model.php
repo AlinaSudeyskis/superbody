@@ -5187,6 +5187,18 @@ class Database_model extends CI_Model
             $result = true;
         }
 
+        $date = '2021-01-04 21:41';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `orders_users_cart` SET `ouc_premium_account`=1 WHERE `ouc_o_id`=2152");
+            $this->db->query("UPDATE `users` SET `user_advertising_type`=3, `user_premium_start`='2021-01-04', `user_premium_end`='2021-02-04' WHERE `user_id`=3278");
+            $this->db->query("UPDATE `users` SET `user_advertising_type`=3, `user_premium_start`='2021-01-04', `user_premium_end`='2021-02-04' WHERE `user_id`=18");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
         return $result;
     }
 
