@@ -571,14 +571,18 @@ class CI_Controller {
 
         // Реклама
         $ad_display_none         = (empty($site_info) or empty($site_info['advertising_display'])) ? true : false;
-        $ad_display_unauthorized = (!empty($site_info) and in_array(1, $site_info['advertising_display']) and (empty($user_session) or (!empty($user_session) and $user_session['advertising'] == 0))) ? true : false;
-        $ad_display_free         = (!empty($site_info) and in_array(2, $site_info['advertising_display']) and !empty($user_session) and $user_session['advertising'] == 1) ? true : false;
-        $ad_display_missed       = (!empty($site_info) and in_array(3, $site_info['advertising_display']) and !empty($user_session) and $user_session['advertising'] == 4) ? true : false;
-        $ad_display_admin        = (!empty($site_info) and in_array(4, $site_info['advertising_display']) and !empty($user_session) and $user_session['type'] == 3) ? true : false;
+        $ad_display_unauthorized = (!empty($site_info) and in_array(1, $site_info['advertising_display']) and (empty($this->session->user) or (!empty($this->session->user) and $this->session->user['advertising'] == 0))) ? true : false;
+        $ad_display_free         = (!empty($site_info) and in_array(2, $site_info['advertising_display']) and !empty($this->session->user) and $this->session->user['advertising'] == 1) ? true : false;
+        $ad_display_missed       = (!empty($site_info) and in_array(3, $site_info['advertising_display']) and !empty($this->session->user) and $this->session->user['advertising'] == 4) ? true : false;
+        $ad_display_admin        = (!empty($site_info) and in_array(4, $site_info['advertising_display']) and !empty($this->session->user) and $this->session->user['type'] == 3) ? true : false;
         $display_advertising     = ($ad_display_none === false and ($ad_display_unauthorized or $ad_display_free or $ad_display_missed or $ad_display_admin)) ? true : false;
-        /*var_dump($display_none);
-        var_dump($display_all);
-        var_dump($display_admin);*/
+        /*var_dump($this->session->user); echo '<br/>';
+        var_dump($ad_display_none); echo '<br/>';
+        var_dump($ad_display_unauthorized); echo '<br/>';
+        var_dump($ad_display_free); echo '<br/>';
+        var_dump($ad_display_missed); echo '<br/>';
+        var_dump($ad_display_admin); echo '<br/>';
+        var_dump($display_advertising); echo '<br/>';*/
 
         // Данные страницы
         $this->page_data = array(
