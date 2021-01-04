@@ -58,11 +58,13 @@ defined('BASEPATH') OR exit('No direct script access allowed');
         <?php if(empty($user_data['user_advertising']) or $user_data['user_advertising'] == 0): ?>
             Нет данных или у пользователя нет курсов
         <?php elseif(!empty($user_data['user_advertising']) and $user_data['user_advertising'] == 1): ?>
-            Пользователь с наличием только бесплатных курсов или наличием пропущенной оплаты
+            Пользователь с наличием только бесплатных курсов
         <?php elseif(!empty($user_data['user_advertising']) and $user_data['user_advertising'] == 2): ?>
             Пользователь с наличием хотя бы одного оплаченного курса
         <?php elseif(!empty($user_data['user_advertising']) and $user_data['user_advertising'] == 3): ?>
-            Пользователь с оплаченным «Без рекламы»
+            Пользователь с оплаченным премиум аккаунтом
+        <?php elseif(!empty($user_data['user_advertising']) and $user_data['user_advertising'] == 4): ?>
+            Пользователь с наличием пропущенной оплаты
         <?php endif; ?>
     </div>
 </div>
