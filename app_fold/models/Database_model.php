@@ -5029,7 +5029,7 @@ class Database_model extends CI_Model
     }
 
     /**
-     * Обновление базы данных ноябрь 2020
+     * Обновление базы данных декабрь 2020
      *
      * @param $date
      * @return bool
@@ -5129,6 +5129,59 @@ class Database_model extends CI_Model
         {
             $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (227, 'error', 'Email уже удален из подписчиков.', 'Email уже удален из подписчиков.', 4, '2018-04-19 14:23:42')");
             $this->db->query("INSERT INTO `notifications` (`n_id`, `n_type`, `n_name`, `n_text`, `n_admin_id`, `n_date`) VALUES (228, 'error', 'Ошибка! Указанный email не найден.', 'Ошибка! Указанный email не найден.', 4, '2018-04-19 14:23:42')");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-22 12:52';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` CHANGE `user_auth_via` `user_auth_via` ENUM('email','phone','vk','facebook','ok','instagram') CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT 'email'");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-22 12:59';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("ALTER TABLE `users` CHANGE `user_phone_activate_code` `user_phone_activate_code` SMALLINT(4) UNSIGNED NOT NULL");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        $date = '2020-12-22 13:05';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `users` SET `user_auth_via`='email' WHERE `user_auth_via`='native'");
+
+            self::setDbUpdate($date);
+            $result = true;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Обновление базы данных январь 2021
+     *
+     * @param $date
+     * @return bool
+     */
+    public function updateDatabaseJanuary2021($date)
+    {
+        $result = false;
+
+        $date = '2020-12-02 15:19';
+        $fl_up_db = self::getDbUpdateData($date);
+        if($fl_up_db === false)
+        {
+            $this->db->query("UPDATE `orders_users_cart` SET `ouc_premium_account`=1 WHERE `ouc_o_id`=2153");
 
             self::setDbUpdate($date);
             $result = true;

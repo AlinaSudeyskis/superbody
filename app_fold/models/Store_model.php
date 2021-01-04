@@ -2825,11 +2825,11 @@ class Store_model extends CI_Model
 
                 // Сохранение товара в таблице Заказов
                 $in_data = $this->db->query('
-                    INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_p_quantity`, 
+                    INSERT INTO `orders_users_cart` (`ouc_o_id`, `ouc_u_id`, `ouc_p_id`, `ouc_premium_account`, `ouc_p_quantity`, 
                         `ouc_p_price`, `ouc_p_recurrent_months`, `ouc_p_recurrent_first`, `ouc_p_recurrent_subsequent`, 
                         `ouc_p_fitcoin_price`, `ouc_promocode_id`) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                        array($order_id, $user_id, $product['id'], $product['cart_quantity'], $full_price, $rec_months,
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+                        array($order_id, $user_id, $product['id'], $product['premium_account'], $product['cart_quantity'], $full_price, $rec_months,
                             $rec_first_price, $rec_subsequent, $fc_price, $pcu_id));
                 if ($in_data !== false and 1 == $this->db->affected_rows())
                 {
