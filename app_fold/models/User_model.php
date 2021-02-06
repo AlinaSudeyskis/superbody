@@ -1721,7 +1721,7 @@ class User_model extends CI_Model
         unset($sel_data);
 
         $sel_data = $this->db->query('SELECT `user_id`, `user_name`, `user_email`, `user_image`, `user_soc_image`, `user_blocked`, `user_type` 
-            FROM `users` ORDER BY `user_id` DESC LIMIT 5');
+            FROM `users` ORDER BY `user_id` DESC LIMIT 25');
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             $i = 0;
