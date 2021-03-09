@@ -10403,7 +10403,7 @@ class Course_model extends CI_Model
             {
                 // Добавление пропущенный тренировок в БД
                 $up_missed = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="missed", `utw_date_update`=? 
-                    WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`="" and `utw_progress_percent`=0', array($date, $row->uc_id, $today));
+                    WHERE `utw_uc_id`=? and `utw_date`<? and `utw_status`="" and `utw_progress_percent`=0 and `utw_clicked`=0', array($date, $row->uc_id, $today));
                 if($up_missed !== false and 0 < $this->db->affected_rows())
                 {
                     // Изменение нумерации тренировок
@@ -10544,7 +10544,7 @@ class Course_model extends CI_Model
         $yesterday = $tmp_date->format('Y-m-d');
 
         // In progress
-        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="in_progress" WHERE `utw_progress_percent`>0 and `utw_progress_percent`<75 and `utw_status`=""');
+        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="in_progress" WHERE `utw_progress_percent`>0 and `utw_progress_percent`<75 and `utw_status`<>"in_progress"');
         if($up_data !== false and 0 < $this->db->affected_rows())
         {
             log_message('debug', $this->db->affected_rows());
@@ -10555,7 +10555,7 @@ class Course_model extends CI_Model
         }
 
         // Done
-        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="done" WHERE `utw_progress_percent`>75 and `utw_status`=""');
+        $up_data = $this->db->query('UPDATE `users_training_weeks` SET `utw_status`="done" WHERE `utw_progress_percent`>75 and `utw_status`<>"done"');
         if($up_data !== false and 0 < $this->db->affected_rows())
         {
             log_message('debug', $this->db->affected_rows());
