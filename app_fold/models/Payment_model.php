@@ -419,26 +419,29 @@ class Payment_model extends CI_Model
             LEFT JOIN `orders` ON `o_id`=`op_o_id`
             LEFT JOIN `users` ON `user_id`=`o_u_id`
             LEFT JOIN `orders_users_cart` ON `ouc_o_id`=`o_id`
-            WHERE `op_payment_method_saved`=1 and `user_advertising_type`=2 and `user_premium_end`<>"0000-00-00" and `user_premium_end`<? 
-              and `user_blocked`=0 and `user_deleted`=0 and `op_revoke_permission`=0 and `op_status`="succeeded" and `ouc_premium_account`=1
+            WHERE `op_payment_method_saved`=1 and `user_premium_end`<>"0000-00-00" and `user_premium_end`<=? 
+              and `user_blocked`=0 and `user_deleted`=0 and `op_revoke_permission`=0 and `op_status`="succeeded" 
+              and `ouc_premium_account`=1
             ORDER BY `op_id` DESC', $today);
         if($sel_data !== false and 0 < $sel_data->num_rows())
         {
             foreach($sel_data->result() as $row)
             {
-                $result['payments'][$i]['id']             = $row->op_id;
-                $result['payments'][$i]['order_id']       = $row->op_o_id;
-                $result['payments'][$i]['customer_email'] = $row->op_customer_email;
-                $result['payments'][$i]['customer_name']  = $row->op_customer_name;
-                $result['payments'][$i]['phone']  = $row->op_pt_phone;
-                $result['payments'][$i]['login']  = $row->op_pt_login;
-                $result['payments'][$i]['type']           = $row->op_payment_type;
-                $result['payments'][$i]['amount']         = $row->op_amount;
-                $result['payments'][$i]['currency']       = $row->op_currency;
-                $result['payments'][$i]['method_id']      = $row->op_payment_id;
-                $result['payments'][$i]['options']        = $row->op_payment_options;
-                $result['payments'][$i]['status']         = $row->op_status;
-                $result['payments'][$i]['user_email']     = $row->o_user_email;
+                $result['payments'][$i]['id']               = $row->op_id;
+                $result['payments'][$i]['order_id']         = $row->op_o_id;
+                $result['payments'][$i]['customer_email']   = $row->op_customer_email;
+                $result['payments'][$i]['customer_name']    = $row->op_customer_name;
+                $result['payments'][$i]['phone']            = $row->op_pt_phone;
+                $result['payments'][$i]['login']            = $row->op_pt_login;
+                $result['payments'][$i]['type']             = $row->op_payment_type;
+                $result['payments'][$i]['amount']           = $row->op_amount;
+                $result['payments'][$i]['currency']         = $row->op_currency;
+                $result['payments'][$i]['method_id']        = $row->op_payment_id;
+                $result['payments'][$i]['options']          = $row->op_payment_options;
+                $result['payments'][$i]['status']           = $row->op_status;
+                $result['payments'][$i]['user_email']       = $row->o_user_email;
+                $result['payments'][$i]['user_premium_end'] = $row->user_premium_end;
+                $result['payments'][$i]['premium_account']  = $row->ouc_premium_account;
 
                 $i++;
             }

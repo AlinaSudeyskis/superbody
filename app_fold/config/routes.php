@@ -61,6 +61,7 @@ $route['unsubscribe'] = 'Welcome/unsubscribe';
 
 // Авторизация, регистрация
 $route['registry']               = 'Authorization/registration';
+$route['registry/confirm/phone'] = 'Authorization/confirmRegistration';
 $route['login']                  = 'Authorization/login';
 $route['aRegistry']              = 'Authorization/ajaxUserRegistration';
 $route['aLogin']                 = 'Authorization/ajaxUserLogin';
@@ -422,11 +423,12 @@ $route['loginForm']              = 'Authorization/getLoginForm';
 $route['payment/verification']        = 'Payment/verificationSubsequentPayments';
 $route['course/coursesFreeWeeks']     = 'Course/checkUsersCoursesFreeWeeks';
 $route['course/usersWorkouts']        = 'Course/checkUsersWorkouts';
+$route['course/usersWorkoutsStatus']  = 'Course/checkUsersWorkoutsStatus';
 $route['course/usersExpiringCourses'] = 'Course/checkUsersExpiringCourses';
 $route['course/usersPausedCourses']   = 'Course/checkPausedUsersCourses';
 $route['course/revokedUsersCourses']  = 'Course/checkRevokedUsersCourses';
-$route['course/usersWorkoutsStatus']  = 'Course/checkUsersWorkoutsStatus';
 $route['course/blockUsersCourses']    = 'Course/blockUsersCourses';
 $route['users/delete']                = 'User/deleteUsers';
 $route['users/expiredPremiumAccount'] = 'User/checkExpiredPremiumAccount';
 $route['payment/premiumVerification'] = 'Payment/verificationPremiumAccounts';
+$route['payment/premiumList'] = 'Payment/premiumList';

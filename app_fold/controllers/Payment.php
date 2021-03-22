@@ -517,7 +517,7 @@ class Payment extends CI_Controller
                                 'description' => $order_items['name'],
                                 'quantity' => $order_items['cart_quantity'],
                                 'amount' => array(
-                                    'value' => $order_price,
+                                    'value' => $value,
                                     'currency' => $currency,
                                 ),
                                 'vat_code' => 1,
@@ -898,6 +898,25 @@ class Payment extends CI_Controller
 
         // Выборка и удаление платежей, не прошедшие успешную оплату в течении последней недели
         //$this->Payment_model->deleteCanceledPayments($week_ago);
+    }
+
+    /**
+     * Проверка наличия платежей для оплаты премиум аккаунта на выполнение
+     * @throws Exception
+     */
+    public function premiumList()
+    {
+        log_message('debug', __METHOD__.':'.__LINE__.' Script execution!');
+        $tmp_date = new DateTime($this->date);
+        // Текущая дата
+        $today = $tmp_date->format('Y-m-d');
+        // Дата неделю назад
+        $tmp_date->sub(new DateInterval('P8D'));
+        $week_ago = $tmp_date->format('Y-m-d');
+
+        // Список платежей на выполнение
+        $subsequent = $this->Payment_model->getPremiumPayments($today, $week_ago);
+        print_r($subsequent);
     }
 
     /**
