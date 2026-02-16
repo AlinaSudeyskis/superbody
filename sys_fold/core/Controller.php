@@ -49,8 +49,8 @@ use Sendpulse\RestApi\ApiClient;
 use Sendpulse\RestApi\Storage\FileStorage;
 
 // API credentials from https://login.sendpulse.com/settings/#api
-define('API_USER_ID', '1fffbf089fbc738f9e2e2a29006f83b6');
-define('API_SECRET', '028b7e8fd03b4e638fd33ad50726c117');
+define('API_USER_ID', '');
+define('API_SECRET', '');
 define('PATH_TO_ATTACH_FILE', __FILE__);
 
 /**
@@ -901,7 +901,7 @@ class CI_Controller {
             }
             elseif ($auth_via == 'facebook.com')
             {
-                $client_secret = 'c4730a166b67b5c5404fccabd7d3ae00';
+                $client_secret = '';
                 $appsecret_proof = hash_hmac('sha256', $access_token, $client_secret);
 
                 // Получение данный пользователя
@@ -925,8 +925,8 @@ class CI_Controller {
             }
             elseif ($auth_via == 'ok.ru')
             {
-                $app_key       = 'CBAQKKPLEBABABABA';
-                $client_secret = '7A370FC2FF713947EAAF9654';
+                $app_key       = '';
+                $client_secret = '';
 
                 $secret_key = md5($access_token . $client_secret);
                 $sig = md5('application_key=CBAQKKPLEBABABABAformat=jsonmethod=users.getCurrentUser' . $secret_key);
